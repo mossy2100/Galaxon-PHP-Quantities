@@ -1,0 +1,3 @@
+- Update conversion definitions to accept prefixed units. It's more useful that way. Then store the original conversion and the base unit conversion.
+- Work on the testConversion method until it gives you the conversion you want as early as possible without sacrificing precision.
+- Generate tests and documentation.
