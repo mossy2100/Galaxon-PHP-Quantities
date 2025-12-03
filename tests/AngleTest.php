@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\tests;
+namespace Galaxon\Units\Tests;
 
 use DivisionByZeroError;
 use Galaxon\Core\Floats;

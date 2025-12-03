@@ -49,15 +49,15 @@ class Temperature extends Measurement
     /**
      * Get the units for Temperature measurements.
      *
-     * @return array<string, bool> Array of units with boolean indicating if they accept prefixes.
+     * @return array<string, int> Array of units with allowed prefixes flags.
      */
     #[Override]
     public static function getBaseUnits(): array
     {
         return [
-            'K' => true,  // Kelvin (accepts metric prefixes)
-            'C' => false, // Celsius
-            'F' => false, // Fahrenheit
+            'K' => self::PREFIX_SET_METRIC,  // Kelvin
+            'C' => 0,  // Celsius
+            'F' => 0,  // Fahrenheit
         ];
     }
 
@@ -82,7 +82,8 @@ class Temperature extends Measurement
      * @return string
      */
     #[Override]
-    protected static function formatUnit(string $unit): string {
+    protected static function formatUnit(string $unit): string
+    {
         // Add the degree symbol for Celsius and Fahrenheit units.
         if ($unit === 'C' || $unit === 'F') {
             return '°' . $unit;

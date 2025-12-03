@@ -48,20 +48,19 @@ class Mass extends Measurement
     /**
      * Get the units for Mass measurements.
      *
-     * @return array<string, bool> Array of units with boolean indicating if they accept prefixes.
+     * @return array<string, int> Array of units with allowed prefixes flags.
      */
     #[Override]
     public static function getBaseUnits(): array
     {
         return [
-            'g' => true,    // gram (accepts metric prefixes)
-            't' => false,   // tonne
-            'gr' => false,  // grain
-            'oz' => false,  // ounce
-            'lb' => false,  // pound
-            'st' => false,  // stone
-            'cwt' => false, // hundredweight
-            'ton' => false, // ton
+            'g'   => self::PREFIX_SET_METRIC,        // gram
+            't'   => self::PREFIX_SET_LARGE_METRIC,  // tonne
+            'gr'  => 0,  // grain
+            'oz'  => 0,  // ounce
+            'lb'  => 0,  // pound
+            'st'  => 0,  // stone
+            'ton' => 0,  // ton
         ];
     }
 
@@ -74,8 +73,11 @@ class Mass extends Measurement
     public static function getConversions(): array
     {
         return [
-            ['t', 'g', 1e6],
+            // Metric.
+            ['t', 'kg', 1000],
+            // Metric-imperial bridge.
             ['lb', 'g', 453.59237],
+            // Imperial.
             ['lb', 'oz', 16],
             ['st', 'lb', 14],
             // Use US short ton by default.
@@ -86,13 +88,11 @@ class Mass extends Measurement
     /**
      * Use British (imperial) ton instead of US ton.
      *
-     * Default:
-     * - 1 ton = 2000 lb (short ton)
-     *
-     * After calling this method:
-     * - 1 ton = 2240 lb (long ton)
+     * Default:                   1 ton = 2000 lb (short ton)
+     * After calling this method: 1 ton = 2240 lb (long ton)
      */
-    public static function useBritishUnits(): void {
+    public static function useBritishUnits(): void
+    {
         // Update the conversion from ton to lb.
         self::getUnitConverter()->addConversion('ton', 'lb', 2240);
     }

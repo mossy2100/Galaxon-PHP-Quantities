@@ -9,40 +9,78 @@ use Galaxon\Core\Types;
 use LogicException;
 use ValueError;
 
+/**
+ * Manages unit conversions for a measurement type.
+ *
+ * This class handles:
+ * - Validation of base units, prefixes, and conversion definitions
+ * - Generation of prefixed units (e.g., 'km', 'mg', 'ms')
+ * - Storage and retrieval of conversion factors between units
+ * - Automatic discovery of indirect conversion paths via graph traversal
+ * - Prefix algebra for converting between prefixed units
+ *
+ * The conversion system works by:
+ * 1. Storing direct conversions provided in the configuration
+ * 2. Automatically inferring additional conversions through:
+ *    - Inversion (if a→b exists, compute b→a)
+ *    - Composition (if a→c and c→b exist, compute a→b)
+ * 3. Applying prefix adjustments when requested units have prefixes
+ *
+ * All conversions use the affine transformation formula: y = m*x + k
+ * where m is the multiplier and k is the offset (typically 0 except for temperature).
+ *
+ * Error tracking: Each conversion has an error score based on numerical precision.
+ * The system prefers shorter conversion paths with lower cumulative error.
+ */
 class UnitConverter
 {
+    private const bool DEBUG = false;
+
     // region Instance properties
 
     /**
-     * The base units for this converter.
+     * Base units with codes indicating allowed prefixes.
      *
-     * @var array<string, bool>
+     * Keys are unit symbols (e.g., 'm', 'g', 's').
+     * Values are integer codes indicating allowed prefixes.
+     *
+     * Example:
+     * [
+     *   'm' => Measurement::PREFIX_SET_METRIC,  // metre with metric prefixes
+     *   'ft' => 0,                               // foot with no prefixes
+     * ]
+     *
+     * @var array<string, int>
      */
     private array $baseUnits;
 
     /**
-     * The prefixes for this converter.
+     * Cached map of prefixed units to their components.
      *
-     * @var array<string, int|float>
-     */
-    private array $prefixes;
-
-    /**
-     * The prefixed units.
+     * Keys are prefixed unit strings (e.g., 'km', 'mg').
+     * Values are arrays: [prefix, baseUnit] (e.g., ['k', 'm']).
+     *
+     * Generated automatically by combining prefixes with prefix-capable base units.
      *
      * @var array<string, string[]>
      */
     private array $prefixedUnits;
 
     /**
-     * Conversions between units.
+     * Conversion matrix storing known conversions between units.
+     *
+     * Structure: $conversions[initUnit][finUnit] = Conversion
+     * Includes both explicitly defined conversions and generated ones.
      *
      * @var array<string, array<string, Conversion>>
      */
     private array $conversions = [];
 
     /**
-     * The original conversion definitions, for re-importing as needed.
+     * Original conversion definitions from configuration.
+     *
+     * Each element is an array: [initUnit, finUnit, multiplier, offset?]
+     * Preserved for re-initialization when units or prefixes change.
      *
      * @var array<int, array>
      */
@@ -55,46 +93,44 @@ class UnitConverter
     /**
      * Constructor.
      *
-     * Validates the Measurement-derived class setup and initializes the unit conversion system.
+     * Initializes the unit conversion system with validation of all configuration.
      *
-     * @param array<string, bool> $baseUnits The units with prefix capability flags.
-     * @param array<string, int|float> $prefixes The available prefixes and their multipliers.
-     * @param array<int, array> $conversionDefinitions The conversion definitions.
-     * @throws LogicException If the class is not properly set up.
+     * Validation includes:
+     * - Base units must be non-empty with string keys and int values.
+     * - Conversion definitions must have 3-4 elements each.
+     * - Unit symbols in conversions must be valid (base or prefixed units).
+     * - Multipliers must be non-zero numbers.
+     * - Offsets (if present) must be numbers.
+     *
+     * @param array<string, int> $baseUnits Base units with their allowed prefixes code.
+     * @param array<int, array> $conversionDefinitions Conversion definitions.
+     * @throws LogicException If any validation check fails.
      */
-    public function __construct(array $baseUnits, array $prefixes, array $conversionDefinitions)
+    public function __construct(array $baseUnits, array $conversionDefinitions)
     {
-        // Validate the units.
+        // Validate the unit prefixes structure.
         if (empty($baseUnits)) {
-            throw new LogicException('Base units must be a non-empty array.');
+            throw new LogicException('Unit prefixes must be a non-empty array.');
         }
 
-        // Make sure the units have string keys and boolean values.
-        foreach ($baseUnits as $unit => $canHavePrefix) {
-            if (!is_string($unit)) {
+        // Validate each unit and its prefix set.
+        foreach ($baseUnits as $baseUnit => $prefixSetCode) {
+            if (!is_string($baseUnit)) {
                 throw new LogicException('All units must be strings.');
             }
-            if (!is_bool($canHavePrefix)) {
-                throw new LogicException('All units must have a boolean value indicating whether they can have a prefix.');
+            if (!is_int($prefixSetCode)) {
+                throw new LogicException('All codes indicating prefix sets must be integers.');
             }
         }
 
-        // Make sure the prefixes have string keys and number values.
-        foreach ($prefixes as $prefix => $multiplier) {
-            if (!is_string($prefix)) {
-                throw new LogicException('All prefixes must be strings.');
-            }
-            if (!Types::isNumber($multiplier)) {
-                throw new LogicException('All prefix multipliers must be numbers (int or float).');
-            }
-        }
-
-        // Store the units and prefixes first, before generating prefixed units.
+        // Store the unit prefixes.
         $this->baseUnits = $baseUnits;
-        $this->prefixes = $prefixes;
 
         // Generate the units with prefixes.
-        $this->resetUnitsWithPrefixes();
+        $this->resetPrefixedUnits();
+
+        // Get all valid units (base units and prefixed units) for validation.
+        $validUnits = $this->getValidUnits();
 
         // Check all conversions have the right structure.
         foreach ($conversionDefinitions as $conversion) {
@@ -108,16 +144,16 @@ class UnitConverter
             if (!is_string($conversion[0])) {
                 throw new LogicException('Initial unit in conversion must be a string.');
             }
-            if (!array_key_exists($conversion[0], $baseUnits)) {
-                throw new LogicException("Initial unit '{$conversion[0]}' in conversion is not a base unit. Conversions must only reference base units (without prefixes).");
+            if (!in_array($conversion[0], $validUnits, true)) {
+                throw new LogicException("Initial unit '{$conversion[0]}' in conversion is not a valid unit. Valid units include base units and units with prefixes.");
             }
 
             // Validate the final unit.
             if (!is_string($conversion[1])) {
                 throw new LogicException('Final unit in conversion must be a string.');
             }
-            if (!array_key_exists($conversion[1], $baseUnits)) {
-                throw new LogicException("Final unit '{$conversion[1]}' in conversion is not a base unit. Conversions must only reference base units (without prefixes).");
+            if (!in_array($conversion[1], $validUnits, true)) {
+                throw new LogicException("Final unit '{$conversion[1]}' in conversion is not a valid unit. Valid units include base units and units with prefixes.");
             }
 
             // Validate the multiplier (which must be positive).
@@ -139,6 +175,9 @@ class UnitConverter
 
         // Import the conversions.
         $this->resetConversions();
+
+        // DEBUG
+//        $this->completeMatrix();
     }
 
     // endregion
@@ -146,26 +185,32 @@ class UnitConverter
     // region Reset methods
 
     /**
-     * Update the prefixed units, which is an array mapping the prefixed unit to an array with the prefix and the unit.
+     * Generate all valid prefixed units from base units and their allowed prefixes.
+     *
+     * Populates the $prefixedUnits cache by combining each base unit with its allowed prefixes.
+     * Called automatically when base units or prefixes are modified.
      *
      * @return void
      */
-    public function resetUnitsWithPrefixes(): void
+    public function resetPrefixedUnits(): void
     {
         $this->prefixedUnits = [];
-        foreach ($this->baseUnits as $baseUnit => $canHavePrefix) {
-            if ($canHavePrefix) {
-                foreach ($this->prefixes as $prefix => $factor) {
-                    $this->prefixedUnits[$prefix . $baseUnit] = [$prefix, $baseUnit];
-                }
+        foreach ($this->baseUnits as $baseUnit => $prefixSetCode) {
+            $prefixes = Measurement::getPrefixes($prefixSetCode);
+            foreach ($prefixes as $prefix => $multiplier) {
+                $this->prefixedUnits[$prefix . $baseUnit] = [$prefix, $baseUnit];
             }
         }
     }
 
     /**
-     * Reset the conversion matrix and regenerate it from the current conversion definitions.
+     * Rebuild the conversion matrix from conversion definitions.
      *
-     * This is called automatically whenever units, prefixes or conversions are modified.
+     * Clears all existing conversions and recreates them from the stored definitions.
+     * For prefixed unit conversions, also generates corresponding base unit conversions
+     * needed by the pathfinding algorithm.
+     *
+     * Called automatically when units, prefixes, or conversions are modified.
      *
      * @return void
      */
@@ -175,15 +220,39 @@ class UnitConverter
         $this->conversions = [];
 
         // Initialize the conversion matrix from the supplied conversion definition arrays.
-        // Note: Conversion definitions only contain base units (validated in constructor).
+        // Note: Conversion definitions can now contain base units or units with prefixes.
         foreach ($this->conversionDefinitions as $conversionDefinition) {
             // Deconstruct the conversion into local variables.
             [$initUnit, $finUnit, $multiplier] = $conversionDefinition;
             // The offset is optional, defaults to 0.
             $offset = $conversionDefinition[3] ?? 0;
 
-            // Create and store the conversion.
-            $this->conversions[$initUnit][$finUnit] = new Conversion($initUnit, $finUnit, $multiplier, $offset);
+            // Create and store the conversion as defined (may include prefixed units).
+            $prefixedConversion = new Conversion($initUnit, $finUnit, $multiplier, $offset);
+            $this->conversions[$initUnit][$finUnit] = $prefixedConversion;
+            if (self::DEBUG) {
+                echo "New conversion from definition: $prefixedConversion\n";
+            }
+
+            // If either unit has a prefix, also store the conversion between base units.
+            // This is needed for the conversion generator algorithm.
+            [$initPrefix, $initBase] = $this->getUnitComponents($initUnit);
+            [$finPrefix, $finBase] = $this->getUnitComponents($finUnit);
+
+            // Only create base conversion if at least one unit has a prefix and base units are different.
+            if (!isset($this->conversions[$initBase][$finBase]) && ($initPrefix !== null || $finPrefix !== null) &&
+                $initBase !== $finBase) {
+
+                // Use alterPrefixes() to create the base conversion (no prefixes).
+                // This ensures proper error management.
+                $baseConversion = $this->alterPrefixes($prefixedConversion, null, null);
+
+                // Store the base unit conversion.
+                $this->conversions[$initBase][$finBase] = $baseConversion;
+                if (self::DEBUG) {
+                    echo "New conversion from definition: $baseConversion\n";
+                }
+            }
         }
     }
 
@@ -192,9 +261,15 @@ class UnitConverter
     // region Methods for working with units
 
     /**
-     * Get all valid units including base units and prefixed units.
+     * Get all valid unit symbols.
      *
-     * @return string[] List of all valid units.
+     * Returns both base units and all prefixed variations.
+     *
+     * @return string[] Array of valid unit symbols.
+     *
+     * @example
+     *   // If base units are ['m', 'ft'] and 'm' can have prefixes ['k', 'c']
+     *   // Returns: ['m', 'ft', 'km', 'cm']
      */
     public function getValidUnits(): array
     {
@@ -202,44 +277,66 @@ class UnitConverter
     }
 
     /**
-     * Break down a unit into a prefix (if present) and a base unit.
+     * Decompose a unit symbol into prefix and base unit.
      *
-     * @param string $unit The unit to break down into components.
-     * @return array<?string> The parts of the unit.
+     * Returns [prefix, baseUnit] if the unit has a prefix, or [null, unit] otherwise.
+     *
+     * @param string $unit The unit symbol to decompose.
+     * @return array{0: string|null, 1: string} Tuple of [prefix, baseUnit].
+     *
+     * @example
+     *   getUnitComponents('km')  // ['k', 'm']
+     *   getUnitComponents('m')   // [null, 'm']
+     *   getUnitComponents('ft')  // [null, 'ft']
      */
     public function getUnitComponents(string $unit): array
     {
+        $this->checkUnitIsValid($unit);
         return $this->prefixedUnits[$unit] ?? [null, $unit];
     }
 
     /**
-     * Validate that a unit is valid, throwing an exception if not.
+     * Get the multiplier for a prefix.
      *
-     * @param string $unit The unit to validate.
+     * @param string|null $prefix The prefix symbol (or null for no prefix).
+     * @return float The multiplier (1.0 if prefix is null).
+     * @throws ValueError If the prefix is invalid.
+     */
+    private function getPrefixMultiplier(?string $prefix): float
+    {
+        // Handle null case.
+        if ($prefix === null) {
+            return 1.0;
+        }
+
+        // Get all the prefix codes and multipliers.
+        $prefixes = Measurement::getPrefixes(Measurement::PREFIX_SET_ALL);
+
+        // Throw if prefix unknown.
+        if (!isset($prefixes[$prefix])) {
+            throw new ValueError("Prefix '{$prefix}' is not a valid prefix.");
+        }
+
+        // Return the multiplier.
+        return $prefixes[$prefix];
+    }
+
+    /**
+     * Validate a unit symbol and throw an exception if invalid.
+     *
+     * Provides a helpful error message listing valid units with and without prefix support.
+     *
+     * @param string $unit The unit symbol to validate.
      * @return void
-     * @throws ValueError If the unit is not valid.
+     * @throws ValueError If the unit is not recognized.
      */
     public function checkUnitIsValid(string $unit): void
     {
         if (!in_array($unit, $this->getValidUnits(), true)) {
-            // Generate a useful message.
-            $baseUnits = $this->baseUnits;
-            $unitsPrefixNotOk = [];
-            $unitsPrefixOk = [];
-            foreach ($baseUnits as $baseUnit => $canHavePrefix) {
-                if ($canHavePrefix === true) {
-                    $unitsPrefixOk[] = $baseUnit;
-                } else {
-                    $unitsPrefixNotOk[] = $baseUnit;
-                }
-            }
-
-            $wrapQuotes = static fn($unit) => "'$unit'";
-            $strUnitsNoPrefix = implode(', ', array_map($wrapQuotes, $unitsPrefixNotOk));
-            $strUnitsPrefixOk = implode(', ', array_map($wrapQuotes, $unitsPrefixOk));
-            throw new ValueError("Invalid unit '$unit'. Valid units that may have a metric or other " .
-                                 "multiplier prefix: $strUnitsPrefixOk. Valid units that may not have a prefix: " .
-                                 "$strUnitsNoPrefix.");
+            $quotedBaseUnits = array_map(static fn($unit) => "'$unit'", array_keys($this->baseUnits));
+            $strUnits = implode(', ', $quotedBaseUnits);
+            throw new ValueError("Invalid unit '$unit'. Valid base units: $strUnits. " .
+                                 'Some units may be used with a metric or binary prefix.');
         }
     }
 
@@ -247,56 +344,105 @@ class UnitConverter
 
     // region Methods for finding and doing conversions
 
-    private static function testNewConversion(
-        string $initSearch,
-        string $finSearch,
-        string $initUnit,
-        string $finUnit,
-        ?string $commonUnit,
-        Conversion $conversion1,
-        ?Conversion $conversion2,
-        Conversion $newConversion,
-        string $operation,
-        int &$minErrScore,
-        ?array &$best
-    ): bool
+    /**
+     * Create a new conversion with different prefixes applied.
+     *
+     * Takes an existing conversion between units and adjusts the multiplier and offset
+     * to account for changing the prefixes while keeping the base units unchanged.
+     *
+     * Uses NumberWithError arithmetic to properly propagate error scores through
+     * the prefix adjustment calculation.
+     *
+     * @param Conversion $conversion The original conversion.
+     * @param string|null $newInitPrefix The desired initial unit prefix (null for no prefix).
+     * @param string|null $newFinPrefix The desired final unit prefix (null for no prefix).
+     * @return Conversion A new conversion with adjusted parameters for the prefixed units.
+     * @throws ValueError If either prefix is invalid.
+     *
+     * @example
+     *   // Given conversion: m→ft with multiplier 3.28084
+     *   // alterPrefixes(..., 'k', null) produces: km→ft with multiplier 3280.84
+     */
+    private function alterPrefixes(Conversion $conversion, ?string $newInitPrefix, ?string $newFinPrefix): Conversion
     {
-        // If either unit in the new conversion matches either the initial or final unit we're searching for, reduce
-        // the error score by 1 to favour it.
-        $newConversionError = $newConversion->error;
-        if ($newConversion->initialUnit === $initSearch || $newConversion->initialUnit === $finSearch ||
-            $newConversion->finalUnit === $initSearch || $newConversion->finalUnit === $finSearch) {
-            --$newConversionError;
-        }
+        // Get current unit components.
+        [$currentInitPrefix, $currentInitBase] = $this->getUnitComponents($conversion->initialUnit);
+        [$currentFinPrefix, $currentFinBase] = $this->getUnitComponents($conversion->finalUnit);
 
-        // Let's see if we have a new best.
-        if ($newConversionError < $minErrScore) {
-            $minErrScore = $newConversion->error;
-            $best = [
-                'initialUnit'   => $initUnit,
-                'finalUnit'     => $finUnit,
-                'commonUnit'    => $commonUnit,
-                'conversion1'   => $conversion1,
-                'conversion2'   => $conversion2,
-                'newConversion' => $newConversion,
-                'operation'     => $operation,
-            ];
-            return true;
-        }
-        return false;
+        // Get current prefix multipliers (default to 1.0 if no prefix).
+        $currentInitMultiplier = $this->getPrefixMultiplier($currentInitPrefix);
+        $currentFinMultiplier = $this->getPrefixMultiplier($currentFinPrefix);
+
+        // Get new prefix multipliers (default to 1.0 if no prefix).
+        $newInitMultiplier = $this->getPrefixMultiplier($newInitPrefix);
+        $newFinMultiplier = $this->getPrefixMultiplier($newFinPrefix);
+
+        // Calculate adjustments.
+        $multiplierAdjustment = new NumberWithError(($currentFinMultiplier * $newInitMultiplier) /
+                                          ($newFinMultiplier * $currentInitMultiplier));
+        $offsetAdjustment = new NumberWithError($currentFinMultiplier / $newFinMultiplier);
+
+        // Apply the adjustments to the multiplier and offset using NumberWithError for proper error tracking.
+        $newMultiplier = $conversion->multiplier->mul($multiplierAdjustment);
+        $newOffset = $conversion->offset->mul($offsetAdjustment);
+
+        // Construct the new unit names.
+        $newInitUnit = ($newInitPrefix ?? '') . $currentInitBase;
+        $newFinUnit = ($newFinPrefix ?? '') . $currentFinBase;
+
+        // Create and return the new conversion with updated units and multiplier.
+        return new Conversion($newInitUnit, $newFinUnit, $newMultiplier, $newOffset);
     }
 
     /**
-     * Traverse the matrix to find the next best conversion to add to the matrix and add it, if found.
+     * Generate the next best conversion by traversing the conversion graph.
      *
-     * @return bool True if a new conversion was added, false otherwise.
+     * Uses a best-first search strategy to find new conversions by:
+     * - Inverting existing conversions (if a→b exists, compute b→a)
+     * - Composing conversions through common units (if a→c and c→b exist, compute a→b)
+     *
+     * Selects the conversion with the lowest error score to add to the matrix.
+     * Error scores guide the search toward shorter, more accurate paths.
+     *
+     * @param string|null $initSearch Optional target initial unit (unused, for future optimization).
+     * @param string|null $finSearch Optional target final unit (unused, for future optimization).
+     * @return bool True if a new conversion was found and added, false if none remain.
      */
-    private function generateNextConversion(string $initSearch, string $finSearch): bool
+    private function generateNextConversion(?string $initSearch = null, ?string $finSearch = null): bool
     {
         $minErrScore = PHP_INT_MAX;
         $best = null;
         $baseUnits = array_keys($this->baseUnits);
+        $initUnit = '';
+        $finUnit = '';
+        $commonUnit = '';
 
+        // Test function. This will help us keep track of the best conversion found so far.
+        $testNewConversion = function (
+            Conversion $conversion1,
+            ?Conversion $conversion2,
+            Conversion $newConversion,
+            string $operation
+        ) use (&$initUnit, &$finUnit, &$commonUnit, &$minErrScore, &$best): bool {
+            // Let's see if we have a new best.
+            if ($newConversion->error < $minErrScore) {
+                $minErrScore = $newConversion->error;
+                $best = [
+                    'initialUnit'   => $initUnit,
+                    'finalUnit'     => $finUnit,
+                    'commonUnit'    => $commonUnit,
+                    'conversion1'   => $conversion1,
+                    'conversion2'   => $conversion2,
+                    'newConversion' => $newConversion,
+                    'operation'     => $operation,
+                    'errScore'      => $minErrScore,
+                ];
+                return true;
+            }
+            return false;
+        };
+
+        // Iterate through all possible pairs of base units.
         foreach ($baseUnits as $initUnit) {
             foreach ($baseUnits as $finUnit) {
                 // If this conversion is already known, continue.
@@ -308,8 +454,7 @@ class UnitConverter
                 if (isset($this->conversions[$finUnit][$initUnit])) {
                     $conversion = $this->conversions[$finUnit][$initUnit];
                     $newConversion = $conversion->invert();
-                    self::testNewConversion($initSearch, $finSearch, $initUnit, $finUnit, null, $conversion, null,
-                        $newConversion, 'inversion', $minErrScore, $best);
+                    $testNewConversion($conversion, null, $newConversion, 'inversion');
                 }
 
                 // Look for a conversion opportunity via a common unit.
@@ -329,29 +474,25 @@ class UnitConverter
                     // Combine initial->common with common->final.
                     if ($initToCommon !== null && $commonToFin !== null) {
                         $newConversion = $initToCommon->combine1($commonToFin);
-                        self::testNewConversion($initSearch, $finSearch, $initUnit, $finUnit, $commonUnit, $initToCommon, $commonToFin,
-                            $newConversion, 'combination (method 1)', $minErrScore, $best);
+                        $testNewConversion($initToCommon, $commonToFin, $newConversion, 'combination (method 1)');
                     }
 
                     // Combine initial->common with final->common.
                     if ($initToCommon !== null && $finToCommon !== null) {
                         $newConversion = $initToCommon->combine2($finToCommon);
-                        self::testNewConversion($initSearch, $finSearch, $initUnit, $finUnit, $commonUnit, $initToCommon, $finToCommon,
-                            $newConversion, 'combination (method 2)', $minErrScore, $best);
+                        $testNewConversion($initToCommon, $finToCommon, $newConversion, 'combination (method 2)');
                     }
 
                     // Combine common->initial with common->final
                     if ($commonToInit !== null && $commonToFin !== null) {
                         $newConversion = $commonToInit->combine3($commonToFin);
-                        self::testNewConversion($initSearch, $finSearch, $initUnit, $finUnit, $commonUnit, $commonToInit, $commonToFin,
-                            $newConversion, 'combination (method 3)', $minErrScore, $best);
+                        $testNewConversion($commonToInit, $commonToFin, $newConversion, 'combination (method 3)');
                     }
 
                     // Combine common->initial with final->common
                     if ($commonToInit !== null && $finToCommon !== null) {
                         $newConversion = $commonToInit->combine4($finToCommon);
-                        self::testNewConversion($initSearch, $finSearch, $initUnit, $finUnit, $commonUnit, $commonToInit, $finToCommon,
-                            $newConversion, 'combination (method 4)', $minErrScore, $best);
+                        $testNewConversion($commonToInit, $finToCommon, $newConversion, 'combination (method 4)');
                     }
                 }
             }
@@ -363,19 +504,22 @@ class UnitConverter
 
             // *********************************************************************************************************
             // DEBUGGING
-            $description =
-                "New conversion for {$best['initialUnit']} to {$best['finalUnit']} found by {$best['operation']}:\n";
-            if ($best['operation'] === 'inversion') {
-                $description .=
-                    "  Original conversion: {$best['conversion1']}\n" .
-                    "       New conversion: {$best['newConversion']}\n";
-            } else {
-                $description .=
-                    "         Conversion 1: {$best['conversion1']}\n" .
-                    "         Conversion 2: {$best['conversion2']}\n" .
-                    "       New conversion: {$best['newConversion']}\n";
+            if (self::DEBUG) {
+                $description =
+                    "\nNew conversion for {$best['initialUnit']} to {$best['finalUnit']} found by {$best['operation']}:\n";
+                if ($best['operation'] === 'inversion') {
+                    $description .=
+                        " Original conversion: {$best['conversion1']}\n" .
+                        "      New conversion: {$best['newConversion']}\n";
+                } else {
+                    $description .=
+                        "        Conversion 1: {$best['conversion1']}\n" .
+                        "        Conversion 2: {$best['conversion2']}\n" .
+                        "      New conversion: {$best['newConversion']}\n";
+                }
+                $description .= "      Absolute error: {$best['errScore']}\n";
+                echo $description;
             }
-            echo $description, PHP_EOL;
             // *********************************************************************************************************
 
             return true;
@@ -385,15 +529,33 @@ class UnitConverter
     }
 
     /**
-     * Get the conversion factor between two units.
+     * Get or compute the conversion between two units.
      *
-     * @param string $initUnit The initial unit.
-     * @param string $finUnit The final unit.
-     * @return Conversion The conversion factor.
-     * @throws LogicException If no conversion between the units could be found.
+     * Returns the Conversion object representing the transformation from initUnit to finUnit.
+     * The conversion may be:
+     * - Retrieved from cache if previously computed
+     * - A unity conversion if units are identical
+     * - A prefix-only adjustment if units share the same base
+     * - Generated by pathfinding through the conversion graph
+     *
+     * Generated conversions are cached for future use.
+     *
+     * @param string $initUnit The source unit symbol.
+     * @param string $finUnit The target unit symbol.
+     * @return Conversion The conversion transformation.
+     * @throws ValueError If either unit is invalid.
+     * @throws LogicException If no conversion path exists between the units.
+     *
+     * @example
+     *   $conversion = $converter->getConversion('m', 'ft');
+     *   $feet = $conversion->apply(10);  // Convert 10 meters to feet
      */
     public function getConversion(string $initUnit, string $finUnit): Conversion
     {
+        // Check units are valid.
+        $this->checkUnitIsValid($initUnit);
+        $this->checkUnitIsValid($finUnit);
+
         // Handle simple case.
         if ($initUnit === $finUnit) {
             return new Conversion($initUnit, $finUnit, 1);
@@ -418,6 +580,9 @@ class UnitConverter
         } else {
             // Keep generating new conversions until we find the conversion between the base units, or we run
             // out of options.
+            if (self::DEBUG) {
+                echo "SEARCH FOR CONVERSION BETWEEN '$initBase' AND '$finBase'\n";
+            }
             do {
                 $result = $this->generateNextConversion($initBase, $finBase);
             } while (!isset($this->conversions[$initBase][$finBase]) && $result);
@@ -438,9 +603,7 @@ class UnitConverter
         }
 
         // Apply prefixes.
-        $initialPrefixMultiplier = $initPrefix !== null ? $this->prefixes[$initPrefix] : 1.0;
-        $finalPrefixMultiplier = $finPrefix !== null ? $this->prefixes[$finPrefix] : 1.0;
-        $conversion = $conversion->applyPrefixes($initUnit, $finUnit, $initialPrefixMultiplier, $finalPrefixMultiplier);
+        $conversion = $this->alterPrefixes($conversion, $initPrefix, $finPrefix);
 
         // Cache and return the new conversion.
         $this->conversions[$initUnit][$finUnit] = $conversion;
@@ -448,14 +611,21 @@ class UnitConverter
     }
 
     /**
-     * Convert a value from one unit to another.
+     * Convert a numeric value from one unit to another.
+     *
+     * Validates both unit symbols, retrieves or computes the conversion,
+     * and applies it to the value using the formula: y = m*x + k
      *
      * @param float $value The value to convert.
-     * @param string $initUnit The initial unit.
-     * @param string $finUnit The final unit.
+     * @param string $initUnit The source unit symbol.
+     * @param string $finUnit The target unit symbol.
      * @return float The converted value.
-     * @throws ValueError If either unit is invalid.
-     * @throws LogicException If no conversion between the units could be found.
+     * @throws ValueError If either unit symbol is invalid.
+     * @throws LogicException If no conversion path exists between the units.
+     *
+     * @example
+     *   $meters = 100;
+     *   $feet = $converter->convert($meters, 'm', 'ft');  // 328.084
      */
     public function convert(float $value, string $initUnit, string $finUnit): float
     {
@@ -463,11 +633,8 @@ class UnitConverter
         $this->checkUnitIsValid($initUnit);
         $this->checkUnitIsValid($finUnit);
 
-        // Get the conversion.
-        $conversion = $this->getConversion($initUnit, $finUnit);
-
-        // Convert the value. y = mx + k
-        return $value * $conversion->multiplier->value + $conversion->offset->value;
+        // Get the conversion and convert the value. y = mx + k
+        return $this->getConversion($initUnit, $finUnit)->apply($value);
     }
 
     // endregion
@@ -475,21 +642,25 @@ class UnitConverter
     // region Dynamic modification methods
 
     /**
-     * Add or update a unit.
+     * Add or update a base unit in the system.
      *
-     * @param string $unit The unit symbol.
-     * @param bool $canHavePrefix Whether the unit can have a prefix (default false).
+     * Triggers regeneration of prefixed units and conversion matrix.
+     *
+     * @param string $unit The unit symbol to add.
+     * @param int $prefixSetCode Code indicating allowed prefixes for this unit (e.g. Measurement::PREFIX_SET_METRIC).
      * @return void
      */
-    public function addBaseUnit(string $unit, bool $canHavePrefix = false): void
+    public function addBaseUnit(string $unit, int $prefixSetCode): void
     {
-        $this->baseUnits[$unit] = $canHavePrefix;
-        $this->resetUnitsWithPrefixes();
+        $this->baseUnits[$unit] = $prefixSetCode;
+        $this->resetPrefixedUnits();
         $this->resetConversions();
     }
 
     /**
-     * Remove a unit.
+     * Remove a base unit from the system.
+     *
+     * Triggers regeneration of prefixed units and conversion matrix.
      *
      * @param string $unit The unit symbol to remove.
      * @return void
@@ -497,44 +668,22 @@ class UnitConverter
     public function removeBaseUnit(string $unit): void
     {
         unset($this->baseUnits[$unit]);
-        $this->resetUnitsWithPrefixes();
+        $this->resetPrefixedUnits();
         $this->resetConversions();
     }
 
     /**
-     * Add or update a prefix.
+     * Add or update a conversion definition.
      *
-     * @param string $prefix The prefix symbol.
-     * @param int|float $multiplier The multiplier for this prefix.
-     * @return void
-     */
-    public function addPrefix(string $prefix, int|float $multiplier): void
-    {
-        $this->prefixes[$prefix] = $multiplier;
-        $this->resetUnitsWithPrefixes();
-        $this->resetConversions();
-    }
-
-    /**
-     * Remove a prefix.
+     * If a conversion between the same units already exists, it will be updated.
+     * Otherwise, a new conversion is added.
      *
-     * @param string $prefix The prefix symbol to remove.
-     * @return void
-     */
-    public function removePrefix(string $prefix): void
-    {
-        unset($this->prefixes[$prefix]);
-        $this->resetUnitsWithPrefixes();
-        $this->resetConversions();
-    }
-
-    /**
-     * Add or update a conversion between two units.
+     * Triggers rebuilding of the conversion matrix.
      *
-     * @param string $initUnit The initial unit.
-     * @param string $finUnit The final unit.
-     * @param int|float $multiplier The multiplier.
-     * @param int|float $offset The offset (default 0).
+     * @param string $initUnit The source unit symbol.
+     * @param string $finUnit The target unit symbol.
+     * @param int|float $multiplier The scale factor.
+     * @param int|float $offset The additive offset (default 0).
      * @return void
      */
     public function addConversion(string $initUnit, string $finUnit, int|float $multiplier, int|float $offset = 0): void
@@ -559,10 +708,12 @@ class UnitConverter
     }
 
     /**
-     * Remove a conversion between two units.
+     * Remove a conversion definition.
      *
-     * @param string $initUnit The initial unit.
-     * @param string $finUnit The final unit.
+     * Triggers rebuilding of the conversion matrix.
+     *
+     * @param string $initUnit The source unit symbol.
+     * @param string $finUnit The target unit symbol.
      * @return void
      */
     public function removeConversion(string $initUnit, string $finUnit): void
@@ -579,12 +730,13 @@ class UnitConverter
     // region Matrix-level methods
 
     /**
-     * Traverse the matrix repeatedly using a best-first search until all the positions are filled or we run out of
-     * options.
+     * Generate all possible conversions by exhaustive graph traversal.
      *
-     * NB: This method may be removed. For now, we are exiting the loop in getConversion() as soon as the desired one
-     * is found. Generating a complete matrix of conversions could be inefficient for some measurement types and
-     * unlikely to be necessary for most use cases.
+     * Repeatedly calls generateNextConversion() until no more conversions can be found.
+     * This creates a complete conversion matrix for all unit pairs.
+     *
+     * Note: This method is primarily for debugging. Normal operation uses lazy generation
+     * in getConversion(), which is more efficient as it only computes needed conversions.
      *
      * @return void
      */

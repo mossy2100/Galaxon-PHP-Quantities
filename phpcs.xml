@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="Galaxon Units">
+<ruleset name="Galaxon">
     <description>Coding standard for Galaxon libraries</description>
 
     <!-- Paths to check -->

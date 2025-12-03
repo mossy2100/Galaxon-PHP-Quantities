@@ -14,24 +14,24 @@ class Volume extends Measurement
     /**
      * Get the units for Volume measurements.
      *
-     * @return array<string, bool> Array of units with boolean indicating if they accept prefixes.
+     * @return array<string, int> Array of units with allowed prefixes flags.
      */
     #[Override]
     public static function getBaseUnits(): array
     {
         return [
-            'm3' => true,    // cubic metre (accepts metric prefixes)
-            'L' => true,     // litre (accepts metric prefixes)
-            'in3' => false,  // cubic inch
-            'ft3' => false,  // cubic foot
-            'yd3' => false,  // cubic yard
-            'gal' => false,  // gallon
-            'qt' => false,   // quart
-            'pt' => false,   // pint
-            'c' => false,    // cup
-            'fl oz' => false, // fluid ounce
-            'tbsp' => false, // tablespoon
-            'tsp' => false,  // teaspoon
+            'm3'    => self::PREFIX_SET_METRIC,  // cubic metre
+            'L'     => self::PREFIX_SET_METRIC,  // litre
+            'in3'   => 0,  // cubic inch
+            'ft3'   => 0,  // cubic foot
+            'yd3'   => 0,  // cubic yard
+            'gal'   => 0,  // gallon
+            'qt'    => 0,  // quart
+            'pt'    => 0,  // pint
+            'c'     => 0,  // cup
+            'fl oz' => 0,  // fluid ounce
+            'tbsp'  => 0,  // tablespoon
+            'tsp'   => 0,  // teaspoon
         ];
     }
 
@@ -41,7 +41,8 @@ class Volume extends Measurement
      * @return array<string, int|float>
      */
     #[Override]
-    public static function getPrefixes(): array {
+    public static function getPrefixes(): array
+    {
         // Cube the metric prefixes to get the valid Volume prefixes.
         $validPrefixes = self::METRIC_PREFIXES;
         foreach ($validPrefixes as $prefix => $factor) {
@@ -59,8 +60,11 @@ class Volume extends Measurement
     public static function getConversions(): array
     {
         return [
+            // Metric.
             ['m3', 'L', 1000],
+            // Metric-imperial bridge.
             ['in3', 'mL', 16.387064],
+            // Imperial.
             ['ft3', 'in3', 1728],
             ['yd3', 'ft3', 27],
             ['gal', 'qt', 4],

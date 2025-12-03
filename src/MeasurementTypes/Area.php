@@ -14,19 +14,19 @@ class Area extends Measurement
     /**
      * Get the units for Area measurements.
      *
-     * @return array<string, bool> Array of units with boolean indicating if they accept prefixes.
+     * @return array<string, int> Array of units with allowed prefixes flags.
      */
     #[Override]
     public static function getBaseUnits(): array
     {
         return [
-            'm2' => true,   // square metre (accepts metric prefixes)
-            'ha' => false,  // hectare
-            'ac' => false,  // acre
-            'mi2' => false, // square mile
-            'yd2' => false, // square yard
-            'ft2' => false, // square foot
-            'in2' => false, // square inch
+            'm2'  => self::PREFIX_SET_METRIC,  // square metre
+            'ha'  => 0,  // hectare
+            'ac'  => 0,  // acre
+            'mi2' => 0,  // square mile
+            'yd2' => 0,  // square yard
+            'ft2' => 0,  // square foot
+            'in2' => 0,  // square inch
         ];
     }
 
@@ -36,7 +36,8 @@ class Area extends Measurement
      * @return array<string, int|float>
      */
     #[Override]
-    public static function getPrefixes(): array {
+    public static function getPrefixes(): array
+    {
         // Square the metric prefixes to get the valid Area prefixes.
         $validPrefixes = self::METRIC_PREFIXES;
         foreach ($validPrefixes as $prefix => $factor) {
@@ -54,8 +55,11 @@ class Area extends Measurement
     public static function getConversions(): array
     {
         return [
+            // Metric.
             ['ha', 'm2', 10000],
+            // Metric-imperial bridge.
             ['ac', 'm2', 4046.8564224],
+            // Imperial.
             ['mi2', 'ac', 640],
             ['ac', 'yd2', 4840],
             ['yd2', 'ft2', 9],

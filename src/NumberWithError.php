@@ -5,273 +5,277 @@ declare(strict_types=1);
 namespace Galaxon\Units;
 
 use DivisionByZeroError;
-use Galaxon\Core\Floats;
-use Galaxon\Core\Numbers;
 
 /**
- * Represents a numeric value with an associated error score.
+ * Represents a floating-point number with tracked absolute error.
  *
- * The error score is a heuristic measure of accumulated floating-point error,
- * used to find optimal conversion paths through unit conversion graphs.
- * Lower scores indicate more exact values.
+ * This class propagates numerical errors through arithmetic operations,
+ * providing a way to track precision loss in calculations.
  */
 class NumberWithError
 {
-    public readonly int|float $value;
+    /**
+     * The numeric value.
+     *
+     * @var float
+     */
+    private(set) float $value;
 
-    public readonly int $error;
+    /**
+     * The absolute error (uncertainty) in the value.
+     *
+     * @var float
+     */
+    private(set) float $absoluteError;
 
-    private const MAX_SAFE_INTEGER = 9007199254740992; // 2^53
+    /**
+     * Get the relative error (absolute error divided by value).
+     *
+     * Returns INF if value is zero but error is non-zero.
+     * Returns 0.0 if both value and error are zero.
+     *
+     * @var float
+     */
+    public float $relativeError {
+        get {
+            if ($this->value === 0.0) {
+                return $this->absoluteError === 0.0 ? 0.0 : INF;
+            }
+            return abs($this->absoluteError / $this->value);
+        }
+    }
 
     /**
      * Constructor.
      *
      * @param int|float $value The numeric value.
-     * @param ?int $error Optional error score. If null, calculated from the value.
+     * @param float|null $error The absolute error. If null, estimated from float precision.
      */
-    public function __construct(int|float $value = 0, ?int $error = null)
+    public function __construct(int|float $value, ?float $error = null)
     {
+        // Convert value to float.
+        $value = (float)$value;
+
+        // Set the value.
         $this->value = $value;
-        $this->error = $error ?? self::exactnessScore($value);
+
+        // If the error isn't given, compute an initial error estimate.
+        if ($error === null) {
+            $this->absoluteError = $this->isExactFloat($this->value) ? 0.0 : self::ulp($this->value) * 0.5;
+        } else {
+            $this->absoluteError = $error;
+        }
     }
 
     /**
-     * Check if the value is zero.
+     * Calculate the Unit in Last Place (ULP) - the spacing between adjacent floats.
      *
-     * @return bool True if value is zero, false otherwise.
+     * @param float $value The value to calculate ULP for.
+     * @return float The ULP spacing.
      */
-    public function isZero(): bool
+    private static function ulp(float $value): float
     {
-        return Numbers::equal($this->value, 0);
+        if (!is_finite($value)) {
+            return INF;
+        }
+        $abs = abs($value);
+        if ($abs === 0.0) {
+            return PHP_FLOAT_EPSILON * PHP_FLOAT_MIN;
+        }
+        // For normalized numbers.
+        return $abs * PHP_FLOAT_EPSILON;
     }
 
     /**
-     * Check if the value is one.
+     * Check if a float value is exactly representable (no rounding error).
      *
-     * @return bool True if value is one, false otherwise.
+     * Returns true for finite integers within the exact range (±2^53).
+     *
+     * @param float $value The value to check.
+     * @return bool True if the value is exact, false otherwise.
      */
-    public function isOne(): bool
+    private function isExactFloat(float $value): bool
     {
-        return Numbers::equal($this->value, 1);
+        return is_finite($value) && floor($value) === $value && abs($value) <= (1 << 53);
     }
 
-    /**
-     * Returns a score indicating how exact a float is likely to be.
-     *
-     * @param int|float $value The value to score.
-     * @return int The score, ranging from 0 (probably exact) to 2 (probably inexact).
-     */
-    public static function exactnessScore(int|float $value): int
-    {
-        // Assume integers are exact.
-        if (is_int($value)) {
-            return 0;
-        }
-
-        // If the float represents an integer, with no loss of precision, assume it's exact.
-        $i = Floats::tryConvertToInt($value);
-        if ($i !== null && $i >= -self::MAX_SAFE_INTEGER && $i <= self::MAX_SAFE_INTEGER) {
-            return 0;
-        }
-
-        // Get the float as a string.
-        $s = (string)$value;
-
-        // If the string contains an 'E', strip off anything from the 'E' onwards.
-        $ePos = stripos($s, 'E');
-        if ($ePos !== false) {
-            $s = substr($s, 0, $ePos);
-        }
-
-        // Trim any leading or trailing zeros or decimal point.
-        $s = trim($s, '0.');
-
-        // Count the number of significant figures. If it has more than 13, it's likely to be inexact.
-        $nSigFigs = preg_match_all('/\d/', $s);
-        return $nSigFigs <= 13 ? 2 : 5;
-    }
+    // region Arithmetic operations with error propagation
 
     /**
      * Add another NumberWithError to this one.
      *
-     * @param self $other The value to add.
-     * @return self A new NumberWithError representing the sum.
+     * Error propagation: absolute errors add.
+     *
+     * @param self $other The number to add.
+     * @return self A new NumberWithError with the sum and propagated error.
      */
     public function add(self $other): self
     {
-        // Handle simple cases to avoid increasing error score.
-        // Addition of 0 is always the same as the original factor.
-        if ($this->isZero()) {
-            return $other;
+        $newValue = $this->value + $other->value;
+        $newError = $this->absoluteError + $other->absoluteError;
+
+        // Only add rounding error if we already had error.
+        if ($newError > 0) {
+            $newError += self::ulp($newValue) * 0.5;
         }
-        if ($other->isZero()) {
-            return $this;
-        }
 
-        // Calculate the sum.
-        $value = $this->value + $other->value;
-
-        // Calculate the error score of the result.
-        $error = $this->error + $other->error + self::exactnessScore($value);
-//        $error = self::exactnessScore($value);
-
-        return new self($value, $error);
+        return new self($newValue, $newError);
     }
 
     /**
      * Subtract another NumberWithError from this one.
      *
-     * @param self $other The value to subtract.
-     * @return self A new NumberWithError representing the difference.
+     * Error propagation: absolute errors add.
+     *
+     * @param self $other The number to subtract.
+     * @return self A new NumberWithError with the difference and propagated error.
      */
     public function sub(self $other): self
     {
-        // Handle simple cases.
-        if ($this->isZero()) {
-            // Negate the second operand.
-            return $other->neg();
-        }
-        if ($other->isZero()) {
-            // Return the first operand.
-            return $this;
+        $newValue = $this->value - $other->value;
+        $newError = $this->absoluteError + $other->absoluteError;
+
+        // Only add rounding error if we already had error.
+        if ($newError > 0) {
+            $newError += self::ulp($newValue) * 0.5;
         }
 
-        // Calculate the difference.
-        $value = $this->value - $other->value;
-
-        // Calculate the error score of the result.
-        $error = $this->error + $other->error + self::exactnessScore($value);
-//        $error = self::exactnessScore($value);
-
-        // Return the result.
-        return new self($value, $error);
+        return new self($newValue, $newError);
     }
 
     /**
-     * Negate this value.
+     * Negate this number.
      *
-     * @return self A new NumberWithError with negated value but same error score.
+     * Error propagation: error magnitude unchanged.
+     *
+     * @return self A new NumberWithError with negated value and same error.
      */
     public function neg(): self
     {
-        // Negate the value.
-        return new self(-$this->value, $this->error);
+        return new self(-$this->value, $this->absoluteError);
     }
 
     /**
-     * Multiply this value by another NumberWithError.
+     * Multiply this NumberWithError by another.
      *
-     * Adds a penalty of +1 to the error score for the multiplication operation.
+     * Error propagation: relative errors add.
      *
-     * @param self $other The value to multiply by.
-     * @return self A new NumberWithError representing the product.
+     * @param self $other The number to multiply by.
+     * @return self A new NumberWithError with the product and propagated error.
      */
     public function mul(self $other): self
     {
-        // Handle simple cases to avoid increasing error score.
-        // Multiplication by 0 is always 0.
-        if ($this->isZero()) {
-            return new self();
-        }
-        if ($other->isZero()) {
-            return new self();
-        }
+        $newValue = $this->value * $other->value;
 
-        // Multiplication by 1 is always equal to the original factor.
-        if ($this->isOne()) {
-            return $other;
-        }
-        if ($other->isOne()) {
-            return $this;
+        // Relative errors add in multiplication.
+        $relError = $this->relativeError + $other->relativeError;
+        $newError = abs($newValue) * $relError;
+
+        // Only add rounding error if we already had error.
+        if ($newError > 0) {
+            $newError += self::ulp($newValue) * 0.5;
         }
 
-        // Calculate the product.
-        $prod = $this->value * $other->value;
-
-        // If all are integers, we'll make the operation cost 0 instead of 1, because it's exact.
-        $op1Exactness = self::exactnessScore($this->value);
-        $op2Exactness = self::exactnessScore($other->value);
-        $prodExactness = self::exactnessScore($prod);
-//        $opCost = $op1Exactness === 0 && $op2Exactness === 0 && $prodExactness === 0 ? 0 : 1;
-
-        // Calculate the error score of the result.
-        $error = $this->error + $other->error + $prodExactness;
-//        $error = $prodExactness;
-
-        // Return the result.
-        return new self($prod, $error);
+        return new self($newValue, $newError);
     }
 
     /**
-     * Divide this value by another NumberWithError.
+     * Divide this NumberWithError by another.
      *
-     * Adds a penalty of +2 to the error score for the division operation.
+     * Error propagation: relative errors add.
      *
      * @param self $other The divisor.
-     * @return self A new NumberWithError representing the quotient.
-     * @throws DivisionByZeroError If the divisor is zero.
+     * @return self A new NumberWithError with the quotient and propagated error.
+     * @throws DivisionByZeroError If attempting to divide by zero.
      */
     public function div(self $other): self
     {
-        // Check for division by zero.
-        if ($other->isZero()) {
-            throw new DivisionByZeroError('Cannot divide by zero.');
+        if ($other->value === 0.0) {
+            throw new DivisionByZeroError();
         }
 
-        // Handle the simple case of dividing 0 by something.
-        if ($this->isZero()) {
-            return new self();
+        $newValue = $this->value / $other->value;
+
+        // Relative errors add in division.
+        $relError = $this->relativeError + $other->relativeError;
+        $newError = abs($newValue) * $relError;
+
+        // Only add rounding error if result isn't exact or we already had error.
+        if ($newError > 0 || !$this->isExactFloat($newValue)) {
+            $newError += self::ulp($newValue) * 0.5;
         }
 
-        // Handle the simple case of dividing by 1.
-        if ($other->isOne()) {
-            return $this;
-        }
-
-        // Calculate the quotient.
-        $quot = $this->value / $other->value;
-
-        // If all are integers, we'll make the operation cost 0 instead of 1, because it's exact.
-        $op1Exactness = self::exactnessScore($this->value);
-        $op2Exactness = self::exactnessScore($other->value);
-        $quotExactness = self::exactnessScore($quot);
-//        $opCost = $op1Exactness === 0 && $op2Exactness === 0 && $quotExactness === 0 ? 0 : 1;
-
-        // Calculate the error score of the result.
-        $error = $this->error + $other->error + $quotExactness;
-//        $error = $op1Exactness;
-
-        // Return the result.
-        return new self($quot, $error);
+        return new self($newValue, $newError);
     }
 
     /**
-     * Compute the multiplicative inverse (reciprocal) of this value.
+     * Calculate the multiplicative inverse (1/x).
      *
-     * Equivalent to 1 / value. Adds a penalty of +2 to the error score.
+     * Error propagation: relative error unchanged.
      *
-     * @return self A new NumberWithError representing the reciprocal.
-     * @throws DivisionByZeroError If this value is zero.
+     * @return self A new NumberWithError with the inverse and propagated error.
+     * @throws DivisionByZeroError If attempting to invert zero.
      */
     public function inv(): self
     {
-        // Check for division by zero.
-        if ($this->isZero()) {
-            throw new DivisionByZeroError('Cannot invert zero.');
+        if ($this->value === 0.0) {
+            throw new DivisionByZeroError();
         }
 
-        // Handle the simple case of inverting 1.
-        if ($this->isOne()) {
-            return $this; // 1/1 = 1
+        $newValue = 1.0 / $this->value;
+
+        // For 1/x, relative error is same as input.
+        $relError = $this->relativeError;
+        $newError = abs($newValue) * $relError;
+
+        // Only add rounding error if we already had error.
+        if ($newError > 0 || !$this->isExactFloat($newValue)) {
+            $newError += self::ulp($newValue) * 0.5;
         }
 
-        // Calculate the reciprocal.
-        $value = 1.0 / $this->value;
-
-        // Calculate the error score of the result.
-        $error = $this->error + self::exactnessScore($value);
-
-        // Return the result.
-        return new self($value, $error);
+        return new self($newValue, $newError);
     }
+
+    // endregion
+
+    // region Quality metrics
+
+    /**
+     * Calculate the number of reliable significant digits.
+     *
+     * Based on the relative error, determines how many decimal digits
+     * can be trusted in the value.
+     *
+     * @return int The number of significant digits (PHP_INT_MAX for exact values).
+     */
+    public function significantDigits(): int
+    {
+        if ($this->absoluteError === 0.0) {
+            return PHP_INT_MAX; // Exact.
+        }
+
+        if (!is_finite($this->absoluteError) || $this->value === 0.0) {
+            return 0;
+        }
+
+        $digits = -log10($this->relativeError);
+        return max(0, (int)floor($digits));
+    }
+
+    /**
+     * Convert to string representation showing value, error, and precision.
+     *
+     * @return string Formatted as "value ± error (N sig. digits)".
+     */
+    public function __toString(): string
+    {
+        return sprintf(
+            "%.15g ± %.2e (%d sig. digits)",
+            $this->value,
+            $this->absoluteError,
+            $this->significantDigits()
+        );
+    }
+
+    // endregion
 }

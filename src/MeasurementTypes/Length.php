@@ -28,22 +28,22 @@ class Length extends Measurement
     /**
      * Get the units for Length measurements.
      *
-     * @return array<string, bool> Array of units with boolean indicating if they accept prefixes.
+     * @return array<string, int> Array of units with allowed prefixes flags.
      */
     #[Override]
     public static function getBaseUnits(): array
     {
         return [
-            'm' => true,   // metre (accepts metric prefixes)
-            'px' => false, // pixel
-            'pt' => false, // point
-            'in' => false, // inch
-            'ft' => false, // foot
-            'yd' => false, // yard
-            'mi' => false, // mile
-            'au' => false, // astronomical unit
-            'ly' => false, // light-year
-            'pc' => false, // parsec
+            'm'  => self::PREFIX_SET_METRIC,  // metre
+            'px' => 0,  // pixel
+            'pt' => 0,  // point
+            'in' => 0,  // inch
+            'ft' => 0,  // foot
+            'yd' => 0,  // yard
+            'mi' => 0,  // mile
+            'au' => 0,  // astronomical unit
+            'ly' => 0,  // light-year
+            'pc' => 0,  // parsec
         ];
     }
 
@@ -55,12 +55,15 @@ class Length extends Measurement
     public static function getConversions(): array
     {
         return [
-            ['ft', 'm', 0.3048],
+            // Metric-imperial bridge.
+            ['in', 'mm', 25.4],
+            // Imperial.
             ['in', 'px', 96],
             ['in', 'pt', 72],
             ['ft', 'in', 12],
             ['yd', 'ft', 3],
             ['mi', 'yd', 1760],
+            // Astronomical.
             ['au', 'm', 149597870700],
             ['ly', 'm', 9460730472580800],
             ['pc', 'au', 648000 / M_PI],

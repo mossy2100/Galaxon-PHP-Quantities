@@ -7,8 +7,8 @@ namespace Galaxon\Units\MeasurementTypes;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Units\Measurement;
-use Galaxon\Units\TypeError;
 use Override;
+use TypeError;
 use ValueError;
 
 class Angle extends Measurement
@@ -18,11 +18,6 @@ class Angle extends Measurement
     // Epsilons for comparisons.
     public const float RAD_EPSILON = 1e-9;
     public const float TRIG_EPSILON = 1e-12;
-
-    // Constants for use as smallest unit arguments.
-    public const int UNIT_DEGREE = 0;
-    public const int UNIT_ARCMINUTE = 1;
-    public const int UNIT_ARCSECOND = 2;
 
     // endregion
 
@@ -87,18 +82,19 @@ class Angle extends Measurement
     /**
      * Get the units for Angle measurements.
      *
-     * @return array<string, bool> Array of units with boolean indicating if they accept prefixes.
+     * @return array<string, int> Array of units with allowed prefixes flags.
      */
     #[Override]
     public static function getBaseUnits(): array
     {
         return [
-            'rad' => true,    // radian (accepts metric prefixes)
-            'deg' => false,   // degree
-            'arcmin' => false, // arcminute
-            'arcsec' => false, // arcsecond
-            'grad' => false,  // gradian
-            'turn' => false,  // turn/revolution
+            'rad'    => self::PREFIX_SET_SMALL_METRIC,  // radian
+            'deg'    => 0,  // degree
+            'arcmin' => 0,  // arcminute
+            'arcsec' => 0,  // arcsecond
+            'as'     => self::PREFIX_SET_SMALL_METRIC,  // arcsecond (alias used with prefixes)
+            'grad'   => 0,  // gradian
+            'turn'   => 0,  // turn/revolution
         ];
     }
 
@@ -115,6 +111,7 @@ class Angle extends Measurement
             ['turn', 'deg', 360],
             ['deg', 'arcmin', 60],
             ['arcmin', 'arcsec', 60],
+            ['arcsec', 'as', 1],
             ['turn', 'grad', 400],
         ];
     }
@@ -156,23 +153,23 @@ class Angle extends Measurement
      * If the angle is zero, the resulting values will all be zero.
      * If the angle is negative, the resulting values will all be negative.
      *
-     * For the $smallestUnit parameter, you can use the UNIT_* class constants, i.e.
-     * - UNIT_DEGREE for degrees only
-     * - UNIT_ARCMINUTE for degrees and arcminutes
-     * - UNIT_ARCSECOND for degrees, arcminutes, and arcseconds
-     *
-     * @param int $smallestUnit 0 for degree, 1 for arcminute, 2 for arcsecond (default).
+     * @param string $smallestUnit 'deg' for degrees only, 'arcmin' for arcminutes, 'arcsec' for arcseconds (default).
      * @return float[] An array of 1-3 floats with the degrees, arcminutes, and arcseconds.
-     * @throws ValueError If $smallestUnit is not 0, 1, or 2.
+     * @throws ValueError If $smallestUnit is not 'deg', 'arcmin', or 'arcsec'.
      */
-    public function toDMS(int $smallestUnit = self::UNIT_ARCSECOND): array
+    public function toDMS(string $smallestUnit = 'arcsec'): array
     {
+        // Validate the smallest unit argument.
+        if (!in_array($smallestUnit, ['deg', 'arcmin', 'arcsec'], true)) {
+            throw new ValueError("The smallest unit must be 'deg', 'arcmin', or 'arcsec'.");
+        }
+
         $angleInDegrees = $this->to('deg');
         $sign = Numbers::sign($angleInDegrees->value, false);
         $totalDeg = abs($angleInDegrees->value);
 
         switch ($smallestUnit) {
-            case self::UNIT_DEGREE:
+            case 'deg':
                 $d = $totalDeg;
 
                 // Apply sign and normalize -0.0 to 0.0.
@@ -180,7 +177,7 @@ class Angle extends Measurement
 
                 return [$d];
 
-            case self::UNIT_ARCMINUTE:
+            case 'arcmin':
                 // Convert the total degrees to degrees and minutes (non-negative).
                 $d = floor($totalDeg);
                 $m = ($totalDeg - $d) * 60;
@@ -191,7 +188,7 @@ class Angle extends Measurement
 
                 return [$d, $m];
 
-            case self::UNIT_ARCSECOND:
+            case 'arcsec':
                 // Convert the total degrees to degrees, minutes, and seconds (non-negative).
                 $d = floor($totalDeg);
                 $fMin = ($totalDeg - $d) * 60;
@@ -207,7 +204,7 @@ class Angle extends Measurement
 
             default:
                 throw new ValueError(
-                    'The smallest unit must be 0 for degree, 1 for arcminute, or 2 for arcsecond (default).'
+                    "The smallest unit must be 'deg', 'arcmin', or 'arcsec' (default)."
                 );
         }
     }
@@ -215,23 +212,23 @@ class Angle extends Measurement
     /**
      * Format a given angle with degrees symbol, plus optional arcminutes and arcseconds.
      *
-     * @param int $smallestUnit 0 for degrees, 1 for arcminutes, 2 for arcseconds (default).
-     * @param ?int $precision Optional number of decimal places for the smallest unit.
+     * @param string $smallestUnit 'deg' for degrees, 'arcmin' for arcminutes, 'arcsec' for arcseconds (default).
+     * @param int|null $precision Optional number of decimal places for the smallest unit.
      * @return string The degrees, arcminutes, and arcseconds nicely formatted as a string.
-     * @throws ValueError If the smallest unit argument is not 0, 1, or 2.
+     * @throws ValueError If the smallest unit argument is not 'deg', 'arcmin', or 'arcsec'.
      * @example
-     * $alpha = Angle::fromDegrees(12.3456789);
-     * echo $alpha->formatDMS(UNIT_DEGREE);    // 12.3456789°
-     * echo $alpha->formatDMS(UNIT_ARCMINUTE); // 12° 20.740734′
-     * echo $alpha->formatDMS(UNIT_ARCSECOND); // 12° 20′ 44.44404″
-     *
-     * For the $smallestUnit parameter, you can use the UNIT class constants, i.e.
-     * - UNIT_DEGREE for degrees only
-     * - UNIT_ARCMINUTE for degrees and arcminutes
-     * - UNIT_ARCSECOND for degrees, arcminutes, and arcseconds
+     * $alpha = new Angle(12.3456789, 'deg');
+     * echo $alpha->formatDMS('deg');    // 12.3456789°
+     * echo $alpha->formatDMS('arcmin'); // 12° 20.740734′
+     * echo $alpha->formatDMS('arcsec'); // 12° 20′ 44.44404″
      */
-    public function formatDMS(int $smallestUnit = self::UNIT_ARCSECOND, ?int $precision = null): string
+    public function formatDMS(string $smallestUnit = 'arcsec', ?int $precision = null): string
     {
+        // Validate the smallest unit argument.
+        if (!in_array($smallestUnit, ['deg', 'arcmin', 'arcsec'], true)) {
+            throw new ValueError("The smallest unit must be 'deg', 'arcmin', or 'arcsec'.");
+        }
+
         // Get the sign string.
         $sign = $this->value < 0 ? '-' : '';
 
@@ -239,12 +236,12 @@ class Angle extends Measurement
         $parts = $this->abs()->toDMS($smallestUnit);
 
         switch ($smallestUnit) {
-            case self::UNIT_DEGREE:
+            case 'deg':
                 [$d] = $parts;
                 $strDeg = self::formatValue($d, 'f', $precision);
                 return "$sign{$strDeg}°";
 
-            case self::UNIT_ARCMINUTE:
+            case 'arcmin':
                 [$d, $m] = $parts;
 
                 // Round the smallest unit if requested.
@@ -261,7 +258,7 @@ class Angle extends Measurement
                 $strMin = self::formatValue($m, 'f', $precision);
                 return "$sign{$d}° {$strMin}′";
 
-            case self::UNIT_ARCSECOND:
+            case 'arcsec':
                 [$d, $m, $s] = $parts;
 
                 // Round the smallest unit if requested.
@@ -285,7 +282,7 @@ class Angle extends Measurement
             // @codeCoverageIgnoreStart
             default:
                 throw new ValueError(
-                    'The smallest unit must be 0 for degree, 1 for arcminute, or 2 for arcsecond (default).'
+                    "The smallest unit must be 'deg', 'arcmin', or 'arcsec' (default)."
                 );
             // @codeCoverageIgnoreEnd
         }
@@ -535,7 +532,8 @@ class Angle extends Measurement
      * @throws TypeError If $other is not an Angle.
      */
     #[Override]
-    public function compare(mixed $other, float $epsilon = self::RAD_EPSILON): int {
+    public function compare(mixed $other, float $epsilon = self::RAD_EPSILON): int
+    {
         return parent::compare($other, $epsilon);
     }
 
