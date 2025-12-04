@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Units;
 
 use DivisionByZeroError;
+use Galaxon\Core\Floats;
 
 /**
  * Represents a floating-point number with tracked absolute error.
@@ -61,42 +62,10 @@ class NumberWithError
 
         // If the error isn't given, compute an initial error estimate.
         if ($error === null) {
-            $this->absoluteError = $this->isExactFloat($this->value) ? 0.0 : self::ulp($this->value) * 0.5;
+            $this->absoluteError = Floats::isExactInt($this->value) ? 0.0 : Floats::ulp($this->value) * 0.5;
         } else {
             $this->absoluteError = $error;
         }
-    }
-
-    /**
-     * Calculate the Unit in Last Place (ULP) - the spacing between adjacent floats.
-     *
-     * @param float $value The value to calculate ULP for.
-     * @return float The ULP spacing.
-     */
-    private static function ulp(float $value): float
-    {
-        if (!is_finite($value)) {
-            return INF;
-        }
-        $abs = abs($value);
-        if ($abs === 0.0) {
-            return PHP_FLOAT_EPSILON * PHP_FLOAT_MIN;
-        }
-        // For normalized numbers.
-        return $abs * PHP_FLOAT_EPSILON;
-    }
-
-    /**
-     * Check if a float value is exactly representable (no rounding error).
-     *
-     * Returns true for finite integers within the exact range (±2^53).
-     *
-     * @param float $value The value to check.
-     * @return bool True if the value is exact, false otherwise.
-     */
-    private function isExactFloat(float $value): bool
-    {
-        return is_finite($value) && floor($value) === $value && abs($value) <= (1 << 53);
     }
 
     // region Arithmetic operations with error propagation
@@ -116,7 +85,7 @@ class NumberWithError
 
         // Only add rounding error if we already had error.
         if ($newError > 0) {
-            $newError += self::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * 0.5;
         }
 
         return new self($newValue, $newError);
@@ -137,7 +106,7 @@ class NumberWithError
 
         // Only add rounding error if we already had error.
         if ($newError > 0) {
-            $newError += self::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * 0.5;
         }
 
         return new self($newValue, $newError);
@@ -173,7 +142,7 @@ class NumberWithError
 
         // Only add rounding error if we already had error.
         if ($newError > 0) {
-            $newError += self::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * 0.5;
         }
 
         return new self($newValue, $newError);
@@ -201,8 +170,8 @@ class NumberWithError
         $newError = abs($newValue) * $relError;
 
         // Only add rounding error if result isn't exact or we already had error.
-        if ($newError > 0 || !$this->isExactFloat($newValue)) {
-            $newError += self::ulp($newValue) * 0.5;
+        if ($newError > 0 || !Floats::isExactInt($newValue)) {
+            $newError += Floats::ulp($newValue) * 0.5;
         }
 
         return new self($newValue, $newError);
@@ -229,8 +198,8 @@ class NumberWithError
         $newError = abs($newValue) * $relError;
 
         // Only add rounding error if we already had error.
-        if ($newError > 0 || !$this->isExactFloat($newValue)) {
-            $newError += self::ulp($newValue) * 0.5;
+        if ($newError > 0 || !Floats::isExactInt($newValue)) {
+            $newError += Floats::ulp($newValue) * 0.5;
         }
 
         return new self($newValue, $newError);
