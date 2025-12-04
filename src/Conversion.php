@@ -55,18 +55,26 @@ class Conversion implements Stringable
      */
     public readonly FloatWithError $offset;
 
+    // PHPCS doesn't know property hooks yet.
+    // phpcs:disable PSR2.Classes.PropertyDeclaration
+    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+
     /**
      * The error score for this conversion.
      *
-     * Computed as the sum of absolute errors from multiplier and offset.
-     * Assumes a representative input value of 1 for comparison purposes.
-     * Used as a heuristic for finding optimal conversion paths.
+     * A heuristic metric for comparing conversion quality and finding optimal paths.
+     * Computed as the sum of absolute errors from multiplier and offset, assuming
+     * a representative input value of 1 for comparison purposes. Lower scores
+     * indicate more accurate conversions.
      *
      * @var float
      */
-    public float $error {
+    public float $errorScore {
         get => $this->multiplier->absoluteError + $this->offset->absoluteError;
     }
+
+    // phpcs:enable PSR2.Classes.PropertyDeclaration
+    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 
@@ -88,11 +96,7 @@ class Conversion implements Stringable
         int|float|FloatWithError $offset = 0
     )
     {
-        // Set the unit properties.
-        $this->initialUnit = $initialUnit;
-        $this->finalUnit = $finalUnit;
-
-        // Ensure multiplier is a NumberWithError.
+        // Ensure multiplier is a FloatWithError.
         if (!$multiplier instanceof FloatWithError) {
             $multiplier = new FloatWithError($multiplier);
         }
@@ -102,12 +106,14 @@ class Conversion implements Stringable
             throw new ValueError('Multiplier cannot be zero.');
         }
 
-        // Ensure offset is a NumberWithError.
+        // Ensure offset is a FloatWithError.
         if (!$offset instanceof FloatWithError) {
             $offset = new FloatWithError($offset);
         }
 
         // Set the properties.
+        $this->initialUnit = $initialUnit;
+        $this->finalUnit = $finalUnit;
         $this->multiplier = $multiplier;
         $this->offset = $offset;
     }
@@ -119,12 +125,12 @@ class Conversion implements Stringable
     /**
      * Apply conversion to an input value.
      *
-     * @param int|float $value The input value.
-     * @return int|float The result of the conversion.
+     * @param int|float|FloatWithError $value The input value.
+     * @return FloatWithError The result of the conversion.
      */
-    public function apply(int|float $value): int|float {
+    public function apply(int|float|FloatWithError $value): FloatWithError {
         // Convert the value. y = mx + k
-        return $value * $this->multiplier->value + $this->offset->value;
+        return $this->multiplier->mul($value)->add($this->offset);
     }
 
     // endregion
@@ -153,7 +159,7 @@ class Conversion implements Stringable
     }
 
     /**
-     * Compose two conversions: initial->common and common->final.
+     * Compose two conversions sequentially: initial->common and common->final.
      *
      * Given:
      *   b = a * m1 + k1  (this conversion)
@@ -163,7 +169,7 @@ class Conversion implements Stringable
      * @param self $other The second conversion (common->final).
      * @return self The combined conversion (initial->final).
      */
-    public function combine1(self $other): self
+    public function combineSequential(self $other): self
     {
         $m1 = $this->multiplier;
         $k1 = $this->offset;
@@ -179,7 +185,9 @@ class Conversion implements Stringable
     }
 
     /**
-     * Compose two conversions: initial->common and final->common.
+     * Compose two conversions convergently: initial->common and final->common.
+     *
+     * Both conversions point toward the common unit.
      *
      * Given:
      *   b = a * m1 + k1  (this conversion: initial->common)
@@ -189,7 +197,7 @@ class Conversion implements Stringable
      * @param self $other The second conversion (final->common).
      * @return self The combined conversion (initial->final).
      */
-    public function combine2(self $other): self
+    public function combineConvergent(self $other): self
     {
         $m1 = $this->multiplier;
         $k1 = $this->offset;
@@ -205,7 +213,9 @@ class Conversion implements Stringable
     }
 
     /**
-     * Compose two conversions: common->initial and common->final.
+     * Compose two conversions divergently: common->initial and common->final.
+     *
+     * Both conversions point away from the common unit.
      *
      * Given:
      *   a = b * m1 + k1  (this conversion: common->initial)
@@ -215,7 +225,7 @@ class Conversion implements Stringable
      * @param self $other The second conversion (common->final).
      * @return self The combined conversion (initial->final).
      */
-    public function combine3(self $other): self
+    public function combineDivergent(self $other): self
     {
         $m1 = $this->multiplier;
         $k1 = $this->offset;
@@ -232,7 +242,9 @@ class Conversion implements Stringable
     }
 
     /**
-     * Compose two conversions: common->initial and final->common.
+     * Compose two conversions oppositely: common->initial and final->common.
+     *
+     * Conversions flow in opposite directions through the common unit.
      *
      * Given:
      *   a = b * m1 + k1  (this conversion: common->initial)
@@ -242,7 +254,7 @@ class Conversion implements Stringable
      * @param self $other The second conversion (final->common).
      * @return self The combined conversion (initial->final).
      */
-    public function combine4(self $other): self
+    public function combineOpposite(self $other): self
     {
         $m1 = $this->multiplier;
         $k1 = $this->offset;
@@ -264,7 +276,7 @@ class Conversion implements Stringable
     /**
      * Convert this conversion to a string representation.
      *
-     * Format: "finalUnit = initialUnit * multiplier + offset (abs error: X)"
+     * Format: "finalUnit = initialUnit * multiplier + offset (error score: X)"
      * Omits multiplier if 1, omits offset if 0.
      *
      * @return string The string representation of this conversion.
@@ -279,7 +291,7 @@ class Conversion implements Stringable
             $sign = $this->offset->value < 0 ? '-' : '+';
             $str .= " $sign " . abs($this->offset->value);
         }
-        $str .= " (abs error: $this->error)";
+        $str .= " (error score: $this->errorScore)";
         return $str;
     }
 

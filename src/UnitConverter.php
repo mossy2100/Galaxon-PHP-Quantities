@@ -362,7 +362,7 @@ class UnitConverter
      * Takes an existing conversion between units and adjusts the multiplier and offset
      * to account for changing the prefixes while keeping the base units unchanged.
      *
-     * Uses NumberWithError arithmetic to properly propagate error scores through
+     * Uses FloatWithError arithmetic to properly propagate error scores through
      * the prefix adjustment calculation.
      *
      * @param Conversion $conversion The original conversion.
@@ -394,7 +394,7 @@ class UnitConverter
                                                    ($newFinMultiplier * $currentInitMultiplier));
         $offsetAdjustment = new FloatWithError($currentFinMultiplier / $newFinMultiplier);
 
-        // Apply the adjustments to the multiplier and offset using NumberWithError for proper error tracking.
+        // Apply the adjustments to the multiplier and offset using FloatWithError for proper error tracking.
         $newMultiplier = $conversion->multiplier->mul($multiplierAdjustment);
         $newOffset = $conversion->offset->mul($offsetAdjustment);
 
@@ -437,8 +437,8 @@ class UnitConverter
             string $operation
         ) use (&$initUnit, &$finUnit, &$commonUnit, &$minErrScore, &$best): bool {
             // Let's see if we have a new best.
-            if ($newConversion->error < $minErrScore) {
-                $minErrScore = $newConversion->error;
+            if ($newConversion->errorScore < $minErrScore) {
+                $minErrScore = $newConversion->errorScore;
                 $best = [
                     'initialUnit'   => $initUnit,
                     'finalUnit'     => $finUnit,
@@ -483,28 +483,28 @@ class UnitConverter
                     $finToCommon = $this->conversions[$finUnit][$commonUnit] ?? null;
                     $commonToFin = $this->conversions[$commonUnit][$finUnit] ?? null;
 
-                    // Combine initial->common with common->final.
+                    // Combine initial->common with common->final (sequential).
                     if ($initToCommon !== null && $commonToFin !== null) {
-                        $newConversion = $initToCommon->combine1($commonToFin);
-                        $testNewConversion($initToCommon, $commonToFin, $newConversion, 'combination (method 1)');
+                        $newConversion = $initToCommon->combineSequential($commonToFin);
+                        $testNewConversion($initToCommon, $commonToFin, $newConversion, 'sequential combination');
                     }
 
-                    // Combine initial->common with final->common.
+                    // Combine initial->common with final->common (convergent).
                     if ($initToCommon !== null && $finToCommon !== null) {
-                        $newConversion = $initToCommon->combine2($finToCommon);
-                        $testNewConversion($initToCommon, $finToCommon, $newConversion, 'combination (method 2)');
+                        $newConversion = $initToCommon->combineConvergent($finToCommon);
+                        $testNewConversion($initToCommon, $finToCommon, $newConversion, 'convergent combination');
                     }
 
-                    // Combine common->initial with common->final
+                    // Combine common->initial with common->final (divergent).
                     if ($commonToInit !== null && $commonToFin !== null) {
-                        $newConversion = $commonToInit->combine3($commonToFin);
-                        $testNewConversion($commonToInit, $commonToFin, $newConversion, 'combination (method 3)');
+                        $newConversion = $commonToInit->combineDivergent($commonToFin);
+                        $testNewConversion($commonToInit, $commonToFin, $newConversion, 'divergent combination');
                     }
 
-                    // Combine common->initial with final->common
+                    // Combine common->initial with final->common (opposite).
                     if ($commonToInit !== null && $finToCommon !== null) {
-                        $newConversion = $commonToInit->combine4($finToCommon);
-                        $testNewConversion($commonToInit, $finToCommon, $newConversion, 'combination (method 4)');
+                        $newConversion = $commonToInit->combineOpposite($finToCommon);
+                        $testNewConversion($commonToInit, $finToCommon, $newConversion, 'opposite combination');
                     }
                 }
             }
@@ -646,7 +646,7 @@ class UnitConverter
         $this->checkUnitIsValid($finUnit);
 
         // Get the conversion and convert the value. y = mx + k
-        return $this->getConversion($initUnit, $finUnit)->apply($value);
+        return $this->getConversion($initUnit, $finUnit)->apply($value)->value;
     }
 
     // endregion
