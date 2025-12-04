@@ -46,13 +46,15 @@ class UnitConverter
      *
      * Example:
      * [
-     *   'm' => Measurement::PREFIX_SET_METRIC,  // metre with metric prefixes
+     *   'm' => Measurement::PREFIXES_METRIC,  // metre with metric prefixes
      *   'ft' => 0,                               // foot with no prefixes
      * ]
      *
      * @var array<string, int>
      */
     private array $baseUnits;
+
+    private array $prefixes;
 
     /**
      * Cached map of prefixed units to their components.
@@ -106,11 +108,11 @@ class UnitConverter
      * @param array<int, array> $conversionDefinitions Conversion definitions.
      * @throws LogicException If any validation check fails.
      */
-    public function __construct(array $baseUnits, array $conversionDefinitions)
+    public function __construct(array $baseUnits, array $prefixes, array $conversionDefinitions)
     {
         // Validate the unit prefixes structure.
         if (empty($baseUnits)) {
-            throw new LogicException('Unit prefixes must be a non-empty array.');
+            throw new LogicException('Base units must be a non-empty array.');
         }
 
         // Validate each unit and its prefix set.
@@ -123,11 +125,24 @@ class UnitConverter
             }
         }
 
-        // Store the unit prefixes.
+        // Store the base units.
         $this->baseUnits = $baseUnits;
 
         // Generate the units with prefixes.
         $this->resetPrefixedUnits();
+
+        // Validate the prefixes array.
+        foreach ($prefixes as $prefix => $multiplier) {
+            if (!is_string($prefix)) {
+                throw new LogicException('All prefixes must be strings.');
+            }
+            if (!Types::isNumber($multiplier)) {
+                throw new LogicException('All prefix multipliers must be numbers.');
+            }
+        }
+
+        // Store the prefixes.
+        $this->prefixes = $prefixes;
 
         // Get all valid units (base units and prefixed units) for validation.
         $validUnits = $this->getValidUnits();
@@ -309,16 +324,13 @@ class UnitConverter
             return 1.0;
         }
 
-        // Get all the prefix codes and multipliers.
-        $prefixes = Measurement::getPrefixes(Measurement::PREFIX_SET_ALL);
-
         // Throw if prefix unknown.
-        if (!isset($prefixes[$prefix])) {
+        if (!isset($this->prefixes[$prefix])) {
             throw new ValueError("Prefix '{$prefix}' is not a valid prefix.");
         }
 
         // Return the multiplier.
-        return $prefixes[$prefix];
+        return $this->prefixes[$prefix];
     }
 
     /**
@@ -378,9 +390,9 @@ class UnitConverter
         $newFinMultiplier = $this->getPrefixMultiplier($newFinPrefix);
 
         // Calculate adjustments.
-        $multiplierAdjustment = new NumberWithError(($currentFinMultiplier * $newInitMultiplier) /
-                                          ($newFinMultiplier * $currentInitMultiplier));
-        $offsetAdjustment = new NumberWithError($currentFinMultiplier / $newFinMultiplier);
+        $multiplierAdjustment = new FloatWithError(($currentFinMultiplier * $newInitMultiplier) /
+                                                   ($newFinMultiplier * $currentInitMultiplier));
+        $offsetAdjustment = new FloatWithError($currentFinMultiplier / $newFinMultiplier);
 
         // Apply the adjustments to the multiplier and offset using NumberWithError for proper error tracking.
         $newMultiplier = $conversion->multiplier->mul($multiplierAdjustment);
@@ -647,7 +659,7 @@ class UnitConverter
      * Triggers regeneration of prefixed units and conversion matrix.
      *
      * @param string $unit The unit symbol to add.
-     * @param int $prefixSetCode Code indicating allowed prefixes for this unit (e.g. Measurement::PREFIX_SET_METRIC).
+     * @param int $prefixSetCode Code indicating allowed prefixes for this unit (e.g. Measurement::PREFIXES_METRIC).
      * @return void
      */
     public function addBaseUnit(string $unit, int $prefixSetCode): void
@@ -668,6 +680,37 @@ class UnitConverter
     public function removeBaseUnit(string $unit): void
     {
         unset($this->baseUnits[$unit]);
+        $this->resetPrefixedUnits();
+        $this->resetConversions();
+    }
+
+    /**
+     * Add or update a prefix in the system.
+     *
+     * Triggers regeneration of prefixed units and conversion matrix.
+     *
+     * @param string $prefix The prefix symbol to add.
+     * @param int|float $multiplier The multiplier for this prefix.
+     * @return void
+     */
+    public function addPrefix(string $prefix, int|float $multiplier): void
+    {
+        $this->prefixes[$prefix] = $multiplier;
+        $this->resetPrefixedUnits();
+        $this->resetConversions();
+    }
+
+    /**
+     * Remove a prefix from the system.
+     *
+     * Triggers regeneration of prefixed units and conversion matrix.
+     *
+     * @param string $prefix The prefix symbol to remove.
+     * @return void
+     */
+    public function removePrefix(string $prefix): void
+    {
+        unset($this->prefixes[$prefix]);
         $this->resetPrefixedUnits();
         $this->resetConversions();
     }

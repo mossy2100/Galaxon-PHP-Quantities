@@ -20,15 +20,15 @@ class Memory extends Measurement
     public static function getBaseUnits(): array
     {
         return [
-            'B' => self::PREFIX_SET_LARGE,  // byte
-            'b' => self::PREFIX_SET_LARGE,  // bit
+            'B' => self::PREFIXES_LARGE,  // byte
+            'b' => self::PREFIXES_LARGE,  // bit
         ];
     }
 
     /**
      * Get the conversions for Memory measurements.
      *
-     * @return array<int, array> Array of conversion definitions.
+     * @return array<array{string, string, int|float}> Array of conversion definitions.
      */
     #[Override]
     public static function getConversions(): array

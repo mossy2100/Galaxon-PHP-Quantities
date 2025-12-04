@@ -20,7 +20,7 @@ class Area extends Measurement
     public static function getBaseUnits(): array
     {
         return [
-            'm2'  => self::PREFIX_SET_METRIC,  // square metre
+            'm2'  => self::PREFIXES_METRIC,  // square metre
             'ha'  => 0,  // hectare
             'ac'  => 0,  // acre
             'mi2' => 0,  // square mile
@@ -31,25 +31,31 @@ class Area extends Measurement
     }
 
     /**
-     * Get the valid prefixes for Area measurements.
+     * Square the small metric prefixes, so they have the correct multipliers.
      *
      * @return array<string, int|float>
      */
     #[Override]
-    public static function getPrefixes(): array
+    public static function getSmallMetricPrefixes(): array
     {
-        // Square the metric prefixes to get the valid Area prefixes.
-        $validPrefixes = self::METRIC_PREFIXES;
-        foreach ($validPrefixes as $prefix => $factor) {
-            $validPrefixes[$prefix] = $factor * $factor;
-        }
-        return $validPrefixes;
+        return self::raisePrefixesToExponent(parent::getSmallMetricPrefixes(), 2);
+    }
+
+    /**
+     * Square the large metric prefixes, so they have the correct multipliers.
+     *
+     * @return array<string, int|float>
+     */
+    #[Override]
+    public static function getLargeMetricPrefixes(): array
+    {
+        return self::raisePrefixesToExponent(parent::getLargeMetricPrefixes(), 2);
     }
 
     /**
      * Get the conversions for Area measurements.
      *
-     * @return array<array<string, string, int|float>>
+     * @return array<array{string, string, int|float}> Array of conversion definitions.
      */
     #[Override]
     public static function getConversions(): array

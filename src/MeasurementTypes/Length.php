@@ -34,7 +34,7 @@ class Length extends Measurement
     public static function getBaseUnits(): array
     {
         return [
-            'm'  => self::PREFIX_SET_METRIC,  // metre
+            'm'  => self::PREFIXES_METRIC,  // metre
             'px' => 0,  // pixel
             'pt' => 0,  // point
             'in' => 0,  // inch
@@ -50,7 +50,7 @@ class Length extends Measurement
     /**
      * Get the conversions for Length measurements.
      *
-     * @return array<array<string, string, int|float>>
+     * @return array<array{string, string, int|float}> Array of conversion definitions.
      */
     public static function getConversions(): array
     {

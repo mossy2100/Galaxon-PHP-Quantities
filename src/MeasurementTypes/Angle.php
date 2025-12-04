@@ -88,11 +88,11 @@ class Angle extends Measurement
     public static function getBaseUnits(): array
     {
         return [
-            'rad'    => self::PREFIX_SET_SMALL_METRIC,  // radian
+            'rad'    => self::PREFIXES_SMALL_METRIC,  // radian
             'deg'    => 0,  // degree
             'arcmin' => 0,  // arcminute
             'arcsec' => 0,  // arcsecond
-            'as'     => self::PREFIX_SET_SMALL_METRIC,  // arcsecond (alias used with prefixes)
+            'as'     => self::PREFIXES_SMALL_METRIC,  // arcsecond (alias used with prefixes)
             'grad'   => 0,  // gradian
             'turn'   => 0,  // turn/revolution
         ];
@@ -101,7 +101,7 @@ class Angle extends Measurement
     /**
      * Get the conversions for Angle measurements.
      *
-     * @return array<array<string, string, int|float>>
+     * @return array<array{string, string, int|float}> Array of conversion definitions.
      */
     #[Override]
     public static function getConversions(): array

@@ -42,18 +42,18 @@ class Conversion implements Stringable
     /**
      * The scale factor (cannot be zero).
      *
-     * @var NumberWithError
+     * @var FloatWithError
      */
-    public readonly NumberWithError $multiplier;
+    public readonly FloatWithError $multiplier;
 
     /**
      * The additive offset (default 0).
      *
      * Typically zero except for affine conversions like temperature scales.
      *
-     * @var NumberWithError
+     * @var FloatWithError
      */
-    public readonly NumberWithError $offset;
+    public readonly FloatWithError $offset;
 
     /**
      * The error score for this conversion.
@@ -77,15 +77,15 @@ class Conversion implements Stringable
      *
      * @param string $initialUnit The initial unit (source).
      * @param string $finalUnit The final unit (destination).
-     * @param int|float|NumberWithError $multiplier The scale factor (cannot be 0).
-     * @param int|float|NumberWithError $offset The additive offset (default 0).
+     * @param int|float|FloatWithError $multiplier The scale factor (cannot be 0).
+     * @param int|float|FloatWithError $offset The additive offset (default 0).
      * @throws ValueError If the multiplier is zero.
      */
     public function __construct(
         string $initialUnit,
         string $finalUnit,
-        int|float|NumberWithError $multiplier,
-        int|float|NumberWithError $offset = 0
+        int|float|FloatWithError $multiplier,
+        int|float|FloatWithError $offset = 0
     )
     {
         // Set the unit properties.
@@ -93,8 +93,8 @@ class Conversion implements Stringable
         $this->finalUnit = $finalUnit;
 
         // Ensure multiplier is a NumberWithError.
-        if (!$multiplier instanceof NumberWithError) {
-            $multiplier = new NumberWithError($multiplier);
+        if (!$multiplier instanceof FloatWithError) {
+            $multiplier = new FloatWithError($multiplier);
         }
 
         // Ensure multiplier is not zero.
@@ -103,8 +103,8 @@ class Conversion implements Stringable
         }
 
         // Ensure offset is a NumberWithError.
-        if (!$offset instanceof NumberWithError) {
-            $offset = new NumberWithError($offset);
+        if (!$offset instanceof FloatWithError) {
+            $offset = new FloatWithError($offset);
         }
 
         // Set the properties.

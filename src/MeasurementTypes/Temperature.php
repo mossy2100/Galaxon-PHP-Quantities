@@ -55,7 +55,7 @@ class Temperature extends Measurement
     public static function getBaseUnits(): array
     {
         return [
-            'K' => self::PREFIX_SET_METRIC,  // Kelvin
+            'K' => self::PREFIXES_METRIC,  // Kelvin
             'C' => 0,  // Celsius
             'F' => 0,  // Fahrenheit
         ];
@@ -64,7 +64,7 @@ class Temperature extends Measurement
     /**
      * Get the conversions for Temperature measurements.
      *
-     * @return array<array<string, string, int|float, int|float>>
+     * @return array<array{string, string, int|float, int|float}> Array of conversion definitions.
      */
     #[Override]
     public static function getConversions(): array

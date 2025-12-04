@@ -302,7 +302,7 @@ class Time extends Measurement
     public static function getBaseUnits(): array
     {
         return [
-            's'   => self::PREFIX_SET_METRIC,  // second
+            's'   => self::PREFIXES_METRIC,  // second
             'min' => 0,  // minute
             'h'   => 0,  // hour
             'd'   => 0,  // day
@@ -316,7 +316,11 @@ class Time extends Measurement
     /**
      * Get the conversions for Time measurements.
      *
-     * @return array<array<string, string, int|float>>
+     * These conversion factors are basic. Leap seconds are not considered, and the year-to-day conversion is based on
+     * the average length of a year in the Gregorian calendar. If you want, you can add or update conversions using the
+     * `Time::getUnitConverter()->addConversion()` method.
+     *
+     * @return array<array{string, string, int|float}> Array of conversion definitions.
      */
     #[Override]
     public static function getConversions(): array

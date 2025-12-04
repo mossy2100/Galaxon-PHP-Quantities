@@ -20,8 +20,8 @@ class Volume extends Measurement
     public static function getBaseUnits(): array
     {
         return [
-            'm3'    => self::PREFIX_SET_METRIC,  // cubic metre
-            'L'     => self::PREFIX_SET_METRIC,  // litre
+            'm3'    => self::PREFIXES_METRIC,  // cubic metre
+            'L'     => self::PREFIXES_METRIC,  // litre
             'in3'   => 0,  // cubic inch
             'ft3'   => 0,  // cubic foot
             'yd3'   => 0,  // cubic yard
@@ -36,25 +36,31 @@ class Volume extends Measurement
     }
 
     /**
-     * Get the valid prefixes for Volume measurements.
+     * Cube the small metric prefixes, so they have the correct multipliers.
      *
      * @return array<string, int|float>
      */
     #[Override]
-    public static function getPrefixes(): array
+    public static function getSmallMetricPrefixes(): array
     {
-        // Cube the metric prefixes to get the valid Volume prefixes.
-        $validPrefixes = self::METRIC_PREFIXES;
-        foreach ($validPrefixes as $prefix => $factor) {
-            $validPrefixes[$prefix] = $factor ** 3;
-        }
-        return $validPrefixes;
+        return self::raisePrefixesToExponent(parent::getSmallMetricPrefixes(), 3);
+    }
+
+    /**
+     * Cube the large metric prefixes, so they have the correct multipliers.
+     *
+     * @return array<string, int|float>
+     */
+    #[Override]
+    public static function getLargeMetricPrefixes(): array
+    {
+        return self::raisePrefixesToExponent(parent::getLargeMetricPrefixes(), 3);
     }
 
     /**
      * Get the conversions for Volume measurements.
      *
-     * @return array<array<string, string, int|float>>
+     * @return array<array{string, string, int|float}> Array of conversion definitions.
      */
     #[Override]
     public static function getConversions(): array

@@ -27,7 +27,7 @@ use ValueError;
  * - Optionally override getConversions(): Define conversion factors between units
  *
  * Prefix system:
- * - Units can specify allowed prefixes using bitwise flags (PREFIX_SET_METRIC, PREFIX_SET_BINARY, etc.)
+ * - Units can specify allowed prefixes using bitwise flags (PREFIXES_METRIC, PREFIXES_BINARY, etc.)
  * - Provides fine-grained control (e.g., radian can accept only small metric prefixes)
  * - Supports combinations (e.g., byte can accept both metric and binary prefixes)
  *
@@ -76,77 +76,16 @@ abstract class Measurement implements Stringable, Equatable
     // region Constants
 
     /**
-     * Standard metric prefixes down to quecto (10^-30).
-     *
-     * Includes both standard symbols and alternatives (e.g., 'u' for micro).
-     *
-     * @var array<string, int|float>
-     */
-    public const PREFIXES_SMALL_METRIC = [
-        'q' => 1e-30,  // quecto
-        'r' => 1e-27,  // ronto
-        'y' => 1e-24,  // yocto
-        'z' => 1e-21,  // zepto
-        'a' => 1e-18,  // atto
-        'f' => 1e-15,  // femto
-        'p' => 1e-12,  // pico
-        'n' => 1e-9,   // nano
-        'μ' => 1e-6,   // micro
-        'u' => 1e-6,   // micro (alias)
-        'm' => 1e-3,   // milli
-        'c' => 1e-2,   // centi
-        'd' => 1e-1,   // deci
-    ];
-
-    /**
-     * Standard metric prefixes up to quetta (10^30).
-     *
-     * @var array<string, int|float>
-     */
-    public const PREFIXES_LARGE_METRIC = [
-        'da' => 1e1,    // deca
-        'h'  => 1e2,    // hecto
-        'k'  => 1e3,    // kilo
-        'M'  => 1e6,    // mega
-        'G'  => 1e9,    // giga
-        'T'  => 1e12,   // tera
-        'P'  => 1e15,   // peta
-        'E'  => 1e18,   // exa
-        'Z'  => 1e21,   // zetta
-        'Y'  => 1e24,   // yotta
-        'R'  => 1e27,   // ronna
-        'Q'  => 1e30,   // quetta
-    ];
-
-    /**
-     * Binary prefixes for memory measurements.
-     *
-     * @var array<string, int|float>
-     */
-    public const array PREFIXES_BINARY = [
-        'Ki' => 2 ** 10, // kibi
-        'Mi' => 2 ** 20, // mebi
-        'Gi' => 2 ** 30, // gibi
-        'Ti' => 2 ** 40, // tebi
-        'Pi' => 2 ** 50, // pebi
-        'Ei' => 2 ** 60, // exbi
-        // These next two values will be represented as floats because they exceed PHP_INT_MAX, but they will still be
-        // represented exactly because they're powers of 2.
-        'Zi' => 2 ** 70, // zebi
-        'Yi' => 2 ** 80, // yobi
-    ];
-
-    /**
      * Constants for prefix set codes.
      *
      * @var int
      */
-    public const int PREFIX_SET_SMALL_METRIC = 1;
-    public const int PREFIX_SET_LARGE_METRIC = 2;
-    public const int PREFIX_SET_BINARY = 4;
-    public const int PREFIX_SET_METRIC = self::PREFIX_SET_SMALL_METRIC | self::PREFIX_SET_LARGE_METRIC;
-    public const int PREFIX_SET_LARGE = self::PREFIX_SET_LARGE_METRIC | self::PREFIX_SET_BINARY;
-    public const int PREFIX_SET_ALL = self::PREFIX_SET_METRIC | self::PREFIX_SET_BINARY;
+    public const int PREFIXES_SMALL_METRIC = 1;
+    public const int PREFIXES_LARGE_METRIC = 2;
+    public const int PREFIXES_BINARY = 4;
+    public const int PREFIXES_METRIC = self::PREFIXES_SMALL_METRIC | self::PREFIXES_LARGE_METRIC;
+    public const int PREFIXES_LARGE = self::PREFIXES_LARGE_METRIC | self::PREFIXES_BINARY;
+    public const int PREFIXES_ALL = self::PREFIXES_METRIC | self::PREFIXES_BINARY;
 
     // endregion
 
@@ -472,52 +411,23 @@ abstract class Measurement implements Stringable, Equatable
      *
      * Prefix set values:
      * - 0: No prefixes allowed
-     * - PREFIX_SET_METRIC: All metric prefixes (quetta to quecto)
-     * - PREFIX_SET_LARGE_METRIC: Large metric prefixes only (kilo and above)
-     * - PREFIX_SET_SMALL_METRIC: Small metric prefixes only (milli and below)
-     * - PREFIX_SET_BINARY: Binary prefixes (Ki, Mi, Gi, etc.)
-     * - Combinations: Use bitwise OR (e.g., PREFIX_SET_METRIC | PREFIX_SET_BINARY)
+     * - PREFIXES_METRIC: All metric prefixes (quetta to quecto)
+     * - PREFIXES_LARGE_METRIC: Large metric prefixes only (kilo and above)
+     * - PREFIXES_SMALL_METRIC: Small metric prefixes only (milli and below)
+     * - PREFIXES_BINARY: Binary prefixes (Ki, Mi, Gi, etc.)
+     * - Combinations: Use bitwise OR (e.g., PREFIXES_METRIC | PREFIXES_BINARY)
      *
      * @return array<string, int> Map of unit symbol to prefix set flags.
      *
      * @example
      *   return [
-     *       'm' => self::PREFIX_SET_METRIC,    // metre (all metric prefixes)
+     *       'm' => self::PREFIXES_METRIC,    // metre (all metric prefixes)
      *       'ft' => 0,                         // foot (no prefixes)
-     *       'rad' => self::PREFIX_SET_SMALL_METRIC,  // radian (only small metric prefixes)
-     *       'B' => self::PREFIX_SET_METRIC | self::PREFIX_SET_BINARY,  // byte (both sets)
+     *       'rad' => self::PREFIXES_SMALL_METRIC,  // radian (only small metric prefixes)
+     *       'B' => self::PREFIXES_METRIC | self::PREFIXES_BINARY,  // byte (both sets)
      *   ];
      */
     abstract public static function getBaseUnits(): array;
-
-    // endregion
-
-    // region Static methods that can be overridden in derived classes
-
-    /**
-     * Return a set of prefixes, with multipliers, given an integer code comprising bitwise flags.
-     *
-     * @param int $prefixSetCode Code indicating the prefix sets to include.
-     * @return array<string, int|float>
-     */
-    public static function getPrefixes(int $prefixSetCode): array
-    {
-        $prefixes = [];
-
-        if ($prefixSetCode & self::PREFIX_SET_SMALL_METRIC) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_SMALL_METRIC);
-        }
-
-        if ($prefixSetCode & self::PREFIX_SET_LARGE_METRIC) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_LARGE_METRIC);
-        }
-
-        if ($prefixSetCode & self::PREFIX_SET_BINARY) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_BINARY);
-        }
-
-        return $prefixes;
-    }
 
     /**
      * Define conversion factors between different units.
@@ -541,10 +451,134 @@ abstract class Measurement implements Stringable, Equatable
      *       ['C', 'F', 1.8, 32],           // F = C * 1.8 + 32
      *   ];
      */
-    public static function getConversions(): array
+    abstract public static function getConversions(): array;
+
+    // endregion
+
+    // region Prefix methods (can be overridden)
+
+    /**
+     * Standard metric prefixes down to quecto (10^-30).
+     *
+     * Includes both standard symbols and alternatives (e.g., 'u' for micro).
+     *
+     * @return array<string, int|float>
+     */
+    public static function getSmallMetricPrefixes(): array
     {
-        return [];
+        return [
+            'q' => 1e-30,  // quecto
+            'r' => 1e-27,  // ronto
+            'y' => 1e-24,  // yocto
+            'z' => 1e-21,  // zepto
+            'a' => 1e-18,  // atto
+            'f' => 1e-15,  // femto
+            'p' => 1e-12,  // pico
+            'n' => 1e-9,   // nano
+            'μ' => 1e-6,   // micro
+            'u' => 1e-6,   // micro (alias)
+            'm' => 1e-3,   // milli
+            'c' => 1e-2,   // centi
+            'd' => 1e-1,   // deci
+        ];
     }
+
+    /**
+     * Standard metric prefixes up to quetta (10^30).
+     *
+     * @return array<string, int|float>
+     */
+    public static function getLargeMetricPrefixes(): array
+    {
+        return [
+            'da' => 1e1,    // deca
+            'h'  => 1e2,    // hecto
+            'k'  => 1e3,    // kilo
+            'M'  => 1e6,    // mega
+            'G'  => 1e9,    // giga
+            'T'  => 1e12,   // tera
+            'P'  => 1e15,   // peta
+            'E'  => 1e18,   // exa
+            'Z'  => 1e21,   // zetta
+            'Y'  => 1e24,   // yotta
+            'R'  => 1e27,   // ronna
+            'Q'  => 1e30,   // quetta
+        ];
+    }
+
+    /**
+     * Binary prefixes for memory measurements.
+     *
+     * @return array<string, int|float>
+     */
+    public static function getBinaryPrefixes(): array
+    {
+        return [
+            'Ki' => 2 ** 10, // kibi
+            'Mi' => 2 ** 20, // mebi
+            'Gi' => 2 ** 30, // gibi
+            'Ti' => 2 ** 40, // tebi
+            'Pi' => 2 ** 50, // pebi
+            'Ei' => 2 ** 60, // exbi
+            // These next two values will be represented as floats because they exceed PHP_INT_MAX, but they will still be
+            // represented exactly because they're powers of 2.
+            'Zi' => 2 ** 70, // zebi
+            'Yi' => 2 ** 80, // yobi
+        ];
+    }
+
+    /**
+     * Return a set of prefixes, with multipliers, given an integer code comprising bitwise flags.
+     *
+     * This can be overridden in the derived class.
+     *
+     * @param int $prefixSetCode Code indicating the prefix sets to include.
+     * @return array<string, int|float>
+     */
+    public static function getPrefixes(int $prefixSetCode = self::PREFIXES_ALL): array
+    {
+        $prefixes = [];
+
+        if ($prefixSetCode & self::PREFIXES_SMALL_METRIC) {
+            $prefixes = array_merge($prefixes, static::getSmallMetricPrefixes());
+        }
+
+        if ($prefixSetCode & self::PREFIXES_LARGE_METRIC) {
+            $prefixes = array_merge($prefixes, static::getLargeMetricPrefixes());
+        }
+
+        if ($prefixSetCode & self::PREFIXES_BINARY) {
+            $prefixes = array_merge($prefixes, static::getBinaryPrefixes());
+        }
+
+        return $prefixes;
+    }
+
+    /**
+     * Return a set of prefixes with the multipliers raised to a given exponent.
+     *
+     * @parma array<string, int|float> $prefixes The prefixes to raise to the exponent.
+     * @param int $exponent The exponent to raise the prefixes to.
+     * @return array<string, int|float>
+     */
+    public static function raisePrefixesToExponent(array $prefixes, int $exponent): array
+    {
+        // Validate exponent.
+        if ($exponent < 1) {
+            throw new ValueError('Exponent must be greater than 1.');
+        }
+
+        // Get the prefixes with multipliers raised to the exponent.
+        $result = [];
+        foreach ($prefixes as $prefix => $multiplier) {
+            $result[$prefix] = $multiplier ** $exponent;
+        }
+        return $result;
+    }
+
+    // endregion
+
+    // region Formatting methods (can be overridden)
 
     /**
      * Format a numeric value with specified precision and notation.
@@ -665,7 +699,8 @@ abstract class Measurement implements Stringable, Equatable
             // Initialize the UnitConverter for this Measurement type.
             // The UnitConverter constructor will validate the class setup.
             try {
-                self::$unitConverters[$className] = new UnitConverter(static::getBaseUnits(), static::getConversions());
+                self::$unitConverters[$className] = new UnitConverter(static::getBaseUnits(), static::getPrefixes(),
+                    static::getConversions());
             } catch (LogicException $e) {
                 throw new LogicException('The ' . static::getClassName() . ' class is not properly set up: ' .
                                          $e->getMessage());

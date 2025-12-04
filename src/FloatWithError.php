@@ -6,6 +6,7 @@ namespace Galaxon\Units;
 
 use DivisionByZeroError;
 use Galaxon\Core\Floats;
+use Stringable;
 
 /**
  * Represents a floating-point number with tracked absolute error.
@@ -13,8 +14,10 @@ use Galaxon\Core\Floats;
  * This class propagates numerical errors through arithmetic operations,
  * providing a way to track precision loss in calculations.
  */
-class NumberWithError
+class FloatWithError implements Stringable
 {
+    // region Properties
+
     /**
      * The numeric value.
      *
@@ -46,6 +49,10 @@ class NumberWithError
         }
     }
 
+    // endregion
+
+    // region Constructor
+
     /**
      * Constructor.
      *
@@ -67,6 +74,8 @@ class NumberWithError
             $this->absoluteError = $error;
         }
     }
+
+    // endregion
 
     // region Arithmetic operations with error propagation
 
@@ -207,7 +216,7 @@ class NumberWithError
 
     // endregion
 
-    // region Quality metrics
+    // region Stringable implementation
 
     /**
      * Calculate the number of reliable significant digits.
