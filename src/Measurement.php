@@ -143,7 +143,7 @@ abstract class Measurement implements Stringable
      *   Angle::parse("90deg")       // Angle(90.0, 'deg')
      *   Time::parse("1.5e3 ms")     // Time(1500.0, 'ms')
      */
-    public static function parse(string $value): Measurement
+    public static function parse(string $value): self
     {
         // Prepare an error message with the original value.
         $class = new ReflectionClass(static::class)->getShortName();
@@ -264,7 +264,7 @@ abstract class Measurement implements Stringable
      * @throws LogicException If no conversion path exists between the units.
      * @throws TypeError If the other Measurement has a different type.
      */
-    private function preCompare(self $other)
+    private function preCompare(self $other): float|int
     {
         // Check the two measurements have the same types.
         if (!Types::haveSameType($this, $other)) {
@@ -691,11 +691,7 @@ abstract class Measurement implements Stringable
         // Remove trailing zeros and decimal point from the number (i.e. the part before the 'E' or 'e', if present).
         if ($trimZeros) {
             $ePos = stripos($str, 'E');
-            if ($ePos !== false) {
-                $str = rtrim(substr($str, 0, $ePos), '0.') . substr($str, $ePos);
-            } else {
-                $str = rtrim($str, '0.');
-            }
+            $str = $ePos !== false ? rtrim(substr($str, 0, $ePos), '0.') . substr($str, $ePos) : rtrim($str, '0.');
         }
 
         return $str;

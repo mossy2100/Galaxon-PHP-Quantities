@@ -566,7 +566,6 @@ final class AngleTest extends TestCase
         // Delta is positive -> b > a.
         $this->assertSame(1, $b->compare($a));
     }
-//
 //    /**
 //     * Test that wrapDegrees() normalizes values correctly.
 //     *

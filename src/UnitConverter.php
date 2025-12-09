@@ -88,7 +88,7 @@ class UnitConverter
      * Each element is an array: [initUnit, finUnit, multiplier, offset?]
      * Preserved for re-initialization when units or prefixes change.
      *
-     * @var array<int, array{0: string, 1: string, 2: int|float, 3?: int|float}>>
+     * @var array<int, array{0: string, 1: string, 2: int|float, 3?: int|float}>
      */
     private array $conversionDefinitions = [];
 
@@ -109,6 +109,7 @@ class UnitConverter
      * - Offsets (if present) must be numbers.
      *
      * @param array<string, int> $units Units with their prefix group code.
+     * @param array<string, int|float> $prefixes Array of allowed prefixes and their multipliers.
      * @param array<int, array<int, array{0: string, 1: string, 2: int|float, 3?: int|float}>> $conversionDefinitions
      *      Conversion definitions.
      * @throws LogicException If any validation check fails.
@@ -389,7 +390,7 @@ class UnitConverter
     public function checkUnitIsValid(string $unit): void
     {
         if (!in_array($unit, $this->getValidUnits(), true)) {
-            $quotedBaseUnits = array_map(static fn($unit) => "'$unit'", array_keys($this->units));
+            $quotedBaseUnits = array_map(static fn ($unit) => "'$unit'", array_keys($this->units));
             $strUnits = implode(', ', $quotedBaseUnits);
             throw new ValueError("Invalid unit '$unit'. Valid base units: $strUnits. " .
                                  'Some units may be used with a metric or binary prefix.');
@@ -474,7 +475,7 @@ class UnitConverter
         $commonUnit = '';
 
         // Test function. This will help us keep track of the best conversion found so far.
-        $testNewConversion = function (
+        $testNewConversion = static function (
             Conversion $conversion1,
             ?Conversion $conversion2,
             Conversion $newConversion,
@@ -785,7 +786,7 @@ class UnitConverter
         /** @var null|string $key */
         $key = array_find_key(
             $this->conversionDefinitions,
-            static fn($conversion) => $conversion[0] === $initUnit && $conversion[1] === $finUnit
+            static fn ($conversion) => $conversion[0] === $initUnit && $conversion[1] === $finUnit
         );
 
         if ($key !== null) {
@@ -813,7 +814,7 @@ class UnitConverter
     {
         $this->conversionDefinitions = array_filter(
             $this->conversionDefinitions,
-            static fn($conversion) => !($conversion[0] === $initUnit && $conversion[1] === $finUnit)
+            static fn ($conversion) => !($conversion[0] === $initUnit && $conversion[1] === $finUnit)
         );
         $this->resetConversions();
     }
@@ -833,7 +834,7 @@ class UnitConverter
      *
      * @return void
      */
-    public function completeMatrix()
+    public function completeMatrix(): void
     {
         do {
             $result = $this->generateNextConversion();
@@ -863,7 +864,7 @@ class UnitConverter
      *
      * @return void
      */
-    public function printMatrix()
+    public function printMatrix(): void
     {
         $colWidth = 20;
         $baseUnits = array_keys($this->units);
@@ -913,7 +914,7 @@ class UnitConverter
      *
      * @return void
      */
-    public function dumpMatrix()
+    public function dumpMatrix(): void
     {
         echo "\n";
         echo "CONVERSION MATRIX\n";
