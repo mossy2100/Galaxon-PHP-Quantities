@@ -675,7 +675,7 @@ final class AngleTest extends TestCase
      *
      * Verifies that equal() gracefully handles invalid types without throwing.
      */
-    public function testApproxEqualWithInvalidType(): void
+    public function testEqualWithInvalidType(): void
     {
         $a = new Angle(10, 'deg');
 
@@ -684,6 +684,22 @@ final class AngleTest extends TestCase
         $this->assertFalse($a->equal('10deg'));
         $this->assertFalse($a->equal([]));
         $this->assertFalse($a->equal(new stdClass()));
+    }
+
+    /**
+     * Test approxEqual() with non-Angle types returns false.
+     *
+     * Verifies that approxEqual() gracefully handles invalid types without throwing.
+     */
+    public function testApproxEqualWithInvalidType(): void
+    {
+        $a = new Angle(10, 'deg');
+
+        $this->assertFalse($a->approxEqual(10));
+        $this->assertFalse($a->approxEqual(10.0));
+        $this->assertFalse($a->approxEqual('10deg'));
+        $this->assertFalse($a->approxEqual([]));
+        $this->assertFalse($a->approxEqual(new stdClass()));
     }
 
     /**

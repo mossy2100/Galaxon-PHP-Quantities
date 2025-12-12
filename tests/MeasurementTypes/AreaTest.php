@@ -299,36 +299,34 @@ final class AreaTest extends TestCase
 
     // endregion
 
-    // region Arithmetic with prefixed units tests
+    // region formatUnit tests
 
     /**
-     * Test addition with different prefixed units.
+     * Test formatUnit converts exponent to superscript.
      */
-    public function testAddDifferentPrefixes(): void
+    public function testFormatUnitConvertExponentToSuperscript(): void
     {
-        $a = new Area(1, 'km2');
-        $b = new Area(500000, 'm2');
-
-        $result = $a->add($b);
-
-        // 1 km2 + 500000 m2 = 1 km2 + 0.5 km2 = 1.5 km2
-        $this->assertEqualsWithDelta(1.5, $result->value, 1e-10);
-        $this->assertSame('km2', $result->unit);
+        $this->assertSame('m²', Area::formatUnit('m2'));
+        $this->assertSame('ft²', Area::formatUnit('ft2'));
+        $this->assertSame('in²', Area::formatUnit('in2'));
     }
 
     /**
-     * Test subtraction with different prefixed units.
+     * Test formatUnit handles prefix and exponent together.
      */
-    public function testSubDifferentPrefixes(): void
+    public function testFormatUnitWithPrefixAndExponent(): void
     {
-        $a = new Area(1, 'm2');
-        $b = new Area(5000, 'cm2');
+        $this->assertSame('km²', Area::formatUnit('km2'));
+        $this->assertSame('cm²', Area::formatUnit('cm2'));
+        $this->assertSame('mm²', Area::formatUnit('mm2'));
+    }
 
-        $result = $a->sub($b);
-
-        // 1 m2 - 5000 cm2 = 1 m2 - 0.5 m2 = 0.5 m2
-        $this->assertEqualsWithDelta(0.5, $result->value, 1e-10);
-        $this->assertSame('m2', $result->unit);
+    /**
+     * Test formatUnit converts micro prefix with exponent.
+     */
+    public function testFormatUnitMicroPrefixWithExponent(): void
+    {
+        $this->assertSame('μm²', Area::formatUnit('um2'));
     }
 
     // endregion

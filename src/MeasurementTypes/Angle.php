@@ -125,12 +125,12 @@ class Angle extends Measurement
      * Ordered list of angle units from largest (degrees) to smallest (arcseconds).
      * Used for parts decomposition and validation.
      *
-     * @return string[]
+     * @return array<int|string, string>
      */
     #[Override]
     public static function getPartUnits(): array
     {
-        return ['deg', 'arcmin', 'arcsec'];
+        return ['deg' => '°', 'arcmin' => '′', 'arcsec' => '″'];
     }
 
     /**
@@ -162,55 +162,24 @@ class Angle extends Measurement
     }
 
     /**
-     * Format angle as component parts with symbols.
+     * Format angle as component parts (degrees, arcminutes, arcseconds).
      *
      * Returns a string like "12° 34′ 56.789″".
      * Units other than the smallest unit are shown as integers.
      *
      * @param string $smallestUnit The smallest unit to include (default 'arcsec').
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
+     * @param bool $showZeros If true, show all components including zeros (default true for Angle/DMS notation).
      * @return string Formatted angle string.
-     * @throws ValueError If either argument is invalid.
+     * @throws ValueError If any arguments are invalid.
      */
-    public function formatParts(string $smallestUnit = 'arcsec', ?int $precision = null): string
-    {
-        // Validate arguments and part units.
-        self::validateSmallestUnit($smallestUnit);
-        self::validatePrecision($precision);
-        self::validatePartUnits();
-
-        // Prep.
-        $partUnits = static::getPartUnits();
-        $parts = $this->toParts($smallestUnit, $precision);
-        $smallestUnitIndex = (int)array_search($smallestUnit, $partUnits, true);
-        $result = [];
-        $symbols = ['deg' => '°', 'arcmin' => '′', 'arcsec' => '″'];
-
-        // Generate string as parts.
-        for ($i = 0; $i <= $smallestUnitIndex; $i++) {
-            $unit = $partUnits[$i];
-            $value = $parts[$unit] ?? 0;
-
-            // Format the value.
-            if ($i === $smallestUnitIndex && $precision !== null) {
-                // Format smallest unit with precision.
-                $formattedValue = number_format($value, $precision);
-            } else {
-                // Format as integer or float.
-                $formattedValue = is_int($value) ? (string)$value : rtrim(rtrim(sprintf('%.10f', $value), '0'), '.');
-            }
-
-            $result[] = $formattedValue . $symbols[$unit];
-        }
-
-        // If the value is zero, just return '0' with the smallest unit symbol (e.g., "0°", "0′", "0″").
-        if (empty($result)) {
-            return '0' . $symbols[$smallestUnit];
-        }
-
-        // Return string of units. If sign is negative, prepend minus sign.
-        $str = implode(' ', $result);
-        return $parts['sign'] === -1 ? "-$str" : $str;
+    #[Override]
+    public function formatParts(
+        string $smallestUnit = 'arcsec',
+        ?int $precision = null,
+        bool $showZeros = true
+    ): string {
+        return parent::formatParts($smallestUnit, $precision, $showZeros);
     }
 
     // endregion

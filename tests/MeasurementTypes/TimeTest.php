@@ -812,7 +812,7 @@ final class TimeTest extends TestCase
         $time = new Time(-3661, 's');
         $formatted = $time->formatParts('s');
 
-        $this->assertEquals('-(1h 1min 1s)', $formatted);
+        $this->assertEquals('-1h 1min 1s', $formatted);
     }
 
     /**
@@ -824,6 +824,17 @@ final class TimeTest extends TestCase
         $formatted = $time->formatParts('s');
 
         $this->assertEquals('0s', $formatted);
+    }
+
+    /**
+     * Test formatParts() with zero time and precision.
+     */
+    public function testFormatPartsZeroWithPrecision(): void
+    {
+        $time = new Time(0, 's');
+        $formatted = $time->formatParts('s', 3);
+
+        $this->assertEquals('0.000s', $formatted);
     }
 
     /**
@@ -1058,5 +1069,20 @@ final class TimeTest extends TestCase
         $this->assertEquals(0, $interval->y);
         $this->assertEquals(0, $interval->m);
         $this->assertEquals(0, $interval->d);
+    }
+
+    /**
+     * Test toDateInterval() with negative time value.
+     */
+    public function testToDateIntervalNegative(): void
+    {
+        $time = new Time(-3661, 's');  // -1h 1min 1s
+        $interval = $time->toDateInterval('s');
+
+        // Should have invert flag set to 1.
+        $this->assertEquals(1, $interval->invert);
+        $this->assertEquals(1, $interval->h);
+        $this->assertEquals(1, $interval->i);
+        $this->assertEquals(1, $interval->s);
     }
 }

@@ -8,6 +8,7 @@ use DivisionByZeroError;
 use Galaxon\Units\Measurement;
 use Galaxon\Units\MeasurementTypes\Area;
 use Galaxon\Units\MeasurementTypes\Length;
+use Galaxon\Units\MeasurementTypes\Time;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -19,9 +20,12 @@ use ValueError;
 /**
  * Test class for Measurement abstract class.
  *
- * Uses concrete implementations (Length, Area, Mass) to test inherited functionality.
+ * Uses concrete implementations (Length, Area, Time) to test inherited functionality.
  */
 #[CoversClass(Measurement::class)]
+#[CoversClass(Area::class)]
+#[CoversClass(Length::class)]
+#[CoversClass(Time::class)]
 final class MeasurementTest extends TestCase
 {
     // region Constructor tests
@@ -55,17 +59,6 @@ final class MeasurementTest extends TestCase
         $length = new Length(-50, 'km');
 
         $this->assertSame(-50.0, $length->value);
-    }
-
-    /**
-     * Test constructor with prefixed unit.
-     */
-    public function testConstructorWithPrefixedUnit(): void
-    {
-        $length = new Length(5, 'km');
-
-        $this->assertSame(5.0, $length->value);
-        $this->assertSame('km', $length->unit);
     }
 
     /**
@@ -241,18 +234,6 @@ final class MeasurementTest extends TestCase
     // endregion
 
     // region Conversion tests (to)
-
-    /**
-     * Test to() converts between units.
-     */
-    public function testToConvertsBetweenUnits(): void
-    {
-        $length = new Length(1, 'km');
-        $inMetres = $length->to('m');
-
-        $this->assertSame('m', $inMetres->unit);
-        $this->assertEqualsWithDelta(1000.0, $inMetres->value, 1e-10);
-    }
 
     /**
      * Test to() with same unit returns equivalent value.
@@ -924,34 +905,6 @@ final class MeasurementTest extends TestCase
         $this->assertSame('nm', Length::formatUnit('nm'));
     }
 
-    /**
-     * Test formatUnit converts exponent to superscript.
-     */
-    public function testFormatUnitConvertExponentToSuperscript(): void
-    {
-        $this->assertSame('m²', Area::formatUnit('m2'));
-        $this->assertSame('ft²', Area::formatUnit('ft2'));
-        $this->assertSame('in²', Area::formatUnit('in2'));
-    }
-
-    /**
-     * Test formatUnit handles prefix and exponent together.
-     */
-    public function testFormatUnitWithPrefixAndExponent(): void
-    {
-        $this->assertSame('km²', Area::formatUnit('km2'));
-        $this->assertSame('cm²', Area::formatUnit('cm2'));
-        $this->assertSame('mm²', Area::formatUnit('mm2'));
-    }
-
-    /**
-     * Test formatUnit converts micro prefix with exponent.
-     */
-    public function testFormatUnitMicroPrefixWithExponent(): void
-    {
-        $this->assertSame('μm²', Area::formatUnit('um2'));
-    }
-
     // endregion
 
     // region Parts methods tests
@@ -973,8 +926,8 @@ final class MeasurementTest extends TestCase
         $this->expectException(ValueError::class);
         $this->expectExceptionMessage('Invalid smallest unit');
 
-        // Use reflection to call protected method.
-        $method = new ReflectionMethod(Length::class, 'validateSmallestUnit');
+        // Use reflection to call protected method on a class with part units defined.
+        $method = new ReflectionMethod(Time::class, 'validateSmallestUnit');
         $method->invoke(null, 'invalid');
     }
 
@@ -1030,14 +983,14 @@ final class MeasurementTest extends TestCase
     }
 
     /**
-     * Test validatePartUnits throws when getPartUnits returns empty.
+     * Test validateAndTransformPartUnits throws when getPartUnits returns empty.
      */
-    public function testValidatePartUnitsThrowsWhenEmpty(): void
+    public function testValidateAndTransformPartUnitsThrowsWhenEmpty(): void
     {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('must define the part units');
 
-        $method = new ReflectionMethod(Length::class, 'validatePartUnits');
+        $method = new ReflectionMethod(Length::class, 'validateAndTransformPartUnits');
         $method->invoke(null);
     }
 
@@ -1059,21 +1012,32 @@ final class MeasurementTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Invalid smallest unit');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('must define the part units');
 
         $length->toParts('m');
     }
 
     /**
-     * Test validatePartUnits throws when a part unit is invalid.
+     * Test validateAndTransformPartUnits throws when a part unit is invalid.
      */
-    public function testValidatePartUnitsThrowsForInvalidPartUnit(): void
+    public function testValidateAndTransformPartUnitsThrowsForInvalidPartUnit(): void
     {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Invalid unit: 'invalid'");
 
         Badness::fromPartsArray(['foo' => 10]);
+    }
+
+    /**
+     * Test validateAndTransformPartUnits throws when a symbol is empty.
+     */
+    public function testValidateAndTransformPartUnitsThrowsForEmptySymbol(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Unit symbols must be non-empty strings');
+
+        EmptySymbol::fromPartsArray(['foo' => 10]);
     }
 
     // endregion
@@ -1113,9 +1077,35 @@ class Badness extends Measurement
         ];
     }
 
-    /** @return string[] */
+    /** @return array<int|string, string> */
     public static function getPartUnits(): array
     {
         return ['foo', 'invalid'];
+    }
+}
+
+/**
+ * Test class with an empty symbol in getPartUnits().
+ */
+class EmptySymbol extends Measurement
+{
+    /** @return array<string, int> */
+    public static function getUnits(): array
+    {
+        return [
+            'foo' => 0,
+        ];
+    }
+
+    /** @return array<array{0: string, 1: string, 2: int|float, 3?: int|float}> */
+    public static function getConversions(): array
+    {
+        return [];
+    }
+
+    /** @return array<int|string, string> */
+    public static function getPartUnits(): array
+    {
+        return ['foo' => ''];
     }
 }

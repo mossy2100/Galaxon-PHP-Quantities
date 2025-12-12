@@ -613,7 +613,7 @@ abstract class Measurement implements Stringable
     /**
      * Get an array of units for use in parts-related methods.
      *
-     * @return string[]
+     * @return array<int|string, string>
      */
     public static function getPartUnits(): array
     {
@@ -629,7 +629,11 @@ abstract class Measurement implements Stringable
      */
     protected static function validateSmallestUnit(string $smallestUnit): void
     {
-        $partUnits = static::getPartUnits();
+        // Validate and get part units.
+        $symbols = static::validateAndTransformPartUnits();
+        $partUnits = array_keys($symbols);
+
+        // Check the smallest unit is valid.
         if (!in_array($smallestUnit, $partUnits, true)) {
             throw new ValueError('Invalid smallest unit specified. Must be one of: ' .
                                  implode(', ', Arrays::quoteValues($partUnits)));
@@ -651,29 +655,48 @@ abstract class Measurement implements Stringable
     }
 
     /**
-     * Validate the part units array.
+     * Validate and transform the part units array.
      *
-     * @return void
-     * @throws LogicException
+     * @return array<string, string>
+     * @throws LogicException If getPartUnits() returns an empty array, or if any of the units or symbols are invalid.
      */
-    protected static function validatePartUnits(): void
+    protected static function validateAndTransformPartUnits(): array
     {
         // Ensure we have some part units.
         $partUnits = static::getPartUnits();
         if (empty($partUnits)) {
             throw new LogicException(
-                'The derived Measurement class must define the part units by overriding getPartUnits(), and ' .
-                'returning an array of valid units.'
+                'The derived Measurement class must define the part units (with optional alternative ' .
+                'symbols) by overriding getPartUnits(), and returning an array of valid units.'
             );
         }
 
+        // Create a new array to contain the map of units to symbols.
+        $symbols = [];
+
         // Ensure all part units are valid base/derived units.
-        $baseUnits = array_keys(static::getUnits());
-        foreach ($partUnits as $partUnit) {
-            if (!in_array($partUnit, $baseUnits, true)) {
+        $validUnits = array_keys(static::getUnits());
+        foreach ($partUnits as $partUnit => $symbol) {
+            // If the key is an integer, the unit and the symbol are the same.
+            if (is_int($partUnit)) {
+                $partUnit = $symbol;
+            }
+
+            // Ensure the unit is valid.
+            if (!in_array($partUnit, $validUnits, true)) {
                 throw new LogicException("Invalid unit: '$partUnit'.");
             }
+
+            // Ensure the symbol is a non-empty string.
+            if (!is_string($symbol) || $symbol === '') {
+                throw new LogicException('Unit symbols must be non-empty strings.');
+            }
+
+            // Add it to the result.
+            $symbols[$partUnit] = $symbol;
         }
+
+        return $symbols;
     }
 
     /**
@@ -687,14 +710,13 @@ abstract class Measurement implements Stringable
      * @return static A new Measurement equal to the sum of the parts, with the unit equal to the smallest unit.
      * @throws TypeError If any of the values are not numbers.
      * @throws ValueError If any of the values are non-finite or negative.
-     * @throws LogicException If getPartUnits() has not been overridden in the calling class, or it's returning an empty
-     * array.
+     * @throws LogicException If getPartUnits() has not been overridden properly.
      */
     public static function fromPartsArray(array $parts): static
     {
-        // Validate the part units.
-        static::validatePartUnits();
-        $partUnits = static::getPartUnits();
+        // Validate and get part units.
+        $symbols = static::validateAndTransformPartUnits();
+        $partUnits = array_keys($symbols);
 
         // Validate the parts array.
         $validKeys = ['sign', ...$partUnits];
@@ -748,8 +770,7 @@ abstract class Measurement implements Stringable
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the sign, which is always 1 or -1.
      * @throws ValueError If any arguments are invalid.
-     * @throws LogicException If getPartUnits() has not been overridden in the calling class, or it's returning an empty
-     * array.
+     * @throws LogicException If getPartUnits() has not been overridden properly.
      */
     public function toParts(string $smallestUnit, ?int $precision = null): array
     {
@@ -757,9 +778,9 @@ abstract class Measurement implements Stringable
         static::validateSmallestUnit($smallestUnit);
         static::validatePrecision($precision);
 
-        // Validate part units.
-        static::validatePartUnits();
-        $partUnits = static::getPartUnits();
+        // Validate and get part units.
+        $symbols = static::validateAndTransformPartUnits();
+        $partUnits = array_keys($symbols);
 
         // Prep.
         $converter = static::getUnitConverter();
@@ -805,6 +826,79 @@ abstract class Measurement implements Stringable
         }
 
         return $parts;
+    }
+
+    /**
+     * Format measurement as component parts.
+     *
+     * Examples:
+     *   - 4y 5mo 6d 12h 34min 56.789s
+     *   - 12° 34′ 56.789″
+     *
+     * Only the smallest unit may have a decimal point. Larger units will be integers.
+     *
+     * @param string $smallestUnit The smallest unit to include.
+     * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
+     * @param bool $showZeros If true, show all components (largest to smallest) including zeros; if false, skip
+     * zero-value components.
+     * @return string Formatted string.
+     * @throws ValueError If any arguments are invalid.
+     */
+    public function formatParts(
+        string $smallestUnit,
+        ?int $precision = null,
+        bool $showZeros = false
+    ): string {
+        // Validate arguments.
+        self::validateSmallestUnit($smallestUnit);
+        self::validatePrecision($precision);
+
+        // Validate and get part units.
+        $symbols = static::validateAndTransformPartUnits();
+        $partUnits = array_keys($symbols);
+
+        // Prep.
+        $parts = $this->toParts($smallestUnit, $precision);
+        $smallestUnitIndex = (int)array_search($smallestUnit, $partUnits, true);
+        $result = [];
+        $hasNonZero = false;
+
+        // Generate string as parts.
+        for ($i = 0; $i <= $smallestUnitIndex; $i++) {
+            $unit = $partUnits[$i];
+            $value = $parts[$unit] ?? 0;
+            $isZero = Numbers::equal($value, 0);
+
+            // Track if we've seen any non-zero values.
+            if (!$isZero) {
+                $hasNonZero = true;
+            }
+
+            // Skip zero components based on $showZeros flag.
+            // When $showZeros is true: show zeros only after the first non-zero (standard DMS notation).
+            // When $showZeros is false: skip all zeros (compact time notation).
+            if ($isZero && !($showZeros && $hasNonZero)) {
+                continue;
+            }
+
+            // Format the value with precision for the smallest unit.
+            if ($i === $smallestUnitIndex && $precision !== null) {
+                $formattedValue = number_format($value, $precision, '.', '');
+            } else {
+                $formattedValue = (string)$value;
+            }
+
+            $result[] = $formattedValue . $symbols[$unit];
+        }
+
+        // If the value is zero, just show '0' with the smallest unit.
+        if (empty($result)) {
+            $formattedValue = $precision === null ? '0' : number_format(0, $precision, '.', '');
+            $result[] = $formattedValue . $symbols[$smallestUnit];
+        }
+
+        // Return string of units, separated by spaces. Prepend minus sign if negative.
+        return ($parts['sign'] === -1 ? '-' : '') . implode(' ', $result);
     }
 
     // endregion

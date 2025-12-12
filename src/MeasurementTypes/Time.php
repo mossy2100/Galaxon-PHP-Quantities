@@ -124,7 +124,7 @@ class Time extends Measurement
      * Ordered list of Time unit abbreviations from largest (years) to smallest (seconds).
      * Used for parts decomposition and validation.
      *
-     * @return string[]
+     * @return array<int|string, string>
      */
     #[Override]
     public static function getPartUnits(): array
@@ -182,45 +182,19 @@ class Time extends Measurement
      *
      * @param string $smallestUnit The smallest unit to include (default 's').
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
+     * @param bool $showZeros If true, show all components including zeros (default false for Time).
      * @return string Formatted time string.
-     * @throws ValueError If either argument is invalid.
+     * @throws ValueError If any arguments are invalid.
      */
-    public function formatParts(string $smallestUnit = 's', ?int $precision = null): string
-    {
-        // Validate arguments and part units.
-        self::validateSmallestUnit($smallestUnit);
-        self::validatePrecision($precision);
-        self::validatePartUnits();
-
-        // Prep.
-        $partUnits = static::getPartUnits();
-        $parts = $this->toParts($smallestUnit, $precision);
-        $smallestUnitIndex = (int)array_search($smallestUnit, $partUnits, true);
-        $result = [];
-
-        // Generate string as parts.
-        for ($i = 0; $i <= $smallestUnitIndex; $i++) {
-            $unit = $partUnits[$i];
-            $value = $parts[$unit] ?? 0;
-
-            // Skip zero components.
-            if (Numbers::equal($value, 0)) {
-                continue;
-            }
-
-            // Format the value.
-            $result[] = $value . $unit;
-        }
-
-        // If the value is zero, just return '0' with the smallest unit (e.g., "0s", "0min", "0h").
-        if (empty($result)) {
-            return '0' . $smallestUnit;
-        }
-
-        // Return string of units. If sign is negative, wrap units in brackets.
-        $str = implode(' ', $result);
-        return $parts['sign'] === -1 ? "-($str)" : $str;
+    #[Override]
+    public function formatParts(
+        string $smallestUnit = 's',
+        ?int $precision = null,
+        bool $showZeros = false
+    ): string {
+        return parent::formatParts($smallestUnit, $precision, $showZeros);
     }
+
 
     // endregion
 
@@ -239,7 +213,7 @@ class Time extends Measurement
     {
         // Validate argument.
         self::validateSmallestUnit($smallestUnit);
-        self::validatePartUnits();
+        self::validateAndTransformPartUnits();
 
         // Prep.
         $partUnits = static::getPartUnits();
