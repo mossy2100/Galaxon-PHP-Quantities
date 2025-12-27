@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests;
+namespace Galaxon\Quantities\Tests;
 
-use Galaxon\Units\Unit;
+use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ValueError;
@@ -12,7 +12,7 @@ use ValueError;
 /**
  * Tests for Unit class.
  */
-#[CoversClass(Unit::class)]
+#[CoversClass(UnitTerm::class)]
 final class UnitTest extends TestCase
 {
     // region Constructor tests
@@ -22,7 +22,7 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithBaseUnit(): void
     {
-        $unit = new Unit('m');
+        $unit = new UnitTerm('m');
 
         $this->assertSame('m', $unit->base);
         $this->assertSame('', $unit->prefix);
@@ -35,7 +35,7 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithPrefix(): void
     {
-        $unit = new Unit('m', 'k', 1000);
+        $unit = new UnitTerm('m', 'k', 1000);
 
         $this->assertSame('m', $unit->base);
         $this->assertSame('k', $unit->prefix);
@@ -48,7 +48,7 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithPositiveExponent(): void
     {
-        $unit = new Unit('m2');
+        $unit = new UnitTerm('m2');
 
         $this->assertSame('m', $unit->base);
         $this->assertSame(2, $unit->exponent);
@@ -59,7 +59,7 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithNegativeExponent(): void
     {
-        $unit = new Unit('s-2');
+        $unit = new UnitTerm('s-2');
 
         $this->assertSame('s', $unit->base);
         $this->assertSame(-2, $unit->exponent);
@@ -70,7 +70,7 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithPrefixAndExponent(): void
     {
-        $unit = new Unit('m2', 'k', 1000);
+        $unit = new UnitTerm('m2', 'k', 1000);
 
         $this->assertSame('m', $unit->base);
         $this->assertSame('k', $unit->prefix);
@@ -83,7 +83,7 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithFloatPrefixMultiplier(): void
     {
-        $unit = new Unit('m', 'm', 0.001);
+        $unit = new UnitTerm('m', 'm', 0.001);
 
         $this->assertSame('m', $unit->prefix);
         $this->assertSame(0.001, $unit->prefixMultiplier);
@@ -97,7 +97,7 @@ final class UnitTest extends TestCase
         $this->expectException(ValueError::class);
         $this->expectExceptionMessage('Invalid unit');
 
-        new Unit('123abc');
+        new UnitTerm('123abc');
     }
 
     /**
@@ -108,7 +108,7 @@ final class UnitTest extends TestCase
         $this->expectException(ValueError::class);
         $this->expectExceptionMessage('Invalid exponent 0');
 
-        new Unit('m0');
+        new UnitTerm('m0');
     }
 
     /**
@@ -119,7 +119,7 @@ final class UnitTest extends TestCase
         $this->expectException(ValueError::class);
         $this->expectExceptionMessage('Invalid exponent 1');
 
-        new Unit('m1');
+        new UnitTerm('m1');
     }
 
     /**
@@ -130,7 +130,7 @@ final class UnitTest extends TestCase
         $this->expectException(ValueError::class);
         $this->expectExceptionMessage('Invalid exponent 10');
 
-        new Unit('m10');
+        new UnitTerm('m10');
     }
 
     // endregion
@@ -142,7 +142,7 @@ final class UnitTest extends TestCase
      */
     public function testDerivedPropertyForBaseUnit(): void
     {
-        $unit = new Unit('m');
+        $unit = new UnitTerm('m');
 
         $this->assertSame('m', $unit->derived);
     }
@@ -152,7 +152,7 @@ final class UnitTest extends TestCase
      */
     public function testDerivedPropertyWithExponent(): void
     {
-        $unit = new Unit('m2', 'k', 1000);
+        $unit = new UnitTerm('m2', 'k', 1000);
 
         $this->assertSame('m2', $unit->derived);
     }
@@ -162,7 +162,7 @@ final class UnitTest extends TestCase
      */
     public function testPrefixedPropertyForBaseUnit(): void
     {
-        $unit = new Unit('m');
+        $unit = new UnitTerm('m');
 
         $this->assertSame('m', $unit->prefixed);
     }
@@ -172,7 +172,7 @@ final class UnitTest extends TestCase
      */
     public function testPrefixedPropertyWithPrefix(): void
     {
-        $unit = new Unit('m', 'k', 1000);
+        $unit = new UnitTerm('m', 'k', 1000);
 
         $this->assertSame('km', $unit->prefixed);
     }
@@ -182,7 +182,7 @@ final class UnitTest extends TestCase
      */
     public function testPrefixedPropertyWithPrefixAndExponent(): void
     {
-        $unit = new Unit('m2', 'k', 1000);
+        $unit = new UnitTerm('m2', 'k', 1000);
 
         $this->assertSame('km2', $unit->prefixed);
     }
@@ -192,7 +192,7 @@ final class UnitTest extends TestCase
      */
     public function testMultiplierPropertyForBaseUnit(): void
     {
-        $unit = new Unit('m');
+        $unit = new UnitTerm('m');
 
         $this->assertSame(1.0, $unit->multiplier);
     }
@@ -202,7 +202,7 @@ final class UnitTest extends TestCase
      */
     public function testMultiplierPropertyWithPrefix(): void
     {
-        $unit = new Unit('m', 'k', 1000);
+        $unit = new UnitTerm('m', 'k', 1000);
 
         // 1000^1 = 1000
         $this->assertSame(1000.0, $unit->multiplier);
@@ -213,7 +213,7 @@ final class UnitTest extends TestCase
      */
     public function testMultiplierPropertyWithPrefixAndExponent(): void
     {
-        $unit = new Unit('m2', 'k', 1000);
+        $unit = new UnitTerm('m2', 'k', 1000);
 
         // 1000^2 = 1,000,000
         $this->assertSame(1e6, $unit->multiplier);
@@ -224,7 +224,7 @@ final class UnitTest extends TestCase
      */
     public function testMultiplierPropertyWithSmallPrefixAndExponent(): void
     {
-        $unit = new Unit('m2', 'c', 0.01);
+        $unit = new UnitTerm('m2', 'c', 0.01);
 
         // 0.01^2 = 0.0001
         $this->assertSame(1e-4, $unit->multiplier);
@@ -235,7 +235,7 @@ final class UnitTest extends TestCase
      */
     public function testMultiplierPropertyWithNegativeExponent(): void
     {
-        $unit = new Unit('s-2', 'm', 0.001);
+        $unit = new UnitTerm('s-2', 'm', 0.001);
 
         // 0.001^-2 = 1,000,000
         $this->assertSame(1e6, $unit->multiplier);
@@ -250,7 +250,7 @@ final class UnitTest extends TestCase
      */
     public function testToStringForBaseUnit(): void
     {
-        $unit = new Unit('m');
+        $unit = new UnitTerm('m');
 
         $this->assertSame('m', (string)$unit);
     }
@@ -260,7 +260,7 @@ final class UnitTest extends TestCase
      */
     public function testToStringWithPrefix(): void
     {
-        $unit = new Unit('m', 'k', 1000);
+        $unit = new UnitTerm('m', 'k', 1000);
 
         $this->assertSame('km', (string)$unit);
     }
@@ -270,7 +270,7 @@ final class UnitTest extends TestCase
      */
     public function testToStringWithExponent(): void
     {
-        $unit = new Unit('m2');
+        $unit = new UnitTerm('m2');
 
         $this->assertSame('m²', (string)$unit);
     }
@@ -280,7 +280,7 @@ final class UnitTest extends TestCase
      */
     public function testToStringWithPrefixAndExponent(): void
     {
-        $unit = new Unit('m2', 'k', 1000);
+        $unit = new UnitTerm('m2', 'k', 1000);
 
         $this->assertSame('km²', (string)$unit);
     }
@@ -290,7 +290,7 @@ final class UnitTest extends TestCase
      */
     public function testToStringWithNegativeExponent(): void
     {
-        $unit = new Unit('s-2');
+        $unit = new UnitTerm('s-2');
 
         $this->assertSame('s⁻²', (string)$unit);
     }
@@ -300,7 +300,7 @@ final class UnitTest extends TestCase
      */
     public function testToStringConvertsMicroPrefix(): void
     {
-        $unit = new Unit('m', 'u', 1e-6);
+        $unit = new UnitTerm('m', 'u', 1e-6);
 
         $this->assertSame('μm', (string)$unit);
     }
@@ -310,7 +310,7 @@ final class UnitTest extends TestCase
      */
     public function testToStringWithMicroPrefixAndExponent(): void
     {
-        $unit = new Unit('m2', 'u', 1e-6);
+        $unit = new UnitTerm('m2', 'u', 1e-6);
 
         $this->assertSame('μm²', (string)$unit);
     }

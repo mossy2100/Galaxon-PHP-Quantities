@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests\MeasurementTypes;
+namespace Galaxon\Quantities\Tests;
 
-use Galaxon\Units\MeasurementTypes\Memory;
+use Galaxon\Quantities\QuantityType\Data;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
  * Memory uses PREFIX_CODE_LARGE which includes both metric (KB, MB, GB)
  * and binary (KiB, MiB, GiB) prefixes.
  */
-#[CoversClass(Memory::class)]
+#[CoversClass(Data::class)]
 final class MemoryTest extends TestCase
 {
     // region Constructor and basic unit tests
@@ -24,7 +24,7 @@ final class MemoryTest extends TestCase
      */
     public function testConstructorWithByte(): void
     {
-        $memory = new Memory(1024, 'B');
+        $memory = new Data(1024, 'B');
 
         $this->assertSame(1024.0, $memory->value);
         $this->assertSame('B', $memory->unit);
@@ -35,7 +35,7 @@ final class MemoryTest extends TestCase
      */
     public function testConstructorWithBit(): void
     {
-        $memory = new Memory(8, 'b');
+        $memory = new Data(8, 'b');
 
         $this->assertSame(8.0, $memory->value);
         $this->assertSame('b', $memory->unit);
@@ -50,7 +50,7 @@ final class MemoryTest extends TestCase
      */
     public function testByteToBitConversion(): void
     {
-        $memory = new Memory(1, 'B');
+        $memory = new Data(1, 'B');
 
         $result = $memory->to('b');
 
@@ -62,7 +62,7 @@ final class MemoryTest extends TestCase
      */
     public function testBitToByteConversion(): void
     {
-        $memory = new Memory(8, 'b');
+        $memory = new Data(8, 'b');
 
         $result = $memory->to('B');
 
@@ -78,7 +78,7 @@ final class MemoryTest extends TestCase
      */
     public function testKbToBConversion(): void
     {
-        $memory = new Memory(1, 'kB');
+        $memory = new Data(1, 'kB');
 
         $result = $memory->to('B');
 
@@ -90,7 +90,7 @@ final class MemoryTest extends TestCase
      */
     public function testMbToBConversion(): void
     {
-        $memory = new Memory(1, 'MB');
+        $memory = new Data(1, 'MB');
 
         $result = $memory->to('B');
 
@@ -102,7 +102,7 @@ final class MemoryTest extends TestCase
      */
     public function testGbToBConversion(): void
     {
-        $memory = new Memory(1, 'GB');
+        $memory = new Data(1, 'GB');
 
         $result = $memory->to('B');
 
@@ -114,7 +114,7 @@ final class MemoryTest extends TestCase
      */
     public function testTbToGbConversion(): void
     {
-        $memory = new Memory(1, 'TB');
+        $memory = new Data(1, 'TB');
 
         $result = $memory->to('GB');
 
@@ -130,7 +130,7 @@ final class MemoryTest extends TestCase
      */
     public function testKibToBConversion(): void
     {
-        $memory = new Memory(1, 'KiB');
+        $memory = new Data(1, 'KiB');
 
         $result = $memory->to('B');
 
@@ -142,7 +142,7 @@ final class MemoryTest extends TestCase
      */
     public function testMibToBConversion(): void
     {
-        $memory = new Memory(1, 'MiB');
+        $memory = new Data(1, 'MiB');
 
         $result = $memory->to('B');
 
@@ -154,7 +154,7 @@ final class MemoryTest extends TestCase
      */
     public function testGibToBConversion(): void
     {
-        $memory = new Memory(1, 'GiB');
+        $memory = new Data(1, 'GiB');
 
         $result = $memory->to('B');
 
@@ -166,7 +166,7 @@ final class MemoryTest extends TestCase
      */
     public function testTibToGibConversion(): void
     {
-        $memory = new Memory(1, 'TiB');
+        $memory = new Data(1, 'TiB');
 
         $result = $memory->to('GiB');
 
@@ -186,7 +186,7 @@ final class MemoryTest extends TestCase
      */
     public function testGbToGibConversion(): void
     {
-        $memory = new Memory(1, 'GB');
+        $memory = new Data(1, 'GB');
 
         $result = $memory->to('GiB');
 
@@ -200,7 +200,7 @@ final class MemoryTest extends TestCase
      */
     public function testGibToGbConversion(): void
     {
-        $memory = new Memory(1, 'GiB');
+        $memory = new Data(1, 'GiB');
 
         $result = $memory->to('GB');
 
@@ -216,7 +216,7 @@ final class MemoryTest extends TestCase
      */
     public function testMbToBitConversion(): void
     {
-        $memory = new Memory(1, 'Mb');
+        $memory = new Data(1, 'Mb');
 
         $result = $memory->to('b');
 
@@ -230,7 +230,7 @@ final class MemoryTest extends TestCase
      */
     public function testGbToMBConversion(): void
     {
-        $memory = new Memory(1, 'Gb');
+        $memory = new Data(1, 'Gb');
 
         $result = $memory->to('MB');
 
@@ -246,7 +246,7 @@ final class MemoryTest extends TestCase
      */
     public function testRoundTripConversion(): void
     {
-        $original = new Memory(123.456, 'GB');
+        $original = new Data(123.456, 'GB');
 
         $result = $original->to('GiB')->to('MiB')->to('KiB')->to('B')->to('b')->to('MB')->to('GB');
 

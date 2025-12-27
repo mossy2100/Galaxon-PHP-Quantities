@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units;
+namespace Galaxon\Quantities;
 
 use Galaxon\Core\Numbers;
 use Stringable;
@@ -15,8 +15,8 @@ use ValueError;
  * where:
  * - m is the multiplier (scale factor)
  * - k is the offset (additive constant, used for temperature conversions)
- * - x is the input value in the initial unit
- * - y is the output value in the final unit
+ * - x is the input value in the source unit
+ * - y is the output value in the destination unit
  *
  * Error scores are tracked through all operations to enable finding optimal
  * conversion paths in the unit conversion graph.
@@ -26,18 +26,18 @@ class Conversion implements Stringable
     // region Properties
 
     /**
-     * The initial unit (source).
+     * The source unit.
      *
      * @var string
      */
-    public readonly string $initialUnit;
+    public readonly string $srcUnit;
 
     /**
-     * The final unit (destination).
+     * The destination unit.
      *
      * @var string
      */
-    public readonly string $finalUnit;
+    public readonly string $destUnit;
 
     /**
      * The scale factor (cannot be zero).
@@ -87,15 +87,15 @@ class Conversion implements Stringable
     /**
      * Constructor.
      *
-     * @param string $initialUnit The initial unit (source).
-     * @param string $finalUnit The final unit (destination).
+     * @param string $srcUnit The source unit.
+     * @param string $destUnit The destination unit.
      * @param float|FloatWithError $multiplier The scale factor (cannot be 0).
      * @param float|FloatWithError $offset The additive offset (default 0).
      * @throws ValueError If the multiplier is zero.
      */
     public function __construct(
-        string $initialUnit,
-        string $finalUnit,
+        string $srcUnit,
+        string $destUnit,
         float|FloatWithError $multiplier,
         float|FloatWithError $offset = 0
     ) {
@@ -115,8 +115,8 @@ class Conversion implements Stringable
         }
 
         // Set the properties.
-        $this->initialUnit = $initialUnit;
-        $this->finalUnit = $finalUnit;
+        $this->srcUnit = $srcUnit;
+        $this->destUnit = $destUnit;
         $this->multiplier = $multiplier;
         $this->offset = $offset;
     }
@@ -142,12 +142,12 @@ class Conversion implements Stringable
     // region Transformation methods
 
     /**
-     * Invert this conversion to go from final unit back to initial unit.
+     * Invert this conversion to go from destination unit back to source unit.
      *
      * Given: b = a * m1 + k1
      * Solve for a: a = b * (1/m1) + (-k1/m1)
      *
-     * @return self The inverted conversion (final->initial).
+     * @return self The inverted conversion (dest->source).
      */
     public function invert(): self
     {
@@ -159,19 +159,19 @@ class Conversion implements Stringable
         // k = -k1 / m1
         $k = $k1->neg()->div($m1);
         // Swap the units when inverting.
-        return new self($this->finalUnit, $this->initialUnit, $m, $k);
+        return new self($this->destUnit, $this->srcUnit, $m, $k);
     }
 
     /**
-     * Compose two conversions sequentially: initial->common and common->final.
+     * Compose two conversions sequentially: source->mid and mid->dest.
      *
      * Given:
      *   b = a * m1 + k1  (this conversion)
      *   c = b * m2 + k2  (other conversion)
      * Result: c = a * (m1 * m2) + (k1 * m2 + k2)
      *
-     * @param self $other The second conversion (common->final).
-     * @return self The combined conversion (initial->final).
+     * @param self $other The second conversion (mid->dest).
+     * @return self The combined conversion (source->dest).
      */
     public function combineSequential(self $other): self
     {
@@ -184,22 +184,22 @@ class Conversion implements Stringable
         $m = $m1->mul($m2);
         // k = k1 * m2 + k2
         $k = $k1->mul($m2)->add($k2);
-        // Result is initial->final.
-        return new self($this->initialUnit, $other->finalUnit, $m, $k);
+        // Result is source->dest.
+        return new self($this->srcUnit, $other->destUnit, $m, $k);
     }
 
     /**
-     * Compose two conversions convergently: initial->common and final->common.
+     * Compose two conversions convergently: source->mid and dest->mid.
      *
-     * Both conversions point toward the common unit.
+     * Both conversions point toward the intermediate unit.
      *
      * Given:
-     *   b = a * m1 + k1  (this conversion: initial->common)
-     *   b = c * m2 + k2  (other conversion: final->common)
+     *   b = a * m1 + k1  (this conversion: source->mid)
+     *   b = c * m2 + k2  (other conversion: dest->mid)
      * Result: c = a * (m1 / m2) + ((k1 - k2) / m2)
      *
-     * @param self $other The second conversion (final->common).
-     * @return self The combined conversion (initial->final).
+     * @param self $other The second conversion (dest->mid).
+     * @return self The combined conversion (source->dest).
      */
     public function combineConvergent(self $other): self
     {
@@ -212,22 +212,22 @@ class Conversion implements Stringable
         $m = $m1->div($m2);
         // k = (k1 - k2) / m2
         $k = ($k1->sub($k2))->div($m2);
-        // Result is initial->final.
-        return new self($this->initialUnit, $other->initialUnit, $m, $k);
+        // Result is source->dest.
+        return new self($this->srcUnit, $other->srcUnit, $m, $k);
     }
 
     /**
-     * Compose two conversions divergently: common->initial and common->final.
+     * Compose two conversions divergently: mid->source and mid->dest.
      *
-     * Both conversions point away from the common unit.
+     * Both conversions point away from the intermediate unit.
      *
      * Given:
-     *   a = b * m1 + k1  (this conversion: common->initial)
-     *   c = b * m2 + k2  (other conversion: common->final)
+     *   a = b * m1 + k1  (this conversion: mid->source)
+     *   c = b * m2 + k2  (other conversion: mid->dest)
      * Result: c = a * (m2 / m1) + (k2 - (k1 * m2 / m1))
      *
-     * @param self $other The second conversion (common->final).
-     * @return self The combined conversion (initial->final).
+     * @param self $other The second conversion (mid->dest).
+     * @return self The combined conversion (source->dest).
      */
     public function combineDivergent(self $other): self
     {
@@ -241,22 +241,22 @@ class Conversion implements Stringable
         // k = k2 - (k1 * m2 / m1)
         //   = k2 - (k1 * m)
         $k = $k2->sub($k1->mul($m));
-        // Result is initial->final.
-        return new self($this->finalUnit, $other->finalUnit, $m, $k);
+        // Result is source->dest.
+        return new self($this->destUnit, $other->destUnit, $m, $k);
     }
 
     /**
-     * Compose two conversions oppositely: common->initial and final->common.
+     * Compose two conversions oppositely: mid->source and dest->mid.
      *
-     * Conversions flow in opposite directions through the common unit.
+     * Conversions flow in opposite directions through the intermediate unit.
      *
      * Given:
-     *   a = b * m1 + k1  (this conversion: common->initial)
-     *   b = c * m2 + k2  (other conversion: final->common)
+     *   a = b * m1 + k1  (this conversion: mid->source)
+     *   b = c * m2 + k2  (other conversion: dest->mid)
      * Result: c = a / (m1 * m2) + ((-k2 - (k1 / m1)) / m2)
      *
-     * @param self $other The second conversion (final->common).
-     * @return self The combined conversion (initial->final).
+     * @param self $other The second conversion (dest->mid).
+     * @return self The combined conversion (source->dest).
      */
     public function combineOpposite(self $other): self
     {
@@ -269,8 +269,8 @@ class Conversion implements Stringable
         $m = $m1->mul($m2)->inv();
         // k = (-k2 - (k1 / m1)) / m2
         $k = $k2->neg()->sub($k1->div($m1))->div($m2);
-        // Result is initial->final.
-        return new self($this->finalUnit, $other->initialUnit, $m, $k);
+        // Result is source->dest.
+        return new self($this->destUnit, $other->srcUnit, $m, $k);
     }
 
     // endregion
@@ -280,14 +280,14 @@ class Conversion implements Stringable
     /**
      * Convert this conversion to a string representation.
      *
-     * Format: "finalUnit = initialUnit * multiplier + offset (error score: X)"
+     * Format: "destUnit = srcUnit * multiplier + offset (error score: X)"
      * Omits multiplier if 1, omits offset if 0.
      *
      * @return string The string representation of this conversion.
      */
     public function __toString(): string
     {
-        $str = "$this->finalUnit = $this->initialUnit";
+        $str = "$this->destUnit = $this->srcUnit";
         if (!Numbers::equal($this->multiplier->value, 1)) {
             $str .= " * {$this->multiplier->value}";
         }
@@ -295,7 +295,7 @@ class Conversion implements Stringable
             $sign = $this->offset->value < 0 ? '-' : '+';
             $str .= " $sign " . abs($this->offset->value);
         }
-        $str .= " (error score: $this->totalAbsoluteError)";
+        $str .= " (total absolute error: $this->totalAbsoluteError)";
         return $str;
     }
 

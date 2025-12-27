@@ -1,7 +1,7 @@
 <?php
 
-use Galaxon\Units\Conversion;
-use Galaxon\Units\UnitConverter;
+use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\UnitConverter;
 
 /**
  * Generate all possible conversions by exhaustive graph traversal.

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests\MeasurementTypes;
+namespace Galaxon\Quantities\Tests;
 
-use Galaxon\Units\MeasurementTypes\Area;
+use Galaxon\Quantities\QuantityType\Area;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

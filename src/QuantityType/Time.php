@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\MeasurementTypes;
+namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
-use Galaxon\Units\Measurement;
+use Galaxon\Quantities\Quantity;
 use Override;
 use TypeError;
 use ValueError;
 
-class Time extends Measurement
+class Time extends Quantity
 {
     // region Factory methods
 
@@ -70,49 +70,17 @@ class Time extends Measurement
 
     // endregion
 
-    // region Extraction methods
+    // region Static getters
 
     /**
-     * Get the units for Time measurements.
+     * Get the dimension code for this quantity type. This method must be overridden in derived classes.
      *
-     * @return array<string, int> Array of units with allowed prefixes flags.
+     * @return ?string
      */
     #[Override]
-    public static function getUnits(): array
+    public static function getDimensionCode(): ?string
     {
-        return [
-            's'   => self::PREFIX_CODE_METRIC,  // second
-            'min' => 0,  // minute
-            'h'   => 0,  // hour
-            'd'   => 0,  // day
-            'w'   => 0,  // week
-            'mo'  => 0,  // month
-            'y'   => 0,  // year
-            'c'   => 0,  // century
-        ];
-    }
-
-    /**
-     * Get the conversions for Time measurements.
-     *
-     * These conversion factors are basic. Leap seconds are not considered, and the year-to-day conversion is based on
-     * the average length of a year in the Gregorian calendar. If you want, you can add or update conversions using the
-     * `Time::getUnitConverter()->addConversion()` method.
-     *
-     * @return array<array{0: string, 1: string, 2: float, 3?: float}> Array of conversion definitions.
-     */
-    #[Override]
-    public static function getConversions(): array
-    {
-        return [
-            ['min', 's', 60],
-            ['h', 'min', 60],
-            ['d', 'h', 24],
-            ['w', 'd', 7],
-            ['y', 'mo', 12],
-            ['y', 'd', 365.2425],
-            ['c', 'y', 100]
-        ];
+        return 'T';
     }
 
     // endregion

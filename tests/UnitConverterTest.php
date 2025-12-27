@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests;
+namespace Galaxon\Quantities\Tests;
 
-use Galaxon\Units\Conversion;
-use Galaxon\Units\Measurement;
-use Galaxon\Units\UnitConverter;
+use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\UnitConverter;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -29,7 +29,7 @@ class UnitConverterTest extends TestCase
     {
         return new UnitConverter(
             [
-                'm'  => Measurement::PREFIX_CODE_METRIC,
+                'm'  => Quantity::PREFIX_CODE_METRIC,
                 'ft' => 0,
                 'in' => 0,
             ],
@@ -93,7 +93,7 @@ class UnitConverterTest extends TestCase
         $this->expectException(LogicException::class);
 
         // Force an integer key by using array union.
-        $units = [0 => Measurement::PREFIX_CODE_METRIC];
+        $units = [0 => Quantity::PREFIX_CODE_METRIC];
 
         new UnitConverter($units, []); // @phpstan-ignore argument.type
     }
@@ -197,12 +197,12 @@ class UnitConverterTest extends TestCase
     }
 
     /**
-     * Test constructor throws for non-string initial unit in conversion.
+     * Test constructor throws for non-string source unit in conversion.
      */
-    public function testConstructorThrowsForNonStringInitialUnit(): void
+    public function testConstructorThrowsForNonStringSrcUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Initial unit in conversion must be a string.');
+        $this->expectExceptionMessage('Source unit in conversion must be a string.');
 
         new UnitConverter(
             ['m' => 0, 'ft' => 0],
@@ -213,12 +213,12 @@ class UnitConverterTest extends TestCase
     }
 
     /**
-     * Test constructor throws for invalid initial unit in conversion.
+     * Test constructor throws for invalid source unit in conversion.
      */
-    public function testConstructorThrowsForInvalidInitialUnit(): void
+    public function testConstructorThrowsForInvalidSrcUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage("Initial unit 'invalid' in conversion is not a valid unit.");
+        $this->expectExceptionMessage("Source unit 'invalid' in conversion is not a valid unit.");
 
         new UnitConverter(
             ['m' => 0, 'ft' => 0],
@@ -229,12 +229,12 @@ class UnitConverterTest extends TestCase
     }
 
     /**
-     * Test constructor throws for non-string final unit in conversion.
+     * Test constructor throws for non-string destination unit in conversion.
      */
-    public function testConstructorThrowsForNonStringFinalUnit(): void
+    public function testConstructorThrowsForNonStringDestUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Final unit in conversion must be a string.');
+        $this->expectExceptionMessage('Destination unit in conversion must be a string.');
 
         new UnitConverter(
             ['m' => 0, 'ft' => 0],
@@ -245,12 +245,12 @@ class UnitConverterTest extends TestCase
     }
 
     /**
-     * Test constructor throws for invalid final unit in conversion.
+     * Test constructor throws for invalid destination unit in conversion.
      */
-    public function testConstructorThrowsForInvalidFinalUnit(): void
+    public function testConstructorThrowsForInvalidDestUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage("Final unit 'invalid' in conversion is not a valid unit.");
+        $this->expectExceptionMessage("Destination unit 'invalid' in conversion is not a valid unit.");
 
         new UnitConverter(
             ['m' => 0, 'ft' => 0],
@@ -314,7 +314,7 @@ class UnitConverterTest extends TestCase
     public function testConstructorAcceptsPrefixedUnitsInConversion(): void
     {
         $converter = new UnitConverter(
-            ['m' => Measurement::PREFIX_CODE_METRIC, 'ft' => 0],
+            ['m' => Quantity::PREFIX_CODE_METRIC, 'ft' => 0],
             [
                 ['km', 'ft', 3280.84],  // Using prefixed unit.
             ]
@@ -369,7 +369,7 @@ class UnitConverterTest extends TestCase
      */
     public function testGetPrefixesReturnsSmallMetricPrefixes(): void
     {
-        $prefixes = UnitConverter::getPrefixes(Measurement::PREFIX_CODE_SMALL_METRIC);
+        $prefixes = UnitConverter::getPrefixes(Quantity::PREFIX_CODE_SMALL_METRIC);
 
         $this->assertArrayHasKey('m', $prefixes);  // milli
         $this->assertArrayHasKey('μ', $prefixes);  // micro
@@ -383,7 +383,7 @@ class UnitConverterTest extends TestCase
      */
     public function testGetPrefixesReturnsLargeMetricPrefixes(): void
     {
-        $prefixes = UnitConverter::getPrefixes(Measurement::PREFIX_CODE_LARGE_METRIC);
+        $prefixes = UnitConverter::getPrefixes(Quantity::PREFIX_CODE_LARGE_METRIC);
 
         $this->assertArrayHasKey('k', $prefixes);  // kilo
         $this->assertArrayHasKey('M', $prefixes);  // mega
@@ -397,7 +397,7 @@ class UnitConverterTest extends TestCase
      */
     public function testGetPrefixesReturnsBinaryPrefixes(): void
     {
-        $prefixes = UnitConverter::getPrefixes(Measurement::PREFIX_CODE_BINARY);
+        $prefixes = UnitConverter::getPrefixes(Quantity::PREFIX_CODE_BINARY);
 
         $this->assertArrayHasKey('Ki', $prefixes);  // kibi
         $this->assertArrayHasKey('Mi', $prefixes);  // mebi
@@ -411,7 +411,7 @@ class UnitConverterTest extends TestCase
      */
     public function testGetPrefixesReturnsAllMetricPrefixes(): void
     {
-        $prefixes = UnitConverter::getPrefixes(Measurement::PREFIX_CODE_METRIC);
+        $prefixes = UnitConverter::getPrefixes(Quantity::PREFIX_CODE_METRIC);
 
         $this->assertArrayHasKey('m', $prefixes);  // milli (small)
         $this->assertArrayHasKey('k', $prefixes);  // kilo (large)
@@ -423,7 +423,7 @@ class UnitConverterTest extends TestCase
      */
     public function testGetPrefixesReturnsAllPrefixes(): void
     {
-        $prefixes = UnitConverter::getPrefixes(Measurement::PREFIX_CODE_ALL);
+        $prefixes = UnitConverter::getPrefixes(Quantity::PREFIX_CODE_ALL);
 
         $this->assertArrayHasKey('m', $prefixes);  // milli (small metric)
         $this->assertArrayHasKey('k', $prefixes);  // kilo (large metric)
@@ -435,8 +435,8 @@ class UnitConverterTest extends TestCase
      */
     public function testGetPrefixesCachesResults(): void
     {
-        $prefixes1 = UnitConverter::getPrefixes(Measurement::PREFIX_CODE_SMALL_METRIC);
-        $prefixes2 = UnitConverter::getPrefixes(Measurement::PREFIX_CODE_SMALL_METRIC);
+        $prefixes1 = UnitConverter::getPrefixes(Quantity::PREFIX_CODE_SMALL_METRIC);
+        $prefixes2 = UnitConverter::getPrefixes(Quantity::PREFIX_CODE_SMALL_METRIC);
 
         // Same reference should be returned from cache.
         $this->assertSame($prefixes1, $prefixes2);
@@ -521,7 +521,7 @@ class UnitConverterTest extends TestCase
     public function testGetUnitWithPositiveExponent(): void
     {
         $converter = new UnitConverter(
-            ['m2' => Measurement::PREFIX_CODE_METRIC],
+            ['m2' => Quantity::PREFIX_CODE_METRIC],
             []
         );
 
@@ -538,7 +538,7 @@ class UnitConverterTest extends TestCase
     public function testGetUnitWithPrefixAndPositiveExponent(): void
     {
         $converter = new UnitConverter(
-            ['m2' => Measurement::PREFIX_CODE_METRIC],
+            ['m2' => Quantity::PREFIX_CODE_METRIC],
             []
         );
 
@@ -555,7 +555,7 @@ class UnitConverterTest extends TestCase
     public function testGetUnitWithNegativeExponent(): void
     {
         $converter = new UnitConverter(
-            ['s-2' => Measurement::PREFIX_CODE_METRIC],
+            ['s-2' => Quantity::PREFIX_CODE_METRIC],
             []
         );
 
@@ -572,7 +572,7 @@ class UnitConverterTest extends TestCase
     public function testGetUnitWithPrefixAndNegativeExponent(): void
     {
         $converter = new UnitConverter(
-            ['s-1' => Measurement::PREFIX_CODE_METRIC],
+            ['s-1' => Quantity::PREFIX_CODE_METRIC],
             []
         );
 
@@ -585,76 +585,85 @@ class UnitConverterTest extends TestCase
 
     // endregion
 
-    // region composeUnit() tests
+    // region composeUnitSymbol() tests
 
     /**
-     * Test composeUnit with prefix.
+     * Call the protected composeUnitSymbol method using Reflection.
      */
-    public function testComposeUnitWithPrefix(): void
+    private function callComposeUnitSymbol(UnitConverter $converter, string $prefix, string $base, int $exponent): string
+    {
+        $method = new \ReflectionMethod(UnitConverter::class, 'composeUnitSymbol');
+        return $method->invoke($converter, $prefix, $base, $exponent);
+    }
+
+    /**
+     * Test composeUnitSymbol with prefix.
+     */
+    public function testComposeUnitSymbolWithPrefix(): void
     {
         $converter = $this->createSimpleConverter();
 
-        $unit = $converter->composeUnitSymbol('k', 'm', 1);
+        $unit = $this->callComposeUnitSymbol($converter, 'k', 'm', 1);
 
         $this->assertSame('km', $unit);
     }
 
     /**
-     * Test composeUnit without prefix.
+     * Test composeUnitSymbol without prefix.
      */
-    public function testComposeUnitWithoutPrefix(): void
+    public function testComposeUnitSymbolWithoutPrefix(): void
     {
         $converter = $this->createSimpleConverter();
 
-        $unit = $converter->composeUnitSymbol('', 'ft', 1);
+        $unit = $this->callComposeUnitSymbol($converter, '', 'ft', 1);
 
         $this->assertSame('ft', $unit);
     }
 
     /**
-     * Test composeUnit with positive exponent.
+     * Test composeUnitSymbol with positive exponent.
      */
-    public function testComposeUnitWithPositiveExponent(): void
+    public function testComposeUnitSymbolWithPositiveExponent(): void
     {
         $converter = $this->createSimpleConverter();
 
-        $unit = $converter->composeUnitSymbol('k', 'm', 2);
+        $unit = $this->callComposeUnitSymbol($converter, 'k', 'm', 2);
 
         $this->assertSame('km2', $unit);
     }
 
     /**
-     * Test composeUnit with prefix and exponent.
+     * Test composeUnitSymbol with prefix and exponent.
      */
-    public function testComposeUnitWithPrefixAndExponent(): void
+    public function testComposeUnitSymbolWithPrefixAndExponent(): void
     {
         $converter = $this->createSimpleConverter();
 
-        $unit = $converter->composeUnitSymbol('c', 'm', 3);
+        $unit = $this->callComposeUnitSymbol($converter, 'c', 'm', 3);
 
         $this->assertSame('cm3', $unit);
     }
 
     /**
-     * Test composeUnit with negative exponent.
+     * Test composeUnitSymbol with negative exponent.
      */
-    public function testComposeUnitWithNegativeExponent(): void
+    public function testComposeUnitSymbolWithNegativeExponent(): void
     {
         $converter = $this->createSimpleConverter();
 
-        $unit = $converter->composeUnitSymbol('', 's', -2);
+        $unit = $this->callComposeUnitSymbol($converter, '', 's', -2);
 
         $this->assertSame('s-2', $unit);
     }
 
     /**
-     * Test composeUnit with prefix and negative exponent.
+     * Test composeUnitSymbol with prefix and negative exponent.
      */
-    public function testComposeUnitWithPrefixAndNegativeExponent(): void
+    public function testComposeUnitSymbolWithPrefixAndNegativeExponent(): void
     {
         $converter = $this->createSimpleConverter();
 
-        $unit = $converter->composeUnitSymbol('k', 'm', -1);
+        $unit = $this->callComposeUnitSymbol($converter, 'k', 'm', -1);
 
         $this->assertSame('km-1', $unit);
     }
@@ -729,8 +738,8 @@ class UnitConverterTest extends TestCase
         $conversion = $converter->getConversion('m', 'm');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
-        $this->assertSame('m', $conversion->initialUnit);
-        $this->assertSame('m', $conversion->finalUnit);
+        $this->assertSame('m', $conversion->srcUnit);
+        $this->assertSame('m', $conversion->destUnit);
         $this->assertSame(1.0, $conversion->multiplier->value);
         $this->assertSame(0.0, $conversion->offset->value);
     }
@@ -745,8 +754,8 @@ class UnitConverterTest extends TestCase
         $conversion = $converter->getConversion('m', 'ft');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
-        $this->assertSame('m', $conversion->initialUnit);
-        $this->assertSame('ft', $conversion->finalUnit);
+        $this->assertSame('m', $conversion->srcUnit);
+        $this->assertSame('ft', $conversion->destUnit);
         $this->assertEqualsWithDelta(3.28084, $conversion->multiplier->value, 1e-10);
     }
 
@@ -760,8 +769,8 @@ class UnitConverterTest extends TestCase
         $conversion = $converter->getConversion('ft', 'm');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
-        $this->assertSame('ft', $conversion->initialUnit);
-        $this->assertSame('m', $conversion->finalUnit);
+        $this->assertSame('ft', $conversion->srcUnit);
+        $this->assertSame('m', $conversion->destUnit);
         $this->assertEqualsWithDelta(1.0 / 3.28084, $conversion->multiplier->value, 1e-10);
     }
 
@@ -776,8 +785,8 @@ class UnitConverterTest extends TestCase
         $conversion = $converter->getConversion('m', 'in');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
-        $this->assertSame('m', $conversion->initialUnit);
-        $this->assertSame('in', $conversion->finalUnit);
+        $this->assertSame('m', $conversion->srcUnit);
+        $this->assertSame('in', $conversion->destUnit);
         // 3.28084 * 12 = 39.37008
         $this->assertEqualsWithDelta(3.28084 * 12, $conversion->multiplier->value, 1e-5);
     }
@@ -792,8 +801,8 @@ class UnitConverterTest extends TestCase
         $conversion = $converter->getConversion('km', 'm');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
-        $this->assertSame('km', $conversion->initialUnit);
-        $this->assertSame('m', $conversion->finalUnit);
+        $this->assertSame('km', $conversion->srcUnit);
+        $this->assertSame('m', $conversion->destUnit);
         $this->assertEqualsWithDelta(1000.0, $conversion->multiplier->value, 1e-10);
     }
 
@@ -807,8 +816,8 @@ class UnitConverterTest extends TestCase
         $conversion = $converter->getConversion('km', 'cm');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
-        $this->assertSame('km', $conversion->initialUnit);
-        $this->assertSame('cm', $conversion->finalUnit);
+        $this->assertSame('km', $conversion->srcUnit);
+        $this->assertSame('cm', $conversion->destUnit);
         $this->assertEqualsWithDelta(100000.0, $conversion->multiplier->value, 1e-10);
     }
 
@@ -822,8 +831,8 @@ class UnitConverterTest extends TestCase
         $conversion = $converter->getConversion('km', 'ft');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
-        $this->assertSame('km', $conversion->initialUnit);
-        $this->assertSame('ft', $conversion->finalUnit);
+        $this->assertSame('km', $conversion->srcUnit);
+        $this->assertSame('ft', $conversion->destUnit);
         $this->assertEqualsWithDelta(3280.84, $conversion->multiplier->value, 1e-2);
     }
 
@@ -841,9 +850,9 @@ class UnitConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion throws for invalid initial unit.
+     * Test getConversion throws for invalid source unit.
      */
-    public function testGetConversionThrowsForInvalidInitialUnit(): void
+    public function testGetConversionThrowsForInvalidSrcUnit(): void
     {
         $converter = $this->createSimpleConverter();
 
@@ -853,9 +862,9 @@ class UnitConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion throws for invalid final unit.
+     * Test getConversion throws for invalid destination unit.
      */
-    public function testGetConversionThrowsForInvalidFinalUnit(): void
+    public function testGetConversionThrowsForInvalidDestUnit(): void
     {
         $converter = $this->createSimpleConverter();
 
@@ -1015,7 +1024,7 @@ class UnitConverterTest extends TestCase
     {
         $converter = $this->createSimpleConverter();
 
-        $converter->addUnit('g', Measurement::PREFIX_CODE_METRIC);
+        $converter->addUnit('g', Quantity::PREFIX_CODE_METRIC);
 
         $validUnits = $converter->getUnitSymbols();
         $this->assertContains('g', $validUnits);
@@ -1035,7 +1044,7 @@ class UnitConverterTest extends TestCase
 
         $this->assertNotContains('km', $converter->getUnitSymbols());
 
-        $converter->addUnit('m', Measurement::PREFIX_CODE_METRIC);
+        $converter->addUnit('m', Quantity::PREFIX_CODE_METRIC);
 
         $this->assertContains('km', $converter->getUnitSymbols());
     }
@@ -1052,7 +1061,7 @@ class UnitConverterTest extends TestCase
         // Create a converter without conversions referencing the unit we'll remove.
         $converter = new UnitConverter(
             [
-                'm'  => Measurement::PREFIX_CODE_METRIC,
+                'm'  => Quantity::PREFIX_CODE_METRIC,
                 'ft' => 0,
                 'yd' => 0,
             ],
@@ -1075,8 +1084,8 @@ class UnitConverterTest extends TestCase
         // Create a converter where 'g' (gram) can be removed without affecting conversions.
         $converter = new UnitConverter(
             [
-                'm' => Measurement::PREFIX_CODE_METRIC,
-                'g' => Measurement::PREFIX_CODE_METRIC,
+                'm' => Quantity::PREFIX_CODE_METRIC,
+                'g' => Quantity::PREFIX_CODE_METRIC,
             ],
             []  // No conversions, so removing either unit is safe.
         );

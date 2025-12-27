@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests\MeasurementTypes;
+namespace Galaxon\Quantities\Tests;
 
 use DivisionByZeroError;
 use Galaxon\Core\Floats;
-use Galaxon\Units\MeasurementTypes\Angle;
+use Galaxon\Quantities\QuantityType\Angle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -268,15 +268,6 @@ final class AngleTest extends TestCase
         $this->expectException(ValueError::class);
         $a->div(NAN);
     }
-
-//    /**
-//     * Test that wrapping with infinity throws ValueError.
-//     */
-//    public function testWrapWithNonFiniteParameters(): void
-//    {
-//        $this->expectException(ValueError::class);
-//        Angle::wrapDegrees(INF);
-//    }
 
     /**
      * Test trigonometric functions and their behavior at singularities.
@@ -566,38 +557,39 @@ final class AngleTest extends TestCase
         // Delta is positive -> b > a.
         $this->assertSame(1, $b->compare($a));
     }
-//    /**
-//     * Test that wrapDegrees() normalizes values correctly.
-//     *
-//     * Verifies wrapping behavior for degrees in both unsigned [0, 360) and signed (-180, 180] ranges.
-//     */
-//    public function testWrapDegreesBehaviour(): void
-//    {
-//        $this->assertFloatEquals(50.0, Angle::wrapDegrees(410.0, false));
-//        $this->assertFloatEquals(150.0, Angle::wrapDegrees(-210.0, true));
-//    }
-//
-//    /**
-//     * Test that wrapGradians() normalizes values correctly.
-//     *
-//     * Verifies wrapping behavior for gradians in both unsigned [0, 400) and signed (-200, 200] ranges.
-//     */
-//    public function testWrapGradiansBehaviour(): void
-//    {
-//        $this->assertFloatEquals(50.0, Angle::wrapGradians(450.0, false));
-//        $this->assertFloatEquals(190.0, Angle::wrapGradians(-210.0, true));
-//    }
 
-//    /**
-//     * Test that wrapTurns() normalizes values correctly.
-//     *
-//     * Verifies wrapping behavior for turns in both unsigned [0, 1) and signed (-0.5, 0.5] ranges.
-//     */
-//    public function testWrapTurnsBehaviour(): void
-//    {
-//        $this->assertFloatEquals(0.2, Angle::wrapTurns(1.2, false));
-//        $this->assertFloatEquals(0.25, Angle::wrapTurns(-0.75, true));
-//    }
+    /**
+     * Test that wrapDegrees() normalizes values correctly.
+     *
+     * Verifies wrapping behavior for degrees in both unsigned [0, 360) and signed (-180, 180] ranges.
+     */
+    public function testWrapDegreesBehaviour(): void
+    {
+        $this->assertFloatEquals(50.0, Angle::wrapDegrees(410.0, false));
+        $this->assertFloatEquals(150.0, Angle::wrapDegrees(-210.0, true));
+    }
+
+    /**
+     * Test that wrapGradians() normalizes values correctly.
+     *
+     * Verifies wrapping behavior for gradians in both unsigned [0, 400) and signed (-200, 200] ranges.
+     */
+    public function testWrapGradiansBehaviour(): void
+    {
+        $this->assertFloatEquals(50.0, Angle::wrapGradians(450.0, false));
+        $this->assertFloatEquals(190.0, Angle::wrapGradians(-210.0, true));
+    }
+
+    /**
+     * Test that wrapTurns() normalizes values correctly.
+     *
+     * Verifies wrapping behavior for turns in both unsigned [0, 1) and signed (-0.5, 0.5] ranges.
+     */
+    public function testWrapTurnsBehaviour(): void
+    {
+        $this->assertFloatEquals(0.2, Angle::wrapTurns(1.2, false));
+        $this->assertFloatEquals(0.25, Angle::wrapTurns(-0.75, true));
+    }
 
     /**
      * Test hyperbolic trigonometric functions.

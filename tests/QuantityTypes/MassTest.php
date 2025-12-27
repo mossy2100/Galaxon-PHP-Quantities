@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests\MeasurementTypes;
+namespace Galaxon\Quantities\Tests;
 
-use Galaxon\Units\MeasurementTypes\Mass;
+use Galaxon\Quantities\QuantityType\Mass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

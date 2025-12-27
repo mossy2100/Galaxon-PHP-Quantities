@@ -2,13 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\MeasurementTypes;
+namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Units\Measurement;
-use Override;
+use Galaxon\Quantities\Quantity;
 
-class Mass extends Measurement
+class Mass extends Quantity
 {
+    // region Static getters
+
+    /**
+     * Get the dimension code for this quantity type. This method must be overridden in derived classes.
+     *
+     * @return ?string
+     */
+    #[Override]
+    public static function getDimensionCode(): ?string
+    {
+        return 'M';
+    }
+
+    // endregion
+
     // region Factory methods
 
     /**
@@ -55,50 +69,6 @@ class Mass extends Measurement
     {
         // Update the conversion from ton to lb.
         self::getUnitConverter()->addConversion('ton', 'lb', 2240);
-    }
-
-    // endregion
-
-    // region Extraction methods
-
-    /**
-     * Get the units for Mass measurements.
-     *
-     * @return array<string, int> Array of units with allowed prefixes flags.
-     */
-    #[Override]
-    public static function getUnits(): array
-    {
-        return [
-            'g'   => self::PREFIX_CODE_METRIC,        // gram
-            't'   => self::PREFIX_CODE_LARGE_METRIC,  // tonne
-            'gr'  => 0,  // grain
-            'oz'  => 0,  // ounce
-            'lb'  => 0,  // pound
-            'st'  => 0,  // stone
-            'ton' => 0,  // ton
-        ];
-    }
-
-    /**
-     * Get the conversions for Mass measurements.
-     *
-     * @return array<array{0: string, 1: string, 2: float, 3?: float}> Array of conversion definitions.
-     */
-    #[Override]
-    public static function getConversions(): array
-    {
-        return [
-            // Metric.
-            ['t', 'kg', 1000],
-            // Metric-imperial bridge.
-            ['lb', 'g', 453.59237],
-            // Imperial.
-            ['lb', 'oz', 16],
-            ['st', 'lb', 14],
-            // Use US short ton by default.
-            ['ton', 'lb', 2000],
-        ];
     }
 
     // endregion

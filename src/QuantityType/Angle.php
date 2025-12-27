@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\MeasurementTypes;
+namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
-use Galaxon\Units\Measurement;
+use Galaxon\Quantities\Quantity;
 use Override;
 use TypeError;
 use ValueError;
 
-class Angle extends Measurement
+class Angle extends Quantity
 {
     // region Constants
 
@@ -44,15 +44,15 @@ class Angle extends Measurement
     public static function parse(string $value): static
     {
         try {
-            // Try to parse the angle using Measurement::parse().
+            // Try to parse the angle using Quantity::parse().
             return parent::parse($value);
         } catch (ValueError $e) {
             // Check for a format containing symbols for degrees, arcminutes, and arcseconds.
             $rxNum = '\d+(?:\.\d+)?(?:[eE][+-]?\d+)?';
-            $pattern = '/^(?:(?P<sign>[-+]?)\s*)?'
-                       . "(?:(?P<deg>$rxNum)°\s*)?"
-                       . "(?:(?P<min>$rxNum)[′']\s*)?"
-                       . "(?:(?P<sec>$rxNum)[″\"])?$/u";
+            $pattern = '/^(?:(?<sign>[-+]?)\s*)?'
+                       . "(?:(?<deg>$rxNum)°\s*)?"
+                       . "(?:(?<min>$rxNum)[′']\s*)?"
+                       . "(?:(?<sec>$rxNum)[″\"])?$/u";
             if (preg_match($pattern, $value, $matches)) {
                 // Require at least one component (deg/min/sec).
                 if (empty($matches['deg']) && empty($matches['min']) && empty($matches['sec'])) {
@@ -78,43 +78,17 @@ class Angle extends Measurement
 
     // endregion
 
-    // region Extraction methods
+    // region Static getters
 
     /**
-     * Get the units for Angle measurements.
+     * Get the dimension code for this quantity type. This method must be overridden in derived classes.
      *
-     * @return array<string, int> Array of units with allowed prefixes flags.
+     * @return ?string
      */
     #[Override]
-    public static function getUnits(): array
+    public static function getDimensionCode(): ?string
     {
-        return [
-            'rad'    => self::PREFIX_CODE_SMALL_METRIC,  // radian
-            'deg'    => 0,  // degree
-            'arcmin' => 0,  // arcminute
-            'arcsec' => 0,  // arcsecond
-            'as'     => self::PREFIX_CODE_SMALL_METRIC,  // arcsecond (alias used with prefixes)
-            'grad'   => 0,  // gradian
-            'turn'   => 0,  // turn/revolution
-        ];
-    }
-
-    /**
-     * Get the conversions for Angle measurements.
-     *
-     * @return array<array{0: string, 1: string, 2: float, 3?: float}> Array of conversion definitions.
-     */
-    #[Override]
-    public static function getConversions(): array
-    {
-        return [
-            ['turn', 'rad', Floats::TAU],
-            ['turn', 'deg', 360],
-            ['deg', 'arcmin', 60],
-            ['arcmin', 'arcsec', 60],
-            ['arcsec', 'as', 1],
-            ['turn', 'grad', 400],
-        ];
+        return 'A';
     }
 
     // endregion
@@ -167,8 +141,6 @@ class Angle extends Measurement
      * For radians, this is [0, τ)
      * For degrees, this is [0, 360)
      *
-     * @see https://en.wikipedia.org/wiki/Principal_value#Complex_argument
-     *
      * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
      * @return self A new angle with the wrapped value.
      *
@@ -181,29 +153,8 @@ class Angle extends Measurement
         // Get the units per turn for the current unit.
         $unitsPerTurn = new self(1, 'turn')->to($this->unit)->value;
 
-        // Reduce using fmod to avoid large magnitudes.
-        // $r will be in the range [0, $unitsPerTurn) if $value is positive, or (-$unitsPerTurn, 0] if negative.
-        $r = fmod($this->value, $unitsPerTurn);
-
-        // Adjust to fit within range bounds.
-        // The value may be outside the range due to the sign of $value or the value of $signed.
-        if ($signed) {
-            // Signed range is (-$half, $half]
-            $half = $unitsPerTurn / 2.0;
-            if ($r <= -$half) {
-                $r += $unitsPerTurn;
-            } elseif ($r > $half) {
-                $r -= $unitsPerTurn;
-            }
-        } else {
-            // Unsigned range is [0, $unitsPerTurn)
-            if ($r < 0.0) {
-                $r += $unitsPerTurn;
-            }
-        }
-
-        // Canonicalize -0.0 to 0.0.
-        $r = Floats::normalizeZero($r);
+        // Wrap the value.
+        $r = Floats::wrap($this->value, $unitsPerTurn, $signed);
 
         // Return a new Angle with the wrapped value.
         return new self($r, $this->unit);

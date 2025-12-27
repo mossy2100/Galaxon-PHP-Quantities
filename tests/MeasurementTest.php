@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests;
+namespace Galaxon\Quantities\Tests;
 
 use DivisionByZeroError;
-use Galaxon\Units\Measurement;
-use Galaxon\Units\MeasurementTypes\Area;
-use Galaxon\Units\MeasurementTypes\Length;
-use Galaxon\Units\MeasurementTypes\Time;
+use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\QuantityType\Area;
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Time;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -18,15 +18,15 @@ use TypeError;
 use ValueError;
 
 /**
- * Test class for Measurement abstract class.
+ * Test class for Quantity abstract class.
  *
  * Uses concrete implementations (Length, Area, Time) to test inherited functionality.
  */
-#[CoversClass(Measurement::class)]
+#[CoversClass(Quantity::class)]
 #[CoversClass(Area::class)]
 #[CoversClass(Length::class)]
 #[CoversClass(Time::class)]
-final class MeasurementTest extends TestCase
+final class QuantityTest extends TestCase
 {
     // region Constructor tests
 
@@ -396,9 +396,9 @@ final class MeasurementTest extends TestCase
     // region Arithmetic tests (add, sub, neg, mul, div, abs)
 
     /**
-     * Test add with Measurement argument.
+     * Test add with Quantity argument.
      */
-    public function testAddWithMeasurement(): void
+    public function testAddWithQuantity(): void
     {
         $a = new Length(100, 'm');
         $b = new Length(50, 'm');
@@ -451,9 +451,9 @@ final class MeasurementTest extends TestCase
     }
 
     /**
-     * Test sub with Measurement argument.
+     * Test sub with Quantity argument.
      */
-    public function testSubWithMeasurement(): void
+    public function testSubWithQuantity(): void
     {
         $a = new Length(100, 'm');
         $b = new Length(30, 'm');
@@ -513,9 +513,9 @@ final class MeasurementTest extends TestCase
     }
 
     /**
-     * Test add throws TypeError for wrong Measurement type.
+     * Test add throws TypeError for wrong Quantity type.
      */
-    public function testAddThrowsForWrongMeasurementType(): void
+    public function testAddThrowsForWrongQuantityType(): void
     {
         $this->expectException(TypeError::class);
         $this->expectExceptionMessage('Invalid argument types');
@@ -781,7 +781,7 @@ final class MeasurementTest extends TestCase
     }
 
     /**
-     * Test compare throws for different Measurement types.
+     * Test compare throws for different Quantity types.
      */
     public function testCompareThrowsForDifferentTypes(): void
     {
@@ -794,9 +794,9 @@ final class MeasurementTest extends TestCase
     }
 
     /**
-     * Test compare throws for non-Measurement.
+     * Test compare throws for non-Quantity.
      */
-    public function testCompareThrowsForNonMeasurement(): void
+    public function testCompareThrowsForNonQuantity(): void
     {
         $length = new Length(100, 'm');
 
@@ -850,7 +850,7 @@ final class MeasurementTest extends TestCase
     }
 
     /**
-     * Test approxEqual returns false for different Measurement types.
+     * Test approxEqual returns false for different Quantity types.
      */
     public function testApproxEqualDifferentTypes(): void
     {
@@ -861,9 +861,9 @@ final class MeasurementTest extends TestCase
     }
 
     /**
-     * Test approxEqual returns false for non-Measurement.
+     * Test approxEqual returns false for non-Quantity.
      */
-    public function testApproxEqualNonMeasurement(): void
+    public function testApproxEqualNonQuantity(): void
     {
         $length = new Length(100, 'm');
 
@@ -1037,7 +1037,7 @@ final class MeasurementTest extends TestCase
     // endregion
 }
 
-class Coolness extends Measurement
+class Coolness extends Quantity
 {
     /** @return array<string, int> */
     public static function getUnits(): array
@@ -1052,7 +1052,7 @@ class Coolness extends Measurement
     }
 }
 
-class Badness extends Measurement
+class Badness extends Quantity
 {
     /** @return array<string, int> */
     public static function getUnits(): array
@@ -1081,7 +1081,7 @@ class Badness extends Measurement
 /**
  * Test class with an empty symbol in getPartUnits().
  */
-class EmptySymbol extends Measurement
+class EmptySymbol extends Quantity
 {
     /** @return array<string, int> */
     public static function getUnits(): array

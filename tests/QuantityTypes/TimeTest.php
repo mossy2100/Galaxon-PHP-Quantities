@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests\MeasurementTypes;
+namespace Galaxon\Quantities\Tests;
 
 use DateInterval;
-use Galaxon\Units\MeasurementTypes\Time;
+use Galaxon\Quantities\QuantityType\Time;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use TypeError;

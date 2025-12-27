@@ -11,8 +11,8 @@ The `Conversion` class implements the affine transformation formula:
 Where:
 - **m** is the multiplier (scale factor)
 - **k** is the offset (additive constant)
-- **x** is the input value in the initial unit
-- **y** is the output value in the final unit
+- **x** is the input value in the source unit
+- **y** is the output value in the destination unit
 
 **Key features:**
 - Error tracking through `FloatWithError` for multiplier and offset
@@ -25,20 +25,20 @@ Where:
 
 ```php
 public function __construct(
-    string $initialUnit,
-    string $finalUnit,
-    int|float|FloatWithError $multiplier,
-    int|float|FloatWithError $offset = 0
+    string $srcUnit,
+    string $destUnit,
+    float|FloatWithError $multiplier,
+    float|FloatWithError $offset = 0
 )
 ```
 
 Creates a new Conversion instance.
 
 **Parameters:**
-- `$initialUnit` (string) - The source unit symbol
-- `$finalUnit` (string) - The destination unit symbol
-- `$multiplier` (int|float|FloatWithError) - The scale factor (cannot be zero)
-- `$offset` (int|float|FloatWithError) - The additive offset (default 0)
+- `$srcUnit` (string) - The source unit symbol
+- `$destUnit` (string) - The destination unit symbol
+- `$multiplier` (float|FloatWithError) - The scale factor (cannot be zero)
+- `$offset` (float|FloatWithError) - The additive offset (default 0)
 
 **Throws:** `ValueError` if the multiplier is zero
 
@@ -68,18 +68,18 @@ $kmToM = new Conversion('km', 'm', 1000);
 
 ## Properties
 
-### initialUnit
+### srcUnit
 
 ```php
-public readonly string $initialUnit
+public readonly string $srcUnit
 ```
 
 The source unit symbol.
 
-### finalUnit
+### destUnit
 
 ```php
-public readonly string $finalUnit
+public readonly string $destUnit
 ```
 
 The destination unit symbol.
@@ -100,17 +100,17 @@ public readonly FloatWithError $offset
 
 The additive offset as a FloatWithError instance. Typically zero except for affine conversions like temperature scales.
 
-### errorScore
+### totalAbsoluteError
 
 ```php
-public float $errorScore { get }
+public float $totalAbsoluteError { get }
 ```
 
 A heuristic metric for comparing conversion quality and finding optimal paths.
 
-**Formula:** `errorScore = multiplier->absoluteError + offset->absoluteError`
+**Formula:** `totalAbsoluteError = multiplier->absoluteError + offset->absoluteError`
 
-**Purpose:** Lower scores indicate more accurate conversions. Used by the graph-based pathfinding algorithm to minimize error accumulation.
+**Purpose:** Lower values indicate more accurate conversions. Used by the graph-based pathfinding algorithm to minimize error accumulation.
 
 **Note:** This is a simplified heuristic assuming a representative input value of 1. The actual error for a specific conversion depends on the input value.
 
@@ -120,8 +120,8 @@ A heuristic metric for comparing conversion quality and finding optimal paths.
 $conv1 = new Conversion('m', 'ft', 3.28084, 0);
 $conv2 = new Conversion('m', 'ft', new FloatWithError(3.28084, 0.001), 0);
 
-echo $conv1->errorScore;  // ~1.8e-15 (ULP error only)
-echo $conv2->errorScore;  // ~0.001 (explicit error)
+echo $conv1->totalAbsoluteError;  // ~1.8e-15 (ULP error only)
+echo $conv2->totalAbsoluteError;  // ~0.001 (explicit error)
 
 // conv1 is preferred for optimal conversion paths
 ```
@@ -131,15 +131,15 @@ echo $conv2->errorScore;  // ~0.001 (explicit error)
 ### apply()
 
 ```php
-public function apply(int|float|FloatWithError $value): FloatWithError
+public function apply(float|FloatWithError $value): FloatWithError
 ```
 
 Apply the conversion transformation to an input value.
 
 **Parameters:**
-- `$value` (int|float|FloatWithError) - The input value in the initial unit
+- `$value` (float|FloatWithError) - The input value in the source unit
 
-**Returns:** FloatWithError - The converted value in the final unit with tracked error
+**Returns:** FloatWithError - The converted value in the destination unit with tracked error
 
 **Formula:** `result = multiplier × value + offset`
 
@@ -176,9 +176,9 @@ $result3 = $mToCm->apply(3.5);  // float
 public function invert(): self
 ```
 
-Create the inverse conversion that goes from final unit back to initial unit.
+Create the inverse conversion that goes from destination unit back to source unit.
 
-**Returns:** Conversion - A new conversion from finalUnit to initialUnit
+**Returns:** Conversion - A new conversion from destUnit to srcUnit
 
 **Mathematical derivation:**
 ```
@@ -196,8 +196,8 @@ $mToCm = new Conversion('m', 'cm', 100);
 $cmToM = $mToCm->invert();
 // cm = m × 100 + 0  →  m = cm × 0.01 + 0
 
-echo $cmToM->initialUnit;  // 'cm'
-echo $cmToM->finalUnit;    // 'm'
+echo $cmToM->srcUnit;  // 'cm'
+echo $cmToM->destUnit;    // 'm'
 echo $cmToM->multiplier->value;  // 0.01
 
 // Invert affine conversion
@@ -230,7 +230,7 @@ These methods combine two conversions to create a direct conversion path. Used b
 public function combineSequential(self $other): self
 ```
 
-Combine two conversions that flow in sequence: **initial → common → final**
+Combine two conversions that flow in sequence: **source → intermediate → destination**
 
 **Pattern:** A → B (this), B → C (other) = A → C (result)
 
@@ -270,14 +270,14 @@ $cToF = $cToK->combineSequential($kToF);
 public function combineConvergent(self $other): self
 ```
 
-Combine two conversions that flow toward a common unit: **initial → common ← final**
+Combine two conversions that flow toward a intermediate unit: **source → intermediate ← destination**
 
 **Pattern:** A → C (this), B → C (other) = A → B (result)
 
 **Mathematical derivation:**
 ```
-Given:   c = a × m₁ + k₁  (this: initial → common)
-         c = b × m₂ + k₂  (other: final → common)
+Given:   c = a × m₁ + k₁  (this: source → intermediate)
+         c = b × m₂ + k₂  (other: destination → intermediate)
 Equate:  a × m₁ + k₁ = b × m₂ + k₂
 Solve:   b = (a × m₁ + k₁ - k₂) / m₂
          b = a × (m₁/m₂) + ((k₁ - k₂)/m₂)
@@ -311,14 +311,14 @@ $ftToM = $ftToIn->combineConvergent($mToIn);
 public function combineDivergent(self $other): self
 ```
 
-Combine two conversions that flow away from a common unit: **initial ← common → final**
+Combine two conversions that flow away from an intermediate unit: **source ← intermediate → destination**
 
 **Pattern:** C → A (this), C → B (other) = A → B (result)
 
 **Mathematical derivation:**
 ```
-Given:   a = c × m₁ + k₁  (this: common → initial)
-         b = c × m₂ + k₂  (other: common → final)
+Given:   a = c × m₁ + k₁  (this: intermediate → source)
+         b = c × m₂ + k₂  (other: intermediate → destination)
 Solve:   c = (a - k₁) / m₁
          b = ((a - k₁) / m₁) × m₂ + k₂
          b = a × (m₂/m₁) + (k₂ - k₁ × m₂/m₁)
@@ -351,14 +351,14 @@ $cToF = $kToC->combineDivergent($kToF);
 public function combineOpposite(self $other): self
 ```
 
-Combine two conversions that flow in opposite directions: **initial ← common ← final**
+Combine two conversions that flow in opposite directions: **source ← intermediate ← destination**
 
 **Pattern:** C → A (this), B → C (other) = A → B (result)
 
 **Mathematical derivation:**
 ```
-Given:   a = c × m₁ + k₁  (this: common → initial)
-         c = b × m₂ + k₂  (other: final → common)
+Given:   a = c × m₁ + k₁  (this: intermediate → source)
+         c = b × m₂ + k₂  (other: destination → intermediate)
 Subst:   a = (b × m₂ + k₂) × m₁ + k₁
 Invert:  b = ((a - k₁) / m₁ - k₂) / m₂
          b = a × (1/(m₁ × m₂)) + ((-k₂ - k₁/m₁) / m₂)
@@ -393,7 +393,7 @@ public function __toString(): string
 
 Convert the conversion to a human-readable string.
 
-**Format:** `"finalUnit = initialUnit * multiplier + offset (error score: X)"`
+**Format:** `"destUnit = srcUnit * multiplier + offset (error score: X)"`
 
 Simplifications:
 - Omits multiplier if it equals 1
@@ -451,7 +451,7 @@ $mToFt = new Conversion(
 $result = $mToFt->apply($measurement);
 echo $result->value;  // ~34.45 feet
 echo $result->absoluteError;  // Propagated error
-echo $result->significantDigits();  // Precision estimate
+echo $result->relativeError;  // Relative error as a fraction
 ```
 
 ### Building Conversion Chains
@@ -482,17 +482,17 @@ $backToCelsius = $fToC->apply($fahrenheit);
 echo $backToCelsius->value;  // 25.0 (with minimal rounding error)
 ```
 
-### Error Score Comparison
+### Error Comparison
 
 ```php
 // Compare conversion accuracy
 $exact = new Conversion('m', 'cm', 100);
 $approx = new Conversion('m', 'cm', new FloatWithError(100, 0.1));
 
-echo $exact->errorScore;    // ~0 (exact conversion)
-echo $approx->errorScore;   // 0.1 (approximate conversion)
+echo $exact->totalAbsoluteError;    // ~0 (exact conversion)
+echo $approx->totalAbsoluteError;   // 0.1 (approximate conversion)
 
-// Use in pathfinding: prefer conversions with lower error scores
+// Use in pathfinding: prefer conversions with lower total absolute error
 ```
 
 ## Best Practices
@@ -503,7 +503,7 @@ echo $approx->errorScore;   // 0.1 (approximate conversion)
 
 3. **Minimize conversion chains**: Longer chains accumulate more error. Direct conversions are preferred when available.
 
-4. **Check error scores**: Use `errorScore` to compare alternative conversion paths and choose the most accurate.
+4. **Check error levels**: Use `totalAbsoluteError` to compare alternative conversion paths and choose the most accurate.
 
 5. **Validate round-trips**: For critical conversions, verify that `invert()` correctly reverses the transformation.
 
@@ -538,11 +538,11 @@ This is automatically handled by `FloatWithError` arithmetic.
 
 ### Composition Algebra
 
-The four combination patterns cover all possible topologies when combining two conversions through a common unit:
+The four combination patterns cover all possible topologies when combining two conversions through an intermediate unit:
 
 1. **Sequential (→→)**: Both conversions flow in the same direction
-2. **Convergent (→←)**: Conversions flow toward the common unit
-3. **Divergent (←→)**: Conversions flow away from the common unit
+2. **Convergent (→←)**: Conversions flow toward the intermediate unit
+3. **Divergent (←→)**: Conversions flow away from the intermediate unit
 4. **Opposite (←←)**: Both conversions flow in the opposite direction
 
 These patterns enable building any conversion path through a graph of unit relationships.

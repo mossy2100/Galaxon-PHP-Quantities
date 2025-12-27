@@ -1,5 +1,5 @@
 {
-    "name": "galaxon/units",
+    "name": "galaxon/quantities",
     "description": "Contains classes for working with measurements such as angles, lengths, etc.",
     "type": "library",
     "license": "MIT",
@@ -26,12 +26,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Galaxon\\Units\\": "src/"
+            "Galaxon\\Quantities\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Galaxon\\Units\\Tests\\": "tests/"
+            "Galaxon\\Quantities\\Tests\\": "tests/"
         }
     },
     "scripts": {

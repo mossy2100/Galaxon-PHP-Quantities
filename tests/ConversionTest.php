@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Units\Tests;
+namespace Galaxon\Quantities\Tests;
 
-use Galaxon\Units\Conversion;
-use Galaxon\Units\FloatWithError;
+use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\FloatWithError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ValueError;
@@ -25,8 +25,8 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('m', 'km', 0.001);
 
-        $this->assertSame('m', $conv->initialUnit);
-        $this->assertSame('km', $conv->finalUnit);
+        $this->assertSame('m', $conv->srcUnit);
+        $this->assertSame('km', $conv->destUnit);
         $this->assertSame(0.001, $conv->multiplier->value);
         $this->assertSame(0.0, $conv->offset->value);
     }
@@ -38,8 +38,8 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('C', 'F', 1.8, 32.0);
 
-        $this->assertSame('C', $conv->initialUnit);
-        $this->assertSame('F', $conv->finalUnit);
+        $this->assertSame('C', $conv->srcUnit);
+        $this->assertSame('F', $conv->destUnit);
         $this->assertSame(1.8, $conv->multiplier->value);
         $this->assertSame(32.0, $conv->offset->value);
     }
@@ -226,8 +226,8 @@ class ConversionTest extends TestCase
         $conv = new Conversion('m', 'km', 0.001);
         $inverted = $conv->invert();
 
-        $this->assertSame('km', $inverted->initialUnit);
-        $this->assertSame('m', $inverted->finalUnit);
+        $this->assertSame('km', $inverted->srcUnit);
+        $this->assertSame('m', $inverted->destUnit);
     }
 
     /**
@@ -264,8 +264,8 @@ class ConversionTest extends TestCase
         $conv = new Conversion('m', 'km', 0.001);
         $doubleInverted = $conv->invert()->invert();
 
-        $this->assertSame('m', $doubleInverted->initialUnit);
-        $this->assertSame('km', $doubleInverted->finalUnit);
+        $this->assertSame('m', $doubleInverted->srcUnit);
+        $this->assertSame('km', $doubleInverted->destUnit);
         $this->assertEqualsWithDelta(0.001, $doubleInverted->multiplier->value, 1e-15);
         $this->assertEqualsWithDelta(0.0, $doubleInverted->offset->value, 1e-15);
     }
@@ -289,7 +289,7 @@ class ConversionTest extends TestCase
 
     // endregion
 
-    // region combineSequential() tests (initial->common, common->final)
+    // region combineSequential() tests (src->mid, mid->dest)
 
     /**
      * Test combineSequential chains units correctly.
@@ -301,8 +301,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineSequential($conv2);
 
-        $this->assertSame('m', $combined->initialUnit);
-        $this->assertSame('mi', $combined->finalUnit);
+        $this->assertSame('m', $combined->srcUnit);
+        $this->assertSame('mi', $combined->destUnit);
     }
 
     /**
@@ -339,7 +339,7 @@ class ConversionTest extends TestCase
 
     // endregion
 
-    // region combineConvergent() tests (initial->common, final->common)
+    // region combineConvergent() tests (src->mid, dest->mid)
 
     /**
      * Test combineConvergent chains units correctly.
@@ -351,8 +351,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineConvergent($conv2);
 
-        $this->assertSame('m', $combined->initialUnit);
-        $this->assertSame('in', $combined->finalUnit);
+        $this->assertSame('m', $combined->srcUnit);
+        $this->assertSame('in', $combined->destUnit);
     }
 
     /**
@@ -391,7 +391,7 @@ class ConversionTest extends TestCase
 
     // endregion
 
-    // region combineDivergent() tests (common->initial, common->final)
+    // region combineDivergent() tests (mid->src, mid->dest)
 
     /**
      * Test combineDivergent chains units correctly.
@@ -403,8 +403,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineDivergent($conv2);
 
-        $this->assertSame('m', $combined->initialUnit);
-        $this->assertSame('in', $combined->finalUnit);
+        $this->assertSame('m', $combined->srcUnit);
+        $this->assertSame('in', $combined->destUnit);
     }
 
     /**
@@ -443,7 +443,7 @@ class ConversionTest extends TestCase
 
     // endregion
 
-    // region combineOpposite() tests (common->initial, final->common)
+    // region combineOpposite() tests (mid->src, dest->mid)
 
     /**
      * Test combineOpposite chains units correctly.
@@ -455,8 +455,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineOpposite($conv2);
 
-        $this->assertSame('m', $combined->initialUnit);
-        $this->assertSame('in', $combined->finalUnit);
+        $this->assertSame('m', $combined->srcUnit);
+        $this->assertSame('in', $combined->destUnit);
     }
 
     /**
@@ -513,7 +513,7 @@ class ConversionTest extends TestCase
 
         $this->assertStringContainsString('km = m', $str);
         $this->assertStringContainsString('0.001', $str);
-        $this->assertStringContainsString('error score', $str);
+        $this->assertStringContainsString('total absolute error', $str);
     }
 
     /**
@@ -581,7 +581,7 @@ class ConversionTest extends TestCase
 
         $str = (string)$conv;
 
-        $this->assertStringContainsString('error score: 0.11', $str);
+        $this->assertStringContainsString('total absolute error: 0.11', $str);
     }
 
     // endregion

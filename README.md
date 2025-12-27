@@ -1,4 +1,4 @@
-# Galaxon PHP Units
+# Galaxon PHP Quantities
 
 Physical measurement types with automatic unit conversion and prefix support.
 
@@ -33,15 +33,15 @@ Key capabilities include:
 ## Installation
 
 ```bash
-composer require galaxon/units
+composer require galaxon/quantities
 ```
 
 ## Quick Start
 
 ```php
-use Galaxon\Units\MeasurementTypes\Length;
-use Galaxon\Units\MeasurementTypes\Temperature;
-use Galaxon\Units\MeasurementTypes\Angle;
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Temperature;
+use Galaxon\Quantities\QuantityType\Angle;
 
 // Create measurements
 $distance = new Length(5, 'km');
@@ -85,11 +85,11 @@ $miles = $meters->to('mi'); // 0.621371 mi
 
 ### Prefix Support
 
-Units can accept SI metric prefixes, binary prefixes, or both:
+Quantities can accept SI metric prefixes, binary prefixes, or both:
 
 ```php
-use Galaxon\Units\MeasurementTypes\Length;
-use Galaxon\Units\MeasurementTypes\Memory;
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Data;
 
 // Metric prefixes (quecto to quetta)
 $nano = new Length(500, 'nm');    // nanometres
@@ -97,12 +97,12 @@ $kilo = new Length(5, 'km');      // kilometres
 $mega = new Length(1, 'Mm');      // megametres
 
 // Binary prefixes for memory
-$kibi = new Memory(1, 'KiB');     // 1024 bytes
-$gibi = new Memory(1, 'GiB');     // 1073741824 bytes
+$kibi = new Data(1, 'KiB');     // 1024 bytes
+$gibi = new Data(1, 'GiB');     // 1073741824 bytes
 
 // Mixed prefix support
-$megabytes = new Memory(1, 'MB'); // 1000000 bytes (metric)
-$mebibytes = new Memory(1, 'MiB'); // 1048576 bytes (binary)
+$megabytes = new Data(1, 'MB'); // 1000000 bytes (metric)
+$mebibytes = new Data(1, 'MiB'); // 1048576 bytes (binary)
 ```
 
 ### Temperature Conversions
@@ -110,7 +110,7 @@ $mebibytes = new Memory(1, 'MiB'); // 1048576 bytes (binary)
 Temperature uses affine transformations (y = mx + k) to handle non-proportional scales:
 
 ```php
-use Galaxon\Units\MeasurementTypes\Temperature;
+use Galaxon\Quantities\QuantityType\Temperature;
 
 $celsius = new Temperature(0, 'C');
 echo $celsius->to('F');  // 32°F
@@ -122,7 +122,7 @@ echo $fahrenheit->to('C');  // 100°C
 
 ### Arithmetic Operations
 
-Measurements support addition, subtraction, multiplication, and division:
+Quantities support addition, subtraction, multiplication, and division:
 
 ```php
 $a = new Length(100, 'm');
@@ -168,8 +168,8 @@ $angle1->approxEqual($angle2);  // true
 Break measurements into component parts:
 
 ```php
-use Galaxon\Units\MeasurementTypes\Angle;
-use Galaxon\Units\MeasurementTypes\Time;
+use Galaxon\Quantities\QuantityType\Angle;
+use Galaxon\Quantities\QuantityType\Time;
 
 // Angle to degrees, arcminutes, arcseconds
 $angle = new Angle(45.5042, 'deg');
@@ -212,11 +212,24 @@ $angle->cosh();
 $angle->tanh();
 ```
 
+## Terminology
+
+| Term          | Definition                                                                  |
+|---------------|-----------------------------------------------------------------------------|
+| Base unit     | A unit without prefix or exponent, e.g. 's', 'in'                           |
+| Prefixed unit | A base unit with a metric or binary prefix, e.g. 'km', 'KiB'                |
+| Powered unit  | A base or prefixed unit raised to an exponent, e.g. 'm²', 'km³'             |
+| Compound unit | Multiple units combined via multiplication/division, e.g. 'm/s', 'kg·m·s⁻²' |
+| SI base unit  | One of the 7 fundamental SI units: m, kg, s, A, K, mol, cd                  |
+| SI named unit | A named unit defined as a combination of SI base units, e.g. N, J, W, V     |
+| Metric prefix | A decimal scaling prefix, e.g. k (10³), M (10⁶), m (10⁻³)                   |
+| Binary prefix | A binary scaling prefix for data units, e.g. Ki (2¹⁰), Mi (2²⁰)             | 
+
 ## Classes
 
 ### Core Classes
 
-#### [Measurement](docs/Measurement.md)
+#### [Quantity](docs/Quantity.md)
 
 Abstract base class for all measurement types. Provides unit conversion, arithmetic operations, comparison, formatting, and part decomposition. Derived classes define their specific units and conversions.
 
@@ -232,11 +245,7 @@ Manages unit conversions for a measurement type. Validates units and prefixes, s
 
 Represents an affine transformation (y = mx + k) for unit conversion. Tracks error scores to prefer shorter, more accurate conversion paths.
 
-#### [FloatWithError](docs/FloatWithError.md)
-
-A floating-point number with tracked absolute error. Propagates numerical errors through arithmetic operations to assess conversion precision.
-
-### Measurement Types
+### Quantity Types
 
 #### [Angle](docs/Angle.md)
 
@@ -254,7 +263,7 @@ Length measurements in metres, imperial units (inches, feet, yards, miles), typo
 
 Mass measurements in grams, tonnes, and imperial units (grains, ounces, pounds, stones, tons). Includes physical constants (electron, proton, neutron mass).
 
-#### [Memory](docs/Memory.md)
+#### [Data](docs/Data.md)
 
 Digital storage in bytes and bits with both metric (kB, MB, GB) and binary (KiB, MiB, GiB) prefixes.
 
@@ -279,7 +288,7 @@ The library includes comprehensive test coverage:
 vendor/bin/phpunit
 
 # Run specific test class
-vendor/bin/phpunit tests/MeasurementTest.php
+vendor/bin/phpunit tests/QuantityTest.php
 
 # Run with coverage (generates HTML report and clover.xml)
 composer test
@@ -299,11 +308,11 @@ Contributions are welcome! Please:
 4. Ensure all tests pass
 5. Submit a pull request
 
-For questions or suggestions, please [open an issue](https://github.com/mossy2100/PHP-Units/issues).
+For questions or suggestions, please [open an issue](https://github.com/mossy2100/PHP-Quantities/issues).
 
 ## Support
 
-- **Issues**: https://github.com/mossy2100/PHP-Units/issues
+- **Issues**: https://github.com/mossy2100/PHP-Quantities/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
 - **Examples**: See test files for comprehensive usage examples
 
