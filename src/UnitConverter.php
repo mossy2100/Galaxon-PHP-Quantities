@@ -33,10 +33,6 @@ use ValueError;
  */
 class UnitConverter
 {
-    // region Constants
-
-    // endregion
-
     // region Properties
 
     /**

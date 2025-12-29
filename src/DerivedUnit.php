@@ -6,31 +6,43 @@ namespace Galaxon\Quantities;
 
 use Galaxon\Core\Integers;
 use LogicException;
+use RuntimeException;
+use Stringable;
 use ValueError;
 
-class DerivedUnit
+class DerivedUnit implements Stringable
 {
     /** @var array<string, UnitTerm> */
     private(set) array $unitTerms = [];
 
     /**
-     * @param UnitTerm|string $unit
+     * @param null|UnitTerm|string $unit
      * @throws ValueError
      */
-    public function __construct(UnitTerm|string $unit)
+    public function __construct(null|UnitTerm|string $unit = null)
     {
+        // No unit provided.
+        if ($unit === null) {
+            return;
+        }
+
+        // If the unit is a UnitTerm, just add it to the unit terms array and return.
         if ($unit instanceof UnitTerm) {
             $this->unitTerms[$unit->base] = $unit;
             return;
         }
 
-        // Parse the provided string into unit terms.
+        // The unit is a string. Parse it into unit terms.
         $unitTerms = self::parse($unit);
 
         // Construct the derived unit from the unit terms.
         foreach ($unitTerms as $unitTerm) {
             $this->mul($unitTerm);
         }
+
+        // Sort the unit terms by dimension code.
+        $fn = static fn (UnitTerm $a, UnitTerm $b) => $a->getDimensionCode() <=> $b->getDimensionCode();
+        uasort($this->unitTerms, $fn);
     }
 
     /**
@@ -118,19 +130,23 @@ class DerivedUnit
      * @return string The dimension code.
      * @throws ValueError
      * @throws LogicException
+     * @throws RuntimeException If the base is not found (should never happen).
      */
     public function getDimensionCode(): string
     {
         // Convert the unit terms to dimension codes.
         $dimCodes = [];
-        foreach ($this->unitTerms as $base => $unit) {
-            // Look up the base unit info.
-            $unitInfo = UnitData::lookupBaseUnit($base)[0];
+        foreach ($this->unitTerms as $base => $unitTerm) {
+            // Look up the base unit.
+            $unit = Unit::lookup($base);
+            if ($unit === null) {
+                throw new RuntimeException("Unknown unit '$base'.");
+            }
 
-            // The dimension code of the base unit may be complex if it's a named unit.
-            $dims = Dimensions::parse($unitInfo['dimension']);
+            // The dimension code of the base unit may be complex.
+            $dims = Dimensions::parse($unit->dimension);
             foreach ($dims as $dimCode => $exp) {
-                $dimCodes[$dimCode] = ($dimCodes[$dimCode] ?? 0) + $exp;
+                $dimCodes[$dimCode] = ($dimCodes[$dimCode] ?? 0) + ($exp * $unitTerm->exponent);
             }
         }
 
@@ -141,6 +157,45 @@ class DerivedUnit
         return Dimensions::combine($dimCodes);
     }
 
+    /**
+     * Expand the derived unit by converting named units into their equivalents, e.g. N => kg*m/s2
+     *
+     * @return self The expanded unit.
+     * @throws RuntimeException If an unknown unit is encountered (should never happen).
+     */
+    public function expand(): self
+    {
+        // Create a new object.
+        $new = new self();
+
+        foreach ($this->unitTerms as $unitTerm) {
+            // Look up the base unit.
+            $base = Unit::lookup($unitTerm->base);
+            if ($base === null) {
+                throw new RuntimeException("Error expanding unit '$this': unknown unit '$unitTerm->base'.");
+            }
+
+            // Expand if necessary.
+            if ($base->equivalent !== null) {
+                $du = new DerivedUnit($base->equivalent);
+                foreach ($du->unitTerms as $duTerm) {
+                    $new->mul($duTerm);
+                }
+            }
+            else {
+                $new->mul($unitTerm);
+            }
+        }
+
+        // Return the new object.
+        return $new;
+    }
+
+    /**
+     * Convert the derived unit to a string representation.
+     *
+     * @return string The derived unit symbol.
+     */
     public function __toString(): string
     {
         $fn = static fn(UnitTerm $unit) => $unit->__toString();

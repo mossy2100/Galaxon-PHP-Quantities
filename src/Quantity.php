@@ -13,6 +13,7 @@ use Galaxon\Core\Types;
 use LogicException;
 use Override;
 use ReflectionClass;
+use SebastianBergmann\CodeCoverage\Report\Xml\Unit;
 use Stringable;
 use TypeError;
 use ValueError;
@@ -288,24 +289,60 @@ class Quantity implements Stringable
      */
     public function to(string|DerivedUnit $destUnit): static
     {
-        // If the target unit is provided as a string (public API), convert it to an object.
+        // Convert the value to the target unit.
+        $value = static::convert($this->value, $this->unit, $destUnit);
+
+        // Return the new Quantity.
+        return new static($value, $destUnit);
+    }
+
+    public static function convert(float $value, string|DerivedUnit $srcUnit, string|DerivedUnit $destUnit): float
+    {
+        // If the source unit is provided as a string, convert it to an object.
+        if (is_string($srcUnit)) {
+            $srcUnit = new DerivedUnit($srcUnit);
+        }
+
+        // If the destination unit is provided as a string, convert it to an object.
         if (is_string($destUnit)) {
             $destUnit = new DerivedUnit($destUnit);
         }
 
+        echo "src = $srcUnit, dest = $destUnit\n";
+
         // Check the target unit has compatible dimensions.
-        $srcDimCode = $this->unit->getDimensionCode();
+        $srcDimCode = $srcUnit->getDimensionCode();
         $destDimCode = $destUnit->getDimensionCode();
+
+        echo "srcDim = $srcDimCode, destDim = $destDimCode\n";
+
         if ($srcDimCode !== $destDimCode) {
-            throw new ValueError("Cannot convert from '$this->unit' to '$destUnit' as these units represent different quantity types.");
+            throw new ValueError("Cannot convert from '$srcUnit' to '$destUnit' as these units represent different quantity types.");
         }
 
-        // Convert the value to the target unit.
-//        $value = static::convert($this->value, $this->unit, $destUnit);
-        $value = $this->value * 1.2345;
+        // Expand the units.
+        $srcUnit = $srcUnit->expand();
+        $destUnit = $destUnit->expand();
 
-        // Return the new Quantity.
-        return new static($value, $destUnit);
+        // Calculate the conversion factor.
+        echo "src = $srcUnit, dest = $destUnit\n";
+        $srcUnitTerms = array_values($srcUnit->unitTerms);
+        $destUnitTerms = array_values($destUnit->unitTerms);
+        foreach ($srcUnitTerms as $i => $srcUnitTerm) {
+            $destUnitTerm = $destUnitTerms[$i];
+            if ($srcUnitTerm->exponent === $destUnitTerm->exponent) {
+                // Get the conversion factor between the two base units without exponents.
+                $factor = UnitConverter::getConversionFactor($srcUnitTerm->base, $destUnitTerm->base);
+            }
+            else {
+                // Get the conversion factor between the two base units with exponents.
+                $factor = UnitConverter::getConversionFactor($srcUnitTerm->derived, $destUnitTerm->derived);
+            }
+            // Scale the conversion factor to account for prefixes and exponents.
+            $factor *= $destUnitTerm->multiplier / $srcUnitTerm->multiplier;
+        }
+
+        return $value * $factor;
     }
 
     // endregion

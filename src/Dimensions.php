@@ -11,14 +11,15 @@ class Dimensions
 {
     /**
      * Dimension codes are based on ISQ (International System of Quantities) dimensional symbols, with a few
-     * variations and additions
+     * variations and additions.
      *
      * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
+     * @see https://en.wikipedia.org/wiki/Dimensional_analysis
      */
     public const array DIMENSION_CODES = [
+        'T' => 'time',
         'L' => 'length',
         'M' => 'mass',
-        'T' => 'time',
         'I' => 'electric current',
         'H' => 'temperature', // varies from ISQ, which uses Θ
         'N' => 'amount of substance',
@@ -50,7 +51,7 @@ class Dimensions
             throw new ValueError("Invalid dimension code '$dimensionCode'.");
         }
 
-        // Convert to a useful form.
+        // Convert to an array of parts.
         $dimCodes = [];
         foreach ($matches as $match) {
             $dimCode = $match[1];

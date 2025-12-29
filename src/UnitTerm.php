@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use Galaxon\Core\Integers;
+use LogicException;
+use Stringable;
 use ValueError;
 
 /**
@@ -21,7 +23,7 @@ use ValueError;
  * - prefixed: The full unit symbol ('km2').
  * - multiplier: The prefix multiplier raised to the exponent (1000² = 1e6).
  */
-class UnitTerm
+class UnitTerm implements Stringable
 {
     // region Properties
 
@@ -31,9 +33,9 @@ class UnitTerm
     private(set) string $base;
 
     /**
-     * The SI/binary prefix symbol (e.g., 'k', 'm', 'G'), or empty string if none.
+     * The SI/binary prefix symbol (e.g., 'k', 'm', 'G'), or null if none.
      */
-    private(set) string $prefix = '';
+    private(set) ?string $prefix = null;
 
     /**
      * The exponent (e.g., 2 for m², -1 for s⁻¹).
@@ -52,28 +54,28 @@ class UnitTerm
      * The derived unit symbol without prefix (e.g. 'm2', 's-1').
      */
     public string $derived {
-        get {
-            return $this->base . ($this->exponent === 1 ? '' : $this->exponent);
-        }
+        get => $this->base . ($this->exponent === 1 ? '' : $this->exponent);
     }
 
     /**
      * The full prefixed unit symbol (e.g. 'km2', 'ms-1').
      */
     public string $prefixed {
-        get {
-            return $this->prefix . $this->derived;
-        }
+        get => $this->prefix . $this->derived;
+    }
+
+    /**
+     * The prefix multiplier.
+     */
+    public float $prefixMultiplier {
+        get => $this->prefix ? Unit::getPrefixMultiplier($this->prefix) : 1;
     }
 
     /**
      * The prefix multiplier raised to the exponent (e.g., 1000² = 1e6 for km²).
      */
     public float $multiplier {
-        get {
-            $multiplier = $this->prefix ? UnitData::getPrefixMultiplier($this->prefix) : 1;
-            return $multiplier ** $this->exponent;
-        }
+        get => $this->prefixMultiplier ** $this->exponent;
     }
 
     // phpcs:enable PSR2.Classes.PropertyDeclaration
@@ -87,42 +89,23 @@ class UnitTerm
      * Constructor.
      *
      * @param string $base The base unit symbol (e.g., 'm', 'lb').
-     * @param string $prefix The prefix symbol (e.g., 'k', 'm', 'G'), or empty string if none.
+     * @param ?string $prefix The prefix symbol (e.g., 'k', 'm', 'G'), or null if none.
      * @param int $exponent The exponent (default 1).
      * @throws ValueError If the base unit is invalid.
      */
-    public function __construct(string $base, string $prefix = '', int $exponent = 1)
+    public function __construct(string $base, ?string $prefix = null, int $exponent = 1)
     {
-        // Check the unit provided is valid.
-        $matchingUnits = UnitData::lookupBaseUnit($base);
+        // Load the Unit object.
+        $unit = Unit::lookup($base);
 
-        // Check we found a match.
-        if (empty($matchingUnits)) {
-            throw new ValueError("Unit '$base' is unsupported.");
+        // Throw if the symbol is invalid.
+        if ($unit === null) {
+            throw new ValueError("Unknown unit '$base'.");
         }
-
-        // Check we only found one match.
-        if (count($matchingUnits) > 1) {
-            throw new ValueError("Multiple matching units found for '$base.");
-        }
-
-        // Get the matching unit information.
-        $matchingUnit = $matchingUnits[0];
 
         // If a prefix was supplied, make sure it's valid for this unit.
-        if (!empty($prefix)) {
-            // Convert 'u' to 'μ'.
-            if ($prefix === 'u') {
-                $prefix = 'μ';
-            }
-
-            // Get all valid prefixes for this unit.
-            $prefixes = UnitData::getPrefixes($matchingUnit['prefixes']);
-
-            // Check the provided prefix is valid.
-            if (!array_key_exists($prefix, $prefixes)) {
-                throw new ValueError("The prefix '$prefix' cannot be used with the unit '$base'.");
-            }
+        if ($prefix !== null && !$unit->acceptsPrefix($prefix)) {
+            throw new ValueError("The prefix '$prefix' cannot be used with the unit '$base'.");
         }
 
         // Validate the exponent.
@@ -139,14 +122,13 @@ class UnitTerm
     /**
      * Constructor.
      *
-     * Parses the derived unit to extract the base unit and exponent.
+     * Parses the given symbol to extract the base unit, prefix, and exponent.
      *
      * @param string $symbol The unit symbol with optional prefix and/or exponent (e.g., 'm2', 's-1').
-     * @param ?string $prefix The prefix symbol (e.g., 'k', 'm', 'G'), or null if unspecified.
      * @return self The parsed unit term.
      * @throws ValueError If the format is invalid or the derived unit is not recognized.
      */
-    public static function parse(string $symbol, ?string $prefix = null): self
+    public static function parse(string $symbol): self
     {
         // Validate the unit string.
         $unitValid = preg_match('/^(\p{L}+)(-?\d+)?$/u', $symbol, $matches);
@@ -157,26 +139,25 @@ class UnitTerm
         }
 
         // Get the base unit.
-        $base = $matches[1];
+        $prefixedUnitSymbol = $matches[1];
 
-        // If a prefix is unspecified, check if the symbol has one.
-        if ($prefix === null) {
-            $matchingUnits = UnitData::lookupUnit($base);
+        // Check if the symbol has a prefix.
+        $matchingUnits = Unit::search($prefixedUnitSymbol);
 
-            // Check we found a match.
-            if (empty($matchingUnits)) {
-                throw new ValueError("Unknown or unsupported unit '$base'.");
-            }
-
-            // Check we only found one match.
-            if (count($matchingUnits) > 1) {
-                throw new ValueError("Multiple matching units found for '$base.");
-            }
-
-            $matchingUnit = $matchingUnits[0];
-            $base = $matchingUnit['symbol'];
-            $prefix = $matchingUnit['prefix'] ?? '';
+        // Check we found a match.
+        if (empty($matchingUnits)) {
+            throw new ValueError("Unknown or unsupported unit '$prefixedUnitSymbol'.");
         }
+
+        // Check we only found one match.
+        if (count($matchingUnits) > 1) {
+            throw new ValueError("Multiple matching units found for '$prefixedUnitSymbol.");
+        }
+
+        // Extract the base and prefix.
+        $matchingUnit = $matchingUnits[0];
+        $base = $matchingUnit['base'];
+        $prefix = $matchingUnit['prefix'];
 
         // Get the exponent.
         $exp = isset($matches[2]) ? (int)$matches[2] : 1;
@@ -190,29 +171,68 @@ class UnitTerm
     // region Conversion methods
 
     /**
-     * Format the unit as a string for display.
+     * Format the unit term as a string for display.
      *
      * Exponents are converted to superscript (e.g., 'm2' → 'm²').
-     * The formatted symbol is used if set.
+     * The format symbol is used if set.
      *
-     * @return string The formatted unit symbol.
+     * @return string The formatted unit term.
      */
     public function __toString(): string
     {
         // Get the exponent in superscript.
         $exp = $this->exponent === 1 ? '' : Integers::toSuperscript($this->exponent);
 
-        $baseUnit = UnitData::lookupBaseUnit($this->base)[0];
-        $unitSymbol = $baseUnit['format'] ?? $baseUnit['symbol'];
+        // Get the base unit symbol.
+        $baseUnit = Unit::lookup($this->base);
+        $formattedSymbol = $baseUnit?->format ?? $baseUnit?->symbol;
 
-        // Construct the unit symbol.
-        return $this->prefix . $unitSymbol . $exp;
+        // Construct the full unit term symbol.
+        return $this->prefix . $formattedSymbol . $exp;
     }
 
     // endregion
+
+    // region Transformation methods
 
     public function invert(): self
     {
         return new self($this->base, $this->prefix, -$this->exponent);
     }
+
+    // endregion
+
+    // region Extraction methods
+
+    /**
+     *
+     *
+     * @throws LogicException If the base unit is unsupported (should never happen).
+     * @throws ValueError If the dimension code is invalid (should never happen).
+     */
+    public function getDimensionCode()
+    {
+        // Get the dimension code for the base unit.
+        $unit = Unit::lookup($this->base);
+
+        // Check we found a match.
+        if ($unit === null) {
+            throw new LogicException("Unit not found: '$this->base'. This should never happen.");
+        }
+
+        // If the exponent is 1, return the dimension code as-is.
+        if ($this->exponent === 1) {
+            return $unit->dimension;
+        }
+
+        // Break the dimension code into its parts and multiply each by the exponent.
+        $parts = Dimensions::parse($unit->dimension);
+        foreach ($parts as $dimCode => $dimExp) {
+            $parts[$dimCode] = $dimExp * $this->exponent;
+        }
+        Dimensions::sort($parts);
+        return Dimensions::combine($parts);
+    }
+
+    // endregion
 }

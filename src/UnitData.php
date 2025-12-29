@@ -91,93 +91,6 @@ class UnitData
     ];
 
     /**
-     * Return a set of prefixes, with multipliers, given an integer code comprising bitwise flags.
-     *
-     * This can be overridden in the derived class.
-     *
-     * @param int $prefixSetCode Code indicating the prefix sets to include.
-     * @return array<string, float>
-     */
-    public static function getPrefixes(int $prefixSetCode = self::PREFIX_CODE_ALL): array
-    {
-        // Get the prefixes corresponding to the given code.
-        $prefixes = [];
-        if ($prefixSetCode & self::PREFIX_CODE_SMALL_METRIC) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_SMALL_METRIC);
-        }
-        if ($prefixSetCode & self::PREFIX_CODE_LARGE_METRIC) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_LARGE_METRIC);
-        }
-        if ($prefixSetCode & self::PREFIX_CODE_BINARY) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_BINARY);
-        }
-
-        return $prefixes;
-    }
-
-    /**
-     * Return the multiplier for a given prefix.
-     *
-     * @param string $prefix Prefix code, e.g. 'k' for kilo.
-     * @return float Prefix multiplier, e.g. 1000 for kilo.
-     * @throws ValueError If the prefix is unknown.
-     */
-    public static function getPrefixMultiplier(string $prefix): float
-    {
-        // Get all the prefixes.
-        $prefixes = self::getPrefixes();
-
-        // Return the multiplier for the given prefix, if known.
-        if (array_key_exists($prefix, $prefixes)) {
-            return $prefixes[$prefix];
-        }
-
-        // Unknown prefix.
-        throw new ValueError("Unknown prefix: '$prefix'");
-    }
-
-    /**
-     * Get all valid supported units.
-     *
-     * @return array
-     */
-    public static function getValidUnits(): array
-    {
-        $validUnits = [];
-
-        // Loop through the base units.
-        foreach (self::UNITS as $unitSymbol => $unit) {
-
-            // Add the base unit symbol.
-            $validUnits[] = $unitSymbol;
-
-            // Add the formatted unit symbol, if it exists.
-            if (isset($unit['format'])) {
-                $validUnits[] = $unit['format'];
-            }
-
-            // Check if prefixes are allowed with this unit.
-            if (isset($unit['prefixes']) && $unit['prefixes'] > 0) {
-
-                // Get the valid prefixes for this unit.
-                $prefixes = self::getPrefixes($unit['prefixes']);
-
-                // Add all prefixed units.
-                foreach ($prefixes as $prefix => $multiplier) {
-                    $validUnits[] = $prefix . $unitSymbol;
-
-                    // Add the formatted unit symbol with a prefix, if it exists.
-                    if (isset($unit['format'])) {
-                        $validUnits[] = $prefix . $unit['format'];
-                    }
-                }
-            }
-        }
-
-        return $validUnits;
-    }
-
-    /**
      * Known/supported base units.
      *
      * Parsing should accept the symbol and the format string. Formatting should use the format string.
@@ -582,7 +495,7 @@ class UnitData
             'dimension' => 'L',
             'system'    => 'us_customary',
         ],
-        'point'  => [
+        'pt'  => [
             'name'      => 'point',
             'quantity'  => 'length',
             'dimension' => 'L',
@@ -714,78 +627,6 @@ class UnitData
         ],
     ];
 
-    /**
-     * Look up a base unit by its symbol.
-     *
-     * @param string $symbol The unit symbol to search for.
-     * @return array<int, array<string, mixed>> Array of matching unit data.
-     */
-    public static function lookupBaseUnit(string $symbol): array
-    {
-        $matches = [];
-
-        // Check the base units.
-        foreach (self::UNITS as $unitSymbol => $unit) {
-            if ($unitSymbol === $symbol || ($unit['format'] ?? null) === $symbol) {
-                $unit['symbol'] = $unitSymbol;
-                $matches[] = $unit;
-            }
-        }
-
-        return $matches;
-    }
-
-    /**
-     * Look up a prefixed unit by its symbol.
-     *
-     * @param string $symbol The prefixed unit symbol to search for.
-     * @return array<int, array<string, mixed>> Array of matching unit data.
-     */
-    public static function lookupPrefixedUnit(string $symbol): array
-    {
-        $matches = [];
-
-        // Loop through the base units.
-        foreach (self::UNITS as $unitSymbol => $unit) {
-
-            // Check if prefixes are allowed with this unit.
-            if (isset($unit['prefixes']) && $unit['prefixes'] > 0) {
-
-                // Get the valid prefixes for this unit.
-                $prefixes = self::getPrefixes($unit['prefixes']);
-
-                // Loop through the prefixes and see if any match.
-                foreach ($prefixes as $prefix => $multiplier) {
-                    if ($prefix . $unitSymbol === $symbol) {
-                        $unit['symbol'] = $unitSymbol;
-                        $unit['prefix'] = $prefix;
-                        $unit['prefixed_symbol'] = $prefix . $unitSymbol;
-                        $matches[] = $unit;
-                    }
-                    elseif (isset($unit['format']) && $prefix . $unit['format'] === $symbol) {
-                        $unit['symbol'] = $unitSymbol;
-                        $unit['prefix'] = $prefix;
-                        $unit['prefixed_symbol'] = $prefix . $unit['format'];
-                        $matches[] = $unit;
-                    }
-                }
-            }
-        }
-
-        return $matches;
-    }
-
-    /**
-     * Look up a unit by its symbol (base or prefixed).
-     *
-     * @param string $symbol The unit symbol to search for.
-     * @return array<int, array<string, mixed>> Array of matching unit data.
-     */
-    public static function lookupUnit(string $symbol): array
-    {
-        return array_merge(self::lookupBaseUnit($symbol), self::lookupPrefixedUnit($symbol));
-    }
-
     public const array ANGLE_CONVERSIONS = [
         ['turn', 'rad', Floats::TAU],
         ['turn', 'deg', 360],
@@ -860,6 +701,8 @@ class UnitData
 
     public const array PRESSURE_CONVERSIONS = [
         ['bar', 'Pa', 100000],
+        ['mmHg', 'Pa', 133.322387415],
+        ['atm', 'Pa', 101325],
     ];
 
     public const array ENERGY_CONVERSIONS = [
@@ -879,5 +722,23 @@ class UnitData
     public const array DATA_CONVERSIONS = [
         // 1 byte = 8 bits
         ['B', 'b', 8]
+    ];
+
+    /**
+     * Full array of conversions, keyed by dimension code.
+     *
+     * @var array<string, array>
+     */
+    public const array CONVERSIONS = [
+        'A' => self::ANGLE_CONVERSIONS,
+        'L' => self::LENGTH_CONVERSIONS,
+        'L2' => self::AREA_CONVERSIONS,
+        'L3' => self::VOLUME_CONVERSIONS,
+        'M' => self::MASS_CONVERSIONS,
+        'H' => self::TEMPERATURE_CONVERSIONS,
+        'ML-1T-2' => self::PRESSURE_CONVERSIONS,
+        'ML2T-2' => self::ENERGY_CONVERSIONS,
+        'T' => self::TIME_CONVERSIONS,
+        'D' => self::DATA_CONVERSIONS,
     ];
 }
