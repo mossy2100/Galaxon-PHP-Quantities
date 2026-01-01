@@ -21,6 +21,22 @@ class Angle extends Quantity
     public const float RAD_EPSILON = 1e-9;
     public const float TRIG_EPSILON = 1e-15;
 
+    /**
+     * Conversion factors for angle units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    public static function getConversions(): array
+    {
+        return [
+            ['turn', 'rad', Floats::TAU],
+            ['turn', 'deg', 360],
+            ['deg', 'arcmin', 60],
+            ['arcmin', 'arcsec', 60],
+            ['turn', 'grad', 400],
+        ];
+    }
+
     // endregion
 
     // region Factory methods
@@ -78,17 +94,34 @@ class Angle extends Quantity
 
     // endregion
 
-    // region Static getters
+    // region Inspection methods
 
     /**
-     * Get the dimension code for this quantity type. This method must be overridden in derived classes.
+     * Check if the Angle is in radians.
      *
-     * @return ?string
+     * @return bool
      */
-    #[Override]
-    public static function getDimensionCode(): ?string
-    {
-        return 'A';
+    public function isRadians() {
+        return (string)$this->unit === 'rad';
+    }
+
+    // endregion
+
+    // region Extraction methods
+
+    /**
+     * Get the size of the angle in radians.
+     *
+     * @return float
+     * @throws ValueError
+     * @throws \LogicException
+     */
+    public function toRadians() {
+        if ($this->isRadians()) {
+            return $this->value;
+        }
+
+        return $this->to('rad')->value;
     }
 
     // endregion
@@ -114,12 +147,8 @@ class Angle extends Quantity
             return false;
         }
 
-        // Convert both to radians.
-        $thisRad = $this->unit === 'rad' ? $this->value : $this->to('rad')->value;
-        $otherRad = $other->unit === 'rad' ? $other->value : $other->to('rad')->value;
-
-        // Compare the values.
-        return Floats::approxEqual($thisRad, $otherRad, $relTol, $absTol);
+        // Compare the values as radians.
+        return Floats::approxEqual($this->toRadians(), $other->toRadians(), $relTol, $absTol);
     }
 
     // endregion
@@ -151,13 +180,13 @@ class Angle extends Quantity
     public function wrap(bool $signed = true): self
     {
         // Get the units per turn for the current unit.
-        $unitsPerTurn = new self(1, 'turn')->to($this->unit)->value;
+        $unitsPerTurn = self::convert(1, 'turn', $this->unit);
 
         // Wrap the value.
         $r = Floats::wrap($this->value, $unitsPerTurn, $signed);
 
         // Return a new Angle with the wrapped value.
-        return new self($r, $this->unit);
+        return self::create($r, $this->unit);
     }
 
     // endregion
@@ -171,8 +200,7 @@ class Angle extends Quantity
      */
     public function sin(): float
     {
-        $radians = $this->to('rad')->value;
-        return sin($radians);
+        return sin($this->toRadians());
     }
 
     /**
@@ -182,8 +210,7 @@ class Angle extends Quantity
      */
     public function cos(): float
     {
-        $radians = $this->to('rad')->value;
-        return cos($radians);
+        return cos($this->toRadians());
     }
 
     /**
@@ -193,7 +220,7 @@ class Angle extends Quantity
      */
     public function tan(): float
     {
-        $radians = $this->to('rad')->value;
+        $radians = $this->toRadians();
         $s = sin($radians);
         $c = cos($radians);
 
@@ -214,8 +241,7 @@ class Angle extends Quantity
      */
     public function sec(): float
     {
-        $radians = $this->to('rad')->value;
-        $c = cos($radians);
+        $c = cos($this->toRadians());
 
         // If cos is effectively zero, return ±INF.
         if (Floats::approxEqual($c, 0, 0, self::TRIG_EPSILON)) {
@@ -232,8 +258,7 @@ class Angle extends Quantity
      */
     public function csc(): float
     {
-        $radians = $this->to('rad')->value;
-        $s = sin($radians);
+        $s = sin($this->toRadians());
 
         // If sin is effectively zero, return ±INF.
         if (Floats::approxEqual($s, 0, 0, self::TRIG_EPSILON)) {
@@ -250,7 +275,7 @@ class Angle extends Quantity
      */
     public function cot(): float
     {
-        $radians = $this->to('rad')->value;
+        $radians = $this->toRadians();
         $s = sin($radians);
         $c = cos($radians);
 
@@ -260,90 +285,6 @@ class Angle extends Quantity
         }
 
         return fdiv($c, $s);
-    }
-
-    // endregion
-
-    // region Hyperbolic methods
-
-    /**
-     * Get the hyperbolic sine of the angle.
-     *
-     * @return float The hyperbolic sine value.
-     */
-    public function sinh(): float
-    {
-        $radians = $this->to('rad')->value;
-        return sinh($radians);
-    }
-
-    /**
-     * Get the hyperbolic cosine of the angle.
-     *
-     * @return float The hyperbolic cosine value.
-     */
-    public function cosh(): float
-    {
-        $radians = $this->to('rad')->value;
-        return cosh($radians);
-    }
-
-    /**
-     * Get the hyperbolic tangent of the angle.
-     *
-     * @return float The hyperbolic tangent value.
-     */
-    public function tanh(): float
-    {
-        $radians = $this->to('rad')->value;
-        return tanh($radians);
-    }
-
-    /**
-     * Get the hyperbolic secant of the angle (1/cosh).
-     *
-     * @return float The hyperbolic secant value.
-     */
-    public function sech(): float
-    {
-        $radians = $this->to('rad')->value;
-        return fdiv(1.0, cosh($radians));
-    }
-
-    /**
-     * Get the hyperbolic cosecant of the angle (1/sinh).
-     *
-     * @return float The hyperbolic cosecant value.
-     */
-    public function csch(): float
-    {
-        $radians = $this->to('rad')->value;
-        $sh = sinh($radians);
-
-        // sinh(0) = 0, so return ±INF for values near zero.
-        if (Floats::approxEqual($sh, 0, 0, self::TRIG_EPSILON)) {
-            return Numbers::copySign(INF, $sh);
-        }
-
-        return fdiv(1.0, $sh);
-    }
-
-    /**
-     * Get the hyperbolic cotangent of the angle (cosh/sinh).
-     *
-     * @return float The hyperbolic cotangent value.
-     */
-    public function coth(): float
-    {
-        $radians = $this->to('rad')->value;
-        $sh = sinh($radians);
-
-        // sinh(0) = 0, so return ±INF for values near zero.
-        if (Floats::approxEqual($sh, 0, 0, self::TRIG_EPSILON)) {
-            return Numbers::copySign(INF, cosh($radians));
-        }
-
-        return fdiv(cosh($radians), $sh);
     }
 
     // endregion

@@ -8,32 +8,29 @@ use Galaxon\Quantities\Quantity;
 
 class Length extends Quantity
 {
-    // region Factory methods
-
     /**
-     * Get the Planck length.
+     * Conversion factors for length units.
      *
-     * @return self Length object representing the Planck length (1.616255×10⁻³⁵ m).
+     * @return list<array{string, string, float}>
+     * @see https://en.wikipedia.org/wiki/International_yard_and_pound
      */
-    public static function planckLength(): self
+    public static function getConversions(): array
     {
-        return new self(1.616255e-35, 'm');
+        return [
+            // Metric-US bridge
+            ['yd', 'm', 0.9144],
+            // US customary
+            ['in', 'px', 96],
+            ['in', 'pt', 72],
+            ['ft', 'in', 12],
+            ['yd', 'ft', 3],
+            ['mi', 'yd', 1760],
+            // Astronomical
+            ['au', 'm', 149597870700],
+            ['ly', 'm', 9460730472580800],
+            ['pc', 'au', 648000 / M_PI],
+            // Nautical
+            ['nmi', 'm', 1852],
+        ];
     }
-
-    // endregion
-
-    // region Static getters
-
-    /**
-     * Get the dimension code for this quantity type. This method must be overridden in derived classes.
-     *
-     * @return ?string
-     */
-    #[Override]
-    public static function getDimensionCode(): ?string
-    {
-        return 'L';
-    }
-
-    // endregion
 }

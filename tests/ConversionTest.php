@@ -25,9 +25,9 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('m', 'km', 0.001);
 
-        $this->assertSame('m', $conv->srcUnit);
-        $this->assertSame('km', $conv->destUnit);
-        $this->assertSame(0.001, $conv->multiplier->value);
+        $this->assertSame('m', $conv->srcUnitTerm);
+        $this->assertSame('km', $conv->destUnitTerm);
+        $this->assertSame(0.001, $conv->factor->value);
         $this->assertSame(0.0, $conv->offset->value);
     }
 
@@ -38,9 +38,9 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('C', 'F', 1.8, 32.0);
 
-        $this->assertSame('C', $conv->srcUnit);
-        $this->assertSame('F', $conv->destUnit);
-        $this->assertSame(1.8, $conv->multiplier->value);
+        $this->assertSame('C', $conv->srcUnitTerm);
+        $this->assertSame('F', $conv->destUnitTerm);
+        $this->assertSame(1.8, $conv->factor->value);
         $this->assertSame(32.0, $conv->offset->value);
     }
 
@@ -54,8 +54,8 @@ class ConversionTest extends TestCase
 
         $conv = new Conversion('a', 'b', $multiplier, $offset);
 
-        $this->assertSame(2.0, $conv->multiplier->value);
-        $this->assertSame(0.01, $conv->multiplier->absoluteError);
+        $this->assertSame(2.0, $conv->factor->value);
+        $this->assertSame(0.01, $conv->factor->absoluteError);
         $this->assertSame(10.0, $conv->offset->value);
         $this->assertSame(0.1, $conv->offset->absoluteError);
     }
@@ -67,7 +67,7 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('mm', 'cm', 10, 0);
 
-        $this->assertSame(10.0, $conv->multiplier->value);
+        $this->assertSame(10.0, $conv->factor->value);
         $this->assertSame(0.0, $conv->offset->value);
     }
 
@@ -226,8 +226,8 @@ class ConversionTest extends TestCase
         $conv = new Conversion('m', 'km', 0.001);
         $inverted = $conv->invert();
 
-        $this->assertSame('km', $inverted->srcUnit);
-        $this->assertSame('m', $inverted->destUnit);
+        $this->assertSame('km', $inverted->srcUnitTerm);
+        $this->assertSame('m', $inverted->destUnitTerm);
     }
 
     /**
@@ -238,7 +238,7 @@ class ConversionTest extends TestCase
         $conv = new Conversion('m', 'km', 0.001);
         $inverted = $conv->invert();
 
-        $this->assertSame(1000.0, $inverted->multiplier->value);
+        $this->assertSame(1000.0, $inverted->factor->value);
         $this->assertSame(0.0, $inverted->offset->value);
     }
 
@@ -252,7 +252,7 @@ class ConversionTest extends TestCase
         $inverted = $conv->invert();
 
         // F to C: C = (F - 32) / 1.8 = F * (1/1.8) + (-32/1.8)
-        $this->assertEqualsWithDelta(1.0 / 1.8, $inverted->multiplier->value, 1e-10);
+        $this->assertEqualsWithDelta(1.0 / 1.8, $inverted->factor->value, 1e-10);
         $this->assertEqualsWithDelta(-32.0 / 1.8, $inverted->offset->value, 1e-10);
     }
 
@@ -264,9 +264,9 @@ class ConversionTest extends TestCase
         $conv = new Conversion('m', 'km', 0.001);
         $doubleInverted = $conv->invert()->invert();
 
-        $this->assertSame('m', $doubleInverted->srcUnit);
-        $this->assertSame('km', $doubleInverted->destUnit);
-        $this->assertEqualsWithDelta(0.001, $doubleInverted->multiplier->value, 1e-15);
+        $this->assertSame('m', $doubleInverted->srcUnitTerm);
+        $this->assertSame('km', $doubleInverted->destUnitTerm);
+        $this->assertEqualsWithDelta(0.001, $doubleInverted->factor->value, 1e-15);
         $this->assertEqualsWithDelta(0.0, $doubleInverted->offset->value, 1e-15);
     }
 
@@ -301,8 +301,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineSequential($conv2);
 
-        $this->assertSame('m', $combined->srcUnit);
-        $this->assertSame('mi', $combined->destUnit);
+        $this->assertSame('m', $combined->srcUnitTerm);
+        $this->assertSame('mi', $combined->destUnitTerm);
     }
 
     /**
@@ -316,7 +316,7 @@ class ConversionTest extends TestCase
         $combined = $conv1->combineSequential($conv2);
 
         // m = mm * 0.1 * 0.01 = mm * 0.001
-        $this->assertSame(0.001, $combined->multiplier->value);
+        $this->assertSame(0.001, $combined->factor->value);
         $this->assertSame(0.0, $combined->offset->value);
     }
 
@@ -333,7 +333,7 @@ class ConversionTest extends TestCase
         $combined = $conv1->combineSequential($conv2);
 
         // c = (a * 2 + 3) * 4 + 5 = a * 8 + 12 + 5 = a * 8 + 17
-        $this->assertSame(8.0, $combined->multiplier->value);
+        $this->assertSame(8.0, $combined->factor->value);
         $this->assertSame(17.0, $combined->offset->value);
     }
 
@@ -351,8 +351,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineConvergent($conv2);
 
-        $this->assertSame('m', $combined->srcUnit);
-        $this->assertSame('in', $combined->destUnit);
+        $this->assertSame('m', $combined->srcUnitTerm);
+        $this->assertSame('in', $combined->destUnitTerm);
     }
 
     /**
@@ -366,7 +366,7 @@ class ConversionTest extends TestCase
         $combined = $conv1->combineConvergent($conv2);
 
         // in = m * (100 / 2.54) = m * 39.370...
-        $this->assertEqualsWithDelta(100.0 / 2.54, $combined->multiplier->value, 1e-10);
+        $this->assertEqualsWithDelta(100.0 / 2.54, $combined->factor->value, 1e-10);
         $this->assertSame(0.0, $combined->offset->value);
     }
 
@@ -385,7 +385,7 @@ class ConversionTest extends TestCase
         // c = a * 2 + 3 and c = b * 4 + 5
         // So: a * 2 + 3 = b * 4 + 5
         // b = (a * 2 + 3 - 5) / 4 = a * (2/4) + (-2/4) = a * 0.5 - 0.5
-        $this->assertSame(0.5, $combined->multiplier->value);
+        $this->assertSame(0.5, $combined->factor->value);
         $this->assertSame(-0.5, $combined->offset->value);
     }
 
@@ -403,8 +403,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineDivergent($conv2);
 
-        $this->assertSame('m', $combined->srcUnit);
-        $this->assertSame('in', $combined->destUnit);
+        $this->assertSame('m', $combined->srcUnitTerm);
+        $this->assertSame('in', $combined->destUnitTerm);
     }
 
     /**
@@ -418,7 +418,7 @@ class ConversionTest extends TestCase
         $combined = $conv1->combineDivergent($conv2);
 
         // in = m * (0.3937 / 0.01) = m * 39.37
-        $this->assertEqualsWithDelta(39.37, $combined->multiplier->value, 1e-10);
+        $this->assertEqualsWithDelta(39.37, $combined->factor->value, 1e-10);
         $this->assertSame(0.0, $combined->offset->value);
     }
 
@@ -437,7 +437,7 @@ class ConversionTest extends TestCase
         // a = c * 2 + 3 and b = c * 4 + 5
         // From a = c * 2 + 3, we get c = (a - 3) / 2
         // So b = ((a - 3) / 2) * 4 + 5 = a * 2 - 6 + 5 = a * 2 - 1
-        $this->assertSame(2.0, $combined->multiplier->value);
+        $this->assertSame(2.0, $combined->factor->value);
         $this->assertSame(-1.0, $combined->offset->value);
     }
 
@@ -455,8 +455,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineOpposite($conv2);
 
-        $this->assertSame('m', $combined->srcUnit);
-        $this->assertSame('in', $combined->destUnit);
+        $this->assertSame('m', $combined->srcUnitTerm);
+        $this->assertSame('in', $combined->destUnitTerm);
     }
 
     /**
@@ -473,7 +473,7 @@ class ConversionTest extends TestCase
         // From in -> cm: cm = in * 2.54
         // So: m * 100 = in * 2.54
         // in = m * (100 / 2.54) = m * 39.370...
-        $this->assertEqualsWithDelta(100.0 / 2.54, $combined->multiplier->value, 1e-10);
+        $this->assertEqualsWithDelta(100.0 / 2.54, $combined->factor->value, 1e-10);
         $this->assertEqualsWithDelta(0.0, $combined->offset->value, 1e-10);
     }
 
@@ -494,7 +494,7 @@ class ConversionTest extends TestCase
         // So: a - 3 = (b * 4 + 5) * 2 = b * 8 + 10
         // a = b * 8 + 13
         // Therefore: b = (a - 13) / 8 = a / 8 - 13/8
-        $this->assertSame(0.125, $combined->multiplier->value);
+        $this->assertSame(0.125, $combined->factor->value);
         $this->assertSame(-1.625, $combined->offset->value);
     }
 

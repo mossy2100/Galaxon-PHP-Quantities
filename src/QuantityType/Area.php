@@ -8,18 +8,21 @@ use Galaxon\Quantities\Quantity;
 
 class Area extends Quantity
 {
-    // region Static getters
-
     /**
-     * Get the dimension code for this quantity type. This method must be overridden in derived classes.
+     * Conversion factors for area units.
      *
-     * @return ?string
+     * @return list<array{string, string, float}>
      */
-    #[Override]
-    public static function getDimensionCode(): ?string
+    public static function getConversions(): array
     {
-        return 'L2';
+        return [
+            // Metric
+            ['ha', 'm2', 10000],
+            // Metric-US bridge
+            ['ac', 'm2', 4046.8564224],
+            // US customary
+            ['mi2', 'ac', 640],
+            ['ac', 'yd2', 4840],
+        ];
     }
-
-    // endregion
 }

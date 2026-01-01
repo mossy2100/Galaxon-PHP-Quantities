@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities;
 
-use Galaxon\Core\Floats;
-use ValueError;
+use Galaxon\Quantities\QuantityType;
 
 class UnitData
 {
+    // region Constants
+
     /**
      * Constants for prefix set codes.
      */
@@ -91,654 +92,331 @@ class UnitData
     ];
 
     /**
-     * Known/supported base units.
+     * Default known/supported base units, keyed by name.
      *
-     * Parsing should accept the symbol and the format string. Formatting should use the format string.
+     * Parsing should accept both the primary symbol and the format symbol.
+     * Formatting should use the format string.
      *
      * Exponents in dimension codes are written as suffixes: L2 = L², T-1 = T⁻¹, MLT-2 = M·L·T⁻²
+     *
+     * @var array<string, array{symbol: string, quantity: string, dimension: string, system: string, prefixes?: int, si_prefix?: string, format?: string, equivalent?: string}>
      */
     public const array UNITS = [
         // SI base units
-        'm'      => [
-            'name'      => 'metre',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'si_base',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-        ],
-        'g'      => [
-            'name'      => 'gram',
-            'quantity'  => 'mass',
-            'dimension' => 'M',
-            'system'    => 'si_base',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-            'si_prefix' => 'k',
-        ],
-        's'      => [
-            'name'      => 'second',
-            'quantity'  => 'time',
-            'dimension' => 'T',
-            'system'    => 'si_base',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-        ],
-        'A'      => [
-            'name'      => 'ampere',
-            'quantity'  => 'electric current',
-            'dimension' => 'I',
-            'system'    => 'si_base',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-        ],
-        'K'      => [
-            'name'      => 'kelvin',
-            'quantity'  => 'temperature',
-            'dimension' => 'H',
-            'system'    => 'si_base',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-        ],
-        'mol'    => [
-            'name'      => 'mole',
-            'quantity'  => 'amount of substance',
-            'dimension' => 'N',
-            'system'    => 'si_base',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-        ],
-        'cd'     => [
-            'name'      => 'candela',
-            'quantity'  => 'luminous intensity',
-            'dimension' => 'J',
-            'system'    => 'si_base',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-        ],
+        'metre'            => ['symbol' => 'm', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'si_base', 'prefixes' => self::PREFIX_CODE_METRIC],
+        'gram'             => ['symbol' => 'g', 'quantity' => 'mass', 'dimension' => 'M', 'system' => 'si_base', 'prefixes' => self::PREFIX_CODE_METRIC, 'si_prefix' => 'k'],
+        'second'           => ['symbol' => 's', 'quantity' => 'time', 'dimension' => 'T', 'system' => 'si_base', 'prefixes' => self::PREFIX_CODE_METRIC],
+        'ampere'           => ['symbol' => 'A', 'quantity' => 'electric current', 'dimension' => 'I', 'system' => 'si_base', 'prefixes' => self::PREFIX_CODE_METRIC],
+        'kelvin'           => ['symbol' => 'K', 'quantity' => 'temperature', 'dimension' => 'H', 'system' => 'si_base', 'prefixes' => self::PREFIX_CODE_METRIC],
+        'mole'             => ['symbol' => 'mol', 'quantity' => 'amount of substance', 'dimension' => 'N', 'system' => 'si_base', 'prefixes' => self::PREFIX_CODE_METRIC],
+        'candela'          => ['symbol' => 'cd', 'quantity' => 'luminous intensity', 'dimension' => 'J', 'system' => 'si_base', 'prefixes' => self::PREFIX_CODE_METRIC],
 
         // SI derived units
-        'rad'    => [
-            'name'      => 'radian',
-            'quantity'  => 'angle',
-            'dimension' => 'A',
-            'system'    => 'si_derived',
-            'prefixes'  => self::PREFIX_CODE_SMALL_METRIC,
-        ],
-        'sr'     => [
-            'name'      => 'steradian',
-            'quantity'  => 'solid angle',
-            'dimension' => 'A2',
-            'system'    => 'si_derived',
-            'prefixes'  => self::PREFIX_CODE_SMALL_METRIC,
-        ],
+        'radian'           => ['symbol' => 'rad', 'quantity' => 'angle', 'dimension' => 'A', 'system' => 'si_derived', 'prefixes' => self::PREFIX_CODE_SMALL_METRIC],
+        'steradian'        => ['symbol' => 'sr', 'quantity' => 'solid angle', 'dimension' => 'A2', 'system' => 'si_derived', 'prefixes' => self::PREFIX_CODE_SMALL_METRIC],
 
         // SI named units
-        'Hz'     => [
-            'name'       => 'hertz',
-            'quantity'   => 'frequency',
-            'dimension'  => 'T-1',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 's-1',
-        ],
-        'N'      => [
-            'name'       => 'newton',
-            'quantity'   => 'force',
-            'dimension'  => 'MLT-2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*m*s-2',
-        ],
-        'Pa'     => [
-            'name'       => 'pascal',
-            'quantity'   => 'pressure',
-            'dimension'  => 'ML-1T-2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*m-1*s-2',
-        ],
-        'J'      => [
-            'name'       => 'joule',
-            'quantity'   => 'energy',
-            'dimension'  => 'ML2T-2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*m2*s-2',
-        ],
-        'W'      => [
-            'name'       => 'watt',
-            'quantity'   => 'power',
-            'dimension'  => 'ML2T-3',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*m2*s-3',
-        ],
-        'C'      => [
-            'name'       => 'coulomb',
-            'quantity'   => 'electric charge',
-            'dimension'  => 'TI',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 's*A',
-        ],
-        'V'      => [
-            'name'       => 'volt',
-            'quantity'   => 'voltage',
-            'dimension'  => 'ML2T-3I-1',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*m2*s-3*A-1',
-        ],
-        'F'      => [
-            'name'       => 'farad',
-            'quantity'   => 'capacitance',
-            'dimension'  => 'M-1L-2T4I2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg-1*m-2*s4*A2',
-        ],
-        'ohm'    => [
-            'name'       => 'ohm',
-            'format'     => 'Ω',
-            'quantity'   => 'resistance',
-            'dimension'  => 'ML2T-3I-2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*m2*s-3*A-2',
-        ],
-        'S'      => [
-            'name'       => 'siemens',
-            'quantity'   => 'conductance',
-            'dimension'  => 'M-1L-2T3I2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg-1*m-2*s3*A2',
-        ],
-        'Wb'     => [
-            'name'       => 'weber',
-            'quantity'   => 'magnetic flux',
-            'dimension'  => 'ML2T-2I-1',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*m2*s-2*A-1',
-        ],
-        'T'      => [
-            'name'       => 'tesla',
-            'quantity'   => 'magnetic flux density',
-            'dimension'  => 'MT-2I-1',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*s-2*A-1',
-        ],
-        'H'      => [
-            'name'       => 'henry',
-            'quantity'   => 'inductance',
-            'dimension'  => 'ML2T-2I-2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'kg*m2*s-2*A-2',
-        ],
-        'lm'     => [
-            'name'       => 'lumen',
-            'quantity'   => 'luminous flux',
-            'dimension'  => 'JA2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'cd*sr',
-        ],
-        'lx'     => [
-            'name'       => 'lux',
-            'quantity'   => 'illuminance',
-            'dimension'  => 'JA2L-2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'cd*sr*m-2',
-        ],
-        'Bq'     => [
-            'name'       => 'becquerel',
-            'quantity'   => 'radioactivity',
-            'dimension'  => 'T-1',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 's-1',
-        ],
-        'Gy'     => [
-            'name'       => 'gray',
-            'quantity'   => 'absorbed dose',
-            'dimension'  => 'L2T-2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'm2*s-2',
-        ],
-        'Sv'     => [
-            'name'       => 'sievert',
-            'quantity'   => 'equivalent dose',
-            'dimension'  => 'L2T-2',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'm2*s-2',
-        ],
-        'kat'    => [
-            'name'       => 'katal',
-            'quantity'   => 'catalytic activity',
-            'dimension'  => 'NT-1',
-            'system'     => 'si_named',
-            'prefixes'   => self::PREFIX_CODE_METRIC,
-            'equivalent' => 'mol*s-1',
-        ],
+        'hertz'            => ['symbol' => 'Hz', 'quantity' => 'frequency', 'dimension' => 'T-1', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 's-1'],
+        'newton'           => ['symbol' => 'N', 'quantity' => 'force', 'dimension' => 'T-2LM', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*m*s-2'],
+        'pascal'           => ['symbol' => 'Pa', 'quantity' => 'pressure', 'dimension' => 'T-2L-1M', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*m-1*s-2'],
+        'joule'            => ['symbol' => 'J', 'quantity' => 'energy', 'dimension' => 'T-2L2M', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*m2*s-2'],
+        'watt'             => ['symbol' => 'W', 'quantity' => 'power', 'dimension' => 'T-3L2M', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*m2*s-3'],
+        'coulomb'          => ['symbol' => 'C', 'quantity' => 'electric charge', 'dimension' => 'TI', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 's*A'],
+        'volt'             => ['symbol' => 'V', 'quantity' => 'voltage', 'dimension' => 'T-3L2MI-1', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*m2*s-3*A-1'],
+        'farad'            => ['symbol' => 'F', 'quantity' => 'capacitance', 'dimension' => 'T4L-2M-1I2', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg-1*m-2*s4*A2'],
+        'ohm'              => ['symbol' => 'ohm', 'format' => 'Ω', 'quantity' => 'resistance', 'dimension' => 'T-3L2MI-2', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*m2*s-3*A-2'],
+        'siemens'          => ['symbol' => 'S', 'quantity' => 'conductance', 'dimension' => 'T3L-2M-1I2', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg-1*m-2*s3*A2'],
+        'weber'            => ['symbol' => 'Wb', 'quantity' => 'magnetic flux', 'dimension' => 'T-2L2MI-1', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*m2*s-2*A-1'],
+        'tesla'            => ['symbol' => 'T', 'quantity' => 'magnetic flux density', 'dimension' => 'T-2MI-1', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*s-2*A-1'],
+        'henry'            => ['symbol' => 'H', 'quantity' => 'inductance', 'dimension' => 'T-2L2MI-2', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'kg*m2*s-2*A-2'],
+        'lumen'            => ['symbol' => 'lm', 'quantity' => 'luminous flux', 'dimension' => 'JA2', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'cd*sr'],
+        'lux'              => ['symbol' => 'lx', 'quantity' => 'illuminance', 'dimension' => 'L-2JA2', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'cd*sr*m-2'],
+        'becquerel'        => ['symbol' => 'Bq', 'quantity' => 'radioactivity', 'dimension' => 'T-1', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 's-1'],
+        'gray'             => ['symbol' => 'Gy', 'quantity' => 'absorbed dose', 'dimension' => 'T-2L2', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'm2*s-2'],
+        'sievert'          => ['symbol' => 'Sv', 'quantity' => 'equivalent dose', 'dimension' => 'T-2L2', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'm2*s-2'],
+        'katal'            => ['symbol' => 'kat', 'quantity' => 'catalytic activity', 'dimension' => 'T-1N', 'system' => 'si_named', 'prefixes' => self::PREFIX_CODE_METRIC, 'equivalent' => 'mol*s-1'],
 
         // US named units
-        'kn'     => [
-            'name'       => 'knot',
-            'quantity'   => 'velocity',
-            'dimension'  => 'LT-1',
-            'system'     => 'us_named',
-            'equivalent' => 'nmi*h-1',
-        ],
+        'knot'             => ['symbol' => 'kn', 'quantity' => 'velocity', 'dimension' => 'T-1L', 'system' => 'us_named', 'equivalent' => 'nmi*h-1'],
 
         // Non-SI metric units
-        'l'      => [
-            'name'      => 'litre',
-            'format'    => 'L',
-            'quantity'  => 'volume',
-            'dimension' => 'L3',
-            'system'    => 'metric',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-        ],
-        'ha'     => [
-            'name'      => 'hectare',
-            'quantity'  => 'area',
-            'dimension' => 'L2',
-            'system'    => 'metric',
-        ],
-        't'      => [
-            'name'      => 'tonne',
-            'quantity'  => 'mass',
-            'dimension' => 'M',
-            'system'    => 'metric',
-        ],
-        'bar'    => [
-            'name'      => 'bar',
-            'quantity'  => 'pressure',
-            'dimension' => 'ML-1T-2',
-            'system'    => 'metric',
-        ],
-        'eV'     => [
-            'name'      => 'electronvolt',
-            'quantity'  => 'energy',
-            'dimension' => 'ML2T-2',
-            'system'    => 'metric',
-            'prefixes'  => self::PREFIX_CODE_METRIC,
-        ],
+        'litre'            => ['symbol' => 'L', 'quantity' => 'volume', 'dimension' => 'L3', 'system' => 'metric', 'prefixes' => self::PREFIX_CODE_METRIC],
+        'hectare'          => ['symbol' => 'ha', 'quantity' => 'area', 'dimension' => 'L2', 'system' => 'metric'],
+        'tonne'            => ['symbol' => 't', 'quantity' => 'mass', 'dimension' => 'M', 'system' => 'metric'],
+        'bar'              => ['symbol' => 'bar', 'quantity' => 'pressure', 'dimension' => 'T-2L-1M', 'system' => 'metric'],
+        'electronvolt'     => ['symbol' => 'eV', 'quantity' => 'energy', 'dimension' => 'T-2L2M', 'system' => 'metric', 'prefixes' => self::PREFIX_CODE_METRIC],
+        'calorie'          => ['symbol' => 'cal', 'quantity' => 'energy', 'dimension' => 'T-2L2M', 'system' => 'metric', 'prefixes' => self::PREFIX_CODE_LARGE_METRIC],
 
         // Non-SI angle units
-        'deg'    => [
-            'name'      => 'degree',
-            'format'    => '°',
-            'quantity'  => 'angle',
-            'dimension' => 'A',
-            'system'    => 'metric',
-        ],
-        'arcmin' => [
-            'name'      => 'arcminute',
-            'format'    => '′',
-            'quantity'  => 'angle',
-            'dimension' => 'A',
-            'system'    => 'metric',
-        ],
-        'arcsec' => [
-            'name'      => 'arcsecond',
-            'format'    => '″',
-            'quantity'  => 'angle',
-            'dimension' => 'A',
-            'system'    => 'metric',
-        ],
-        'grad'   => [
-            'name'      => 'gradian',
-            'quantity'  => 'angle',
-            'dimension' => 'A',
-            'system'    => 'metric',
-        ],
-        'turn'   => [
-            'name'      => 'turn',
-            'quantity'  => 'angle',
-            'dimension' => 'A',
-            'system'    => 'metric',
-        ],
+        'degree'           => ['symbol' => 'deg', 'format' => '°', 'quantity' => 'angle', 'dimension' => 'A', 'system' => 'metric'],
+        'arcminute'        => ['symbol' => 'arcmin', 'format' => '′', 'quantity' => 'angle', 'dimension' => 'A', 'system' => 'metric'],
+        'arcsecond'        => ['symbol' => 'arcsec', 'format' => '″', 'quantity' => 'angle', 'dimension' => 'A', 'system' => 'metric'],
+        'gradian'          => ['symbol' => 'grad', 'quantity' => 'angle', 'dimension' => 'A', 'system' => 'metric'],
+        'turn'             => ['symbol' => 'turn', 'quantity' => 'angle', 'dimension' => 'A', 'system' => 'metric'],
 
         // Non-SI temperature units
-        'degC'   => [
-            'name'      => 'celsius',
-            'format'    => '°C',
-            'quantity'  => 'temperature',
-            'dimension' => 'H',
-            'system'    => 'metric',
-        ],
-        'degF'   => [
-            'name'      => 'fahrenheit',
-            'format'    => '°F',
-            'quantity'  => 'temperature',
-            'dimension' => 'H',
-            'system'    => 'us_customary',
-        ],
-        'degR'   => [
-            'name'      => 'rankine',
-            'format'    => '°R',
-            'quantity'  => 'temperature',
-            'dimension' => 'H',
-            'system'    => 'us_customary',
-        ],
+        'celsius'          => ['symbol' => 'degC', 'format' => '°C', 'quantity' => 'temperature', 'dimension' => 'H', 'system' => 'metric'],
+        'fahrenheit'       => ['symbol' => 'degF', 'format' => '°F', 'quantity' => 'temperature', 'dimension' => 'H', 'system' => 'us_customary'],
+        'rankine'          => ['symbol' => 'degR', 'format' => '°R', 'quantity' => 'temperature', 'dimension' => 'H', 'system' => 'us_customary'],
 
         // Non-SI time units
-        'min'    => [
-            'name'      => 'minute',
-            'quantity'  => 'time',
-            'dimension' => 'T',
-            'system'    => 'metric',
-        ],
-        'h'      => [
-            'name'      => 'hour',
-            'quantity'  => 'time',
-            'dimension' => 'T',
-            'system'    => 'metric',
-        ],
-        'd'      => [
-            'name'      => 'day',
-            'quantity'  => 'time',
-            'dimension' => 'T',
-            'system'    => 'metric',
-        ],
-        'w'      => [
-            'name'      => 'week',
-            'quantity'  => 'time',
-            'dimension' => 'T',
-            'system'    => 'metric',
-        ],
-        'mo'     => [
-            'name'      => 'month',
-            'quantity'  => 'time',
-            'dimension' => 'T',
-            'system'    => 'metric',
-        ],
-        'y'      => [
-            'name'      => 'year',
-            'quantity'  => 'time',
-            'dimension' => 'T',
-            'system'    => 'metric',
-        ],
-        'c'      => [
-            'name'      => 'century',
-            'quantity'  => 'time',
-            'dimension' => 'T',
-            'system'    => 'metric',
-        ],
+        'minute'           => ['symbol' => 'min', 'quantity' => 'time', 'dimension' => 'T', 'system' => 'metric'],
+        'hour'             => ['symbol' => 'h', 'quantity' => 'time', 'dimension' => 'T', 'system' => 'metric'],
+        'day'              => ['symbol' => 'd', 'quantity' => 'time', 'dimension' => 'T', 'system' => 'metric'],
+        'week'             => ['symbol' => 'w', 'quantity' => 'time', 'dimension' => 'T', 'system' => 'metric'],
+        'month'            => ['symbol' => 'mo', 'quantity' => 'time', 'dimension' => 'T', 'system' => 'metric'],
+        'year'             => ['symbol' => 'y', 'quantity' => 'time', 'dimension' => 'T', 'system' => 'metric'],
+        'century'          => ['symbol' => 'c', 'quantity' => 'time', 'dimension' => 'T', 'system' => 'metric'],
+
+        // Non-SI pressure units
+        'mmHg'             => ['symbol' => 'mmHg', 'quantity' => 'pressure', 'dimension' => 'T-2L-1M', 'system' => 'us_customary'],
+        'atmosphere'       => ['symbol' => 'atm', 'quantity' => 'pressure', 'dimension' => 'T-2L-1M', 'system' => 'us_customary'],
 
         // Astronomical length units
-        'au'     => [
-            'name'      => 'astronomical unit',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'metric',
-        ],
-        'ly'     => [
-            'name'      => 'light year',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'metric',
-        ],
-        'pc'     => [
-            'name'      => 'parsec',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'metric',
-            'prefixes'  => self::PREFIX_CODE_LARGE_METRIC,
-        ],
+        'astronomical unit' => ['symbol' => 'au', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'metric'],
+        'light year'       => ['symbol' => 'ly', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'metric'],
+        'parsec'           => ['symbol' => 'pc', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'metric', 'prefixes' => self::PREFIX_CODE_LARGE_METRIC],
 
         // US customary length units
-        'px'     => [
-            'name'      => 'pixel',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'us_customary',
-        ],
-        'pt'  => [
-            'name'      => 'point',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'us_customary',
-        ],
-        'in'     => [
-            'name'      => 'inch',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'us_customary',
-        ],
-        'ft'     => [
-            'name'      => 'foot',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'us_customary',
-        ],
-        'yd'     => [
-            'name'      => 'yard',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'us_customary',
-        ],
-        'mi'     => [
-            'name'      => 'mile',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'us_customary',
-        ],
-        'nmi'    => [
-            'name'      => 'nautical mile',
-            'quantity'  => 'length',
-            'dimension' => 'L',
-            'system'    => 'us_customary',
-        ],
+        'pixel'            => ['symbol' => 'px', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'us_customary'],
+        'point'            => ['symbol' => 'pt', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'us_customary'],
+        'inch'             => ['symbol' => 'in', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'us_customary'],
+        'foot'             => ['symbol' => 'ft', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'us_customary'],
+        'yard'             => ['symbol' => 'yd', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'us_customary'],
+        'mile'             => ['symbol' => 'mi', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'us_customary'],
+        'nautical mile'    => ['symbol' => 'nmi', 'quantity' => 'length', 'dimension' => 'L', 'system' => 'us_customary'],
 
         // US customary area units
-        'ac'     => [
-            'name'      => 'acre',
-            'quantity'  => 'area',
-            'dimension' => 'L2',
-            'system'    => 'us_customary',
-        ],
+        'acre'             => ['symbol' => 'ac', 'quantity' => 'area', 'dimension' => 'L2', 'system' => 'us_customary'],
 
         // US customary volume units
-        'tsp'    => [
-            'name'      => 'teaspoon',
-            'quantity'  => 'volume',
-            'dimension' => 'L3',
-            'system'    => 'us_customary',
-        ],
-        'tbsp'   => [
-            'name'      => 'tablespoon',
-            'quantity'  => 'volume',
-            'dimension' => 'L3',
-            'system'    => 'us_customary',
-        ],
-        'floz'   => [
-            'name'      => 'fluid ounce',
-            'quantity'  => 'volume',
-            'dimension' => 'L3',
-            'system'    => 'us_customary',
-        ],
-        'cup'    => [
-            'name'      => 'cup',
-            'quantity'  => 'volume',
-            'dimension' => 'L3',
-            'system'    => 'us_customary',
-        ],
-        'pt'     => [
-            'name'      => 'pint',
-            'quantity'  => 'volume',
-            'dimension' => 'L3',
-            'system'    => 'us_customary',
-        ],
-        'qt'     => [
-            'name'      => 'quart',
-            'quantity'  => 'volume',
-            'dimension' => 'L3',
-            'system'    => 'us_customary',
-        ],
-        'gal'    => [
-            'name'      => 'gallon',
-            'quantity'  => 'volume',
-            'dimension' => 'L3',
-            'system'    => 'us_customary',
-        ],
+        'teaspoon'         => ['symbol' => 'tsp', 'quantity' => 'volume', 'dimension' => 'L3', 'system' => 'us_customary'],
+        'tablespoon'       => ['symbol' => 'tbsp', 'quantity' => 'volume', 'dimension' => 'L3', 'system' => 'us_customary'],
+        'fluid ounce'      => ['symbol' => 'floz', 'quantity' => 'volume', 'dimension' => 'L3', 'system' => 'us_customary'],
+        'cup'              => ['symbol' => 'cup', 'quantity' => 'volume', 'dimension' => 'L3', 'system' => 'us_customary'],
+        'pint'             => ['symbol' => 'pint', 'quantity' => 'volume', 'dimension' => 'L3', 'system' => 'us_customary'],
+        'quart'            => ['symbol' => 'qt', 'quantity' => 'volume', 'dimension' => 'L3', 'system' => 'us_customary'],
+        'gallon'           => ['symbol' => 'gal', 'quantity' => 'volume', 'dimension' => 'L3', 'system' => 'us_customary'],
 
         // US customary mass units
-        'oz'     => [
-            'name'      => 'ounce',
-            'quantity'  => 'mass',
-            'dimension' => 'M',
-            'system'    => 'us_customary',
-        ],
-        'lb'     => [
-            'name'      => 'pound',
-            'quantity'  => 'mass',
-            'dimension' => 'M',
-            'system'    => 'us_customary',
-        ],
-        'st'     => [
-            'name'      => 'stone',
-            'quantity'  => 'mass',
-            'dimension' => 'M',
-            'system'    => 'us_customary',
-        ],
-        'ton'    => [
-            'name'      => 'short ton',
-            'quantity'  => 'mass',
-            'dimension' => 'M',
-            'system'    => 'us_customary',
-        ],
+        'ounce'            => ['symbol' => 'oz', 'quantity' => 'mass', 'dimension' => 'M', 'system' => 'us_customary'],
+        'pound'            => ['symbol' => 'lb', 'quantity' => 'mass', 'dimension' => 'M', 'system' => 'us_customary'],
+        'stone'            => ['symbol' => 'st', 'quantity' => 'mass', 'dimension' => 'M', 'system' => 'us_customary'],
+        'short ton'        => ['symbol' => 'ton', 'quantity' => 'mass', 'dimension' => 'M', 'system' => 'us_customary'],
+
+        // US customary force units
+        'pound force'      => ['symbol' => 'lbf', 'quantity' => 'force', 'dimension' => 'T-2LM', 'system' => 'us_customary'],
 
         // Data units
-        'b'      => [
-            'name'      => 'bit',
-            'quantity'  => 'data',
-            'dimension' => 'D',
-            'system'    => 'metric',
-            'prefixes'  => self::PREFIX_CODE_LARGE,
-        ],
-        'B'      => [
-            'name'      => 'byte',
-            'quantity'  => 'data',
-            'dimension' => 'D',
-            'system'    => 'metric',
-            'prefixes'  => self::PREFIX_CODE_LARGE,
-        ],
+        'bit'              => ['symbol' => 'b', 'quantity' => 'data', 'dimension' => 'D', 'system' => 'metric', 'prefixes' => self::PREFIX_CODE_LARGE],
+        'byte'             => ['symbol' => 'B', 'quantity' => 'data', 'dimension' => 'D', 'system' => 'metric', 'prefixes' => self::PREFIX_CODE_LARGE],
     ];
 
-    public const array ANGLE_CONVERSIONS = [
-        ['turn', 'rad', Floats::TAU],
-        ['turn', 'deg', 360],
-        ['deg', 'arcmin', 60],
-        ['arcmin', 'arcsec', 60],
-        ['turn', 'grad', 400],
-    ];
+    // endregion
 
-    public const array LENGTH_CONVERSIONS = [
-        // Metric-US bridge
-        ['in', 'mm', 25.4],
-        // US customary
-        ['in', 'px', 96],
-        ['in', 'pt', 72],
-        ['ft', 'in', 12],
-        ['yd', 'ft', 3],
-        ['mi', 'yd', 1760],
-        // Astronomical
-        ['au', 'm', 149597870700],
-        ['ly', 'm', 9460730472580800],
-        ['pc', 'au', 648000 / M_PI],
-        // Nautical
-        ['nmi', 'm', 1852],
-    ];
-
-    public const array AREA_CONVERSIONS = [
-        // Metric
-        ['ha', 'm2', 10000],
-        // Metric-US bridge
-        ['ac', 'm2', 4046.8564224],
-        // US customary
-        ['mi2', 'ac', 640],
-        ['ac', 'yd2', 4840],
-    ];
+    // region Static properties
 
     /**
-     * Volume conversions
+     * All known/supported units including defaults and custom.
      *
-     * US customary units are used here, not imperial.
+     * @var array<string, BaseUnit>|null
      */
-    public const array VOLUME_CONVERSIONS = [
-        // Metric
-        ['m3', 'L', 1000],
-        // Metric-US bridge
-        ['in3', 'mL', 16.387064],
-        // US customary
-        ['gal', 'in3', 231],
-        ['gal', 'qt', 4],
-        ['qt', 'pt', 2],
-        ['pt', 'cup', 2],
-        ['cup', 'floz', 8],
-        ['floz', 'tbsp', 2],
-        ['tbsp', 'tsp', 3]
-    ];
+    private static ?array $units = null;
 
-    public const array MASS_CONVERSIONS = [
-        // Metric
-        ['t', 'kg', 1000],
-        // Metric-US bridge
-        ['lb', 'g', 453.59237],
-        // US customary
-        ['lb', 'oz', 16],
-        ['st', 'lb', 14],
-        ['ton', 'lb', 2000],
-    ];
+    // endregion
 
-    public const array TEMPERATURE_CONVERSIONS = [
-        ['degC', 'K', 1, 273.15],
-        ['degF', 'degR', 1, 491.67],
-        ['K', 'degR', 1.8],
-    ];
-
-    public const array PRESSURE_CONVERSIONS = [
-        ['bar', 'Pa', 100000],
-        ['mmHg', 'Pa', 133.322387415],
-        ['atm', 'Pa', 101325],
-    ];
-
-    public const array ENERGY_CONVERSIONS = [
-        ['eV', 'J', 1.602_176_634e-19],
-    ];
-
-    public const array TIME_CONVERSIONS = [
-        ['min', 's', 60],
-        ['h', 'min', 60],
-        ['d', 'h', 24],
-        ['w', 'd', 7],
-        ['y', 'mo', 12],
-        ['y', 'd', 365.2425],
-        ['c', 'y', 100]
-    ];
-
-    public const array DATA_CONVERSIONS = [
-        // 1 byte = 8 bits
-        ['B', 'b', 8]
-    ];
+    // region Static methods
 
     /**
-     * Full array of conversions, keyed by dimension code.
+     * Initialize the units array from the UNITS constant.
      *
-     * @var array<string, array>
+     * This is called lazily on first access.
      */
-    public const array CONVERSIONS = [
-        'A' => self::ANGLE_CONVERSIONS,
-        'L' => self::LENGTH_CONVERSIONS,
-        'L2' => self::AREA_CONVERSIONS,
-        'L3' => self::VOLUME_CONVERSIONS,
-        'M' => self::MASS_CONVERSIONS,
-        'H' => self::TEMPERATURE_CONVERSIONS,
-        'ML-1T-2' => self::PRESSURE_CONVERSIONS,
-        'ML2T-2' => self::ENERGY_CONVERSIONS,
-        'T' => self::TIME_CONVERSIONS,
-        'D' => self::DATA_CONVERSIONS,
-    ];
+    private static function initUnits(): void
+    {
+        if (self::$units === null) {
+            self::$units = [];
+            foreach (self::UNITS as $name => $definition) {
+                self::$units[$name] = new BaseUnit($name, $definition);
+            }
+        }
+    }
+
+    /**
+     * Get all known/supported units.
+     *
+     * @return array<string, BaseUnit>
+     */
+    public static function getUnits(): array
+    {
+        self::initUnits();
+        return self::$units;
+    }
+
+    /**
+     * Add or update a unit in the system.
+     *
+     * TODO add a check here that the symbol is unique.
+     * TODO add a check here that the primary unit symbol is ASCII.
+     *
+     * @param BaseUnit $unit The unit to add.
+     */
+    public static function addUnit(BaseUnit $unit): void
+    {
+        self::initUnits();
+        self::$units[$unit->name] = $unit;
+    }
+
+    /**
+     * Remove a unit from the system.
+     *
+     * @param string $name The unit name to remove.
+     */
+    public static function removeUnit(string $name): void
+    {
+        self::initUnits();
+        unset(self::$units[$name]);
+    }
+
+    /**
+     * Get all valid supported unit symbols, include base and prefixed variants, but excluding exponents.
+     *
+     * @return array
+     */
+    public static function getAllValidUnitSymbols(): array
+    {
+        self::initUnits();
+
+        $validUnits = [];
+
+        // Loop through the base units.
+        foreach (self::$units as $unit) {
+
+            // Add the base unit symbol.
+            $validUnits[] = $unit->symbol;
+
+            // Add the format symbol if it exists.
+            if ($unit->format !== null) {
+                $validUnits[] = $unit->format;
+            }
+
+            // Check if prefixes are allowed with this unit.
+            if ($unit->prefixes > 0) {
+
+                // Get the valid prefixes for this unit.
+                $prefixes = self::getPrefixes($unit->prefixes);
+
+                // Add all prefixed units.
+                foreach ($prefixes as $prefix => $multiplier) {
+                    $validUnits[] = $prefix . $unit->symbol;
+
+                    // Add the format symbol with a prefix if it exists.
+                    if ($unit->format !== null) {
+                        $validUnits[] = $prefix . $unit->format;
+                    }
+                }
+            }
+        }
+
+        return $validUnits;
+    }
+
+    /**
+     * Look up a base or prefixed unit by its symbol.
+     *
+     * @param string $symbol The prefixed unit symbol to search for.
+     * @return list<UnitTerm> Array of matching unit terms.
+     */
+    public static function getBySymbol(string $symbol): array
+    {
+        self::initUnits();
+
+        $matches = [];
+
+        // Look for any matching units.
+        foreach (self::$units as $unit) {
+
+            // See if the unprefixed unit matches.
+            if ($unit->symbol === $symbol || $unit->format === $symbol) {
+                $matches[] = new UnitTerm($unit);
+            }
+
+            // Check if prefixes are allowed with this unit.
+            if ($unit->prefixes > 0) {
+
+                // Get the valid prefixes for this unit.
+                $prefixes = self::getPrefixes($unit->prefixes);
+
+                // Loop through the prefixed units and see if any match.
+                foreach ($prefixes as $prefix => $multiplier) {
+                    if ($prefix . $unit->symbol === $symbol ||
+                            ($unit->format !== null && $prefix . $unit->format === $symbol)) {
+                        $matches[] = new UnitTerm($unit, $prefix);
+                    }
+                }
+            }
+        }
+
+        return $matches;
+    }
+
+    /**
+     * Get all units matching the given dimension.
+     *
+     * @param string $dimension
+     * @return list<BaseUnit>
+     */
+    public static function getByDimension(string $dimension): array
+    {
+        self::initUnits();
+        return array_filter(self::$units, static fn ($unit) => $unit->dimension === $dimension);
+    }
+
+    /**
+     * Return a set of prefixes, with multipliers, given an integer code comprising bitwise flags.
+     *
+     * This can be overridden in the derived class.
+     *
+     * @param int $prefixSetCode Code indicating the prefix sets to include.
+     * @return array<string, float>
+     */
+    public static function getPrefixes(int $prefixSetCode = UnitData::PREFIX_CODE_ALL): array
+    {
+        $prefixes = [];
+
+        // No prefixes.
+        if ($prefixSetCode === 0) {
+            return $prefixes;
+        }
+
+        // Get the prefixes corresponding to the given code.
+        if ($prefixSetCode & self::PREFIX_CODE_SMALL_METRIC) {
+            $prefixes = array_merge($prefixes, self::PREFIXES_SMALL_METRIC);
+        }
+        if ($prefixSetCode & self::PREFIX_CODE_LARGE_METRIC) {
+            $prefixes = array_merge($prefixes, self::PREFIXES_LARGE_METRIC);
+        }
+        if ($prefixSetCode & self::PREFIX_CODE_BINARY) {
+            $prefixes = array_merge($prefixes, self::PREFIXES_BINARY);
+        }
+
+        return $prefixes;
+    }
+
+    /**
+     * Return the multiplier for a given prefix.
+     *
+     * @param string $prefix Prefix code, e.g. 'k' for kilo.
+     * @return ?float Prefix multiplier, e.g. 1000 for kilo, or null if not found.
+     */
+    public static function getPrefixMultiplier(string $prefix): ?float
+    {
+        // Get all the prefixes.
+        $prefixes = self::getPrefixes();
+
+        // Return the multiplier for the given prefix, or null if not found.
+        return $prefixes[$prefix] ?? null;
+    }
+
+    // endregion
 }

@@ -21,7 +21,7 @@ final class MassTest extends TestCase
      */
     public function testConstructorWithBaseUnit(): void
     {
-        $mass = new Mass(100, 'g');
+        $mass = Quantity::create(100, 'g');
 
         $this->assertSame(100.0, $mass->value);
         $this->assertSame('g', $mass->unit);
@@ -32,7 +32,7 @@ final class MassTest extends TestCase
      */
     public function testConstructorWithPrefixedUnit(): void
     {
-        $mass = new Mass(5, 'kg');
+        $mass = Quantity::create(5, 'kg');
 
         $this->assertSame(5.0, $mass->value);
         $this->assertSame('kg', $mass->unit);
@@ -47,7 +47,7 @@ final class MassTest extends TestCase
      */
     public function testKgToGConversion(): void
     {
-        $mass = new Mass(1, 'kg');
+        $mass = Quantity::create(1, 'kg');
 
         $result = $mass->to('g');
 
@@ -59,7 +59,7 @@ final class MassTest extends TestCase
      */
     public function testGToKgConversion(): void
     {
-        $mass = new Mass(1000, 'g');
+        $mass = Quantity::create(1000, 'g');
 
         $result = $mass->to('kg');
 
@@ -71,7 +71,7 @@ final class MassTest extends TestCase
      */
     public function testMgToGConversion(): void
     {
-        $mass = new Mass(1000, 'mg');
+        $mass = Quantity::create(1000, 'mg');
 
         $result = $mass->to('g');
 
@@ -83,7 +83,7 @@ final class MassTest extends TestCase
      */
     public function testTonneToKgConversion(): void
     {
-        $mass = new Mass(1, 't');
+        $mass = Quantity::create(1, 't');
 
         $result = $mass->to('kg');
 
@@ -95,7 +95,7 @@ final class MassTest extends TestCase
      */
     public function testKilotonneToTonneConversion(): void
     {
-        $mass = new Mass(1, 'kt');
+        $mass = Quantity::create(1, 'kt');
 
         $result = $mass->to('t');
 
@@ -111,7 +111,7 @@ final class MassTest extends TestCase
      */
     public function testPoundToGramConversion(): void
     {
-        $mass = new Mass(1, 'lb');
+        $mass = Quantity::create(1, 'lb');
 
         $result = $mass->to('g');
 
@@ -123,7 +123,7 @@ final class MassTest extends TestCase
      */
     public function testKgToPoundConversion(): void
     {
-        $mass = new Mass(1, 'kg');
+        $mass = Quantity::create(1, 'kg');
 
         $result = $mass->to('lb');
 
@@ -136,7 +136,7 @@ final class MassTest extends TestCase
      */
     public function testPoundToOunceConversion(): void
     {
-        $mass = new Mass(1, 'lb');
+        $mass = Quantity::create(1, 'lb');
 
         $result = $mass->to('oz');
 
@@ -148,7 +148,7 @@ final class MassTest extends TestCase
      */
     public function testStoneToPoundConversion(): void
     {
-        $mass = new Mass(1, 'st');
+        $mass = Quantity::create(1, 'st');
 
         $result = $mass->to('lb');
 
@@ -160,7 +160,7 @@ final class MassTest extends TestCase
      */
     public function testUsTonToPoundConversion(): void
     {
-        $mass = new Mass(1, 'ton');
+        $mass = Quantity::create(1, 'ton');
 
         $result = $mass->to('lb');
 
@@ -214,7 +214,7 @@ final class MassTest extends TestCase
      */
     public function testRoundTripConversion(): void
     {
-        $original = new Mass(123.456, 'kg');
+        $original = Quantity::create(123.456, 'kg');
 
         $result = $original->to('lb')->to('oz')->to('g')->to('mg')->to('kg');
 
@@ -233,7 +233,7 @@ final class MassTest extends TestCase
         // Call useBritishUnits to switch from US short ton to British long ton.
         Mass::useBritishUnits();
 
-        $mass = new Mass(1, 'ton');
+        $mass = Quantity::create(1, 'ton');
         $result = $mass->to('lb');
 
         // British long ton = 2240 lb (not 2000 lb).

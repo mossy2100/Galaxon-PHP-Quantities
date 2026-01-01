@@ -144,7 +144,7 @@ final class UnitTest extends TestCase
     {
         $unit = new UnitTerm('m');
 
-        $this->assertSame('m', $unit->derived);
+        $this->assertSame('m', $unit->unprefixedSymbol);
     }
 
     /**
@@ -154,7 +154,7 @@ final class UnitTest extends TestCase
     {
         $unit = new UnitTerm('m2', 'k', 1000);
 
-        $this->assertSame('m2', $unit->derived);
+        $this->assertSame('m2', $unit->unprefixedSymbol);
     }
 
     /**

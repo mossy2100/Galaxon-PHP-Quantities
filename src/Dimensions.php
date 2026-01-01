@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Galaxon\Quantities;
 
-use LogicException;
 use ValueError;
 
 class Dimensions
@@ -30,36 +29,62 @@ class Dimensions
     ];
 
     /**
+     * Check if a dimension code is valid.
+     *
+     * @param string $dimension
+     * @return bool
+     */
+    public static function isValid(string $dimension): bool
+    {
+        $validCodes = implode('', array_keys(self::DIMENSION_CODES));
+        return (bool)preg_match("/^([$validCodes](-?\d)?)+$/", $dimension);
+    }
+
+    /**
      * Parse a dimension code string into an array of dimension codes and exponents.
      *
-     * @param string $dimensionCode The dimension code string (e.g., 'MLT-2').
+     * @param string $dimension The dimension code (e.g. 'MLT-2').
      * @return array<string, int> Array mapping dimension codes to their exponents.
-     * @throws LogicException If there's an error parsing the dimension.
      * @throws ValueError If the dimension code is invalid.
      */
-    public static function parse(string $dimensionCode): array
+    public static function parse(string $dimension): array
     {
+        // Check the dimension code is valid.
+        if (!self::isValid($dimension)) {
+            throw new ValueError("Invalid dimension code '$dimension'.");
+        }
+
         // Get the matching terms.
         $validCodes = implode('', array_keys(self::DIMENSION_CODES));
-        $nMatches = preg_match_all("/([$validCodes])(-?\d+)?/", $dimensionCode, $matches, PREG_SET_ORDER);
-
-        // Check for errors.
-        if ($nMatches === false) {
-            throw new LogicException("Error parsing '$dimensionCode'.");
-        }
-        if ($nMatches === 0) {
-            throw new ValueError("Invalid dimension code '$dimensionCode'.");
-        }
+        preg_match_all("/([$validCodes])(-?\d)?/", $dimension, $matches, PREG_SET_ORDER);
 
         // Convert to an array of parts.
-        $dimCodes = [];
+        $dimTerms = [];
         foreach ($matches as $match) {
-            $dimCode = $match[1];
+            $dim = $match[1];
             $exp = empty($match[2]) ? 1 : (int)$match[2];
-            $dimCodes[$dimCode] = $exp;
+            $dimTerms[$dim] = $exp;
         }
 
-        return $dimCodes;
+        return $dimTerms;
+    }
+
+    /**
+     * Parse a single dimension term (e.g. 'M' or 'L3' or 'T-2').
+     *
+     * @param string $dimTerm The dimension term to parse.
+     * @return array|null Array containing the dimension term's code and exponent, or null if it's not a valid term.
+     */
+    public static function parseTerm(string $dimTerm): ?array
+    {
+        if (preg_match('/^([A-Z])(-?\d)$/', $dimTerm, $matches)) {
+            return [
+                'dimension' => $matches[1],
+                'exponent'  => (int)$matches[2],
+            ];
+        }
+
+        return null;
     }
 
     public static function sort(array $dimCodes): array
@@ -70,11 +95,11 @@ class Dimensions
         return $dimCodes;
     }
 
-    public static function combine(array $dimCodes): string
+    public static function combine(array $dimTerms): string
     {
         $result = '';
-        foreach ($dimCodes as $dimCode => $exp) {
-            $result .= $dimCode . ($exp === 1 ? '' : $exp);
+        foreach ($dimTerms as $dim => $exp) {
+            $result .= $dim . ($exp === 1 ? '' : $exp);
         }
         return $result;
     }
@@ -82,18 +107,49 @@ class Dimensions
     /**
      * Normalize a dimension code string.
      *
-     * @param string $dimensionCode The dimension code string to normalize.
+     * @param string $dimension The dimension code string to normalize.
      * @return string The normalized dimension code.
+     * @throws ValueError If the dimension code is invalid.
      */
-    public static function normalize(string $dimensionCode): string
+    public static function normalize(string $dimension): string
     {
         // Disassemble it.
-        $codes = self::parse($dimensionCode);
+        $dimTerms = self::parse($dimension);
 
         // Sort the terms.
-        $codes = self::sort($codes);
+        $dimTerms = self::sort($dimTerms);
 
         // Reassemble it.
-        return self::combine($codes);
+        return self::combine($dimTerms);
+    }
+
+    /**
+     * Apply an exponent to a dimension code.
+     *
+     * For example:
+     * - ('L', 3) => 'L3'
+     * - ('T-1', 2) => 'T-2'
+     * - ('MLT-2', 2) => 'M2L2T-4'
+     *
+     * @param string $dimension The base dimension code (e.g. 'L', 'T-1', 'MLT-2').
+     * @param int $exponent The exponent to apply.
+     * @return string The resulting dimension code.
+     * @throws ValueError If the dimension code is invalid.
+     */
+    public static function applyExponent(string $dimension, int $exponent): string
+    {
+        // If the exponent is 1, return dimension unchanged.
+        if ($exponent === 1) {
+            return $dimension;
+        }
+
+        // Multiply each dimension term by the exponent.
+        $dimTerms = self::parse($dimension);
+        foreach ($dimTerms as $dim => $curExp) {
+            $dimTerms[$dim] = $curExp * $exponent;
+        }
+
+        // Reassemble it.
+        return self::combine($dimTerms);
     }
 }

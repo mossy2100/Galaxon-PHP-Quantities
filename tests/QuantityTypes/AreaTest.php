@@ -24,7 +24,7 @@ final class AreaTest extends TestCase
      */
     public function testConstructorWithBaseUnit(): void
     {
-        $area = new Area(100, 'm2');
+        $area = Quantity::create(100, 'm2');
 
         $this->assertSame(100.0, $area->value);
         $this->assertSame('m2', $area->unit);
@@ -35,7 +35,7 @@ final class AreaTest extends TestCase
      */
     public function testConstructorWithPrefixedUnit(): void
     {
-        $area = new Area(5, 'km2');
+        $area = Quantity::create(5, 'km2');
 
         $this->assertSame(5.0, $area->value);
         $this->assertSame('km2', $area->unit);
@@ -52,7 +52,7 @@ final class AreaTest extends TestCase
      */
     public function testKm2ToM2Conversion(): void
     {
-        $area = new Area(1, 'km2');
+        $area = Quantity::create(1, 'km2');
 
         $result = $area->to('m2');
 
@@ -67,7 +67,7 @@ final class AreaTest extends TestCase
      */
     public function testM2ToKm2Conversion(): void
     {
-        $area = new Area(1e6, 'm2');
+        $area = Quantity::create(1e6, 'm2');
 
         $result = $area->to('km2');
 
@@ -82,7 +82,7 @@ final class AreaTest extends TestCase
      */
     public function testCm2ToM2Conversion(): void
     {
-        $area = new Area(1, 'cm2');
+        $area = Quantity::create(1, 'cm2');
 
         $result = $area->to('m2');
 
@@ -97,7 +97,7 @@ final class AreaTest extends TestCase
      */
     public function testM2ToCm2Conversion(): void
     {
-        $area = new Area(1, 'm2');
+        $area = Quantity::create(1, 'm2');
 
         $result = $area->to('cm2');
 
@@ -112,7 +112,7 @@ final class AreaTest extends TestCase
      */
     public function testMm2ToM2Conversion(): void
     {
-        $area = new Area(1, 'mm2');
+        $area = Quantity::create(1, 'mm2');
 
         $result = $area->to('m2');
 
@@ -127,7 +127,7 @@ final class AreaTest extends TestCase
      */
     public function testM2ToMm2Conversion(): void
     {
-        $area = new Area(1, 'm2');
+        $area = Quantity::create(1, 'm2');
 
         $result = $area->to('mm2');
 
@@ -142,7 +142,7 @@ final class AreaTest extends TestCase
      */
     public function testKm2ToCm2Conversion(): void
     {
-        $area = new Area(1, 'km2');
+        $area = Quantity::create(1, 'km2');
 
         $result = $area->to('cm2');
 
@@ -157,7 +157,7 @@ final class AreaTest extends TestCase
      */
     public function testCm2ToKm2Conversion(): void
     {
-        $area = new Area(1e10, 'cm2');
+        $area = Quantity::create(1e10, 'cm2');
 
         $result = $area->to('km2');
 
@@ -176,7 +176,7 @@ final class AreaTest extends TestCase
      */
     public function testHectareToM2Conversion(): void
     {
-        $area = new Area(1, 'ha');
+        $area = Quantity::create(1, 'ha');
 
         $result = $area->to('m2');
 
@@ -191,7 +191,7 @@ final class AreaTest extends TestCase
      */
     public function testHectareToKm2Conversion(): void
     {
-        $area = new Area(1, 'ha');
+        $area = Quantity::create(1, 'ha');
 
         $result = $area->to('km2');
 
@@ -206,7 +206,7 @@ final class AreaTest extends TestCase
      */
     public function testKm2ToHectareConversion(): void
     {
-        $area = new Area(1, 'km2');
+        $area = Quantity::create(1, 'km2');
 
         $result = $area->to('ha');
 
@@ -221,7 +221,7 @@ final class AreaTest extends TestCase
      */
     public function testAcreToM2Conversion(): void
     {
-        $area = new Area(1, 'ac');
+        $area = Quantity::create(1, 'ac');
 
         $result = $area->to('m2');
 
@@ -234,7 +234,7 @@ final class AreaTest extends TestCase
      */
     public function testFt2ToM2Conversion(): void
     {
-        $area = new Area(1, 'ft2');
+        $area = Quantity::create(1, 'ft2');
 
         $result = $area->to('m2');
 
@@ -248,7 +248,7 @@ final class AreaTest extends TestCase
      */
     public function testIn2ToCm2Conversion(): void
     {
-        $area = new Area(1, 'in2');
+        $area = Quantity::create(1, 'in2');
 
         $result = $area->to('cm2');
 
@@ -266,7 +266,7 @@ final class AreaTest extends TestCase
      */
     public function testRoundTripKm2M2Km2(): void
     {
-        $original = new Area(123.456, 'km2');
+        $original = Quantity::create(123.456, 'km2');
 
         $result = $original->to('m2')->to('km2');
 
@@ -278,7 +278,7 @@ final class AreaTest extends TestCase
      */
     public function testRoundTripMultiplePrefixes(): void
     {
-        $original = new Area(1, 'km2');
+        $original = Quantity::create(1, 'km2');
 
         $result = $original->to('m2')->to('cm2')->to('mm2')->to('m2')->to('km2');
 
@@ -290,7 +290,7 @@ final class AreaTest extends TestCase
      */
     public function testRoundTripMetricImperial(): void
     {
-        $original = new Area(5.5, 'km2');
+        $original = Quantity::create(5.5, 'km2');
 
         $result = $original->to('ac')->to('ft2')->to('m2')->to('km2');
 

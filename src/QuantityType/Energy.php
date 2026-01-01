@@ -6,18 +6,18 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 
-class Data extends Quantity
+class Energy extends Quantity
 {
     /**
-     * Conversion factors for data units.
+     * Conversion factors for energy units.
      *
      * @return list<array{string, string, float}>
      */
     public static function getConversions(): array
     {
         return [
-            // 1 byte = 8 bits
-            ['B', 'b', 8],
+            ['eV', 'J', 1.602_176_634e-19],
+            ['cal', 'J', 4.184],
         ];
     }
 }

@@ -332,7 +332,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsNegativePrecision(): void
     {
-        $time = new Time(100, 's');
+        $time = Quantity::create(100, 's');
 
         $this->expectException(ValueError::class);
         $this->expectExceptionMessage('Must be null or a non-negative integer');
@@ -344,7 +344,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsNegativePrecision(): void
     {
-        $time = new Time(100, 's');
+        $time = Quantity::create(100, 's');
 
         $this->expectException(ValueError::class);
         $this->expectExceptionMessage('Must be null or a non-negative integer');
@@ -358,7 +358,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsSeconds(): void
     {
-        $time = new Time(3661.5, 's');
+        $time = Quantity::create(3661.5, 's');
         $parts = $time->toPartsArray('s');
 
         $this->assertEquals(1, $parts['sign']);
@@ -376,7 +376,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsMinutes(): void
     {
-        $time = new Time(3661, 's');
+        $time = Quantity::create(3661, 's');
         $parts = $time->toPartsArray('min');
 
         $this->assertEquals(1, $parts['sign']);
@@ -393,7 +393,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsHours(): void
     {
-        $time = new Time(90000, 's');  // 25 hours
+        $time = Quantity::create(90000, 's');  // 25 hours
         $parts = $time->toPartsArray('h');
 
         $this->assertEquals(1, $parts['sign']);
@@ -409,7 +409,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsDays(): void
     {
-        $time = new Time(100000, 's');  // ~1.157 days
+        $time = Quantity::create(100000, 's');  // ~1.157 days
         $parts = $time->toPartsArray('d');
 
         $this->assertEquals(1, $parts['sign']);
@@ -424,7 +424,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsWeeks(): void
     {
-        $time = new Time(1209600, 's');  // 14 days = 2 weeks
+        $time = Quantity::create(1209600, 's');  // 14 days = 2 weeks
         $parts = $time->toPartsArray('w');
 
         $this->assertEquals(1, $parts['sign']);
@@ -438,7 +438,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsMonths(): void
     {
-        $time = new Time(5259487.5, 's');  // ~2 months
+        $time = Quantity::create(5259487.5, 's');  // ~2 months
         $parts = $time->toPartsArray('mo');
 
         $this->assertEquals(1, $parts['sign']);
@@ -451,7 +451,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsYears(): void
     {
-        $time = new Time(63113904, 's');  // ~2 years
+        $time = Quantity::create(63113904, 's');  // ~2 years
         $parts = $time->toPartsArray('y');
 
         $this->assertEquals(1, $parts['sign']);
@@ -463,7 +463,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsNegative(): void
     {
-        $time = new Time(-3661, 's');
+        $time = Quantity::create(-3661, 's');
         $parts = $time->toPartsArray('s');
 
         $this->assertEquals(-1, $parts['sign']);
@@ -477,7 +477,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsZero(): void
     {
-        $time = new Time(0, 's');
+        $time = Quantity::create(0, 's');
         $parts = $time->toPartsArray('s');
 
         // Sign is 1 for zero value (Numbers::sign(0, false) returns 1)
@@ -496,7 +496,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsWithPrecision(): void
     {
-        $time = new Time(3661.56789, 's');
+        $time = Quantity::create(3661.56789, 's');
         $parts = $time->toPartsArray('s', 2);
 
         $this->assertEquals(1, $parts['h']);
@@ -509,7 +509,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsInvalidUnit(): void
     {
-        $time = new Time(100, 's');
+        $time = Quantity::create(100, 's');
         $this->expectException(ValueError::class);
         $time->toPartsArray('invalid');
     }
@@ -521,7 +521,7 @@ final class TimeTest extends TestCase
     {
         // 1 year + 2 months + 3 days + 4 hours + 5 minutes + 6.789 seconds
         $seconds = 31557600 + (2 * 2629743.75) + (3 * 86400) + (4 * 3600) + (5 * 60) + 6.789;
-        $time = new Time($seconds, 's');
+        $time = Quantity::create($seconds, 's');
         $parts = $time->toPartsArray('s', 3);
 
         $this->assertEquals(1, $parts['sign']);
@@ -541,7 +541,7 @@ final class TimeTest extends TestCase
     public function testToPartsCarrySecondsToMinutes(): void
     {
         // 59.999 seconds with precision 0 should round to 60, then carry to 1 minute
-        $time = new Time(59.999, 's');
+        $time = Quantity::create(59.999, 's');
         $parts = $time->toPartsArray('s', 0);
 
         $this->assertEquals(1, $parts['sign']);
@@ -562,7 +562,7 @@ final class TimeTest extends TestCase
     public function testToPartsCarryMinutesToHours(): void
     {
         // 59 minutes 59.999 seconds with precision on minutes
-        $time = new Time(3599.999, 's');
+        $time = Quantity::create(3599.999, 's');
         $parts = $time->toPartsArray('min', 0);
 
         $this->assertEquals(1, $parts['sign']);
@@ -582,7 +582,7 @@ final class TimeTest extends TestCase
     public function testToPartsCarryHoursToDays(): void
     {
         // 23 hours 59 minutes 59.999 seconds with precision on hours
-        $time = new Time(86399.999, 's');
+        $time = Quantity::create(86399.999, 's');
         $parts = $time->toPartsArray('h', 0);
 
         $this->assertEquals(1, $parts['sign']);
@@ -602,7 +602,7 @@ final class TimeTest extends TestCase
     {
         // 1 hour, 59 minutes, 59.999 seconds with precision 0 on seconds
         // Should cascade: 60s -> 1min, then 60min -> 1hour
-        $time = new Time(7199.999, 's');
+        $time = Quantity::create(7199.999, 's');
         $parts = $time->toPartsArray('s', 0);
 
         $this->assertEquals(1, $parts['sign']);
@@ -622,7 +622,7 @@ final class TimeTest extends TestCase
      */
     public function testToPartsNoCarryWithoutPrecision(): void
     {
-        $time = new Time(59.999, 's');
+        $time = Quantity::create(59.999, 's');
         $parts = $time->toPartsArray('s', null);
 
         $this->assertEquals(1, $parts['sign']);
@@ -639,7 +639,7 @@ final class TimeTest extends TestCase
     {
         // 6 days, 23 hours, 59 minutes, 59.999 seconds with precision on days
         // Should round to 7 days and carry to 1 week
-        $time = new Time(604799.999, 's');
+        $time = Quantity::create(604799.999, 's');
         $parts = $time->toPartsArray('d', 0);
 
         $this->assertEquals(1, $parts['sign']);
@@ -654,7 +654,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalSpecifierSeconds(): void
     {
-        $time = new Time(3661, 's');
+        $time = Quantity::create(3661, 's');
         $spec = $time->toDateIntervalSpecifier('s');
 
         $this->assertEquals('PT1H1M1S', $spec);
@@ -665,7 +665,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalSpecifierMinutes(): void
     {
-        $time = new Time(3660, 's');
+        $time = Quantity::create(3660, 's');
         $spec = $time->toDateIntervalSpecifier('min');
 
         $this->assertEquals('PT1H1M', $spec);
@@ -676,7 +676,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalSpecifierHours(): void
     {
-        $time = new Time(90000, 's');  // 25 hours
+        $time = Quantity::create(90000, 's');  // 25 hours
         $spec = $time->toDateIntervalSpecifier('h');
 
         $this->assertEquals('P1DT1H', $spec);
@@ -687,7 +687,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalSpecifierDays(): void
     {
-        $time = new Time(172800, 's');  // 2 days
+        $time = Quantity::create(172800, 's');  // 2 days
         $spec = $time->toDateIntervalSpecifier('d');
 
         $this->assertEquals('P2D', $spec);
@@ -698,7 +698,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalSpecifierWeeks(): void
     {
-        $time = new Time(1209600, 's');  // 2 weeks
+        $time = Quantity::create(1209600, 's');  // 2 weeks
         $spec = $time->toDateIntervalSpecifier('w');
 
         $this->assertEquals('P2W', $spec);
@@ -711,7 +711,7 @@ final class TimeTest extends TestCase
     {
         // 1 year + 2 months + 1 week + 3 days + 4 hours + 5 minutes + 6 seconds
         $seconds = 31556952 + (2 * 2629746) + (21 * 86400) + (4 * 86400) + (5 * 3600) + (6 * 60) + 7;
-        $time = new Time($seconds, 's');
+        $time = Quantity::create($seconds, 's');
         $spec = $time->toDateIntervalSpecifier('s');
 
         // Should have all components
@@ -730,7 +730,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalSpecifierZero(): void
     {
-        $time = new Time(0, 's');
+        $time = Quantity::create(0, 's');
         $spec = $time->toDateIntervalSpecifier('s');
 
         $this->assertEquals('P0D', $spec);
@@ -741,7 +741,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsDefault(): void
     {
-        $time = new Time(3661.5, 's');
+        $time = Quantity::create(3661.5, 's');
         $formatted = $time->formatParts();
 
         $this->assertEquals('1h 1min 1.5s', $formatted);
@@ -752,7 +752,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsWithPrecision(): void
     {
-        $time = new Time(3661.56789, 's');
+        $time = Quantity::create(3661.56789, 's');
         $formatted = $time->formatParts('s', 2);
 
         $this->assertEquals('1h 1min 1.57s', $formatted);
@@ -763,7 +763,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsZeroPrecision(): void
     {
-        $time = new Time(3661.9, 's');
+        $time = Quantity::create(3661.9, 's');
         $formatted = $time->formatParts('s', 0);
 
         $this->assertEquals('1h 1min 2s', $formatted);
@@ -774,7 +774,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsMinutes(): void
     {
-        $time = new Time(3660, 's');
+        $time = Quantity::create(3660, 's');
         $formatted = $time->formatParts('min');
 
         $this->assertEquals('1h 1min', $formatted);
@@ -785,7 +785,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsHours(): void
     {
-        $time = new Time(7200, 's');
+        $time = Quantity::create(7200, 's');
         $formatted = $time->formatParts('h');
 
         $this->assertEquals('2h', $formatted);
@@ -796,7 +796,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsSkipsZeros(): void
     {
-        $time = new Time(3600, 's');  // Exactly 1 hour, no minutes or seconds
+        $time = Quantity::create(3600, 's');  // Exactly 1 hour, no minutes or seconds
         $formatted = $time->formatParts('s');
 
         $this->assertEquals('1h', $formatted);
@@ -809,7 +809,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsNegative(): void
     {
-        $time = new Time(-3661, 's');
+        $time = Quantity::create(-3661, 's');
         $formatted = $time->formatParts('s');
 
         $this->assertEquals('-1h 1min 1s', $formatted);
@@ -820,7 +820,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsZero(): void
     {
-        $time = new Time(0, 's');
+        $time = Quantity::create(0, 's');
         $formatted = $time->formatParts('s');
 
         $this->assertEquals('0s', $formatted);
@@ -831,7 +831,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsZeroWithPrecision(): void
     {
-        $time = new Time(0, 's');
+        $time = Quantity::create(0, 's');
         $formatted = $time->formatParts('s', 3);
 
         $this->assertEquals('0.000s', $formatted);
@@ -844,7 +844,7 @@ final class TimeTest extends TestCase
     {
         // 2 days, 3 hours, 4 minutes, 5.678 seconds
         $seconds = (2 * 86400) + (3 * 3600) + (4 * 60) + 5.678;
-        $time = new Time($seconds, 's');
+        $time = Quantity::create($seconds, 's');
         $formatted = $time->formatParts('s', 3);
 
         $this->assertEquals('2d 3h 4min 5.678s', $formatted);
@@ -855,7 +855,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsLargeComponents(): void
     {
-        $time = new Time(31556952, 's');  // ~1 year
+        $time = Quantity::create(31556952, 's');  // ~1 year
         $formatted = $time->formatParts('d');
 
         $this->assertStringContainsString('y', $formatted);
@@ -869,7 +869,7 @@ final class TimeTest extends TestCase
      */
     public function testFormatPartsWithWeeks(): void
     {
-        $time = new Time(1209600, 's');  // 2 weeks
+        $time = Quantity::create(1209600, 's');  // 2 weeks
         $formatted = $time->formatParts('w');
 
         $this->assertEquals('2w', $formatted);
@@ -990,7 +990,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalSeconds(): void
     {
-        $time = new Time(3661, 's');
+        $time = Quantity::create(3661, 's');
         $interval = $time->toDateInterval('s');
 
         $this->assertEquals(1, $interval->h);
@@ -1003,7 +1003,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalMinutes(): void
     {
-        $time = new Time(3660, 's');
+        $time = Quantity::create(3660, 's');
         $interval = $time->toDateInterval('min');
 
         $this->assertEquals(1, $interval->h);
@@ -1015,7 +1015,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalHours(): void
     {
-        $time = new Time(90000, 's');  // 25 hours
+        $time = Quantity::create(90000, 's');  // 25 hours
         $interval = $time->toDateInterval('h');
 
         $this->assertEquals(1, $interval->d);
@@ -1027,7 +1027,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalDays(): void
     {
-        $time = new Time(172800, 's');  // 2 days
+        $time = Quantity::create(172800, 's');  // 2 days
         $interval = $time->toDateInterval('d');
 
         $this->assertEquals(2, $interval->d);
@@ -1038,7 +1038,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalWeeks(): void
     {
-        $time = new Time(1209600, 's');  // 2 weeks
+        $time = Quantity::create(1209600, 's');  // 2 weeks
         $interval = $time->toDateInterval('w');
 
         // DateInterval doesn't have a weeks property, it converts to days.
@@ -1050,7 +1050,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalRoundtrip(): void
     {
-        $originalTime = new Time(5445, 's');  // 1h 30m 45s
+        $originalTime = Quantity::create(5445, 's');  // 1h 30m 45s
         $interval = $originalTime->toDateInterval('s');
         $convertedTime = Time::fromDateInterval($interval);
 
@@ -1062,7 +1062,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalZero(): void
     {
-        $time = new Time(0, 's');
+        $time = Quantity::create(0, 's');
         $interval = $time->toDateInterval('s');
 
         // Should create a valid DateInterval representing zero time
@@ -1076,7 +1076,7 @@ final class TimeTest extends TestCase
      */
     public function testToDateIntervalNegative(): void
     {
-        $time = new Time(-3661, 's');  // -1h 1min 1s
+        $time = Quantity::create(-3661, 's');  // -1h 1min 1s
         $interval = $time->toDateInterval('s');
 
         // Should have invert flag set to 1.

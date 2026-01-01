@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests;
 
 use DivisionByZeroError;
 use Galaxon\Core\Floats;
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +46,7 @@ final class AngleTest extends TestCase
     public function testConstructorWithInfinity(): void
     {
         $this->expectException(ValueError::class);
-        new Angle(INF, 'rad');
+        Quantity::create(INF, 'rad');
     }
 
     /**
@@ -54,7 +55,7 @@ final class AngleTest extends TestCase
     public function testConstructorWithNan(): void
     {
         $this->expectException(ValueError::class);
-        new Angle(NAN, 'deg');
+        Quantity::create(NAN, 'deg');
     }
 
     /**
@@ -63,7 +64,7 @@ final class AngleTest extends TestCase
     public function testConstructorWithInvalidUnit(): void
     {
         $this->expectException(ValueError::class);
-        new Angle(45, 'invalid');
+        Quantity::create(45, 'invalid');
     }
 
     /**
@@ -74,7 +75,7 @@ final class AngleTest extends TestCase
      */
     public function testConstructorAndGettersRoundtrip(): void
     {
-        $a = new Angle(180.0, 'deg');
+        $a = Quantity::create(180.0, 'deg');
         $this->assertFloatEquals(M_PI, $a->to('rad')->value);
         $this->assertFloatEquals(180.0, $a->to('deg')->value);
         $this->assertFloatEquals(200.0, $a->to('grad')->value);
@@ -97,7 +98,7 @@ final class AngleTest extends TestCase
         $this->assertEquals(56, $parts['arcsec']);
 
         // Verify floating-point precision at seconds and minutes boundaries.
-        $b = new Angle(29.999999999, 'deg');
+        $b = Quantity::create(29.999999999, 'deg');
         $parts2 = $b->toPartsArray('arcsec');
         $this->assertEquals(1, $parts2['sign']);
         $this->assertEquals(29, $parts2['deg']);
@@ -105,7 +106,7 @@ final class AngleTest extends TestCase
         $this->assertFloatEquals(59.9999964, $parts2['arcsec']);
 
         // Verify floating-point precision at minutes boundary.
-        $b = new Angle(29.999999999, 'deg');
+        $b = Quantity::create(29.999999999, 'deg');
         $parts3 = $b->toPartsArray('arcmin');
         $this->assertEquals(1, $parts3['sign']);
         $this->assertEquals(29, $parts3['deg']);
@@ -124,7 +125,7 @@ final class AngleTest extends TestCase
      */
     public function testToPartsWithDegreesOnly(): void
     {
-        $a = new Angle(45.5, 'deg');
+        $a = Quantity::create(45.5, 'deg');
         $parts = $a->toPartsArray('deg');
         $this->assertEquals(1, $parts['sign']);
         $this->assertFloatEquals(45.5, $parts['deg']);
@@ -162,7 +163,7 @@ final class AngleTest extends TestCase
      */
     public function testToPartsWithZeroAngle(): void
     {
-        $a = new Angle(0, 'deg');
+        $a = Quantity::create(0, 'deg');
         $parts = $a->toPartsArray('arcsec');
         $this->assertEquals(1, $parts['sign']);
         $this->assertEquals(0, $parts['deg']);
@@ -178,10 +179,10 @@ final class AngleTest extends TestCase
      */
     public function testParsingCssUnitsAndDms(): void
     {
-        $this->assertAngleEquals(new Angle(12, 'deg'), Angle::parse('12deg'));
-        $this->assertAngleEquals(new Angle(12, 'deg'), Angle::parse('12 deg'));
-        $this->assertAngleEquals(new Angle(0.5, 'turn'), Angle::parse('0.5 turn'));
-        $this->assertAngleEquals(new Angle(M_PI, 'rad'), Angle::parse(M_PI . 'rad'));
+        $this->assertAngleEquals(Quantity::create(12, 'deg'), Angle::parse('12deg'));
+        $this->assertAngleEquals(Quantity::create(12, 'deg'), Angle::parse('12 deg'));
+        $this->assertAngleEquals(Quantity::create(0.5, 'turn'), Angle::parse('0.5 turn'));
+        $this->assertAngleEquals(Quantity::create(M_PI, 'rad'), Angle::parse(M_PI . 'rad'));
 
         // Unicode symbols (°, ′, ″).
         $this->assertAngleEquals(Angle::fromParts(12, 34, 56), Angle::parse('12° 34′ 56″'));
@@ -216,17 +217,17 @@ final class AngleTest extends TestCase
     public function testWrapUnsignedAndSigned(): void
     {
         // Unsigned range [0, τ) - test values in the middle of ranges
-        $a = new Angle(3 * M_PI, 'rad');  // 1.5 turns
+        $a = Quantity::create(3 * M_PI, 'rad');  // 1.5 turns
         $this->assertFloatEquals(M_PI, $a->wrap(false)->to('rad')->value);
 
-        $b = new Angle(-3 * M_PI / 2, 'rad');  // -0.75 turns
+        $b = Quantity::create(-3 * M_PI / 2, 'rad');  // -0.75 turns
         $this->assertFloatEquals(M_PI / 2, $b->wrap(false)->to('rad')->value);
 
         // Signed range (-π, π] - test values in quadrants
-        $c = new Angle(5 * M_PI / 4, 'rad');  // 225 degrees, should wrap to -135 degrees
+        $c = Quantity::create(5 * M_PI / 4, 'rad');  // 225 degrees, should wrap to -135 degrees
         $this->assertFloatEquals(-3 * M_PI / 4, $c->wrap(true)->to('rad')->value);
 
-        $d = new Angle(-5 * M_PI / 4, 'rad');  // -225 degrees, should wrap to 135 degrees
+        $d = Quantity::create(-5 * M_PI / 4, 'rad');  // -225 degrees, should wrap to 135 degrees
         $this->assertFloatEquals(3 * M_PI / 4, $d->wrap(true)->to('rad')->value);
     }
 
@@ -237,12 +238,12 @@ final class AngleTest extends TestCase
      */
     public function testArithmetic(): void
     {
-        $a = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
 
-        $sum = $a->add(new Angle(20, 'deg'));
+        $sum = $a->add(Quantity::create(20, 'deg'));
         $this->assertFloatEquals(30.0, $sum->to('deg')->value);
 
-        $diff = $a->sub(new Angle(40, 'deg'));
+        $diff = $a->sub(Quantity::create(40, 'deg'));
         $this->assertFloatEquals(-30.0, $diff->to('deg')->value);
 
         $scaled = $a->mul(3)->div(2);
@@ -254,7 +255,7 @@ final class AngleTest extends TestCase
      */
     public function testMulWithNonFiniteParameter(): void
     {
-        $a = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
         $this->expectException(ValueError::class);
         $a->mul(INF);
     }
@@ -264,7 +265,7 @@ final class AngleTest extends TestCase
      */
     public function testDivWithNonFiniteParameters(): void
     {
-        $a = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
         $this->expectException(ValueError::class);
         $a->div(NAN);
     }
@@ -277,13 +278,13 @@ final class AngleTest extends TestCase
      */
     public function testTrigAndReciprocalsBehaviour(): void
     {
-        $a = new Angle(60, 'deg');
+        $a = Quantity::create(60, 'deg');
         $this->assertFloatEquals(sqrt(3) / 2, $a->sin());
         $this->assertFloatEquals(0.5, $a->cos());
         $this->assertFloatEquals(sqrt(3), $a->tan());
 
         // Verify that tan(90°) = INF.
-        $t = new Angle(90, 'deg');
+        $t = Quantity::create(90, 'deg');
         $this->assertTrue(is_infinite($t->tan()));
     }
 
@@ -295,7 +296,7 @@ final class AngleTest extends TestCase
      */
     public function testSecCscCot(): void
     {
-        $a = new Angle(60, 'deg');
+        $a = Quantity::create(60, 'deg');
         // sec(60°) = 1/cos(60°) = 1/0.5 = 2
         $this->assertFloatEquals(2.0, $a->sec());
         // csc(60°) = 1/sin(60°) = 1/(√3/2) = 2/√3
@@ -304,11 +305,11 @@ final class AngleTest extends TestCase
         $this->assertFloatEquals(1 / sqrt(3), $a->cot());
 
         // Verify singularities.
-        $at90 = new Angle(90, 'deg');
+        $at90 = Quantity::create(90, 'deg');
         $this->assertTrue(is_infinite($at90->sec())); // sec(90°) = INF
         $this->assertFloatEquals(1.0, $at90->csc()); // csc(90°) = 1
 
-        $at0 = new Angle(0, 'deg');
+        $at0 = Quantity::create(0, 'deg');
         $this->assertFloatEquals(1.0, $at0->sec()); // sec(0°) = 1
         $this->assertTrue(is_infinite($at0->csc())); // csc(0°) = INF
         $this->assertTrue(is_infinite($at0->cot())); // cot(0°) = INF
@@ -321,13 +322,13 @@ final class AngleTest extends TestCase
      */
     public function testHyperbolicFunctions(): void
     {
-        $a = new Angle(1.0, 'rad');
+        $a = Quantity::create(1.0, 'rad');
         $this->assertFloatEquals(sinh(1.0), $a->sinh());
         $this->assertFloatEquals(cosh(1.0), $a->cosh());
         $this->assertFloatEquals(tanh(1.0), $a->tanh());
 
         // At zero.
-        $zero = new Angle(0, 'rad');
+        $zero = Quantity::create(0, 'rad');
         $this->assertFloatEquals(0.0, $zero->sinh());
         $this->assertFloatEquals(1.0, $zero->cosh());
         $this->assertFloatEquals(0.0, $zero->tanh());
@@ -341,7 +342,7 @@ final class AngleTest extends TestCase
      */
     public function testSechCschCoth(): void
     {
-        $a = new Angle(1.0, 'rad');
+        $a = Quantity::create(1.0, 'rad');
         // sech(1) = 1/cosh(1)
         $this->assertFloatEquals(1 / cosh(1.0), $a->sech());
         // csch(1) = 1/sinh(1)
@@ -350,7 +351,7 @@ final class AngleTest extends TestCase
         $this->assertFloatEquals(cosh(1.0) / sinh(1.0), $a->coth());
 
         // At zero: csch and coth have singularities.
-        $zero = new Angle(0, 'rad');
+        $zero = Quantity::create(0, 'rad');
         $this->assertFloatEquals(1.0, $zero->sech()); // sech(0) = 1/cosh(0) = 1
         $this->assertFloatEquals(INF, $zero->csch()); // csch(0) = INF
         $this->assertFloatEquals(INF, $zero->coth()); // coth(0) = INF
@@ -364,7 +365,7 @@ final class AngleTest extends TestCase
      */
     public function testFormatVariants(): void
     {
-        $a = new Angle(12.5, 'deg');
+        $a = Quantity::create(12.5, 'deg');
         $this->assertSame('0.2181661565rad', $a->to('rad')->format('f', 10));
         $this->assertSame('12.50deg', $a->to('deg')->format('f', 2, false));
         $this->assertSame('13.888888889grad', $a->to('grad')->format('f', 9));
@@ -400,7 +401,7 @@ final class AngleTest extends TestCase
     public function testFormatDmsWithCarry(): void
     {
         // Test degree rounding (29.9999... → 30°)
-        $a = new Angle(29.9999999999, 'deg');
+        $a = Quantity::create(29.9999999999, 'deg');
         $this->assertSame('30.000°', $a->formatParts('deg', 3));
         $this->assertSame('30° 0.000′', $a->formatParts('arcmin', 3));
         $this->assertSame('30° 0′ 0.000″', $a->formatParts('arcsec', 3));
@@ -422,7 +423,7 @@ final class AngleTest extends TestCase
         $this->assertSame('46° 0′ 0.000″', $a->formatParts('arcsec', 3));
 
         // Test negative angle carry
-        $a = new Angle(-29.9999999999, 'deg');
+        $a = Quantity::create(-29.9999999999, 'deg');
         $this->assertSame('-30.000°', $a->formatParts('deg', 3));
         $this->assertSame('-30° 0.000′', $a->formatParts('arcmin', 3));
         $this->assertSame('-30° 0′ 0.000″', $a->formatParts('arcsec', 3));
@@ -448,19 +449,19 @@ final class AngleTest extends TestCase
         for ($i = 0; $i < 500; $i++) {
             // Span a large range, including huge magnitudes.
             $rad = Floats::rand(-1e6, 1e6);
-            $a = new Angle($rad, 'rad');
+            $a = Quantity::create($rad, 'rad');
 
             // Verify toX() / fromX() round-trips.
             $this->assertFloatEquals($rad, $a->to('rad')->value);
 
             $deg = $a->to('deg')->value;
-            $this->assertFloatEquals($a->to('rad')->value, new Angle($deg, 'deg')->to('rad')->value);
+            $this->assertFloatEquals($a->to('rad')->value, Quantity::create($deg, 'deg')->to('rad')->value);
 
             $grad = $a->to('grad')->value;
-            $this->assertFloatEquals($a->to('rad')->value, new Angle($grad, 'grad')->to('rad')->value);
+            $this->assertFloatEquals($a->to('rad')->value, Quantity::create($grad, 'grad')->to('rad')->value);
 
             $turn = $a->to('turn')->value;
-            $this->assertFloatEquals($a->to('rad')->value, new Angle($turn, 'turn')->to('rad')->value);
+            $this->assertFloatEquals($a->to('rad')->value, Quantity::create($turn, 'turn')->to('rad')->value);
         }
     }
 
@@ -476,7 +477,7 @@ final class AngleTest extends TestCase
 
         for ($i = 0; $i < 200; $i++) {
             $rad = Floats::rand(-1000.0, 1000.0);
-            $a = new Angle($rad, 'rad');
+            $a = Quantity::create($rad, 'rad');
 
             foreach ($units as $unit) {
                 // Use max float precision to ensure correct round-trip conversion.
@@ -516,9 +517,9 @@ final class AngleTest extends TestCase
      */
     public function testParsingWhitespaceAndAsciiUnicodeSymbols(): void
     {
-        $this->assertTrue(new Angle(12, 'deg')->equal(Angle::parse('12 deg')));
-        $this->assertTrue(new Angle(0.25, 'turn')->equal(Angle::parse(' 0.25   turn ')));
-        $this->assertTrue(new Angle(M_PI, 'rad')->approxEqual(Angle::parse(sprintf('%.12frad', M_PI))));
+        $this->assertTrue(Quantity::create(12, 'deg')->equal(Angle::parse('12 deg')));
+        $this->assertTrue(Quantity::create(0.25, 'turn')->equal(Angle::parse(' 0.25   turn ')));
+        $this->assertTrue(Quantity::create(M_PI, 'rad')->approxEqual(Angle::parse(sprintf('%.12frad', M_PI))));
 
         // Unicode DMS symbols (°, ′, ″).
         $this->assertTrue(Angle::fromParts(12, 34, 56)->equal(Angle::parse('12° 34′ 56″')));
@@ -535,7 +536,7 @@ final class AngleTest extends TestCase
      */
     public function testDivisionByZero(): void
     {
-        $a = new Angle(90, 'deg');
+        $a = Quantity::create(90, 'deg');
         $this->expectException(DivisionByZeroError::class);
         $a->div(0.0);
     }
@@ -548,8 +549,8 @@ final class AngleTest extends TestCase
      */
     public function testCompareWithEpsilonAndDelta(): void
     {
-        $a = new Angle(10, 'deg');
-        $b = new Angle(20, 'deg');
+        $a = Quantity::create(10, 'deg');
+        $b = Quantity::create(20, 'deg');
 
         // Delta is negative -> a < b.
         $this->assertSame(-1, $a->compare($b));
@@ -600,7 +601,7 @@ final class AngleTest extends TestCase
     public function testHyperbolicTrigFunctions(): void
     {
         $x = 0.5;
-        $a = new Angle($x, 'rad');
+        $a = Quantity::create($x, 'rad');
 
         $this->assertFloatEquals(sinh($x), $a->sinh());
         $this->assertFloatEquals(cosh($x), $a->cosh());
@@ -612,7 +613,7 @@ final class AngleTest extends TestCase
      */
     public function testFormatInvalidFormatString(): void
     {
-        $a = new Angle(45, 'deg');
+        $a = Quantity::create(45, 'deg');
         $this->expectException(ValueError::class);
         $a->format('invalid');
     }
@@ -625,7 +626,7 @@ final class AngleTest extends TestCase
      */
     public function testToString(): void
     {
-        $a = new Angle(M_PI, 'rad');
+        $a = Quantity::create(M_PI, 'rad');
         $this->assertMatchesRegularExpression('/^\d+\.\d+\s?rad$/', (string)$a);
     }
 
@@ -636,9 +637,9 @@ final class AngleTest extends TestCase
      */
     public function testApproxEqual(): void
     {
-        $a = new Angle(10, 'deg');
-        $b = new Angle(20, 'deg');
-        $c = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
+        $b = Quantity::create(20, 'deg');
+        $c = Quantity::create(10, 'deg');
 
         $this->assertTrue($a->equal($c));
         $this->assertFalse($a->equal($b));
@@ -651,14 +652,14 @@ final class AngleTest extends TestCase
      */
     public function testApproxEqualWithEpsilonTolerance(): void
     {
-        $a = new Angle(1.0, 'rad');
-        $b = new Angle(1.0 + Angle::RAD_EPSILON / 2, 'rad');
+        $a = Quantity::create(1.0, 'rad');
+        $b = Quantity::create(1.0 + Angle::RAD_EPSILON / 2, 'rad');
 
         // Should be equal within epsilon
         $this->assertTrue($a->approxEqual($b));
 
         // Should not be equal outside epsilon
-        $c = new Angle(1.0 + Angle::RAD_EPSILON * 2, 'rad');
+        $c = Quantity::create(1.0 + Angle::RAD_EPSILON * 2, 'rad');
         $this->assertFalse($a->approxEqual($c));
     }
 
@@ -669,7 +670,7 @@ final class AngleTest extends TestCase
      */
     public function testEqualWithInvalidType(): void
     {
-        $a = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
 
         $this->assertFalse($a->equal(10));
         $this->assertFalse($a->equal(10.0));
@@ -685,7 +686,7 @@ final class AngleTest extends TestCase
      */
     public function testApproxEqualWithInvalidType(): void
     {
-        $a = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
 
         $this->assertFalse($a->approxEqual(10));
         $this->assertFalse($a->approxEqual(10.0));
@@ -701,8 +702,8 @@ final class AngleTest extends TestCase
      */
     public function testApproxCompareEqualWithinEpsilon(): void
     {
-        $a = new Angle(1.0, 'rad');
-        $b = new Angle(1.0 + Angle::RAD_EPSILON / 2, 'rad');
+        $a = Quantity::create(1.0, 'rad');
+        $b = Quantity::create(1.0 + Angle::RAD_EPSILON / 2, 'rad');
 
         $this->assertSame(0, $a->approxCompare($b, 0, Angle::RAD_EPSILON));
     }
@@ -714,7 +715,7 @@ final class AngleTest extends TestCase
      */
     public function testCompareWithInvalidTypeThrows(): void
     {
-        $a = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
 
         $this->expectException(TypeError::class);
         $a->compare(10);
@@ -725,7 +726,7 @@ final class AngleTest extends TestCase
      */
     public function testCompareWithStringThrows(): void
     {
-        $a = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
 
         $this->expectException(TypeError::class);
         $a->compare('10deg');
@@ -736,7 +737,7 @@ final class AngleTest extends TestCase
      */
     public function testCompareWithObjectThrows(): void
     {
-        $a = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
 
         $this->expectException(TypeError::class);
         $a->compare(new stdClass());
@@ -747,9 +748,9 @@ final class AngleTest extends TestCase
      */
     public function testLessThan(): void
     {
-        $a = new Angle(10, 'deg');
-        $b = new Angle(20, 'deg');
-        $c = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
+        $b = Quantity::create(20, 'deg');
+        $c = Quantity::create(10, 'deg');
 
         $this->assertTrue($a->lessThan($b));
         $this->assertFalse($b->lessThan($a));
@@ -761,9 +762,9 @@ final class AngleTest extends TestCase
      */
     public function testLessThanOrEqual(): void
     {
-        $a = new Angle(10, 'deg');
-        $b = new Angle(20, 'deg');
-        $c = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
+        $b = Quantity::create(20, 'deg');
+        $c = Quantity::create(10, 'deg');
 
         $this->assertTrue($a->lessThanOrEqual($b));
         $this->assertTrue($a->lessThanOrEqual($c)); // Equal counts as <=
@@ -775,9 +776,9 @@ final class AngleTest extends TestCase
      */
     public function testGreaterThan(): void
     {
-        $a = new Angle(10, 'deg');
-        $b = new Angle(20, 'deg');
-        $c = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
+        $b = Quantity::create(20, 'deg');
+        $c = Quantity::create(10, 'deg');
 
         $this->assertTrue($b->greaterThan($a));
         $this->assertFalse($a->greaterThan($b));
@@ -789,9 +790,9 @@ final class AngleTest extends TestCase
      */
     public function testGreaterThanOrEqual(): void
     {
-        $a = new Angle(10, 'deg');
-        $b = new Angle(20, 'deg');
-        $c = new Angle(10, 'deg');
+        $a = Quantity::create(10, 'deg');
+        $b = Quantity::create(20, 'deg');
+        $c = Quantity::create(10, 'deg');
 
         $this->assertTrue($b->greaterThanOrEqual($a));
         $this->assertTrue($a->greaterThanOrEqual($c)); // Equal counts as >=
@@ -803,9 +804,9 @@ final class AngleTest extends TestCase
      */
     public function testComparisonWithNegativeAngles(): void
     {
-        $a = new Angle(-30, 'deg');
-        $b = new Angle(-10, 'deg');
-        $c = new Angle(10, 'deg');
+        $a = Quantity::create(-30, 'deg');
+        $b = Quantity::create(-10, 'deg');
+        $c = Quantity::create(10, 'deg');
 
         $this->assertTrue($a->lessThan($b));
         $this->assertTrue($b->lessThan($c));
@@ -817,15 +818,15 @@ final class AngleTest extends TestCase
      */
     public function testComparisonRawVsWrapped(): void
     {
-        $a = new Angle(10, 'deg');
-        $b = new Angle(370, 'deg'); // 10° + 360°
+        $a = Quantity::create(10, 'deg');
+        $b = Quantity::create(370, 'deg'); // 10° + 360°
 
         // Raw comparison: 370° > 10°
         $this->assertTrue($b->greaterThan($a));
 
         // After wrapping: both become 10° (unsigned)
-        $aWrapped = new Angle(10, 'deg')->wrap();
-        $bWrapped = new Angle(370, 'deg')->wrap();
+        $aWrapped = Quantity::create(10, 'deg')->wrap();
+        $bWrapped = Quantity::create(370, 'deg')->wrap();
         $this->assertTrue($aWrapped->equal($bWrapped));
     }
 
@@ -961,7 +962,7 @@ final class AngleTest extends TestCase
      */
     public function testToMethod(): void
     {
-        $angle = new Angle(90, 'deg');
+        $angle = Quantity::create(90, 'deg');
 
         $this->assertFloatEquals(M_PI / 2, $angle->to('rad')->value);
         $this->assertFloatEquals(90.0, $angle->to('deg')->value);
@@ -976,7 +977,7 @@ final class AngleTest extends TestCase
      */
     public function testToMethodDefault(): void
     {
-        $angle = new Angle(180, 'deg');
+        $angle = Quantity::create(180, 'deg');
         $this->assertFloatEquals(M_PI, $angle->to('rad')->value);
     }
 
@@ -985,7 +986,7 @@ final class AngleTest extends TestCase
      */
     public function testToMethodInvalidUnit(): void
     {
-        $angle = new Angle(45, 'deg');
+        $angle = Quantity::create(45, 'deg');
         $this->expectException(ValueError::class);
         $angle->to('banana');
     }

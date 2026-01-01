@@ -24,7 +24,7 @@ final class TemperatureTest extends TestCase
      */
     public function testConstructorWithCelsius(): void
     {
-        $temp = new Temperature(25, 'C');
+        $temp = Quantity::create(25, 'C');
 
         $this->assertSame(25.0, $temp->value);
         $this->assertSame('C', $temp->unit);
@@ -35,7 +35,7 @@ final class TemperatureTest extends TestCase
      */
     public function testConstructorWithFahrenheit(): void
     {
-        $temp = new Temperature(98.6, 'F');
+        $temp = Quantity::create(98.6, 'F');
 
         $this->assertSame(98.6, $temp->value);
         $this->assertSame('F', $temp->unit);
@@ -46,7 +46,7 @@ final class TemperatureTest extends TestCase
      */
     public function testConstructorWithKelvin(): void
     {
-        $temp = new Temperature(273.15, 'K');
+        $temp = Quantity::create(273.15, 'K');
 
         $this->assertSame(273.15, $temp->value);
         $this->assertSame('K', $temp->unit);
@@ -61,7 +61,7 @@ final class TemperatureTest extends TestCase
      */
     public function testFreezingPointCToF(): void
     {
-        $temp = new Temperature(0, 'C');
+        $temp = Quantity::create(0, 'C');
 
         $result = $temp->to('F');
 
@@ -73,7 +73,7 @@ final class TemperatureTest extends TestCase
      */
     public function testBoilingPointCToF(): void
     {
-        $temp = new Temperature(100, 'C');
+        $temp = Quantity::create(100, 'C');
 
         $result = $temp->to('F');
 
@@ -85,7 +85,7 @@ final class TemperatureTest extends TestCase
      */
     public function testCrossoverPointCToF(): void
     {
-        $temp = new Temperature(-40, 'C');
+        $temp = Quantity::create(-40, 'C');
 
         $result = $temp->to('F');
 
@@ -97,7 +97,7 @@ final class TemperatureTest extends TestCase
      */
     public function testFreezingPointFToC(): void
     {
-        $temp = new Temperature(32, 'F');
+        $temp = Quantity::create(32, 'F');
 
         $result = $temp->to('C');
 
@@ -109,7 +109,7 @@ final class TemperatureTest extends TestCase
      */
     public function testBoilingPointFToC(): void
     {
-        $temp = new Temperature(212, 'F');
+        $temp = Quantity::create(212, 'F');
 
         $result = $temp->to('C');
 
@@ -125,7 +125,7 @@ final class TemperatureTest extends TestCase
      */
     public function testFreezingPointCToK(): void
     {
-        $temp = new Temperature(0, 'C');
+        $temp = Quantity::create(0, 'C');
 
         $result = $temp->to('K');
 
@@ -137,7 +137,7 @@ final class TemperatureTest extends TestCase
      */
     public function testBoilingPointCToK(): void
     {
-        $temp = new Temperature(100, 'C');
+        $temp = Quantity::create(100, 'C');
 
         $result = $temp->to('K');
 
@@ -149,7 +149,7 @@ final class TemperatureTest extends TestCase
      */
     public function testAbsoluteZeroCToK(): void
     {
-        $temp = new Temperature(-273.15, 'C');
+        $temp = Quantity::create(-273.15, 'C');
 
         $result = $temp->to('K');
 
@@ -161,7 +161,7 @@ final class TemperatureTest extends TestCase
      */
     public function testFreezingPointKToC(): void
     {
-        $temp = new Temperature(273.15, 'K');
+        $temp = Quantity::create(273.15, 'K');
 
         $result = $temp->to('C');
 
@@ -177,7 +177,7 @@ final class TemperatureTest extends TestCase
      */
     public function testFreezingPointFToK(): void
     {
-        $temp = new Temperature(32, 'F');
+        $temp = Quantity::create(32, 'F');
 
         $result = $temp->to('K');
 
@@ -189,7 +189,7 @@ final class TemperatureTest extends TestCase
      */
     public function testAbsoluteZeroKToF(): void
     {
-        $temp = new Temperature(0, 'K');
+        $temp = Quantity::create(0, 'K');
 
         $result = $temp->to('F');
 
@@ -205,7 +205,7 @@ final class TemperatureTest extends TestCase
      */
     public function testMillikelvinToKelvinConversion(): void
     {
-        $temp = new Temperature(1000, 'mK');
+        $temp = Quantity::create(1000, 'mK');
 
         $result = $temp->to('K');
 
@@ -290,7 +290,7 @@ final class TemperatureTest extends TestCase
      */
     public function testFormatAddsDegreeSymbolForCelsius(): void
     {
-        $temp = new Temperature(25, 'C');
+        $temp = Quantity::create(25, 'C');
 
         $this->assertSame('25°C', (string)$temp);
     }
@@ -300,7 +300,7 @@ final class TemperatureTest extends TestCase
      */
     public function testFormatAddsDegreeSymbolForFahrenheit(): void
     {
-        $temp = new Temperature(98.6, 'F');
+        $temp = Quantity::create(98.6, 'F');
 
         $this->assertSame('98.6°F', (string)$temp);
     }
@@ -310,7 +310,7 @@ final class TemperatureTest extends TestCase
      */
     public function testFormatNoSymbolForKelvin(): void
     {
-        $temp = new Temperature(273.15, 'K');
+        $temp = Quantity::create(273.15, 'K');
 
         $this->assertSame('273.15K', (string)$temp);
     }
@@ -324,7 +324,7 @@ final class TemperatureTest extends TestCase
      */
     public function testRoundTripConversion(): void
     {
-        $original = new Temperature(25.0, 'C');
+        $original = Quantity::create(25.0, 'C');
 
         $result = $original->to('F')->to('K')->to('C');
 

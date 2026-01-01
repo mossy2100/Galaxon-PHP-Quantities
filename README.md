@@ -85,7 +85,7 @@ $miles = $meters->to('mi'); // 0.621371 mi
 
 ### Prefix Support
 
-Quantities can accept SI metric prefixes, binary prefixes, or both:
+Quantities can accept SI metric prefixes, binary prefixes, or sometimes even both:
 
 ```php
 use Galaxon\Quantities\QuantityType\Length;
@@ -214,16 +214,42 @@ $angle->tanh();
 
 ## Terminology
 
-| Term          | Definition                                                                  |
-|---------------|-----------------------------------------------------------------------------|
-| Base unit     | A unit without prefix or exponent, e.g. 's', 'in'                           |
-| Prefixed unit | A base unit with a metric or binary prefix, e.g. 'km', 'KiB'                |
-| Powered unit  | A base or prefixed unit raised to an exponent, e.g. 'm²', 'km³'             |
-| Compound unit | Multiple units combined via multiplication/division, e.g. 'm/s', 'kg·m·s⁻²' |
-| SI base unit  | One of the 7 fundamental SI units: m, kg, s, A, K, mol, cd                  |
-| SI named unit | A named unit defined as a combination of SI base units, e.g. N, J, W, V     |
-| Metric prefix | A decimal scaling prefix, e.g. k (10³), M (10⁶), m (10⁻³)                   |
-| Binary prefix | A binary scaling prefix for data units, e.g. Ki (2¹⁰), Mi (2²⁰)             | 
+| Term          | Definition                                                                       |
+|---------------|----------------------------------------------------------------------------------|
+| Base unit     | A unit without prefix or exponent, e.g. 's', 'in'                                |
+| Unit term     | A base unit with optional prefix and/or exponent, e.g. 'km', 'KiB', 'm²', 'km³'  |
+| Compound unit | Multiple unit terms combined via multiplication/division, e.g. 'm/s', 'kg·m·s⁻²' |
+| SI base unit  | One of the 7 fundamental SI units: m, kg, s, A, K, mol, cd                       |
+| Named unit    | A unit equivalent to a compound unit, e.g. N, J, W, V, kn                        |
+| Metric prefix | A decimal scaling prefix, e.g. k (10³), M (10⁶), m (10⁻³)                        |
+| Binary prefix | A binary scaling prefix for data units, e.g. Ki (2¹⁰), Mi (2²⁰)                  | 
+
+Note: Although 'kg' is referred to as an SI base unit, this use of the word 'base' is irregular because the unit has a prefix.
+
+## About Units
+
+Please note, in some cases a conventional unit symbol may not be supported. The main reason is because the package
+relies on unit symbols being unique. It could also be necessary for prefixes to work properly (e.g. 'kcal'); or it could
+be a stylistic choice (e.g. 'L').
+
+1. Use `pint` for pint, not `pt`, which means point, a length unit equal to 1/72 inches.
+2. Use `arcsec` for arcsecond, not `as`, which means attosecond. Similarly, use `marcsec` for milliarcsecond, etc.
+3. Use `°C` or `degC` (see below) for degrees Celsius, not `C`, which means coulomb, the unit for electric charge.
+4. Use `°F` or `degF` for degrees Fahrenheit, not `F`, which means farad, the unit for electric capacitance.
+5. Use `°R` or `degR` for degrees Rankine, not `R`. This is just for consistency; `R` is not currently used for any other unit.
+6. Use `kcal` for kilocalorie (a.k.a. 'large' or 'food' calorie), not `Cal`. Use `cal` for calorie, i.e. 'small' calorie. 
+7. Use `L` for litre, not `l`, following modern style guides, as `l` is deemed too similar to the digit `1`.
+
+All units have a "primary" symbol, which uses ASCII characters only. This is to make them easier to type.
+Therefore, you can use the following:
+
+1. `deg` in place of `°`
+2. `arcmin` in place of `′`
+3. `arcsec` in place of `″`
+2. `degC` in place of `°C`
+2. `degF` in place of `°F`
+3. `degR` in place of `°R`
+4. `ohm` in place of `Ω`
 
 ## Classes
 
@@ -243,7 +269,16 @@ Manages unit conversions for a measurement type. Validates units and prefixes, s
 
 #### [Conversion](docs/Conversion.md)
 
-Represents an affine transformation (y = mx + k) for unit conversion. Tracks error scores to prefer shorter, more accurate conversion paths.
+Represents a linear transformation (y = mx) for unit conversion. Tracks error scores to prefer shorter, more accurate conversion paths.
+
+#### [FloatWithError](docs/FloatWithError.md)
+
+Immutable class for floating-point numbers with tracked error bounds:
+- Automatic error estimation based on ULP (Unit in Last Place)
+- Error propagation through arithmetic operations (add, sub, mul, div)
+- Tracks both absolute and relative error
+- Exact integers maintain zero error through compatible operations
+- Useful for numerical analysis and precision monitoring
 
 ### Quantity Types
 

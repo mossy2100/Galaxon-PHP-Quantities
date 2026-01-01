@@ -5,52 +5,79 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use Galaxon\Core\Integers;
-use LogicException;
-use RuntimeException;
 use Stringable;
 use ValueError;
 
 class DerivedUnit implements Stringable
 {
-    /** @var array<string, UnitTerm> */
+    /**
+     * Array of unit terms the DerivedUnit comprises, keyed by dimension code (L, M, T, T-2LM, etc.).
+     *
+     * @var array<string, UnitTerm>
+     */
     private(set) array $unitTerms = [];
 
     /**
-     * @param null|UnitTerm|string $unit
-     * @throws ValueError
+     * Get the dimension code of the derived unit.
+     *
+     * @return string The dimension code.
      */
-    public function __construct(null|UnitTerm|string $unit = null)
+    public string $dimension {
+        get {
+            // Convert the unit terms to dimension codes.
+            $dimCodes = [];
+            foreach ($this->unitTerms as $unitTerm) {
+                // Parse the dimension code terms for this unit term.
+                $dims = Dimensions::parse($unitTerm->dimension);
+                foreach ($dims as $dimCode => $exp) {
+                    $dimCodes[$dimCode] = ($dimCodes[$dimCode] ?? 0) + ($exp * $unitTerm->exponent);
+                }
+            }
+
+            // Sort the dimension codes into canonical order.
+            $dimCodes = Dimensions::sort($dimCodes);
+
+            // Generate the full dimension code.
+            return Dimensions::combine($dimCodes);
+        }
+    }
+
+    /**
+     * Construct a new DerivedUnit instance.
+     *
+     * @param null|BaseUnit|UnitTerm|list<UnitTerm> $unit The base unit, unit term, or array of unit terms to add, or
+     * null to create an empty unit.
+     */
+    public function __construct(null|BaseUnit|UnitTerm|array $unit = null)
     {
-        // No unit provided.
         if ($unit === null) {
             return;
         }
 
-        // If the unit is a UnitTerm, just add it to the unit terms array and return.
+        // If the unit is a Unit, wrap it in a UnitTerm.
+        if ($unit instanceof BaseUnit) {
+            $unit = new UnitTerm($unit);
+        }
+
+        // If the unit is a UnitTerm, just add it to the unit terms array.
         if ($unit instanceof UnitTerm) {
-            $this->unitTerms[$unit->base] = $unit;
-            return;
+            $this->unitTerms[$unit->base->symbol] = $unit;
         }
 
-        // The unit is a string. Parse it into unit terms.
-        $unitTerms = self::parse($unit);
-
-        // Construct the derived unit from the unit terms.
-        foreach ($unitTerms as $unitTerm) {
-            $this->mul($unitTerm);
+        // Argument must be an array of UnitTerms.
+        foreach ($unit as $unitTerm) {
+            $this->addUnitTerm($unitTerm);
         }
-
-        // Sort the unit terms by dimension code.
-        $fn = static fn (UnitTerm $a, UnitTerm $b) => $a->getDimensionCode() <=> $b->getDimensionCode();
-        uasort($this->unitTerms, $fn);
     }
 
     /**
+     * Parse a string into a new DerivedUnit instance, if possible.
+     *
      * @param string $symbol
-     * @return list<UnitTerm> The unit terms in the provided symbol.
+     * @return self The new instance.
      * @throws ValueError If the symbol format is invalid or if any units are unrecognized.
      */
-    public static function parse(string $symbol): array
+    public static function parse(string $symbol): self
     {
         // Replace some characters to simplify parsing.
         $replacements = array_flip(Integers::SUPERSCRIPT_CHARACTERS);
@@ -81,108 +108,73 @@ class DerivedUnit implements Stringable
             // Collect the unit terms.
             if ($op === '*') {
                 $unitTerms[] = $unit;
-            }
-            else {
+            } else {
                 $unitTerms[] = $unit->invert();
             }
         }
 
-        return $unitTerms;
+        // Create a new derived unit.
+        return new self($unitTerms);
     }
 
-    public function mul(UnitTerm|DerivedUnit $unit): void
-    {
-        if ($unit instanceof UnitTerm) {
-            $base = $unit->base;
-            if (array_key_exists($base, $this->unitTerms)) {
-                $this->unitTerms[$base]->exponent += $unit->exponent;
-            } else {
-                $this->unitTerms[$base] = $unit;
-            }
-        } else {
-            // $unit is a derived unit. Multiply each term.
-            foreach ($unit->unitTerms as $unitTerm) {
-                $this->mul($unitTerm);
-            }
-        }
-    }
+//    public function mul(UnitTerm|DerivedUnit $unit): void
+//    {
+//        if ($unit instanceof UnitTerm) {
+//            // Let's see if we already have a unit term with the same base unit and prefix.
+//            $i = $this->findUnitTerm($unit->base, $unit->prefix);
+//            if ($i !== null) {
+//                // Add the exponent.
+//                $this->unitTerms[$i]->exponent += $unit->exponent;
+//            }
+//            else {
+//                // Add the new unit term.
+//                $this->addUnitTerm($unit);
+//            }
+//        } else {
+//            // $unit is a derived unit. Multiply each term.
+//            foreach ($unit->unitTerms as $unitTerm) {
+//                $this->mul($unitTerm);
+//            }
+//        }
+//    }
 
-    public function div(UnitTerm|DerivedUnit $unit): void
-    {
-        if ($unit instanceof UnitTerm) {
-            $base = $unit->base;
-            if (array_key_exists($base, $this->unitTerms)) {
-                $this->unitTerms[$base]->exponent -= $unit->exponent;
-            } else {
-                $this->unitTerms[$base] = $unit->invert();
-            }
-        } else {
-            // $unit is a derived unit. Divide each term.
-            foreach ($unit->unitTerms as $unitTerm) {
-                $this->div($unitTerm);
-            }
-        }
-    }
-
-    /**
-     * Get the dimension code of the derived unit.
-     *
-     * @return string The dimension code.
-     * @throws ValueError
-     * @throws LogicException
-     * @throws RuntimeException If the base is not found (should never happen).
-     */
-    public function getDimensionCode(): string
-    {
-        // Convert the unit terms to dimension codes.
-        $dimCodes = [];
-        foreach ($this->unitTerms as $base => $unitTerm) {
-            // Look up the base unit.
-            $unit = Unit::lookup($base);
-            if ($unit === null) {
-                throw new RuntimeException("Unknown unit '$base'.");
-            }
-
-            // The dimension code of the base unit may be complex.
-            $dims = Dimensions::parse($unit->dimension);
-            foreach ($dims as $dimCode => $exp) {
-                $dimCodes[$dimCode] = ($dimCodes[$dimCode] ?? 0) + ($exp * $unitTerm->exponent);
-            }
-        }
-
-        // Sort the dimension codes into canonical order.
-        $dimCodes = Dimensions::sort($dimCodes);
-
-        // Generate the full dimension code.
-        return Dimensions::combine($dimCodes);
-    }
+//    public function div(UnitTerm|DerivedUnit $unit): void
+//    {
+//        if ($unit instanceof UnitTerm) {
+//            // Let's see if we already have a unit term with the same base unit and prefix.
+//            $i = $this->findUnitTerm($unit->base, $unit->prefix);
+//            if ($i !== null) {
+//                // Subtract the exponent.
+//                $this->unitTerms[$i]->exponent -= $unit->exponent;
+//            }
+//            else {
+//                // Add the new unit term, inverted because we're dividing it.
+//                $this->addUnitTerm($unit->invert());
+//            }
+//        } else {
+//            // $unit is a derived unit. Divide each term.
+//            foreach ($unit->unitTerms as $unitTerm) {
+//                $this->div($unitTerm);
+//            }
+//        }
+//    }
 
     /**
      * Expand the derived unit by converting named units into their equivalents, e.g. N => kg*m/s2
      *
      * @return self The expanded unit.
-     * @throws RuntimeException If an unknown unit is encountered (should never happen).
      */
     public function expand(): self
     {
-        // Create a new object.
+        // Create a new DerivedUnit object with no unit terms.
         $new = new self();
 
         foreach ($this->unitTerms as $unitTerm) {
-            // Look up the base unit.
-            $base = Unit::lookup($unitTerm->base);
-            if ($base === null) {
-                throw new RuntimeException("Error expanding unit '$this': unknown unit '$unitTerm->base'.");
-            }
-
-            // Expand if necessary.
-            if ($base->equivalent !== null) {
-                $du = new DerivedUnit($base->equivalent);
-                foreach ($du->unitTerms as $duTerm) {
-                    $new->mul($duTerm);
-                }
-            }
-            else {
+            // If the current term has an equivalent, expand it.
+            if ($unitTerm->base->equivalent !== null) {
+                $du = self::parse($unitTerm->base->equivalent);
+                $new->mul($du);
+            } else {
                 $new->mul($unitTerm);
             }
         }
@@ -200,5 +192,46 @@ class DerivedUnit implements Stringable
     {
         $fn = static fn(UnitTerm $unit) => $unit->__toString();
         return implode('·', array_map($fn, $this->unitTerms));
+    }
+
+    /**
+     * Check if there are any existing terms with the same base unit and prefix.
+     *
+     * @param BaseUnit $base
+     * @param ?string $prefix
+     * @return ?int
+     */
+    private function findUnitTerm(BaseUnit $base, ?string $prefix): ?int
+    {
+        return array_find_key($this->unitTerms, fn($unitTerm) => $unitTerm->prefix === $prefix &&
+                                                                 $unitTerm->base->equal($base));
+    }
+
+    public function isSi(): bool {
+        foreach ($this->unitTerms as $unitTerm) {
+            if (!$unitTerm->isSi()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function addUnitTerm(UnitTerm $unitTerm): void {
+        $this->unitTerms[] = $unitTerm;
+    }
+
+    public static function toDerivedUnit(string|BaseUnit|UnitTerm|DerivedUnit $unit): DerivedUnit {
+        // If the unit is already a DerivedUnit, return it as is.
+        if ($unit instanceof self) {
+            return $unit;
+        }
+
+        // If the unit is a string, parse it as a DerivedUnit.
+        if (is_string($unit)) {
+            return DerivedUnit::parse($unit);
+        }
+
+        // Otherwise, construct a new DerivedUnit.
+        return new DerivedUnit($unit);
     }
 }

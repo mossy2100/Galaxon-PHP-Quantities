@@ -8,18 +8,28 @@ use Galaxon\Quantities\Quantity;
 
 class Volume extends Quantity
 {
-    // region Static getters
-
     /**
-     * Get the dimension code for this quantity type. This method must be overridden in derived classes.
+     * Conversion factors for volume units.
      *
-     * @return ?string
+     * US customary units are used here, not imperial.
+     *
+     * @return list<array{string, string, float}>
      */
-    #[Override]
-    public static function getDimensionCode(): ?string
+    public static function getConversions(): array
     {
-        return 'L3';
+        return [
+            // Metric
+            ['m3', 'L', 1000],
+            // Metric-US bridge
+            ['in3', 'mL', 16.387064],
+            // US customary
+            ['gal', 'in3', 231],
+            ['gal', 'qt', 4],
+            ['qt', 'pint', 2],
+            ['pint', 'cup', 2],
+            ['cup', 'floz', 8],
+            ['floz', 'tbsp', 2],
+            ['tbsp', 'tsp', 3],
+        ];
     }
-
-    // endregion
 }

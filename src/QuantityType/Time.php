@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
+use Galaxon\Quantities\Converter;
 use Galaxon\Quantities\Quantity;
 use Override;
 use TypeError;
@@ -12,6 +13,24 @@ use ValueError;
 
 class Time extends Quantity
 {
+    /**
+     * Conversion factors for time units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    public static function getConversions(): array
+    {
+        return [
+            ['min', 's', 60],
+            ['h', 'min', 60],
+            ['d', 'h', 24],
+            ['w', 'd', 7],
+            ['y', 'mo', 12],
+            ['y', 'd', 365.2425],
+            ['c', 'y', 100],
+        ];
+    }
+
     // region Factory methods
 
     /**
@@ -27,60 +46,20 @@ class Time extends Quantity
      */
     public static function fromDateInterval(DateInterval $interval): self
     {
-        // Convert all components to seconds using our conversion system.
-        $converter = static::getUnitConverter();
-
-        $seconds = 0.0;
-
-        // Years to seconds.
-        if ($interval->y > 0) {
-            $seconds += $converter->convert($interval->y, 'y', 's');
-        }
-
-        // Months to seconds.
-        if ($interval->m > 0) {
-            $seconds += $converter->convert($interval->m, 'mo', 's');
-        }
-
-        // Days to seconds (DateInterval stores total days, not weeks).
-        if ($interval->d > 0) {
-            $seconds += $converter->convert($interval->d, 'd', 's');
-        }
-
-        // Hours to seconds.
-        if ($interval->h > 0) {
-            $seconds += $converter->convert($interval->h, 'h', 's');
-        }
-
-        // Minutes to seconds.
-        if ($interval->i > 0) {
-            $seconds += $converter->convert($interval->i, 'min', 's');
-        }
-
-        // Seconds and microseconds (f is a float from 0-1 representing fraction of a second).
-        $seconds += $interval->s + $interval->f;
+        // Convert all the parts of the DateInterval to seconds and sum.
+        $seconds = self::convert($interval->y, 'y', 's') +
+                   self::convert($interval->m, 'mo', 's') +
+                   self::convert($interval->d, 'd', 's') +
+                   self::convert($interval->h, 'h', 's') +
+                   self::convert($interval->i, 'min', 's') +
+                   $interval->s + $interval->f;
 
         // Handle negative intervals.
         if ($interval->invert === 1) {
             $seconds = -$seconds;
         }
 
-        return new self($seconds, 's');
-    }
-
-    // endregion
-
-    // region Static getters
-
-    /**
-     * Get the dimension code for this quantity type. This method must be overridden in derived classes.
-     *
-     * @return ?string
-     */
-    #[Override]
-    public static function getDimensionCode(): ?string
-    {
-        return 'T';
+        return self::create($seconds, 's');
     }
 
     // endregion
