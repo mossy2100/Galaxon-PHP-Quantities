@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\QuantityTypes;
 
 use Galaxon\Quantities\QuantityType\Data;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for Memory measurement class.
  *
- * Memory uses PREFIX_CODE_LARGE which includes both metric (KB, MB, GB)
+ * Memory uses PREFIX_GROUP_LARGE which includes both metric (KB, MB, GB)
  * and binary (KiB, MiB, GiB) prefixes.
  */
 #[CoversClass(Data::class)]
@@ -27,7 +27,7 @@ final class MemoryTest extends TestCase
         $memory = new Data(1024, 'B');
 
         $this->assertSame(1024.0, $memory->value);
-        $this->assertSame('B', $memory->unit);
+        $this->assertSame('B', $memory->derivedUnit);
     }
 
     /**
@@ -38,7 +38,7 @@ final class MemoryTest extends TestCase
         $memory = new Data(8, 'b');
 
         $this->assertSame(8.0, $memory->value);
-        $this->assertSame('b', $memory->unit);
+        $this->assertSame('b', $memory->derivedUnit);
     }
 
     // endregion

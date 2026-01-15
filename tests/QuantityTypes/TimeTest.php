@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\QuantityTypes;
 
 use DateInterval;
+use DomainException;
 use Galaxon\Quantities\QuantityType\Time;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use TypeError;
-use ValueError;
 
 #[CoversClass(Time::class)]
 final class TimeTest extends TestCase
@@ -22,18 +22,18 @@ final class TimeTest extends TestCase
     public function testFromPartsArrayComplete(): void
     {
         $parts = [
-            'y' => 1,
-            'mo' => 2,
-            'w' => 3,
-            'd' => 4,
-            'h' => 5,
+            'y'   => 1,
+            'mo'  => 2,
+            'w'   => 3,
+            'd'   => 4,
+            'h'   => 5,
             'min' => 6,
-            's' => 7.5,
+            's'   => 7.5,
         ];
 
         $time = Time::fromPartsArray($parts);
 
-        $this->assertEquals('s', $time->unit);
+        $this->assertEquals('s', $time->derivedUnit);
         $this->assertGreaterThan(0, $time->value);
     }
 
@@ -43,16 +43,16 @@ final class TimeTest extends TestCase
     public function testFromPartsArrayPartial(): void
     {
         $parts = [
-            'h' => 2,
+            'h'   => 2,
             'min' => 30,
-            's' => 45,
+            's'   => 45,
         ];
 
         $time = Time::fromPartsArray($parts);
 
         // 2 hours + 30 minutes + 45 seconds = 9045 seconds
         $this->assertEqualsWithDelta(9045, $time->value, 0.001);
-        $this->assertEquals('s', $time->unit);
+        $this->assertEquals('s', $time->derivedUnit);
     }
 
     /**
@@ -60,11 +60,13 @@ final class TimeTest extends TestCase
      */
     public function testFromPartsArrayOnlySeconds(): void
     {
-        $parts = ['s' => 42.5];
+        $parts = [
+            's' => 42.5,
+        ];
         $time = Time::fromPartsArray($parts);
 
         $this->assertEquals(42.5, $time->value);
-        $this->assertEquals('s', $time->unit);
+        $this->assertEquals('s', $time->derivedUnit);
     }
 
     /**
@@ -73,9 +75,9 @@ final class TimeTest extends TestCase
     public function testFromPartsArrayNegative(): void
     {
         $parts = [
-            'h' => 1,
-            'min' => 30,
-            's' => 15,
+            'h'    => 1,
+            'min'  => 30,
+            's'    => 15,
             'sign' => -1,
         ];
 
@@ -91,7 +93,7 @@ final class TimeTest extends TestCase
     public function testFromPartsArrayPositiveSign(): void
     {
         $parts = [
-            'min' => 5,
+            'min'  => 5,
             'sign' => 1,
         ];
 
@@ -106,9 +108,9 @@ final class TimeTest extends TestCase
     public function testFromPartsArrayZeroValues(): void
     {
         $parts = [
-            'h' => 0,
+            'h'   => 0,
             'min' => 0,
-            's' => 0,
+            's'   => 0,
         ];
 
         $time = Time::fromPartsArray($parts);
@@ -121,9 +123,11 @@ final class TimeTest extends TestCase
      */
     public function testFromPartsArrayInvalidPartName(): void
     {
-        $parts = ['invalid' => 10];
+        $parts = [
+            'invalid' => 10,
+        ];
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid part name');
         Time::fromPartsArray($parts);
     }
@@ -133,7 +137,9 @@ final class TimeTest extends TestCase
      */
     public function testFromPartsArrayNonNumeric(): void
     {
-        $parts = ['s' => 'not a number'];
+        $parts = [
+            's' => 'not a number',
+        ];
 
         $this->expectException(TypeError::class);
         Time::fromPartsArray($parts); // @phpstan-ignore argument.type
@@ -145,11 +151,11 @@ final class TimeTest extends TestCase
     public function testFromPartsArrayInvalidSign(): void
     {
         $parts = [
-            's' => 10,
+            's'    => 10,
             'sign' => 0,  // Must be -1 or 1
         ];
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Sign must be -1 or 1');
         Time::fromPartsArray($parts);
     }
@@ -159,9 +165,11 @@ final class TimeTest extends TestCase
      */
     public function testFromPartsArrayNegativeValue(): void
     {
-        $parts = ['s' => -10];
+        $parts = [
+            's' => -10,
+        ];
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('finite and non-negative');
         Time::fromPartsArray($parts);
     }
@@ -171,9 +179,11 @@ final class TimeTest extends TestCase
      */
     public function testFromPartsArrayNonFiniteValue(): void
     {
-        $parts = ['s' => INF];
+        $parts = [
+            's' => INF,
+        ];
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('finite and non-negative');
         Time::fromPartsArray($parts);
     }
@@ -184,9 +194,9 @@ final class TimeTest extends TestCase
     public function testFromPartsArrayFloatValues(): void
     {
         $parts = [
-            'h' => 1.5,
+            'h'   => 1.5,
             'min' => 2.5,
-            's' => 3.5,
+            's'   => 3.5,
         ];
 
         $time = Time::fromPartsArray($parts);
@@ -206,7 +216,7 @@ final class TimeTest extends TestCase
     {
         $time = Time::fromParts(1, 2, 3, 4, 5, 6.5);
 
-        $this->assertEquals('s', $time->unit);
+        $this->assertEquals('s', $time->derivedUnit);
         $this->assertGreaterThan(0, $time->value);
     }
 
@@ -219,7 +229,7 @@ final class TimeTest extends TestCase
 
         // 2 years = 2 * 365.2425 * 86400 seconds
         $this->assertEqualsWithDelta(63113904, $time->value, 1);
-        $this->assertEquals('s', $time->unit);
+        $this->assertEquals('s', $time->derivedUnit);
     }
 
     /**
@@ -254,7 +264,7 @@ final class TimeTest extends TestCase
         $time = Time::fromParts(0);
 
         $this->assertEquals(0, $time->value);
-        $this->assertEquals('s', $time->unit);
+        $this->assertEquals('s', $time->derivedUnit);
     }
 
     /**
@@ -311,12 +321,12 @@ final class TimeTest extends TestCase
         $time1 = Time::fromParts(1, 2, 3, 4, 5, 6.5, -1);
 
         $time2 = Time::fromPartsArray([
-            'y' => 1,
-            'mo' => 2,
-            'd' => 3,
-            'h' => 4,
-            'min' => 5,
-            's' => 6.5,
+            'y'    => 1,
+            'mo'   => 2,
+            'd'    => 3,
+            'h'    => 4,
+            'min'  => 5,
+            's'    => 6.5,
             'sign' => -1,
         ]);
 
@@ -328,25 +338,25 @@ final class TimeTest extends TestCase
     // region validatePrecision() tests
 
     /**
-     * Test toParts() with negative precision throws ValueError.
+     * Test toParts() with negative precision throws DomainException.
      */
     public function testToPartsNegativePrecision(): void
     {
         $time = Quantity::create(100, 's');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Must be null or a non-negative integer');
         $time->toPartsArray('s', -1);
     }
 
     /**
-     * Test formatParts() with negative precision throws ValueError.
+     * Test formatParts() with negative precision throws DomainException.
      */
     public function testFormatPartsNegativePrecision(): void
     {
         $time = Quantity::create(100, 's');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Must be null or a non-negative integer');
         $time->formatParts('s', -1);
     }
@@ -505,12 +515,12 @@ final class TimeTest extends TestCase
     }
 
     /**
-     * Test toParts() with invalid smallest unit throws ValueError.
+     * Test toParts() with invalid smallest unit throws DomainException.
      */
     public function testToPartsInvalidUnit(): void
     {
         $time = Quantity::create(100, 's');
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $time->toPartsArray('invalid');
     }
 
@@ -885,7 +895,7 @@ final class TimeTest extends TestCase
 
         // 1 hour + 30 minutes + 45 seconds = 5445 seconds
         $this->assertEqualsWithDelta(5445, $time->value, 0.001);
-        $this->assertEquals('s', $time->unit);
+        $this->assertEquals('s', $time->derivedUnit);
     }
 
     /**
@@ -946,7 +956,7 @@ final class TimeTest extends TestCase
 
         // Should be positive and greater than 1 year
         $this->assertGreaterThan(31556952, $time->value);
-        $this->assertEquals('s', $time->unit);
+        $this->assertEquals('s', $time->derivedUnit);
     }
 
     /**

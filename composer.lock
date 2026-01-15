@@ -12,14 +12,14 @@
             "dist": {
                 "type": "path",
                 "url": "../Core",
-                "reference": "dfa7743500e835fcd99ae0b6c98e11559f8ce126"
+                "reference": "097f24211c2503cbc5d2445028e827bd5203c20c"
             },
             "require": {
                 "php": "^8.4"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-                "galaxon/coding-standard": "@dev",
+                "galaxon/coding-standard": "^1.0",
                 "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
                 "squizlabs/php_codesniffer": "^4.0"
@@ -45,6 +45,9 @@
                 "check": [
                     "vendor/bin/phpcs -s"
                 ],
+                "report": [
+                    "vendor/bin/phpcs -q --report=summary"
+                ],
                 "analyze": [
                     "vendor/bin/phpstan analyze -l 9"
                 ],
@@ -65,7 +68,33 @@
             "license": [
                 "MIT"
             ],
-            "description": "Base package containing utility classes and methods for use by other packages.",
+            "authors": [
+                {
+                    "name": "Shaun Moss",
+                    "email": "shaun@astromultimedia.com"
+                }
+            ],
+            "description": "Core PHP utilities for floats, integers, arrays, types, and string conversion with IEEE-754 support.",
+            "homepage": "https://github.com/mossy2100/Galaxon-PHP-Core",
+            "keywords": [
+                "arrays",
+                "comparable",
+                "equatable",
+                "floats",
+                "ieee-754",
+                "integers",
+                "math",
+                "numbers",
+                "php",
+                "stringify",
+                "traits",
+                "types",
+                "utilities"
+            ],
+            "support": {
+                "issues": "https://github.com/mossy2100/Galaxon-PHP-Core/issues",
+                "source": "https://github.com/mossy2100/Galaxon-PHP-Core"
+            },
             "transport-options": {
                 "relative": true
             }
@@ -174,7 +203,7 @@
             "dist": {
                 "type": "path",
                 "url": "../CodingStandard",
-                "reference": "816604c984cc0bf00852dd020b22fec6a38471a1"
+                "reference": "fb877bbc0879e732a14830037aeb27755707d7db"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
@@ -196,6 +225,9 @@
                 "check": [
                     "vendor/bin/phpcs -s"
                 ],
+                "report": [
+                    "vendor/bin/phpcs -q --report=summary"
+                ],
                 "analyze": [
                     "vendor/bin/phpstan analyze -l 9"
                 ],
@@ -208,7 +240,27 @@
             "license": [
                 "MIT"
             ],
-            "description": "Galaxon PHP Coding Standard, based on PSR-12 plus some extra rules.",
+            "authors": [
+                {
+                    "name": "Shaun Moss",
+                    "email": "shaun@astromultimedia.com"
+                }
+            ],
+            "description": "PHP_CodeSniffer coding standard extending PSR-12 with lowerCamelCase naming and modern PHP 8.4+ rules.",
+            "homepage": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard",
+            "keywords": [
+                "code-style",
+                "codesniffer",
+                "coding-standard",
+                "linting",
+                "php",
+                "phpcs",
+                "psr-12"
+            ],
+            "support": {
+                "issues": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard/issues",
+                "source": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard"
+            },
             "transport-options": {
                 "relative": true
             }
@@ -2144,5 +2196,5 @@
         "php": "^8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

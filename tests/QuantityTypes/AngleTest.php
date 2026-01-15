@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\QuantityTypes;
 
 use DivisionByZeroError;
+use DomainException;
 use Galaxon\Core\Floats;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
@@ -12,7 +13,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use TypeError;
-use ValueError;
 
 #[CoversClass(Angle::class)]
 final class AngleTest extends TestCase
@@ -41,29 +41,29 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test that creating an angle with infinity throws ValueError.
+     * Test that creating an angle with infinity throws DomainException.
      */
     public function testConstructorWithInfinity(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Quantity::create(INF, 'rad');
     }
 
     /**
-     * Test that creating an angle with NAN throws ValueError.
+     * Test that creating an angle with NAN throws DomainException.
      */
     public function testConstructorWithNan(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Quantity::create(NAN, 'deg');
     }
 
     /**
-     * Test that creating an angle with an invalid unit throws ValueError.
+     * Test that creating an angle with an invalid unit throws DomainException.
      */
     public function testConstructorWithInvalidUnit(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Quantity::create(45, 'invalid');
     }
 
@@ -112,8 +112,8 @@ final class AngleTest extends TestCase
         $this->assertEquals(29, $parts3['deg']);
         $this->assertFloatEquals(59.99999994, $parts3['arcmin']);
 
-        // Test that invalid smallest unit throws ValueError.
-        $this->expectException(ValueError::class);
+        // Test that invalid smallest unit throws DomainException.
+        $this->expectException(DomainException::class);
         $x = $b->toPartsArray('invalid');
     }
 
@@ -191,20 +191,20 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test that parsing empty input throws ValueError.
+     * Test that parsing empty input throws DomainException.
      */
     public function testParseRejectsBadInputs(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Angle::parse('');
     }
 
     /**
-     * Test that parsing invalid input throws ValueError.
+     * Test that parsing invalid input throws DomainException.
      */
     public function testParseRejectsInvalidString(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Angle::parse('456 bananas');
     }
 
@@ -251,22 +251,22 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test that multiplying by infinity throws ValueError.
+     * Test that multiplying by infinity throws DomainException.
      */
     public function testMulWithNonFiniteParameter(): void
     {
         $a = Quantity::create(10, 'deg');
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $a->mul(INF);
     }
 
     /**
-     * Test that dividing by NAN throws ValueError.
+     * Test that dividing by NAN throws DomainException.
      */
     public function testDivWithNonFiniteParameters(): void
     {
         $a = Quantity::create(10, 'deg');
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $a->div(NAN);
     }
 
@@ -374,8 +374,8 @@ final class AngleTest extends TestCase
         // DMS via format.
         $this->assertSame('12° 30′ 0″', $a->formatParts('arcsec', 0));
 
-        // Verify that negative decimals value throws ValueError.
-        $this->expectException(ValueError::class);
+        // Verify that negative decimals value throws DomainException.
+        $this->expectException(DomainException::class);
         $a->format('f', -1);
     }
 
@@ -526,8 +526,8 @@ final class AngleTest extends TestCase
         // ASCII DMS fallback (°, ', ").
         $this->assertTrue(Angle::fromParts(12, 34, 56, -1)->equal(Angle::parse("-12°34'56\"")));
 
-        // Verify that invalid DMS format throws ValueError.
-        $this->expectException(ValueError::class);
+        // Verify that invalid DMS format throws DomainException.
+        $this->expectException(DomainException::class);
         $a = Angle::parse('-');
     }
 
@@ -609,12 +609,12 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test that formatting with an invalid format string throws ValueError.
+     * Test that formatting with an invalid format string throws DomainException.
      */
     public function testFormatInvalidFormatString(): void
     {
         $a = Quantity::create(45, 'deg');
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $a->format('invalid');
     }
 
@@ -908,20 +908,20 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test getConversionFactor() throws ValueError for invalid units.
+     * Test getConversionFactor() throws DomainException for invalid units.
      */
     public function testGetConversionFactorInvalidFromUnit(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Angle::getUnitConverter()->convert(1, 'banana', 'deg');
     }
 
     /**
-     * Test getConversionFactor() throws ValueError for invalid to unit.
+     * Test getConversionFactor() throws DomainException for invalid to unit.
      */
     public function testGetConversionFactorInvalidToUnit(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Angle::getUnitConverter()->convert(1, 'deg', 'banana');
     }
 
@@ -949,11 +949,11 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test static convert() throws ValueError for invalid units.
+     * Test static convert() throws DomainException for invalid units.
      */
     public function testStaticConvertInvalidUnit(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         Angle::getUnitConverter()->convert(90, 'banana', 'deg');
     }
 
@@ -982,12 +982,12 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test to() method throws ValueError for invalid unit.
+     * Test to() method throws DomainException for invalid unit.
      */
     public function testToMethodInvalidUnit(): void
     {
         $angle = Quantity::create(45, 'deg');
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $angle->to('banana');
     }
 }

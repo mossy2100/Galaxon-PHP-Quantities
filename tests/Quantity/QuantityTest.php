@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Quantity;
 
 use DivisionByZeroError;
+use DomainException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Length;
@@ -15,7 +16,6 @@ use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use stdClass;
 use TypeError;
-use ValueError;
 
 /**
  * Test class for Quantity abstract class.
@@ -38,7 +38,7 @@ final class QuantityTest extends TestCase
         $length = new Length(100, 'm');
 
         $this->assertSame(100.0, $length->value);
-        $this->assertSame('m', $length->unit);
+        $this->assertSame('m', $length->derivedUnit->format(true));
     }
 
     /**
@@ -66,7 +66,7 @@ final class QuantityTest extends TestCase
      */
     public function testConstructorThrowsForInfinity(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('cannot be ±INF or NAN');
 
         new Length(INF, 'm');
@@ -77,7 +77,7 @@ final class QuantityTest extends TestCase
      */
     public function testConstructorThrowsForNegativeInfinity(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         new Length(-INF, 'm');
     }
@@ -87,7 +87,7 @@ final class QuantityTest extends TestCase
      */
     public function testConstructorThrowsForNan(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('cannot be ±INF or NAN');
 
         new Length(NAN, 'm');
@@ -98,8 +98,8 @@ final class QuantityTest extends TestCase
      */
     public function testConstructorThrowsForInvalidUnit(): void
     {
-        $this->expectException(ValueError::class);
-        $this->expectExceptionMessage("Invalid unit 'invalid'");
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("Unknown or unsupported unit 'invalid'");
 
         new Length(100, 'invalid');
     }
@@ -125,7 +125,7 @@ final class QuantityTest extends TestCase
         $length = Length::parse('100 m');
 
         $this->assertSame(100.0, $length->value);
-        $this->assertSame('m', $length->unit);
+        $this->assertSame('m', $length->derivedUnit);
     }
 
     /**
@@ -136,7 +136,7 @@ final class QuantityTest extends TestCase
         $length = Length::parse('50km');
 
         $this->assertSame(50.0, $length->value);
-        $this->assertSame('km', $length->unit);
+        $this->assertSame('km', $length->derivedUnit);
     }
 
     /**
@@ -157,7 +157,7 @@ final class QuantityTest extends TestCase
         $length = Length::parse('-25.5 cm');
 
         $this->assertSame(-25.5, $length->value);
-        $this->assertSame('cm', $length->unit);
+        $this->assertSame('cm', $length->derivedUnit);
     }
 
     /**
@@ -175,7 +175,7 @@ final class QuantityTest extends TestCase
      */
     public function testParseThrowsForEmptyString(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         Length::parse('');
     }
@@ -185,7 +185,7 @@ final class QuantityTest extends TestCase
      */
     public function testParseThrowsForInvalidFormat(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         Length::parse('not a measurement');
     }
@@ -195,7 +195,7 @@ final class QuantityTest extends TestCase
      */
     public function testParseThrowsForInvalidUnit(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         Length::parse('100 bananas');
     }
@@ -244,7 +244,7 @@ final class QuantityTest extends TestCase
         $result = $length->to('m');
 
         $this->assertSame(100.0, $result->value);
-        $this->assertSame('m', $result->unit);
+        $this->assertSame('m', $result->derivedUnit);
     }
 
     /**
@@ -265,7 +265,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         $length->to('invalid');
     }
@@ -331,7 +331,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         $length->format('x');
     }
@@ -343,7 +343,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         $length->format('f', -1);
     }
@@ -384,7 +384,7 @@ final class QuantityTest extends TestCase
      */
     public function testFormatValueThrowsOnNonFinite(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be finite');
 
         $method = new ReflectionMethod(Length::class, 'formatValue');
@@ -406,7 +406,7 @@ final class QuantityTest extends TestCase
         $result = $a->add($b);
 
         $this->assertSame(150.0, $result->value);
-        $this->assertSame('m', $result->unit);
+        $this->assertSame('m', $result->derivedUnit);
     }
 
     /**
@@ -419,7 +419,7 @@ final class QuantityTest extends TestCase
         $result = $a->add(50, 'cm');
 
         $this->assertEqualsWithDelta(100.5, $result->value, 1e-10);
-        $this->assertSame('m', $result->unit);
+        $this->assertSame('m', $result->derivedUnit);
     }
 
     /**
@@ -433,7 +433,7 @@ final class QuantityTest extends TestCase
         $result = $a->add($b);
 
         $this->assertEqualsWithDelta(1001.0, $result->value, 1e-10);
-        $this->assertSame('m', $result->unit);
+        $this->assertSame('m', $result->derivedUnit);
     }
 
     /**
@@ -535,7 +535,7 @@ final class QuantityTest extends TestCase
         $result = $length->neg();
 
         $this->assertSame(-100.0, $result->value);
-        $this->assertSame('m', $result->unit);
+        $this->assertSame('m', $result->derivedUnit);
     }
 
     /**
@@ -572,7 +572,7 @@ final class QuantityTest extends TestCase
         $result = $length->mul(5);
 
         $this->assertSame(50.0, $result->value);
-        $this->assertSame('m', $result->unit);
+        $this->assertSame('m', $result->derivedUnit);
     }
 
     /**
@@ -606,7 +606,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         $length->mul(INF);
     }
@@ -618,7 +618,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         $length->mul(NAN);
     }
@@ -633,7 +633,7 @@ final class QuantityTest extends TestCase
         $result = $length->div(4);
 
         $this->assertSame(25.0, $result->value);
-        $this->assertSame('m', $result->unit);
+        $this->assertSame('m', $result->derivedUnit);
     }
 
     /**
@@ -667,7 +667,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         $length->div(INF);
     }
@@ -679,7 +679,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         $length->div(NAN);
     }
@@ -923,7 +923,7 @@ final class QuantityTest extends TestCase
      */
     public function testValidateSmallestUnitThrowsForInvalidUnit(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid smallest unit');
 
         // Use reflection to call protected method on a class with part units defined.
@@ -969,7 +969,7 @@ final class QuantityTest extends TestCase
      */
     public function testValidatePrecisionThrowsForNegative(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid precision');
 
         $method = new ReflectionMethod(Length::class, 'validatePrecision');
@@ -996,7 +996,9 @@ final class QuantityTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('must define the part units');
 
-        Length::fromPartsArray(['m' => 100]);
+        Length::fromPartsArray([
+            'm' => 100,
+        ]);
     }
 
     /**
@@ -1020,7 +1022,9 @@ final class QuantityTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Invalid part unit: 'invalid'");
 
-        Badness::fromPartsArray(['foo' => 10]);
+        Badness::fromPartsArray([
+            'foo' => 10,
+        ]);
     }
 
     /**
@@ -1031,7 +1035,9 @@ final class QuantityTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Unit symbols must be non-empty strings');
 
-        EmptySymbol::fromPartsArray(['foo' => 10]);
+        EmptySymbol::fromPartsArray([
+            'foo' => 10,
+        ]);
     }
 
     // endregion
@@ -1100,6 +1106,8 @@ class EmptySymbol extends Quantity
     /** @return array<int|string, string> */
     public static function getPartUnits(): array
     {
-        return ['foo' => ''];
+        return [
+            'foo' => '',
+        ];
     }
 }

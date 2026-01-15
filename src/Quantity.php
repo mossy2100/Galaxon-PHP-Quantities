@@ -5,18 +5,16 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DivisionByZeroError;
+use DomainException;
 use Galaxon\Core\Arrays;
+use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
-use Galaxon\Core\Types;
+use InvalidArgumentException;
 use LogicException;
 use Override;
-use ReflectionClass;
-use RuntimeException;
 use Stringable;
-use TypeError;
-use ValueError;
 
 /**
  * Abstract base class for physical measurements with units.
@@ -30,9 +28,9 @@ use ValueError;
  * - Optionally override getConversions(): Define conversion factors between units
  *
  * Prefix system:
- * - Units can specify allowed prefixes using bitwise flags (PREFIX_CODE_METRIC, PREFIX_CODE_BINARY, etc.)
- * - Provides fine-grained control (e.g., radian can accept only small metric prefixes)
- * - Supports combinations (e.g., byte can accept both metric and binary prefixes)
+ * - Units can specify allowed prefixes using bitwise flags (PREFIX_GROUP_METRIC, PREFIX_GROUP_BINARY, etc.)
+ * - Provides fine-grained control (e.g. radian can accept only small metric prefixes)
+ * - Supports combinations (e.g. byte can accept both metric and binary prefixes)
  *
  * Features:
  * - Automatic validation of units and values
@@ -59,7 +57,7 @@ class Quantity implements Stringable
      *
      * @var DerivedUnit
      */
-    public readonly DerivedUnit $unit;
+    public readonly DerivedUnit $derivedUnit;
 
     // endregion
 
@@ -71,39 +69,54 @@ class Quantity implements Stringable
      * Creates a new measurement with the specified value and unit.
      * Validates that the value is finite and the unit is valid.
      *
-     * TODO Check if there's a registered type for the given unit
-     *
-     * The constructor is final because sometimes called as "new static" to instantiate a derived class.
-     * In PHP, when overriding the constructor in a derived class, the signature may be altered.
-     * We want to prevent that so "new static" expressions won't break.
-     *
      * @param float $value The numeric value in the given unit.
-     * @param string|DerivedUnit $unit The unit as a symbol string (e.g., 'kg', 'mm', 'hr') or object.
-     * @throws ValueError If the value is non-finite (±INF or NAN) or if the unit symbol is invalid.
+     * @param null|string|Unit|UnitTerm|DerivedUnit $unit The unit as a symbol string (e.g. 'kg', 'mm', 'hr'),
+     * object, or null if dimensionless.
+     * @throws DomainException If the value is non-finite (±INF or NAN) or if the unit symbol is invalid.
+     * @throws LogicException If the unit does not match the calling class's dimension.
      */
-    public function __construct(float $value, string|DerivedUnit $unit)
+    private function __construct(float $value, null|string|Unit|UnitTerm|DerivedUnit $unit = null)
     {
         // Check the value is finite.
         if (!is_finite($value)) {
-            throw new ValueError('Quantity value cannot be ±INF or NAN.');
+            throw new DomainException('Quantity value cannot be ±INF or NAN.');
         }
 
-        // Set the value.
-        $this->value = Floats::normalizeZero($value);
-
-        // Convert the unit into an object if it isn't already.
+        // Convert unit into an object if it isn't already.
         // This will throw if the unit is provided as a string that doesn't represent a valid DerivedUnit.
         $unit = DerivedUnit::toDerivedUnit($unit);
 
-        // If the method is being called from a subclass, ensure the provided unit matches the class's dimension.
-        if (static::class !== self::class) {
+        // If `new Quantity()` is being called, check if they should be trying to create an object of a derived class
+        // instead.
+        $qtyClass = self::class;
+        $callingClass = static::class;
+        if ($callingClass === $qtyClass) {
+            // Look up the quantity type info for this dimension.
+            $qtyType = QuantityTypes::get($unit->dimension);
+            $subclass = $qtyType['class'] ?? null;
+
+            // If they should be constructing an object of a subclass, throw exception.
+            if ($subclass !== null && $callingClass !== $subclass) {
+                throw new LogicException(
+                    "To create {$qtyType['quantityType']} quantities, call `new $subclass()` rather than " .
+                    "`new $qtyClass()`. Otherwise, call `$qtyClass::create()` to create an object of the correct " .
+                    'class automatically.'
+                );
+            }
+        } else {
+            // The method is being called from a subclass. Ensure the provided unit matches the class's dimension.
             $dimension = QuantityTypes::getDimensionByClass(static::class);
-            if ($unit->dimension !== $dimension) {
-                throw new TypeError("Cannot create " . static::class . ": expected dimension '$dimension', but unit '$unit' has dimension '$unit->dimension'.");
+            if ($dimension !== null && $unit->dimension !== $dimension) {
+                throw new LogicException(
+                    "Cannot create $callingClass: expected dimension '$dimension', but unit '$unit' has " .
+                    ($unit->dimension === '' ? 'no dimension' : "dimension '$unit->dimension'") . '.'
+                );
             }
         }
 
-        $this->unit = $unit;
+        // Set the properties.
+        $this->value = Floats::normalizeZero($value);
+        $this->derivedUnit = $unit;
     }
 
     // endregion
@@ -113,34 +126,35 @@ class Quantity implements Stringable
     /**
      * Create a Quantity of the appropriate type for the given unit.
      *
+     * This works whether called from Quantity or a subclass.
      * Uses the dimension class registry to instantiate the correct subclass.
-     * For example, a unit with dimension 'L2' will create an Area object if Area is registered.
+     * For example, a unit with dimension 'L2' will create an Area object (assuming Area is registered).
      *
      * @param float $value The numeric value.
-     * @param string|DerivedUnit $unit The unit.
+     * @param null|string|Unit|UnitTerm|DerivedUnit $unit The unit.
      * @return static A Quantity of the appropriate type.
+     * @throws DomainException If the divisor is non-finite (±INF or NAN).
      */
-    public static function create(float $value, string|DerivedUnit $unit): static
+    public static function create(float $value, null|string|Unit|UnitTerm|DerivedUnit $unit): self
     {
-        // Convert the unit to a DerivedUnit object if it isn't already.
-        $unit = DerivedUnit::toDerivedUnit($unit);
-
-        // Check if Quantity::create() was called rather than the method in a subclass.
-        if (static::class === self::class) {
-            // Check if there's a registered class for this dimension code.
-            $qtyType = QuantityTypes::get($unit->dimension);
-            $class = $qtyType['class'] ?? null;
-            if ($class !== null) {
-                // Create an object of the subclass.
-                return new $class($value, $unit);
-            }
-
-            // Fall back to a generic Quantity.
-            return new self($value, $unit);
+        // Check the value is finite.
+        if (!is_finite($value)) {
+            throw new DomainException('Value cannot be ±INF or NAN.');
         }
 
-        // Create the new object. This will throw if the unit is invalid for the subclass.
-        return new static($value, $unit);
+        // Get unit as DerivedUnit.
+        $unit = DerivedUnit::toDerivedUnit($unit);
+
+        // Check if there's a registered class for this dimension code.
+        $qtyType = QuantityTypes::get($unit->dimension);
+        $class = $qtyType['class'] ?? null;
+        if ($class !== null) {
+            // Create an object of the subclass.
+            return new $class($value, $unit);
+        }
+
+        // Fall back to a generic Quantity.
+        return new self($value, $unit);
     }
 
     /**
@@ -151,7 +165,7 @@ class Quantity implements Stringable
      *
      * @param string $value The string to parse.
      * @return static A new Quantity parsed from the string.
-     * @throws ValueError If the string format is invalid.
+     * @throws DomainException If the string format is invalid.
      *
      * @example
      *   Length::parse("123.45 km")  // Length(123.45, 'km')
@@ -166,27 +180,26 @@ class Quantity implements Stringable
         // Reject empty input.
         $value = trim($value);
         if ($value === '') {
-            throw new ValueError($err);
+            throw new DomainException($err);
         }
 
-        // Look for <num><unit>. Whitespace between the number and unit is permitted.
-        $rxNum = '-?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?';
-        $rxUnitTerm = '\p{L}+(-?\d)?';
-        $rxUnit = "$rxUnitTerm([*.·\/]$rxUnitTerm)*";
-        if (preg_match("/^($rxNum)\s*($rxUnit)$/", $value, $m)) {
-            return self::create((float)$m[1], $m[2]);
+        // Look for <num><unit>. Whitespace between the number and unit is permitted. Unit is optional, for a
+        // dimensionless quantity.
+        $rxNum = Numbers::REGEX;
+        $rxDerivedUnit = DerivedUnit::regex();
+        if (preg_match("/^($rxNum)\s*($rxDerivedUnit)?$/u", $value, $m)) {
+            return self::create((float)$m[1], $m[2] ?? null);
         }
 
         // Invalid format.
-        throw new ValueError($err);
+        throw new DomainException($err);
     }
 
     public static function convert(
         float $value,
-        string|BaseUnit|UnitTerm|DerivedUnit $srcUnit,
-        string|BaseUnit|UnitTerm|DerivedUnit $destUnit
-    ): float
-    {
+        string|Unit|UnitTerm|DerivedUnit $srcUnit,
+        string|Unit|UnitTerm|DerivedUnit $destUnit
+    ): float {
         // Get the units as DerivedUnit objects.
         $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
         $destUnit = DerivedUnit::toDerivedUnit($destUnit);
@@ -196,17 +209,38 @@ class Quantity implements Stringable
         $destDim = $destUnit->dimension;
 
         if ($srcDim !== $destDim) {
-            throw new ValueError("Cannot convert from '$srcUnit' to '$destUnit' as these units represent different quantity types.");
+            throw new DomainException(
+                "Cannot convert from '$srcUnit' to '$destUnit' as these units represent different quantity types."
+            );
         }
 
-        // Expand the units.
-        $srcUnit = $srcUnit->expand();
-        $destUnit = $destUnit->expand();
+        // Calculate the conversion factor.
+        $result = $value;
 
-        // Make sure they have the same number of terms. In theory this should never happen if the dimensions match, but
-        // we'll keep this for safety.
+        // Check if they have the same number of terms.
         if (count($srcUnit->unitTerms) !== count($destUnit->unitTerms)) {
-            throw new ValueError("Cannot convert from '$srcUnit' to '$destUnit' as these units have different numbers of terms.");
+            // Expand source unit if possible.
+            $srcQty = new self(1, $srcUnit);
+            if ($srcQty->hasExpansion()) {
+                $srcQty = $srcQty->expand();
+                $result *= $srcQty->value;
+                $srcUnit = $srcQty->derivedUnit;
+            }
+
+            // Expand destination unit if possible.
+            $destQty = new self(1, $destUnit);
+            if ($destQty->hasExpansion()) {
+                $destQty = $destQty->expand();
+                $result /= $destQty->value;
+                $destUnit = $destQty->derivedUnit;
+            }
+
+            // If we don't have an equal number of unit terms now, something's amiss.
+            if (count($srcUnit->unitTerms) !== count($destUnit->unitTerms)) {
+                throw new DomainException(
+                    "Cannot convert from '$srcUnit' to '$destUnit' as these units have different numbers of terms."
+                );
+            }
         }
 
         // Now we've validated the units, check for a shortcut. This could be done at the top of the function, but
@@ -216,47 +250,89 @@ class Quantity implements Stringable
             return 0.0;
         }
 
-        // Calculate the conversion factor.
-        $result = $value;
+        $srcUnitTerms = array_values($srcUnit->unitTerms);
+        $destUnitTerms = array_values($destUnit->unitTerms);
 
-        foreach ($srcUnit->unitTerms as $i => $srcUnitTerm) {
+        foreach ($srcUnitTerms as $i => $srcUnitTerm) {
             // Get the matching destination unit term.
-            $destUnitTerm = $destUnit->unitTerms[$i];
+            $destUnitTerm = $destUnitTerms[$i];
 
-            // Double check the dimensions match. May be able to remove this check later.
+            // Check the dimensions match. If they don't, something's amiss.
             if ($srcUnitTerm->dimension !== $destUnitTerm->dimension) {
-                throw new RuntimeException('Source unit term dimension does not match destination unit term dimension.');
+                throw new LogicException('Source unit term is incompatible with the destination unit term.');
             }
 
             // Try to get the conversion factor between the two unit terms.
-            $converter = Converter::get($srcUnitTerm->dimension);
-            $conversion = $converter->getConversion($srcUnitTerm, $destUnitTerm);
+            $conversionFactor = Converter::getByDimension($srcUnitTerm->dimension)
+                ->getConversionFactor($srcUnitTerm, $destUnitTerm);
 
-            if ($conversion !== null) {
-                $factor = $conversion->factor->value;
-            }
-            elseif ($srcUnitTerm->exponent === $destUnitTerm->exponent) {
-                // If no conversion was found, see if we can find one between unit terms with no exponents.
-                $srcUnitTermWithNoExp = $srcUnitTerm->removeExponent();
-                $destUnitTermWithNoExp = $destUnitTerm->removeExponent();
-                $converter = Converter::get($srcUnitTermWithNoExp->dimension);
-                $conversion = $converter->getConversion($srcUnitTermWithNoExp, $destUnitTermWithNoExp);
-
-                if ($conversion !== null) {
-                    // Apply the exponent to the conversion factor.
-                    $factor = $conversion->factor->value ** $srcUnitTerm->exponent;
-                }
-            }
-
-            if ($conversion === null) {
+            if ($conversionFactor === null) {
                 throw new LogicException("No conversion path exists between units '$srcUnitTerm' and '$destUnitTerm'.");
             }
 
             // Multiply the result by the conversion factor.
-            $result *= $factor;
+            $result *= $conversionFactor;
         }
 
         return $result;
+    }
+
+    // endregion
+
+    // region Equivalent-related methods
+
+    /**
+     * Check if the Quantity's unit has an expansion comprising more basic units.
+     *
+     * @return bool
+     */
+    public function hasExpansion(): bool
+    {
+        // Check each unit to see if it has an expansion.
+        foreach ($this->derivedUnit->unitTerms as $unitTerm) {
+            if ($unitTerm->unit->expansion !== null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Expand the Quantity by converting named units into their expansions, e.g. N => kg*m/s2
+     *
+     * @return Quantity
+     */
+    public function expand(): self
+    {
+        // If the Quantity cannot be expanded, return as-is. No need to create a new object.
+        if (!$this->hasExpansion()) {
+            return $this;
+        }
+
+        // Clone it.
+        $qty = clone $this;
+
+        // Expand any named units (i.e. units with expansions).
+        foreach ($qty->derivedUnit->unitTerms as $unitTerm) {
+            if ($unitTerm->unit->expansion !== null) {
+                // Multiply by the expansion unit value raised to the exponent.
+                // In all cases except for lbf, this will be 1.
+                $qty->value *= $unitTerm->unit->expansion->value ** $unitTerm->exponent;
+
+                // Add the unit terms from the expansion Quantity.
+                foreach ($unitTerm->unit->expansion->derivedUnit->unitTerms as $equivQtyUnitTerm) {
+                    // Raise it to the unit term exponent.
+                    $equivQtyUnitTerm = $equivQtyUnitTerm->applyExponent($unitTerm->exponent);
+                    $qty->derivedUnit->addUnitTerm($equivQtyUnitTerm);
+                }
+
+                // Remove the named unit.
+                $qty->derivedUnit->removeUnitTerm($unitTerm);
+            }
+        }
+
+        return $qty;
     }
 
     // endregion
@@ -265,7 +341,12 @@ class Quantity implements Stringable
 
     public function isSi(): bool
     {
-        return $this->unit->isSi();
+        return $this->derivedUnit->isSi();
+    }
+
+    public function isDimensionless(): bool
+    {
+        return count($this->derivedUnit->unitTerms) === 0;
     }
 
     // endregion
@@ -277,74 +358,165 @@ class Quantity implements Stringable
      *
      * Returns a new Quantity object with the equivalent value in the destination unit.
      *
-     * @param string|DerivedUnit $destUnit The destination unit to convert to.
+     * @param string|Unit|UnitTerm|DerivedUnit $destUnit The destination unit to convert to.
      * @return static A new Quantity in the specified unit.
-     * @throws ValueError If the destination unit is invalid.
+     * @throws DomainException If the destination unit is invalid.
      * @throws LogicException If no conversion path exists between the units.
      *
      * @example
      *   $length = new Length(1000, 'm');
      *   $km = $length->to('km');  // Length(1, 'km')
      */
-    public function to(string|DerivedUnit $destUnit): static
+    public function to(string|Unit|UnitTerm|DerivedUnit $destUnit): self
     {
         // Convert the value to the target unit.
-        $value = static::convert($this->value, $this->unit, $destUnit);
+        $value = static::convert($this->value, $this->derivedUnit, $destUnit);
 
-        // Return the new object. In this case we can bypass create() because we know the object will have the same
-        // class as the calling class.
-        return new static($value, $destUnit);
+        // Return the new object.
+        return self::create($value, $destUnit);
     }
 
     /**
-     * Expand any named units and reduce multiple terms with the same dimension to a single term.
+     * Convert this quantity to SI base units.
      *
-     * This will, for example, reduce multiple length unit terms to one. e.g. if there are km, m, ft, etc. unit terms,
-     * these will be resolved to a single unit term with the first base unit encountered.
+     * @return self A new Quantity with the value converted to SI units.
+     * @throws DomainException If any dimension codes are invalid or conversion fails.
+     * @throws LogicException If any dimension codes do not have an SI base unit defined.
+     */
+    public function toSi(): self
+    {
+        $siUnit = $this->derivedUnit->toSi();
+        return $this->to($siUnit);
+    }
+
+    /**
+     * Create a new Quantity with the same unit but a different value.
+     *
+     * @param float $value
+     * @return $this
+     */
+    public function withValue(float $value): static
+    {
+        return self::create($value, $this->derivedUnit);
+    }
+
+    /**
+     * Substitute named units where possible. Opposite of expand().
      *
      * @return static
      */
-//    public function reduce(): static
-//    {
-//        // Get the value and expanded unit.
-//        $value = $this->value;
-//        $unit = $this->unit->expand();
-//
-//        $dimensions = array_keys(Dimensions::DIMENSION_CODES);
-//        $newUnitTerms = [];
-//
-//        // Check each dimension (single letter codes) and make sure we have at most one unit term per each.
-//        foreach ($dimensions as $dimension) {
-//            foreach ($unit->unitTerms as $unitTerm) {
-//                if ($unitTerm->base->dimension !== $dimension) {
-//                    continue;
-//                }
-//
-//                // If this is the first unit term found for this dimension, add it to the array.
-//                if (!isset($newUnitTerms[$dimension])) {
-//                    $newUnitTerms[$dimension] = $unitTerm;
-//                }
-//                else {
-//                    // Combine the unit term with the one in the array.
-//                    // Get the conversion factor between the two base units.
-//                    $factor = self::convert(1, $unitTerm->base, $newUnitTerms[$dimension]->base);
-//                    // Multiply the quantity value by the conversion factor raised to the exponent.
-//                    $value *= $factor ** $unitTerm->exponent;
-//                    // Add the exponents.
-//                    $newUnitTerms[$dimension]->exponent += $unitTerm->exponent;
-//                }
-//            }
-//        }
-//
-//        // Construct the new DerivedUnit.
-//        $du = new DerivedUnit();
-//        foreach ($newUnitTerms as $newUnitTerm) {
-//            $du->addUnitTerm($newUnitTerm);
-//        }
-//
-//        // Construct the new Quantity.
-//        return self::create($value, $du);
-//    }
+    public function simplify(bool $autoPrefix = true): static
+    {
+        $newValue = $this->value;
+        $newUnit = clone $this->derivedUnit;
+
+        // Get all named units.
+        $namedUnits = UnitData::getNamedUnits();
+
+        // Track best match.
+        $bestMatch = null;
+        $bestScore = 0;
+
+        foreach ($namedUnits as $namedUnit) {
+            // See if the $this unit matches.
+            $match = true;
+            $matchScore = 0;
+            foreach ($namedUnit->expansion->derivedUnit->unitTerms as $namedUnitTerm) {
+                $thisUnitTerm = $this->derivedUnit->getUnitTermBySymbol($namedUnitTerm->unexponentiatedSymbol);
+                if ($thisUnitTerm !== null && abs($thisUnitTerm->exponent) >= abs($namedUnitTerm->exponent)) {
+                    $matchScore += abs($namedUnitTerm->exponent);
+                } else {
+                    $match = false;
+                    break;
+                }
+            }
+
+            // If we found a match, see if it's the best.
+            if ($match && ($bestMatch === null || $matchScore > $bestScore)) {
+                $bestMatch = $namedUnit;
+                $bestScore = $matchScore;
+            }
+        }
+
+        // If we found a match, substitute the named unit.
+        if ($bestMatch) {
+            // Multiply the expansion value.
+            $newValue *= $bestMatch->expansion->value;
+
+            // Reduce unit term exponents by the exponents in the named unit expansion.
+            foreach ($bestMatch->expansion->derivedUnit->unitTerms as $namedUnitTerm) {
+                $newUnit->addUnitTerm($namedUnitTerm->inv());
+            }
+
+            // Add the named unit.
+            $newUnit->addUnitTerm($bestMatch->asciiSymbol);
+        }
+
+        // Return the new Quantity.
+        return self::create($newValue, $newUnit);
+    }
+
+    /**
+     * Find the best SI prefix and modify the Quantity accordingly.
+     *
+     * @return $this
+     */
+    public function autoPrefix(): static
+    {
+        // This method is only suitable for SI units.
+        if (!$this->isSi()) {
+            return $this;
+        }
+
+        // Create the new value and derived unit by removing all prefixes.
+        $newValue = $this->value;
+        $newDerivedUnit = new DerivedUnit();
+        foreach ($this->derivedUnit->unitTerms as $unitTerm) {
+            // Multiply the value by the multiplier.
+            $newValue *= $unitTerm->multiplier;
+            // Create a new unit term with no prefix.
+            $newUnitTerm = $unitTerm->removePrefix();
+            // Add it to the new DerivedUnit.
+            $newDerivedUnit->addUnitTerm($newUnitTerm);
+        }
+
+        // Get all metric prefixes.
+        $prefixes = UnitData::getPrefixes(UnitData::PREFIX_GROUP_METRIC);
+
+        // Get the first unit term exponent, as this will affect the prefix multiplier.
+        $firstKey = array_key_first($newDerivedUnit->unitTerms);
+        $firstUnitTerm = $newDerivedUnit->unitTerms[$firstKey];
+
+        // Choose the prefix that produces the smallest value greater than or equal to 1.
+        $absValue = abs($newValue);
+        $sign = Numbers::sign($newValue);
+        $bestPrefix = null;
+        $bestValue = $absValue;
+        foreach ($prefixes as $prefix => $prefixMultiplier) {
+            $prefixedValue = $absValue * ($prefixMultiplier ** $firstUnitTerm->exponent);
+
+            if (
+                ($bestValue < 1.0 && $prefixedValue > $bestValue) ||
+                ($prefixedValue >= 1.0 && $prefixedValue < $bestValue)
+            ) {
+                $bestPrefix = $prefix;
+                $bestValue = $prefixedValue;
+            }
+        }
+
+        // If we found a better prefix than none at all, apply it, if it's different.
+        if ($bestPrefix !== null) {
+            // Remove first unit term.
+            $this->derivedUnit->removeUnitTerm($firstUnitTerm);
+            // Create a new one with the prefix applies.
+            $newUnitTerm = $firstUnitTerm->withPrefix($bestPrefix);
+            // Add it.
+            $newDerivedUnit->addUnitTerm($newUnitTerm);
+        }
+
+        // Create the result object.
+        return self::create($newValue * $sign, $newDerivedUnit);
+    }
 
     // endregion
 
@@ -360,9 +532,11 @@ class Quantity implements Stringable
      *
      * @param mixed $other The measurement to compare with.
      * @return int -1 if this < other, 0 if equal, 1 if this > other.
-     * @throws TypeError If the other Quantity has a different type.
+     * @throws IncomparableTypesException If the other Quantity has a different type.
+     * @throws InvalidArgumentException If the Quantities have different dimensions.
      * @throws LogicException If no conversion path exists between the units.
      */
+    #[Override]
     public function compare(mixed $other): int
     {
         $otherValue = $this->preCompare($other);
@@ -381,14 +555,13 @@ class Quantity implements Stringable
         mixed $other,
         float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
         float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
-    ): bool
-    {
-        // Get the other Quantity's value in the same unit.
+    ): bool {
         try {
-            // This will throw a TypeError if the other Quantity has a different type.
+            // Get the other Quantity's value in the same unit.
+            // This will throw the other Quantity has a different type or dimension.
             $otherValue = $this->preCompare($other);
-        } catch (TypeError) {
-            // If the other Quantity has a different type, it's not equal to this one.
+        } catch (InvalidArgumentException) {
+            // If the other Quantity has a different type or dimension, it's not equal to this one.
             return false;
         }
 
@@ -401,6 +574,30 @@ class Quantity implements Stringable
     // region Arithmetic methods
 
     /**
+     * Get the absolute value of this measurement.
+     *
+     * @return static A new Quantity with non-negative value in the same unit.
+     *
+     * @example
+     *   $temp = new Temperature(-10, 'C');
+     *   $abs = $temp->abs();  // Temperature(10, 'C')
+     */
+    public function abs(): static
+    {
+        return self::create(abs($this->value), $this->derivedUnit);
+    }
+
+    /**
+     * Negate a measurement.
+     *
+     * @return static A new Quantity containing the negative of this measurement's unit.
+     */
+    public function neg(): self
+    {
+        return self::create(-$this->value, $this->derivedUnit);
+    }
+
+    /**
      * Add another measurement to this one.
      *
      * Supports two call styles:
@@ -410,9 +607,9 @@ class Quantity implements Stringable
      * Automatically converts units before adding.
      *
      * @param self|float $otherOrValue Another Quantity or a numeric value.
-     * @param ?string $otherUnit The unit if providing a numeric value.
+     * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
      * @return static A new Quantity containing the sum in this measurement's unit.
-     * @throws ValueError If value is non-finite or unit is invalid.
+     * @throws DomainException If value is non-finite or unit is invalid.
      * @throws LogicException If no conversion path exists between units.
      *
      * @example
@@ -421,22 +618,16 @@ class Quantity implements Stringable
      *   $sum = $a->add($b);           // Length(2100, 'm')
      *   $sum2 = $a->add(50, 'cm');    // Length(100.5, 'm')
      */
-    public function add(self|float $otherOrValue, ?string $otherUnit = null): static
+    public function add(self|float $otherOrValue, null|string|DerivedUnit $otherUnit = null): self
     {
-        // Create the Quantity to add if necessary.
-        if (is_float($otherOrValue) && is_string($otherUnit)) {
-            // This will throw if the value is non-finite or the unit is invalid.
-            $other = self::create($otherOrValue, $otherUnit);
-        }
-        else {
-            $other = $otherOrValue;
-        }
+        // Get the other quantity as an object.
+        $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
 
         // Get the other Quantity in the same unit as this one.
-        $otherValue = $this->unit === $other->unit ? $other->value : $this->to($otherUnit)->value;
+        $otherValue = $this->derivedUnit === $other->derivedUnit ? $other->value : $this->to($otherUnit)->value;
 
         // Add the two values.
-        return self::create($this->value + $otherValue, $this->unit);
+        return $this->withValue($this->value + $otherValue)->simplify();
     }
 
     /**
@@ -449,9 +640,9 @@ class Quantity implements Stringable
      * Automatically converts units before subtracting.
      *
      * @param self|float $otherOrValue Another Quantity or a numeric value.
-     * @param ?string $otherUnit The unit if providing a numeric value.
+     * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
      * @return static A new Quantity containing the difference in this measurement's unit.
-     * @throws ValueError If value is non-finite or unit is invalid.
+     * @throws DomainException If value is non-finite or unit is invalid.
      * @throws LogicException If no conversion path exists between units.
      *
      * @example
@@ -459,139 +650,106 @@ class Quantity implements Stringable
      *   $b = new Length(2, 'km');
      *   $diff = $a->sub($b);          // Length(-1900, 'm')
      */
-    public function sub(self|float $otherOrValue, ?string $otherUnit = null): static
+    public function sub(self|float $otherOrValue, null|string|DerivedUnit $otherUnit = null): self
     {
-        // Create the Quantity to add if necessary.
-        if (is_float($otherOrValue) && is_string($otherUnit)) {
-            // This will throw if the value is non-finite or the unit is invalid.
-            $other = self::create($otherOrValue, $otherUnit);
-        }
-        else {
-            $other = $otherOrValue;
-        }
+        // Get the other quantity as an object.
+        $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
 
         // Get the other Quantity in the same unit as this one.
-        $otherValue = $this->unit === $other->unit ? $other->value : $this->to($otherUnit)->value;
+        $otherValue = $this->derivedUnit === $other->derivedUnit ? $other->value : $this->to($otherUnit)->value;
 
         // Subtract the values.
-        return self::create($this->value - $otherValue, $this->unit);
+        return $this->withValue($this->value - $otherValue);
     }
 
-    /**
-     * Negate a measurement.
-     *
-     * @return static A new Quantity containing the negative of this measurement's unit.
-     */
-    public function neg(): static
+    public function inv(): self
     {
-        return self::create(-$this->value, $this->unit);
+        // Guards.
+        if ($this->value === 0.0) {
+            throw new DivisionByZeroError('Cannot invert a quantity with a value of 0.');
+        }
+
+        return self::create(1.0 / $this->value, $this->derivedUnit->inv());
     }
 
     /**
      * Multiply this measurement by a scalar factor.
      *
-     * @param float|Quantity $otherOrValue The scale factor or Quantity to multiply by.
+     * @param self|float $otherOrValue Another Quantity or a numeric value.
+     * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
      * @return static A new Quantity representing the result of the multiplication.
-     * @throws ValueError If the multiplier is a non-finite float (±INF or NAN).
+     * @throws DomainException If the multiplier is a non-finite float (±INF or NAN).
      *
      * @example
      *   $length = new Length(10, 'm');
      *   $doubled = $length->mul(2);  // Length(20, 'm')
      */
-    public function mul(float|Quantity $otherOrValue, ?string $otherUnit = null): static
+    public function mul(float|self $otherOrValue, null|string|DerivedUnit $otherUnit = null): static
     {
-        if (is_float($otherOrValue)) {
-            // Check if multiplying by a scalar.
-            if ($otherUnit === null) {
-                // Guard.
-                if (!is_finite($otherOrValue)) {
-                    throw new ValueError('Multiplier cannot be ±INF or NAN.');
-                }
-
-                // Multiply the Quantity.
-                return self::create($this->value * $otherOrValue, $this->unit);
-            }
-
-            // Create the Quantity to multiply.
-            $other = self::create($otherOrValue, $otherUnit);
-        }
-        else {
-            $other = $otherOrValue;
-        }
+        // Get the other quantity as an object.
+        $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
 
         // Start by multiplying the values.
         $value = $this->value * $other->value;
 
-        // Get the unit terms from each quantity.
-        $thisUnitTerms = $this->unit->unitTerms;
-        $otherUnitTerms = $other->unit->unitTerms;
-
-        foreach ($otherUnitTerms as $otherUnitTerm) {
-            // Get the term with no exponent.
-            $otherUnitTermNoExp = $otherUnitTerm->removeExponent();
-
-            // Get the dimension.
-            $dim = $otherUnitTermNoExp->dimension;
-
-            // See if there's already a unit term with this dimension.
-            if (isset($thisUnitTerms[$dim])) {
-                // Get the existing unit term with no exponent.
-                $thisUnitTermNoExp = $thisUnitTerms[$dim]->removeExponent();
-
-                // Multiply the conversion factor, raised to the power of the exponent of the other unit term..
-                $value *= self::convert(1, $otherUnitTermNoExp, $thisUnitTermNoExp) ** $otherUnitTerm->exponent;
-
-                // Add the exponent to the existing term.
-                $thisUnitTerms[$dim]->exponent += $otherUnitTerm->exponent;
-            }
-            else {
-                // Add a new unit term.
-                $thisUnitTerms[$dim] = $otherUnitTerm;
-            }
+        // If the other quantity is dimensionless, this is a simple multiplication by a scalar.
+        if ($other->isDimensionless()) {
+            return $this->withValue($value);
         }
 
-        // Create a new Quantity.
-        return self::create($value, new DerivedUnit($thisUnitTerms));
+        // Create a new unit from this unit.
+        $derivedUnit = clone $this->derivedUnit;
+
+        // Add each unit term from the other Quantity.
+        foreach ($other->derivedUnit->unitTerms as $otherUnitTerm) {
+            $derivedUnit->addUnitTerm($otherUnitTerm);
+        }
+
+        // Create the result Quantity.
+        return self::create($value, $derivedUnit);
     }
 
     /**
      * Divide this measurement by a scalar factor.
      *
-     * @param float $k The divisor.
-     * @return static A new Quantity with the value divided.
+     * @param float|self $otherOrValue The scalar or Quantity to divide by.
+     * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
+     * @return static A new Quantity representing the result of the division.
      * @throws DivisionByZeroError If the divisor is zero.
-     * @throws ValueError If the divisor is non-finite (±INF or NAN).
+     * @throws DomainException If the divisor is non-finite (±INF or NAN).
      *
      * @example
      *   $length = new Length(10, 'm');
      *   $half = $length->div(2);  // Length(5, 'm')
      */
-    public function div(float $k): static
+    public function div(float|self $otherOrValue, null|string|DerivedUnit $otherUnit = null): self
     {
-        // Guards.
-        if ($k === 0.0) {
-            throw new DivisionByZeroError('Divisor cannot be 0.');
-        }
-        if (!is_finite($k)) {
-            throw new ValueError('Divisor cannot be ±INF or NAN.');
-        }
+        // Get the other quantity as an object.
+        $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
 
-        // Divide the Quantity.
-        return self::create(fdiv($this->value, $k), $this->unit);
+        // Multiply by the inverse.
+        return $this->mul($other->inv());
     }
 
     /**
-     * Get the absolute value of this measurement.
+     * Raise the Quantity to an exponent.
      *
-     * @return static A new Quantity with non-negative value in the same unit.
-     *
-     * @example
-     *   $temp = new Temperature(-10, 'C');
-     *   $abs = $temp->abs();  // Temperature(10, 'C')
+     * @param int $exponent
+     * @return $this
      */
-    public function abs(): static
+    public function pow(int $exponent): self
     {
-        return self::create(abs($this->value), $this->unit);
+        // Apply the exponent to the value.
+        $value = $this->value ** $exponent;
+
+        // Apply the exponent to each unit term.
+        $unitTerms = [];
+        foreach ($this->derivedUnit->unitTerms as $unitTerm) {
+            $unitTerms[] = $unitTerm->applyExponent($exponent);
+        }
+
+        // Construct the result Quantity.
+        return self::create($value, new DerivedUnit($unitTerms));
     }
 
     // endregion
@@ -611,7 +769,7 @@ class Quantity implements Stringable
      * @param bool $trimZeros If true, remove trailing zeros and decimal point.
      * @param bool $includeSpace If true, insert space between value and unit.
      * @return string The formatted measurement string.
-     * @throws ValueError If specifier or precision are invalid.
+     * @throws DomainException If specifier or precision are invalid.
      *
      * @example
      *   $angle->format('f', 2)       // "90.00 deg"
@@ -623,16 +781,15 @@ class Quantity implements Stringable
         ?int $precision = null,
         bool $trimZeros = true,
         bool $includeSpace = true
-    ): string
-    {
+    ): string {
         // Validate the specifier.
         if (!in_array($specifier, ['e', 'E', 'f', 'F', 'g', 'G'], true)) {
-            throw new ValueError("The specifier must be 'e', 'E', 'f', 'F', 'g', or 'G'.");
+            throw new DomainException("The specifier must be 'e', 'E', 'f', 'F', 'g', or 'G'.");
         }
 
         // Validate the precision.
         if ($precision !== null && ($precision < 0 || $precision > 17)) {
-            throw new ValueError('The precision must be null or an integer between 0 and 17.');
+            throw new DomainException('The precision must be null or an integer between 0 and 17.');
         }
 
         // Canonicalize -0.0 to 0.0.
@@ -653,7 +810,7 @@ class Quantity implements Stringable
         }
 
         // Return the formatted string.
-        return $str . ($includeSpace ? ' ' : '') . $this->unit;
+        return $str . ($includeSpace ? ' ' : '') . $this->derivedUnit;
     }
 
     // endregion
@@ -665,12 +822,12 @@ class Quantity implements Stringable
      *
      * For custom formatting, use format().
      *
-     * @return string The measurement as a string (e.g., "1.5707963267949 rad").
+     * @return string The measurement as a string (e.g. "1.5707963267949 rad").
      */
     #[Override]
     public function __toString(): string
     {
-        return $this->value . ' ' . $this->unit;
+        return $this->value . ' ' . $this->derivedUnit;
     }
 
     // endregion
@@ -697,7 +854,7 @@ class Quantity implements Stringable
      * @param array<string, int|float> $parts The parts and optional sign.
      * @return static A new Quantity equal to the sum of the parts, with the unit equal to the smallest unit.
      * @throws TypeError If any of the values are not numbers.
-     * @throws ValueError If any of the values are non-finite or negative.
+     * @throws DomainException If any of the values are non-finite or negative.
      * @throws LogicException If getPartUnits() has not been overridden properly.
      */
     public static function fromPartsArray(array $parts): static
@@ -710,17 +867,17 @@ class Quantity implements Stringable
         $validKeys = ['sign', ...$partUnits];
         foreach ($parts as $key => $value) {
             if (!in_array($key, $validKeys, true)) {
-                throw new ValueError('Invalid part name: ' . $key);
+                throw new DomainException('Invalid part name: ' . $key);
             }
             if (!Numbers::isNumber($value)) {
                 throw new TypeError('All values must be numbers.');
             }
             if ($key === 'sign') {
                 if ($value !== -1 && $value !== 1) {
-                    throw new ValueError('Sign must be -1 or 1.');
+                    throw new DomainException('Sign must be -1 or 1.');
                 }
             } elseif (!is_finite($value) || $value < 0.0) {
-                throw new ValueError('All part values must be finite and non-negative.');
+                throw new DomainException('All part values must be finite and non-negative.');
             }
         }
 
@@ -757,7 +914,7 @@ class Quantity implements Stringable
      * @param string $smallestUnit The smallest unit to include.
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the sign, which is always 1 or -1.
-     * @throws ValueError If any arguments are invalid.
+     * @throws DomainException If any arguments are invalid.
      * @throws LogicException If getPartUnits() has not been overridden properly.
      */
     public function toPartsArray(string $smallestUnit, ?int $precision = null): array
@@ -773,7 +930,9 @@ class Quantity implements Stringable
         // Prep.
 //        $converter = static::getUnitConverter();
         $sign = Numbers::sign($this->value, false);
-        $parts = ['sign' => $sign];
+        $parts = [
+            'sign' => $sign,
+        ];
         $smallestUnitIndex = (int)array_search($smallestUnit, $partUnits, true);
 
         // Initialize the remainder to the source value converted to the smallest unit.
@@ -830,7 +989,7 @@ class Quantity implements Stringable
      * @param bool $showZeros If true, show all components (largest to smallest) including zeros; if false, skip
      * zero-value components.
      * @return string Formatted string.
-     * @throws ValueError If any arguments are invalid.
+     * @throws DomainException If any arguments are invalid.
      */
     public function formatParts(string $smallestUnit, ?int $precision = null, bool $showZeros = false): string
     {
@@ -895,19 +1054,28 @@ class Quantity implements Stringable
      * @param mixed $other The other measurement to compare with.
      * @return float The value of the other measurement in the same unit as this one.
      * @throws LogicException If no conversion path exists between the units.
-     * @throws TypeError If the other Quantity has a different type.
-     * @throws ValueError If the target unit is invalid.
+     * @throws IncomparableTypesException If the other value is not a Quantity.
+     * @throws InvalidArgumentException If the two Quantities have different dimensions.
      */
     protected function preCompare(mixed $other): float
     {
-        // Check the two measurements have the same types.
-        if (!Types::same($this, $other)) {
-            throw new TypeError('The two measurements being compared must be of the same type.');
+        // Check the two values are both Quantity objects.
+        if (!$other instanceof self) {
+            throw new IncomparableTypesException($this, $other);
+        }
+
+        // Check the two Quantities have the same dimension.
+        $dim1 = $this->derivedUnit->dimension;
+        $dim2 = $other->derivedUnit->dimension;
+        if ($dim1 !== $dim2) {
+            throw new InvalidArgumentException(
+                "Cannot compare quantities with different dimensions, got '$dim1' and '$dim2'."
+            );
         }
 
         // Get the other Quantity in the same unit as this one.
         /** @var Quantity $other */
-        return $this->unit === $other->unit ? $other->value : $other->to($this->unit)->value;
+        return $this->derivedUnit === $other->derivedUnit ? $other->value : $other->to($this->derivedUnit)->value;
     }
 
     /**
@@ -915,7 +1083,7 @@ class Quantity implements Stringable
      *
      * @param string $smallestUnit
      * @return void
-     * @throws ValueError
+     * @throws DomainException
      */
     protected static function validateSmallestUnit(string $smallestUnit): void
     {
@@ -925,7 +1093,7 @@ class Quantity implements Stringable
 
         // Check the smallest unit is valid.
         if (!in_array($smallestUnit, $partUnits, true)) {
-            throw new ValueError('Invalid smallest unit specified. Must be one of: ' .
+            throw new DomainException('Invalid smallest unit specified. Must be one of: ' .
                                  implode(', ', Arrays::quoteValues($partUnits)));
         }
     }
@@ -935,12 +1103,12 @@ class Quantity implements Stringable
      *
      * @param ?int $precision The precision to validate.
      * @return void
-     * @throws ValueError If precision is negative.
+     * @throws DomainException If precision is negative.
      */
     protected static function validatePrecision(?int $precision): void
     {
         if ($precision !== null && $precision < 0) {
-            throw new ValueError('Invalid precision specified. Must be null or a non-negative integer.');
+            throw new DomainException('Invalid precision specified. Must be null or a non-negative integer.');
         }
     }
 
@@ -958,8 +1126,8 @@ class Quantity implements Stringable
         // Ensure we have some part units.
         if (empty($partUnits)) {
             throw new LogicException(
-                'The derived Quantity class must define the part units by overriding getPartUnits(), so ' .
-                'it returns an array of valid units (with optional alternative symbols).'
+                'The derived Quantity class must define the part units by overriding getPartUnits(), so it returns ' .
+                'an array of valid units (with optional alternative symbols).'
             );
         }
 

@@ -5,9 +5,36 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\UnitData;
 
 class Energy extends Quantity
 {
+    /**
+     * Unit definitions for energy.
+     *
+     * Note: Joule (J) is an SI named unit and will be migrated separately.
+     *
+     * @return array<string, array<string, string|int>>
+     */
+    public static function getUnits(): array
+    {
+        return [
+            // Non-SI metric units
+            'electronvolt' => [
+                'asciiSymbol' => 'eV',
+                'dimension'   => 'T-2L2M',
+                'system'      => 'metric',
+                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+            ],
+            'calorie'      => [
+                'asciiSymbol' => 'cal',
+                'dimension'   => 'T-2L2M',
+                'system'      => 'metric',
+                'prefixGroup' => UnitData::PREFIX_GROUP_LARGE_METRIC,
+            ],
+        ];
+    }
+
     /**
      * Conversion factors for energy units.
      *

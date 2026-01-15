@@ -5,9 +5,64 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\UnitData;
 
 class Volume extends Quantity
 {
+    /**
+     * Unit definitions for volume.
+     *
+     * @return array<string, array<string, string|int>>
+     */
+    public static function getUnits(): array
+    {
+        return [
+            // Non-SI metric units
+            'litre'       => [
+                'asciiSymbol' => 'L',
+                'dimension'   => 'L3',
+                'system'      => 'metric',
+                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+            ],
+            // US customary units
+            'teaspoon'    => [
+                'asciiSymbol' => 'tsp',
+                'dimension'   => 'L3',
+                'system'      => 'us_customary',
+            ],
+            'tablespoon'  => [
+                'asciiSymbol' => 'tbsp',
+                'dimension'   => 'L3',
+                'system'      => 'us_customary',
+            ],
+            'fluid ounce' => [
+                'asciiSymbol' => 'floz',
+                'dimension'   => 'L3',
+                'system'      => 'us_customary',
+            ],
+            'cup'         => [
+                'asciiSymbol' => 'cup',
+                'dimension'   => 'L3',
+                'system'      => 'us_customary',
+            ],
+            'pint'        => [
+                'asciiSymbol' => 'pint',
+                'dimension'   => 'L3',
+                'system'      => 'us_customary',
+            ],
+            'quart'       => [
+                'asciiSymbol' => 'qt',
+                'dimension'   => 'L3',
+                'system'      => 'us_customary',
+            ],
+            'gallon'      => [
+                'asciiSymbol' => 'gal',
+                'dimension'   => 'L3',
+                'system'      => 'us_customary',
+            ],
+        ];
+    }
+
     /**
      * Conversion factors for volume units.
      *

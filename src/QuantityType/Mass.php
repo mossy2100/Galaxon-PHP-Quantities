@@ -4,11 +4,59 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\ConversionData;
+use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\Converter;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\UnitData;
 
 class Mass extends Quantity
 {
+    /**
+     * Unit definitions for mass.
+     *
+     * @return array<string, array<string, string|int>>
+     */
+    public static function getUnits(): array
+    {
+        return [
+            // SI base unit
+            'gram'      => [
+                'asciiSymbol' => 'g',
+                'dimension'   => 'M',
+                'system'      => 'si_base',
+                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+                'siPrefix'    => 'k',
+            ],
+            // Non-SI metric units
+            'tonne'     => [
+                'asciiSymbol' => 't',
+                'dimension'   => 'M',
+                'system'      => 'metric',
+            ],
+            // US customary units
+            'ounce'     => [
+                'asciiSymbol' => 'oz',
+                'dimension'   => 'M',
+                'system'      => 'us_customary',
+            ],
+            'pound'     => [
+                'asciiSymbol' => 'lb',
+                'dimension'   => 'M',
+                'system'      => 'us_customary',
+            ],
+            'stone'     => [
+                'asciiSymbol' => 'st',
+                'dimension'   => 'M',
+                'system'      => 'us_customary',
+            ],
+            'short ton' => [
+                'asciiSymbol' => 'ton',
+                'dimension'   => 'M',
+                'system'      => 'us_customary',
+            ],
+        ];
+    }
+
     /**
      * Conversion factors for mass units.
      *
@@ -40,7 +88,7 @@ class Mass extends Quantity
     public static function useBritishUnits(): void
     {
         // Update the conversion from ton to lb.
-        ConversionData::addConversion('ton', 'lb', 2240);
+        Converter::getByDimension('M')->addConversion(new Conversion('ton', 'lb', 2240));
     }
 
     // endregion

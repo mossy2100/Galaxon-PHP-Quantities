@@ -17,7 +17,7 @@ Key capabilities include:
 - **Prefix support**: Full SI metric prefixes (quecto to quetta) and binary prefixes (Ki, Mi, Gi, etc.)
 - **Arithmetic operations**: Add, subtract, multiply, and divide measurements with automatic unit handling
 - **Flexible parsing**: Parse strings like "123.45 km", "90deg", or "25°C" into measurement objects
-- **Part decomposition**: Break measurements into components (e.g., 12° 34′ 56″ or 1y 3mo 2d)
+- **Part decomposition**: Break measurements into components (e.g. 12° 34′ 56″ or 1y 3mo 2d)
 
 ## Development and Quality Assurance / AI Disclosure
 
@@ -261,7 +261,7 @@ Abstract base class for all measurement types. Provides unit conversion, arithme
 
 #### [Unit](docs/Unit.md)
 
-Represents a decomposed unit symbol (e.g., 'km2' → base 'm', prefix 'k', exponent 2). Handles prefix multipliers and exponent calculations.
+Represents a decomposed unit symbol (e.g. 'km2' → base 'm', prefix 'k', exponent 2). Handles prefix multipliers and exponent calculations.
 
 #### [UnitConverter](docs/UnitConverter.md)
 

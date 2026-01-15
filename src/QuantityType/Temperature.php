@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
+use DomainException;
 use Galaxon\Core\Arrays;
-use Galaxon\Quantities\BaseUnit;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Unit;
 use Galaxon\Quantities\UnitData;
 use Galaxon\Quantities\UnitTerm;
 use Override;
-use ValueError;
 
 class Temperature extends Quantity
 {
@@ -32,6 +32,46 @@ class Temperature extends Quantity
      */
     public const float RANKINE_PER_KELVIN = 1.8;
 
+    // endregion
+
+    /**
+     * Unit definitions for temperature.
+     *
+     * @return array<string, array<string, string|int>>
+     */
+    public static function getUnits(): array
+    {
+        return [
+            // SI base unit
+            'kelvin'     => [
+                'asciiSymbol' => 'K',
+                'dimension'   => 'H',
+                'system'      => 'si_base',
+                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+            ],
+            // Non-SI metric units
+            'celsius'    => [
+                'asciiSymbol'   => 'degC',
+                'unicodeSymbol' => '°C',
+                'dimension'     => 'H',
+                'system'        => 'metric',
+            ],
+            // US customary units
+            'fahrenheit' => [
+                'asciiSymbol'   => 'degF',
+                'unicodeSymbol' => '°F',
+                'dimension'     => 'H',
+                'system'        => 'us_customary',
+            ],
+            'rankine'    => [
+                'asciiSymbol'   => 'degR',
+                'unicodeSymbol' => '°R',
+                'dimension'     => 'H',
+                'system'        => 'us_customary',
+            ],
+        ];
+    }
+
     /**
      * Conversion factors for temperature units.
      *
@@ -49,25 +89,22 @@ class Temperature extends Quantity
         ];
     }
 
-    // endregion
-
     /**
      * This override is necessary because Celsius and Fahrenheit are offset from absolute zero, but the conversion
      * engine used by the package only supports conversion by multipliying.
      *
      * @param float $value
-     * @param string|BaseUnit|UnitTerm|DerivedUnit $srcUnit
-     * @param string|BaseUnit|UnitTerm|DerivedUnit $destUnit
+     * @param string|Unit|UnitTerm|DerivedUnit $srcUnit
+     * @param string|Unit|UnitTerm|DerivedUnit $destUnit
      * @return float
-     * @throws ValueError
+     * @throws DomainException
      */
     #[Override]
     public static function convert(
         float $value,
-        string|BaseUnit|UnitTerm|DerivedUnit $srcUnit,
-        string|BaseUnit|UnitTerm|DerivedUnit $destUnit
-    ): float
-    {
+        string|Unit|UnitTerm|DerivedUnit $srcUnit,
+        string|Unit|UnitTerm|DerivedUnit $destUnit
+    ): float {
         $origSrcUnitSymbol = (string)$srcUnit;
         $origDestUnitSymbol = (string)$destUnit;
 
@@ -88,10 +125,10 @@ class Temperature extends Quantity
         $validUnitSymbols = self::getUnitSymbols();
         $quoted = implode(', ', Arrays::quoteValues($validUnitSymbols));
         if (!in_array($srcUnitSymbol, $validUnitSymbols, true)) {
-            throw new ValueError("Invalid temperature unit '$origSrcUnitSymbol'. Valid units are: $quoted.");
+            throw new DomainException("Invalid temperature unit '$origSrcUnitSymbol'. Valid units are: $quoted.");
         }
         if (!in_array($destUnitSymbol, $validUnitSymbols, true)) {
-            throw new ValueError("Invalid temperature unit '$origDestUnitSymbol'. Valid units are: $quoted.");
+            throw new DomainException("Invalid temperature unit '$origDestUnitSymbol'. Valid units are: $quoted.");
         }
 
         // We done?
@@ -104,8 +141,7 @@ class Temperature extends Quantity
             // Convert Celsius to Kelvin.
             $value += self::CELSIUS_OFFSET;
             $srcUnitSymbol = 'K';
-        }
-        elseif ($srcUnitSymbol === 'degF') {
+        } elseif ($srcUnitSymbol === 'degF') {
             // Convert Fahrenheit to Rankine.
             $value += self::FAHRENHEIT_OFFSET;
             $srcUnitSymbol = 'degR';
@@ -121,8 +157,7 @@ class Temperature extends Quantity
             // Convert Kelvin to Rankine.
             $value *= self::RANKINE_PER_KELVIN;
             $srcUnitSymbol = 'degR';
-        }
-        else {
+        } else {
             // Convert Rankine to Kelvin.
             $value /= self::RANKINE_PER_KELVIN;
             $srcUnitSymbol = 'K';
@@ -142,14 +177,19 @@ class Temperature extends Quantity
         return $value - self::FAHRENHEIT_OFFSET;
     }
 
+    /**
+     * Get all temperature unit symbols.
+     *
+     * @return list<string>
+     */
     public static function getUnitSymbols(): array
     {
         $symbols = [];
         $units = UnitData::getByDimension('H');
         foreach ($units as $unit) {
-            $symbols[] = $unit->symbol;
-            if ($unit->format !== null) {
-                $symbols[] = $unit->format;
+            $symbols[] = $unit->asciiSymbol;
+            if ($unit->unicodeSymbol !== null) {
+                $symbols[] = $unit->unicodeSymbol;
             }
         }
         return $symbols;
@@ -165,7 +205,7 @@ class Temperature extends Quantity
 //     *
 //     * @param string $value The string to parse.
 //     * @return static A new Temperature instance.
-//     * @throws ValueError If the string is not a valid temperature format.
+//     * @throws DomainException If the string is not a valid temperature format.
 //     */
 //    #[Override]
 //    public static function parse(string $value): static
@@ -173,7 +213,7 @@ class Temperature extends Quantity
 //        try {
 //            // Try to parse using Quantity::parse().
 //            return parent::parse($value);
-//        } catch (ValueError $e) {
+//        } catch (DomainException $e) {
 //            // Check for Celsius or Fahrenheit with a degree symbol, e.g. "25°C" or "98.6°F".
 //            $rxNum = '[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?';
 //            $pattern = "/^($rxNum)\s*°([CF])$/";
@@ -188,5 +228,4 @@ class Temperature extends Quantity
 //    }
 
     // endregion
-
 }

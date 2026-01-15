@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\QuantityTypes;
 
+use DomainException;
 use Galaxon\Quantities\QuantityType\Temperature;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use ValueError;
 
 /**
  * Tests for Temperature measurement class.
@@ -224,7 +224,7 @@ final class TemperatureTest extends TestCase
         $temp = Temperature::parse('25C');
 
         $this->assertEqualsWithDelta(25.0, $temp->value, 1e-10);
-        $this->assertSame('C', $temp->unit);
+        $this->assertSame('C', $temp->derivedUnit);
     }
 
     /**
@@ -235,7 +235,7 @@ final class TemperatureTest extends TestCase
         $temp = Temperature::parse('25°C');
 
         $this->assertEqualsWithDelta(25.0, $temp->value, 1e-10);
-        $this->assertSame('C', $temp->unit);
+        $this->assertSame('C', $temp->derivedUnit);
     }
 
     /**
@@ -246,7 +246,7 @@ final class TemperatureTest extends TestCase
         $temp = Temperature::parse('98.6°F');
 
         $this->assertEqualsWithDelta(98.6, $temp->value, 1e-10);
-        $this->assertSame('F', $temp->unit);
+        $this->assertSame('F', $temp->derivedUnit);
     }
 
     /**
@@ -257,7 +257,7 @@ final class TemperatureTest extends TestCase
         $temp = Temperature::parse('-40°C');
 
         $this->assertEqualsWithDelta(-40.0, $temp->value, 1e-10);
-        $this->assertSame('C', $temp->unit);
+        $this->assertSame('C', $temp->derivedUnit);
     }
 
     /**
@@ -268,7 +268,7 @@ final class TemperatureTest extends TestCase
         $temp = Temperature::parse('273.15K');
 
         $this->assertEqualsWithDelta(273.15, $temp->value, 1e-10);
-        $this->assertSame('K', $temp->unit);
+        $this->assertSame('K', $temp->derivedUnit);
     }
 
     /**
@@ -276,7 +276,7 @@ final class TemperatureTest extends TestCase
      */
     public function testParseThrowsForInvalidFormat(): void
     {
-        $this->expectException(ValueError::class);
+        $this->expectException(DomainException::class);
 
         Temperature::parse('invalid');
     }

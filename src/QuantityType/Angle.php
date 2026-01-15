@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
+use DomainException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\UnitData;
 use Override;
 use TypeError;
-use ValueError;
 
 class Angle extends Quantity
 {
@@ -20,6 +21,62 @@ class Angle extends Quantity
      */
     public const float RAD_EPSILON = 1e-9;
     public const float TRIG_EPSILON = 1e-15;
+
+    // endregion
+
+    /**
+     * Unit definitions for angle.
+     *
+     * @return array<string, array<string, string|int>>
+     */
+    public static function getUnits(): array
+    {
+        return [
+            // SI derived unit
+            'radian'    => [
+                'asciiSymbol' => 'rad',
+                'dimension'   => 'A',
+                'system'      => 'si_derived',
+                'prefixGroup' => UnitData::PREFIX_GROUP_SMALL_METRIC,
+            ],
+            'steradian' => [
+                'asciiSymbol'   => 'sr',
+                'dimension'     => 'A2',
+                'system'        => 'si_derived',
+                'prefixGroup'   => UnitData::PREFIX_GROUP_SMALL_METRIC,
+                'expansionUnit' => 'rad2',
+            ],
+            // Non-SI angle units
+            'degree'    => [
+                'asciiSymbol'   => 'deg',
+                'unicodeSymbol' => '°',
+                'dimension'     => 'A',
+                'system'        => 'metric',
+            ],
+            'arcminute' => [
+                'asciiSymbol'   => 'arcmin',
+                'unicodeSymbol' => '′',
+                'dimension'     => 'A',
+                'system'        => 'metric',
+            ],
+            'arcsecond' => [
+                'asciiSymbol'   => 'arcsec',
+                'unicodeSymbol' => '″',
+                'dimension'     => 'A',
+                'system'        => 'metric',
+            ],
+            'gradian'   => [
+                'asciiSymbol' => 'grad',
+                'dimension'   => 'A',
+                'system'      => 'metric',
+            ],
+            'turn'      => [
+                'asciiSymbol' => 'turn',
+                'dimension'   => 'A',
+                'system'      => 'metric',
+            ],
+        ];
+    }
 
     /**
      * Conversion factors for angle units.
@@ -37,8 +94,6 @@ class Angle extends Quantity
         ];
     }
 
-    // endregion
-
     // region Factory methods
 
     /**
@@ -55,14 +110,14 @@ class Angle extends Quantity
      *
      * @param string $value The string to parse.
      * @return static A new Angle equivalent to the provided string.
-     * @throws ValueError If the string does not represent a valid angle.
+     * @throws DomainException If the string does not represent a valid angle.
      */
     public static function parse(string $value): static
     {
         try {
             // Try to parse the angle using Quantity::parse().
             return parent::parse($value);
-        } catch (ValueError $e) {
+        } catch (DomainException $e) {
             // Check for a format containing symbols for degrees, arcminutes, and arcseconds.
             $rxNum = '\d+(?:\.\d+)?(?:[eE][+-]?\d+)?';
             $pattern = '/^(?:(?<sign>[-+]?)\s*)?'
@@ -101,8 +156,9 @@ class Angle extends Quantity
      *
      * @return bool
      */
-    public function isRadians() {
-        return (string)$this->unit === 'rad';
+    public function isRadians(): bool
+    {
+        return (string)$this->derivedUnit === 'rad';
     }
 
     // endregion
@@ -113,10 +169,11 @@ class Angle extends Quantity
      * Get the size of the angle in radians.
      *
      * @return float
-     * @throws ValueError
+     * @throws DomainException
      * @throws \LogicException
      */
-    public function toRadians() {
+    public function toRadians(): float
+    {
         if ($this->isRadians()) {
             return $this->value;
         }
@@ -180,13 +237,13 @@ class Angle extends Quantity
     public function wrap(bool $signed = true): self
     {
         // Get the units per turn for the current unit.
-        $unitsPerTurn = self::convert(1, 'turn', $this->unit);
+        $unitsPerTurn = self::convert(1, 'turn', $this->derivedUnit);
 
         // Wrap the value.
         $r = Floats::wrap($this->value, $unitsPerTurn, $signed);
 
         // Return a new Angle with the wrapped value.
-        return self::create($r, $this->unit);
+        return self::create($r, $this->derivedUnit);
     }
 
     // endregion
@@ -300,7 +357,11 @@ class Angle extends Quantity
     #[Override]
     public static function getPartUnits(): array
     {
-        return ['deg' => '°', 'arcmin' => '′', 'arcsec' => '″'];
+        return [
+            'deg'    => '°',
+            'arcmin' => '′',
+            'arcsec' => '″',
+        ];
     }
 
     /**
@@ -315,7 +376,7 @@ class Angle extends Quantity
      * @param int $sign -1 if the Angle is negative, 1 (or omitted) otherwise.
      * @return static A new Angle in degrees with a magnitude equal to the sum of the parts.
      * @throws TypeError If any of the values are not numbers.
-     * @throws ValueError If any of the values are non-finite or negative.
+     * @throws DomainException If any of the values are non-finite or negative.
      */
     public static function fromParts(float $degrees = 0, float $arcmin = 0, float $arcsec = 0, int $sign = 1): static
     {
@@ -323,7 +384,8 @@ class Angle extends Quantity
             'deg'    => $degrees,
             'arcmin' => $arcmin,
             'arcsec' => $arcsec,
-            'sign'   => $sign
+            'sign'   => $sign,
+
         ]);
     }
 
@@ -337,7 +399,7 @@ class Angle extends Quantity
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @param bool $showZeros If true, show all components including zeros (default true for Angle/DMS notation).
      * @return string Formatted angle string.
-     * @throws ValueError If any arguments are invalid.
+     * @throws DomainException If any arguments are invalid.
      */
     #[Override]
     public function formatParts(string $smallestUnit = 'arcsec', ?int $precision = null, bool $showZeros = true): string

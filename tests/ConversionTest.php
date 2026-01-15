@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests;
 
+use DomainException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\FloatWithError;
+use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use ValueError;
 
 /**
  * Tests for Conversion class.
@@ -19,199 +20,99 @@ class ConversionTest extends TestCase
     // region Constructor tests
 
     /**
-     * Test constructor with basic parameters.
+     * Test constructor with string unit terms.
      */
-    public function testConstructorBasic(): void
+    public function testConstructorWithStrings(): void
     {
-        $conv = new Conversion('m', 'km', 0.001);
+        $conv = new Conversion('m', 'ft', 3.28084);
 
-        $this->assertSame('m', $conv->srcUnitTerm);
-        $this->assertSame('km', $conv->destUnitTerm);
-        $this->assertSame(0.001, $conv->factor->value);
-        $this->assertSame(0.0, $conv->offset->value);
+        $this->assertSame('m', (string)$conv->srcUnitTerm);
+        $this->assertSame('ft', (string)$conv->destUnitTerm);
+        $this->assertEqualsWithDelta(3.28084, $conv->factor->value, 1e-10);
     }
 
     /**
-     * Test constructor with offset.
+     * Test constructor with UnitTerm objects.
      */
-    public function testConstructorWithOffset(): void
+    public function testConstructorWithUnitTerms(): void
     {
-        $conv = new Conversion('C', 'F', 1.8, 32.0);
+        $srcUnitTerm = UnitTerm::parse('m');
+        $destUnitTerm = UnitTerm::parse('ft');
 
-        $this->assertSame('C', $conv->srcUnitTerm);
-        $this->assertSame('F', $conv->destUnitTerm);
-        $this->assertSame(1.8, $conv->factor->value);
-        $this->assertSame(32.0, $conv->offset->value);
+        $conv = new Conversion($srcUnitTerm, $destUnitTerm, 3.28084);
+
+        $this->assertSame($srcUnitTerm, $conv->srcUnitTerm);
+        $this->assertSame($destUnitTerm, $conv->destUnitTerm);
     }
 
     /**
-     * Test constructor with FloatWithError parameters.
+     * Test constructor with FloatWithError factor.
      */
     public function testConstructorWithFloatWithError(): void
     {
-        $multiplier = new FloatWithError(2.0, 0.01);
-        $offset = new FloatWithError(10.0, 0.1);
+        $factor = new FloatWithError(3.28084, 0.00001);
 
-        $conv = new Conversion('a', 'b', $multiplier, $offset);
+        $conv = new Conversion('m', 'ft', $factor);
 
-        $this->assertSame(2.0, $conv->factor->value);
-        $this->assertSame(0.01, $conv->factor->absoluteError);
-        $this->assertSame(10.0, $conv->offset->value);
-        $this->assertSame(0.1, $conv->offset->absoluteError);
+        $this->assertSame(3.28084, $conv->factor->value);
+        $this->assertSame(0.00001, $conv->factor->absoluteError);
     }
 
     /**
-     * Test constructor with integer parameters.
+     * Test constructor throws for zero factor.
      */
-    public function testConstructorWithIntegers(): void
+    public function testConstructorThrowsForZeroFactor(): void
     {
-        $conv = new Conversion('mm', 'cm', 10, 0);
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Conversion factor must be positive.');
 
-        $this->assertSame(10.0, $conv->factor->value);
-        $this->assertSame(0.0, $conv->offset->value);
+        new Conversion('m', 'ft', 0.0);
     }
 
     /**
-     * Test constructor throws ValueError for zero multiplier.
+     * Test constructor throws for FloatWithError zero factor.
      */
-    public function testConstructorThrowsForZeroMultiplier(): void
+    public function testConstructorThrowsForZeroFloatWithErrorFactor(): void
     {
-        $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Multiplier cannot be zero.');
-        new Conversion('a', 'b', 0);
+        $factor = new FloatWithError(0.0, 0.0);
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Conversion factor must be positive.');
+
+        new Conversion('m', 'ft', $factor);
     }
 
     /**
-     * Test constructor throws ValueError for FloatWithError zero multiplier.
+     * Test constructor throws for mismatched dimensions.
      */
-    public function testConstructorThrowsForZeroFloatWithErrorMultiplier(): void
+    public function testConstructorThrowsForMismatchedDimensions(): void
     {
-        $multiplier = new FloatWithError(0.0, 0.0);
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Units have different dimensions.');
 
-        $this->expectException(ValueError::class);
-        $this->expectExceptionMessage('Multiplier cannot be zero.');
-        new Conversion('a', 'b', $multiplier);
-    }
-
-    // endregion
-
-    // region Property tests
-
-    /**
-     * Test errorScore property calculation.
-     */
-    public function testErrorScoreCalculation(): void
-    {
-        $multiplier = new FloatWithError(2.0, 0.01);
-        $offset = new FloatWithError(10.0, 0.1);
-
-        $conv = new Conversion('a', 'b', $multiplier, $offset);
-
-        // Error score = multiplier error + offset error
-        $this->assertSame(0.11, $conv->totalAbsoluteError);
+        new Conversion('m', 's', 1.0);
     }
 
     /**
-     * Test errorScore with zero errors.
+     * Test constructor throws for negative factor.
      */
-    public function testErrorScoreWithZeroErrors(): void
+    public function testConstructorThrowsForNegativeFactor(): void
     {
-        $conv = new Conversion('a', 'b', 2, 10);
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Conversion factor must be positive.');
 
-        // Both are exact integers, so zero error
-        $this->assertSame(0.0, $conv->totalAbsoluteError);
-    }
-
-    // endregion
-
-    // region apply() tests
-
-    /**
-     * Test apply with simple multiplier.
-     */
-    public function testApplySimpleMultiplier(): void
-    {
-        $conv = new Conversion('m', 'cm', 100);
-
-        $result = $conv->apply(5.0);
-
-        $this->assertInstanceOf(FloatWithError::class, $result);
-        $this->assertSame(500.0, $result->value);
+        new Conversion('m', 'ft', -3.28084);
     }
 
     /**
-     * Test apply with multiplier and offset.
+     * Test constructor with factor of 1.0 (identity-like conversion).
      */
-    public function testApplyWithMultiplierAndOffset(): void
+    public function testConstructorWithFactorOne(): void
     {
-        $conv = new Conversion('C', 'F', 1.8, 32.0);
+        $conv = new Conversion('m', 'ft', 1.0);
 
-        // 0°C = 32°F
-        $result1 = $conv->apply(0.0);
-        $this->assertInstanceOf(FloatWithError::class, $result1);
-        $this->assertSame(32.0, $result1->value);
-
-        // 100°C = 212°F
-        $result2 = $conv->apply(100.0);
-        $this->assertInstanceOf(FloatWithError::class, $result2);
-        $this->assertSame(212.0, $result2->value);
-
-        // -40°C = -40°F
-        $result3 = $conv->apply(-40.0);
-        $this->assertInstanceOf(FloatWithError::class, $result3);
-        $this->assertSame(-40.0, $result3->value);
-    }
-
-    /**
-     * Test apply with negative multiplier.
-     */
-    public function testApplyWithNegativeMultiplier(): void
-    {
-        $conv = new Conversion('a', 'b', -2.0, 10.0);
-
-        $result = $conv->apply(5.0);
-
-        $this->assertInstanceOf(FloatWithError::class, $result);
-        $this->assertSame(0.0, $result->value); // 5 * (-2) + 10 = 0
-    }
-
-    /**
-     * Test apply with fractional multiplier.
-     */
-    public function testApplyWithFractionalMultiplier(): void
-    {
-        $conv = new Conversion('km', 'm', 1000);
-
-        $result = $conv->apply(2.5);
-
-        $this->assertInstanceOf(FloatWithError::class, $result);
-        $this->assertEqualsWithDelta(2500.0, $result->value, 1e-10);
-    }
-
-    /**
-     * Test apply with zero input.
-     */
-    public function testApplyWithZeroInput(): void
-    {
-        $conv = new Conversion('C', 'F', 1.8, 32.0);
-
-        $result = $conv->apply(0.0);
-
-        $this->assertInstanceOf(FloatWithError::class, $result);
-        $this->assertSame(32.0, $result->value);
-    }
-
-    /**
-     * Test apply accepts int input.
-     */
-    public function testApplyWithIntInput(): void
-    {
-        $conv = new Conversion('m', 'cm', 100);
-
-        $result = $conv->apply(5);
-
-        $this->assertInstanceOf(FloatWithError::class, $result);
-        $this->assertSame(500.0, $result->value);
+        $this->assertSame(1.0, $conv->factor->value);
+        $this->assertSame(0.0, $conv->factor->absoluteError);
     }
 
     // endregion
@@ -223,37 +124,24 @@ class ConversionTest extends TestCase
      */
     public function testInvertSwapsUnits(): void
     {
-        $conv = new Conversion('m', 'km', 0.001);
+        $conv = new Conversion('m', 'ft', 3.28084);
+
         $inverted = $conv->invert();
 
-        $this->assertSame('km', $inverted->srcUnitTerm);
-        $this->assertSame('m', $inverted->destUnitTerm);
+        $this->assertSame('ft', (string)$inverted->srcUnitTerm);
+        $this->assertSame('m', (string)$inverted->destUnitTerm);
     }
 
     /**
-     * Test invert with simple multiplier.
+     * Test invert inverts factor.
      */
-    public function testInvertSimpleMultiplier(): void
+    public function testInvertInvertsFactor(): void
     {
-        $conv = new Conversion('m', 'km', 0.001);
+        $conv = new Conversion('m', 'ft', 3.28084);
+
         $inverted = $conv->invert();
 
-        $this->assertSame(1000.0, $inverted->factor->value);
-        $this->assertSame(0.0, $inverted->offset->value);
-    }
-
-    /**
-     * Test invert with multiplier and offset.
-     */
-    public function testInvertWithMultiplierAndOffset(): void
-    {
-        // C to F: F = C * 1.8 + 32
-        $conv = new Conversion('C', 'F', 1.8, 32.0);
-        $inverted = $conv->invert();
-
-        // F to C: C = (F - 32) / 1.8 = F * (1/1.8) + (-32/1.8)
-        $this->assertEqualsWithDelta(1.0 / 1.8, $inverted->factor->value, 1e-10);
-        $this->assertEqualsWithDelta(-32.0 / 1.8, $inverted->offset->value, 1e-10);
+        $this->assertEqualsWithDelta(1.0 / 3.28084, $inverted->factor->value, 1e-10);
     }
 
     /**
@@ -261,241 +149,480 @@ class ConversionTest extends TestCase
      */
     public function testInvertIsReversible(): void
     {
-        $conv = new Conversion('m', 'km', 0.001);
+        $conv = new Conversion('m', 'ft', 3.28084);
+
         $doubleInverted = $conv->invert()->invert();
 
-        $this->assertSame('m', $doubleInverted->srcUnitTerm);
-        $this->assertSame('km', $doubleInverted->destUnitTerm);
-        $this->assertEqualsWithDelta(0.001, $doubleInverted->factor->value, 1e-15);
-        $this->assertEqualsWithDelta(0.0, $doubleInverted->offset->value, 1e-15);
+        $this->assertSame('m', (string)$doubleInverted->srcUnitTerm);
+        $this->assertSame('ft', (string)$doubleInverted->destUnitTerm);
+        $this->assertEqualsWithDelta(3.28084, $doubleInverted->factor->value, 1e-10);
     }
 
     /**
-     * Test invert round-trip with offset.
+     * Test invert propagates error correctly.
      */
-    public function testInvertRoundTripWithOffset(): void
+    public function testInvertPropagatesError(): void
     {
-        $conv = new Conversion('C', 'F', 1.8, 32.0);
+        $factor = new FloatWithError(2.0, 0.1);
+        $conv = new Conversion('m', 'ft', $factor);
+
         $inverted = $conv->invert();
 
-        // Apply conversion and inverse
-        $celsius = 100.0;
-        $fahrenheit = $conv->apply($celsius);
-        $backToCelsius = $inverted->apply($fahrenheit);
+        // Relative error should be preserved: 0.1/2 = 0.05 = 5%
+        // Inverted value is 0.5, so absolute error ≈ 0.5 * 0.05 = 0.025
+        $this->assertEqualsWithDelta(0.5, $inverted->factor->value, 1e-10);
+        $this->assertGreaterThan(0.0, $inverted->factor->absoluteError);
+    }
 
-        $this->assertInstanceOf(FloatWithError::class, $backToCelsius);
-        $this->assertEqualsWithDelta($celsius, $backToCelsius->value, 1e-10);
+    /**
+     * Test invert with factor of 1.0.
+     */
+    public function testInvertWithFactorOne(): void
+    {
+        $conv = new Conversion('m', 'ft', 1.0);
+
+        $inverted = $conv->invert();
+
+        $this->assertSame(1.0, $inverted->factor->value);
     }
 
     // endregion
 
-    // region combineSequential() tests (src->mid, mid->dest)
+    // region combineSequential() tests
 
     /**
      * Test combineSequential chains units correctly.
      */
     public function testCombineSequentialChainsUnits(): void
     {
-        $conv1 = new Conversion('m', 'km', 0.001);      // m -> km
-        $conv2 = new Conversion('km', 'mi', 0.621371);  // km -> mi
+        $conv1 = new Conversion('m', 'ft', 3.28084);
+        $conv2 = new Conversion('ft', 'in', 12.0);
 
         $combined = $conv1->combineSequential($conv2);
 
-        $this->assertSame('m', $combined->srcUnitTerm);
-        $this->assertSame('mi', $combined->destUnitTerm);
+        $this->assertSame('m', (string)$combined->srcUnitTerm);
+        $this->assertSame('in', (string)$combined->destUnitTerm);
     }
 
     /**
-     * Test combineSequential with simple multipliers.
+     * Test combineSequential multiplies factors.
      */
-    public function testCombineSequentialSimpleMultipliers(): void
+    public function testCombineSequentialMultipliesFactors(): void
     {
-        $conv1 = new Conversion('mm', 'cm', 0.1);
-        $conv2 = new Conversion('cm', 'm', 0.01);
+        $conv1 = new Conversion('m', 'ft', 3.28084);
+        $conv2 = new Conversion('ft', 'in', 12.0);
 
         $combined = $conv1->combineSequential($conv2);
 
-        // m = mm * 0.1 * 0.01 = mm * 0.001
-        $this->assertSame(0.001, $combined->factor->value);
-        $this->assertSame(0.0, $combined->offset->value);
+        // m -> in = 3.28084 * 12 = 39.37008
+        $this->assertEqualsWithDelta(3.28084 * 12.0, $combined->factor->value, 1e-10);
     }
 
     /**
-     * Test combineSequential with offsets.
+     * Test combineSequential propagates error.
      */
-    public function testCombineSequentialWithOffsets(): void
+    public function testCombineSequentialPropagatesError(): void
     {
-        // a -> b: b = a * 2 + 3
-        $conv1 = new Conversion('a', 'b', 2.0, 3.0);
-        // b -> c: c = b * 4 + 5
-        $conv2 = new Conversion('b', 'c', 4.0, 5.0);
+        $factor1 = new FloatWithError(2.0, 0.1);
+        $factor2 = new FloatWithError(3.0, 0.2);
+        $conv1 = new Conversion('m', 'ft', $factor1);
+        $conv2 = new Conversion('ft', 'in', $factor2);
 
         $combined = $conv1->combineSequential($conv2);
 
-        // c = (a * 2 + 3) * 4 + 5 = a * 8 + 12 + 5 = a * 8 + 17
-        $this->assertSame(8.0, $combined->factor->value);
-        $this->assertSame(17.0, $combined->offset->value);
+        $this->assertEqualsWithDelta(6.0, $combined->factor->value, 1e-10);
+        // Error should be greater than either individual error
+        $this->assertGreaterThan(0.1, $combined->factor->absoluteError);
+    }
+
+    /**
+     * Test combineSequential with factor of 1.0.
+     */
+    public function testCombineSequentialWithFactorOne(): void
+    {
+        $conv1 = new Conversion('m', 'ft', 1.0);
+        $conv2 = new Conversion('ft', 'in', 12.0);
+
+        $combined = $conv1->combineSequential($conv2);
+
+        $this->assertEqualsWithDelta(12.0, $combined->factor->value, 1e-10);
     }
 
     // endregion
 
-    // region combineConvergent() tests (src->mid, dest->mid)
+    // region combineConvergent() tests
 
     /**
      * Test combineConvergent chains units correctly.
      */
     public function testCombineConvergentChainsUnits(): void
     {
-        $conv1 = new Conversion('m', 'cm', 100.0);   // m -> cm
-        $conv2 = new Conversion('in', 'cm', 2.54);   // in -> cm
+        $conv1 = new Conversion('m', 'ft', 3.28084);  // m -> ft
+        $conv2 = new Conversion('in', 'ft', 1.0 / 12.0); // in -> ft
 
         $combined = $conv1->combineConvergent($conv2);
 
-        $this->assertSame('m', $combined->srcUnitTerm);
-        $this->assertSame('in', $combined->destUnitTerm);
+        $this->assertSame('m', (string)$combined->srcUnitTerm);
+        $this->assertSame('in', (string)$combined->destUnitTerm);
     }
 
     /**
-     * Test combineConvergent with simple multipliers.
+     * Test combineConvergent divides factors.
      */
-    public function testCombineConvergentSimpleMultipliers(): void
+    public function testCombineConvergentDividesFactors(): void
     {
-        $conv1 = new Conversion('m', 'cm', 100.0);
-        $conv2 = new Conversion('in', 'cm', 2.54);
+        $conv1 = new Conversion('m', 'ft', 3.28084);
+        $conv2 = new Conversion('in', 'ft', 1.0 / 12.0);
 
         $combined = $conv1->combineConvergent($conv2);
 
-        // in = m * (100 / 2.54) = m * 39.370...
-        $this->assertEqualsWithDelta(100.0 / 2.54, $combined->factor->value, 1e-10);
-        $this->assertSame(0.0, $combined->offset->value);
+        // m -> in = 3.28084 / (1/12) = 3.28084 * 12 = 39.37008
+        $this->assertEqualsWithDelta(3.28084 * 12.0, $combined->factor->value, 1e-10);
     }
 
     /**
-     * Test combineConvergent with offsets.
+     * Test combineConvergent propagates error.
      */
-    public function testCombineConvergentWithOffsets(): void
+    public function testCombineConvergentPropagatesError(): void
     {
-        // a -> c: c = a * 2 + 3
-        $conv1 = new Conversion('a', 'c', 2.0, 3.0);
-        // b -> c: c = b * 4 + 5
-        $conv2 = new Conversion('b', 'c', 4.0, 5.0);
+        $factor1 = new FloatWithError(6.0, 0.1);
+        $factor2 = new FloatWithError(2.0, 0.05);
+        $conv1 = new Conversion('m', 'ft', $factor1);
+        $conv2 = new Conversion('in', 'ft', $factor2);
 
         $combined = $conv1->combineConvergent($conv2);
 
-        // c = a * 2 + 3 and c = b * 4 + 5
-        // So: a * 2 + 3 = b * 4 + 5
-        // b = (a * 2 + 3 - 5) / 4 = a * (2/4) + (-2/4) = a * 0.5 - 0.5
-        $this->assertSame(0.5, $combined->factor->value);
-        $this->assertSame(-0.5, $combined->offset->value);
+        $this->assertEqualsWithDelta(3.0, $combined->factor->value, 1e-10);
+        $this->assertGreaterThan(0.0, $combined->factor->absoluteError);
     }
 
     // endregion
 
-    // region combineDivergent() tests (mid->src, mid->dest)
+    // region combineDivergent() tests
 
     /**
      * Test combineDivergent chains units correctly.
      */
     public function testCombineDivergentChainsUnits(): void
     {
-        $conv1 = new Conversion('cm', 'm', 0.01);    // cm -> m
-        $conv2 = new Conversion('cm', 'in', 0.3937); // cm -> in
+        $conv1 = new Conversion('ft', 'm', 0.3048);   // ft -> m
+        $conv2 = new Conversion('ft', 'in', 12.0);    // ft -> in
 
         $combined = $conv1->combineDivergent($conv2);
 
-        $this->assertSame('m', $combined->srcUnitTerm);
-        $this->assertSame('in', $combined->destUnitTerm);
+        $this->assertSame('m', (string)$combined->srcUnitTerm);
+        $this->assertSame('in', (string)$combined->destUnitTerm);
     }
 
     /**
-     * Test combineDivergent with simple multipliers.
+     * Test combineDivergent calculates factor correctly.
      */
-    public function testCombineDivergentSimpleMultipliers(): void
+    public function testCombineDivergentCalculatesFactor(): void
     {
-        $conv1 = new Conversion('cm', 'm', 0.01);
-        $conv2 = new Conversion('cm', 'in', 0.3937);
+        $conv1 = new Conversion('ft', 'm', 0.3048);
+        $conv2 = new Conversion('ft', 'in', 12.0);
 
         $combined = $conv1->combineDivergent($conv2);
 
-        // in = m * (0.3937 / 0.01) = m * 39.37
-        $this->assertEqualsWithDelta(39.37, $combined->factor->value, 1e-10);
-        $this->assertSame(0.0, $combined->offset->value);
+        // m -> in = 12 / 0.3048 = 39.3700...
+        $this->assertEqualsWithDelta(12.0 / 0.3048, $combined->factor->value, 1e-10);
     }
 
     /**
-     * Test combineDivergent with offsets.
+     * Test combineDivergent propagates error.
      */
-    public function testCombineDivergentWithOffsets(): void
+    public function testCombineDivergentPropagatesError(): void
     {
-        // c -> a: a = c * 2 + 3
-        $conv1 = new Conversion('c', 'a', 2.0, 3.0);
-        // c -> b: b = c * 4 + 5
-        $conv2 = new Conversion('c', 'b', 4.0, 5.0);
+        $factor1 = new FloatWithError(2.0, 0.1);
+        $factor2 = new FloatWithError(6.0, 0.2);
+        $conv1 = new Conversion('ft', 'm', $factor1);
+        $conv2 = new Conversion('ft', 'in', $factor2);
 
         $combined = $conv1->combineDivergent($conv2);
 
-        // a = c * 2 + 3 and b = c * 4 + 5
-        // From a = c * 2 + 3, we get c = (a - 3) / 2
-        // So b = ((a - 3) / 2) * 4 + 5 = a * 2 - 6 + 5 = a * 2 - 1
-        $this->assertSame(2.0, $combined->factor->value);
-        $this->assertSame(-1.0, $combined->offset->value);
+        $this->assertEqualsWithDelta(3.0, $combined->factor->value, 1e-10);
+        $this->assertGreaterThan(0.0, $combined->factor->absoluteError);
     }
 
     // endregion
 
-    // region combineOpposite() tests (mid->src, dest->mid)
+    // region combineOpposite() tests
 
     /**
      * Test combineOpposite chains units correctly.
      */
     public function testCombineOppositeChainsUnits(): void
     {
-        $conv1 = new Conversion('cm', 'm', 0.01);   // cm -> m
-        $conv2 = new Conversion('in', 'cm', 2.54);  // in -> cm
+        $conv1 = new Conversion('ft', 'm', 0.3048);   // ft -> m
+        $conv2 = new Conversion('in', 'ft', 1.0 / 12.0); // in -> ft
 
         $combined = $conv1->combineOpposite($conv2);
 
-        $this->assertSame('m', $combined->srcUnitTerm);
-        $this->assertSame('in', $combined->destUnitTerm);
+        $this->assertSame('m', (string)$combined->srcUnitTerm);
+        $this->assertSame('in', (string)$combined->destUnitTerm);
     }
 
     /**
-     * Test combineOpposite with simple multipliers.
+     * Test combineOpposite calculates factor correctly.
      */
-    public function testCombineOppositeSimpleMultipliers(): void
+    public function testCombineOppositeCalculatesFactor(): void
     {
-        $conv1 = new Conversion('cm', 'm', 0.01);
-        $conv2 = new Conversion('in', 'cm', 2.54);
+        $conv1 = new Conversion('ft', 'm', 0.3048);
+        $conv2 = new Conversion('in', 'ft', 1.0 / 12.0);
 
         $combined = $conv1->combineOpposite($conv2);
 
-        // From cm -> m: m = cm * 0.01, so cm = m / 0.01 = m * 100
-        // From in -> cm: cm = in * 2.54
-        // So: m * 100 = in * 2.54
-        // in = m * (100 / 2.54) = m * 39.370...
-        $this->assertEqualsWithDelta(100.0 / 2.54, $combined->factor->value, 1e-10);
-        $this->assertEqualsWithDelta(0.0, $combined->offset->value, 1e-10);
+        // m -> in = 1 / (0.3048 * (1/12)) = 12 / 0.3048 = 39.3700...
+        $this->assertEqualsWithDelta(1.0 / (0.3048 * (1.0 / 12.0)), $combined->factor->value, 1e-10);
     }
 
     /**
-     * Test combineOpposite with offsets.
+     * Test combineOpposite propagates error.
      */
-    public function testCombineOppositeWithOffsets(): void
+    public function testCombineOppositePropagatesError(): void
     {
-        // c -> a: a = c * 2 + 3
-        $conv1 = new Conversion('c', 'a', 2.0, 3.0);
-        // b -> c: c = b * 4 + 5
-        $conv2 = new Conversion('b', 'c', 4.0, 5.0);
+        $factor1 = new FloatWithError(2.0, 0.1);
+        $factor2 = new FloatWithError(4.0, 0.2);
+        $conv1 = new Conversion('ft', 'm', $factor1);
+        $conv2 = new Conversion('in', 'ft', $factor2);
 
         $combined = $conv1->combineOpposite($conv2);
 
-        // From a = c * 2 + 3, we get c = (a - 3) / 2
-        // From c = b * 4 + 5, we get (a - 3) / 2 = b * 4 + 5
-        // So: a - 3 = (b * 4 + 5) * 2 = b * 8 + 10
-        // a = b * 8 + 13
-        // Therefore: b = (a - 13) / 8 = a / 8 - 13/8
-        $this->assertSame(0.125, $combined->factor->value);
-        $this->assertSame(-1.625, $combined->offset->value);
+        // 1 / (2 * 4) = 0.125
+        $this->assertEqualsWithDelta(0.125, $combined->factor->value, 1e-10);
+        $this->assertGreaterThan(0.0, $combined->factor->absoluteError);
+    }
+
+    // endregion
+
+    // region alterPrefixes() tests
+
+    /**
+     * Test alterPrefixes adds source prefix.
+     */
+    public function testAlterPrefixesAddsSrcPrefix(): void
+    {
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $prefixed = $conv->alterPrefixes('k', null);
+
+        $this->assertSame('km', (string)$prefixed->srcUnitTerm);
+        $this->assertSame('ft', (string)$prefixed->destUnitTerm);
+        // km -> ft = 3.28084 * 1000 = 3280.84
+        $this->assertEqualsWithDelta(3280.84, $prefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test alterPrefixes adds destination prefix.
+     */
+    public function testAlterPrefixesAddsDestPrefix(): void
+    {
+        $conv = new Conversion('m', 'm', 1.0);
+
+        $prefixed = $conv->alterPrefixes(null, 'c');
+
+        $this->assertSame('m', (string)$prefixed->srcUnitTerm);
+        $this->assertSame('cm', (string)$prefixed->destUnitTerm);
+        // m -> cm = 1 * 100 = 100
+        $this->assertEqualsWithDelta(100.0, $prefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test alterPrefixes adds both prefixes.
+     */
+    public function testAlterPrefixesAddsBothPrefixes(): void
+    {
+        $conv = new Conversion('m', 'm', 1.0);
+
+        $prefixed = $conv->alterPrefixes('k', 'c');
+
+        $this->assertSame('km', (string)$prefixed->srcUnitTerm);
+        $this->assertSame('cm', (string)$prefixed->destUnitTerm);
+        // km -> cm = 1 * 1000 * 100 = 100000
+        $this->assertEqualsWithDelta(100000.0, $prefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test alterPrefixes removes existing prefix.
+     */
+    public function testAlterPrefixesRemovesExistingPrefix(): void
+    {
+        $conv = new Conversion('km', 'm', 1000.0);
+
+        $prefixed = $conv->alterPrefixes(null, null);
+
+        $this->assertSame('m', (string)$prefixed->srcUnitTerm);
+        $this->assertSame('m', (string)$prefixed->destUnitTerm);
+        // m -> m = 1000 * (1/1000) = 1
+        $this->assertEqualsWithDelta(1.0, $prefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test alterPrefixes changes prefix.
+     */
+    public function testAlterPrefixesChangesPrefix(): void
+    {
+        $conv = new Conversion('km', 'm', 1000.0);
+
+        $prefixed = $conv->alterPrefixes('m', null);
+
+        $this->assertSame('mm', (string)$prefixed->srcUnitTerm);
+        $this->assertSame('m', (string)$prefixed->destUnitTerm);
+        // mm -> m = 1000 * (0.001/1000) = 0.001
+        $this->assertEqualsWithDelta(0.001, $prefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test alterPrefixes propagates error.
+     */
+    public function testAlterPrefixesPropagatesError(): void
+    {
+        $factor = new FloatWithError(3.28084, 0.00001);
+        $conv = new Conversion('m', 'ft', $factor);
+
+        $prefixed = $conv->alterPrefixes('k', null);
+
+        $this->assertEqualsWithDelta(3280.84, $prefixed->factor->value, 1e-10);
+        $this->assertGreaterThan(0.0, $prefixed->factor->absoluteError);
+    }
+
+    // endregion
+
+    // region removePrefixes() tests
+
+    /**
+     * Test removePrefixes removes prefixes from both units.
+     */
+    public function testRemovePrefixesRemovesBothPrefixes(): void
+    {
+        $conv = new Conversion('km', 'cm', 100000.0);
+
+        $unprefixed = $conv->removePrefixes();
+
+        $this->assertSame('m', (string)$unprefixed->srcUnitTerm);
+        $this->assertSame('m', (string)$unprefixed->destUnitTerm);
+        // m -> m = 100000 * (1/1000) * 0.01 = 1
+        $this->assertEqualsWithDelta(1.0, $unprefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test removePrefixes with no existing prefixes is a no-op.
+     */
+    public function testRemovePrefixesNoOp(): void
+    {
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $unprefixed = $conv->removePrefixes();
+
+        $this->assertSame('m', (string)$unprefixed->srcUnitTerm);
+        $this->assertSame('ft', (string)$unprefixed->destUnitTerm);
+        $this->assertEqualsWithDelta(3.28084, $unprefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test removePrefixes removes only source prefix.
+     */
+    public function testRemovePrefixesRemovesSrcPrefixOnly(): void
+    {
+        $conv = new Conversion('km', 'ft', 3280.84);
+
+        $unprefixed = $conv->removePrefixes();
+
+        $this->assertSame('m', (string)$unprefixed->srcUnitTerm);
+        $this->assertSame('ft', (string)$unprefixed->destUnitTerm);
+        // m -> ft = 3280.84 / 1000 = 3.28084
+        $this->assertEqualsWithDelta(3.28084, $unprefixed->factor->value, 1e-10);
+    }
+
+    // endregion
+
+    // region Exponent unit tests
+
+    /**
+     * Test constructor with squared units (L2 dimension).
+     */
+    public function testConstructorWithSquaredUnits(): void
+    {
+        // m² → ft² (1 m² ≈ 10.7639 ft²)
+        $conv = new Conversion('m2', 'ft2', 10.7639);
+
+        $this->assertSame('m²', (string)$conv->srcUnitTerm);
+        $this->assertSame('ft²', (string)$conv->destUnitTerm);
+        $this->assertEqualsWithDelta(10.7639, $conv->factor->value, 1e-10);
+    }
+
+    /**
+     * Test alterPrefixes with squared unit applies prefix to the power.
+     *
+     * When adding 'k' prefix to m², the multiplier should be (1000)² = 1,000,000
+     * because km² = (1000m)² = 1,000,000 m².
+     */
+    public function testAlterPrefixesWithSquaredUnitSrcPrefix(): void
+    {
+        // m² → ft² with factor 10.7639
+        $conv = new Conversion('m2', 'ft2', 10.7639);
+
+        // Add 'k' prefix to source: km² → ft²
+        $prefixed = $conv->alterPrefixes('k', null);
+
+        $this->assertSame('km²', (string)$prefixed->srcUnitTerm);
+        $this->assertSame('ft²', (string)$prefixed->destUnitTerm);
+        // km² → ft² = 10.7639 * (1000)² = 10.7639 * 1,000,000 = 10,763,900
+        $this->assertEqualsWithDelta(10.7639e6, $prefixed->factor->value, 1e-4);
+    }
+
+    /**
+     * Test alterPrefixes with squared unit on destination.
+     *
+     * When adding 'c' prefix to m², the multiplier should account for (0.01)² = 0.0001
+     * because cm² = (0.01m)² = 0.0001 m².
+     */
+    public function testAlterPrefixesWithSquaredUnitDestPrefix(): void
+    {
+        // m² → m² with factor 1
+        $conv = new Conversion('m2', 'm2', 1.0);
+
+        // Add 'c' prefix to dest: m² → cm²
+        $prefixed = $conv->alterPrefixes(null, 'c');
+
+        $this->assertSame('m²', (string)$prefixed->srcUnitTerm);
+        $this->assertSame('cm²', (string)$prefixed->destUnitTerm);
+        // m² → cm² = 1 * (1/0.01)² = 1 * 10000 = 10000
+        $this->assertEqualsWithDelta(10000.0, $prefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test alterPrefixes with squared unit on both src and dest.
+     */
+    public function testAlterPrefixesWithSquaredUnitBothPrefixes(): void
+    {
+        // m² → m² with factor 1
+        $conv = new Conversion('m2', 'm2', 1.0);
+
+        // km² → cm²
+        $prefixed = $conv->alterPrefixes('k', 'c');
+
+        $this->assertSame('km²', (string)$prefixed->srcUnitTerm);
+        $this->assertSame('cm²', (string)$prefixed->destUnitTerm);
+        // km² = 1e6 m², cm² = 1e-4 m²
+        // km² → cm² = 1e6 / 1e-4 = 1e10
+        $this->assertEqualsWithDelta(1e10, $prefixed->factor->value, 1e-10);
+    }
+
+    /**
+     * Test removePrefixes with squared unit.
+     */
+    public function testRemovePrefixesWithSquaredUnit(): void
+    {
+        // km² → cm² with factor 1e10
+        $conv = new Conversion('km2', 'cm2', 1e10);
+
+        $unprefixed = $conv->removePrefixes();
+
+        $this->assertSame('m²', (string)$unprefixed->srcUnitTerm);
+        $this->assertSame('m²', (string)$unprefixed->destUnitTerm);
+        // m² → m² = 1e10 * (1e-6) * (1e-4) = 1e10 * 1e-10 = 1
+        $this->assertEqualsWithDelta(1.0, $unprefixed->factor->value, 1e-10);
     }
 
     // endregion
@@ -503,85 +630,17 @@ class ConversionTest extends TestCase
     // region __toString() tests
 
     /**
-     * Test toString with simple conversion.
+     * Test toString format.
      */
-    public function testToStringSimple(): void
+    public function testToStringFormat(): void
     {
-        $conv = new Conversion('m', 'km', 0.001);
+        $conv = new Conversion('m', 'ft', 3.28084);
 
         $str = (string)$conv;
 
-        $this->assertStringContainsString('km = m', $str);
-        $this->assertStringContainsString('0.001', $str);
-        $this->assertStringContainsString('total absolute error', $str);
-    }
-
-    /**
-     * Test toString omits multiplier of 1.
-     */
-    public function testToStringOmitsMultiplierOfOne(): void
-    {
-        $conv = new Conversion('a', 'b', 1.0, 5.0);
-
-        $str = (string)$conv;
-
-        $this->assertStringContainsString('b = a', $str);
-        $this->assertStringNotContainsString('* 1', $str);
-        $this->assertStringContainsString('+ 5', $str);
-    }
-
-    /**
-     * Test toString omits offset of 0.
-     */
-    public function testToStringOmitsOffsetOfZero(): void
-    {
-        $conv = new Conversion('m', 'cm', 100.0);
-
-        $str = (string)$conv;
-
-        $this->assertStringContainsString('cm = m * 100', $str);
-        $this->assertStringNotContainsString('+ 0', $str);
-        $this->assertStringNotContainsString('- 0', $str);
-    }
-
-    /**
-     * Test toString with negative offset.
-     */
-    public function testToStringWithNegativeOffset(): void
-    {
-        $conv = new Conversion('a', 'b', 2.0, -5.0);
-
-        $str = (string)$conv;
-
-        $this->assertStringContainsString('b = a * 2', $str);
-        $this->assertStringContainsString('- 5', $str);
-    }
-
-    /**
-     * Test toString with positive offset.
-     */
-    public function testToStringWithPositiveOffset(): void
-    {
-        $conv = new Conversion('C', 'F', 1.8, 32.0);
-
-        $str = (string)$conv;
-
-        $this->assertStringContainsString('F = C * 1.8', $str);
-        $this->assertStringContainsString('+ 32', $str);
-    }
-
-    /**
-     * Test toString shows error score.
-     */
-    public function testToStringShowsErrorScore(): void
-    {
-        $multiplier = new FloatWithError(2.0, 0.01);
-        $offset = new FloatWithError(10.0, 0.1);
-        $conv = new Conversion('a', 'b', $multiplier, $offset);
-
-        $str = (string)$conv;
-
-        $this->assertStringContainsString('total absolute error: 0.11', $str);
+        $this->assertStringContainsString('ft', $str);
+        $this->assertStringContainsString('m', $str);
+        $this->assertStringContainsString('3.28084', $str);
     }
 
     // endregion

@@ -5,14 +5,68 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
-use Galaxon\Quantities\Converter;
+use DomainException;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\UnitData;
 use Override;
 use TypeError;
-use ValueError;
 
 class Time extends Quantity
 {
+    /**
+     * Unit definitions for time.
+     *
+     * @return array<string, array<string, string|int>>
+     */
+    public static function getUnits(): array
+    {
+        return [
+            // SI base unit
+            'second'  => [
+                'asciiSymbol' => 's',
+                'dimension'   => 'T',
+                'system'      => 'si_base',
+                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+            ],
+            // Non-SI time units
+            'minute'  => [
+                'asciiSymbol' => 'min',
+                'dimension'   => 'T',
+                'system'      => 'metric',
+            ],
+            'hour'    => [
+                'asciiSymbol' => 'h',
+                'dimension'   => 'T',
+                'system'      => 'metric',
+            ],
+            'day'     => [
+                'asciiSymbol' => 'd',
+                'dimension'   => 'T',
+                'system'      => 'metric',
+            ],
+            'week'    => [
+                'asciiSymbol' => 'w',
+                'dimension'   => 'T',
+                'system'      => 'metric',
+            ],
+            'month'   => [
+                'asciiSymbol' => 'mo',
+                'dimension'   => 'T',
+                'system'      => 'metric',
+            ],
+            'year'    => [
+                'asciiSymbol' => 'y',
+                'dimension'   => 'T',
+                'system'      => 'metric',
+            ],
+            'century' => [
+                'asciiSymbol' => 'c',
+                'dimension'   => 'T',
+                'system'      => 'metric',
+            ],
+        ];
+    }
+
     /**
      * Conversion factors for time units.
      *
@@ -73,7 +127,7 @@ class Time extends Quantity
      *
      * @param string $smallestUnit The smallest unit to include (default 's').
      * @return string A DateInterval specification string.
-     * @throws ValueError If the smallest unit argument is invalid.
+     * @throws DomainException If the smallest unit argument is invalid.
      */
     public function toDateIntervalSpecifier(string $smallestUnit = 's'): string
     {
@@ -119,7 +173,7 @@ class Time extends Quantity
      *
      * @param string $smallestUnit The smallest unit to include (default 's').
      * @return DateInterval A new DateInterval object.
-     * @throws ValueError If the smallest unit argument is invalid.
+     * @throws DomainException If the smallest unit argument is invalid.
      */
     public function toDateInterval(string $smallestUnit = 's'): DateInterval
     {
@@ -177,7 +231,7 @@ class Time extends Quantity
      * @param int $sign -1 if the Time is negative, 1 (or omitted) otherwise.
      * @return static A new Time in seconds with a magnitude equal to the sum of the parts.
      * @throws TypeError If any of the values are not numbers.
-     * @throws ValueError If any of the values are non-finite or negative.
+     * @throws DomainException If any of the values are non-finite or negative.
      */
     public static function fromParts(
         float $years = 0,
@@ -189,13 +243,13 @@ class Time extends Quantity
         int $sign = 1
     ): static {
         return self::fromPartsArray([
-            'y'   => $years,
-            'mo'  => $months,
-            'd'   => $days,
-            'h'   => $hours,
-            'min' => $minutes,
-            's'   => $seconds,
-            'sign' => $sign
+            'y'    => $years,
+            'mo'   => $months,
+            'd'    => $days,
+            'h'    => $hours,
+            'min'  => $minutes,
+            's'    => $seconds,
+            'sign' => $sign,
         ]);
     }
 
@@ -209,7 +263,7 @@ class Time extends Quantity
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @param bool $showZeros If true, show all components including zeros (default false for Time).
      * @return string Formatted time string.
-     * @throws ValueError If any arguments are invalid.
+     * @throws DomainException If any arguments are invalid.
      */
     #[Override]
     public function formatParts(string $smallestUnit = 's', ?int $precision = null, bool $showZeros = false): string

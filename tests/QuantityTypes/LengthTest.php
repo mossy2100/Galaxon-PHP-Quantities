@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\QuantityTypes;
 
 use Galaxon\Quantities\QuantityType\Length;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -24,7 +24,7 @@ final class LengthTest extends TestCase
         $length = new Length(100, 'm');
 
         $this->assertSame(100.0, $length->value);
-        $this->assertSame('m', $length->unit);
+        $this->assertSame('m', $length->derivedUnit);
     }
 
     /**
@@ -35,7 +35,7 @@ final class LengthTest extends TestCase
         $length = new Length(5, 'km');
 
         $this->assertSame(5.0, $length->value);
-        $this->assertSame('km', $length->unit);
+        $this->assertSame('km', $length->derivedUnit);
     }
 
     // endregion

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\QuantityTypes;
 
 use Galaxon\Quantities\QuantityType\Volume;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -27,7 +27,7 @@ final class VolumeTest extends TestCase
         $volume = new Volume(1, 'm3');
 
         $this->assertSame(1.0, $volume->value);
-        $this->assertSame('m3', $volume->unit);
+        $this->assertSame('m3', $volume->derivedUnit);
     }
 
     /**
@@ -38,7 +38,7 @@ final class VolumeTest extends TestCase
         $volume = new Volume(1000, 'L');
 
         $this->assertSame(1000.0, $volume->value);
-        $this->assertSame('L', $volume->unit);
+        $this->assertSame('L', $volume->derivedUnit);
     }
 
     // endregion
