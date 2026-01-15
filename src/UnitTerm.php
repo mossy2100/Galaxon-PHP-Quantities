@@ -76,7 +76,7 @@ class UnitTerm implements Stringable
      * The unit term with no exponent (e.g. 'km', 's').
      * This property returns the ASCII version. For the Unicode symbol, cast to string (__toString()).
      */
-    public string $unexpSymbol {
+    public string $unexponentiatedSymbol {
         get => $this->prefix . $this->unit->asciiSymbol;
     }
 

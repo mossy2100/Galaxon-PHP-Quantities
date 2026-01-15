@@ -18,6 +18,22 @@ use stdClass;
 #[CoversClass(UnitTerm::class)]
 final class UnitTermTest extends TestCase
 {
+    /**
+     * Create an ohm Unit (has Unicode symbol) for testing.
+     */
+    private function createOhmUnit(): Unit
+    {
+        return new Unit('ohm', [
+            'asciiSymbol'   => 'ohm',
+            'unicodeSymbol' => 'Ω',
+            'dimension'     => 'T-3L2MI-2',
+            'system'        => 'si_named',
+            'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+            'expansionUnit' => 'kg*m2*s-3*A-2',
+            'quantityType'  => 'resistance',
+        ]);
+    }
+
     // region Test fixtures
 
     /**
@@ -25,7 +41,16 @@ final class UnitTermTest extends TestCase
      */
     private function createMetreUnit(): Unit
     {
-        return new Unit('metre', UnitData::UNITS['metre']);
+        return new Unit(
+            'metre',
+            [
+                'asciiSymbol'  => 'm',
+                'dimension'    => 'L',
+                'system'       => 'si_base',
+                'prefixGroup'  => UnitData::PREFIX_GROUP_METRIC,
+                'quantityType' => 'length',
+            ]
+        );
     }
 
     /**
@@ -33,7 +58,13 @@ final class UnitTermTest extends TestCase
      */
     private function createSecondUnit(): Unit
     {
-        return new Unit('second', UnitData::UNITS['second']);
+        return new Unit('second', [
+            'asciiSymbol'  => 's',
+            'dimension'    => 'T',
+            'system'       => 'si_base',
+            'prefixGroup'  => UnitData::PREFIX_GROUP_METRIC,
+            'quantityType' => 'time',
+        ]);
     }
 
     /**
@@ -41,15 +72,12 @@ final class UnitTermTest extends TestCase
      */
     private function createHectareUnit(): Unit
     {
-        return new Unit('hectare', UnitData::UNITS['hectare']);
-    }
-
-    /**
-     * Create an ohm Unit (has Unicode symbol) for testing.
-     */
-    private function createOhmUnit(): Unit
-    {
-        return new Unit('ohm', UnitData::UNITS['ohm']);
+        return new Unit('hectare', [
+            'asciiSymbol'  => 'ha',
+            'dimension'    => 'L2',
+            'system'       => 'metric',
+            'quantityType' => 'area',
+        ]);
     }
 
     // endregion

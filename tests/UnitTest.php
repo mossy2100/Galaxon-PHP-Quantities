@@ -930,7 +930,13 @@ final class UnitTest extends TestCase
      */
     public function testCreateFromUnitDataMetre(): void
     {
-        $data = UnitData::UNITS['metre'];
+        $data = [
+            'asciiSymbol'  => 'm',
+            'dimension'    => 'L',
+            'system'       => 'si_base',
+            'prefixGroup'  => UnitData::PREFIX_GROUP_METRIC,
+            'quantityType' => 'length',
+        ];
         $unit = new Unit('metre', $data);
 
         $this->assertSame('metre', $unit->name);
@@ -949,7 +955,14 @@ final class UnitTest extends TestCase
      */
     public function testCreateFromUnitDataGram(): void
     {
-        $data = UnitData::UNITS['gram'];
+        $data = [
+            'asciiSymbol'  => 'g',
+            'dimension'    => 'M',
+            'system'       => 'si_base',
+            'prefixGroup'  => UnitData::PREFIX_GROUP_METRIC,
+            'siPrefix'     => 'k',
+            'quantityType' => 'mass',
+        ];
         $unit = new Unit('gram', $data);
 
         $this->assertSame('gram', $unit->name);
@@ -963,7 +976,15 @@ final class UnitTest extends TestCase
      */
     public function testCreateFromUnitDataOhm(): void
     {
-        $data = UnitData::UNITS['ohm'];
+        $data = [
+            'asciiSymbol'   => 'ohm',
+            'unicodeSymbol' => 'Ω',
+            'dimension'     => 'T-3L2MI-2',
+            'system'        => 'si_named',
+            'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+            'expansionUnit' => 'kg*m2*s-3*A-2',
+            'quantityType'  => 'resistance',
+        ];
         $unit = new Unit('ohm', $data);
 
         $this->assertSame('ohm', $unit->asciiSymbol);
@@ -979,7 +1000,13 @@ final class UnitTest extends TestCase
      */
     public function testCreateFromUnitDataByte(): void
     {
-        $data = UnitData::UNITS['byte'];
+        $data = [
+            'asciiSymbol'  => 'B',
+            'dimension'    => 'D',
+            'system'       => 'metric',
+            'prefixGroup'  => UnitData::PREFIX_GROUP_LARGE,
+            'quantityType' => 'data',
+        ];
         $unit = new Unit('byte', $data);
 
         $this->assertSame('byte', $unit->name);

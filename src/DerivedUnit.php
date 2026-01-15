@@ -247,18 +247,6 @@ class DerivedUnit implements Stringable
     // region Manipulation methods
 
     /**
-     * Set a unit term directly by its symbol key.
-     *
-     * @param string $symbol The symbol key (without exponent) to use.
-     * @param UnitTerm $unitTerm The unit term to set.
-     */
-    public function setUnitTerm(string $symbol, UnitTerm $unitTerm): void
-    {
-        $this->unitTerms[$symbol] = $unitTerm;
-        $this->sortUnitTerms();
-    }
-
-    /**
      * Add a unit term, combining exponents with any existing term of the same unit.
      *
      * If a term with the same base unit already exists, their exponents are added.

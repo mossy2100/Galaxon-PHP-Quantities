@@ -411,7 +411,7 @@ class Quantity implements Stringable
         $newUnit = clone $this->derivedUnit;
 
         // Get all named units.
-        $namedUnits = UnitData::getNamedUnits();
+        $namedUnits = UnitData::getExpandableUnits();
 
         // Track best match.
         $bestMatch = null;
@@ -673,7 +673,15 @@ class Quantity implements Stringable
     }
 
     /**
-     * Multiply this measurement by a scalar factor.
+     * Multiply this measurement by a scalar factor or another Quantity.
+     *
+     * Note, this operation does no conversions. If you multiply a quantity in metres by one in feet, you will get a
+     * quantity in m*ft, not m2.
+     *
+     * There are several ways to avoid this effect:
+     * 1. Convert both operands to SI, e.g. $a->toSi()->mul($b->toSi())
+     * 2. Convert the result to SI, e.g. $a->mul($b)->toSi(). Same result as above, just a different path.
+     * 3. Simplify the result. e.g. $a->mul($b)->simplify().
      *
      * @param self|float $otherOrValue Another Quantity or a numeric value.
      * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
@@ -690,23 +698,23 @@ class Quantity implements Stringable
         $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
 
         // Start by multiplying the values.
-        $value = $this->value * $other->value;
+        $newValue = $this->value * $other->value;
 
         // If the other quantity is dimensionless, this is a simple multiplication by a scalar.
         if ($other->isDimensionless()) {
-            return $this->withValue($value);
+            return $this->withValue($newValue);
         }
 
         // Create a new unit from this unit.
-        $derivedUnit = clone $this->derivedUnit;
+        $newUnit = clone $this->derivedUnit;
 
         // Add each unit term from the other Quantity.
         foreach ($other->derivedUnit->unitTerms as $otherUnitTerm) {
-            $derivedUnit->addUnitTerm($otherUnitTerm);
+            $newUnit->addUnitTerm($otherUnitTerm);
         }
 
         // Create the result Quantity.
-        return self::create($value, $derivedUnit);
+        return self::create($newValue, $newUnit);
     }
 
     /**

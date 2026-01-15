@@ -387,33 +387,6 @@ class DerivedUnitTest extends TestCase
 
     // endregion
 
-    // region setUnitTerm() tests
-
-    public function testSetUnitTermNew(): void
-    {
-        $du = new DerivedUnit();
-        $unitTerm = new UnitTerm('m');
-
-        $du->setUnitTerm('m', $unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('m', $du->format(true));
-    }
-
-    public function testSetUnitTermReplace(): void
-    {
-        $du = DerivedUnit::parse('m');
-        $newTerm = new UnitTerm('m', 'k', 2);
-
-        $du->setUnitTerm('m', $newTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        // Note: setUnitTerm uses the provided key, not the term's symbol
-        $this->assertArrayHasKey('m', $du->unitTerms);
-    }
-
-    // endregion
-
     // region removeUnitTerm() tests
 
     public function testRemoveUnitTermExisting(): void

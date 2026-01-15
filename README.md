@@ -232,15 +232,21 @@ Please note, in some cases a conventional unit symbol may not be supported. The 
 relies on unit symbols being unique. It could also be necessary for prefixes to work properly (e.g. 'kcal'); or it could
 be a stylistic choice (e.g. 'L').
 
-1. Use `pint` for pint, not `pt`, which means point, a length unit equal to 1/72 inches.
-2. Use `arcsec` for arcsecond, not `as`, which means attosecond. Similarly, use `marcsec` for milliarcsecond, etc.
-3. Use `°C` or `degC` (see below) for degrees Celsius, not `C`, which means coulomb, the unit for electric charge.
-4. Use `°F` or `degF` for degrees Fahrenheit, not `F`, which means farad, the unit for electric capacitance.
-5. Use `°R` or `degR` for degrees Rankine, not `R`. This is just for consistency; `R` is not currently used for any other unit.
-6. Use `kcal` for kilocalorie (a.k.a. 'large' or 'food' calorie), not `Cal`. Use `cal` for calorie, i.e. 'small' calorie. 
-7. Use `L` for litre, not `l`, following modern style guides, as `l` is deemed too similar to the digit `1`.
+1. Use `pint` for US customary pints, not `pt`, which means point, a length unit equal to 1/72 inches.
+2. Use `pica` for picas (12 points or 1/6 in), not `pc`, which means parsec.
+3. Use `arcsec` for arcsecond, not `as`, which means attosecond. Similarly, use `marcsec` for milliarcsecond, etc.
+4. Use `°C` or `degC` (see below) for degrees Celsius, not `C`, which means coulomb, the unit for electric charge.
+5. Use `°F` or `degF` for degrees Fahrenheit, not `F`, which means farad, the unit for electric capacitance.
+6. Use `°R` or `degR` for degrees Rankine, not `R`. This is just for consistency; `R` is not currently used for any other unit.
+7. Use `kcal` for kilocalorie (a.k.a. 'large' or 'food' calorie), not `Cal`. Use `cal` for calorie, i.e. 'small' calorie. 
+8. Use `L` for litre, not `l`, following modern style guides, as `l` is deemed too similar to the digit `1`.
+9. Use `lbf/in2` for pounds force per square inch, not `psi`.
+10. Use `cm3` for cubic centimetres, not `cc`.
+11. Use `km/h` for kilometres per hour, not `kph`.
+12. Use `mi/h` for miles per hour, not `mph`. 
+13. Use `u` as an ASCII alternative for `µ`, meaning 'micro', and not `mc`. e.g. Use `ug` for `µg`, not `mcg`. 
 
-All units have a "primary" symbol, which uses ASCII characters only. This is to make them easier to type.
+All units have a "primary" symbol, which uses ASCII characters only, so they are easy to type.
 Therefore, you can use the following:
 
 1. `deg` in place of `°`

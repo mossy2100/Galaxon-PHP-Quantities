@@ -54,7 +54,7 @@ class Dimensions
         ],
         // The dimension 'C' is reserved for a future currency extension.
         'C' => [
-            'name' => 'currency',
+            'name'   => 'currency',
             'siBase' => 'XAU',
         ],
         'T' => [

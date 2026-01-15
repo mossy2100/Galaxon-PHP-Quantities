@@ -147,8 +147,12 @@ class UnitData
         return self::$units;
     }
 
-    /** @return list<Unit> */
-    public static function getNamedUnits(): array
+    /**
+     * Get all units with an expansion.
+     *
+     * @return list<Unit>
+     */
+    public static function getExpandableUnits(): array
     {
         $allUnits = self::getUnits();
         $namedUnits = [];
