@@ -7,10 +7,10 @@ namespace Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitData;
 
-class Power extends Quantity
+class Resistance extends Quantity
 {
     /**
-     * Unit definitions for power.
+     * Unit definitions for electrical resistance.
      *
      * @return array<string, array<string, string|int>>
      */
@@ -18,12 +18,13 @@ class Power extends Quantity
     {
         return [
             // SI named unit
-            'watt' => [
-                'asciiSymbol'   => 'W',
-                'dimension'     => 'T-3L2M',
+            'ohm' => [
+                'asciiSymbol'   => 'ohm',
+                'unicodeSymbol' => 'Ω',
+                'dimension'     => 'T-3L2MI-2',
                 'system'        => 'si_named',
                 'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-3',
+                'expansionUnit' => 'kg*m2*s-3*A-2',
             ],
         ];
     }

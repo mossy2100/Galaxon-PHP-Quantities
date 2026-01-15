@@ -7,10 +7,10 @@ namespace Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitData;
 
-class Power extends Quantity
+class Voltage extends Quantity
 {
     /**
-     * Unit definitions for power.
+     * Unit definitions for voltage (electric potential difference).
      *
      * @return array<string, array<string, string|int>>
      */
@@ -18,12 +18,12 @@ class Power extends Quantity
     {
         return [
             // SI named unit
-            'watt' => [
-                'asciiSymbol'   => 'W',
-                'dimension'     => 'T-3L2M',
+            'volt' => [
+                'asciiSymbol'   => 'V',
+                'dimension'     => 'T-3L2MI-1',
                 'system'        => 'si_named',
                 'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-3',
+                'expansionUnit' => 'kg*m2*s-3*A-1',
             ],
         ];
     }

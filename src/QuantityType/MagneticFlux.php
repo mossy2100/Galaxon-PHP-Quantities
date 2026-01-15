@@ -7,10 +7,10 @@ namespace Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitData;
 
-class Power extends Quantity
+class MagneticFlux extends Quantity
 {
     /**
-     * Unit definitions for power.
+     * Unit definitions for magnetic flux.
      *
      * @return array<string, array<string, string|int>>
      */
@@ -18,12 +18,12 @@ class Power extends Quantity
     {
         return [
             // SI named unit
-            'watt' => [
-                'asciiSymbol'   => 'W',
-                'dimension'     => 'T-3L2M',
+            'weber' => [
+                'asciiSymbol'   => 'Wb',
+                'dimension'     => 'T-2L2MI-1',
                 'system'        => 'si_named',
                 'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-3',
+                'expansionUnit' => 'kg*m2*s-2*A-1',
             ],
         ];
     }

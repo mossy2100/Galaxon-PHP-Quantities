@@ -12,13 +12,19 @@ class Energy extends Quantity
     /**
      * Unit definitions for energy.
      *
-     * Note: Joule (J) is an SI named unit and will be migrated separately.
-     *
      * @return array<string, array<string, string|int>>
      */
     public static function getUnits(): array
     {
         return [
+            // SI named unit
+            'joule'        => [
+                'asciiSymbol'   => 'J',
+                'dimension'     => 'T-2L2M',
+                'system'        => 'si_named',
+                'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+                'expansionUnit' => 'kg*m2*s-2',
+            ],
             // Non-SI metric units
             'electronvolt' => [
                 'asciiSymbol' => 'eV',

@@ -44,7 +44,7 @@ class QuantityTypes
         'I'          => [
             'quantityType' => 'electric current',
             'siUnit'       => 'A',
-            'class'        => null,
+            'class'        => QuantityType\ElectricCurrent::class,
         ],
         'H'          => [
             'quantityType' => 'temperature',
@@ -54,12 +54,12 @@ class QuantityTypes
         'N'          => [
             'quantityType' => 'amount of substance',
             'siUnit'       => 'mol',
-            'class'        => null,
+            'class'        => QuantityType\AmountOfSubstance::class,
         ],
         'J'          => [
             'quantityType' => 'luminous intensity',
             'siUnit'       => 'cd',
-            'class'        => null,
+            'class'        => QuantityType\LuminousIntensity::class,
         ],
 
         // SI derived unit dimensions
@@ -71,7 +71,7 @@ class QuantityTypes
         'A2'         => [
             'quantityType' => 'solid angle',
             'siUnit'       => 'sr',
-            'class'        => null,
+            'class'        => QuantityType\SolidAngle::class,
         ],
         'L2'         => [
             'quantityType' => 'area',
@@ -103,7 +103,7 @@ class QuantityTypes
         'T-1'        => [
             'quantityType' => 'frequency',
             'siUnit'       => 'Hz',
-            'class'        => null,
+            'class'        => QuantityType\Frequency::class,
         ],
         'T-2LM'      => [
             'quantityType' => 'force',
@@ -128,62 +128,62 @@ class QuantityTypes
         'TI'         => [
             'quantityType' => 'electric charge',
             'siUnit'       => 'C',
-            'class'        => null,
+            'class'        => QuantityType\ElectricCharge::class,
         ],
         'T-3L2MI-1'  => [
             'quantityType' => 'voltage',
             'siUnit'       => 'V',
-            'class'        => null,
+            'class'        => QuantityType\Voltage::class,
         ],
         'T4L-2M-1I2' => [
             'quantityType' => 'capacitance',
             'siUnit'       => 'F',
-            'class'        => null,
+            'class'        => QuantityType\Capacitance::class,
         ],
         'T-3L2MI-2'  => [
             'quantityType' => 'resistance',
             'siUnit'       => 'ohm',
-            'class'        => null,
+            'class'        => QuantityType\Resistance::class,
         ],
         'T3L-2M-1I2' => [
             'quantityType' => 'conductance',
             'siUnit'       => 'S',
-            'class'        => null,
+            'class'        => QuantityType\Conductance::class,
         ],
         'T-2L2MI-1'  => [
             'quantityType' => 'magnetic flux',
             'siUnit'       => 'Wb',
-            'class'        => null,
+            'class'        => QuantityType\MagneticFlux::class,
         ],
         'T-2MI-1'    => [
             'quantityType' => 'magnetic flux density',
             'siUnit'       => 'T',
-            'class'        => null,
+            'class'        => QuantityType\MagneticFluxDensity::class,
         ],
         'T-2L2MI-2'  => [
             'quantityType' => 'inductance',
             'siUnit'       => 'H',
-            'class'        => null,
+            'class'        => QuantityType\Inductance::class,
         ],
         'JA2'        => [
             'quantityType' => 'luminous flux',
             'siUnit'       => 'lm',
-            'class'        => null,
+            'class'        => QuantityType\LuminousFlux::class,
         ],
         'L-2JA2'     => [
             'quantityType' => 'illuminance',
             'siUnit'       => 'lx',
-            'class'        => null,
+            'class'        => QuantityType\Illuminance::class,
         ],
         'T-2L2'      => [
             'quantityType' => 'absorbed dose',
             'siUnit'       => 'Gy',
-            'class'        => null,
+            'class'        => QuantityType\RadiationDose::class,
         ],
         'T-1N'       => [
             'quantityType' => 'catalytic activity',
             'siUnit'       => 'kat',
-            'class'        => null,
+            'class'        => QuantityType\CatalyticActivity::class,
         ],
 
         // Non-SI dimensions

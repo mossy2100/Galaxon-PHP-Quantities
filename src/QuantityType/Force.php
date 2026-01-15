@@ -5,19 +5,26 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\UnitData;
 
 class Force extends Quantity
 {
     /**
      * Unit definitions for force.
      *
-     * Note: Newton (N) is an SI named unit and will be migrated separately.
-     *
      * @return array<string, array<string, string|int>>
      */
     public static function getUnits(): array
     {
         return [
+            // SI named unit
+            'newton'      => [
+                'asciiSymbol'   => 'N',
+                'dimension'     => 'T-2LM',
+                'system'        => 'si_named',
+                'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+                'expansionUnit' => 'kg*m*s-2',
+            ],
             // US customary units
             'pound force' => [
                 'asciiSymbol'    => 'lbf',

@@ -5,19 +5,26 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\UnitData;
 
 class Pressure extends Quantity
 {
     /**
      * Unit definitions for pressure.
      *
-     * Note: Pascal (Pa) is an SI named unit and will be migrated separately.
-     *
      * @return array<string, array<string, string|int>>
      */
     public static function getUnits(): array
     {
         return [
+            // SI named unit
+            'pascal'     => [
+                'asciiSymbol'   => 'Pa',
+                'dimension'     => 'T-2L-1M',
+                'system'        => 'si_named',
+                'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+                'expansionUnit' => 'kg*m-1*s-2',
+            ],
             // Non-SI metric units
             'bar'        => [
                 'asciiSymbol' => 'bar',

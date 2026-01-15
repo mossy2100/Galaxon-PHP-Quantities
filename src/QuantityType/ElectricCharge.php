@@ -7,10 +7,10 @@ namespace Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitData;
 
-class Power extends Quantity
+class ElectricCharge extends Quantity
 {
     /**
-     * Unit definitions for power.
+     * Unit definitions for electric charge.
      *
      * @return array<string, array<string, string|int>>
      */
@@ -18,12 +18,12 @@ class Power extends Quantity
     {
         return [
             // SI named unit
-            'watt' => [
-                'asciiSymbol'   => 'W',
-                'dimension'     => 'T-3L2M',
+            'coulomb' => [
+                'asciiSymbol'   => 'C',
+                'dimension'     => 'TI',
                 'system'        => 'si_named',
                 'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-3',
+                'expansionUnit' => 's*A',
             ],
         ];
     }

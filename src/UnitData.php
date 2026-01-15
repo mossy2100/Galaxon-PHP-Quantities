@@ -91,206 +91,6 @@ class UnitData
         'Yi' => 2 ** 80, // yobi
     ];
 
-    /**
-     * Default known/supported base units, keyed by name.
-     *
-     * Parsing should accept both the ASCII symbol and the Unicode symbol.
-     * Formatting should use the Unicode symbol if available, otherwise the ASCII symbol.
-     *
-     * Exponents in dimension codes are written as suffixes: L2 = L², T-1 = T⁻¹, MLT-2 = M·L·T⁻²
-     *
-     * @var array<string, array<string, string|int>>
-     */
-    public const array UNITS = [
-        // SI base units
-        'ampere'            => [
-            'asciiSymbol'  => 'A',
-            'quantityType' => 'electric current',
-            'dimension'    => 'I',
-            'system'       => 'si_base',
-            'prefixGroup'  => self::PREFIX_GROUP_METRIC,
-        ],
-        'mole'              => [
-            'asciiSymbol'  => 'mol',
-            'quantityType' => 'amount of substance',
-            'dimension'    => 'N',
-            'system'       => 'si_base',
-            'prefixGroup'  => self::PREFIX_GROUP_METRIC,
-        ],
-        'candela'           => [
-            'asciiSymbol'  => 'cd',
-            'quantityType' => 'luminous intensity',
-            'dimension'    => 'J',
-            'system'       => 'si_base',
-            'prefixGroup'  => self::PREFIX_GROUP_METRIC,
-        ],
-
-        // SI named units
-        'hertz'             => [
-            'asciiSymbol'   => 'Hz',
-            'quantityType'  => 'frequency',
-            'dimension'     => 'T-1',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 's-1',
-        ],
-        'newton'            => [
-            'asciiSymbol'   => 'N',
-            'quantityType'  => 'force',
-            'dimension'     => 'T-2LM',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m*s-2',
-        ],
-        'pascal'            => [
-            'asciiSymbol'   => 'Pa',
-            'quantityType'  => 'pressure',
-            'dimension'     => 'T-2L-1M',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m-1*s-2',
-        ],
-        'joule'             => [
-            'asciiSymbol'   => 'J',
-            'quantityType'  => 'energy',
-            'dimension'     => 'T-2L2M',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m2*s-2',
-        ],
-        'watt'              => [
-            'asciiSymbol'   => 'W',
-            'quantityType'  => 'power',
-            'dimension'     => 'T-3L2M',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m2*s-3',
-        ],
-        'coulomb'           => [
-            'asciiSymbol'   => 'C',
-            'quantityType'  => 'electric charge',
-            'dimension'     => 'TI',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 's*A',
-        ],
-        'volt'              => [
-            'asciiSymbol'   => 'V',
-            'quantityType'  => 'voltage',
-            'dimension'     => 'T-3L2MI-1',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m2*s-3*A-1',
-        ],
-        'farad'             => [
-            'asciiSymbol'   => 'F',
-            'quantityType'  => 'capacitance',
-            'dimension'     => 'T4L-2M-1I2',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg-1*m-2*s4*A2',
-        ],
-        'ohm'               => [
-            'asciiSymbol'   => 'ohm',
-            'unicodeSymbol' => 'Ω',
-            'quantityType'  => 'resistance',
-            'dimension'     => 'T-3L2MI-2',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m2*s-3*A-2',
-        ],
-        'siemens'           => [
-            'asciiSymbol'   => 'S',
-            'quantityType'  => 'conductance',
-            'dimension'     => 'T3L-2M-1I2',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg-1*m-2*s3*A2',
-        ],
-        'weber'             => [
-            'asciiSymbol'   => 'Wb',
-            'quantityType'  => 'magnetic flux',
-            'dimension'     => 'T-2L2MI-1',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m2*s-2*A-1',
-        ],
-        'tesla'             => [
-            'asciiSymbol'   => 'T',
-            'quantityType'  => 'magnetic flux density',
-            'dimension'     => 'T-2MI-1',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*s-2*A-1',
-        ],
-        'henry'             => [
-            'asciiSymbol'   => 'H',
-            'quantityType'  => 'inductance',
-            'dimension'     => 'T-2L2MI-2',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m2*s-2*A-2',
-        ],
-        'lumen'             => [
-            'asciiSymbol'   => 'lm',
-            'quantityType'  => 'luminous flux',
-            'dimension'     => 'JA2',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'cd*rad2',
-        ],
-        'lux'               => [
-            'asciiSymbol'   => 'lx',
-            'quantityType'  => 'illuminance',
-            'dimension'     => 'L-2JA2',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'cd*rad2*m-2',
-        ],
-        'becquerel'         => [
-            'asciiSymbol'   => 'Bq',
-            'quantityType'  => 'radioactivity',
-            'dimension'     => 'T-1',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 's-1',
-        ],
-        'gray'              => [
-            'asciiSymbol'   => 'Gy',
-            'quantityType'  => 'absorbed dose',
-            'dimension'     => 'T-2L2',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'm2*s-2',
-        ],
-        'sievert'           => [
-            'asciiSymbol'   => 'Sv',
-            'quantityType'  => 'equivalent dose',
-            'dimension'     => 'T-2L2',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'm2*s-2',
-        ],
-        'katal'             => [
-            'asciiSymbol'   => 'kat',
-            'quantityType'  => 'catalytic activity',
-            'dimension'     => 'T-1N',
-            'system'        => 'si_named',
-            'prefixGroup'   => self::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'mol*s-1',
-        ],
-
-        // US named units
-        'knot'              => [
-            'asciiSymbol'   => 'kn',
-            'quantityType'  => 'velocity',
-            'dimension'     => 'T-1L',
-            'system'        => 'us_named',
-            'expansionUnit' => 'nmi*h-1',
-        ],
-
-    ];
-
     // endregion
 
     // region Static properties
@@ -307,22 +107,16 @@ class UnitData
     // region Static methods
 
     /**
-     * Initialize the units array from the UNITS constant and QuantityType classes.
+     * Initialize the units array from the QuantityType classes.
      *
-     * This is called lazily on first access. Units from QuantityType classes
-     * take precedence over those in the UNITS constant.
+     * This is called lazily on first access.
      */
     private static function initUnits(): void
     {
         if (self::$units === null) {
             self::$units = [];
 
-            // First, load from UNITS constant.
-            foreach (self::UNITS as $name => $definition) {
-                self::$units[$name] = new Unit($name, $definition);
-            }
-
-            // Then, load from QuantityType classes (these take precedence).
+            // Load units from QuantityType classes.
             foreach (QuantityTypes::getAll() as $dimension => $data) {
                 $class = $data['class'] ?? null;
                 if ($class === null || !method_exists($class, 'getUnits')) {

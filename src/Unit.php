@@ -101,8 +101,8 @@ class Unit implements Stringable
     /**
      * Constructor.
      *
-     * @param string $name The unit name (key from UnitData::UNITS).
-     * @param array<string, mixed> $data The unit data (value from UnitData::UNITS).
+     * @param string $name The unit name.
+     * @param array<string, mixed> $data The unit details.
      */
     public function __construct(string $name, array $data)
     {
