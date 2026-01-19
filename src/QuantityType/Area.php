@@ -13,7 +13,7 @@ class Area extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // Non-SI metric units
@@ -44,7 +44,6 @@ class Area extends Quantity
             // Metric-US bridge
             ['ac', 'm2', 4046.8564224],
             // US customary
-            ['mi2', 'ac', 640],
             ['ac', 'yd2', 4840],
         ];
     }

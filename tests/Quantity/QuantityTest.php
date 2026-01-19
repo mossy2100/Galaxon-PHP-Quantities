@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Quantity;
 
-use DivisionByZeroError;
 use DomainException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Time;
+use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use stdClass;
-use TypeError;
 
 /**
- * Test class for Quantity abstract class.
+ * Test class for Quantity methods: formatting, comparison, and parts.
  *
- * Uses concrete implementations (Length, Area, Time) to test inherited functionality.
+ * Constructor, create(), and parse() tests are in QuantityCreateTest.
+ * Conversion tests (to, toSi, convert) are in QuantityConvertTest.
+ * Arithmetic tests are in QuantityArithmeticTest.
  */
 #[CoversClass(Quantity::class)]
 #[CoversClass(Area::class)]
@@ -28,250 +29,6 @@ use TypeError;
 #[CoversClass(Time::class)]
 final class QuantityTest extends TestCase
 {
-    // region Constructor tests
-
-    /**
-     * Test constructor with valid values.
-     */
-    public function testConstructorWithValidValues(): void
-    {
-        $length = new Length(100, 'm');
-
-        $this->assertSame(100.0, $length->value);
-        $this->assertSame('m', $length->derivedUnit->format(true));
-    }
-
-    /**
-     * Test constructor with zero value.
-     */
-    public function testConstructorWithZero(): void
-    {
-        $length = new Length(0, 'm');
-
-        $this->assertSame(0.0, $length->value);
-    }
-
-    /**
-     * Test constructor with negative value.
-     */
-    public function testConstructorWithNegativeValue(): void
-    {
-        $length = new Length(-50, 'km');
-
-        $this->assertSame(-50.0, $length->value);
-    }
-
-    /**
-     * Test constructor throws for infinity.
-     */
-    public function testConstructorThrowsForInfinity(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('cannot be ±INF or NAN');
-
-        new Length(INF, 'm');
-    }
-
-    /**
-     * Test constructor throws for negative infinity.
-     */
-    public function testConstructorThrowsForNegativeInfinity(): void
-    {
-        $this->expectException(DomainException::class);
-
-        new Length(-INF, 'm');
-    }
-
-    /**
-     * Test constructor throws for NAN.
-     */
-    public function testConstructorThrowsForNan(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('cannot be ±INF or NAN');
-
-        new Length(NAN, 'm');
-    }
-
-    /**
-     * Test constructor throws for invalid unit.
-     */
-    public function testConstructorThrowsForInvalidUnit(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Unknown or unsupported unit 'invalid'");
-
-        new Length(100, 'invalid');
-    }
-
-    /**
-     * Test getUnitConverter throws LogicException when not properly configured.
-     */
-    public function testGetUnitConverterThrowsWhenNotConfigured(): void
-    {
-        $this->expectException(LogicException::class);
-        Coolness::getUnitConverter();
-    }
-
-    // endregion
-
-    // region Factory method tests (parse, tryParse)
-
-    /**
-     * Test parse with valid input.
-     */
-    public function testParseValid(): void
-    {
-        $length = Length::parse('100 m');
-
-        $this->assertSame(100.0, $length->value);
-        $this->assertSame('m', $length->derivedUnit);
-    }
-
-    /**
-     * Test parse with no space between value and unit.
-     */
-    public function testParseNoSpace(): void
-    {
-        $length = Length::parse('50km');
-
-        $this->assertSame(50.0, $length->value);
-        $this->assertSame('km', $length->derivedUnit);
-    }
-
-    /**
-     * Test parse with scientific notation.
-     */
-    public function testParseScientificNotation(): void
-    {
-        $length = Length::parse('1.5e3 m');
-
-        $this->assertSame(1500.0, $length->value);
-    }
-
-    /**
-     * Test parse with negative value.
-     */
-    public function testParseNegative(): void
-    {
-        $length = Length::parse('-25.5 cm');
-
-        $this->assertSame(-25.5, $length->value);
-        $this->assertSame('cm', $length->derivedUnit);
-    }
-
-    /**
-     * Test parse with leading/trailing whitespace.
-     */
-    public function testParseWithWhitespace(): void
-    {
-        $length = Length::parse('  100 m  ');
-
-        $this->assertSame(100.0, $length->value);
-    }
-
-    /**
-     * Test parse throws for empty string.
-     */
-    public function testParseThrowsForEmptyString(): void
-    {
-        $this->expectException(DomainException::class);
-
-        Length::parse('');
-    }
-
-    /**
-     * Test parse throws for invalid format.
-     */
-    public function testParseThrowsForInvalidFormat(): void
-    {
-        $this->expectException(DomainException::class);
-
-        Length::parse('not a measurement');
-    }
-
-    /**
-     * Test parse throws for invalid unit.
-     */
-    public function testParseThrowsForInvalidUnit(): void
-    {
-        $this->expectException(DomainException::class);
-
-        Length::parse('100 bananas');
-    }
-
-    /**
-     * Test tryParse returns value on success.
-     */
-    public function testTryParseSuccess(): void
-    {
-        $length = Length::tryParse('100 m');
-
-        $this->assertNotNull($length);
-        $this->assertSame(100.0, $length->value);
-    }
-
-    /**
-     * Test tryParse returns null on failure.
-     */
-    public function testTryParseReturnsNullOnFailure(): void
-    {
-        $result = Length::tryParse('invalid');
-
-        $this->assertNull($result);
-    }
-
-    /**
-     * Test tryParse returns null for empty string.
-     */
-    public function testTryParseReturnsNullForEmptyString(): void
-    {
-        $result = Length::tryParse('');
-
-        $this->assertNull($result);
-    }
-
-    // endregion
-
-    // region Conversion tests (to)
-
-    /**
-     * Test to() with same unit returns equivalent value.
-     */
-    public function testToSameUnit(): void
-    {
-        $length = new Length(100, 'm');
-        $result = $length->to('m');
-
-        $this->assertSame(100.0, $result->value);
-        $this->assertSame('m', $result->derivedUnit);
-    }
-
-    /**
-     * Test to() returns new instance.
-     */
-    public function testToReturnsNewInstance(): void
-    {
-        $length = new Length(100, 'm');
-        $result = $length->to('km');
-
-        $this->assertNotSame($length, $result);
-    }
-
-    /**
-     * Test to() throws for invalid unit.
-     */
-    public function testToThrowsForInvalidUnit(): void
-    {
-        $length = new Length(100, 'm');
-
-        $this->expectException(DomainException::class);
-
-        $length->to('invalid');
-    }
-
-    // endregion
-
     // region Formatting tests (format, __toString)
 
     /**
@@ -281,7 +38,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(123.456, 'm');
 
-        $this->assertSame('123.46m', $length->format('f', 2));
+        $this->assertSame('123.46 m', $length->format('f', 2));
     }
 
     /**
@@ -291,7 +48,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(1500, 'm');
 
-        $this->assertSame('1.5e+3m', $length->format('e', 1));
+        $this->assertSame('1.5e+3 m', $length->format('e', 1));
     }
 
     /**
@@ -301,7 +58,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(1500, 'm');
 
-        $this->assertSame('1500m', $length->format('g', 4));
+        $this->assertSame('1500 m', $length->format('g', 4));
     }
 
     /**
@@ -311,7 +68,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(10, 'm');
 
-        $this->assertSame('10.00m', $length->format('f', 2, false));
+        $this->assertSame('10.00 m', $length->format('f', 2, false));
     }
 
     /**
@@ -355,8 +112,8 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        // __toString has no space between value and unit
-        $this->assertSame('100m', (string)$length);
+        // __toString has a space between value and unit
+        $this->assertSame('100 m', (string)$length);
     }
 
     /**
@@ -366,7 +123,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(123.456, 'km');
 
-        $this->assertSame('123.456km', (string)$length);
+        $this->assertSame('123.456 km', (string)$length);
     }
 
     /**
@@ -376,360 +133,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(-0.0, 'm');
 
-        $this->assertSame('0m', (string)$length);
-    }
-
-    /**
-     * Test formatValue throws on non-finite value.
-     */
-    public function testFormatValueThrowsOnNonFinite(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must be finite');
-
-        $method = new ReflectionMethod(Length::class, 'formatValue');
-        $method->invoke(null, INF);
-    }
-
-    // endregion
-
-    // region Arithmetic tests (add, sub, neg, mul, div, abs)
-
-    /**
-     * Test add with Quantity argument.
-     */
-    public function testAddWithQuantity(): void
-    {
-        $a = new Length(100, 'm');
-        $b = new Length(50, 'm');
-
-        $result = $a->add($b);
-
-        $this->assertSame(150.0, $result->value);
-        $this->assertSame('m', $result->derivedUnit);
-    }
-
-    /**
-     * Test add with value and unit arguments.
-     */
-    public function testAddWithValueAndUnit(): void
-    {
-        $a = new Length(100, 'm');
-
-        $result = $a->add(50, 'cm');
-
-        $this->assertEqualsWithDelta(100.5, $result->value, 1e-10);
-        $this->assertSame('m', $result->derivedUnit);
-    }
-
-    /**
-     * Test add converts units automatically.
-     */
-    public function testAddConvertsUnits(): void
-    {
-        $a = new Length(1, 'm');
-        $b = new Length(1, 'km');
-
-        $result = $a->add($b);
-
-        $this->assertEqualsWithDelta(1001.0, $result->value, 1e-10);
-        $this->assertSame('m', $result->derivedUnit);
-    }
-
-    /**
-     * Test add returns new instance.
-     */
-    public function testAddReturnsNewInstance(): void
-    {
-        $a = new Length(100, 'm');
-        $b = new Length(50, 'm');
-
-        $result = $a->add($b);
-
-        $this->assertNotSame($a, $result);
-        $this->assertNotSame($b, $result);
-    }
-
-    /**
-     * Test sub with Quantity argument.
-     */
-    public function testSubWithQuantity(): void
-    {
-        $a = new Length(100, 'm');
-        $b = new Length(30, 'm');
-
-        $result = $a->sub($b);
-
-        $this->assertSame(70.0, $result->value);
-    }
-
-    /**
-     * Test sub with value and unit arguments.
-     */
-    public function testSubWithValueAndUnit(): void
-    {
-        $a = new Length(100, 'm');
-
-        $result = $a->sub(50, 'cm');
-
-        $this->assertEqualsWithDelta(99.5, $result->value, 1e-10);
-    }
-
-    /**
-     * Test sub can produce negative result.
-     */
-    public function testSubNegativeResult(): void
-    {
-        $a = new Length(10, 'm');
-        $b = new Length(50, 'm');
-
-        $result = $a->sub($b);
-
-        $this->assertSame(-40.0, $result->value);
-    }
-
-    /**
-     * Test add throws TypeError for value without unit.
-     */
-    public function testAddThrowsForValueWithoutUnit(): void
-    {
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessage('Invalid argument types');
-
-        $length = new Length(100, 'm');
-        $length->add(50);
-    }
-
-    /**
-     * Test sub throws TypeError for value without unit.
-     */
-    public function testSubThrowsForValueWithoutUnit(): void
-    {
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessage('Invalid argument types');
-
-        $length = new Length(100, 'm');
-        $length->sub(50);
-    }
-
-    /**
-     * Test add throws TypeError for wrong Quantity type.
-     */
-    public function testAddThrowsForWrongQuantityType(): void
-    {
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessage('Invalid argument types');
-
-        $length = new Length(100, 'm');
-        $area = new Area(50, 'm2');
-        $length->add($area);
-    }
-
-    /**
-     * Test neg negates value.
-     */
-    public function testNeg(): void
-    {
-        $length = new Length(100, 'm');
-
-        $result = $length->neg();
-
-        $this->assertSame(-100.0, $result->value);
-        $this->assertSame('m', $result->derivedUnit);
-    }
-
-    /**
-     * Test neg on negative value produces positive.
-     */
-    public function testNegOnNegative(): void
-    {
-        $length = new Length(-50, 'm');
-
-        $result = $length->neg();
-
-        $this->assertSame(50.0, $result->value);
-    }
-
-    /**
-     * Test neg returns new instance.
-     */
-    public function testNegReturnsNewInstance(): void
-    {
-        $length = new Length(100, 'm');
-
-        $result = $length->neg();
-
-        $this->assertNotSame($length, $result);
-    }
-
-    /**
-     * Test mul multiplies by scalar.
-     */
-    public function testMul(): void
-    {
-        $length = new Length(10, 'm');
-
-        $result = $length->mul(5);
-
-        $this->assertSame(50.0, $result->value);
-        $this->assertSame('m', $result->derivedUnit);
-    }
-
-    /**
-     * Test mul with fractional scalar.
-     */
-    public function testMulFractional(): void
-    {
-        $length = new Length(100, 'm');
-
-        $result = $length->mul(0.5);
-
-        $this->assertSame(50.0, $result->value);
-    }
-
-    /**
-     * Test mul with negative scalar.
-     */
-    public function testMulNegative(): void
-    {
-        $length = new Length(10, 'm');
-
-        $result = $length->mul(-3);
-
-        $this->assertSame(-30.0, $result->value);
-    }
-
-    /**
-     * Test mul throws for infinity.
-     */
-    public function testMulThrowsForInfinity(): void
-    {
-        $length = new Length(100, 'm');
-
-        $this->expectException(DomainException::class);
-
-        $length->mul(INF);
-    }
-
-    /**
-     * Test mul throws for NAN.
-     */
-    public function testMulThrowsForNan(): void
-    {
-        $length = new Length(100, 'm');
-
-        $this->expectException(DomainException::class);
-
-        $length->mul(NAN);
-    }
-
-    /**
-     * Test div divides by scalar.
-     */
-    public function testDiv(): void
-    {
-        $length = new Length(100, 'm');
-
-        $result = $length->div(4);
-
-        $this->assertSame(25.0, $result->value);
-        $this->assertSame('m', $result->derivedUnit);
-    }
-
-    /**
-     * Test div with fractional scalar.
-     */
-    public function testDivFractional(): void
-    {
-        $length = new Length(100, 'm');
-
-        $result = $length->div(0.5);
-
-        $this->assertSame(200.0, $result->value);
-    }
-
-    /**
-     * Test div throws for zero.
-     */
-    public function testDivThrowsForZero(): void
-    {
-        $length = new Length(100, 'm');
-
-        $this->expectException(DivisionByZeroError::class);
-
-        $length->div(0);
-    }
-
-    /**
-     * Test div throws for infinity.
-     */
-    public function testDivThrowsForInfinity(): void
-    {
-        $length = new Length(100, 'm');
-
-        $this->expectException(DomainException::class);
-
-        $length->div(INF);
-    }
-
-    /**
-     * Test div throws for NAN.
-     */
-    public function testDivThrowsForNan(): void
-    {
-        $length = new Length(100, 'm');
-
-        $this->expectException(DomainException::class);
-
-        $length->div(NAN);
-    }
-
-    /**
-     * Test abs on positive value.
-     */
-    public function testAbsPositive(): void
-    {
-        $length = new Length(100, 'm');
-
-        $result = $length->abs();
-
-        $this->assertSame(100.0, $result->value);
-    }
-
-    /**
-     * Test abs on negative value.
-     */
-    public function testAbsNegative(): void
-    {
-        $length = new Length(-100, 'm');
-
-        $result = $length->abs();
-
-        $this->assertSame(100.0, $result->value);
-    }
-
-    /**
-     * Test abs on zero.
-     */
-    public function testAbsZero(): void
-    {
-        $length = new Length(0, 'm');
-
-        $result = $length->abs();
-
-        $this->assertSame(0.0, $result->value);
-    }
-
-    /**
-     * Test abs returns new instance.
-     */
-    public function testAbsReturnsNewInstance(): void
-    {
-        $length = new Length(-100, 'm');
-
-        $result = $length->abs();
-
-        $this->assertNotSame($length, $result);
+        $this->assertSame('0 m', (string)$length);
     }
 
     // endregion
@@ -788,7 +192,7 @@ final class QuantityTest extends TestCase
         $length = new Length(100, 'm');
         $area = new Area(100, 'm2');
 
-        $this->expectException(TypeError::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $length->compare($area);
     }
@@ -800,7 +204,7 @@ final class QuantityTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->expectException(TypeError::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $length->compare(100);
     }
@@ -874,39 +278,6 @@ final class QuantityTest extends TestCase
 
     // endregion
 
-    // region formatUnit() tests
-
-    /**
-     * Test formatUnit with basic unit (no prefix, no exponent).
-     */
-    public function testFormatUnitBasic(): void
-    {
-        $this->assertSame('m', Length::formatUnit('m'));
-        $this->assertSame('ft', Length::formatUnit('ft'));
-        $this->assertSame('in', Length::formatUnit('in'));
-    }
-
-    /**
-     * Test formatUnit converts 'u' prefix to 'μ'.
-     */
-    public function testFormatUnitConvertsMicroPrefix(): void
-    {
-        $this->assertSame('μm', Length::formatUnit('um'));
-    }
-
-    /**
-     * Test formatUnit preserves other prefixes.
-     */
-    public function testFormatUnitPreservesOtherPrefixes(): void
-    {
-        $this->assertSame('km', Length::formatUnit('km'));
-        $this->assertSame('cm', Length::formatUnit('cm'));
-        $this->assertSame('mm', Length::formatUnit('mm'));
-        $this->assertSame('nm', Length::formatUnit('nm'));
-    }
-
-    // endregion
-
     // region Parts methods tests
 
     /**
@@ -923,8 +294,8 @@ final class QuantityTest extends TestCase
      */
     public function testValidateSmallestUnitThrowsForInvalidUnit(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid smallest unit');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Invalid part unit');
 
         // Use reflection to call protected method on a class with part units defined.
         $method = new ReflectionMethod(Time::class, 'validateSmallestUnit');
@@ -1046,7 +417,7 @@ final class QuantityTest extends TestCase
 class Coolness extends Quantity
 {
     /** @return array<string, int> */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [];
     }
@@ -1061,7 +432,7 @@ class Coolness extends Quantity
 class Badness extends Quantity
 {
     /** @return array<string, int> */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             'foo' => 0,
@@ -1090,7 +461,7 @@ class Badness extends Quantity
 class EmptySymbol extends Quantity
 {
     /** @return array<string, int> */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             'foo' => 0,

@@ -187,7 +187,7 @@ final class QuantityCreateTest extends TestCase
     public function testLengthConstructorThrowsForMassUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('expected dimension');
+        $this->expectExceptionMessage('Cannot instantiate');
 
         new Length(100, 'kg');
     }
@@ -198,7 +198,7 @@ final class QuantityCreateTest extends TestCase
     public function testLengthConstructorThrowsForTimeUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('expected dimension');
+        $this->expectExceptionMessage('Cannot instantiate');
 
         new Length(60, 's');
     }
@@ -209,7 +209,7 @@ final class QuantityCreateTest extends TestCase
     public function testMassConstructorThrowsForLengthUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('expected dimension');
+        $this->expectExceptionMessage('Cannot instantiate');
 
         new Mass(100, 'm');
     }
@@ -220,7 +220,7 @@ final class QuantityCreateTest extends TestCase
     public function testTimeConstructorThrowsForLengthUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('expected dimension');
+        $this->expectExceptionMessage('Cannot instantiate');
 
         new Time(100, 'km');
     }
@@ -231,7 +231,7 @@ final class QuantityCreateTest extends TestCase
     public function testAreaConstructorThrowsForLengthUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('expected dimension');
+        $this->expectExceptionMessage('Cannot instantiate');
 
         new Area(100, 'm');
     }
@@ -242,7 +242,7 @@ final class QuantityCreateTest extends TestCase
     public function testVolumeConstructorThrowsForAreaUnit(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('expected dimension');
+        $this->expectExceptionMessage('Cannot instantiate');
 
         new Volume(100, 'm2');
     }
@@ -311,8 +311,8 @@ final class QuantityCreateTest extends TestCase
      */
     public function testQuantityCreateReturnsBaseQuantityForUnregisteredDimension(): void
     {
-        // Electric current (A) has no registered class
-        $qty = Quantity::create(10, 'A');
+        // Momentum (N.s) has no registered class.
+        $qty = Quantity::create(10, 'N.s');
 
         $this->assertInstanceOf(Quantity::class, $qty);
         // Should not be a subclass
@@ -409,7 +409,7 @@ final class QuantityCreateTest extends TestCase
     public function testQuantityConstructorThrowsForRegisteredDimension(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('call `new');
+        $this->expectExceptionMessage('Cannot instantiate');
 
         new Quantity(100, 'm');
     }
@@ -559,7 +559,7 @@ final class QuantityCreateTest extends TestCase
 
         $this->assertSame(9.8, $qty->value);
         // Units are sorted by dimension code order.
-        $this->assertSame('kg·m·s⁻²', (string)$qty->derivedUnit);
+        $this->assertSame('kg⋅m⋅s⁻²', (string)$qty->derivedUnit);
     }
 
     /**
@@ -571,7 +571,7 @@ final class QuantityCreateTest extends TestCase
 
         $this->assertSame(9.8, $qty->value);
         // Units are sorted by dimension code order.
-        $this->assertSame('kg·m·s⁻²', (string)$qty->derivedUnit);
+        $this->assertSame('kg⋅m⋅s⁻²', (string)$qty->derivedUnit);
     }
 
     /**
@@ -583,7 +583,7 @@ final class QuantityCreateTest extends TestCase
 
         $this->assertSame(9.8, $qty->value);
         // Units are sorted by dimension code order.
-        $this->assertSame('kg·m·s⁻²', (string)$qty->derivedUnit);
+        $this->assertSame('kg⋅m⋅s⁻²', (string)$qty->derivedUnit);
     }
 
     /**
@@ -591,11 +591,11 @@ final class QuantityCreateTest extends TestCase
      */
     public function testParseCompoundUnitWithSuperscriptExponents(): void
     {
-        $qty = Quantity::parse('9.8 kg·m·s⁻²');
+        $qty = Quantity::parse('9.8 kg⋅m⋅s⁻²');
 
         $this->assertSame(9.8, $qty->value);
         // Units are sorted by dimension code order.
-        $this->assertSame('kg·m·s⁻²', (string)$qty->derivedUnit);
+        $this->assertSame('kg⋅m⋅s⁻²', (string)$qty->derivedUnit);
     }
 
     /**
@@ -620,7 +620,7 @@ final class QuantityCreateTest extends TestCase
         $qty = Quantity::parse('299792458 m/s');
 
         $this->assertSame(299792458.0, $qty->value);
-        $this->assertSame('m·s⁻¹', (string)$qty->derivedUnit);
+        $this->assertSame('m⋅s⁻¹', (string)$qty->derivedUnit);
     }
 
     /**
@@ -631,7 +631,7 @@ final class QuantityCreateTest extends TestCase
         $qty = Quantity::parse('9.80665 m/s2');
 
         $this->assertSame(9.80665, $qty->value);
-        $this->assertSame('m·s⁻²', (string)$qty->derivedUnit);
+        $this->assertSame('m⋅s⁻²', (string)$qty->derivedUnit);
     }
 
     /**

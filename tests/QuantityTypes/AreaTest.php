@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\QuantityTypes;
 
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Area;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +28,7 @@ final class AreaTest extends TestCase
         $area = Quantity::create(100, 'm2');
 
         $this->assertSame(100.0, $area->value);
-        $this->assertSame('m2', $area->unit);
+        $this->assertSame('m2', $area->derivedUnit->format(true));
     }
 
     /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class Capacitance extends Quantity
 {
@@ -14,7 +14,7 @@ class Capacitance extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI named unit
@@ -22,7 +22,7 @@ class Capacitance extends Quantity
                 'asciiSymbol'   => 'F',
                 'dimension'     => 'T4L-2M-1I2',
                 'system'        => 'si_named',
-                'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnit' => 'kg-1*m-2*s4*A2',
             ],
         ];

@@ -218,7 +218,7 @@ $angle->tanh();
 |---------------|----------------------------------------------------------------------------------|
 | Base unit     | A unit without prefix or exponent, e.g. 's', 'in'                                |
 | Unit term     | A base unit with optional prefix and/or exponent, e.g. 'km', 'KiB', 'm²', 'km³'  |
-| Compound unit | Multiple unit terms combined via multiplication/division, e.g. 'm/s', 'kg·m·s⁻²' |
+| Compound unit | Multiple unit terms combined via multiplication/division, e.g. 'm/s', 'kg⋅m⋅s⁻²' |
 | SI base unit  | One of the 7 fundamental SI units: m, kg, s, A, K, mol, cd                       |
 | Named unit    | A unit equivalent to a compound unit, e.g. N, J, W, V, kn                        |
 | Metric prefix | A decimal scaling prefix, e.g. k (10³), M (10⁶), m (10⁻³)                        |

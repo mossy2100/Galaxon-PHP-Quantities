@@ -5,18 +5,33 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DomainException;
+use Galaxon\Quantities\Registry\DimensionRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use LogicException;
 use Stringable;
 
 /**
  * Represents a compound unit composed of one or more unit terms.
  *
- * A derived unit like 'kg·m·s⁻²' (newton) comprises multiple UnitTerm objects.
+ * A derived unit like 'kg⋅m⋅s⁻²' (newton) comprises multiple UnitTerm objects.
  * Unit terms with the same base unit are automatically combined
  * (e.g. km³ * km⁻¹ = km²).
  */
 class DerivedUnit implements Stringable
 {
+    // region Constants
+
+    /**
+     * Regular expression character class with multiply and divide characters.
+     * Allow dots for multiply.
+     *     . = Normal period character.
+     *     · = Middle dot (U+00B7) - used in typography, Catalan, etc.
+     *     ⋅ = Dot operator (U+22C5) - mathematical multiplication symbol.
+     */
+    const string UNIT_TERM_SEPARATORS = "[*.\x{00B7}\x{22C5}\/]";
+
+    // endregion
+
     // region Properties
 
     /**
@@ -27,36 +42,12 @@ class DerivedUnit implements Stringable
      */
     private(set) array $unitTerms = [];
 
-    // PHPCS doesn't know property hooks yet.
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /**
      * Get the dimension code of the derived unit.
      *
      * @return string The dimension code.
      */
-    public string $dimension {
-        get {
-            // Convert the unit terms to dimension codes.
-            $dimCodes = [];
-            foreach ($this->unitTerms as $unitTerm) {
-                // Get the dimension code terms for this unit term.
-                $dims = Dimensions::explode($unitTerm->dimension);
-
-                // Accumulate the exponents for each letter in the dimension code.
-                foreach ($dims as $dimCode => $exp) {
-                    $dimCodes[$dimCode] = ($dimCodes[$dimCode] ?? 0) + $exp;
-                }
-            }
-
-            // Generate the full dimension code.
-            return Dimensions::implode($dimCodes);
-        }
-    }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+    private(set) string $dimension = '';
 
     // endregion
 
@@ -105,14 +96,14 @@ class DerivedUnit implements Stringable
     public static function parse(string $symbol): self
     {
         // Get the parts of the compound unit.
-        $parts = preg_split('/([*·.\/])/u', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split('/(' . self::UNIT_TERM_SEPARATORS . ')/u', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
         if (empty($parts)) {
             throw new DomainException(
                 "Invalid unit format. The expected format is one or more unit terms separated by '*' or " .
                 "'/' operators, e.g. 'm', 'km', 'km2', 'm/s', 'm/s2', 'kg*m/s2', etc. To show an exponent, append it " .
                 "to the unit, e.g. 'm2'. To show 'per unit', either use a divide sign or an exponent of -1, e.g. " .
-                "'metres per second' can be expressed as 'm/s' or 'ms-1'. The parser will also accept '·' or '.' in " .
-                "place of '*', and superscript exponents."
+                "'metres per second' can be expressed as 'm/s' or 'ms-1'. The parser will also accept '·' (U+00B7), " .
+                "'⋅' (U+22C5), or '.' in place of '*', and superscript exponents."
             );
         }
 
@@ -169,7 +160,8 @@ class DerivedUnit implements Stringable
     public static function regex(): string
     {
         $rxUnitTerm = UnitTerm::regex();
-        return "$rxUnitTerm([*·.\/]$rxUnitTerm)*";
+
+        return "$rxUnitTerm(" . self::UNIT_TERM_SEPARATORS . "$rxUnitTerm)*";
     }
 
     // endregion
@@ -180,7 +172,7 @@ class DerivedUnit implements Stringable
      * Format the derived unit as a string.
      *
      * If $ascii is false (default), Unicode symbols are used (if set), exponents are converted to superscript
-     * (e.g. 'm²'), and the unit terms will be separated by a '·' character.
+     * (e.g. 'm²'), and the unit terms will be separated by a '⋅' character.
      *
      * If $ascii is true, then the primary (ASCII) symbol will be used, exponents will not be converted to superscript,
      * and the unit terms will be separated by a '*' character.
@@ -191,7 +183,7 @@ class DerivedUnit implements Stringable
     public function format(bool $ascii = false): string
     {
         $fn = static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii);
-        $multiplyChar = $ascii ? '*' : '·';
+        $multiplyChar = $ascii ? '*' : '⋅';
         return implode($multiplyChar, array_map($fn, $this->unitTerms));
     }
 
@@ -221,14 +213,33 @@ class DerivedUnit implements Stringable
     }
 
     /**
-     * Find a unit term by its symbol (prefixed unit, no exponent).
+     * Check if the DerivedUnit has an expansion comprising more basic units.
      *
-     * @param string $symbol The prefixed unit to search for (e.g. 'km', 'mi').
+     * @return bool
+     */
+    public function hasExpansion(): bool
+    {
+        // Check each unit term to see if it has an expansion.
+        return array_any($this->unitTerms, static fn ($unitTerm) => $unitTerm->unit->expansion !== null);
+    }
+
+    /**
+     * Find a unit term by unit.
+     *
+     * @param string|Unit $unit The unit to search for.
      * @return ?UnitTerm The matching unit term, or null if not found.
      */
-    public function getUnitTermBySymbol(string $symbol): ?UnitTerm
+    public function getUnitTermByUnit(string|Unit $unit): ?UnitTerm
     {
-        return $this->unitTerms[$symbol] ?? null;
+        // Get the unit as an object.
+        if (is_string($unit)) {
+            $unit = UnitRegistry::getBySymbol($unit);
+            if ($unit === null) {
+                return null;
+            }
+        }
+
+        return array_find($this->unitTerms, static fn (UnitTerm $ut) => $ut->unit->equal($unit));
     }
 
     /**
@@ -240,6 +251,39 @@ class DerivedUnit implements Stringable
     public function getUnitTermByDimension(string $dimension): ?UnitTerm
     {
         return array_find($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->dimension === $dimension);
+    }
+
+    // endregion
+
+    // region Comparison methods
+
+    /**
+     * Check if this derived unit is equal to another.
+     *
+     * Two derived units are equal if they have the same unit terms with the same exponents.
+     *
+     * @param mixed $other The value to compare.
+     * @return bool True if equal, false otherwise.
+     */
+    public function equal(mixed $other): bool
+    {
+        if (!$other instanceof self) {
+            return false;
+        }
+
+        // Must have same number of unit terms.
+        if (count($this->unitTerms) !== count($other->unitTerms)) {
+            return false;
+        }
+
+        // Each unit term must be equal.
+        foreach ($this->unitTerms as $symbol => $unitTerm) {
+            if (!isset($other->unitTerms[$symbol]) || !$unitTerm->equal($other->unitTerms[$symbol])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // endregion
@@ -256,6 +300,7 @@ class DerivedUnit implements Stringable
      */
     public function addUnitTerm(string|UnitTerm $unitTerm): void
     {
+        // Get the unit term as an object.
         if (is_string($unitTerm)) {
             $unitTerm = UnitTerm::parse($unitTerm);
         }
@@ -277,6 +322,9 @@ class DerivedUnit implements Stringable
 
         // Keep the unit terms sorted. This is important for multiplying quantities.
         $this->sortUnitTerms();
+
+        // Update the dimension.
+        $this->updateDimension();
     }
 
     /**
@@ -286,11 +334,24 @@ class DerivedUnit implements Stringable
      */
     public function removeUnitTerm(string|UnitTerm $unitTerm): void
     {
+        // Get the unit term as an object.
         if (is_string($unitTerm)) {
             $unitTerm = UnitTerm::parse($unitTerm);
         }
 
+        // Remove the term.
         unset($this->unitTerms[$unitTerm->unexponentiatedSymbol]);
+
+        // Update the dimension.
+        $this->updateDimension();
+    }
+
+    /**
+     * Sort the unit terms into canonical order.
+     */
+    public function sortUnitTerms(): void
+    {
+        uasort($this->unitTerms, self::compareUnitTerms(...));
     }
 
     // endregion
@@ -311,7 +372,7 @@ class DerivedUnit implements Stringable
     /**
      * Return a new DerivedUnit with all exponents negated.
      *
-     * @return self A new instance with inverted exponents (e.g. m·s⁻¹ → m⁻¹·s).
+     * @return self A new instance with inverted exponents (e.g. m⋅s⁻¹ → m⁻¹⋅s).
      */
     public function inv(): self
     {
@@ -332,16 +393,16 @@ class DerivedUnit implements Stringable
     public function toSi(): self
     {
         $unitTerms = [];
-        $dimTerms = Dimensions::explode($this->dimension);
+        $dimTerms = DimensionRegistry::explode($this->dimension);
         foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = Dimensions::getSiUnitTerm($code)->applyExponent($exp);
+            $unitTerms[] = DimensionRegistry::getSiBaseUnitTerm($code)->applyExponent($exp);
         }
         return new self($unitTerms);
     }
 
     // endregion
 
-    // region Sorting methods
+    // region Private helper methods
 
     /**
      * Compare two unit terms for sorting purposes.
@@ -357,8 +418,8 @@ class DerivedUnit implements Stringable
     private static function compareUnitTerms(UnitTerm $a, UnitTerm $b): int
     {
         // Parse the dimension into dimension terms.
-        $aDimTerms = Dimensions::explode($a->dimension);
-        $bDimTerms = Dimensions::explode($b->dimension);
+        $aDimTerms = DimensionRegistry::explode($a->dimension);
+        $bDimTerms = DimensionRegistry::explode($b->dimension);
 
         // Put more complex dimensions (indicating named units) first.
         if (count($aDimTerms) > count($bDimTerms)) {
@@ -373,16 +434,27 @@ class DerivedUnit implements Stringable
         // Order unit terms to match order in the Dimensions::DIMENSION_CODES array.
         $aFirstKey = array_key_first($aDimTerms);
         $bFirstKey = array_key_first($bDimTerms);
-        return Dimensions::letterToInt($aFirstKey) <=> Dimensions::letterToInt($bFirstKey);
+        return DimensionRegistry::letterToInt($aFirstKey) <=> DimensionRegistry::letterToInt($bFirstKey);
     }
 
     /**
-     * Sort the unit terms into canonical order.
+     * Recalculate the dimension code from the current unit terms.
      */
-    public function sortUnitTerms(): void
+    private function updateDimension(): void
     {
-        uasort($this->unitTerms, self::compareUnitTerms(...));
-    }
+        // Convert the unit terms to dimension codes.
+        $dimCodes = [];
+        foreach ($this->unitTerms as $unitTerm) {
+            // Get the dimension code terms for this unit term.
+            $dims = DimensionRegistry::explode($unitTerm->dimension);
 
-    // endregion
+            // Accumulate the exponents for each letter in the dimension code.
+            foreach ($dims as $dimCode => $exp) {
+                $dimCodes[$dimCode] = ($dimCodes[$dimCode] ?? 0) + $exp;
+            }
+        }
+
+        // Generate the full dimension code.
+        $this->dimension = DimensionRegistry::implode($dimCodes);
+    }
 }

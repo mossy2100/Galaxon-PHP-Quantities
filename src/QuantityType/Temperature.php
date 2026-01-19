@@ -8,8 +8,9 @@ use DomainException;
 use Galaxon\Core\Arrays;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\UnitData;
 use Galaxon\Quantities\UnitTerm;
 use Override;
 
@@ -39,7 +40,7 @@ class Temperature extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI base unit
@@ -47,7 +48,7 @@ class Temperature extends Quantity
                 'asciiSymbol' => 'K',
                 'dimension'   => 'H',
                 'system'      => 'si_base',
-                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
             // Non-SI metric units
             'celsius'    => [
@@ -185,7 +186,7 @@ class Temperature extends Quantity
     public static function getUnitSymbols(): array
     {
         $symbols = [];
-        $units = UnitData::getByDimension('H');
+        $units = UnitRegistry::getByDimension('H');
         foreach ($units as $unit) {
             $symbols[] = $unit->asciiSymbol;
             if ($unit->unicodeSymbol !== null) {

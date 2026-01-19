@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests;
 
 use DomainException;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\UnitData;
 use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -28,7 +28,7 @@ final class UnitTermTest extends TestCase
             'unicodeSymbol' => 'Ω',
             'dimension'     => 'T-3L2MI-2',
             'system'        => 'si_named',
-            'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+            'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
             'expansionUnit' => 'kg*m2*s-3*A-2',
             'quantityType'  => 'resistance',
         ]);
@@ -47,7 +47,7 @@ final class UnitTermTest extends TestCase
                 'asciiSymbol'  => 'm',
                 'dimension'    => 'L',
                 'system'       => 'si_base',
-                'prefixGroup'  => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'quantityType' => 'length',
             ]
         );
@@ -62,7 +62,7 @@ final class UnitTermTest extends TestCase
             'asciiSymbol'  => 's',
             'dimension'    => 'T',
             'system'       => 'si_base',
-            'prefixGroup'  => UnitData::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
             'quantityType' => 'time',
         ]);
     }
@@ -1022,7 +1022,7 @@ final class UnitTermTest extends TestCase
         // Find the metre match (should be unprefixed)
         $metreMatch = null;
         foreach ($matches as $match) {
-            if ($match->unit->name === 'metre' && $match->prefix === null) {
+            if ($match->unit->name === 'metre' && !$match->hasPrefix()) {
                 $metreMatch = $match;
                 break;
             }

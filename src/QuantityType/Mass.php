@@ -7,7 +7,8 @@ namespace Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Converter;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\ConversionRegistry;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class Mass extends Quantity
 {
@@ -16,7 +17,7 @@ class Mass extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI base unit
@@ -24,7 +25,7 @@ class Mass extends Quantity
                 'asciiSymbol' => 'g',
                 'dimension'   => 'M',
                 'system'      => 'si_base',
-                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'siPrefix'    => 'k',
             ],
             // Non-SI metric units
@@ -87,8 +88,8 @@ class Mass extends Quantity
      */
     public static function useBritishUnits(): void
     {
-        // Update the conversion from ton to lb.
-        Converter::getByDimension('M')->addConversion(new Conversion('ton', 'lb', 2240));
+        $conversion = new Conversion('ton', 'lb', 2240);
+        ConversionRegistry::add($conversion);
     }
 
     // endregion

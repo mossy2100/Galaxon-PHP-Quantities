@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class SolidAngle extends Quantity
 {
@@ -14,7 +14,7 @@ class SolidAngle extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI derived unit
@@ -22,7 +22,7 @@ class SolidAngle extends Quantity
                 'asciiSymbol'   => 'sr',
                 'dimension'     => 'A2',
                 'system'        => 'si_derived',
-                'prefixGroup'   => UnitData::PREFIX_GROUP_SMALL_METRIC,
+                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_SMALL_METRIC,
                 'expansionUnit' => 'rad2',
             ],
         ];

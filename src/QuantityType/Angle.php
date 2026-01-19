@@ -8,7 +8,7 @@ use DomainException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Override;
 use TypeError;
 
@@ -29,7 +29,7 @@ class Angle extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI derived unit
@@ -37,14 +37,7 @@ class Angle extends Quantity
                 'asciiSymbol' => 'rad',
                 'dimension'   => 'A',
                 'system'      => 'si_derived',
-                'prefixGroup' => UnitData::PREFIX_GROUP_SMALL_METRIC,
-            ],
-            'steradian' => [
-                'asciiSymbol'   => 'sr',
-                'dimension'     => 'A2',
-                'system'        => 'si_derived',
-                'prefixGroup'   => UnitData::PREFIX_GROUP_SMALL_METRIC,
-                'expansionUnit' => 'rad2',
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_SMALL_METRIC,
             ],
             // Non-SI angle units
             'degree'    => [
@@ -385,7 +378,6 @@ class Angle extends Quantity
             'arcmin' => $arcmin,
             'arcsec' => $arcsec,
             'sign'   => $sign,
-
         ]);
     }
 

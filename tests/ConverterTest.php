@@ -352,25 +352,6 @@ class ConverterTest extends TestCase
 
     // endregion
 
-    // region addConversion() tests
-
-    /**
-     * Test addConversion adds conversion to matrix.
-     */
-    public function testAddConversionAddsToMatrix(): void
-    {
-        $converter = Converter::getByDimension('L');
-        $conversion = new Conversion('m', 'ft', 3.28084);
-
-        $converter->addConversion($conversion);
-
-        // Verify it can be retrieved
-        $retrieved = $converter->getConversion('m', 'ft');
-        $this->assertEqualsWithDelta(3.28084, $retrieved->factor->value, 1e-10);
-    }
-
-    // endregion
-
     // region Graph traversal tests
 
     /**

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Registry;
 
 use DomainException;
+use Galaxon\Quantities\UnitTerm;
 use LogicException;
 
 /**
@@ -16,7 +17,7 @@ use LogicException;
  * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
  * @see https://en.wikipedia.org/wiki/Dimensional_analysis
  */
-class Dimensions
+class DimensionRegistry
 {
     // region Constants
 
@@ -24,26 +25,26 @@ class Dimensions
      * Dimension codes are based on ISQ (International System of Quantities) dimensional symbols, with a few
      * variations and additions.
      *
-     * The order of the codes determines the canonical ordering of terms within a dimension code, which is necessary for
+     * The order of the codes determines the canonical ordering of terms within a dimension code, necessary for
      * comparing dimensions.
      *
-     * It also determines the ordering of unit terms in an SI derived unit. Thus, the order is based on the common style
-     * of writing SI units.
+     * It also determines the ordering of unit terms in an SI derived unit. This is based on the most common ordering of
+     * base unit terms when writing SI units.
      *
      * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
      * @see https://en.wikipedia.org/wiki/Dimensional_analysis
      */
     public const array DIMENSION_CODES = [
         'M' => [
-            'name'     => 'mass',
-            'siBase'   => 'g',
-            'siPrefix' => 'k',
+            'name'   => 'mass',
+            'siBase' => 'kg',
         ],
         'L' => [
             'name'   => 'length',
             'siBase' => 'm',
         ],
         // The dimension 'A' is not part of the ISQ, being considered a ratio of lengths.
+        // But we need it for this system of units.
         'A' => [
             'name'   => 'angle',
             'siBase' => 'rad',
@@ -65,9 +66,9 @@ class Dimensions
             'name'   => 'electric current',
             'siBase' => 'A',
         ],
-        // 'H' is used in place of 'Θ' (Greek capital theta), as used in the International System of Quantities.
-        // This is done purely because ASCII characters are easier to type.
-        // Capital theta has a horizontal bar, like 'H', and 'H' indicates heat.
+        // The ISQ uses 'Θ' (Greek capital theta) for temperature.
+        // 'H' is used here because ASCII characters are easier to type.
+        // 'H' is chosen because capital theta has a horizontal bar, like 'H', plus 'H' suggests heat.
         'H' => [
             'name'   => 'temperature',
             'siBase' => 'K',
@@ -91,7 +92,7 @@ class Dimensions
      *
      * @return list<string> The valid dimension code letters.
      */
-    private static function getCodeLetters(): array
+    private static function getLetterCodes(): array
     {
         return array_keys(self::DIMENSION_CODES);
     }
@@ -101,20 +102,25 @@ class Dimensions
      *
      * @return string The valid dimension code letters concatenated (e.g. 'MLADCTINJ').
      */
-    private static function getCodesString(): string
+    private static function getLetterCodesString(): string
     {
-        return implode('', self::getCodeLetters());
+        return implode('', self::getLetterCodes());
     }
 
     /**
      * Check if a dimension code string is valid.
      *
-     * @param string $dimension The dimension code to validate (e.g. 'L', 'MLT-2').
+     * @param string $dimension The dimension code to validate (e.g. 'L', 'MLT-2', '' for dimensionless).
      * @return bool True if valid, false otherwise.
      */
     public static function isValid(string $dimension): bool
     {
-        $validCodes = self::getCodesString();
+        // Empty string is valid (represents dimensionless).
+        if ($dimension === '') {
+            return true;
+        }
+
+        $validCodes = self::getLetterCodesString();
         return (bool)preg_match("/^([$validCodes](-?\d)?)+$/", $dimension);
     }
 
@@ -137,7 +143,7 @@ class Dimensions
         }
 
         // Get the matching terms.
-        $validCodes = self::getCodesString();
+        $validCodes = self::getLetterCodesString();
         preg_match_all("/([$validCodes])(-?\d)?/", $dimension, $matches, PREG_SET_ORDER);
 
         // Convert to an array of parts.
@@ -162,7 +168,7 @@ class Dimensions
     public static function implode(array $dimTerms): string
     {
         // Sort the terms.
-        $letters = array_flip(self::getCodeLetters());
+        $letters = array_flip(self::getLetterCodes());
         $fn = static fn (string $code1, string $code2) => $letters[$code1] <=> $letters[$code2];
         uksort($dimTerms, $fn);
 
@@ -214,7 +220,7 @@ class Dimensions
             return $dimension;
         }
 
-        // Multiply each dimension term by the exponent.
+        // Multiply each dimension term's current exponent by the new exponent.
         $dimTerms = self::explode($dimension);
         foreach ($dimTerms as $dim => $curExp) {
             $dimTerms[$dim] = $curExp * $exponent;
@@ -237,35 +243,46 @@ class Dimensions
     public static function letterToInt(string $letter): ?int
     {
         // Convert the letter to a position in the array.
-        $x = array_search($letter, self::getCodeLetters(), true);
+        $x = array_search($letter, self::getLetterCodes(), true);
 
         // If the letter isn't a valid dimension code, return null.
-        if ($x === false) {
-            return null;
-        }
-
-        return $x;
+        return $x === false ? null : $x;
     }
 
     /**
-     * Get the SI base unit (or most suitable) symbol for the given dimension code.
+     * Get the SI unit term symbol for the given dimension code.
      *
      * The unit may be prefixed.
      *
      * @param string $code Single-letter dimension code.
-     * @return UnitTerm The unit term.
+     * @return ?string The unit term symbol or null if not found.
      * @throws DomainException If the dimension code is invalid.
      */
-    public static function getSiUnitTerm(string $code): UnitTerm
+    public static function getSiBase(string $code): ?string
     {
         // Validate the code.
         if (strlen($code) !== 1 || !array_key_exists($code, self::DIMENSION_CODES)) {
             throw new DomainException("Invalid dimension code '$code'.");
         }
 
-        // Get the SI base unit and prefix.
-        $siBase = self::DIMENSION_CODES[$code]['siBase'] ?? null;
-        $siPrefix = self::DIMENSION_CODES[$code]['siPrefix'] ?? null;
+        // Get the SI base unit (which may have a prefix).
+        return self::DIMENSION_CODES[$code]['siBase'] ?? null;
+    }
+
+    /**
+     * Get the SI unit term for a given dimension code letter.
+     *
+     * The unit may be prefixed.
+     *
+     * @param string $code Single-letter dimension code.
+     * @return UnitTerm The unit term.
+     * @throws DomainException If the dimension code is invalid.
+     * @throws LogicException If no SI base unit is defined for a given dimension code.
+     */
+    public static function getSiBaseUnitTerm(string $code): UnitTerm
+    {
+        // Get the SI base unit symbol (which may have a prefix).
+        $siBase = self::getSiBase($code);
 
         // Make sure we got the SI base unit.
         if ($siBase === null) {
@@ -273,7 +290,7 @@ class Dimensions
         }
 
         // Construct the UnitTerm.
-        return new UnitTerm($siBase, $siPrefix);
+        return UnitTerm::parse($siBase);
     }
 
     // endregion

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class Pressure extends Quantity
 {
@@ -14,7 +14,7 @@ class Pressure extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI named unit
@@ -22,7 +22,7 @@ class Pressure extends Quantity
                 'asciiSymbol'   => 'Pa',
                 'dimension'     => 'T-2L-1M',
                 'system'        => 'si_named',
-                'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnit' => 'kg*m-1*s-2',
             ],
             // Non-SI metric units

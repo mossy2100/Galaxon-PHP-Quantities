@@ -6,7 +6,7 @@ namespace Galaxon\Quantities\Tests;
 
 use DomainException;
 use Galaxon\Quantities\DerivedUnit;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +34,7 @@ class DerivedUnitTest extends TestCase
 
     public function testConstructorWithUnit(): void
     {
-        $metre = UnitData::getBySymbol('m');
+        $metre = UnitRegistry::getBySymbol('m');
         $du = new DerivedUnit($metre);
 
         $this->assertCount(1, $du->unitTerms);
@@ -128,7 +128,7 @@ class DerivedUnitTest extends TestCase
 
     public function testParseNewton(): void
     {
-        // Newton is kg·m·s⁻², dimension MLT-2.
+        // Newton is kg⋅m⋅s⁻², dimension MLT-2.
         $du = DerivedUnit::parse('kg*m/s2');
         $this->assertSame('MLT-2', $du->dimension);
     }
@@ -148,7 +148,7 @@ class DerivedUnitTest extends TestCase
 
     public function testParseMultipleDivisions(): void
     {
-        // m/s/s should be m·s⁻²
+        // m/s/s should be m⋅s⁻²
         $du = DerivedUnit::parse('m/s/s');
         $this->assertSame('m*s-2', $du->format(true));
     }
@@ -173,7 +173,7 @@ class DerivedUnitTest extends TestCase
     {
         $du = DerivedUnit::parse('m*s-2');
         // __toString returns Unicode format with superscript exponents
-        $this->assertSame('m·s⁻²', (string)$du);
+        $this->assertSame('m⋅s⁻²', (string)$du);
     }
 
     public function testToStringUsesUnicodeSymbol(): void
@@ -219,7 +219,7 @@ class DerivedUnitTest extends TestCase
     public function testFormatUnicodeCompoundUnit(): void
     {
         $du = DerivedUnit::parse('m*s-1');
-        $this->assertSame('m·s⁻¹', $du->format());
+        $this->assertSame('m⋅s⁻¹', $du->format());
     }
 
     // endregion
@@ -266,14 +266,14 @@ class DerivedUnitTest extends TestCase
 
     public function testDimensionForce(): void
     {
-        // Force (Newton): mass·length/time²
+        // Force (Newton): mass⋅length/time²
         $du = DerivedUnit::parse('kg*m/s2');
         $this->assertSame('MLT-2', $du->dimension);
     }
 
     public function testDimensionEnergy(): void
     {
-        // Energy (Joule): mass·length²/time²
+        // Energy (Joule): mass⋅length²/time²
         $du = DerivedUnit::parse('kg*m2/s2');
         $this->assertSame('ML2T-2', $du->dimension);
     }
@@ -339,50 +339,71 @@ class DerivedUnitTest extends TestCase
 
     // endregion
 
-    // region getUnitTermBySymbol() tests
+    // region equal() tests
 
-    public function testGetUnitTermBySymbolFound(): void
+    public function testEqualSameUnits(): void
     {
-        $du = DerivedUnit::parse('kg*m/s2');
+        $du1 = DerivedUnit::parse('m/s');
+        $du2 = DerivedUnit::parse('m/s');
 
-        $massTerm = $du->getUnitTermBySymbol('kg');
-        $this->assertNotNull($massTerm);
-        $this->assertSame('kg', $massTerm->format(true));
-
-        $lengthTerm = $du->getUnitTermBySymbol('m');
-        $this->assertNotNull($lengthTerm);
-        $this->assertSame('m', $lengthTerm->format(true));
-
-        $timeTerm = $du->getUnitTermBySymbol('s');
-        $this->assertNotNull($timeTerm);
-        $this->assertSame('s-2', $timeTerm->format(true));
+        $this->assertTrue($du1->equal($du2));
     }
 
-    public function testGetUnitTermBySymbolWithPrefix(): void
+    public function testEqualCompoundUnits(): void
     {
-        $du = DerivedUnit::parse('km/ms');
+        $du1 = DerivedUnit::parse('kg*m/s2');
+        $du2 = DerivedUnit::parse('kg*m*s-2');
 
-        $kmTerm = $du->getUnitTermBySymbol('km');
-        $this->assertNotNull($kmTerm);
-        $this->assertSame('k', $kmTerm->prefix);
-        $this->assertSame('metre', $kmTerm->unit->name);
-
-        $msTerm = $du->getUnitTermBySymbol('ms');
-        $this->assertNotNull($msTerm);
-        $this->assertSame('m', $msTerm->prefix);
-        $this->assertSame('second', $msTerm->unit->name);
+        $this->assertTrue($du1->equal($du2));
     }
 
-    public function testGetUnitTermBySymbolNotFound(): void
+    public function testEqualDifferentUnits(): void
+    {
+        $du1 = DerivedUnit::parse('m');
+        $du2 = DerivedUnit::parse('km');
+
+        $this->assertFalse($du1->equal($du2));
+    }
+
+    public function testEqualDifferentExponents(): void
+    {
+        $du1 = DerivedUnit::parse('m2');
+        $du2 = DerivedUnit::parse('m3');
+
+        $this->assertFalse($du1->equal($du2));
+    }
+
+    public function testEqualDifferentNumberOfTerms(): void
+    {
+        $du1 = DerivedUnit::parse('m');
+        $du2 = DerivedUnit::parse('m*s');
+
+        $this->assertFalse($du1->equal($du2));
+    }
+
+    public function testEqualEmptyUnits(): void
+    {
+        $du1 = new DerivedUnit();
+        $du2 = new DerivedUnit();
+
+        $this->assertTrue($du1->equal($du2));
+    }
+
+    public function testEqualWithNonDerivedUnit(): void
     {
         $du = DerivedUnit::parse('m');
-        $this->assertNull($du->getUnitTermBySymbol('kg'));
+
+        $this->assertFalse($du->equal('m'));
+        $this->assertFalse($du->equal(null));
+        $this->assertFalse($du->equal(123));
     }
 
-    public function testGetUnitTermBySymbolEmpty(): void
+    public function testEqualDifferentPrefixes(): void
     {
-        $du = new DerivedUnit();
-        $this->assertNull($du->getUnitTermBySymbol('m'));
+        $du1 = DerivedUnit::parse('km');
+        $du2 = DerivedUnit::parse('mm');
+
+        $this->assertFalse($du1->equal($du2));
     }
 
     // endregion
@@ -504,7 +525,7 @@ class DerivedUnitTest extends TestCase
 
     public function testToDerivedUnitFromUnit(): void
     {
-        $metre = UnitData::getBySymbol('m');
+        $metre = UnitRegistry::getBySymbol('m');
         $result = DerivedUnit::toDerivedUnit($metre);
 
         $this->assertInstanceOf(DerivedUnit::class, $result);
@@ -554,7 +575,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('m/s');
         $inv = $du->inv();
 
-        // m·s⁻¹ inverted is m⁻¹·s
+        // m⋅s⁻¹ inverted is m⁻¹⋅s
         $this->assertSame('m-1*s', $inv->format(true));
     }
 
@@ -594,7 +615,7 @@ class DerivedUnitTest extends TestCase
 
     public function testSortingMixedExponents(): void
     {
-        // kg·m·s⁻² - force units.
+        // kg⋅m⋅s⁻² - force units.
         $s = new UnitTerm('s', null, -2);
         $m = new UnitTerm('m');
         $kg = new UnitTerm('g', 'k');

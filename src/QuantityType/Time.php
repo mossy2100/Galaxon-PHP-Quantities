@@ -7,7 +7,7 @@ namespace Galaxon\Quantities\QuantityType;
 use DateInterval;
 use DomainException;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Override;
 use TypeError;
 
@@ -18,7 +18,7 @@ class Time extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI base unit
@@ -26,7 +26,7 @@ class Time extends Quantity
                 'asciiSymbol' => 's',
                 'dimension'   => 'T',
                 'system'      => 'si_base',
-                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
             // Non-SI time units
             'minute'  => [

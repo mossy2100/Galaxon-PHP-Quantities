@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class Data extends Quantity
 {
@@ -14,20 +14,20 @@ class Data extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             'bit'  => [
                 'asciiSymbol' => 'b',
                 'dimension'   => 'D',
                 'system'      => 'metric',
-                'prefixGroup' => UnitData::PREFIX_GROUP_LARGE,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE,
             ],
             'byte' => [
                 'asciiSymbol' => 'B',
                 'dimension'   => 'D',
                 'system'      => 'metric',
-                'prefixGroup' => UnitData::PREFIX_GROUP_LARGE,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE,
             ],
         ];
     }

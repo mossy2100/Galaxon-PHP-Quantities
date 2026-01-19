@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class Energy extends Quantity
 {
@@ -14,7 +14,7 @@ class Energy extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI named unit
@@ -22,7 +22,7 @@ class Energy extends Quantity
                 'asciiSymbol'   => 'J',
                 'dimension'     => 'T-2L2M',
                 'system'        => 'si_named',
-                'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnit' => 'kg*m2*s-2',
             ],
             // Non-SI metric units
@@ -30,13 +30,13 @@ class Energy extends Quantity
                 'asciiSymbol' => 'eV',
                 'dimension'   => 'T-2L2M',
                 'system'      => 'metric',
-                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
             'calorie'      => [
                 'asciiSymbol' => 'cal',
                 'dimension'   => 'T-2L2M',
                 'system'      => 'metric',
-                'prefixGroup' => UnitData::PREFIX_GROUP_LARGE_METRIC,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE_METRIC,
             ],
         ];
     }

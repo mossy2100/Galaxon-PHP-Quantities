@@ -29,21 +29,34 @@ class Conversion implements Stringable
      *
      * @var UnitTerm
      */
-    public readonly UnitTerm $srcUnitTerm;
+    private(set) UnitTerm $srcUnitTerm;
 
     /**
      * The destination unit.
      *
      * @var UnitTerm
      */
-    public readonly UnitTerm $destUnitTerm;
+    private(set) UnitTerm $destUnitTerm;
 
     /**
      * The scale factor.
      *
      * @var FloatWithError
      */
-    public readonly FloatWithError $factor;
+    private(set) FloatWithError $factor;
+
+    // endregion
+
+    // region Property hooks
+
+    /**
+     * The Conversion dimension.
+     *
+     * @var string
+     */
+    public string $dimension {
+        get => $this->srcUnitTerm->dimension;
+    }
 
     // endregion
 
@@ -52,25 +65,21 @@ class Conversion implements Stringable
     /**
      * Constructor.
      *
-     * @param string|UnitTerm $srcUnitTerm The source unit term.
-     * @param string|UnitTerm $destUnitTerm The destination unit term.
+     * @param string|Unit|UnitTerm $srcUnitTerm The source unit term.
+     * @param string|Unit|UnitTerm $destUnitTerm The destination unit term.
      * @param float|FloatWithError $factor The scale factor (must be positive).
      * @throws DomainException If dimensions don't match or factor is not positive.
      */
     public function __construct(
-        string|UnitTerm $srcUnitTerm,
-        string|UnitTerm $destUnitTerm,
+        string|Unit|UnitTerm $srcUnitTerm,
+        string|Unit|UnitTerm $destUnitTerm,
         float|FloatWithError $factor
     ) {
-        // Ensure source unit is a UnitTerm.
-        if (is_string($srcUnitTerm)) {
-            $srcUnitTerm = UnitTerm::parse($srcUnitTerm);
-        }
+        // Ensure source unit term is a UnitTerm object
+        $srcUnitTerm = UnitTerm::toUnitTerm($srcUnitTerm);
 
-        // Ensure destination unit is a UnitTerm.
-        if (is_string($destUnitTerm)) {
-            $destUnitTerm = UnitTerm::parse($destUnitTerm);
-        }
+        // Ensure destination unit term is a UnitTerm object.
+        $destUnitTerm = UnitTerm::toUnitTerm($destUnitTerm);
 
         // Ensure dimensions match.
         if ($srcUnitTerm->dimension !== $destUnitTerm->dimension) {
@@ -289,7 +298,7 @@ class Conversion implements Stringable
     // region Formatting methods
 
     /**
-     * Format as "destUnit = srcUnit * (factor ± error)".
+     * Format as "9.999999 destUnit/srcUnit".
      *
      * @return string The string representation.
      */

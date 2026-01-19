@@ -8,6 +8,9 @@ use DomainException;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Traits\Equatable;
 use Galaxon\Core\Types;
+use Galaxon\Quantities\Registry\DimensionRegistry;
+use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use Override;
 use Stringable;
 
@@ -84,9 +87,9 @@ class UnitTerm implements Stringable
      * The prefix multiplier.
      */
     public float $prefixMultiplier {
-        get => $this->prefix === null
+        get => !$this->hasPrefix()
             ? 1.0
-            : UnitData::getPrefixMultiplier($this->prefix)
+            : PrefixRegistry::getPrefixMultiplier($this->prefix)
                 ?? throw new DomainException("Prefix '{$this->prefix}' is not a valid prefix.");
     }
 
@@ -102,7 +105,7 @@ class UnitTerm implements Stringable
      */
     public string $dimension
     {
-        get => Dimensions::applyExponent($this->unit->dimension, $this->exponent);
+        get => DimensionRegistry::applyExponent($this->unit->dimension, $this->exponent);
     }
 
     // phpcs:enable PSR2.Classes.PropertyDeclaration
@@ -125,7 +128,7 @@ class UnitTerm implements Stringable
         // Allow for the unit to be provided as a symbol.
         if (is_string($unit)) {
             $symbol = $unit;
-            $unit = UnitData::getBySymbol($symbol);
+            $unit = UnitRegistry::getBySymbol($symbol);
             if ($unit === null) {
                 throw new DomainException("Unit '$symbol' is invalid.");
             }
@@ -237,7 +240,7 @@ class UnitTerm implements Stringable
         $matches = [];
 
         // Look for any matching units.
-        foreach (UnitData::getUnits() as $unit) {
+        foreach (UnitRegistry::getAll() as $unit) {
             // See if the unprefixed unit matches.
             if ($unit->asciiSymbol === $symbol || $unit->unicodeSymbol === $symbol) {
                 $matches[] = new self($unit);
@@ -246,7 +249,7 @@ class UnitTerm implements Stringable
             // Check if prefixes are allowed with this unit.
             if ($unit->prefixGroup > 0) {
                 // Get the valid prefixes for this unit.
-                $prefixes = UnitData::getPrefixes($unit->prefixGroup);
+                $prefixes = PrefixRegistry::getPrefixes($unit->prefixGroup);
 
                 // Loop through the prefixed units and see if any match.
                 foreach ($prefixes as $prefix => $multiplier) {
@@ -268,7 +271,7 @@ class UnitTerm implements Stringable
      *
      * @param null|string|Unit|self $value The value to convert.
      * @return self The equivalent UnitTerm object.
-     * @throws DomainException If a string is provided and it cannot be parsed.
+     * @throws DomainException If a string is provided that cannot be parsed into a UnitTerm.
      */
     public static function toUnitTerm(null|string|Unit|self $value): self
     {
@@ -426,7 +429,7 @@ class UnitTerm implements Stringable
      */
     public function toSi(): ?self
     {
-        $units = UnitData::getByDimension($this->unit->dimension);
+        $units = UnitRegistry::getByDimension($this->unit->dimension);
         foreach ($units as $unit) {
             if ($unit->isSiBase()) {
                 return new self($unit, $unit->siPrefix, $this->exponent);
@@ -447,6 +450,11 @@ class UnitTerm implements Stringable
     public function isSi(): bool
     {
         return $this->unit->isSi();
+    }
+
+    public function hasPrefix(): bool
+    {
+        return $this->prefix !== null;
     }
 
     // endregion

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class Length extends Quantity
 {
@@ -14,7 +14,7 @@ class Length extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI base unit
@@ -22,7 +22,7 @@ class Length extends Quantity
                 'asciiSymbol' => 'm',
                 'dimension'   => 'L',
                 'system'      => 'si_base',
-                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
             // Astronomical units
             'astronomical unit' => [
@@ -39,7 +39,7 @@ class Length extends Quantity
                 'asciiSymbol' => 'pc',
                 'dimension'   => 'L',
                 'system'      => 'metric',
-                'prefixGroup' => UnitData::PREFIX_GROUP_LARGE_METRIC,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE_METRIC,
             ],
             // US customary units
             'pixel'             => [

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class RadiationDose extends Quantity
 {
@@ -18,7 +18,7 @@ class RadiationDose extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // SI named units
@@ -26,14 +26,14 @@ class RadiationDose extends Quantity
                 'asciiSymbol'   => 'Gy',
                 'dimension'     => 'T-2L2',
                 'system'        => 'si_named',
-                'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnit' => 'm2*s-2',
             ],
             'sievert' => [
                 'asciiSymbol'   => 'Sv',
                 'dimension'     => 'T-2L2',
                 'system'        => 'si_named',
-                'prefixGroup'   => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnit' => 'm2*s-2',
             ],
         ];

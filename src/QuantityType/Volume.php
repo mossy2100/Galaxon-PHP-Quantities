@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitData;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class Volume extends Quantity
 {
@@ -14,7 +14,7 @@ class Volume extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
-    public static function getUnits(): array
+    public static function getUnitDefinitions(): array
     {
         return [
             // Non-SI metric units
@@ -22,7 +22,7 @@ class Volume extends Quantity
                 'asciiSymbol' => 'L',
                 'dimension'   => 'L3',
                 'system'      => 'metric',
-                'prefixGroup' => UnitData::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
             // US customary units
             'teaspoon'    => [

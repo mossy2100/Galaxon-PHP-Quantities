@@ -7,6 +7,8 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Traits\Equatable;
 use Galaxon\Core\Types;
+use Galaxon\Quantities\Registry\DimensionRegistry;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Override;
 use Stringable;
 
@@ -116,7 +118,7 @@ class Unit implements Stringable
         $this->asciiSymbol = $data['asciiSymbol'];
         $this->unicodeSymbol = $data['unicodeSymbol'] ?? null;
         $this->quantityType = $data['quantityType'];
-        $this->dimension = Dimensions::normalize($data['dimension']);
+        $this->dimension = DimensionRegistry::normalize($data['dimension']);
         $this->system = $data['system'];
         $this->prefixGroup = $data['prefixGroup'] ?? 0;
         $this->siPrefix = $data['siPrefix'] ?? null;
@@ -157,7 +159,7 @@ class Unit implements Stringable
      */
     public function getAllowedPrefixes(): array
     {
-        return UnitData::getPrefixes($this->prefixGroup);
+        return PrefixRegistry::getPrefixes($this->prefixGroup);
     }
 
     // endregion
