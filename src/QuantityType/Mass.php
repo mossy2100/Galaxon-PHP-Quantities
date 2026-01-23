@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Conversion;
-use Galaxon\Quantities\Converter;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;

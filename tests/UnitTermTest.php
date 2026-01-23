@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests;
 
 use DomainException;
+use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -15,7 +15,7 @@ use stdClass;
 /**
  * Tests for UnitTerm class.
  */
-#[CoversClass(UnitTerm::class)]
+#[CoversClass(DerivedUnit::class)]
 final class UnitTermTest extends TestCase
 {
     /**
@@ -90,7 +90,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorWithUnitOnly(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertSame($base, $term->unit);
         $this->assertNull($term->prefix);
@@ -103,7 +103,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorWithPrefix(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k');
+        $term = new DerivedUnit($base, 'k');
 
         $this->assertSame('k', $term->prefix);
         $this->assertSame(1, $term->exponent);
@@ -115,7 +115,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorWithExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, null, 2);
+        $term = new DerivedUnit($base, null, 2);
 
         $this->assertNull($term->prefix);
         $this->assertSame(2, $term->exponent);
@@ -127,7 +127,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorWithPrefixAndExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $this->assertSame('k', $term->prefix);
         $this->assertSame(2, $term->exponent);
@@ -139,7 +139,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorWithNegativeExponent(): void
     {
         $base = $this->createSecondUnit();
-        $term = new UnitTerm($base, null, -2);
+        $term = new DerivedUnit($base, null, -2);
 
         $this->assertSame(-2, $term->exponent);
     }
@@ -154,7 +154,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Prefix 'invalid' is invalid");
 
-        new UnitTerm($base, 'invalid');
+        new DerivedUnit($base, 'invalid');
     }
 
     /**
@@ -167,7 +167,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('is invalid');
 
-        new UnitTerm($base, 'k');
+        new DerivedUnit($base, 'k');
     }
 
     /**
@@ -180,7 +180,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("can't be zero");
 
-        new UnitTerm($base, null, 0);
+        new DerivedUnit($base, null, 0);
     }
 
     /**
@@ -193,7 +193,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be between -9 and 9');
 
-        new UnitTerm($base, null, 10);
+        new DerivedUnit($base, null, 10);
     }
 
     /**
@@ -206,7 +206,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be between -9 and 9');
 
-        new UnitTerm($base, null, -10);
+        new DerivedUnit($base, null, -10);
     }
 
     /**
@@ -214,7 +214,7 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithStringSymbol(): void
     {
-        $term = new UnitTerm('m');
+        $term = new DerivedUnit('m');
 
         $this->assertSame('metre', $term->unit->name);
         $this->assertSame('m', $term->unit->asciiSymbol);
@@ -227,7 +227,7 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithStringSymbolAndPrefix(): void
     {
-        $term = new UnitTerm('m', 'k');
+        $term = new DerivedUnit('m', 'k');
 
         $this->assertSame('metre', $term->unit->name);
         $this->assertSame('k', $term->prefix);
@@ -239,7 +239,7 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithStringSymbolPrefixAndExponent(): void
     {
-        $term = new UnitTerm('s', 'm', -2);
+        $term = new DerivedUnit('s', 'm', -2);
 
         $this->assertSame('second', $term->unit->name);
         $this->assertSame('m', $term->prefix);
@@ -251,16 +251,16 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithVariousStringSymbols(): void
     {
-        $metre = new UnitTerm('m');
+        $metre = new DerivedUnit('m');
         $this->assertSame('metre', $metre->unit->name);
 
-        $second = new UnitTerm('s');
+        $second = new DerivedUnit('s');
         $this->assertSame('second', $second->unit->name);
 
-        $hertz = new UnitTerm('Hz');
+        $hertz = new DerivedUnit('Hz');
         $this->assertSame('hertz', $hertz->unit->name);
 
-        $newton = new UnitTerm('N');
+        $newton = new DerivedUnit('N');
         $this->assertSame('newton', $newton->unit->name);
     }
 
@@ -272,7 +272,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Unit 'xyz' is invalid");
 
-        new UnitTerm('xyz');
+        new DerivedUnit('xyz');
     }
 
     // endregion
@@ -285,9 +285,9 @@ final class UnitTermTest extends TestCase
     public function testSymbolPropertyForUnit(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
-        $this->assertSame('m', $term->symbol);
+        $this->assertSame('m', $term->asciiSymbol);
     }
 
     /**
@@ -296,9 +296,9 @@ final class UnitTermTest extends TestCase
     public function testSymbolPropertyWithPrefix(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k');
+        $term = new DerivedUnit($base, 'k');
 
-        $this->assertSame('km', $term->symbol);
+        $this->assertSame('km', $term->asciiSymbol);
     }
 
     /**
@@ -307,9 +307,9 @@ final class UnitTermTest extends TestCase
     public function testSymbolPropertyWithExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, null, 2);
+        $term = new DerivedUnit($base, null, 2);
 
-        $this->assertSame('m2', $term->symbol);
+        $this->assertSame('m2', $term->asciiSymbol);
     }
 
     /**
@@ -318,9 +318,9 @@ final class UnitTermTest extends TestCase
     public function testSymbolPropertyWithPrefixAndExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
-        $this->assertSame('km2', $term->symbol);
+        $this->assertSame('km2', $term->asciiSymbol);
     }
 
     /**
@@ -329,9 +329,9 @@ final class UnitTermTest extends TestCase
     public function testSymbolPropertyWithNegativeExponent(): void
     {
         $base = $this->createSecondUnit();
-        $term = new UnitTerm($base, null, -2);
+        $term = new DerivedUnit($base, null, -2);
 
-        $this->assertSame('s-2', $term->symbol);
+        $this->assertSame('s-2', $term->asciiSymbol);
     }
 
     /**
@@ -340,9 +340,9 @@ final class UnitTermTest extends TestCase
     public function testSymbolWithoutPrefixProperty(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
-        $this->assertSame('m2', $term->unprefixedSymbol);
+        $this->assertSame('m2', $term->unprefixedAsciiSymbol);
     }
 
     /**
@@ -351,9 +351,9 @@ final class UnitTermTest extends TestCase
     public function testSymbolWithoutExponentProperty(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
-        $this->assertSame('km', $term->unexponentiatedSymbol);
+        $this->assertSame('km', $term->unexponentiatedAsciiSymbol);
     }
 
     /**
@@ -362,7 +362,7 @@ final class UnitTermTest extends TestCase
     public function testPrefixMultiplierWithoutPrefix(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertSame(1.0, $term->prefixMultiplier);
     }
@@ -373,7 +373,7 @@ final class UnitTermTest extends TestCase
     public function testPrefixMultiplierWithKilo(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k');
+        $term = new DerivedUnit($base, 'k');
 
         $this->assertSame(1000.0, $term->prefixMultiplier);
     }
@@ -384,7 +384,7 @@ final class UnitTermTest extends TestCase
     public function testPrefixMultiplierWithMilli(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'm');
+        $term = new DerivedUnit($base, 'm');
 
         $this->assertSame(0.001, $term->prefixMultiplier);
     }
@@ -395,7 +395,7 @@ final class UnitTermTest extends TestCase
     public function testMultiplierWithoutPrefix(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertSame(1.0, $term->multiplier);
     }
@@ -406,7 +406,7 @@ final class UnitTermTest extends TestCase
     public function testMultiplierWithPrefix(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k');
+        $term = new DerivedUnit($base, 'k');
 
         $this->assertSame(1000.0, $term->multiplier);
     }
@@ -417,7 +417,7 @@ final class UnitTermTest extends TestCase
     public function testMultiplierWithPrefixAndExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         // 1000^2 = 1,000,000
         $this->assertSame(1e6, $term->multiplier);
@@ -429,7 +429,7 @@ final class UnitTermTest extends TestCase
     public function testMultiplierWithPrefixAndNegativeExponent(): void
     {
         $base = $this->createSecondUnit();
-        $term = new UnitTerm($base, 'm', -2);
+        $term = new DerivedUnit($base, 'm', -2);
 
         // 0.001^-2 = 1,000,000
         $this->assertSame(1e6, $term->multiplier);
@@ -441,7 +441,7 @@ final class UnitTermTest extends TestCase
     public function testDimensionPropertyForUnit(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertSame('L', $term->dimension);
     }
@@ -452,7 +452,7 @@ final class UnitTermTest extends TestCase
     public function testDimensionPropertyWithExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, null, 2);
+        $term = new DerivedUnit($base, null, 2);
 
         $this->assertSame('L2', $term->dimension);
     }
@@ -463,7 +463,7 @@ final class UnitTermTest extends TestCase
     public function testDimensionPropertyWithNegativeExponent(): void
     {
         $base = $this->createSecondUnit();
-        $term = new UnitTerm($base, null, -2);
+        $term = new DerivedUnit($base, null, -2);
 
         $this->assertSame('T-2', $term->dimension);
     }
@@ -477,7 +477,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesSimpleUnit(): void
     {
-        $pattern = '/^' . UnitTerm::regex() . '$/u';
+        $pattern = '/^' . DerivedUnit::regex() . '$/u';
 
         $this->assertSame(1, preg_match($pattern, 'm'));
         $this->assertSame(1, preg_match($pattern, 'km'));
@@ -489,7 +489,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithAsciiExponent(): void
     {
-        $pattern = '/^' . UnitTerm::regex() . '$/u';
+        $pattern = '/^' . DerivedUnit::regex() . '$/u';
 
         $this->assertSame(1, preg_match($pattern, 'm2'));
         $this->assertSame(1, preg_match($pattern, 's-2'));
@@ -501,7 +501,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithSuperscriptExponent(): void
     {
-        $pattern = '/^' . UnitTerm::regex() . '$/u';
+        $pattern = '/^' . DerivedUnit::regex() . '$/u';
 
         $this->assertSame(1, preg_match($pattern, 'm²'));
         $this->assertSame(1, preg_match($pattern, 's⁻²'));
@@ -513,7 +513,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexDoesNotMatchInvalidFormats(): void
     {
-        $pattern = '/^' . UnitTerm::regex() . '$/u';
+        $pattern = '/^' . DerivedUnit::regex() . '$/u';
 
         $this->assertSame(0, preg_match($pattern, '123'));
         $this->assertSame(0, preg_match($pattern, ''));
@@ -528,7 +528,7 @@ final class UnitTermTest extends TestCase
      */
     public function testParseSimpleUnit(): void
     {
-        $term = UnitTerm::parse('m');
+        $term = DerivedUnit::parse('m');
 
         $this->assertSame('metre', $term->unit->name);
         $this->assertNull($term->prefix);
@@ -540,7 +540,7 @@ final class UnitTermTest extends TestCase
      */
     public function testParsePrefixedUnit(): void
     {
-        $term = UnitTerm::parse('km');
+        $term = DerivedUnit::parse('km');
 
         $this->assertSame('metre', $term->unit->name);
         $this->assertSame('k', $term->prefix);
@@ -552,7 +552,7 @@ final class UnitTermTest extends TestCase
      */
     public function testParseWithAsciiExponent(): void
     {
-        $term = UnitTerm::parse('m2');
+        $term = DerivedUnit::parse('m2');
 
         $this->assertSame('metre', $term->unit->name);
         $this->assertSame(2, $term->exponent);
@@ -563,7 +563,7 @@ final class UnitTermTest extends TestCase
      */
     public function testParseWithNegativeAsciiExponent(): void
     {
-        $term = UnitTerm::parse('s-2');
+        $term = DerivedUnit::parse('s-2');
 
         $this->assertSame('second', $term->unit->name);
         $this->assertSame(-2, $term->exponent);
@@ -574,7 +574,7 @@ final class UnitTermTest extends TestCase
      */
     public function testParseWithSuperscriptExponent(): void
     {
-        $term = UnitTerm::parse('m²');
+        $term = DerivedUnit::parse('m²');
 
         $this->assertSame('metre', $term->unit->name);
         $this->assertSame(2, $term->exponent);
@@ -585,7 +585,7 @@ final class UnitTermTest extends TestCase
      */
     public function testParseWithNegativeSuperscriptExponent(): void
     {
-        $term = UnitTerm::parse('s⁻²');
+        $term = DerivedUnit::parse('s⁻²');
 
         $this->assertSame('second', $term->unit->name);
         $this->assertSame(-2, $term->exponent);
@@ -596,7 +596,7 @@ final class UnitTermTest extends TestCase
      */
     public function testParseWithPrefixAndExponent(): void
     {
-        $term = UnitTerm::parse('km2');
+        $term = DerivedUnit::parse('km2');
 
         $this->assertSame('metre', $term->unit->name);
         $this->assertSame('k', $term->prefix);
@@ -611,7 +611,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid unit');
 
-        UnitTerm::parse('123');
+        DerivedUnit::parse('123');
     }
 
     /**
@@ -622,7 +622,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Unknown or unsupported unit');
 
-        UnitTerm::parse('xyz');
+        DerivedUnit::parse('xyz');
     }
 
     /**
@@ -633,7 +633,7 @@ final class UnitTermTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid exponent 0');
 
-        UnitTerm::parse('m0');
+        DerivedUnit::parse('m0');
     }
 
     // endregion
@@ -646,7 +646,7 @@ final class UnitTermTest extends TestCase
     public function testFormatAsciiForUnit(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertSame('m', $term->format(true));
     }
@@ -657,7 +657,7 @@ final class UnitTermTest extends TestCase
     public function testFormatAsciiWithPrefixAndExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $this->assertSame('km2', $term->format(true));
     }
@@ -668,7 +668,7 @@ final class UnitTermTest extends TestCase
     public function testFormatUnicodeForUnit(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertSame('m', $term->format());
     }
@@ -679,7 +679,7 @@ final class UnitTermTest extends TestCase
     public function testFormatUnicodeConvertsSuperscript(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $this->assertSame('km²', $term->format());
     }
@@ -690,7 +690,7 @@ final class UnitTermTest extends TestCase
     public function testFormatUnicodeUsesUnicodeSymbol(): void
     {
         $base = $this->createOhmUnit();
-        $term = new UnitTerm($base, 'k');
+        $term = new DerivedUnit($base, 'k');
 
         $this->assertSame('kΩ', $term->format());
     }
@@ -701,7 +701,7 @@ final class UnitTermTest extends TestCase
     public function testFormatWithNegativeExponent(): void
     {
         $base = $this->createSecondUnit();
-        $term = new UnitTerm($base, null, -2);
+        $term = new DerivedUnit($base, null, -2);
 
         $this->assertSame('s⁻²', $term->format());
         $this->assertSame('s-2', $term->format(true));
@@ -717,7 +717,7 @@ final class UnitTermTest extends TestCase
     public function testToStringReturnsUnicodeFormat(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $this->assertSame('km²', (string)$term);
     }
@@ -728,7 +728,7 @@ final class UnitTermTest extends TestCase
     public function testToStringWithNegativeExponent(): void
     {
         $base = $this->createSecondUnit();
-        $term = new UnitTerm($base, 'm', -2);
+        $term = new DerivedUnit($base, 'm', -2);
 
         $this->assertSame('ms⁻²', (string)$term);
     }
@@ -739,7 +739,7 @@ final class UnitTermTest extends TestCase
     public function testToStringUsesUnicodeSymbol(): void
     {
         $base = $this->createOhmUnit();
-        $term = new UnitTerm($base, 'k');
+        $term = new DerivedUnit($base, 'k');
 
         $this->assertSame('kΩ', (string)$term);
     }
@@ -750,7 +750,7 @@ final class UnitTermTest extends TestCase
     public function testToStringOmitsExponentOfOne(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertSame('m', (string)$term);
     }
@@ -765,7 +765,7 @@ final class UnitTermTest extends TestCase
     public function testInvNegatesExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $inverted = $term->inv();
 
@@ -780,7 +780,7 @@ final class UnitTermTest extends TestCase
     public function testInvReturnsNewInstance(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, null, 2);
+        $term = new DerivedUnit($base, null, 2);
 
         $inverted = $term->inv();
 
@@ -793,7 +793,7 @@ final class UnitTermTest extends TestCase
     public function testWithExponentChangesExponent(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $newTerm = $term->withExponent(3);
 
@@ -807,7 +807,7 @@ final class UnitTermTest extends TestCase
     public function testWithExponentReturnsNewInstance(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $newTerm = $term->withExponent(2);
 
@@ -820,9 +820,9 @@ final class UnitTermTest extends TestCase
     public function testApplyExponentMultipliesExponents(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, null, 2);
+        $term = new DerivedUnit($base, null, 2);
 
-        $newTerm = $term->applyExponent(3);
+        $newTerm = $term->pow(3);
 
         $this->assertSame(6, $newTerm->exponent);
     }
@@ -833,7 +833,7 @@ final class UnitTermTest extends TestCase
     public function testRemoveExponentResetsToOne(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 3);
+        $term = new DerivedUnit($base, 'k', 3);
 
         $newTerm = $term->removeExponent();
 
@@ -847,7 +847,7 @@ final class UnitTermTest extends TestCase
     public function testWithPrefixChangesPrefix(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $newTerm = $term->withPrefix('M');
 
@@ -861,7 +861,7 @@ final class UnitTermTest extends TestCase
     public function testWithPrefixCanSetToNull(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k');
+        $term = new DerivedUnit($base, 'k');
 
         $newTerm = $term->withPrefix(null);
 
@@ -874,7 +874,7 @@ final class UnitTermTest extends TestCase
     public function testWithPrefixReturnsNewInstance(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k');
+        $term = new DerivedUnit($base, 'k');
 
         $newTerm = $term->withPrefix('M');
 
@@ -887,7 +887,7 @@ final class UnitTermTest extends TestCase
     public function testRemovePrefixRemovesPrefix(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $newTerm = $term->removePrefix();
 
@@ -905,7 +905,7 @@ final class UnitTermTest extends TestCase
     public function testEqualReturnsTrueForSameInstance(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $this->assertTrue($term->equal($term));
     }
@@ -917,8 +917,8 @@ final class UnitTermTest extends TestCase
     {
         $base1 = $this->createMetreUnit();
         $base2 = $this->createMetreUnit();
-        $term1 = new UnitTerm($base1, 'k', 2);
-        $term2 = new UnitTerm($base2, 'k', 2);
+        $term1 = new DerivedUnit($base1, 'k', 2);
+        $term2 = new DerivedUnit($base2, 'k', 2);
 
         $this->assertTrue($term1->equal($term2));
     }
@@ -930,8 +930,8 @@ final class UnitTermTest extends TestCase
     {
         $metre = $this->createMetreUnit();
         $second = $this->createSecondUnit();
-        $term1 = new UnitTerm($metre);
-        $term2 = new UnitTerm($second);
+        $term1 = new DerivedUnit($metre);
+        $term2 = new DerivedUnit($second);
 
         $this->assertFalse($term1->equal($term2));
     }
@@ -942,8 +942,8 @@ final class UnitTermTest extends TestCase
     public function testEqualReturnsFalseForDifferentPrefixes(): void
     {
         $base = $this->createMetreUnit();
-        $term1 = new UnitTerm($base, 'k');
-        $term2 = new UnitTerm($base, 'M');
+        $term1 = new DerivedUnit($base, 'k');
+        $term2 = new DerivedUnit($base, 'M');
 
         $this->assertFalse($term1->equal($term2));
     }
@@ -954,8 +954,8 @@ final class UnitTermTest extends TestCase
     public function testEqualReturnsFalseForDifferentExponents(): void
     {
         $base = $this->createMetreUnit();
-        $term1 = new UnitTerm($base, null, 2);
-        $term2 = new UnitTerm($base, null, 3);
+        $term1 = new DerivedUnit($base, null, 2);
+        $term2 = new DerivedUnit($base, null, 3);
 
         $this->assertFalse($term1->equal($term2));
     }
@@ -966,7 +966,7 @@ final class UnitTermTest extends TestCase
     public function testEqualReturnsFalseForDifferentTypes(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertFalse($term->equal('m'));
         $this->assertFalse($term->equal(1));
@@ -984,7 +984,7 @@ final class UnitTermTest extends TestCase
     public function testIsSiReturnsTrueForSiUnit(): void
     {
         $base = $this->createMetreUnit();
-        $term = new UnitTerm($base, 'k', 2);
+        $term = new DerivedUnit($base, 'k', 2);
 
         $this->assertTrue($term->isSi());
     }
@@ -1000,7 +1000,7 @@ final class UnitTermTest extends TestCase
             'dimension'    => 'L',
             'system'       => 'us_customary',
         ]);
-        $term = new UnitTerm($base);
+        $term = new DerivedUnit($base);
 
         $this->assertFalse($term->isSi());
     }
@@ -1014,10 +1014,10 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolFindsUnprefixedUnit(): void
     {
-        $matches = UnitTerm::getBySymbol('m');
+        $matches = DerivedUnit::getBySymbol('m');
 
         $this->assertNotEmpty($matches);
-        $this->assertContainsOnlyInstancesOf(UnitTerm::class, $matches);
+        $this->assertContainsOnlyInstancesOf(DerivedUnit::class, $matches);
 
         // Find the metre match (should be unprefixed)
         $metreMatch = null;
@@ -1038,7 +1038,7 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolFindsPrefixedUnit(): void
     {
-        $matches = UnitTerm::getBySymbol('km');
+        $matches = DerivedUnit::getBySymbol('km');
 
         $this->assertNotEmpty($matches);
 
@@ -1059,7 +1059,7 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolFindsByUnicodeSymbol(): void
     {
-        $matches = UnitTerm::getBySymbol('Ω');
+        $matches = DerivedUnit::getBySymbol('Ω');
 
         $this->assertNotEmpty($matches);
 
@@ -1080,7 +1080,7 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolFindsPrefixedByUnicodeSymbol(): void
     {
-        $matches = UnitTerm::getBySymbol('kΩ');
+        $matches = DerivedUnit::getBySymbol('kΩ');
 
         $this->assertNotEmpty($matches);
 
@@ -1101,7 +1101,7 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolReturnsEmptyForUnknown(): void
     {
-        $matches = UnitTerm::getBySymbol('xyz');
+        $matches = DerivedUnit::getBySymbol('xyz');
 
         $this->assertIsArray($matches);
         $this->assertEmpty($matches);
@@ -1112,13 +1112,13 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolReturnsUnitTermArray(): void
     {
-        $matches = UnitTerm::getBySymbol('s');
+        $matches = DerivedUnit::getBySymbol('s');
 
         $this->assertIsArray($matches);
         $this->assertNotEmpty($matches);
 
         foreach ($matches as $match) {
-            $this->assertInstanceOf(UnitTerm::class, $match);
+            $this->assertInstanceOf(DerivedUnit::class, $match);
             $this->assertSame(1, $match->exponent);
         }
     }

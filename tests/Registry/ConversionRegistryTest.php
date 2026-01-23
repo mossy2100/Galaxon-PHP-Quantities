@@ -183,8 +183,8 @@ final class ConversionRegistryTest extends TestCase
         $result = ConversionRegistry::get('L', 'm', 'in');
 
         $this->assertInstanceOf(Conversion::class, $result);
-        $this->assertSame('m', $result->srcUnitTerm->symbol);
-        $this->assertSame('in', $result->destUnitTerm->symbol);
+        $this->assertSame('m', $result->srcUnit->asciiSymbol);
+        $this->assertSame('in', $result->destUnit->asciiSymbol);
     }
 
     /**
@@ -312,8 +312,8 @@ final class ConversionRegistryTest extends TestCase
         $result = ConversionRegistry::get('L', 'km', 'mi');
 
         $this->assertNotNull($result);
-        $this->assertSame('km', $result->srcUnitTerm->symbol);
-        $this->assertSame('mi', $result->destUnitTerm->symbol);
+        $this->assertSame('km', $result->srcUnit->asciiSymbol);
+        $this->assertSame('mi', $result->destUnit->asciiSymbol);
     }
 
     /**
@@ -328,8 +328,8 @@ final class ConversionRegistryTest extends TestCase
         $result = ConversionRegistry::get('L2', 'm2', 'ft2');
 
         $this->assertNotNull($result);
-        $this->assertSame('m2', $result->srcUnitTerm->symbol);
-        $this->assertSame('ft2', $result->destUnitTerm->symbol);
+        $this->assertSame('m2', $result->srcUnit->asciiSymbol);
+        $this->assertSame('ft2', $result->destUnit->asciiSymbol);
     }
 
     // endregion
@@ -386,8 +386,8 @@ final class ConversionRegistryTest extends TestCase
         foreach ($result as $destConversions) {
             foreach ($destConversions as $conversion) {
                 $this->assertSame(
-                    $conversion->srcUnitTerm->dimension,
-                    $conversion->destUnitTerm->dimension,
+                    $conversion->srcUnit->dimension,
+                    $conversion->destUnit->dimension,
                     "Conversion {$conversion} has mismatched dimensions"
                 );
             }

@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DomainException;
-use Galaxon\Core\Arrays;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\DimensionRegistry;
+use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use LogicException;
 
@@ -44,11 +45,11 @@ class Converter
     private(set) string $dimension;
 
     /**
-     * Unprefixed unit terms for this converter.
+     * Unprefixed units for this converter.
      *
-     * @var list<UnitTerm>
+     * @var array<string, DerivedUnit>
      */
-    private(set) array $unitTerms = [];
+    private(set) array $units = [];
 
     // endregion
 
@@ -71,24 +72,25 @@ class Converter
      * Initializes the Converter instance for a given dimension.
      *
      * @param string $dimension Dimension code (e.g. 'L', 'MLT-2').
-     * @throws DomainException If the dimension is invalid.
+     * @throws FormatException If the dimension code is invalid.
+     * @throws DomainException If any conversion definitions are invalid.
      */
     private function __construct(string $dimension)
     {
         // Check the dimension is valid.
         if (!DimensionRegistry::isValid($dimension)) {
-            throw new DomainException("Invalid dimension '$dimension'.");
+            throw new FormatException("Invalid dimension code '$dimension'.");
         }
 
         // Store the dimension code.
         $this->dimension = $dimension;
 
-        // Load unit terms from the registered conversions for this dimension.
+        // Load units from the registered conversions for this dimension.
         $conversionsBySrc = ConversionRegistry::getByDimension($dimension);
         foreach ($conversionsBySrc as $conversionsByDest) {
             foreach ($conversionsByDest as $conversion) {
-                $this->addUnprefixedUnitTerm($conversion->srcUnitTerm);
-                $this->addUnprefixedUnitTerm($conversion->destUnitTerm);
+                $this->addUnit($conversion->srcUnit->removePrefixes());
+                $this->addUnit($conversion->destUnit->removePrefixes());
             }
         }
     }
@@ -130,46 +132,47 @@ class Converter
      *
      * Generated conversions are cached for future use.
      *
-     * @param string|Unit|UnitTerm $srcUnitTerm The source unit term symbol or instance.
-     * @param string|Unit|UnitTerm $destUnitTerm The destination unit term symbol or instance.
+     * @param string|UnitInterface $srcUnit The source unit.
+     * @param string|UnitInterface $destUnit The destination unit.
      * @return ?Conversion The conversion transformation or null if none found.
      * @throws DomainException If either unit term is invalid.
      *
      * @example
      *   $conversion = $converter->getConversion('m', 'ft');
      */
-    public function getConversion(string|Unit|UnitTerm $srcUnitTerm, string|Unit|UnitTerm $destUnitTerm): ?Conversion
+    public function getConversion(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
     {
-        // Validate the unit terms and convert to UnitTerm objects.
-        $srcUnitTerm = $this->validateUnitTerm($srcUnitTerm);
-        $destUnitTerm = $this->validateUnitTerm($destUnitTerm);
+        // Validate the units and convert to DerivedUnit objects.
+        $srcUnit = $this->validateUnit($srcUnit);
+        $destUnit = $this->validateUnit($destUnit);
 
         // Handle the simple case.
-        if ($srcUnitTerm->equal($destUnitTerm)) {
-            return new Conversion($srcUnitTerm, $destUnitTerm, 1.0);
+        if ($srcUnit->equal($destUnit)) {
+            return new Conversion($srcUnit, $destUnit, 1.0);
         }
 
         // Make sure both unit terms (unprefixed) are in the Converter.
-        $this->addUnprefixedUnitTerm($srcUnitTerm);
-        $this->addUnprefixedUnitTerm($destUnitTerm);
+        $unprefixedSrcUnit = $srcUnit->removePrefixes();
+        $unprefixedDestUnit = $destUnit->removePrefixes();
+        $this->addUnit($unprefixedSrcUnit);
+        $this->addUnit($unprefixedDestUnit);
 
         // See if we already have this one.
-        $conversion = ConversionRegistry::get($this->dimension, $srcUnitTerm->symbol, $destUnitTerm->symbol);
+        $conversion = ConversionRegistry::get($this->dimension, $srcUnit->asciiSymbol, $destUnit->asciiSymbol);
         if ($conversion !== null) {
             return $conversion;
         }
 
         // Find the conversion between unprefixed units.
-        $unprefixedSrcUnitTerm = $srcUnitTerm->removePrefix();
-        $unprefixedDestUnitTerm = $destUnitTerm->removePrefix();
         $dim = $this->dimension;
-        $src = $unprefixedSrcUnitTerm->symbol;
-        $dest = $unprefixedDestUnitTerm->symbol;
+        $src = $unprefixedSrcUnit->asciiSymbol;
+        $dest = $unprefixedDestUnit->asciiSymbol;
 
         // If the units without prefixes are the same, create the identity conversion. Prefixes will be added later.
         if ($src === $dest) {
-            return new Conversion($unprefixedSrcUnitTerm, $unprefixedDestUnitTerm, 1.0)
-                ->alterPrefixes($srcUnitTerm->prefix, $destUnitTerm->prefix);
+            // TODO Figure out how to apply source unit prefixes to a DerivedUnit which may have multiple terms.
+            return new Conversion($unprefixedSrcUnit, $unprefixedDestUnit, 1.0)
+                ->alterPrefixes($srcUnit->prefix, $destUnit->prefix);
         }
 
         // Generate new conversions until we get a match, or we're out of options.
@@ -184,8 +187,8 @@ class Converter
         }
 
         // Apply prefixes if necessary.
-        if ($srcUnitTerm->hasPrefix() || $destUnitTerm->hasPrefix()) {
-            $conversion = $unprefixedConversion->alterPrefixes($srcUnitTerm->prefix, $destUnitTerm->prefix);
+        if (!$srcUnit->equal($unprefixedSrcUnit) || !$destUnit->equal($unprefixedDestUnit)) {
+            $conversion = $unprefixedConversion->alterPrefixes($srcUnit->prefix, $destUnit->prefix);
 
             // Add the new prefixed conversion to the Converter.
             ConversionRegistry::add($conversion);
@@ -201,14 +204,14 @@ class Converter
     /**
      * Get the conversion factor between two unit terms.
      *
-     * @param string|Unit|UnitTerm $srcUnitTerm The source unit term symbol or instance.
-     * @param string|Unit|UnitTerm $destUnitTerm The destination unit term symbol or instance.
+     * @param string|UnitInterface $srcUnit The source unit.
+     * @param string|UnitInterface $destUnit The destination unit.
      * @return ?float The conversion factor or null if not found.
      * @throws DomainException If either unit term is invalid.
      */
-    public function getConversionFactor(string|Unit|UnitTerm $srcUnitTerm, string|Unit|UnitTerm $destUnitTerm): ?float
+    public function getConversionFactor(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?float
     {
-        return $this->getConversion($srcUnitTerm, $destUnitTerm)?->factor->value;
+        return $this->getConversion($srcUnit, $destUnit)?->factor->value;
     }
 
     // endregion
@@ -216,28 +219,29 @@ class Converter
     // region Validation methods
 
     /**
-     * Validate a string or object representing a unit term.
+     * Validate a string or object representing a unit.
      *
-     * Returns the validated UnitTerm object if valid, and throws an exception if not.
+     * Returns the validated DerivedUnit object if valid, and throws an exception if not.
      *
-     * @param string|Unit|UnitTerm $value The unit term equivalent value to validate.
-     * @return UnitTerm The validated unit term.
-     * @throws DomainException If the unit term value is invalid for this Converter.
+     * @param string|UnitInterface $value The unit value to validate.
+     * @return DerivedUnit The validated DerivedUnit object equivalent to the provided parameter.
+     * @throws DomainException If the symbol is invalid or the unit has the wrong dimension for this Converter.
      */
-    public function validateUnitTerm(string|Unit|UnitTerm $value): UnitTerm
+    public function validateUnit(string|UnitInterface $value): DerivedUnit
     {
-        // Get the unit term as a UnitTerm object.
-        $unitTerm = UnitTerm::toUnitTerm($value);
+        // Get the unit term as a DerivedUnit object.
+        $unit = DerivedUnit::toDerivedUnit($value);
 
         // Check the unit term has the right dimension.
-        if ($unitTerm->dimension !== $this->dimension) {
-            $quotedSymbols = implode(', ', Arrays::quoteValues($this->getUnitSymbolsByDimension()));
-            throw new DomainException(
-                "Invalid unit term '$value'. Valid symbols (without prefixes) are: $quotedSymbols."
-            );
+        if ($unit->dimension !== $this->dimension) {
+            $qtyType = QuantityTypeRegistry::getByDimension($this->dimension);
+            $error = $qtyType === null
+                ? "The unit dimension '$unit->dimension' does not match the converter dimension '$this->dimension'."
+                : "The unit '$unit->asciiSymbol' is invalid for $qtyType->name quantities.";
+            throw new DomainException($error);
         }
 
-        return $unitTerm;
+        return $unit;
     }
 
     // endregion
@@ -251,8 +255,8 @@ class Converter
      * y = m*x
      *
      * @param float $value The value to convert.
-     * @param string|UnitTerm $srcUnitTerm The source unit symbol.
-     * @param string|UnitTerm $destUnitTerm The destination unit symbol.
+     * @param string|UnitInterface $srcUnit The source unit.
+     * @param string|UnitInterface $destUnit The destination unit.
      * @return float The converted value.
      * @throws DomainException If either unit symbol is invalid.
      * @throws LogicException If no conversion path exists between the units.
@@ -261,22 +265,14 @@ class Converter
      *   $meters = 100;
      *   $feet = $converter->convert($meters, 'm', 'ft');  // 328.084
      */
-    public function convert(float $value, string|UnitTerm $srcUnitTerm, string|UnitTerm $destUnitTerm): float
+    public function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
     {
-        // Remember the original unit terms for error reporting.
-        $origSrcUnitTerm = (string)$srcUnitTerm;
-        $origDestUnitTerm = (string)$destUnitTerm;
-
-        // Check unit terms are valid and get them as objects.
-        $srcUnitTerm = $this->validateUnitTerm($srcUnitTerm);
-        $destUnitTerm = $this->validateUnitTerm($destUnitTerm);
-
         // Get the conversion.
-        $conversion = $this->getConversion($srcUnitTerm, $destUnitTerm);
+        $conversion = $this->getConversion($srcUnit, $destUnit);
 
         // If no conversion was found, throw an exception.
         if ($conversion === null) {
-            throw new LogicException("No conversion found between units '$origSrcUnitTerm' and '$origDestUnitTerm'.");
+            throw new LogicException("No conversion found between units '$srcUnit' and '$destUnit'.");
         }
 
         // Multiply by the conversion factor.
@@ -287,23 +283,25 @@ class Converter
 
     // region Helper methods
 
-    private function hasUnitTerm(UnitTerm $unitTerm): bool
+    /**
+     * Check if the converter already has a unit.
+     *
+     * @param DerivedUnit $derivedUnit
+     * @return bool
+     */
+    private function hasUnit(DerivedUnit $derivedUnit): bool
     {
-        $fnMatch = static fn (UnitTerm $unitTerm2): bool => $unitTerm2->equal($unitTerm);
-        return array_find($this->unitTerms, $fnMatch) !== null;
+        return isset($this->units[$derivedUnit->asciiSymbol]);
     }
 
     /**
-     * Add the unprefixed unit term if it hasn't been already.
+     * Add the unit.
      *
-     * @param UnitTerm $unitTerm
+     * @param DerivedUnit $derivedUnit The unit to add.
      */
-    private function addUnprefixedUnitTerm(UnitTerm $unitTerm): void
+    private function addUnit(DerivedUnit $derivedUnit): void
     {
-        $unprefixedUnitTerm = $unitTerm->removePrefix();
-        if (!$this->hasUnitTerm($unprefixedUnitTerm)) {
-            $this->unitTerms[] = $unprefixedUnitTerm;
-        }
+        $this->units[$derivedUnit->asciiSymbol] = $derivedUnit;
     }
 
     /**
@@ -321,6 +319,94 @@ class Converter
             $minErr = $newConversion->factor->relativeError;
             $best = $newConversion;
         }
+    }
+
+    private static function getConversionByExponentiation(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    {
+        // Get the max possible divisor to minimise the number of loops.
+        $max = max($srcUnit->maxAbsExp(), $destUnit->maxAbsExp());
+
+        $allDivisible = false;
+
+        // Check if all the unit terms are divisible by an integer.
+        for ($exp = $max; $exp >= 2; $exp--) {
+            $allDivisible = true;
+
+            foreach ($srcUnit->unitTerms as $unitTerm) {
+                if ($unitTerm->exponent % $exp !== 0) {
+                    $allDivisible = false;
+                    break;
+                }
+            }
+
+            if (!$allDivisible) {
+                continue;
+            }
+
+            foreach ($destUnit->unitTerms as $unitTerm) {
+                if ($unitTerm->exponent % $exp !== 0) {
+                    $allDivisible = false;
+                    break;
+                }
+            }
+
+            if ($allDivisible) {
+                break;
+            }
+        }
+
+        if (!$allDivisible) {
+            return null;
+        }
+
+        // Find the root of the source and dest units.
+        $reducedSrcUnit = $srcUnit->root($exp);
+        $reducedDestUnit = $destUnit->root($exp);
+
+        // Try to find a conversion.
+        $converter = self::getByDimension($reducedSrcUnit->dimension);
+        $conversion = $converter->getConversion($reducedSrcUnit, $reducedDestUnit);
+
+        // Return the conversion raised to the exponent.
+        return $conversion?->pow($exp);
+    }
+
+    private static function getConversionByTerms(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    {
+        // Check number of unit terms match.
+        if (count($srcUnit->unitTerms) !== count($destUnit->unitTerms)) {
+            return null;
+        }
+
+        // Check we have at least 2 unit terms each.
+        if (count($srcUnit->unitTerms) < 2) {
+            return null;
+        }
+
+        // Generate conversion factor by multiplying the factors for each term.
+        $srcUnitTerms = array_values($srcUnit->unitTerms);
+        $destUnitTerms = array_values($destUnit->unitTerms);
+        $factor = new FloatWithError(1);
+        foreach ($srcUnitTerms as $i => $srcUnitTerm) {
+            $destUnitTerm = $destUnitTerms[$i];
+
+            // Check the dimensions match.
+            if ($srcUnitTerm->dimension !== $destUnitTerm->dimension) {
+                return null;
+            }
+
+            // Get the conversion.
+            $converter = self::getByDimension($srcUnitTerm->dimension);
+            $conversion = $converter->getConversion($srcUnitTerm, $destUnitTerm);
+            if ($conversion === null) {
+                return null;
+            }
+
+            // Multiply.
+            $factor = $factor->mul($conversion->factor);
+        }
+
+        return new Conversion($srcUnit, $destUnit, $factor);
     }
 
     /**
@@ -342,12 +428,11 @@ class Converter
         $best = null;
         $dim = $this->dimension;
 
-        // Iterate through all possible pairs of unit terms.
-        foreach ($this->unitTerms as $srcUnitTerm) {
-            foreach ($this->unitTerms as $destUnitTerm) {
-
-                $src = $srcUnitTerm->symbol;
-                $dest = $destUnitTerm->symbol;
+        // Iterate through all possible pairs of units.
+        foreach ($this->units as $srcUnit) {
+            foreach ($this->units as $destUnit) {
+                $src = $srcUnit->asciiSymbol;
+                $dest = $destUnit->asciiSymbol;
 
                 // If we don't need this conversion, or it's already known, continue.
                 if ($src === $dest || ConversionRegistry::has($dim, $src, $dest)) {
@@ -357,14 +442,13 @@ class Converter
                 // Look for the inverse conversion.
                 $inverse = ConversionRegistry::get($dim, $dest, $src);
                 if ($inverse !== null) {
-                    $newConversion = $inverse->invert();
+                    $newConversion = $inverse->inv();
                     $this->testNewConversion($newConversion, $minErr, $best);
                 }
 
                 // Look for a conversion opportunity via an intermediate unit.
-                foreach ($this->unitTerms as $midUnitTerm) {
-
-                    $mid = $midUnitTerm->symbol;
+                foreach ($this->units as $midUnit) {
+                    $mid = $midUnit->asciiSymbol;
 
                     // The intermediate unit must be different from the source and destination units.
                     if ($src === $mid || $dest === $mid) {
@@ -403,13 +487,15 @@ class Converter
                 }
 
                 // Look for a conversion by exponentiation.
-                if ($srcUnitTerm->exponent !== 1 && $srcUnitTerm->exponent === $destUnitTerm->exponent) {
-                    $converter = self::getByDimension($srcUnitTerm->unit->dimension);
-                    $newConversion = $converter->getConversion($srcUnitTerm->unit, $destUnitTerm->unit);
-                    if ($newConversion !== null) {
-                        $newConversion = $newConversion->applyExponent($srcUnitTerm->exponent);
-                        $this->testNewConversion($newConversion, $minErr, $best);
-                    }
+                $newConversion = self::getConversionByExponentiation($srcUnit, $destUnit);
+                if ($newConversion !== null) {
+                    $this->testNewConversion($newConversion, $minErr, $best);
+                }
+
+                // Look for a conversion by multiple unit terms.
+                $newConversion = self::getConversionByTerms($srcUnit, $destUnit);
+                if ($newConversion !== null) {
+                    $this->testNewConversion($newConversion, $minErr, $best);
                 }
             }
         }
@@ -472,28 +558,27 @@ class Converter
     public function printMatrix(): void
     {
         $colWidth = 20;
-        $nUnits = count($this->unitTerms);
+        $nUnits = count($this->units);
         $line = '+------+' . str_repeat(str_repeat('-', $colWidth) . '+', $nUnits) . "\n";
 
         echo $line;
         echo '|      |';
-        foreach ($this->unitTerms as $unitTerm) {
-            echo str_pad($unitTerm->symbol, $colWidth, ' ', STR_PAD_BOTH) . '|';
+        foreach ($this->units as $unitTerm) {
+            echo str_pad($unitTerm->asciiSymbol, $colWidth, ' ', STR_PAD_BOTH) . '|';
         }
         echo "\n";
         echo $line;
 
-        foreach ($this->unitTerms as $srcUnitTerm) {
-            echo '|' . str_pad($srcUnitTerm->symbol, 6) . '|';
-            foreach ($this->unitTerms as $destUnitTerm) {
-
-                $conversion = ConversionRegistry::get($srcUnitTerm, $destUnitTerm);
+        foreach ($this->units as $srcUnit) {
+            echo '|' . str_pad($srcUnit->asciiSymbol, 6) . '|';
+            foreach ($this->units as $destUnit) {
+                $conversion = ConversionRegistry::get($this->dimension, $srcUnit->asciiSymbol, $destUnit->asciiSymbol);
 
                 if ($conversion !== null) {
                     $mul = $conversion->factor->value;
                     $sMul = sprintf('%.10g', $mul);
                     echo str_pad($sMul, $colWidth);
-                } elseif ($srcUnitTerm->symbol === $destUnitTerm->symbol) {
+                } elseif ($srcUnit->asciiSymbol === $destUnit->asciiSymbol) {
                     echo str_pad('1', $colWidth);
                 } else {
                     echo str_pad('?', $colWidth);

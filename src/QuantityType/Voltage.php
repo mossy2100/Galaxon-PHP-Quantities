@@ -19,11 +19,11 @@ class Voltage extends Quantity
         return [
             // SI named unit
             'volt' => [
-                'asciiSymbol'   => 'V',
-                'dimension'     => 'T-3L2MI-1',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-3*A-1',
+                'asciiSymbol'         => 'V',
+                'dimension'           => 'T-3L2MI-1',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg*m2*s-3*A-1',
             ],
         ];
     }

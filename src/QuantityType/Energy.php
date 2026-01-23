@@ -19,11 +19,11 @@ class Energy extends Quantity
         return [
             // SI named unit
             'joule'        => [
-                'asciiSymbol'   => 'J',
-                'dimension'     => 'T-2L2M',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-2',
+                'asciiSymbol'         => 'J',
+                'dimension'           => 'T-2L2M',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg*m2*s-2',
             ],
             // Non-SI metric units
             'electronvolt' => [

@@ -19,12 +19,12 @@ class Resistance extends Quantity
         return [
             // SI named unit
             'ohm' => [
-                'asciiSymbol'   => 'ohm',
-                'unicodeSymbol' => 'Ω',
-                'dimension'     => 'T-3L2MI-2',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-3*A-2',
+                'asciiSymbol'         => 'ohm',
+                'unicodeSymbol'       => 'Ω',
+                'dimension'           => 'T-3L2MI-2',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
             ],
         ];
     }

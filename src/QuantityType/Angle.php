@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use DomainException;
+use Exception;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use InvalidArgumentException;
+use LogicException;
 use Override;
-use TypeError;
 
 class Angle extends Quantity
 {
@@ -103,14 +106,16 @@ class Angle extends Quantity
      *
      * @param string $value The string to parse.
      * @return static A new Angle equivalent to the provided string.
-     * @throws DomainException If the string does not represent a valid angle.
+     * @throws FormatException If the string has an invalid format.
+     * @throws DomainException If any of the values are non-finite or negative.
+     * @throws LogicException Never.
      */
     public static function parse(string $value): static
     {
         try {
             // Try to parse the angle using Quantity::parse().
             return parent::parse($value);
-        } catch (DomainException $e) {
+        } catch (FormatException $e) {
             // Check for a format containing symbols for degrees, arcminutes, and arcseconds.
             $rxNum = '\d+(?:\.\d+)?(?:[eE][+-]?\d+)?';
             $pattern = '/^(?:(?<sign>[-+]?)\s*)?'
@@ -162,8 +167,6 @@ class Angle extends Quantity
      * Get the size of the angle in radians.
      *
      * @return float
-     * @throws DomainException
-     * @throws \LogicException
      */
     public function toRadians(): float
     {
@@ -188,6 +191,7 @@ class Angle extends Quantity
      * @param float $relTol The relative tolerance (default 0).
      * @param float $absTol The absolute tolerance (default 1e-9).
      * @return bool True if the values are equal, false otherwise (including for incompatible types).
+     * @throws DomainException
      */
     #[Override]
     public function approxEqual(mixed $other, float $relTol = 0, float $absTol = self::RAD_EPSILON): bool
@@ -368,7 +372,7 @@ class Angle extends Quantity
      * @param float $arcsec The number of arcseconds.
      * @param int $sign -1 if the Angle is negative, 1 (or omitted) otherwise.
      * @return static A new Angle in degrees with a magnitude equal to the sum of the parts.
-     * @throws TypeError If any of the values are not numbers.
+     * @throws InvalidArgumentException If any of the values are not numbers.
      * @throws DomainException If any of the values are non-finite or negative.
      */
     public static function fromParts(float $degrees = 0, float $arcmin = 0, float $arcsec = 0, int $sign = 1): static

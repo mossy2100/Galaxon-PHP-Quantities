@@ -22,18 +22,18 @@ class Frequency extends Quantity
         return [
             // SI named unit
             'hertz'     => [
-                'asciiSymbol'   => 'Hz',
-                'dimension'     => 'T-1',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 's-1',
+                'asciiSymbol'         => 'Hz',
+                'dimension'           => 'T-1',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 's-1',
             ],
             'becquerel' => [
-                'asciiSymbol'   => 'Bq',
-                'dimension'     => 'T-1',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 's-1',
+                'asciiSymbol'         => 'Bq',
+                'dimension'           => 'T-1',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 's-1',
             ],
         ];
     }

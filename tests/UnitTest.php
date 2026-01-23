@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests;
 
-use Galaxon\Quantities\Quantity;
+use Error;
+use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -35,14 +37,13 @@ final class UnitTest extends TestCase
 
         $this->assertSame('metre', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
-        $this->assertNull($unit->unicodeSymbol);
+        $this->assertSame('m', $unit->unicodeSymbol);
         $this->assertSame('length', $unit->quantityType);
         $this->assertSame('L', $unit->dimension);
         $this->assertSame('si_base', $unit->system);
         $this->assertSame(PrefixRegistry::PREFIX_GROUP_METRIC, $unit->prefixGroup);
         $this->assertNull($unit->siPrefix);
-        $this->assertSame(1.0, $unit->expansionValue);
-        $this->assertNull($unit->expansionUnit);
+        $this->assertNull($unit->expansionUnitSymbol);
     }
 
     /**
@@ -51,24 +52,23 @@ final class UnitTest extends TestCase
     public function testConstructorWithSiNamedUnit(): void
     {
         $data = [
-            'asciiSymbol'   => 'Hz',
-            'quantityType'  => 'frequency',
-            'dimension'     => 'T-1',
-            'system'        => 'si_named',
-            'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 's-1',
+            'asciiSymbol'         => 'Hz',
+            'quantityType'        => 'frequency',
+            'dimension'           => 'T-1',
+            'system'              => 'si_named',
+            'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'expansionUnitSymbol' => 's-1',
         ];
 
         $unit = new Unit('hertz', $data);
 
         $this->assertSame('hertz', $unit->name);
         $this->assertSame('Hz', $unit->asciiSymbol);
-        $this->assertNull($unit->unicodeSymbol);
+        $this->assertSame('Hz', $unit->unicodeSymbol);
         $this->assertSame('frequency', $unit->quantityType);
         $this->assertSame('T-1', $unit->dimension);
         $this->assertSame('si_named', $unit->system);
-        $this->assertSame('s-1', $unit->expansionUnit);
-        $this->assertSame(1.0, $unit->expansionValue);
+        $this->assertSame('s-1', $unit->expansionUnitSymbol);
     }
 
     /**
@@ -77,13 +77,13 @@ final class UnitTest extends TestCase
     public function testConstructorWithCustomUnicodeSymbol(): void
     {
         $data = [
-            'asciiSymbol'   => 'ohm',
-            'unicodeSymbol' => 'Ω',
-            'quantityType'  => 'resistance',
-            'dimension'     => 'T-3L2MI-2',
-            'system'        => 'si_named',
-            'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m2*s-3*A-2',
+            'asciiSymbol'         => 'ohm',
+            'unicodeSymbol'       => 'Ω',
+            'quantityType'        => 'resistance',
+            'dimension'           => 'T-3L2MI-2',
+            'system'              => 'si_named',
+            'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
         ];
 
         $unit = new Unit('ohm', $data);
@@ -109,26 +109,6 @@ final class UnitTest extends TestCase
         $unit = new Unit('gram', $data);
 
         $this->assertSame('k', $unit->siPrefix);
-    }
-
-    /**
-     * Test constructor with expansion value (pound force).
-     */
-    public function testConstructorWithEquivalentValue(): void
-    {
-        $data = [
-            'asciiSymbol'    => 'lbf',
-            'quantityType'   => 'force',
-            'dimension'      => 'T-2LM',
-            'system'         => 'us_customary',
-            'expansionValue' => 9.80665 / 0.3048,
-            'expansionUnit'  => 'ft*lb/s2',
-        ];
-
-        $unit = new Unit('pound force', $data);
-
-        $this->assertEqualsWithDelta(9.80665 / 0.3048, $unit->expansionValue, 1e-10);
-        $this->assertSame('ft*lb/s2', $unit->expansionUnit);
     }
 
     /**
@@ -171,7 +151,130 @@ final class UnitTest extends TestCase
     // region Property hook tests
 
     /**
-     * Test equivalent property returns null when expansionUnit is null.
+     * Test asciiSymbol property can be read.
+     */
+    public function testAsciiSymbolPropertyIsReadable(): void
+    {
+        $data = [
+            'asciiSymbol'  => 'm',
+            'quantityType' => 'length',
+            'dimension'    => 'L',
+            'system'       => 'si_base',
+        ];
+
+        $unit = new Unit('metre', $data);
+
+        $this->assertSame('m', $unit->asciiSymbol);
+    }
+
+    /**
+     * Test unicodeSymbol property can be read.
+     */
+    public function testUnicodeSymbolPropertyIsReadable(): void
+    {
+        $data = [
+            'asciiSymbol'   => 'ohm',
+            'unicodeSymbol' => 'Ω',
+            'quantityType'  => 'resistance',
+            'dimension'     => 'T-3L2MI-2',
+            'system'        => 'si_named',
+        ];
+
+        $unit = new Unit('ohm', $data);
+
+        $this->assertSame('Ω', $unit->unicodeSymbol);
+    }
+
+    /**
+     * Test unicodeSymbol defaults to asciiSymbol when not specified.
+     */
+    public function testUnicodeSymbolDefaultsToAsciiSymbol(): void
+    {
+        $data = [
+            'asciiSymbol'  => 'm',
+            'quantityType' => 'length',
+            'dimension'    => 'L',
+            'system'       => 'si_base',
+        ];
+
+        $unit = new Unit('metre', $data);
+
+        $this->assertSame('m', $unit->unicodeSymbol);
+    }
+
+    /**
+     * Test dimension property can be read.
+     */
+    public function testDimensionPropertyIsReadable(): void
+    {
+        $data = [
+            'asciiSymbol'  => 'm',
+            'quantityType' => 'length',
+            'dimension'    => 'L',
+            'system'       => 'si_base',
+        ];
+
+        $unit = new Unit('metre', $data);
+
+        $this->assertSame('L', $unit->dimension);
+    }
+
+    /**
+     * Test asciiSymbol property cannot be written.
+     */
+    public function testAsciiSymbolPropertyIsNotWritable(): void
+    {
+        $data = [
+            'asciiSymbol'  => 'm',
+            'quantityType' => 'length',
+            'dimension'    => 'L',
+            'system'       => 'si_base',
+        ];
+
+        $unit = new Unit('metre', $data);
+
+        $this->expectException(Error::class);
+        $unit->asciiSymbol = 'km';
+    }
+
+    /**
+     * Test unicodeSymbol property cannot be written.
+     */
+    public function testUnicodeSymbolPropertyIsNotWritable(): void
+    {
+        $data = [
+            'asciiSymbol'  => 'm',
+            'quantityType' => 'length',
+            'dimension'    => 'L',
+            'system'       => 'si_base',
+        ];
+
+        $unit = new Unit('metre', $data);
+
+        $this->expectException(Error::class);
+        $unit->unicodeSymbol = 'km';
+    }
+
+    /**
+     * Test dimension property cannot be written.
+     */
+    public function testDimensionPropertyIsNotWritable(): void
+    {
+        $data = [
+            'asciiSymbol'  => 'm',
+            'quantityType' => 'length',
+            'dimension'    => 'L',
+            'system'       => 'si_base',
+        ];
+
+        $unit = new Unit('metre', $data);
+
+        $this->expectException(Error::class);
+        $unit->dimension = 'M';
+    }
+
+    /**
+     * Test equivalent property returns null when expansionUnitSymbol is null.
      */
     public function testEquivalentPropertyReturnsNullWhenNoEquivalentUnit(): void
     {
@@ -184,29 +287,28 @@ final class UnitTest extends TestCase
 
         $unit = new Unit('metre', $data);
 
-        $this->assertNull($unit->expansion);
+        $this->assertNull($unit->expansionUnitSymbol);
     }
 
     /**
-     * Test equivalent property returns Quantity when expansionUnit is set.
+     * Test equivalent property returns Quantity when expansionUnitSymbol is set.
      */
     public function testEquivalentPropertyReturnsQuantity(): void
     {
         $data = [
-            'asciiSymbol'   => 'Hz',
-            'quantityType'  => 'frequency',
-            'dimension'     => 'T-1',
-            'system'        => 'si_named',
-            'expansionUnit' => 's-1',
+            'asciiSymbol'         => 'Hz',
+            'quantityType'        => 'frequency',
+            'dimension'           => 'T-1',
+            'system'              => 'si_named',
+            'expansionUnitSymbol' => 's-1',
         ];
 
         $unit = new Unit('hertz', $data);
 
-        $equivalent = $unit->expansion;
+        $expansionUnit = $unit->expansionUnit;
 
-        $this->assertInstanceOf(Quantity::class, $equivalent);
-        $this->assertSame(1.0, $equivalent->value);
-        $this->assertSame('s-1', $equivalent->derivedUnit->format(true));
+        $this->assertInstanceOf(DerivedUnit::class, $expansionUnit);
+        $this->assertSame('s-1', $expansionUnit->format(true));
     }
 
     /**
@@ -215,41 +317,19 @@ final class UnitTest extends TestCase
     public function testEquivalentPropertyCachesInstance(): void
     {
         $data = [
-            'asciiSymbol'   => 'Hz',
-            'quantityType'  => 'frequency',
-            'dimension'     => 'T-1',
-            'system'        => 'si_named',
-            'expansionUnit' => 's-1',
+            'asciiSymbol'         => 'Hz',
+            'quantityType'        => 'frequency',
+            'dimension'           => 'T-1',
+            'system'              => 'si_named',
+            'expansionUnitSymbol' => 's-1',
         ];
 
         $unit = new Unit('hertz', $data);
 
-        $equivalent1 = $unit->expansion;
-        $equivalent2 = $unit->expansion;
+        $expansion1 = $unit->expansionUnitSymbol;
+        $expansion2 = $unit->expansionUnitSymbol;
 
-        $this->assertSame($equivalent1, $equivalent2);
-    }
-
-    /**
-     * Test equivalent property with custom expansionValue.
-     */
-    public function testEquivalentPropertyWithCustomValue(): void
-    {
-        $data = [
-            'asciiSymbol'    => 'lbf',
-            'quantityType'   => 'force',
-            'dimension'      => 'T-2LM',
-            'system'         => 'us_customary',
-            'expansionValue' => 4.44822,
-            'expansionUnit'  => 'N',
-        ];
-
-        $unit = new Unit('pound force', $data);
-
-        $equivalent = $unit->expansion;
-
-        $this->assertEqualsWithDelta(4.44822, $equivalent->value, 1e-10);
-        $this->assertSame('N', $equivalent->derivedUnit->format(true));
+        $this->assertSame($expansion1, $expansion2);
     }
 
     // endregion
@@ -976,13 +1056,13 @@ final class UnitTest extends TestCase
     public function testCreateFromUnitDataOhm(): void
     {
         $data = [
-            'asciiSymbol'   => 'ohm',
-            'unicodeSymbol' => 'Ω',
-            'dimension'     => 'T-3L2MI-2',
-            'system'        => 'si_named',
-            'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-            'expansionUnit' => 'kg*m2*s-3*A-2',
-            'quantityType'  => 'resistance',
+            'asciiSymbol'         => 'ohm',
+            'unicodeSymbol'       => 'Ω',
+            'dimension'           => 'T-3L2MI-2',
+            'system'              => 'si_named',
+            'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
+            'quantityType'        => 'resistance',
         ];
         $unit = new Unit('ohm', $data);
 

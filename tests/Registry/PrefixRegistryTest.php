@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Registry;
 
+use DomainException;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -503,7 +504,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertThrowsForBinaryPrefixes(): void
     {
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
 
         PrefixRegistry::invert('Ki');
     }
@@ -513,7 +514,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertThrowsForInvalidPrefix(): void
     {
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
 
         PrefixRegistry::invert('X');
     }
@@ -523,7 +524,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertThrowsForEmptyString(): void
     {
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
 
         PrefixRegistry::invert('');
     }

@@ -19,11 +19,11 @@ class MagneticFluxDensity extends Quantity
         return [
             // SI named unit
             'tesla' => [
-                'asciiSymbol'   => 'T',
-                'dimension'     => 'T-2MI-1',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*s-2*A-1',
+                'asciiSymbol'         => 'T',
+                'dimension'           => 'T-2MI-1',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg*s-2*A-1',
             ],
         ];
     }

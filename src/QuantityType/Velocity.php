@@ -18,10 +18,10 @@ class Velocity extends Quantity
         return [
             // US named unit
             'knot' => [
-                'asciiSymbol'   => 'kn',
-                'dimension'     => 'T-1L',
-                'system'        => 'us_named',
-                'expansionUnit' => 'nmi*h-1',
+                'asciiSymbol'         => 'kn',
+                'dimension'           => 'T-1L',
+                'system'              => 'us_named',
+                'expansionUnitSymbol' => 'nmi*h-1',
             ],
         ];
     }

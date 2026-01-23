@@ -7,7 +7,7 @@ namespace Galaxon\Quantities\Tests;
 use DomainException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Converter;
-use Galaxon\Quantities\UnitTerm;
+use Galaxon\Quantities\DerivedUnit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -79,8 +79,8 @@ class ConverterTest extends TestCase
         $conversion = $converter->getConversion('m', 'ft');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
-        $this->assertSame('m', (string)$conversion->srcUnitTerm);
-        $this->assertSame('ft', (string)$conversion->destUnitTerm);
+        $this->assertSame('m', (string)$conversion->srcUnit);
+        $this->assertSame('ft', (string)$conversion->destUnit);
         $this->assertGreaterThan(0.0, $conversion->factor->value);
     }
 
@@ -105,8 +105,8 @@ class ConverterTest extends TestCase
 
         $conversion = $converter->getConversion('km', 'm');
 
-        $this->assertSame('km', (string)$conversion->srcUnitTerm);
-        $this->assertSame('m', (string)$conversion->destUnitTerm);
+        $this->assertSame('km', (string)$conversion->srcUnit);
+        $this->assertSame('m', (string)$conversion->destUnit);
         $this->assertEqualsWithDelta(1000.0, $conversion->factor->value, 1e-10);
     }
 
@@ -128,8 +128,8 @@ class ConverterTest extends TestCase
     public function testGetConversionWithUnitTermObjects(): void
     {
         $converter = Converter::getByDimension('L');
-        $srcUnitTerm = UnitTerm::parse('m');
-        $destUnitTerm = UnitTerm::parse('ft');
+        $srcUnitTerm = DerivedUnit::parse('m');
+        $destUnitTerm = DerivedUnit::parse('ft');
 
         $conversion = $converter->getConversion($srcUnitTerm, $destUnitTerm);
 
@@ -217,9 +217,9 @@ class ConverterTest extends TestCase
     {
         $converter = Converter::getByDimension('L');
 
-        $unitTerm = $converter->validateUnitTerm('m');
+        $unitTerm = $converter->validateUnit('m');
 
-        $this->assertInstanceOf(UnitTerm::class, $unitTerm);
+        $this->assertInstanceOf(DerivedUnit::class, $unitTerm);
         $this->assertSame('m', (string)$unitTerm);
     }
 
@@ -230,7 +230,7 @@ class ConverterTest extends TestCase
     {
         $converter = Converter::getByDimension('L');
 
-        $unitTerm = $converter->validateUnitTerm('km');
+        $unitTerm = $converter->validateUnit('km');
 
         $this->assertSame('km', (string)$unitTerm);
     }
@@ -245,7 +245,7 @@ class ConverterTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid unit term');
 
-        $converter->validateUnitTerm('s'); // seconds is time, not length
+        $converter->validateUnit('s'); // seconds is time, not length
     }
 
     /**
@@ -257,7 +257,7 @@ class ConverterTest extends TestCase
 
         $this->expectException(DomainException::class);
 
-        $converter->validateUnitTerm('xyz');
+        $converter->validateUnit('xyz');
     }
 
     // endregion
@@ -517,10 +517,10 @@ class ConverterTest extends TestCase
         // Trigger some conversions to populate unitTerms
         $converter->getConversion('m', 'ft');
 
-        $this->assertNotEmpty($converter->unitTerms);
+        $this->assertNotEmpty($converter->units);
 
         // All unit terms should be unprefixed
-        foreach ($converter->unitTerms as $unitTerm) {
+        foreach ($converter->units as $unitTerm) {
             $this->assertNull($unitTerm->prefix);
         }
     }

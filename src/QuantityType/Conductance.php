@@ -19,11 +19,11 @@ class Conductance extends Quantity
         return [
             // SI named unit
             'siemens' => [
-                'asciiSymbol'   => 'S',
-                'dimension'     => 'T3L-2M-1I2',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg-1*m-2*s3*A2',
+                'asciiSymbol'         => 'S',
+                'dimension'           => 'T3L-2M-1I2',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg-1*m-2*s3*A2',
             ],
         ];
     }

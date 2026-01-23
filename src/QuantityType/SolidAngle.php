@@ -19,11 +19,11 @@ class SolidAngle extends Quantity
         return [
             // SI derived unit
             'steradian' => [
-                'asciiSymbol'   => 'sr',
-                'dimension'     => 'A2',
-                'system'        => 'si_derived',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_SMALL_METRIC,
-                'expansionUnit' => 'rad2',
+                'asciiSymbol'         => 'sr',
+                'dimension'           => 'A2',
+                'system'              => 'si_derived',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_SMALL_METRIC,
+                'expansionUnitSymbol' => 'rad2',
             ],
         ];
     }

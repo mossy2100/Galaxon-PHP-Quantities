@@ -23,18 +23,18 @@ class RadiationDose extends Quantity
         return [
             // SI named units
             'gray'    => [
-                'asciiSymbol'   => 'Gy',
-                'dimension'     => 'T-2L2',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'm2*s-2',
+                'asciiSymbol'         => 'Gy',
+                'dimension'           => 'T-2L2',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'm2*s-2',
             ],
             'sievert' => [
-                'asciiSymbol'   => 'Sv',
-                'dimension'     => 'T-2L2',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'm2*s-2',
+                'asciiSymbol'         => 'Sv',
+                'dimension'           => 'T-2L2',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'm2*s-2',
             ],
         ];
     }

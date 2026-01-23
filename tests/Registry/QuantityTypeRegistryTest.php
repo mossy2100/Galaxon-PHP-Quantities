@@ -7,7 +7,6 @@ namespace Registry;
 use DomainException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType;
-use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
@@ -311,7 +310,7 @@ final class QuantityTypeRegistryTest extends TestCase
     public function testAddThrowsForDuplicateClass(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage("Cannot add another quantity type with the class");
+        $this->expectExceptionMessage('Cannot add another quantity type with the class');
 
         QuantityTypeRegistry::add('L8', 'another', 'x', Length::class);
     }
@@ -389,10 +388,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $all = QuantityTypeRegistry::getAll();
 
         foreach ($all as $qtyType) {
-            $this->assertNotNull(
-                $qtyType->siUnitSymbol,
-                "Quantity type {$qtyType->dimension} has no SI unit term"
-            );
+            $this->assertNotNull($qtyType->siUnitSymbol, "Quantity type {$qtyType->dimension} has no SI unit term");
         }
     }
 
@@ -402,9 +398,21 @@ final class QuantityTypeRegistryTest extends TestCase
     public function testSiBaseDimensionsProperties(): void
     {
         $siBase = [
-            'L' => ['name' => 'length', 'siUnit' => 'm', 'class' => Length::class],
-            'M' => ['name' => 'mass', 'siUnit' => 'kg', 'class' => Mass::class],
-            'T' => ['name' => 'time', 'siUnit' => 's', 'class' => Time::class],
+            'L' => [
+                'name'   => 'length',
+                'siUnit' => 'm',
+                'class'  => Length::class,
+            ],
+            'M' => [
+                'name'   => 'mass',
+                'siUnit' => 'kg',
+                'class'  => Mass::class,
+            ],
+            'T' => [
+                'name'   => 'time',
+                'siUnit' => 's',
+                'class'  => Time::class,
+            ],
         ];
 
         foreach ($siBase as $dimension => $expected) {

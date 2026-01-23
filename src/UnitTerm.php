@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Traits\Equatable;
 use Galaxon\Core\Types;
@@ -12,7 +13,6 @@ use Galaxon\Quantities\Registry\DimensionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Override;
-use Stringable;
 
 /**
  * Represents a decomposed unit symbol.
@@ -30,7 +30,7 @@ use Stringable;
  * - multiplier: The prefix multiplier raised to the exponent (1000² = 1e6).
  * - dimension: The dimension code with exponent applied.
  */
-class UnitTerm implements Stringable
+class UnitTerm implements UnitInterface
 {
     use Equatable;
 
@@ -53,7 +53,7 @@ class UnitTerm implements Stringable
 
     // endregion
 
-    // region Computed properties
+    // region Property hooks
 
     // PHP_CodeSniffer doesn't know about property hooks yet.
     // phpcs:disable PSR2.Classes.PropertyDeclaration
@@ -61,17 +61,25 @@ class UnitTerm implements Stringable
 
     /**
      * The full unit symbol with prefix and exponent (e.g. 'km2', 'ms-1').
-     * This property returns the ASCII version. For the Unicode symbol, cast to string (__toString()).
+     * This property returns the ASCII symbol (e.g. 'deg').
      */
-    public string $symbol {
-        get => $this->prefix . $this->unprefixedSymbol;
+    public string $asciiSymbol {
+        get => $this->format(true);
+    }
+
+    /**
+     * The full unit symbol with prefix and exponent formatted as superscript (e.g. 'km²', 'ms⁻¹').
+     * This property returns the Unicode symbol, if set (e.g. '°').
+     */
+    public string $unicodeSymbol {
+        get => $this->format();
     }
 
     /**
      * The unprefixed unit term symbol (e.g. 'm2', 's-1').
      * This property returns the ASCII version. For the Unicode symbol, cast to string (__toString()).
      */
-    public string $unprefixedSymbol {
+    public string $unprefixedAsciiSymbol {
         get => $this->unit->asciiSymbol . ($this->exponent === 1 ? '' : $this->exponent);
     }
 
@@ -79,7 +87,7 @@ class UnitTerm implements Stringable
      * The unit term with no exponent (e.g. 'km', 's').
      * This property returns the ASCII version. For the Unicode symbol, cast to string (__toString()).
      */
-    public string $unexponentiatedSymbol {
+    public string $unexponentiatedAsciiSymbol {
         get => $this->prefix . $this->unit->asciiSymbol;
     }
 
@@ -130,7 +138,7 @@ class UnitTerm implements Stringable
             $symbol = $unit;
             $unit = UnitRegistry::getBySymbol($symbol);
             if ($unit === null) {
-                throw new DomainException("Unit '$symbol' is invalid.");
+                throw new DomainException("Unit '$symbol' is unknown.");
             }
         }
 
@@ -159,14 +167,15 @@ class UnitTerm implements Stringable
      *
      * @param string $symbol The unit symbol with optional prefix and/or exponent (e.g. 'm2', 's-1').
      * @return self The parsed unit term.
-     * @throws DomainException If the format is invalid or the derived unit is not recognized.
+     * @throws FormatException If the format is invalid.
+     * @throws DomainException If the unit is not recognized or the exponent is zero.
      */
-    public static function parse(string $symbol): self
+    public static function parse(string $symbol): static
     {
         // Validate the unit string.
         $unitValid = preg_match('/^' . self::regex() . '$/u', $symbol, $matches);
         if (!$unitValid) {
-            throw new DomainException(
+            throw new FormatException(
                 "Invalid unit '$symbol'. A unit must comprise one or more letters optionally followed by an exponent."
             );
         }
@@ -183,7 +192,7 @@ class UnitTerm implements Stringable
             } else {
                 $exp = filter_var($expStr, FILTER_VALIDATE_INT);
                 if ($exp === false) {
-                    throw new DomainException(
+                    throw new FormatException(
                         "Invalid exponent '$expStr'. Use all ASCII or superscript characters, but not a mixture."
                     );
                 }
@@ -204,12 +213,13 @@ class UnitTerm implements Stringable
         }
 
         // Check we only found one match.
+        // TODO ensure this never happens by ensuring uniqueness of unit symbols (including with prefixes).
         if (count($matchingUnits) > 1) {
             throw new DomainException("Multiple matching units found for '$prefixedSymbol'.");
         }
 
         // Create the new object.
-        return $matchingUnits[0]->applyExponent($exp);
+        return $matchingUnits[0]->pow($exp);
     }
 
     /**
@@ -253,10 +263,7 @@ class UnitTerm implements Stringable
 
                 // Loop through the prefixed units and see if any match.
                 foreach ($prefixes as $prefix => $multiplier) {
-                    if (
-                        $prefix . $unit->asciiSymbol === $symbol ||
-                        ($unit->unicodeSymbol !== null && $prefix . $unit->unicodeSymbol === $symbol)
-                    ) {
+                    if ($prefix . $unit->asciiSymbol === $symbol || $prefix . $unit->unicodeSymbol === $symbol) {
                         $matches[] = new self($unit, $prefix);
                     }
                 }
@@ -312,17 +319,17 @@ class UnitTerm implements Stringable
             $exp = $this->exponent === 1 ? '' : (string)$this->exponent;
 
             // Get the ASCII symbol.
-            $formattedSymbol = $this->unit->asciiSymbol;
+            $symbol = $this->unit->asciiSymbol;
         } else {
             // Get the exponent in superscript.
             $exp = $this->exponent === 1 ? '' : Integers::toSuperscript($this->exponent);
 
             // Get the Unicode symbol if set, or fall back to the ASCII symbol.
-            $formattedSymbol = $this->unit->unicodeSymbol ?? $this->unit->asciiSymbol;
+            $symbol = $this->unit->unicodeSymbol ?? $this->unit->asciiSymbol;
         }
 
         // Construct the full unit term symbol.
-        return $this->prefix . $formattedSymbol . $exp;
+        return $this->prefix . $symbol . $exp;
     }
 
     /**
@@ -362,24 +369,46 @@ class UnitTerm implements Stringable
     }
 
     /**
-     * Return a new UnitTerm with the exponent multiplied by the given value.
-     *
-     * @param int $exp The exponent multiplier.
-     * @return self A new instance with the multiplied exponent (e.g. m² with exp=3 → m⁶).
-     */
-    public function applyExponent(int $exp): self
-    {
-        return $this->withExponent($this->exponent * $exp);
-    }
-
-    /**
-     * Return a new UnitTerm with the exponent reset to 1.
+     * Return a new UnitTerm with the exponent set to 1.
      *
      * @return self A new instance with exponent 1 (e.g. m² → m).
      */
     public function removeExponent(): self
     {
         return $this->withExponent(1);
+    }
+
+    /**
+     * Return a new UnitTerm with the exponent multiplied by the given value.
+     *
+     * @param int $exponent The exponent to raise the unit term to.
+     * @return self A new instance with the multiplied exponent (e.g. m² with exp=3 → m⁶).
+     */
+    public function pow(int $exponent): self
+    {
+        return $this->withExponent($this->exponent * $exponent);
+    }
+
+    /**
+     * Return a new UnitTerm with the exponent divided by the given value.
+     *
+     * @param int $index The index of the root (must be a positive integer).
+     * @return self A new instance with the divided exponent (e.g. m⁶ with exp=3 → m²).
+     */
+    public function root(int $index): self
+    {
+        // Check the index is positive.
+        if ($index < 1) {
+            throw new DomainException('Index must be a positive integer.');
+        }
+
+        // Check that the exponent is an integer multiple of the index.
+        if ($this->exponent % $index !== 0) {
+            throw new DomainException('Exponent must be an integer multiple of the index.');
+        }
+
+        // Divide the exponent by the index.
+        return $this->withExponent(intdiv($this->exponent, $index));
     }
 
     /**
@@ -390,6 +419,14 @@ class UnitTerm implements Stringable
      */
     public function withPrefix(?string $prefix): self
     {
+        // Make sure the prefix is allowed.
+        if ($prefix !== null && !$this->unit->acceptsPrefix($prefix)) {
+            throw new DomainException(
+                "The prefix '$prefix' is incompatible with the unit '{$this->unit->unicodeSymbol}'."
+            );
+        }
+
+        // Create the new UnitTerm.
         return new self($this->unit, $prefix, $this->exponent);
     }
 

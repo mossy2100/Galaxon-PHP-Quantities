@@ -242,7 +242,8 @@ final class UnitRegistryTest extends TestCase
         // All items should be Unit objects with non-null expansion
         foreach ($result as $unit) {
             $this->assertInstanceOf(Unit::class, $unit);
-            $this->assertNotNull($unit->expansion);
+            $this->assertNotNull($unit->expansionUnitSymbol);
+            $this->assertNotNull($unit->expansionUnit);
         }
     }
 
@@ -347,8 +348,6 @@ final class UnitRegistryTest extends TestCase
             dimension: 'L',
             system: 'custom',
             prefixGroup: PrefixRegistry::PREFIX_GROUP_METRIC,
-            siPrefix: null,
-            expansionValue: 0.3048,
             expansionUnit: 'm'
         );
 
@@ -430,12 +429,12 @@ final class UnitRegistryTest extends TestCase
     public function testSiBaseUnitsHaveCorrectDimensions(): void
     {
         $expected = [
-            'metre' => 'L',
-            'gram' => 'M',    // SI uses kilogram, but gram is the base unit in registry
-            'second' => 'T',
-            'ampere' => 'I',
-            'kelvin' => 'H',
-            'mole' => 'N',
+            'metre'   => 'L',
+            'gram'    => 'M',    // SI uses kilogram, but gram is the base unit in registry
+            'second'  => 'T',
+            'ampere'  => 'I',
+            'kelvin'  => 'H',
+            'mole'    => 'N',
             'candela' => 'J',
         ];
 
@@ -465,7 +464,7 @@ final class UnitRegistryTest extends TestCase
     public function testAsciiSymbolsAreUnique(): void
     {
         $all = UnitRegistry::getAll();
-        $symbols = array_map(fn($unit) => $unit->asciiSymbol, $all);
+        $symbols = array_map(static fn ($unit) => $unit->asciiSymbol, $all);
         $uniqueSymbols = array_unique($symbols);
 
         $this->assertCount(count($symbols), $uniqueSymbols, 'Duplicate ASCII symbols found');

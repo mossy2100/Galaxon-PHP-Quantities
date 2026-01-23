@@ -147,10 +147,7 @@ class PrefixRegistry
      */
     public static function getEngineeringPrefixes(): array
     {
-        return array_filter(
-            self::getMetricPrefixes(),
-            static fn ($multiplier) => Floats::isApproxInt(log($multiplier, 1000))
-        );
+        return array_filter(self::getMetricPrefixes(), self::isPowerOf1000(...));
     }
 
     /**
@@ -201,6 +198,15 @@ class PrefixRegistry
         }
 
         return $inversePrefix;
+    }
+
+    // endregion
+
+    // region Helper methods
+
+    public static function isPowerOf1000(float $multiplier): bool
+    {
+        return Floats::isApproxInt(log($multiplier, 1000));
     }
 
     // endregion

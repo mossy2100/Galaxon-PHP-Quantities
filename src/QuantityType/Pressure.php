@@ -19,11 +19,11 @@ class Pressure extends Quantity
         return [
             // SI named unit
             'pascal'     => [
-                'asciiSymbol'   => 'Pa',
-                'dimension'     => 'T-2L-1M',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m-1*s-2',
+                'asciiSymbol'         => 'Pa',
+                'dimension'           => 'T-2L-1M',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg*m-1*s-2',
             ],
             // Non-SI metric units
             'bar'        => [

@@ -19,11 +19,11 @@ class CatalyticActivity extends Quantity
         return [
             // SI named unit
             'katal' => [
-                'asciiSymbol'   => 'kat',
-                'dimension'     => 'T-1N',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'mol*s-1',
+                'asciiSymbol'         => 'kat',
+                'dimension'           => 'T-1N',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'mol*s-1',
             ],
         ];
     }

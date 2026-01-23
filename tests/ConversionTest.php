@@ -6,8 +6,8 @@ namespace Galaxon\Quantities\Tests;
 
 use DomainException;
 use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\FloatWithError;
-use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -26,8 +26,8 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('m', 'ft', 3.28084);
 
-        $this->assertSame('m', (string)$conv->srcUnitTerm);
-        $this->assertSame('ft', (string)$conv->destUnitTerm);
+        $this->assertSame('m', (string)$conv->srcUnit);
+        $this->assertSame('ft', (string)$conv->destUnit);
         $this->assertEqualsWithDelta(3.28084, $conv->factor->value, 1e-10);
     }
 
@@ -36,13 +36,13 @@ class ConversionTest extends TestCase
      */
     public function testConstructorWithUnitTerms(): void
     {
-        $srcUnitTerm = UnitTerm::parse('m');
-        $destUnitTerm = UnitTerm::parse('ft');
+        $srcUnitTerm = DerivedUnit::parse('m');
+        $destUnitTerm = DerivedUnit::parse('ft');
 
         $conv = new Conversion($srcUnitTerm, $destUnitTerm, 3.28084);
 
-        $this->assertSame($srcUnitTerm, $conv->srcUnitTerm);
-        $this->assertSame($destUnitTerm, $conv->destUnitTerm);
+        $this->assertSame($srcUnitTerm, $conv->srcUnit);
+        $this->assertSame($destUnitTerm, $conv->destUnit);
     }
 
     /**
@@ -126,10 +126,10 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('m', 'ft', 3.28084);
 
-        $inverted = $conv->invert();
+        $inverted = $conv->inv();
 
-        $this->assertSame('ft', (string)$inverted->srcUnitTerm);
-        $this->assertSame('m', (string)$inverted->destUnitTerm);
+        $this->assertSame('ft', (string)$inverted->srcUnit);
+        $this->assertSame('m', (string)$inverted->destUnit);
     }
 
     /**
@@ -139,7 +139,7 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('m', 'ft', 3.28084);
 
-        $inverted = $conv->invert();
+        $inverted = $conv->inv();
 
         $this->assertEqualsWithDelta(1.0 / 3.28084, $inverted->factor->value, 1e-10);
     }
@@ -151,10 +151,10 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('m', 'ft', 3.28084);
 
-        $doubleInverted = $conv->invert()->invert();
+        $doubleInverted = $conv->inv()->inv();
 
-        $this->assertSame('m', (string)$doubleInverted->srcUnitTerm);
-        $this->assertSame('ft', (string)$doubleInverted->destUnitTerm);
+        $this->assertSame('m', (string)$doubleInverted->srcUnit);
+        $this->assertSame('ft', (string)$doubleInverted->destUnit);
         $this->assertEqualsWithDelta(3.28084, $doubleInverted->factor->value, 1e-10);
     }
 
@@ -166,7 +166,7 @@ class ConversionTest extends TestCase
         $factor = new FloatWithError(2.0, 0.1);
         $conv = new Conversion('m', 'ft', $factor);
 
-        $inverted = $conv->invert();
+        $inverted = $conv->inv();
 
         // Relative error should be preserved: 0.1/2 = 0.05 = 5%
         // Inverted value is 0.5, so absolute error ≈ 0.5 * 0.05 = 0.025
@@ -181,7 +181,7 @@ class ConversionTest extends TestCase
     {
         $conv = new Conversion('m', 'ft', 1.0);
 
-        $inverted = $conv->invert();
+        $inverted = $conv->inv();
 
         $this->assertSame(1.0, $inverted->factor->value);
     }
@@ -200,8 +200,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineSequential($conv2);
 
-        $this->assertSame('m', (string)$combined->srcUnitTerm);
-        $this->assertSame('in', (string)$combined->destUnitTerm);
+        $this->assertSame('m', (string)$combined->srcUnit);
+        $this->assertSame('in', (string)$combined->destUnit);
     }
 
     /**
@@ -262,8 +262,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineConvergent($conv2);
 
-        $this->assertSame('m', (string)$combined->srcUnitTerm);
-        $this->assertSame('in', (string)$combined->destUnitTerm);
+        $this->assertSame('m', (string)$combined->srcUnit);
+        $this->assertSame('in', (string)$combined->destUnit);
     }
 
     /**
@@ -310,8 +310,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineDivergent($conv2);
 
-        $this->assertSame('m', (string)$combined->srcUnitTerm);
-        $this->assertSame('in', (string)$combined->destUnitTerm);
+        $this->assertSame('m', (string)$combined->srcUnit);
+        $this->assertSame('in', (string)$combined->destUnit);
     }
 
     /**
@@ -358,8 +358,8 @@ class ConversionTest extends TestCase
 
         $combined = $conv1->combineOpposite($conv2);
 
-        $this->assertSame('m', (string)$combined->srcUnitTerm);
-        $this->assertSame('in', (string)$combined->destUnitTerm);
+        $this->assertSame('m', (string)$combined->srcUnit);
+        $this->assertSame('in', (string)$combined->destUnit);
     }
 
     /**
@@ -406,8 +406,8 @@ class ConversionTest extends TestCase
 
         $prefixed = $conv->alterPrefixes('k', null);
 
-        $this->assertSame('km', (string)$prefixed->srcUnitTerm);
-        $this->assertSame('ft', (string)$prefixed->destUnitTerm);
+        $this->assertSame('km', (string)$prefixed->srcUnit);
+        $this->assertSame('ft', (string)$prefixed->destUnit);
         // km -> ft = 3.28084 * 1000 = 3280.84
         $this->assertEqualsWithDelta(3280.84, $prefixed->factor->value, 1e-10);
     }
@@ -421,8 +421,8 @@ class ConversionTest extends TestCase
 
         $prefixed = $conv->alterPrefixes(null, 'c');
 
-        $this->assertSame('m', (string)$prefixed->srcUnitTerm);
-        $this->assertSame('cm', (string)$prefixed->destUnitTerm);
+        $this->assertSame('m', (string)$prefixed->srcUnit);
+        $this->assertSame('cm', (string)$prefixed->destUnit);
         // m -> cm = 1 * 100 = 100
         $this->assertEqualsWithDelta(100.0, $prefixed->factor->value, 1e-10);
     }
@@ -436,8 +436,8 @@ class ConversionTest extends TestCase
 
         $prefixed = $conv->alterPrefixes('k', 'c');
 
-        $this->assertSame('km', (string)$prefixed->srcUnitTerm);
-        $this->assertSame('cm', (string)$prefixed->destUnitTerm);
+        $this->assertSame('km', (string)$prefixed->srcUnit);
+        $this->assertSame('cm', (string)$prefixed->destUnit);
         // km -> cm = 1 * 1000 * 100 = 100000
         $this->assertEqualsWithDelta(100000.0, $prefixed->factor->value, 1e-10);
     }
@@ -451,8 +451,8 @@ class ConversionTest extends TestCase
 
         $prefixed = $conv->alterPrefixes(null, null);
 
-        $this->assertSame('m', (string)$prefixed->srcUnitTerm);
-        $this->assertSame('m', (string)$prefixed->destUnitTerm);
+        $this->assertSame('m', (string)$prefixed->srcUnit);
+        $this->assertSame('m', (string)$prefixed->destUnit);
         // m -> m = 1000 * (1/1000) = 1
         $this->assertEqualsWithDelta(1.0, $prefixed->factor->value, 1e-10);
     }
@@ -466,8 +466,8 @@ class ConversionTest extends TestCase
 
         $prefixed = $conv->alterPrefixes('m', null);
 
-        $this->assertSame('mm', (string)$prefixed->srcUnitTerm);
-        $this->assertSame('m', (string)$prefixed->destUnitTerm);
+        $this->assertSame('mm', (string)$prefixed->srcUnit);
+        $this->assertSame('m', (string)$prefixed->destUnit);
         // mm -> m = 1000 * (0.001/1000) = 0.001
         $this->assertEqualsWithDelta(0.001, $prefixed->factor->value, 1e-10);
     }
@@ -499,8 +499,8 @@ class ConversionTest extends TestCase
 
         $unprefixed = $conv->removePrefixes();
 
-        $this->assertSame('m', (string)$unprefixed->srcUnitTerm);
-        $this->assertSame('m', (string)$unprefixed->destUnitTerm);
+        $this->assertSame('m', (string)$unprefixed->srcUnit);
+        $this->assertSame('m', (string)$unprefixed->destUnit);
         // m -> m = 100000 * (1/1000) * 0.01 = 1
         $this->assertEqualsWithDelta(1.0, $unprefixed->factor->value, 1e-10);
     }
@@ -514,8 +514,8 @@ class ConversionTest extends TestCase
 
         $unprefixed = $conv->removePrefixes();
 
-        $this->assertSame('m', (string)$unprefixed->srcUnitTerm);
-        $this->assertSame('ft', (string)$unprefixed->destUnitTerm);
+        $this->assertSame('m', (string)$unprefixed->srcUnit);
+        $this->assertSame('ft', (string)$unprefixed->destUnit);
         $this->assertEqualsWithDelta(3.28084, $unprefixed->factor->value, 1e-10);
     }
 
@@ -528,8 +528,8 @@ class ConversionTest extends TestCase
 
         $unprefixed = $conv->removePrefixes();
 
-        $this->assertSame('m', (string)$unprefixed->srcUnitTerm);
-        $this->assertSame('ft', (string)$unprefixed->destUnitTerm);
+        $this->assertSame('m', (string)$unprefixed->srcUnit);
+        $this->assertSame('ft', (string)$unprefixed->destUnit);
         // m -> ft = 3280.84 / 1000 = 3.28084
         $this->assertEqualsWithDelta(3.28084, $unprefixed->factor->value, 1e-10);
     }
@@ -546,8 +546,8 @@ class ConversionTest extends TestCase
         // m² → ft² (1 m² ≈ 10.7639 ft²)
         $conv = new Conversion('m2', 'ft2', 10.7639);
 
-        $this->assertSame('m²', (string)$conv->srcUnitTerm);
-        $this->assertSame('ft²', (string)$conv->destUnitTerm);
+        $this->assertSame('m²', (string)$conv->srcUnit);
+        $this->assertSame('ft²', (string)$conv->destUnit);
         $this->assertEqualsWithDelta(10.7639, $conv->factor->value, 1e-10);
     }
 
@@ -565,8 +565,8 @@ class ConversionTest extends TestCase
         // Add 'k' prefix to source: km² → ft²
         $prefixed = $conv->alterPrefixes('k', null);
 
-        $this->assertSame('km²', (string)$prefixed->srcUnitTerm);
-        $this->assertSame('ft²', (string)$prefixed->destUnitTerm);
+        $this->assertSame('km²', (string)$prefixed->srcUnit);
+        $this->assertSame('ft²', (string)$prefixed->destUnit);
         // km² → ft² = 10.7639 * (1000)² = 10.7639 * 1,000,000 = 10,763,900
         $this->assertEqualsWithDelta(10.7639e6, $prefixed->factor->value, 1e-4);
     }
@@ -585,8 +585,8 @@ class ConversionTest extends TestCase
         // Add 'c' prefix to dest: m² → cm²
         $prefixed = $conv->alterPrefixes(null, 'c');
 
-        $this->assertSame('m²', (string)$prefixed->srcUnitTerm);
-        $this->assertSame('cm²', (string)$prefixed->destUnitTerm);
+        $this->assertSame('m²', (string)$prefixed->srcUnit);
+        $this->assertSame('cm²', (string)$prefixed->destUnit);
         // m² → cm² = 1 * (1/0.01)² = 1 * 10000 = 10000
         $this->assertEqualsWithDelta(10000.0, $prefixed->factor->value, 1e-10);
     }
@@ -602,8 +602,8 @@ class ConversionTest extends TestCase
         // km² → cm²
         $prefixed = $conv->alterPrefixes('k', 'c');
 
-        $this->assertSame('km²', (string)$prefixed->srcUnitTerm);
-        $this->assertSame('cm²', (string)$prefixed->destUnitTerm);
+        $this->assertSame('km²', (string)$prefixed->srcUnit);
+        $this->assertSame('cm²', (string)$prefixed->destUnit);
         // km² = 1e6 m², cm² = 1e-4 m²
         // km² → cm² = 1e6 / 1e-4 = 1e10
         $this->assertEqualsWithDelta(1e10, $prefixed->factor->value, 1e-10);
@@ -619,8 +619,8 @@ class ConversionTest extends TestCase
 
         $unprefixed = $conv->removePrefixes();
 
-        $this->assertSame('m²', (string)$unprefixed->srcUnitTerm);
-        $this->assertSame('m²', (string)$unprefixed->destUnitTerm);
+        $this->assertSame('m²', (string)$unprefixed->srcUnit);
+        $this->assertSame('m²', (string)$unprefixed->destUnit);
         // m² → m² = 1e10 * (1e-6) * (1e-4) = 1e10 * 1e-10 = 1
         $this->assertEqualsWithDelta(1.0, $unprefixed->factor->value, 1e-10);
     }

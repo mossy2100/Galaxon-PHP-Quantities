@@ -19,11 +19,11 @@ class ElectricCharge extends Quantity
         return [
             // SI named unit
             'coulomb' => [
-                'asciiSymbol'   => 'C',
-                'dimension'     => 'TI',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 's*A',
+                'asciiSymbol'         => 'C',
+                'dimension'           => 'TI',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 's*A',
             ],
         ];
     }

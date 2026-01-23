@@ -31,6 +31,14 @@ class DimensionRegistry
      * It also determines the ordering of unit terms in an SI derived unit. This is based on the most common ordering of
      * base unit terms when writing SI units.
      *
+     * The dimension 'A' is not part of the ISQ, being considered a ratio of lengths, but we need it for this system.
+     *
+     * The dimension 'C' is reserved for a future currency extension. 'XAU' (which means gold troy ounces) is used as
+     * the base unit, as the least biased and most widely accepted.
+     *
+     * The ISQ uses 'Θ' (Greek capital theta) for temperature. 'H' is used here because ASCII characters are easier to
+     * type. 'H' is chosen because capital theta has a horizontal bar, like 'H', plus 'H' suggests heat.
+     *
      * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
      * @see https://en.wikipedia.org/wiki/Dimensional_analysis
      */
@@ -43,8 +51,6 @@ class DimensionRegistry
             'name'   => 'length',
             'siBase' => 'm',
         ],
-        // The dimension 'A' is not part of the ISQ, being considered a ratio of lengths.
-        // But we need it for this system of units.
         'A' => [
             'name'   => 'angle',
             'siBase' => 'rad',
@@ -53,7 +59,6 @@ class DimensionRegistry
             'name'   => 'data',
             'siBase' => 'B',
         ],
-        // The dimension 'C' is reserved for a future currency extension.
         'C' => [
             'name'   => 'currency',
             'siBase' => 'XAU',
@@ -66,9 +71,6 @@ class DimensionRegistry
             'name'   => 'electric current',
             'siBase' => 'A',
         ],
-        // The ISQ uses 'Θ' (Greek capital theta) for temperature.
-        // 'H' is used here because ASCII characters are easier to type.
-        // 'H' is chosen because capital theta has a horizontal bar, like 'H', plus 'H' suggests heat.
         'H' => [
             'name'   => 'temperature',
             'siBase' => 'K',

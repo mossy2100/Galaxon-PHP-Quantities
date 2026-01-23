@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DomainException;
-use LogicException;
+use Galaxon\Core\Exceptions\FormatException;
 use Stringable;
 
 /**
@@ -27,16 +27,16 @@ class Conversion implements Stringable
     /**
      * The source unit.
      *
-     * @var UnitTerm
+     * @var DerivedUnit
      */
-    private(set) UnitTerm $srcUnitTerm;
+    private(set) DerivedUnit $srcUnit;
 
     /**
      * The destination unit.
      *
-     * @var UnitTerm
+     * @var DerivedUnit
      */
-    private(set) UnitTerm $destUnitTerm;
+    private(set) DerivedUnit $destUnit;
 
     /**
      * The scale factor.
@@ -49,14 +49,20 @@ class Conversion implements Stringable
 
     // region Property hooks
 
+    // phpcs:disable PSR2.Classes.PropertyDeclaration
+    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+
     /**
      * The Conversion dimension.
      *
      * @var string
      */
     public string $dimension {
-        get => $this->srcUnitTerm->dimension;
+        get => $this->srcUnit->dimension;
     }
+
+    // phpcs:enable PSR2.Classes.PropertyDeclaration
+    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 
@@ -65,24 +71,23 @@ class Conversion implements Stringable
     /**
      * Constructor.
      *
-     * @param string|Unit|UnitTerm $srcUnitTerm The source unit term.
-     * @param string|Unit|UnitTerm $destUnitTerm The destination unit term.
+     * @param string|UnitInterface $srcUnit The source unit.
+     * @param string|UnitInterface $destUnit The destination unit.
      * @param float|FloatWithError $factor The scale factor (must be positive).
-     * @throws DomainException If dimensions don't match or factor is not positive.
+     * @throws FormatException If either unit is provided as a string that cannot be parsed.
+     * @throws DomainException If dimensions don't match or the factor is not positive.
      */
     public function __construct(
-        string|Unit|UnitTerm $srcUnitTerm,
-        string|Unit|UnitTerm $destUnitTerm,
+        string|UnitInterface $srcUnit,
+        string|UnitInterface $destUnit,
         float|FloatWithError $factor
     ) {
-        // Ensure source unit term is a UnitTerm object
-        $srcUnitTerm = UnitTerm::toUnitTerm($srcUnitTerm);
-
-        // Ensure destination unit term is a UnitTerm object.
-        $destUnitTerm = UnitTerm::toUnitTerm($destUnitTerm);
+        // Ensure the units are DerivedUnit objects.
+        $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
+        $destUnit = DerivedUnit::toDerivedUnit($destUnit);
 
         // Ensure dimensions match.
-        if ($srcUnitTerm->dimension !== $destUnitTerm->dimension) {
+        if ($srcUnit->dimension !== $destUnit->dimension) {
             throw new DomainException('Units have different dimensions.');
         }
 
@@ -97,8 +102,8 @@ class Conversion implements Stringable
         }
 
         // Set the properties.
-        $this->srcUnitTerm = $srcUnitTerm;
-        $this->destUnitTerm = $destUnitTerm;
+        $this->srcUnit = $srcUnit;
+        $this->destUnit = $destUnit;
         $this->factor = $factor;
     }
 
@@ -114,7 +119,7 @@ class Conversion implements Stringable
      *
      * @return self The inverted conversion (dest->source).
      */
-    public function invert(): self
+    public function inv(): self
     {
         $m1 = $this->factor;
 
@@ -122,7 +127,7 @@ class Conversion implements Stringable
         $m = $m1->inv();
 
         // Swap the units when inverting.
-        return new self($this->destUnitTerm, $this->srcUnitTerm, $m);
+        return new self($this->destUnit, $this->srcUnit, $m);
     }
 
     /**
@@ -145,7 +150,7 @@ class Conversion implements Stringable
         $m = $m1->mul($m2);
 
         // Result is source->dest.
-        return new self($this->srcUnitTerm, $other->destUnitTerm, $m);
+        return new self($this->srcUnit, $other->destUnit, $m);
     }
 
     /**
@@ -170,7 +175,7 @@ class Conversion implements Stringable
         $m = $m1->div($m2);
 
         // Result is source->dest.
-        return new self($this->srcUnitTerm, $other->srcUnitTerm, $m);
+        return new self($this->srcUnit, $other->srcUnit, $m);
     }
 
     /**
@@ -195,7 +200,7 @@ class Conversion implements Stringable
         $m = $m2->div($m1);
 
         // Result is source->dest.
-        return new self($this->destUnitTerm, $other->destUnitTerm, $m);
+        return new self($this->destUnit, $other->destUnit, $m);
     }
 
     /**
@@ -220,7 +225,7 @@ class Conversion implements Stringable
         $m = $m1->mul($m2)->inv();
 
         // Result is source->dest.
-        return new self($this->destUnitTerm, $other->srcUnitTerm, $m);
+        return new self($this->destUnit, $other->srcUnit, $m);
     }
 
     /**
@@ -243,18 +248,18 @@ class Conversion implements Stringable
     public function alterPrefixes(?string $newSrcUnitPrefix, ?string $newDestUnitPrefix): self
     {
         // Compose the new unit terms.
-        $newSrcUnitTerm = new UnitTerm($this->srcUnitTerm->unit, $newSrcUnitPrefix, $this->srcUnitTerm->exponent);
-        $newDestUnitTerm = new UnitTerm($this->destUnitTerm->unit, $newDestUnitPrefix, $this->destUnitTerm->exponent);
+        $newSrcUnit = $this->srcUnit->withPrefix($newSrcUnitPrefix);
+        $newDestUnit = $this->destUnit->withPrefix($newDestUnitPrefix);
 
-        // Calculate multiplier.
-        $multiplier = ($this->destUnitTerm->multiplier * $newSrcUnitTerm->multiplier) /
-                      ($newDestUnitTerm->multiplier * $this->srcUnitTerm->multiplier);
+        // Calculate total multiplier.
+        $multiplier = ($this->destUnit->multiplier * $newSrcUnit->multiplier) /
+                      ($newDestUnit->multiplier * $this->srcUnit->multiplier);
 
         // Apply the multiplier using FloatWithError for proper error tracking.
         $newFactor = $this->factor->mul($multiplier);
 
         // Create and return the new conversion with updated units and multiplier.
-        return new self($newSrcUnitTerm, $newDestUnitTerm, $newFactor);
+        return new self($newSrcUnit, $newDestUnit, $newFactor);
     }
 
     /**
@@ -275,16 +280,11 @@ class Conversion implements Stringable
      * @param int $newExponent The new exponent.
      * @return self A new conversion with exponentiated units.
      */
-    public function applyExponent(int $newExponent): self
+    public function pow(int $newExponent): self
     {
-        // For this to work, the existing unit terms must have no exponents (i.e. exponents of 1).
-        if ($this->srcUnitTerm->exponent !== 1 || $this->destUnitTerm->exponent !== 1) {
-            throw new LogicException('The source and destination unit terms must both have an exponent of 1.');
-        }
-
-        // Apply the exponent to the unit terms.
-        $newSrcUnitTerm = $this->srcUnitTerm->applyExponent($newExponent);
-        $newDestUnitTerm = $this->destUnitTerm->applyExponent($newExponent);
+        // Apply the exponent to the units.
+        $newSrcUnitTerm = $this->srcUnit->pow($newExponent);
+        $newDestUnitTerm = $this->destUnit->pow($newExponent);
 
         // Calculate new factor.
         $newFactor = $this->factor->pow($newExponent);
@@ -298,13 +298,13 @@ class Conversion implements Stringable
     // region Formatting methods
 
     /**
-     * Format as "9.999999 destUnit/srcUnit".
+     * Format as "1 srcUnit = 9.999999 destUnit".
      *
      * @return string The string representation.
      */
     public function __toString(): string
     {
-        return "{$this->factor->value} {$this->destUnitTerm}/{$this->srcUnitTerm}";
+        return "1 {$this->srcUnit} = {$this->factor->value} {$this->destUnit}";
     }
 
     // endregion

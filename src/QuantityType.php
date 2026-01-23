@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Galaxon\Quantities;
@@ -8,9 +9,20 @@ use Galaxon\Quantities\Registry\DimensionRegistry;
 
 class QuantityType
 {
+    // region Properties
+
     public readonly string $dimension;
+
     public readonly string $name;
+
     public readonly string $siUnitSymbol;
+
+    // endregion
+
+    // region Property hooks
+
+    // phpcs:disable PSR2.Classes.PropertyDeclaration
+    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     public ?string $class {
         set {
@@ -24,6 +36,13 @@ class QuantityType
         }
     }
 
+    // phpcs:enable PSR2.Classes.PropertyDeclaration
+    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+
+    // endregion
+
+    // region Constructor
+
     public function __construct(string $dimension, string $name, string $siUnitSymbol, ?string $class = null)
     {
         $this->dimension = DimensionRegistry::normalize($dimension);
@@ -31,4 +50,6 @@ class QuantityType
         $this->siUnitSymbol = $siUnitSymbol;
         $this->class = $class;
     }
+
+    // endregion
 }

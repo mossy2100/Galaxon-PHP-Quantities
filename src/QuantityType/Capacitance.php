@@ -19,11 +19,11 @@ class Capacitance extends Quantity
         return [
             // SI named unit
             'farad' => [
-                'asciiSymbol'   => 'F',
-                'dimension'     => 'T4L-2M-1I2',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg-1*m-2*s4*A2',
+                'asciiSymbol'         => 'F',
+                'dimension'           => 'T4L-2M-1I2',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg-1*m-2*s4*A2',
             ],
         ];
     }

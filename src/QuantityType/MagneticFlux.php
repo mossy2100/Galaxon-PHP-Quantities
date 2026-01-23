@@ -19,11 +19,11 @@ class MagneticFlux extends Quantity
         return [
             // SI named unit
             'weber' => [
-                'asciiSymbol'   => 'Wb',
-                'dimension'     => 'T-2L2MI-1',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-2*A-1',
+                'asciiSymbol'         => 'Wb',
+                'dimension'           => 'T-2L2MI-1',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg*m2*s-2*A-1',
             ],
         ];
     }

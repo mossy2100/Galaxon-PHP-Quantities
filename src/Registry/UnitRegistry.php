@@ -71,7 +71,7 @@ class UnitRegistry
         $allUnits = self::getAll();
         $namedUnits = [];
         foreach ($allUnits as $name => $unit) {
-            if ($unit->expansion !== null) {
+            if ($unit->hasExpansion()) {
                 $namedUnits[] = $unit;
             }
         }
@@ -89,7 +89,6 @@ class UnitRegistry
      * @param string $system The measurement system (e.g. 'si_base', 'metric', 'us_customary').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
      * @param ?string $siPrefix The SI prefix for this unit (e.g. 'k' for kilogram), or null.
-     * @param float $expansionValue For named units, the expansion unit value.
      * @param ?string $expansionUnit For named units, the expansion unit symbol, or null.
      * @throws DomainException If the name or symbol already exists, or if the symbol is not ASCII.
      */
@@ -102,7 +101,6 @@ class UnitRegistry
         string $system,
         int $prefixGroup = 0,
         ?string $siPrefix = null,
-        float $expansionValue = 1.0,
         ?string $expansionUnit = null
     ): void {
         self::init();
@@ -138,15 +136,14 @@ class UnitRegistry
 
         // Build the data array for the Unit constructor.
         $data = [
-            'asciiSymbol'    => $asciiSymbol,
-            'unicodeSymbol'  => $unicodeSymbol,
-            'quantityType'   => $quantityType,
-            'dimension'      => $dimension,
-            'system'         => $system,
-            'prefixGroup'    => $prefixGroup,
-            'siPrefix'       => $siPrefix,
-            'expansionValue' => $expansionValue,
-            'expansionUnit'  => $expansionUnit,
+            'asciiSymbol'   => $asciiSymbol,
+            'unicodeSymbol' => $unicodeSymbol,
+            'quantityType'  => $quantityType,
+            'dimension'     => $dimension,
+            'system'        => $system,
+            'prefixGroup'   => $prefixGroup,
+            'siPrefix'      => $siPrefix,
+            'expansionUnit' => $expansionUnit,
         ];
 
         self::$units[$name] = new Unit($name, $data);

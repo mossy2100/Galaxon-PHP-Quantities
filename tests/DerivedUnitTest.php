@@ -7,7 +7,6 @@ namespace Galaxon\Quantities\Tests;
 use DomainException;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -43,7 +42,7 @@ class DerivedUnitTest extends TestCase
 
     public function testConstructorWithUnitTerm(): void
     {
-        $unitTerm = new UnitTerm('m', 'k', 2);
+        $unitTerm = new DerivedUnit('m', 'k', 2);
         $du = new DerivedUnit($unitTerm);
 
         $this->assertCount(1, $du->unitTerms);
@@ -53,9 +52,9 @@ class DerivedUnitTest extends TestCase
     public function testConstructorWithArrayOfUnitTerms(): void
     {
         // kg is g with prefix k
-        $kg = new UnitTerm('g', 'k');
-        $m = new UnitTerm('m');
-        $s = new UnitTerm('s', null, -2);
+        $kg = new DerivedUnit('g', 'k');
+        $m = new DerivedUnit('m');
+        $s = new DerivedUnit('s', null, -2);
 
         $du = new DerivedUnit([$kg, $m, $s]);
 
@@ -297,8 +296,8 @@ class DerivedUnitTest extends TestCase
     public function testIsSiWithMixedUnits(): void
     {
         // g with k prefix is SI, ft is not
-        $kg = new UnitTerm('g', 'k');
-        $ft = new UnitTerm('ft');
+        $kg = new DerivedUnit('g', 'k');
+        $ft = new DerivedUnit('ft');
         $du = new DerivedUnit([$kg, $ft]);
         $this->assertFalse($du->isSi());
     }
@@ -439,7 +438,7 @@ class DerivedUnitTest extends TestCase
     public function testAddUnitTermNew(): void
     {
         $du = new DerivedUnit();
-        $unitTerm = new UnitTerm('m');
+        $unitTerm = new DerivedUnit('m');
 
         $du->addUnitTerm($unitTerm);
 
@@ -450,7 +449,7 @@ class DerivedUnitTest extends TestCase
     public function testAddUnitTermCombinesExponents(): void
     {
         $du = DerivedUnit::parse('m2');
-        $unitTerm = new UnitTerm('m', null, 3);
+        $unitTerm = new DerivedUnit('m', null, 3);
 
         $du->addUnitTerm($unitTerm);
 
@@ -461,7 +460,7 @@ class DerivedUnitTest extends TestCase
     public function testAddUnitTermCombinesWithDifferentExponents(): void
     {
         $du = DerivedUnit::parse('m3');
-        $unitTerm = new UnitTerm('m', null, -1);
+        $unitTerm = new DerivedUnit('m', null, -1);
 
         $du->addUnitTerm($unitTerm);
 
@@ -472,7 +471,7 @@ class DerivedUnitTest extends TestCase
     public function testAddUnitTermRemovesWhenZeroExponent(): void
     {
         $du = DerivedUnit::parse('m2');
-        $unitTerm = new UnitTerm('m', null, -2);
+        $unitTerm = new DerivedUnit('m', null, -2);
 
         $du->addUnitTerm($unitTerm);
 
@@ -483,7 +482,7 @@ class DerivedUnitTest extends TestCase
     public function testAddUnitTermWithPrefix(): void
     {
         $du = DerivedUnit::parse('km2');
-        $unitTerm = new UnitTerm('m', 'k', 1);
+        $unitTerm = new DerivedUnit('m', 'k', 1);
 
         $du->addUnitTerm($unitTerm);
 
@@ -495,7 +494,7 @@ class DerivedUnitTest extends TestCase
     {
         // km and m should be treated as different unit terms (different keys)
         $du = DerivedUnit::parse('km');
-        $unitTerm = new UnitTerm('m');
+        $unitTerm = new DerivedUnit('m');
 
         $du->addUnitTerm($unitTerm);
 
@@ -534,7 +533,7 @@ class DerivedUnitTest extends TestCase
 
     public function testToDerivedUnitFromUnitTerm(): void
     {
-        $unitTerm = new UnitTerm('m', 'k', 2);
+        $unitTerm = new DerivedUnit('m', 'k', 2);
         $result = DerivedUnit::toDerivedUnit($unitTerm);
 
         $this->assertInstanceOf(DerivedUnit::class, $result);
@@ -603,9 +602,9 @@ class DerivedUnitTest extends TestCase
     public function testSortingByDimensionOrderMassLengthTime(): void
     {
         // Add in reverse dimension order: time, length, mass.
-        $s = new UnitTerm('s');
-        $m = new UnitTerm('m');
-        $kg = new UnitTerm('g', 'k');
+        $s = new DerivedUnit('s');
+        $m = new DerivedUnit('m');
+        $kg = new DerivedUnit('g', 'k');
 
         $du = new DerivedUnit([$s, $m, $kg]);
 
@@ -616,9 +615,9 @@ class DerivedUnitTest extends TestCase
     public function testSortingMixedExponents(): void
     {
         // kg⋅m⋅s⁻² - force units.
-        $s = new UnitTerm('s', null, -2);
-        $m = new UnitTerm('m');
-        $kg = new UnitTerm('g', 'k');
+        $s = new DerivedUnit('s', null, -2);
+        $m = new DerivedUnit('m');
+        $kg = new DerivedUnit('g', 'k');
 
         $du = new DerivedUnit([$s, $m, $kg]);
 

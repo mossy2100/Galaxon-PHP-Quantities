@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
 use Galaxon\Core\Types;
 use Galaxon\Quantities\Registry\DimensionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use Override;
-use Stringable;
 
 /**
  * Represents a unit of measurement.
  */
-class Unit implements Stringable
+class Unit implements UnitInterface
 {
     use Equatable;
 
@@ -24,73 +25,88 @@ class Unit implements Stringable
     /**
      * The unit name (e.g. 'metre', 'gram', 'hertz').
      */
-    public string $name;
+    private(set) string $name;
 
     /**
      * The ASCII unit symbol (e.g. 'm', 'g', 'Hz').
-     * This symbol is mainly for parsing from code, and must be ASCII.
+     * This symbol is mainly for parsing from code and must be ASCII.
      */
-    public string $asciiSymbol;
+    private(set) string $asciiSymbol;
 
     /**
-     * The Unicode symbol (e.g. 'Ω' for ohm, '°' for degree), or null to use ASCII symbol.
-     * This symbol is used for formatted output and can contain Unicode characters.
+     * The Unicode symbol (e.g. 'Ω' for ohm, '°' for degree).
+     * This symbol is mainly for display and can contain Unicode characters.
      */
-    public ?string $unicodeSymbol;
-
-    /**
-     * The quantity type, e.g. 'length'.
-     */
-    public string $quantityType;
+    private(set) string $unicodeSymbol;
 
     /**
      * The dimension code (e.g. 'L', 'M', 'T-1').
      */
-    public string $dimension;
+    private(set) string $dimension;
+
+    /**
+     * The quantity type, e.g. 'length'.
+     */
+    private(set) string $quantityType;
 
     /**
      * The measurement system (e.g. 'si_base', 'si_named', 'metric', 'us_customary').
      */
-    public string $system;
+    private(set) string $system;
 
     /**
      * Bitwise flags indicating which prefixes are allowed (0 if none).
      */
-    public int $prefixGroup;
+    private(set) int $prefixGroup;
 
     /**
      * The SI prefix for this unit (e.g. 'k' for kilogram), or null if none.
      */
-    public ?string $siPrefix;
+    private(set) ?string $siPrefix;
 
     /**
-     * For named units, the expansion quantity's unit value. Defaults to 1.
+     * For named units, the expansion unit symbol. Null if not applicable.
      */
-    public float $expansionValue;
+    private(set) ?string $expansionUnitSymbol;
 
     /**
-     * For named units, the expansion quantity's unit symbol. Null if not applicable.
+     * For named units, the expansion value. Null if not applicable.
      */
-    public ?string $expansionUnit;
+    private(set) ?float $expansionValue;
 
     // endregion
 
     // region Property hooks
 
-    // PHPCS doesn't know property hooks yet.
     // phpcs:disable PSR2.Classes.PropertyDeclaration
     // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
-    public ?Quantity $expansion {
+    /**
+     * The expansion unit.
+     */
+    public ?DerivedUnit $expansionUnit {
+        /**
+         * @throws FormatException If the expansion unit symbol format is invalid.
+         * @throws DomainException If the expansion unit symbol contains unknown units.
+         */
         get {
-            if ($this->expansionUnit === null) {
+            if ($this->expansionUnitSymbol === null) {
                 return null;
             }
 
-            // Construct the equivalent quantity if not already done.
-            $this->expansion ??= Quantity::create($this->expansionValue, $this->expansionUnit);
-            return $this->expansion;
+            // Convert the expansion unit symbol into a DerivedUnit if not already done.
+            $this->expansionUnit ??= DerivedUnit::parse($this->expansionUnitSymbol);
+            return $this->expansionUnit;
         }
+    }
+
+    /**
+     * Get all allowed prefixes for this unit.
+     *
+     * @return array<string, float>
+     */
+    public array $allowedPrefixes {
+        get => PrefixRegistry::getPrefixes($this->prefixGroup);
     }
 
     // phpcs:enable PSR2.Classes.PropertyDeclaration
@@ -105,25 +121,35 @@ class Unit implements Stringable
      *
      * @param string $name The unit name.
      * @param array<string, mixed> $data The unit details.
+     * @throws FormatException If the unit symbols contain invalid characters.
+     * @throws DomainException If the dimension code is invalid.
      */
     public function __construct(string $name, array $data)
     {
         // Check ASCII symbol contains ASCII letters only.
-        if (!self::isAsciiLetters($data['asciiSymbol'])) {
-            throw new DomainException("Unit symbol '{$data['asciiSymbol']}' must contain only ASCII letters.");
+        if (!self::isValidAsciiSymbol($data['asciiSymbol'])) {
+            throw new FormatException("Unit symbol '{$data['asciiSymbol']}' must only contain ASCII letters.");
+        }
+
+        // Validate Unicode symbol.
+        if (isset($data['unicodeSymbol']) && !self::isValidUnicodeSymbol($data['unicodeSymbol'])) {
+            throw new FormatException(
+                "Unit symbol '{$data['unicodeSymbol']}' must only contain letters, or the degree, prime, or " .
+                'double prime characters (i.e. °′″).'
+            );
         }
 
         // Set the properties.
         $this->name = $name;
         $this->asciiSymbol = $data['asciiSymbol'];
-        $this->unicodeSymbol = $data['unicodeSymbol'] ?? null;
+        $this->unicodeSymbol = $data['unicodeSymbol'] ?? $data['asciiSymbol'];
         $this->quantityType = $data['quantityType'];
         $this->dimension = DimensionRegistry::normalize($data['dimension']);
         $this->system = $data['system'];
         $this->prefixGroup = $data['prefixGroup'] ?? 0;
         $this->siPrefix = $data['siPrefix'] ?? null;
-        $this->expansionValue = $data['expansionValue'] ?? 1;
-        $this->expansionUnit = $data['expansionUnit'] ?? null;
+        $this->expansionUnitSymbol = $data['expansionUnitSymbol'] ?? null;
+        $this->expansionValue = isset($data['expansionUnitSymbol']) ? ($data['expansionValue'] ?? 1.0) : null;
     }
 
     // endregion
@@ -148,18 +174,7 @@ class Unit implements Stringable
      */
     public function acceptsPrefix(string $prefix): bool
     {
-        $allowedPrefixes = $this->getAllowedPrefixes();
-        return isset($allowedPrefixes[$prefix]);
-    }
-
-    /**
-     * Get all allowed prefixes for this unit.
-     *
-     * @return array<string, float> Map of prefix symbols to multipliers.
-     */
-    public function getAllowedPrefixes(): array
-    {
-        return PrefixRegistry::getPrefixes($this->prefixGroup);
+        return isset($this->allowedPrefixes[$prefix]);
     }
 
     // endregion
@@ -216,6 +231,16 @@ class Unit implements Stringable
         return $this->isSi() || $this->system === 'metric';
     }
 
+    /**
+     * Check if this unit has an expansion (i.e. can be expressed in terms of other units).
+     *
+     * @return bool True if this unit has an expansion.
+     */
+    public function hasExpansion(): bool
+    {
+        return $this->expansionUnitSymbol !== null;
+    }
+
     // endregion
 
     // region Formatting methods
@@ -229,9 +254,36 @@ class Unit implements Stringable
      * @param bool $ascii If true, return ASCII symbol; if false (default), return Unicode symbol if available.
      * @return string The formatted unit.
      */
+    #[Override]
     public function format(bool $ascii = false): string
     {
-        return $ascii ? $this->asciiSymbol : ($this->unicodeSymbol ?? $this->asciiSymbol);
+        return $ascii ? $this->asciiSymbol : $this->unicodeSymbol;
+    }
+
+    /**
+     * Parse a unit symbol and return the matching Unit.
+     *
+     * @param string $symbol The unit symbol to parse (e.g. 'm', 'kg', 'Hz').
+     * @return static The matching Unit.
+     * @throws FormatException If the symbol contains invalid characters.
+     * @throws DomainException If the symbol is not recognized.
+     */
+    #[Override]
+    public static function parse(string $symbol): static
+    {
+        // Validate the symbol format.
+        if (!self::isValidUnicodeSymbol($symbol)) {
+            throw new FormatException(
+                "Unit symbol '$symbol' can only contain letters, or the degree, prime, or double prime " .
+                'characters (i.e. °′″).'
+            );
+        }
+
+        // Get the unit from the registry.
+        $unit = UnitRegistry::getBySymbol($symbol);
+
+        // If not found, throw an exception.
+        return $unit ?? throw new DomainException("Unknown unit symbol '$symbol'.");
     }
 
     /**
@@ -240,6 +292,7 @@ class Unit implements Stringable
      *
      * @return string The unit as a string.
      */
+    #[Override]
     public function __toString(): string
     {
         return $this->format();
@@ -269,9 +322,22 @@ class Unit implements Stringable
      * @param string $symbol The string to check.
      * @return bool True if the string contains only ASCII letters.
      */
-    private static function isAsciiLetters(string $symbol): bool
+    private static function isValidAsciiSymbol(string $symbol): bool
     {
         return (bool)preg_match('/^[a-z]+$/i', $symbol);
+    }
+
+    /**
+     * Check if a string is a valid Unicode unit symbol.
+     *
+     * Valid symbols contain only Unicode letters or the degree (°), prime (′), or double prime (″) characters.
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a valid Unicode unit symbol.
+     */
+    private static function isValidUnicodeSymbol(string $symbol): bool
+    {
+        return (bool)preg_match('/^[\p{L}°′″]+$/u', $symbol);
     }
 
     // endregion

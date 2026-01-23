@@ -19,11 +19,11 @@ class Power extends Quantity
         return [
             // SI named unit
             'watt' => [
-                'asciiSymbol'   => 'W',
-                'dimension'     => 'T-3L2M',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'kg*m2*s-3',
+                'asciiSymbol'         => 'W',
+                'dimension'           => 'T-3L2M',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'kg*m2*s-3',
             ],
         ];
     }

@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Registry\DimensionRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use LogicException;
-use Stringable;
 
 /**
  * Represents a compound unit composed of one or more unit terms.
@@ -17,18 +18,20 @@ use Stringable;
  * Unit terms with the same base unit are automatically combined
  * (e.g. km³ * km⁻¹ = km²).
  */
-class DerivedUnit implements Stringable
+class DerivedUnit implements UnitInterface
 {
+    use Equatable;
+
     // region Constants
 
     /**
      * Regular expression character class with multiply and divide characters.
      * Allow dots for multiply.
-     *     . = Normal period character.
+     *     . = Period (full stop) character.
      *     · = Middle dot (U+00B7) - used in typography, Catalan, etc.
      *     ⋅ = Dot operator (U+22C5) - mathematical multiplication symbol.
      */
-    const string UNIT_TERM_SEPARATORS = "[*.\x{00B7}\x{22C5}\/]";
+    public const string UNIT_TERM_SEPARATORS = "[*.\x{00B7}\x{22C5}\/]";
 
     // endregion
 
@@ -51,6 +54,47 @@ class DerivedUnit implements Stringable
 
     // endregion
 
+    // region Property hooks
+
+    // phpcs:disable PSR2.Classes.PropertyDeclaration
+    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+
+    /**
+     * The full unit symbol with prefix and exponent (e.g. 'km2', 'ms-1').
+     * This property returns the ASCII symbol (e.g. 'deg').
+     */
+    public string $asciiSymbol {
+        get => $this->format(true);
+    }
+
+    /**
+     * The full unit symbol with prefix and exponent formatted as superscript (e.g. 'km²', 'ms⁻¹').
+     * This property returns the Unicode symbol, if set (e.g. '°').
+     */
+    public string $unicodeSymbol {
+        get => $this->format();
+    }
+
+    /**
+     * The combined multiplier from all unit term prefixes.
+     *
+     * This is the product of each unit term's prefix multiplier raised to its exponent.
+     * For example, km²⋅ms⁻¹ would have multiplier 1000² × 0.001⁻¹ = 1e6 × 1000 = 1e9.
+     */
+    public float $multiplier {
+        get => array_product(
+            array_map(
+                static fn (UnitTerm $unitTerm) => $unitTerm->multiplier,
+                $this->unitTerms
+            )
+        );
+    }
+
+    // phpcs:enable PSR2.Classes.PropertyDeclaration
+    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
+
+    // endregion
+
     // region Constructor
 
     /**
@@ -58,14 +102,16 @@ class DerivedUnit implements Stringable
      *
      * @param null|Unit|UnitTerm|list<UnitTerm> $unit The unit, unit term, or array of unit terms to add, or null to
      * create an empty unit.
+     * @throws DomainException Never.
      */
     public function __construct(null|Unit|UnitTerm|array $unit = null)
     {
+        // Allow empty derived units.
         if ($unit === null) {
             return;
         }
 
-        // If the unit is a Unit, wrap it in a UnitTerm.
+        // If the unit is a Unit, convert it to a UnitTerm.
         if ($unit instanceof Unit) {
             $unit = new UnitTerm($unit);
         }
@@ -90,19 +136,20 @@ class DerivedUnit implements Stringable
      * Parse a string into a new DerivedUnit.
      *
      * @param string $symbol The unit symbol, which can be simple or complex (e.g. 'm', 'kg*m/s2', etc.).
-     * @return self The new instance.
-     * @throws DomainException If the symbol format is invalid or if any units are unrecognized.
+     * @return static The new DerivedUnit instance.
+     * @throws FormatException If the symbol format is invalid.
+     * @throws DomainException If any units are unknown.
      */
-    public static function parse(string $symbol): self
+    public static function parse(string $symbol): static
     {
         // Get the parts of the compound unit.
         $parts = preg_split('/(' . self::UNIT_TERM_SEPARATORS . ')/u', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
         if (empty($parts)) {
-            throw new DomainException(
+            throw new FormatException(
                 "Invalid unit format. The expected format is one or more unit terms separated by '*' or " .
                 "'/' operators, e.g. 'm', 'km', 'km2', 'm/s', 'm/s2', 'kg*m/s2', etc. To show an exponent, append it " .
                 "to the unit, e.g. 'm2'. To show 'per unit', either use a divide sign or an exponent of -1, e.g. " .
-                "'metres per second' can be expressed as 'm/s' or 'ms-1'. The parser will also accept '·' (U+00B7), " .
+                "'metres per second' can be expressed as 'm/s' or 'm*s-1'. The parser will also accept '·' (U+00B7), " .
                 "'⋅' (U+22C5), or '.' in place of '*', and superscript exponents."
             );
         }
@@ -132,11 +179,12 @@ class DerivedUnit implements Stringable
     /**
      * Convert the argument to a DerivedUnit if necessary.
      *
-     * @param null|string|Unit|UnitTerm|self $value The value to convert.
+     * @param null|string|UnitInterface $value The value to convert.
      * @return self The equivalent DerivedUnit object.
-     * @throws DomainException If a string is provided and it cannot be parsed.
+     * @throws FormatException If a string is provided and it cannot be parsed.
+     * @throws DomainException If a string is provided and it contains unknown units.
      */
-    public static function toDerivedUnit(null|string|Unit|UnitTerm|self $value): self
+    public static function toDerivedUnit(null|string|UnitInterface $value): self
     {
         // If the value is already a DerivedUnit, return it as is.
         if ($value instanceof self) {
@@ -160,7 +208,6 @@ class DerivedUnit implements Stringable
     public static function regex(): string
     {
         $rxUnitTerm = UnitTerm::regex();
-
         return "$rxUnitTerm(" . self::UNIT_TERM_SEPARATORS . "$rxUnitTerm)*";
     }
 
@@ -182,9 +229,10 @@ class DerivedUnit implements Stringable
      */
     public function format(bool $ascii = false): string
     {
-        $fn = static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii);
-        $multiplyChar = $ascii ? '*' : '⋅';
-        return implode($multiplyChar, array_map($fn, $this->unitTerms));
+        return implode(
+            $ascii ? '*' : '⋅',
+            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii), $this->unitTerms)
+        );
     }
 
     /**
@@ -212,15 +260,36 @@ class DerivedUnit implements Stringable
         return array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isSi());
     }
 
-    /**
-     * Check if the DerivedUnit has an expansion comprising more basic units.
-     *
-     * @return bool
-     */
-    public function hasExpansion(): bool
+    public function isDimensionless(): bool
     {
-        // Check each unit term to see if it has an expansion.
-        return array_any($this->unitTerms, static fn ($unitTerm) => $unitTerm->unit->expansion !== null);
+        return count($this->unitTerms) === 0;
+    }
+
+    /**
+     * Check if any unit term in this derived unit has a prefix.
+     *
+     * @return bool True if at least one unit term has a prefix, false otherwise.
+     */
+    public function hasPrefixes(): bool
+    {
+        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->hasPrefix());
+    }
+
+    /**
+     * Get the maximum absolute value of exponents in this derived unit.
+     *
+     * @return int The maximum absolute exponent, or 0 if there are no unit terms.
+     */
+    public function maxAbsExp(): int
+    {
+        if (empty($this->unitTerms)) {
+            return 0;
+        }
+
+        return max(array_map(
+            static fn (UnitTerm $unitTerm) => abs($unitTerm->exponent),
+            $this->unitTerms
+        ));
     }
 
     /**
@@ -267,6 +336,7 @@ class DerivedUnit implements Stringable
      */
     public function equal(mixed $other): bool
     {
+        // Check for equal types.
         if (!$other instanceof self) {
             return false;
         }
@@ -277,13 +347,13 @@ class DerivedUnit implements Stringable
         }
 
         // Each unit term must be equal.
-        foreach ($this->unitTerms as $symbol => $unitTerm) {
-            if (!isset($other->unitTerms[$symbol]) || !$unitTerm->equal($other->unitTerms[$symbol])) {
-                return false;
-            }
-        }
-
-        return true;
+        // This doesn't check that the order of the unit terms matches, but that doesn't matter.
+        return array_all(
+            $this->unitTerms,
+            static fn ($unitTerm, $symbol) => isset($other->unitTerms[$symbol]) && $unitTerm->equal(
+                $other->unitTerms[$symbol]
+            )
+        );
     }
 
     // endregion
@@ -296,16 +366,12 @@ class DerivedUnit implements Stringable
      * If a term with the same base unit already exists, their exponents are added.
      * If the resulting exponent is zero, the term is removed entirely.
      *
-     * @param string|UnitTerm $unitTerm The unit term to add.
+     * @param UnitTerm $unitTerm The unit term to add.
+     * @throws DomainException Never.
      */
-    public function addUnitTerm(string|UnitTerm $unitTerm): void
+    public function addUnitTerm(UnitTerm $unitTerm): void
     {
-        // Get the unit term as an object.
-        if (is_string($unitTerm)) {
-            $unitTerm = UnitTerm::parse($unitTerm);
-        }
-
-        $symbol = $unitTerm->unexponentiatedSymbol;
+        $symbol = $unitTerm->unexponentiatedAsciiSymbol;
         $existingUnitTerm = $this->unitTerms[$symbol] ?? null;
         if ($existingUnitTerm === null) {
             // Add the new unit term.
@@ -331,16 +397,15 @@ class DerivedUnit implements Stringable
      * Remove a unit term.
      *
      * @param string|UnitTerm $unitTerm The unit term to remove.
+     * @throws DomainException Never.
      */
     public function removeUnitTerm(string|UnitTerm $unitTerm): void
     {
-        // Get the unit term as an object.
-        if (is_string($unitTerm)) {
-            $unitTerm = UnitTerm::parse($unitTerm);
-        }
+        // Get the symbol of the unit term to remove.
+        $symbol = is_string($unitTerm) ? $unitTerm : $unitTerm->unexponentiatedAsciiSymbol;
 
-        // Remove the term.
-        unset($this->unitTerms[$unitTerm->unexponentiatedSymbol]);
+        // Remove the unit term.
+        unset($this->unitTerms[$symbol]);
 
         // Update the dimension.
         $this->updateDimension();
@@ -365,22 +430,19 @@ class DerivedUnit implements Stringable
      */
     public function __clone(): void
     {
-        $clonedTerms = array_map(static fn ($unitTerm) => clone $unitTerm, $this->unitTerms);
-        $this->unitTerms = $clonedTerms;
+        $this->unitTerms = array_map(static fn (UnitTerm $unitTerm) => clone $unitTerm, $this->unitTerms);
     }
 
     /**
      * Return a new DerivedUnit with all exponents negated.
      *
      * @return self A new instance with inverted exponents (e.g. m⋅s⁻¹ → m⁻¹⋅s).
+     * @throws DomainException Never.
      */
     public function inv(): self
     {
-        $du = new self();
-        foreach ($this->unitTerms as $unitTerm) {
-            $du->addUnitTerm($unitTerm->inv());
-        }
-        return $du;
+        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->inv(), $this->unitTerms);
+        return new self($unitTerms);
     }
 
     /**
@@ -395,9 +457,103 @@ class DerivedUnit implements Stringable
         $unitTerms = [];
         $dimTerms = DimensionRegistry::explode($this->dimension);
         foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = DimensionRegistry::getSiBaseUnitTerm($code)->applyExponent($exp);
+            $unitTerms[] = DimensionRegistry::getSiBaseUnitTerm($code)->pow($exp);
         }
         return new self($unitTerms);
+    }
+
+    /**
+     * Return a new DerivedUnit with all prefixes removed from all unit terms.
+     *
+     * @return self A new instance with no prefixes on any unit term.
+     * @throws DomainException Never.
+     */
+    public function removePrefixes(): self
+    {
+        $newUnitTerms = array_map(
+            static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(),
+            $this->unitTerms
+        );
+        return new self($newUnitTerms);
+    }
+
+    /**
+     * Return a new DerivedUnit with the given prefix applied to the first unit term.
+     *
+     * @param ?string $prefix The prefix symbol to apply, or null for no prefix.
+     * @return self A new instance with the prefix applied to the first unit term.
+     * @throws DomainException If the prefix is invalid for the first unit term's unit.
+     */
+    public function withPrefix(?string $prefix): self
+    {
+        // If there are no unit terms, do nothing.
+        if (empty($this->unitTerms)) {
+            return clone $this;
+        }
+
+        // Create a list of UnitTerms for the result DerivedUnit. Only the first one will be altered.
+        $first = true;
+        $newUnitTerms = [];
+        foreach ($this->unitTerms as $unitTerm) {
+            if ($first) {
+                $newUnitTerms[] = $unitTerm->withPrefix($prefix);
+                $first = false;
+            } else {
+                $newUnitTerms[] = $unitTerm;
+            }
+        }
+
+        // Construct the new DerivedUnit object.
+        return new self($newUnitTerms);
+    }
+
+    /**
+     * Return a new DerivedUnit raised to a given power.
+     *
+     * Each unit term's exponent is multiplied by the given value.
+     * For example, (m⋅s⁻¹)->pow(2) returns m²⋅s⁻².
+     *
+     * @param int $exponent The power to raise the derived unit to.
+     * @return self A new instance with the exponents multiplied by the given value.
+     * @throws DomainException Never.
+     */
+    public function pow(int $exponent): self
+    {
+        // Get the unit terms raised to the given power.
+        $newUnitTerms = array_map(
+            static fn (UnitTerm $unitTerm) => $unitTerm->pow($exponent),
+            $this->unitTerms
+        );
+
+        // Construct the new DerivedUnit object.
+        return new self($newUnitTerms);
+    }
+
+    /**
+     * Return a new DerivedUnit by taking the root (i.e. square root, cube root, etc.).
+     *
+     * Each unit term's exponent is divided by the given value.
+     * For example, (m²⋅s⁻²)->root(2) returns m⋅s⁻¹.
+     *
+     * @param int $index The index of the root to calculate.
+     * @return self A new instance with the exponents divided by the given value.
+     * @throws DomainException If the root is not a positive integer.
+     */
+    public function root(int $index): self
+    {
+        // Check the index is positive.
+        if ($index < 1) {
+            throw new DomainException('Index must be a positive integer.');
+        }
+
+        // Calculate the root of each unit term.
+        $newUnitTerms = array_map(
+            static fn (UnitTerm $unitTerm) => $unitTerm->root($index),
+            $this->unitTerms
+        );
+
+        // Construct the new DerivedUnit object.
+        return new self($newUnitTerms);
     }
 
     // endregion
@@ -414,6 +570,7 @@ class DerivedUnit implements Stringable
      * @param UnitTerm $a The first unit term.
      * @param UnitTerm $b The second unit term.
      * @return int Negative if $a should come first, positive if $b should come first, zero if equal.
+     * @throws DomainException Never.
      */
     private static function compareUnitTerms(UnitTerm $a, UnitTerm $b): int
     {
@@ -438,7 +595,10 @@ class DerivedUnit implements Stringable
     }
 
     /**
-     * Recalculate the dimension code from the current unit terms.
+     * Recalculate the dimension from the current unit terms.
+     *
+     * @return void
+     * @throws DomainException Never.
      */
     private function updateDimension(): void
     {

@@ -19,11 +19,11 @@ class LuminousFlux extends Quantity
         return [
             // SI named unit
             'lumen' => [
-                'asciiSymbol'   => 'lm',
-                'dimension'     => 'JA2',
-                'system'        => 'si_named',
-                'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'expansionUnit' => 'cd*rad2',
+                'asciiSymbol'         => 'lm',
+                'dimension'           => 'JA2',
+                'system'              => 'si_named',
+                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'expansionUnitSymbol' => 'cd*rad2',
             ],
         ];
     }

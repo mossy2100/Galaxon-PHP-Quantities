@@ -10,8 +10,7 @@ use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\UnitTerm;
+use Galaxon\Quantities\UnitInterface;
 use Override;
 
 class Temperature extends Quantity
@@ -95,17 +94,13 @@ class Temperature extends Quantity
      * engine used by the package only supports conversion by multipliying.
      *
      * @param float $value
-     * @param string|Unit|UnitTerm|DerivedUnit $srcUnit
-     * @param string|Unit|UnitTerm|DerivedUnit $destUnit
+     * @param string|UnitInterface $srcUnit
+     * @param string|UnitInterface $destUnit
      * @return float
-     * @throws DomainException
      */
     #[Override]
-    public static function convert(
-        float $value,
-        string|Unit|UnitTerm|DerivedUnit $srcUnit,
-        string|Unit|UnitTerm|DerivedUnit $destUnit
-    ): float {
+    public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
+    {
         $origSrcUnitSymbol = (string)$srcUnit;
         $origDestUnitSymbol = (string)$destUnit;
 
@@ -189,44 +184,10 @@ class Temperature extends Quantity
         $units = UnitRegistry::getByDimension('H');
         foreach ($units as $unit) {
             $symbols[] = $unit->asciiSymbol;
-            if ($unit->unicodeSymbol !== null) {
+            if ($unit->unicodeSymbol !== $unit->asciiSymbol) {
                 $symbols[] = $unit->unicodeSymbol;
             }
         }
         return $symbols;
     }
-
-    // region Factory methods
-
-//    /**
-//     * Parse a temperature string.
-//     *
-//     * Accepts standard formats like "25C", "98.6F", "273.15K"
-//     * or with degree symbols like "25°C", "98.6°F".
-//     *
-//     * @param string $value The string to parse.
-//     * @return static A new Temperature instance.
-//     * @throws DomainException If the string is not a valid temperature format.
-//     */
-//    #[Override]
-//    public static function parse(string $value): static
-//    {
-//        try {
-//            // Try to parse using Quantity::parse().
-//            return parent::parse($value);
-//        } catch (DomainException $e) {
-//            // Check for Celsius or Fahrenheit with a degree symbol, e.g. "25°C" or "98.6°F".
-//            $rxNum = '[-+]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?';
-//            $pattern = "/^($rxNum)\s*°([CF])$/";
-//
-//            if (preg_match($pattern, $value, $matches)) {
-//                return new static((float)$matches[1], $matches[2]);
-//            }
-//
-//            // Invalid format.
-//            throw $e;
-//        }
-//    }
-
-    // endregion
 }
