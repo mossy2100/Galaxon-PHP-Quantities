@@ -92,6 +92,9 @@ class Converter
                 $this->addUnit($conversion->destUnit);
             }
         }
+
+        // Initialize simple conversions.
+        $this->findSimpleConversions();
     }
 
     // endregion
@@ -428,18 +431,9 @@ class Converter
                 $src = $srcUnit->asciiSymbol;
                 $dest = $destUnit->asciiSymbol;
 
-                // If this conversion is already known, continue.
-                if (ConversionRegistry::has($dim, $src, $dest)) {
+                // Skip identity conversions and those already known.
+                if ($src === $dest || ConversionRegistry::has($dim, $src, $dest)) {
                     continue;
-                }
-
-                // Look for the identity conversion.
-                if ($src === $dest) {
-                    $newConversion = new Conversion($srcUnit, $destUnit, 1);
-                    self::testNewConversion($newConversion, $minErr, $best, $done);
-                    if ($done) {
-                        break 2;
-                    }
                 }
 
                 // Look for the inverse conversion.
@@ -536,6 +530,66 @@ class Converter
         return false;
     }
 
+    /**
+     * Generate all simple conversions, including:
+     * - Unity conversions
+     * - Combinations requiring integer multiplications only
+     */
+    private function findSimpleConversions(): void
+    {
+        // Prep.
+        $dim = $this->dimension;
+
+        // Loop until no more new conversions are found.
+        do {
+            $foundNew = false;
+
+            // Iterate through all possible pairs of units.
+            foreach ($this->units as $srcUnit) {
+                foreach ($this->units as $destUnit) {
+                    $src = $srcUnit->asciiSymbol;
+                    $dest = $destUnit->asciiSymbol;
+
+                    // If this conversion is already known, continue.
+                    if (ConversionRegistry::has($dim, $src, $dest)) {
+                        continue;
+                    }
+
+                    // Look for identity conversions.
+                    if ($src === $dest) {
+                        $newConversion = new Conversion($srcUnit, $destUnit, 1);
+                        ConversionRegistry::addConversion($newConversion);
+                        $foundNew = true;
+                        continue;
+                    }
+
+                    // Look for conversion opportunity via an intermediate unit involving only integer multiplications.
+                    foreach ($this->units as $midUnit) {
+                        $mid = $midUnit->asciiSymbol;
+
+                        // The intermediate unit must be different from the source and destination units.
+                        if ($src === $mid || $dest === $mid) {
+                            continue;
+                        }
+
+                        // Get conversions between the source, destination, and intermediate unit.
+                        $srcToMid = ConversionRegistry::get($dim, $src, $mid);
+                        $midToDest = ConversionRegistry::get($dim, $mid, $dest);
+
+                        // Combine source->mid with mid->dest (sequential).
+                        if ($srcToMid !== null && $midToDest !== null) {
+                            if ($srcToMid->factor->isInteger() && $midToDest->factor->isInteger()) {
+                                $newConversion = $srcToMid->combineSequential($midToDest);
+                                ConversionRegistry::addConversion($newConversion);
+                                $foundNew = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } while ($foundNew);
+    }
+
     // endregion
 
     // region Helper methods for adding unit terms
@@ -557,7 +611,7 @@ class Converter
         }
 
         // Generate the merged unit.
-        $qty = Quantity::create(1, $unit)->mergeCompatibleUnits();
+        $qty = Quantity::create(1, $unit)->merge();
 
         // Add the merged unit to the Converter.
         $this->addUnit($qty->derivedUnit);
@@ -583,7 +637,7 @@ class Converter
         }
 
         // Generate the expansion quantity.
-        $qty = Quantity::create(1, $unit)->expandNamedUnits()->mergeCompatibleUnits();
+        $qty = Quantity::create(1, $unit)->expand()->merge();
 
         // Add the expanded unit to the Converter.
         $this->addUnit($qty->derivedUnit);

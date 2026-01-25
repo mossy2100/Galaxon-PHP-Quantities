@@ -85,6 +85,20 @@ class FloatWithError implements Stringable
 
     // endregion
 
+    // region Inspection methods
+
+    /**
+     * Check if the number is an integer.
+     *
+     * @return bool
+     */
+    public function isInteger(): bool
+    {
+        return Floats::isExactInt($this->value) && $this->absoluteError === 0.0;
+    }
+
+    // endregion
+
     // region Arithmetic methods
 
     /**

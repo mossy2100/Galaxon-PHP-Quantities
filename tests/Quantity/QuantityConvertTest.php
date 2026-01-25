@@ -456,7 +456,7 @@ final class QuantityConvertTest extends TestCase
 
     // endregion
 
-    // region to() Named unit conversions - Force
+    // region to() Expandable unit conversions - Force
 
     /**
      * Test newtons to pound-force.
@@ -581,7 +581,7 @@ final class QuantityConvertTest extends TestCase
 
     // endregion
 
-    // region to() Named unit conversions - Pressure
+    // region to() Expandable unit conversions - Pressure
 
     /**
      * Test pascals to bar.
@@ -1000,7 +1000,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = Quantity::create(10, 'kg*m*s-2');
 
-        $result = $force->substituteNamedUnits(false);
+        $result = $force->compact(false);
 
         $this->assertEqualsWithDelta(10.0, $result->value, 1e-10);
         $this->assertSame('N', (string)$result->derivedUnit);
@@ -1013,7 +1013,7 @@ final class QuantityConvertTest extends TestCase
     {
         $energy = Quantity::create(100, 'kg*m2*s-2');
 
-        $result = $energy->substituteNamedUnits(false);
+        $result = $energy->compact(false);
 
         $this->assertEqualsWithDelta(100.0, $result->value, 1e-10);
         $this->assertSame('J', (string)$result->derivedUnit);
@@ -1026,7 +1026,7 @@ final class QuantityConvertTest extends TestCase
     {
         $pressure = Quantity::create(101325, 'kg*m-1*s-2');
 
-        $result = $pressure->substituteNamedUnits(false);
+        $result = $pressure->compact(false);
 
         $this->assertEqualsWithDelta(101325.0, $result->value, 1e-10);
         $this->assertSame('Pa', (string)$result->derivedUnit);
@@ -1039,7 +1039,7 @@ final class QuantityConvertTest extends TestCase
     {
         $power = Quantity::create(1000, 'kg*m2*s-3');
 
-        $result = $power->substituteNamedUnits(false);
+        $result = $power->compact(false);
 
         $this->assertEqualsWithDelta(1000.0, $result->value, 1e-10);
         $this->assertSame('W', (string)$result->derivedUnit);
@@ -1052,7 +1052,7 @@ final class QuantityConvertTest extends TestCase
     {
         $frequency = Quantity::create(50, 's-1');
 
-        $result = $frequency->substituteNamedUnits(false);
+        $result = $frequency->compact(false);
 
         $this->assertEqualsWithDelta(50.0, $result->value, 1e-10);
         $this->assertSame('Hz', (string)$result->derivedUnit);
@@ -1065,7 +1065,7 @@ final class QuantityConvertTest extends TestCase
     {
         $frequency = Quantity::create(50, 'ms-1');
 
-        $result = $frequency->substituteNamedUnits(false);
+        $result = $frequency->compact(false);
 
         $this->assertEqualsWithDelta(50.0, $result->value, 1e-10);
         $this->assertSame('kHz', (string)$result->derivedUnit);
@@ -1078,7 +1078,7 @@ final class QuantityConvertTest extends TestCase
     {
         $voltage = Quantity::create(12, 'kg*m2*s-3*A-1');
 
-        $result = $voltage->substituteNamedUnits(false);
+        $result = $voltage->compact(false);
 
         $this->assertEqualsWithDelta(12.0, $result->value, 1e-10);
         $this->assertSame('V', (string)$result->derivedUnit);
@@ -1091,7 +1091,7 @@ final class QuantityConvertTest extends TestCase
     {
         $charge = Quantity::create(5, 's*A');
 
-        $result = $charge->substituteNamedUnits(false);
+        $result = $charge->compact(false);
 
         $this->assertEqualsWithDelta(5.0, $result->value, 1e-10);
         $this->assertSame('C', (string)$result->derivedUnit);
@@ -1104,7 +1104,7 @@ final class QuantityConvertTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $result = $length->substituteNamedUnits(false);
+        $result = $length->compact(false);
 
         $this->assertEqualsWithDelta(100.0, $result->value, 1e-10);
         $this->assertSame('m', (string)$result->derivedUnit);
@@ -1117,7 +1117,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = new Force(50, 'N');
 
-        $result = $force->substituteNamedUnits(false);
+        $result = $force->compact(false);
 
         $this->assertEqualsWithDelta(50.0, $result->value, 1e-10);
         $this->assertSame('N', (string)$result->derivedUnit);
@@ -1130,7 +1130,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = Quantity::create(123.456, 'kg*m*s-2');
 
-        $result = $force->substituteNamedUnits(false);
+        $result = $force->compact(false);
 
         $this->assertEqualsWithDelta(123.456, $result->value, 1e-10);
     }
@@ -1142,7 +1142,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = Quantity::create(0, 'kg*m*s-2');
 
-        $result = $force->substituteNamedUnits(false);
+        $result = $force->compact(false);
 
         $this->assertSame(0.0, $result->value);
         $this->assertSame('N', (string)$result->derivedUnit);
@@ -1155,7 +1155,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = Quantity::create(-50, 'kg*m*s-2');
 
-        $result = $force->substituteNamedUnits(false);
+        $result = $force->compact(false);
 
         $this->assertEqualsWithDelta(-50.0, $result->value, 1e-10);
         $this->assertSame('N', (string)$result->derivedUnit);
@@ -1168,7 +1168,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = Quantity::create(10, 'kg*m*s-2');
 
-        $result = $force->substituteNamedUnits(false);
+        $result = $force->compact(false);
 
         $this->assertNotSame($force, $result);
     }
@@ -1181,20 +1181,20 @@ final class QuantityConvertTest extends TestCase
         // 1000 N should stay as 1000 N, not become 1 kN
         $force = Quantity::create(1000, 'kg*m*s-2');
 
-        $result = $force->substituteNamedUnits(false);
+        $result = $force->compact(false);
 
         $this->assertEqualsWithDelta(1000.0, $result->value, 1e-10);
         $this->assertSame('N', (string)$result->derivedUnit);
     }
 
     /**
-     * Test simplify with compound velocity (m/s) - should not simplify to named unit.
+     * Test simplify with compound velocity (m/s) - should not simplify to expandable unit.
      */
     public function testSimplifyVelocityStaysCompound(): void
     {
         $velocity = Quantity::create(10, 'm/s');
 
-        $result = $velocity->substituteNamedUnits(false);
+        $result = $velocity->compact(false);
 
         // m/s has no SI named unit, should stay as m⋅s⁻¹
         $this->assertEqualsWithDelta(10.0, $result->value, 1e-10);
@@ -1202,15 +1202,15 @@ final class QuantityConvertTest extends TestCase
     }
 
     /**
-     * Test simplify with acceleration (m/s²) - should not simplify to named unit.
+     * Test simplify with acceleration (m/s²) - should not simplify to an expandable unit.
      */
     public function testSimplifyAccelerationStaysCompound(): void
     {
         $acceleration = Quantity::create(9.8, 'm/s2');
 
-        $result = $acceleration->substituteNamedUnits(false);
+        $result = $acceleration->compact(false);
 
-        // m/s² has no SI named unit, should stay as m⋅s⁻²
+        // m/s² has no expandable unit, should stay as m⋅s⁻²
         $this->assertEqualsWithDelta(9.8, $result->value, 1e-10);
         $this->assertSame('m⋅s⁻²', (string)$result->derivedUnit);
     }
@@ -1507,7 +1507,7 @@ final class QuantityConvertTest extends TestCase
     {
         $qty = Quantity::create(10, 'm/m2');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(10.0, $result->value, 1e-10);
         $this->assertSame('m⁻¹', (string)$result->derivedUnit);
@@ -1520,7 +1520,7 @@ final class QuantityConvertTest extends TestCase
     {
         $qty = Quantity::create(20, 'm2/m');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(20.0, $result->value, 1e-10);
         $this->assertSame('m', (string)$result->derivedUnit);
@@ -1534,7 +1534,7 @@ final class QuantityConvertTest extends TestCase
         // 1 ft/m = 0.3048 (dimensionless ratio)
         $qty = Quantity::create(1, 'ft/m');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         // Should convert ft to m, giving m/m = dimensionless
         $this->assertEqualsWithDelta(0.3048, $result->value, 1e-10);
@@ -1549,7 +1549,7 @@ final class QuantityConvertTest extends TestCase
         // 1 m/ft = 1/0.3048 ≈ 3.28084
         $qty = Quantity::create(1, 'm/ft');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(3.28084, $result->value, 0.00001);
         $this->assertTrue($result->isDimensionless());
@@ -1563,7 +1563,7 @@ final class QuantityConvertTest extends TestCase
         // 1 m⋅ft should become m² (converting ft to m first)
         $qty = Quantity::create(1, 'm*ft');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         // 1 m × 0.3048 m = 0.3048 m²
         $this->assertEqualsWithDelta(0.3048, $result->value, 1e-10);
@@ -1578,7 +1578,7 @@ final class QuantityConvertTest extends TestCase
         // 1 dL/L = 0.1
         $qty = Quantity::create(1, 'dL/L');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(0.1, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1592,7 +1592,7 @@ final class QuantityConvertTest extends TestCase
         // 1 km/m = 1000
         $qty = Quantity::create(1, 'km/m');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(1000.0, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1606,7 +1606,7 @@ final class QuantityConvertTest extends TestCase
         // 1 m/km = 0.001
         $qty = Quantity::create(1, 'm/km');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(0.001, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1620,7 +1620,7 @@ final class QuantityConvertTest extends TestCase
         // 1 cm²/m² = 0.0001
         $qty = Quantity::create(1, 'cm2/m2');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(0.0001, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1634,7 +1634,7 @@ final class QuantityConvertTest extends TestCase
         // 1 kg/g = 1000
         $qty = Quantity::create(1, 'kg/g');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(1000.0, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1647,7 +1647,7 @@ final class QuantityConvertTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $result = $length->mergeCompatibleUnits();
+        $result = $length->merge();
 
         $this->assertEqualsWithDelta(100.0, $result->value, 1e-10);
         $this->assertSame('m', (string)$result->derivedUnit);
@@ -1660,7 +1660,7 @@ final class QuantityConvertTest extends TestCase
     {
         $velocity = Quantity::create(10, 'm/s');
 
-        $result = $velocity->mergeCompatibleUnits();
+        $result = $velocity->merge();
 
         // Different dimensions, should stay as m⋅s⁻¹
         $this->assertEqualsWithDelta(10.0, $result->value, 1e-10);
@@ -1675,7 +1675,7 @@ final class QuantityConvertTest extends TestCase
         // 10 ft × 2 m should give area in single unit
         $area = Quantity::create(1, 'ft*m');
 
-        $result = $area->mergeCompatibleUnits();
+        $result = $area->merge();
 
         // 1 ft × 1 m = 3.2808398950131235 m × 1 m = 3.2808398950131235 m²
         $this->assertEqualsWithDelta(3.2808398950131235, $result->value, 1e-10);
@@ -1690,7 +1690,7 @@ final class QuantityConvertTest extends TestCase
         // 1 in/ft = 1/12
         $qty = Quantity::create(1, 'in/ft');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(1.0 / 12.0, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1704,7 +1704,7 @@ final class QuantityConvertTest extends TestCase
         // 1 ft/in = 12
         $qty = Quantity::create(1, 'ft/in');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(12.0, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1718,7 +1718,7 @@ final class QuantityConvertTest extends TestCase
         // 1 mi/yd = 1760
         $qty = Quantity::create(1, 'mi/yd');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(1760.0, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1731,7 +1731,7 @@ final class QuantityConvertTest extends TestCase
     {
         $qty = Quantity::create(1, 'm/km');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertNotSame($qty, $result);
     }
@@ -1743,7 +1743,7 @@ final class QuantityConvertTest extends TestCase
     {
         $qty = Quantity::create(0, 'ft/m');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertSame(0.0, $result->value);
         $this->assertTrue($result->isDimensionless());
@@ -1756,7 +1756,7 @@ final class QuantityConvertTest extends TestCase
     {
         $qty = Quantity::create(-5, 'km/m');
 
-        $result = $qty->mergeCompatibleUnits();
+        $result = $qty->merge();
 
         $this->assertEqualsWithDelta(-5000.0, $result->value, 1e-10);
         $this->assertTrue($result->isDimensionless());
@@ -1773,7 +1773,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = new Force(10, 'N');
 
-        $result = $force->expandNamedUnits();
+        $result = $force->expand();
 
         $this->assertEqualsWithDelta(10.0, $result->value, 1e-10);
         $this->assertSame('kg⋅m⋅s⁻²', (string)$result->derivedUnit);
@@ -1786,7 +1786,7 @@ final class QuantityConvertTest extends TestCase
     {
         $energy = Quantity::create(100, 'J');
 
-        $result = $energy->expandNamedUnits();
+        $result = $energy->expand();
 
         $this->assertEqualsWithDelta(100.0, $result->value, 1e-10);
         $this->assertSame('kg⋅m²⋅s⁻²', (string)$result->derivedUnit);
@@ -1799,7 +1799,7 @@ final class QuantityConvertTest extends TestCase
     {
         $pressure = new Pressure(101325, 'Pa');
 
-        $result = $pressure->expandNamedUnits();
+        $result = $pressure->expand();
 
         $this->assertEqualsWithDelta(101325.0, $result->value, 1e-10);
         $this->assertSame('kg⋅m⁻¹⋅s⁻²', (string)$result->derivedUnit);
@@ -1812,7 +1812,7 @@ final class QuantityConvertTest extends TestCase
     {
         $power = Quantity::create(1000, 'W');
 
-        $result = $power->expandNamedUnits();
+        $result = $power->expand();
 
         $this->assertEqualsWithDelta(1000.0, $result->value, 1e-10);
         $this->assertSame('kg⋅m²⋅s⁻³', (string)$result->derivedUnit);
@@ -1825,7 +1825,7 @@ final class QuantityConvertTest extends TestCase
     {
         $frequency = Quantity::create(50, 'Hz');
 
-        $result = $frequency->expandNamedUnits();
+        $result = $frequency->expand();
 
         $this->assertEqualsWithDelta(50.0, $result->value, 1e-10);
         $this->assertSame('s⁻¹', (string)$result->derivedUnit);
@@ -1838,7 +1838,7 @@ final class QuantityConvertTest extends TestCase
     {
         $voltage = Quantity::create(12, 'V');
 
-        $result = $voltage->expandNamedUnits();
+        $result = $voltage->expand();
 
         $this->assertEqualsWithDelta(12.0, $result->value, 1e-10);
         $this->assertSame('kg⋅m²⋅s⁻³⋅A⁻¹', (string)$result->derivedUnit);
@@ -1851,7 +1851,7 @@ final class QuantityConvertTest extends TestCase
     {
         $charge = Quantity::create(5, 'C');
 
-        $result = $charge->expandNamedUnits();
+        $result = $charge->expand();
 
         $this->assertEqualsWithDelta(5.0, $result->value, 1e-10);
         $this->assertSame('s⋅A', (string)$result->derivedUnit);
@@ -1864,7 +1864,7 @@ final class QuantityConvertTest extends TestCase
     {
         $resistance = Quantity::create(100, 'ohm');
 
-        $result = $resistance->expandNamedUnits();
+        $result = $resistance->expand();
 
         $this->assertEqualsWithDelta(100.0, $result->value, 1e-10);
         $this->assertSame('kg⋅m²⋅s⁻³⋅A⁻²', (string)$result->derivedUnit);
@@ -1877,7 +1877,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = new Force(1, 'kN');
 
-        $result = $force->expandNamedUnits();
+        $result = $force->expand();
 
         // 1 kN = 1000 kg⋅m⋅s⁻²
         $this->assertEqualsWithDelta(1000.0, $result->value, 1e-10);
@@ -1891,7 +1891,7 @@ final class QuantityConvertTest extends TestCase
     {
         $pressure = new Pressure(1, 'MPa');
 
-        $result = $pressure->expandNamedUnits();
+        $result = $pressure->expand();
 
         // 1 MPa = 1,000,000 kg⋅m⁻¹⋅s⁻²
         $this->assertEqualsWithDelta(1e6, $result->value, 1e-4);
@@ -1905,7 +1905,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = new Force(1, 'lbf');
 
-        $result = $force->expandNamedUnits();
+        $result = $force->expand();
 
         // lbf has an expansion value (9.80665 / 0.3048)
         // 1 lbf = (9.80665 / 0.3048) lb⋅ft⋅s⁻²
@@ -1914,28 +1914,28 @@ final class QuantityConvertTest extends TestCase
     }
 
     /**
-     * Test expand with squared named unit.
+     * Test expand with squared expandable unit.
      */
     public function testExpandSquaredNewtons(): void
     {
         // N² = (kg⋅m⋅s⁻²)² = kg²⋅m²⋅s⁻⁴
         $qty = Quantity::create(4, 'N2');
 
-        $result = $qty->expandNamedUnits();
+        $result = $qty->expand();
 
         $this->assertEqualsWithDelta(4.0, $result->value, 1e-10);
         $this->assertSame('kg²⋅m²⋅s⁻⁴', (string)$result->derivedUnit);
     }
 
     /**
-     * Test expand with inverse named unit.
+     * Test expand with inverse expandable unit.
      */
     public function testExpandInverseNewtons(): void
     {
         // N⁻¹ = (kg⋅m⋅s⁻²)⁻¹ = kg⁻¹⋅m⁻¹⋅s²
         $qty = Quantity::create(2, 'N-1');
 
-        $result = $qty->expandNamedUnits();
+        $result = $qty->expand();
 
         $this->assertEqualsWithDelta(2.0, $result->value, 1e-10);
         $this->assertSame('kg⁻¹⋅m⁻¹⋅s²', (string)$result->derivedUnit);
@@ -1948,7 +1948,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = new Force(123.456, 'N');
 
-        $result = $force->expandNamedUnits();
+        $result = $force->expand();
 
         $this->assertEqualsWithDelta(123.456, $result->value, 1e-10);
     }
@@ -1960,7 +1960,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = new Force(0, 'N');
 
-        $result = $force->expandNamedUnits();
+        $result = $force->expand();
 
         $this->assertSame(0.0, $result->value);
         $this->assertSame('kg⋅m⋅s⁻²', (string)$result->derivedUnit);
@@ -1973,7 +1973,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = new Force(-50, 'N');
 
-        $result = $force->expandNamedUnits();
+        $result = $force->expand();
 
         $this->assertEqualsWithDelta(-50.0, $result->value, 1e-10);
         $this->assertSame('kg⋅m⋅s⁻²', (string)$result->derivedUnit);
@@ -1986,8 +1986,8 @@ final class QuantityConvertTest extends TestCase
     {
         $original = new Force(100, 'N');
 
-        $expanded = $original->expandNamedUnits();
-        $simplified = $expanded->substituteNamedUnits(false);
+        $expanded = $original->expand();
+        $simplified = $expanded->compact(false);
 
         $this->assertEqualsWithDelta(100.0, $simplified->value, 1e-10);
         $this->assertSame('N', (string)$simplified->derivedUnit);
@@ -2000,7 +2000,7 @@ final class QuantityConvertTest extends TestCase
     {
         $force = new Force(10, 'N');
 
-        $result = $force->expandNamedUnits();
+        $result = $force->expand();
 
         $this->assertNotSame($force, $result);
     }

@@ -87,7 +87,7 @@ class UnitRegistry
                         $dimension,
                         $definition['prefixGroup'] ?? 0,
                         $definition['expansionUnitSymbol'] ?? null,
-                        $definition['expansionValue'] ?? null,
+                        $definition['expansionValue'] ?? null
                     );
                 }
             }
@@ -131,8 +131,8 @@ class UnitRegistry
      * @param string $quantityType The quantity type (e.g. 'length', 'mass').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
-     * @param ?string $expansionUnitSymbol For named units, the expansion unit symbol, or null.
-     * @param ?float $expansionValue For named units with non-1:1 expansion, the multiplier.
+     * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
+     * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
      * @throws DomainException If the name or symbol already exists.
      */
     public static function add(
@@ -143,7 +143,7 @@ class UnitRegistry
         string $dimension,
         int $prefixGroup = 0,
         ?string $expansionUnitSymbol = null,
-        ?float $expansionValue = null,
+        ?float $expansionValue = null
     ): void {
         // Ensure registry is initialized (unless we're in the middle of init).
         if (self::$units === null) {

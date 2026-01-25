@@ -372,18 +372,18 @@ class DerivedUnit implements UnitInterface
      * If a term with the same base unit already exists, their exponents are added.
      * If the resulting exponent is zero, the term is removed entirely.
      *
-     * @param UnitTerm $unitTerm The unit term to add.
+     * @param UnitTerm $newUnitTerm The unit term to add.
      */
-    public function addUnitTerm(UnitTerm $unitTerm): void
+    public function addUnitTerm(UnitTerm $newUnitTerm): void
     {
-        $symbol = $unitTerm->unexponentiatedAsciiSymbol;
+        $symbol = $newUnitTerm->unexponentiatedAsciiSymbol;
         $existingUnitTerm = $this->unitTerms[$symbol] ?? null;
         if ($existingUnitTerm === null) {
             // Add the new unit term.
-            $this->unitTerms[$symbol] = $unitTerm;
+            $this->unitTerms[$symbol] = $newUnitTerm;
         } else {
             // Add the exponent of the new unit term to that of the existing term.
-            $exp = $existingUnitTerm->exponent + $unitTerm->exponent;
+            $exp = $existingUnitTerm->exponent + $newUnitTerm->exponent;
             if ($exp === 0) {
                 unset($this->unitTerms[$symbol]);
             } else {
@@ -401,18 +401,11 @@ class DerivedUnit implements UnitInterface
     /**
      * Remove a unit term.
      *
-     * @param string|UnitTerm $unitTerm The unit term to remove.
+     * @param UnitTerm $unitTerm The unit term to remove.
      */
-    public function removeUnitTerm(string|UnitTerm $unitTerm): void
+    public function removeUnitTerm(UnitTerm $unitTerm): void
     {
-        // Get the symbol of the unit term to remove.
-        $symbol = is_string($unitTerm) ? $unitTerm : $unitTerm->unexponentiatedAsciiSymbol;
-
-        // Remove the unit term.
-        unset($this->unitTerms[$symbol]);
-
-        // Update the dimension.
-        $this->updateDimension();
+        $this->addUnitTerm($unitTerm->inv());
     }
 
     /**
@@ -567,7 +560,7 @@ class DerivedUnit implements UnitInterface
      * Compare two unit terms for sorting purposes.
      *
      * Sorting order:
-     * 1. More complex dimensions (named units) before simpler ones.
+     * 1. More complex dimensions (expandable units) before simpler ones.
      * 2. By dimension code order.
      *
      * @param UnitTerm $a The first unit term.
@@ -580,7 +573,7 @@ class DerivedUnit implements UnitInterface
         $aDimTerms = DimensionRegistry::explode($a->dimension);
         $bDimTerms = DimensionRegistry::explode($b->dimension);
 
-        // Put more complex dimensions (indicating named units) first.
+        // Put more complex dimensions (indicating expandable units) first.
         if (count($aDimTerms) > count($bDimTerms)) {
             return -1;
         }

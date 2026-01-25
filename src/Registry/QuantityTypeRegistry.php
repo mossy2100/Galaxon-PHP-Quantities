@@ -136,7 +136,7 @@ class QuantityTypeRegistry
             'class'  => Density::class,
         ],
 
-        // SI named unit dimensions
+        // SI named units
         'T-1'        => [
             'name'   => 'frequency',
             'siUnit' => 'Hz',

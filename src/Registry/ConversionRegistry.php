@@ -71,11 +71,8 @@ class ConversionRegistry
         }
     }
 
-    private static function add(
-        string|UnitInterface $srcUnit,
-        string|UnitInterface $destUnit,
-        float $factor
-    ): void {
+    private static function add(string|UnitInterface $srcUnit, string|UnitInterface $destUnit, float $factor): void
+    {
         // Construct the new Conversion.
         $conversion = new Conversion($srcUnit, $destUnit, $factor);
 

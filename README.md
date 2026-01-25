@@ -214,17 +214,19 @@ $angle->tanh();
 
 ## Terminology
 
-| Term          | Definition                                                                       |
-|---------------|----------------------------------------------------------------------------------|
-| Base unit     | A unit without prefix or exponent, e.g. 's', 'in'                                |
-| Unit term     | A base unit with optional prefix and/or exponent, e.g. 'km', 'KiB', 'm²', 'km³'  |
-| Compound unit | Multiple unit terms combined via multiplication/division, e.g. 'm/s', 'kg⋅m⋅s⁻²' |
-| SI base unit  | One of the 7 fundamental SI units: m, kg, s, A, K, mol, cd                       |
-| Named unit    | A unit equivalent to a compound unit, e.g. N, J, W, V, kn                        |
-| Metric prefix | A decimal scaling prefix, e.g. k (10³), M (10⁶), m (10⁻³)                        |
-| Binary prefix | A binary scaling prefix for data units, e.g. Ki (2¹⁰), Mi (2²⁰)                  | 
+| Term            | Definition                                                                       |
+|-----------------|----------------------------------------------------------------------------------|
+| Unit            | A single-symbol measurement unit, e.g. m, s, N, lbf.                             |
+| Base unit       | A unit that cannot be expanded, e.g. m, s, kg, lb.                               |
+| Expandable unit | A unit with an expansion (equivalent derived unit), e.g. N, J, W, lbf, kn        |
+| SI base unit    | One of the 7 fundamental SI units: m, kg, s, A, K, mol, cd                       |
+| SI named unit   | An SI unit named after a person, e.g. newton (N), joule (J), watt (W)            |
+| Unit term       | A unit with optional prefix and/or exponent, e.g. km, KiB, m², km³               |
+| Derived unit    | Zero or more unit terms combined via multiplication/division, e.g. m/s, kg·m·s⁻² |
+| Metric prefix   | A decimal scaling prefix, e.g. k (10³), M (10⁶), m (10⁻³)                        |
+| Binary prefix   | A binary scaling prefix for data units, e.g. Ki (2¹⁰), Mi (2²⁰)                  | 
 
-Note: Although 'kg' is referred to as an SI base unit, this use of the word 'base' is irregular because the unit has a prefix.
+Note: The 'kg' is referred to as an SI base unit, despite having a prefix ('k'). This is an accepted irregularity.
 
 ## About Units
 

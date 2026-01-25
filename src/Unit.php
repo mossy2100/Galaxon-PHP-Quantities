@@ -54,22 +54,17 @@ class Unit implements UnitInterface
     private(set) string $quantityType;
 
     /**
-     * The measurement system (e.g. 'si_base', 'si_named', 'metric', 'us_customary').
-     */
-    private(set) string $system;
-
-    /**
      * Bitwise flags indicating which prefixes are allowed (0 if none).
      */
     private(set) int $prefixGroup;
 
     /**
-     * For named units, the expansion unit symbol. Null if not applicable.
+     * For expandable units, the expansion unit symbol. Null if not applicable.
      */
     private(set) ?string $expansionUnitSymbol;
 
     /**
-     * For named units, the expansion value. Null if not applicable.
+     * For expandable units, the expansion value. Null if not applicable.
      */
     private(set) ?float $expansionValue;
 
@@ -177,36 +172,6 @@ class Unit implements UnitInterface
     // endregion
 
     // region Inspection methods
-
-    /**
-     * Check if this is an SI base unit.
-     *
-     * @return bool True if this is an SI base unit.
-     */
-    public function isSiBase(): bool
-    {
-        return $this->system === 'si_base';
-    }
-
-    /**
-     * Check if this is an SI derived unit.
-     *
-     * @return bool True if this is an SI derived unit.
-     */
-    public function isSiDerived(): bool
-    {
-        return $this->system === 'si_derived';
-    }
-
-    /**
-     * Check if this is an SI named unit.
-     *
-     * @return bool True if this is an SI named unit.
-     */
-    public function isSiNamed(): bool
-    {
-        return $this->system === 'si_named';
-    }
 
     /**
      * Check if this unit has an expansion (i.e. can be expressed in terms of other units).
