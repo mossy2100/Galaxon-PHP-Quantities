@@ -42,7 +42,6 @@ final class UnitTest extends TestCase
         $this->assertSame('L', $unit->dimension);
         $this->assertSame('si_base', $unit->system);
         $this->assertSame(PrefixRegistry::PREFIX_GROUP_METRIC, $unit->prefixGroup);
-        $this->assertNull($unit->siPrefix);
         $this->assertNull($unit->expansionUnitSymbol);
     }
 
@@ -90,25 +89,6 @@ final class UnitTest extends TestCase
 
         $this->assertSame('ohm', $unit->asciiSymbol);
         $this->assertSame('Ω', $unit->unicodeSymbol);
-    }
-
-    /**
-     * Test constructor with SI prefix (gram with kilo prefix).
-     */
-    public function testConstructorWithSiPrefix(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'g',
-            'quantityType' => 'mass',
-            'dimension'    => 'M',
-            'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
-            'siPrefix'     => 'k',
-        ];
-
-        $unit = new Unit('gram', $data);
-
-        $this->assertSame('k', $unit->siPrefix);
     }
 
     /**
@@ -660,118 +640,6 @@ final class UnitTest extends TestCase
         $this->assertFalse($unit->isSiNamed());
     }
 
-    /**
-     * Test isSi returns true for any SI unit type.
-     */
-    public function testIsSiReturnsTrueForAnySiUnit(): void
-    {
-        $siBaseData = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $siDerivedData = [
-            'asciiSymbol'  => 'rad',
-            'quantityType' => 'angle',
-            'dimension'    => 'A',
-            'system'       => 'si_derived',
-        ];
-
-        $siNamedData = [
-            'asciiSymbol'  => 'Hz',
-            'quantityType' => 'frequency',
-            'dimension'    => 'T-1',
-            'system'       => 'si_named',
-        ];
-
-        $siBase = new Unit('metre', $siBaseData);
-        $siDerived = new Unit('radian', $siDerivedData);
-        $siNamed = new Unit('hertz', $siNamedData);
-
-        $this->assertTrue($siBase->isSi());
-        $this->assertTrue($siDerived->isSi());
-        $this->assertTrue($siNamed->isSi());
-    }
-
-    /**
-     * Test isSi returns false for non-SI units.
-     */
-    public function testIsSiReturnsFalseForNonSiUnits(): void
-    {
-        $metricData = [
-            'asciiSymbol'  => 'L',
-            'quantityType' => 'volume',
-            'dimension'    => 'L3',
-            'system'       => 'metric',
-        ];
-
-        $usCustomaryData = [
-            'asciiSymbol'  => 'ft',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'us_customary',
-        ];
-
-        $metric = new Unit('litre', $metricData);
-        $usCustomary = new Unit('foot', $usCustomaryData);
-
-        $this->assertFalse($metric->isSi());
-        $this->assertFalse($usCustomary->isSi());
-    }
-
-    /**
-     * Test isMetric returns true for SI units.
-     */
-    public function testIsMetricReturnsTrueForSiUnits(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
-
-        $this->assertTrue($unit->isMetric());
-    }
-
-    /**
-     * Test isMetric returns true for non-SI metric units.
-     */
-    public function testIsMetricReturnsTrueForNonSiMetricUnits(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'L',
-            'quantityType' => 'volume',
-            'dimension'    => 'L3',
-            'system'       => 'metric',
-        ];
-
-        $unit = new Unit('litre', $data);
-
-        $this->assertTrue($unit->isMetric());
-    }
-
-    /**
-     * Test isMetric returns false for US customary units.
-     */
-    public function testIsMetricReturnsFalseForUsCustomaryUnits(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'ft',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'us_customary',
-        ];
-
-        $unit = new Unit('foot', $data);
-
-        $this->assertFalse($unit->isMetric());
-    }
-
     // endregion
 
     // region Formatting methods tests
@@ -1039,14 +907,12 @@ final class UnitTest extends TestCase
             'dimension'    => 'M',
             'system'       => 'si_base',
             'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
-            'siPrefix'     => 'k',
             'quantityType' => 'mass',
         ];
         $unit = new Unit('gram', $data);
 
         $this->assertSame('gram', $unit->name);
         $this->assertSame('g', $unit->asciiSymbol);
-        $this->assertSame('k', $unit->siPrefix);
         $this->assertTrue($unit->isSiBase());
     }
 

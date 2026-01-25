@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Registry;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitInterface;
 
 /**
@@ -38,7 +39,6 @@ class ConversionRegistry
      * This is called lazily on first access.
      *
      * @param string $dimension
-     * @throws DomainException If dimensions don't match or factor is not positive.
      */
     private static function init(string $dimension): void
     {
@@ -48,29 +48,30 @@ class ConversionRegistry
             // Find the relevant QuantityType.
             $qtyType = QuantityTypeRegistry::getByDimension($dimension);
 
-            // Check we have a class with a getConversions() method to call.
-            if ($qtyType->class === null || !method_exists($qtyType->class, 'getConversions')) {
-                return;
-            }
+            /** @var ?class-string<Quantity> $qtyTypeClass */
+            $qtyTypeClass = $qtyType?->class;
 
-            // Get conversions from the class and add them.
-            /** @var list<array{string, string, float}> $conversionList */
-            $conversionList = $qtyType->class::getConversions();
-            foreach ($conversionList as [$srcSymbol, $destSymbol, $factor]) {
-                self::addConversion($srcSymbol, $destSymbol, $factor);
+            // If this quantity type has a class with conversion definitions, load them.
+            if ($qtyTypeClass !== null) {
+                // Get conversions from the class and add them.
+                /** @var list<array{string, string, float}> $conversionList */
+                $conversionList = $qtyTypeClass::getConversionDefinitions();
+                foreach ($conversionList as [$srcSymbol, $destSymbol, $factor]) {
+                    self::add($srcSymbol, $destSymbol, $factor);
+                }
             }
 
             // Also include any expansions.
             $units = UnitRegistry::getByDimension($dimension);
             foreach ($units as $unit) {
                 if ($unit->hasExpansion()) {
-                    self::addConversion($unit, $unit->expansionUnitSymbol, $unit->expansionValue);
+                    self::add($unit, $unit->expansionUnitSymbol, $unit->expansionValue);
                 }
             }
         }
     }
 
-    private static function addConversion(
+    private static function add(
         string|UnitInterface $srcUnit,
         string|UnitInterface $destUnit,
         float $factor
@@ -79,11 +80,14 @@ class ConversionRegistry
         $conversion = new Conversion($srcUnit, $destUnit, $factor);
 
         // Add the Conversion to the registry.
-        self::add($conversion);
+        self::addConversion($conversion);
 
         // If prefixes are present, also add the unprefixed conversion.
         if ($conversion->srcUnit->hasPrefixes() || $conversion->destUnit->hasPrefixes()) {
-            self::add($conversion->removePrefixes());
+            $unprefixedConversion = $conversion->removePrefixes();
+            if (!self::hasConversion($unprefixedConversion)) {
+                self::addConversion($unprefixedConversion);
+            }
         }
     }
 
@@ -124,6 +128,20 @@ class ConversionRegistry
     }
 
     /**
+     * Check if a conversion exists between two units.
+     *
+     * @param Conversion $conversion The conversion to check.
+     * @return bool If the conversion exists in the registry.
+     */
+    public static function hasConversion(Conversion $conversion): bool
+    {
+        $dim = $conversion->dimension;
+        $src = $conversion->srcUnit->asciiSymbol;
+        $dest = $conversion->destUnit->asciiSymbol;
+        return isset(self::$conversions[$dim][$src][$dest]);
+    }
+
+    /**
      * Get a conversion between two units.
      *
      * @param string $dimension The conversion dimension.
@@ -141,7 +159,7 @@ class ConversionRegistry
      *
      * @param Conversion $conversion The conversion to add.
      */
-    public static function add(Conversion $conversion): void
+    public static function addConversion(Conversion $conversion): void
     {
         $dim = $conversion->dimension;
         $src = $conversion->srcUnit->asciiSymbol;

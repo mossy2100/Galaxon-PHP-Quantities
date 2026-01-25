@@ -274,7 +274,7 @@ final class VolumeTest extends TestCase
     {
         $volume = new Volume(1, 'c');
 
-        $result = $volume->to('floz');
+        $result = $volume->to('fl oz');
 
         $this->assertEqualsWithDelta(8.0, $result->value, 1e-10);
     }
@@ -284,7 +284,7 @@ final class VolumeTest extends TestCase
      */
     public function testFluidOunceToTablespoonConversion(): void
     {
-        $volume = new Volume(1, 'floz');
+        $volume = new Volume(1, 'fl oz');
 
         $result = $volume->to('tbsp');
 
@@ -326,7 +326,7 @@ final class VolumeTest extends TestCase
     {
         $original = new Volume(5.5, 'gal');
 
-        $result = $original->to('qt')->to('pt')->to('c')->to('floz')->to('tbsp')->to('tsp')
+        $result = $original->to('qt')->to('pt')->to('cup')->to('fl oz')->to('tbsp')->to('tsp')
             ->to('mL')->to('L')->to('gal');
 
         $this->assertEqualsWithDelta($original->value, $result->value, 1e-6);

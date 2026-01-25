@@ -6,25 +6,28 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class Capacitance extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for capacitance.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI named unit
             'farad' => [
                 'asciiSymbol'         => 'F',
-                'dimension'           => 'T4L-2M-1I2',
-                'system'              => 'si_named',
                 'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnitSymbol' => 'kg-1*m-2*s4*A2',
             ],
         ];
     }
+
+    // endregion
 }

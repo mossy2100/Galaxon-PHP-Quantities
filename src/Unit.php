@@ -20,6 +20,10 @@ class Unit implements UnitInterface
 {
     use Equatable;
 
+    // region Constants
+
+    private const string RX_ASCII_WORDS = '[a-z]+(?: [a-z]+)*';
+
     // region Properties
 
     /**
@@ -60,11 +64,6 @@ class Unit implements UnitInterface
     private(set) int $prefixGroup;
 
     /**
-     * The SI prefix for this unit (e.g. 'k' for kilogram), or null if none.
-     */
-    private(set) ?string $siPrefix;
-
-    /**
      * For named units, the expansion unit symbol. Null if not applicable.
      */
     private(set) ?string $expansionUnitSymbol;
@@ -103,7 +102,7 @@ class Unit implements UnitInterface
     /**
      * Get all allowed prefixes for this unit.
      *
-     * @return array<string, float>
+     * @var array<string, float>
      */
     public array $allowedPrefixes {
         get => PrefixRegistry::getPrefixes($this->prefixGroup);
@@ -145,9 +144,7 @@ class Unit implements UnitInterface
         $this->unicodeSymbol = $data['unicodeSymbol'] ?? $data['asciiSymbol'];
         $this->quantityType = $data['quantityType'];
         $this->dimension = DimensionRegistry::normalize($data['dimension']);
-        $this->system = $data['system'];
         $this->prefixGroup = $data['prefixGroup'] ?? 0;
-        $this->siPrefix = $data['siPrefix'] ?? null;
         $this->expansionUnitSymbol = $data['expansionUnitSymbol'] ?? null;
         $this->expansionValue = isset($data['expansionUnitSymbol']) ? ($data['expansionValue'] ?? 1.0) : null;
     }
@@ -212,26 +209,6 @@ class Unit implements UnitInterface
     }
 
     /**
-     * Check if this is any kind of SI unit.
-     *
-     * @return bool True if this is an SI unit.
-     */
-    public function isSi(): bool
-    {
-        return str_starts_with($this->system, 'si_');
-    }
-
-    /**
-     * Check if this is a metric unit (SI or non-SI metric).
-     *
-     * @return bool True if this is a metric unit.
-     */
-    public function isMetric(): bool
-    {
-        return $this->isSi() || $this->system === 'metric';
-    }
-
-    /**
      * Check if this unit has an expansion (i.e. can be expressed in terms of other units).
      *
      * @return bool True if this unit has an expansion.
@@ -258,6 +235,11 @@ class Unit implements UnitInterface
     public function format(bool $ascii = false): string
     {
         return $ascii ? $this->asciiSymbol : $this->unicodeSymbol;
+    }
+
+    public static function regex(): string
+    {
+        return '([\p{L}°′″]+|' . self::RX_ASCII_WORDS . ')';
     }
 
     /**
@@ -324,7 +306,7 @@ class Unit implements UnitInterface
      */
     private static function isValidAsciiSymbol(string $symbol): bool
     {
-        return (bool)preg_match('/^[a-z]+$/i', $symbol);
+        return (bool)preg_match('/^' . self::RX_ASCII_WORDS . '$/i', $symbol);
     }
 
     /**
@@ -337,7 +319,7 @@ class Unit implements UnitInterface
      */
     private static function isValidUnicodeSymbol(string $symbol): bool
     {
-        return (bool)preg_match('/^[\p{L}°′″]+$/u', $symbol);
+        return (bool)preg_match('/^' . self::regex() . '$/iu', $symbol);
     }
 
     // endregion

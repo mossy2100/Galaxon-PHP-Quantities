@@ -6,59 +6,45 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class Volume extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for volume.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // Non-SI metric units
             'litre'       => [
                 'asciiSymbol' => 'L',
-                'dimension'   => 'L3',
-                'system'      => 'metric',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
-            // US customary units
             'teaspoon'    => [
                 'asciiSymbol' => 'tsp',
-                'dimension'   => 'L3',
-                'system'      => 'us_customary',
             ],
             'tablespoon'  => [
                 'asciiSymbol' => 'tbsp',
-                'dimension'   => 'L3',
-                'system'      => 'us_customary',
             ],
             'fluid ounce' => [
-                'asciiSymbol' => 'floz',
-                'dimension'   => 'L3',
-                'system'      => 'us_customary',
+                'asciiSymbol' => 'fl oz',
             ],
             'cup'         => [
                 'asciiSymbol' => 'cup',
-                'dimension'   => 'L3',
-                'system'      => 'us_customary',
             ],
             'pint'        => [
-                'asciiSymbol' => 'pint',
-                'dimension'   => 'L3',
-                'system'      => 'us_customary',
+                'asciiSymbol' => 'pt',
             ],
             'quart'       => [
                 'asciiSymbol' => 'qt',
-                'dimension'   => 'L3',
-                'system'      => 'us_customary',
             ],
             'gallon'      => [
                 'asciiSymbol' => 'gal',
-                'dimension'   => 'L3',
-                'system'      => 'us_customary',
             ],
         ];
     }
@@ -70,7 +56,8 @@ class Volume extends Quantity
      *
      * @return list<array{string, string, float}>
      */
-    public static function getConversions(): array
+    #[Override]
+    public static function getConversionDefinitions(): array
     {
         return [
             // Metric
@@ -80,11 +67,13 @@ class Volume extends Quantity
             // US customary
             ['gal', 'in3', 231],
             ['gal', 'qt', 4],
-            ['qt', 'pint', 2],
-            ['pint', 'cup', 2],
-            ['cup', 'floz', 8],
-            ['floz', 'tbsp', 2],
+            ['qt', 'pt', 2],
+            ['pt', 'cup', 2],
+            ['cup', 'fl oz', 8],
+            ['fl oz', 'tbsp', 2],
             ['tbsp', 'tsp', 3],
         ];
     }
+
+    // endregion
 }

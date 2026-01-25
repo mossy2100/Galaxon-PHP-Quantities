@@ -6,25 +6,28 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class Illuminance extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for illuminance.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI named unit
             'lux' => [
                 'asciiSymbol'         => 'lx',
-                'dimension'           => 'L-2JA2',
-                'system'              => 'si_named',
                 'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnitSymbol' => 'cd*rad2*m-2',
             ],
         ];
     }
+
+    // endregion
 }

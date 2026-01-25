@@ -6,27 +6,27 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class Data extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for data.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
             'bit'  => [
                 'asciiSymbol' => 'b',
-                'dimension'   => 'D',
-                'system'      => 'metric',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE,
             ],
             'byte' => [
                 'asciiSymbol' => 'B',
-                'dimension'   => 'D',
-                'system'      => 'metric',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE,
             ],
         ];
@@ -37,11 +37,14 @@ class Data extends Quantity
      *
      * @return list<array{string, string, float}>
      */
-    public static function getConversions(): array
+    #[Override]
+    public static function getConversionDefinitions(): array
     {
         return [
             // 1 byte = 8 bits
             ['B', 'b', 8],
         ];
     }
+
+    // endregion
 }

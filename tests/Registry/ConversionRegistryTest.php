@@ -117,7 +117,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Add a known conversion
         $conversion = new Conversion('m', 'ft', 3.28084);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         $result = ConversionRegistry::has('L', 'm', 'ft');
 
@@ -157,7 +157,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Add a conversion in one direction
         $conversion = new Conversion('m', 'yd', 1.09361);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         // Forward direction should exist
         $this->assertTrue(ConversionRegistry::has('L', 'm', 'yd'));
@@ -178,7 +178,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add a known conversion
         $conversion = new Conversion('m', 'in', 39.3701);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         $result = ConversionRegistry::get('L', 'm', 'in');
 
@@ -217,7 +217,7 @@ final class ConversionRegistryTest extends TestCase
     {
         $factor = 2.54;
         $conversion = new Conversion('in', 'cm', $factor);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         $result = ConversionRegistry::get('L', 'in', 'cm');
 
@@ -232,7 +232,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add conversion in one direction
         $conversion = new Conversion('m', 'mi', 0.000621371);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         // Forward should return the conversion
         $forward = ConversionRegistry::get('L', 'm', 'mi');
@@ -254,7 +254,7 @@ final class ConversionRegistryTest extends TestCase
     public function testAddStoresConversion(): void
     {
         $conversion = new Conversion('m', 'nmi', 0.000539957);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         $result = ConversionRegistry::get('L', 'm', 'nmi');
 
@@ -269,12 +269,12 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add initial conversion
         $conversion1 = new Conversion('m', 'yd', 1.09361);
-        ConversionRegistry::add($conversion1);
+        ConversionRegistry::addConversion($conversion1);
 
         // Add different conversion for same units
         $newFactor = 1.09362;
         $conversion2 = new Conversion('m', 'yd', $newFactor);
-        ConversionRegistry::add($conversion2);
+        ConversionRegistry::addConversion($conversion2);
 
         $result = ConversionRegistry::get('L', 'm', 'yd');
 
@@ -289,7 +289,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add a time conversion
         $conversion = new Conversion('s', 'min', 1 / 60);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         // Should be retrievable from time dimension
         $result = ConversionRegistry::get('T', 's', 'min');
@@ -307,7 +307,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add conversion with prefixed units
         $conversion = new Conversion('km', 'mi', 0.621371);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         $result = ConversionRegistry::get('L', 'km', 'mi');
 
@@ -323,7 +323,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add area conversion
         $conversion = new Conversion('m2', 'ft2', 10.7639);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
 
         $result = ConversionRegistry::get('L2', 'm2', 'ft2');
 

@@ -6,25 +6,28 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class Voltage extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for voltage (electric potential difference).
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI named unit
             'volt' => [
                 'asciiSymbol'         => 'V',
-                'dimension'           => 'T-3L2MI-1',
-                'system'              => 'si_named',
                 'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-3*A-1',
             ],
         ];
     }
+
+    // endregion
 }

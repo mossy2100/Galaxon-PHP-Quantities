@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Registry;
 
 use DomainException;
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Unit;
 
 class UnitRegistry
@@ -23,6 +24,39 @@ class UnitRegistry
     // region Static methods
 
     /**
+     * @param string $asciiSymbol
+     * @param string|null $unicodeSymbol
+     * @param int $prefixGroup
+     * @return string[]
+     */
+    private static function getSymbols(string $asciiSymbol, ?string $unicodeSymbol, int $prefixGroup): array
+    {
+        // Add ASCII symbol.
+        $symbols = [$asciiSymbol];
+
+        // Add Unicode symbol, if different.
+        if ($unicodeSymbol !== null) {
+            $symbols[] = $unicodeSymbol;
+        }
+
+        // Add prefixed symbols.
+        if ($prefixGroup > 0) {
+            $prefixes = PrefixRegistry::getPrefixes($prefixGroup);
+            foreach ($prefixes as $prefix => $multiplier) {
+                // Add prefixed ASCII symbol.
+                $symbols[] = $prefix . $asciiSymbol;
+
+                // Add prefixed Unicode symbol, if different.
+                if ($unicodeSymbol !== null) {
+                    $symbols[] = $prefix . $unicodeSymbol;
+                }
+            }
+        }
+
+        return $symbols;
+    }
+
+    /**
      * Initialize the units array from the QuantityType classes.
      *
      * This is called lazily on first access.
@@ -34,17 +68,27 @@ class UnitRegistry
 
             // Load units from QuantityType classes.
             foreach (QuantityTypeRegistry::getAll() as $dimension => $qtyType) {
-                // Check we have a class with a getUnitDefinitions() method to call.
-                if ($qtyType->class === null || !method_exists($qtyType->class, 'getUnitDefinitions')) {
+                /** @var ?class-string<Quantity> $qtyTypeClass */
+                $qtyTypeClass = $qtyType->class;
+
+                // Skip quantity types without a class.
+                if ($qtyTypeClass === null) {
                     continue;
                 }
 
                 // Get units from the class and add them.
-                $units = $qtyType->class::getUnitDefinitions();
+                $units = $qtyTypeClass::getUnitDefinitions();
                 foreach ($units as $name => $definition) {
-                    // Add quantityType to the definition.
-                    $definition['quantityType'] = $qtyType->name;
-                    self::$units[$name] = new Unit($name, $definition);
+                    self::add(
+                        $name,
+                        $definition['asciiSymbol'],
+                        $definition['unicodeSymbol'] ?? null,
+                        $qtyType->name,
+                        $dimension,
+                        $definition['prefixGroup'] ?? 0,
+                        $definition['expansionUnitSymbol'] ?? null,
+                        $definition['expansionValue'] ?? null,
+                    );
                 }
             }
         }
@@ -83,14 +127,13 @@ class UnitRegistry
      *
      * @param string $name The unit name (e.g. 'metre', 'gram').
      * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
-     * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null to use the ASCII symbol.
+     * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if same as ASCII.
      * @param string $quantityType The quantity type (e.g. 'length', 'mass').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
-     * @param string $system The measurement system (e.g. 'si_base', 'metric', 'us_customary').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
-     * @param ?string $siPrefix The SI prefix for this unit (e.g. 'k' for kilogram), or null.
-     * @param ?string $expansionUnit For named units, the expansion unit symbol, or null.
-     * @throws DomainException If the name or symbol already exists, or if the symbol is not ASCII.
+     * @param ?string $expansionUnitSymbol For named units, the expansion unit symbol, or null.
+     * @param ?float $expansionValue For named units with non-1:1 expansion, the multiplier.
+     * @throws DomainException If the name or symbol already exists.
      */
     public static function add(
         string $name,
@@ -98,52 +141,42 @@ class UnitRegistry
         ?string $unicodeSymbol,
         string $quantityType,
         string $dimension,
-        string $system,
         int $prefixGroup = 0,
-        ?string $siPrefix = null,
-        ?string $expansionUnit = null
+        ?string $expansionUnitSymbol = null,
+        ?float $expansionValue = null,
     ): void {
-        self::init();
+        // Ensure registry is initialized (unless we're in the middle of init).
+        if (self::$units === null) {
+            self::init();
+        }
 
         // Check name is unique.
         if (isset(self::$units[$name])) {
             throw new DomainException("Unit name '$name' already exists.");
         }
 
-        // Check primary and Unicode symbols are unique (not matching any existing primary or Unicode symbols).
-        foreach (self::$units as $existing) {
-            if ($existing->asciiSymbol === $asciiSymbol) {
-                throw new DomainException(
-                    "ASCII symbol '$asciiSymbol' conflicts with ASCII symbol of '{$existing->name}'."
-                );
-            }
-            if ($existing->unicodeSymbol === $asciiSymbol) {
-                throw new DomainException(
-                    "ASCII symbol '$asciiSymbol' conflicts with Unicode symbol of '{$existing->name}'."
-                );
-            }
-            if ($existing->asciiSymbol === $unicodeSymbol) {
-                throw new DomainException(
-                    "Format symbol '$unicodeSymbol' conflicts with ASCII symbol of '{$existing->name}'."
-                );
-            }
-            if ($existing->unicodeSymbol === $unicodeSymbol) {
-                throw new DomainException(
-                    "Format symbol '$unicodeSymbol' conflicts with Unicode symbol of '{$existing->name}'."
-                );
+        // Get all symbols for the new unit (including prefixed variants).
+        $newSymbols = self::getSymbols($asciiSymbol, $unicodeSymbol, $prefixGroup);
+
+        // Get all existing symbols.
+        $existingSymbols = self::getAllValidSymbols();
+
+        // Check for conflicts.
+        foreach ($newSymbols as $symbol) {
+            if (in_array($symbol, $existingSymbols, true)) {
+                throw new DomainException("Unit symbol '$symbol' already exists.");
             }
         }
 
         // Build the data array for the Unit constructor.
         $data = [
-            'asciiSymbol'   => $asciiSymbol,
-            'unicodeSymbol' => $unicodeSymbol,
-            'quantityType'  => $quantityType,
-            'dimension'     => $dimension,
-            'system'        => $system,
-            'prefixGroup'   => $prefixGroup,
-            'siPrefix'      => $siPrefix,
-            'expansionUnit' => $expansionUnit,
+            'asciiSymbol'         => $asciiSymbol,
+            'unicodeSymbol'       => $unicodeSymbol,
+            'quantityType'        => $quantityType,
+            'dimension'           => $dimension,
+            'prefixGroup'         => $prefixGroup,
+            'expansionUnitSymbol' => $expansionUnitSymbol,
+            'expansionValue'      => $expansionValue,
         ];
 
         self::$units[$name] = new Unit($name, $data);
@@ -176,8 +209,8 @@ class UnitRegistry
             // Add the base unit symbol.
             $validUnits[] = $unit->asciiSymbol;
 
-            // Add the Unicode symbol, if set.
-            if ($unit->unicodeSymbol !== null) {
+            // Add the Unicode symbol, if different.
+            if ($unit->unicodeSymbol !== $unit->asciiSymbol) {
                 $validUnits[] = $unit->unicodeSymbol;
             }
 
@@ -190,8 +223,8 @@ class UnitRegistry
                 foreach ($prefixes as $prefix => $multiplier) {
                     $validUnits[] = $prefix . $unit->asciiSymbol;
 
-                    // Add the Unicode symbol with a prefix, if set.
-                    if ($unit->unicodeSymbol !== null) {
+                    // Add the Unicode symbol with a prefix, if different.
+                    if ($unit->unicodeSymbol !== $unit->asciiSymbol) {
                         $validUnits[] = $prefix . $unit->unicodeSymbol;
                     }
                 }

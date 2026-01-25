@@ -8,51 +8,42 @@ use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class Mass extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for mass.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI base unit
             'gram'      => [
                 'asciiSymbol' => 'g',
-                'dimension'   => 'M',
-                'system'      => 'si_base',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
-                'siPrefix'    => 'k',
             ],
-            // Non-SI metric units
             'tonne'     => [
                 'asciiSymbol' => 't',
-                'dimension'   => 'M',
-                'system'      => 'metric',
             ],
-            // US customary units
+            'grain'     => [
+                'asciiSymbol' => 'gr',
+            ],
             'ounce'     => [
                 'asciiSymbol' => 'oz',
-                'dimension'   => 'M',
-                'system'      => 'us_customary',
             ],
             'pound'     => [
                 'asciiSymbol' => 'lb',
-                'dimension'   => 'M',
-                'system'      => 'us_customary',
             ],
             'stone'     => [
                 'asciiSymbol' => 'st',
-                'dimension'   => 'M',
-                'system'      => 'us_customary',
             ],
             'short ton' => [
                 'asciiSymbol' => 'ton',
-                'dimension'   => 'M',
-                'system'      => 'us_customary',
             ],
         ];
     }
@@ -63,19 +54,23 @@ class Mass extends Quantity
      * @return list<array{string, string, float}>
      * @see https://en.wikipedia.org/wiki/International_yard_and_pound
      */
-    public static function getConversions(): array
+    #[Override]
+    public static function getConversionDefinitions(): array
     {
         return [
             // Metric
             ['t', 'kg', 1000],
             // Metric-US bridge
             ['lb', 'kg', 0.453_592_37],
+            ['gr', 'mg', 64.79891],
             // US customary
             ['lb', 'oz', 16],
             ['st', 'lb', 14],
             ['ton', 'lb', 2000],
         ];
     }
+
+    // endregion
 
     // region Modification methods
 
@@ -88,7 +83,7 @@ class Mass extends Quantity
     public static function useBritishUnits(): void
     {
         $conversion = new Conversion('ton', 'lb', 2240);
-        ConversionRegistry::add($conversion);
+        ConversionRegistry::addConversion($conversion);
     }
 
     // endregion

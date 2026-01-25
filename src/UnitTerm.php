@@ -168,12 +168,12 @@ class UnitTerm implements UnitInterface
      * @param string $symbol The unit symbol with optional prefix and/or exponent (e.g. 'm2', 's-1').
      * @return self The parsed unit term.
      * @throws FormatException If the format is invalid.
-     * @throws DomainException If the unit is not recognized or the exponent is zero.
+     * @throws DomainException If the unit is unknown or the exponent is zero.
      */
     public static function parse(string $symbol): static
     {
         // Validate the unit string.
-        $unitValid = preg_match('/^' . self::regex() . '$/u', $symbol, $matches);
+        $unitValid = preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);
         if (!$unitValid) {
             throw new FormatException(
                 "Invalid unit '$symbol'. A unit must comprise one or more letters optionally followed by an exponent."
@@ -236,7 +236,7 @@ class UnitTerm implements UnitInterface
         $superscriptMinus = $superscriptChars['-'];
         unset($superscriptChars['-']);
         $superscriptDigits = implode('', $superscriptChars);
-        return "(\p{L}+)((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
+        return Unit::regex() . "((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
     }
 
     /**
@@ -456,38 +456,9 @@ class UnitTerm implements UnitInterface
                $this->exponent === $other->exponent;
     }
 
-    /**
-     * Convert the unit term to a SI base equivalent, or null if no equivalent could be found.
-     *
-     * The only situation where no SI base equivalent could be found is if the unit is a named unit.
-     *
-     * @return ?self
-     * @throws DomainException
-     */
-    public function toSi(): ?self
-    {
-        $units = UnitRegistry::getByDimension($this->unit->dimension);
-        foreach ($units as $unit) {
-            if ($unit->isSiBase()) {
-                return new self($unit, $unit->siPrefix, $this->exponent);
-            }
-        }
-        return null;
-    }
-
     // endregion
 
     // region Inspection methods
-
-    /**
-     * Check if this unit term is an SI unit.
-     *
-     * @return bool True if the unit is an SI unit (base, derived, or named).
-     */
-    public function isSi(): bool
-    {
-        return $this->unit->isSi();
-    }
 
     public function hasPrefix(): bool
     {

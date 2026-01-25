@@ -6,24 +6,27 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class LuminousIntensity extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for luminous intensity.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI base unit
             'candela' => [
                 'asciiSymbol' => 'cd',
-                'dimension'   => 'J',
-                'system'      => 'si_base',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
         ];
     }
+
+    // endregion
 }

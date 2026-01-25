@@ -6,41 +6,34 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class Pressure extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for pressure.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI named unit
             'pascal'     => [
                 'asciiSymbol'         => 'Pa',
-                'dimension'           => 'T-2L-1M',
-                'system'              => 'si_named',
                 'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnitSymbol' => 'kg*m-1*s-2',
             ],
-            // Non-SI metric units
             'bar'        => [
                 'asciiSymbol' => 'bar',
-                'dimension'   => 'T-2L-1M',
-                'system'      => 'metric',
             ],
-            // US customary units
             'mmHg'       => [
                 'asciiSymbol' => 'mmHg',
-                'dimension'   => 'T-2L-1M',
-                'system'      => 'us_customary',
             ],
             'atmosphere' => [
                 'asciiSymbol' => 'atm',
-                'dimension'   => 'T-2L-1M',
-                'system'      => 'us_customary',
             ],
         ];
     }
@@ -50,7 +43,8 @@ class Pressure extends Quantity
      *
      * @return list<array{string, string, float}>
      */
-    public static function getConversions(): array
+    #[Override]
+    public static function getConversionDefinitions(): array
     {
         return [
             ['bar', 'Pa', 100000],
@@ -58,4 +52,6 @@ class Pressure extends Quantity
             ['atm', 'Pa', 101325],
         ];
     }
+
+    // endregion
 }

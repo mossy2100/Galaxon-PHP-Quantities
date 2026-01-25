@@ -976,37 +976,6 @@ final class UnitTermTest extends TestCase
 
     // endregion
 
-    // region isSi() tests
-
-    /**
-     * Test isSi returns true for SI base unit.
-     */
-    public function testIsSiReturnsTrueForSiUnit(): void
-    {
-        $base = $this->createMetreUnit();
-        $term = new DerivedUnit($base, 'k', 2);
-
-        $this->assertTrue($term->isSi());
-    }
-
-    /**
-     * Test isSi returns false for non-SI unit.
-     */
-    public function testIsSiReturnsFalseForNonSiUnit(): void
-    {
-        $base = new Unit('foot', [
-            'asciiSymbol'  => 'ft',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'us_customary',
-        ]);
-        $term = new DerivedUnit($base);
-
-        $this->assertFalse($term->isSi());
-    }
-
-    // endregion
-
     // region getBySymbol() tests
 
     /**

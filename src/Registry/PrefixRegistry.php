@@ -176,23 +176,24 @@ class PrefixRegistry
      */
     public static function invert(?string $prefix): ?string
     {
+        // Handle the null case.
         if ($prefix === null) {
             return null;
         }
 
         // Get the multiplier for this prefix.
         $prefixes = self::getPrefixes();
-        $multiplier = $prefixes[$prefix] ?? null;
 
         // Check the prefix is valid.
-        if ($multiplier === null) {
+        if (!isset($prefixes[$prefix])) {
             throw new DomainException("Unknown prefix '$prefix'.");
         }
 
         // Find the reciprocal multiplier and matching prefix.
+        $multiplier = $prefixes[$prefix];
         $inversePrefix = array_find_key($prefixes, static fn ($mul) => Floats::approxEqual($mul, 1.0 / $multiplier));
 
-        // Check an inverse could be found.
+        // If an inverse could not be found, throw. Should never happen.
         if ($inversePrefix === null) {
             throw new DomainException("Inverse of prefix '$prefix' not found.");
         }

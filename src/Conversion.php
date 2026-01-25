@@ -131,6 +131,65 @@ class Conversion implements Stringable
     }
 
     /**
+     * Create a new conversion by applying an exponent.
+     *
+     * @param int $newExponent The new exponent.
+     * @return self A new conversion with exponentiated units.
+     */
+    public function pow(int $newExponent): self
+    {
+        // Apply the exponent to the units.
+        $newSrcUnitTerm = $this->srcUnit->pow($newExponent);
+        $newDestUnitTerm = $this->destUnit->pow($newExponent);
+
+        // Calculate new factor.
+        $newFactor = $this->factor->pow($newExponent);
+
+        // Create and return the new conversion with updated units and multiplier.
+        return new self($newSrcUnitTerm, $newDestUnitTerm, $newFactor);
+    }
+
+    /**
+     * Generate a new conversion from an existing one by removing prefixes from the source and destination unit terms.
+     *
+     * @return self New conversion between unprefixed unit terms.
+     */
+    public function removePrefixes(): self
+    {
+        // Initialize new units and factor.
+        $srcUnit = new DerivedUnit();
+        $destUnit = new DerivedUnit();
+        $factor = $this->factor;
+
+        // Collect the unprefixed destination unit terms.
+        foreach ($this->destUnit->unitTerms as $destUnitTerm) {
+            if ($destUnitTerm->hasPrefix()) {
+                $factor = $factor->mul($destUnitTerm->multiplier);
+                $destUnit->addUnitTerm($destUnitTerm->removePrefix());
+            } else {
+                $destUnit->addUnitTerm($destUnitTerm);
+            }
+        }
+
+        // Collect the unprefixed source unit terms.
+        foreach ($this->srcUnit->unitTerms as $srcUnitTerm) {
+            if ($srcUnitTerm->hasPrefix()) {
+                $factor = $factor->div($srcUnitTerm->multiplier);
+                $srcUnit->addUnitTerm($srcUnitTerm->removePrefix());
+            } else {
+                $srcUnit->addUnitTerm($srcUnitTerm);
+            }
+        }
+
+        // Construct the new conversion.
+        return new self($srcUnit, $destUnit, $factor);
+    }
+
+    // endregion
+
+    // region Combination methods
+
+    /**
      * Compose two conversions sequentially: source->mid and mid->dest.
      *
      * Given:
@@ -226,71 +285,6 @@ class Conversion implements Stringable
 
         // Result is source->dest.
         return new self($this->destUnit, $other->srcUnit, $m);
-    }
-
-    /**
-     * Create a new conversion with different prefixes applied.
-     *
-     * Takes an existing conversion between units and adjusts the multiplier to account for changing the prefixes
-     * while keeping the units otherwise unchanged.
-     *
-     * Uses FloatWithError arithmetic to propagate error scores through the prefix adjustment calculation.
-     *
-     * @param ?string $newSrcUnitPrefix The new source unit prefix (null for none).
-     * @param ?string $newDestUnitPrefix The new destination unit prefix (null for none).
-     * @return self A new conversion with adjusted parameters for the prefixed units.
-     * @throws DomainException If either prefix is invalid.
-     *
-     * @example
-     *   // Given conversion: m→ft with multiplier 3.28084
-     *   // alterPrefixes(..., 'k', '') produces: km→ft with multiplier 3280.84
-     */
-    public function alterPrefixes(?string $newSrcUnitPrefix, ?string $newDestUnitPrefix): self
-    {
-        // Compose the new unit terms.
-        $newSrcUnit = $this->srcUnit->withPrefix($newSrcUnitPrefix);
-        $newDestUnit = $this->destUnit->withPrefix($newDestUnitPrefix);
-
-        // Calculate total multiplier.
-        $multiplier = ($this->destUnit->multiplier * $newSrcUnit->multiplier) /
-                      ($newDestUnit->multiplier * $this->srcUnit->multiplier);
-
-        // Apply the multiplier using FloatWithError for proper error tracking.
-        $newFactor = $this->factor->mul($multiplier);
-
-        // Create and return the new conversion with updated units and multiplier.
-        return new self($newSrcUnit, $newDestUnit, $newFactor);
-    }
-
-    /**
-     * Generate a new conversion from an existing one by removing prefixes from the source and destination unit terms.
-     *
-     * @return self New conversion between unprefixed unit terms.
-     */
-    public function removePrefixes(): self
-    {
-        return $this->alterPrefixes(null, null);
-    }
-
-    /**
-     * Create a new conversion by applying an exponent.
-     *
-     * Uses FloatWithError arithmetic to propagate error scores through the prefix adjustment calculation.
-     *
-     * @param int $newExponent The new exponent.
-     * @return self A new conversion with exponentiated units.
-     */
-    public function pow(int $newExponent): self
-    {
-        // Apply the exponent to the units.
-        $newSrcUnitTerm = $this->srcUnit->pow($newExponent);
-        $newDestUnitTerm = $this->destUnit->pow($newExponent);
-
-        // Calculate new factor.
-        $newFactor = $this->factor->pow($newExponent);
-
-        // Create and return the new conversion with updated units and multiplier.
-        return new self($newSrcUnitTerm, $newDestUnitTerm, $newFactor);
     }
 
     // endregion

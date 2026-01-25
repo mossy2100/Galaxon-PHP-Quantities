@@ -279,38 +279,6 @@ class DerivedUnitTest extends TestCase
 
     // endregion
 
-    // region isSi() tests
-
-    public function testIsSiWithAllSiUnits(): void
-    {
-        $du = DerivedUnit::parse('kg*m/s2');
-        $this->assertTrue($du->isSi());
-    }
-
-    public function testIsSiWithNonSiUnit(): void
-    {
-        $du = DerivedUnit::parse('ft');
-        $this->assertFalse($du->isSi());
-    }
-
-    public function testIsSiWithMixedUnits(): void
-    {
-        // g with k prefix is SI, ft is not
-        $kg = new DerivedUnit('g', 'k');
-        $ft = new DerivedUnit('ft');
-        $du = new DerivedUnit([$kg, $ft]);
-        $this->assertFalse($du->isSi());
-    }
-
-    public function testIsSiEmpty(): void
-    {
-        $du = new DerivedUnit();
-        // array_all returns true for empty array
-        $this->assertTrue($du->isSi());
-    }
-
-    // endregion
-
     // region getUnitTermByDimension() tests
 
     public function testGetUnitTermByDimensionFound(): void
@@ -675,6 +643,249 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('km3/km');
         $this->assertCount(1, $du->unitTerms);
         $this->assertSame('km2', $du->format(true));
+    }
+
+    // endregion
+
+    // region toSi() tests
+
+    public function testToSiSimpleSiUnit(): void
+    {
+        // metre is already SI base unit
+        $du = DerivedUnit::parse('m');
+        $si = $du->toSi();
+
+        $this->assertSame('m', $si->format(true));
+        $this->assertSame('L', $si->dimension);
+    }
+
+    public function testToSiPrefixedSiUnit(): void
+    {
+        // kilometre should convert to metre (SI base)
+        $du = DerivedUnit::parse('km');
+        $si = $du->toSi();
+
+        $this->assertSame('m', $si->format(true));
+        $this->assertSame('L', $si->dimension);
+    }
+
+    public function testToSiNonSiUnit(): void
+    {
+        // foot should convert to metre
+        $du = DerivedUnit::parse('ft');
+        $si = $du->toSi();
+
+        $this->assertSame('m', $si->format(true));
+        $this->assertSame('L', $si->dimension);
+    }
+
+    public function testToSiUnitWithExponent(): void
+    {
+        // m² stays as m²
+        $du = DerivedUnit::parse('m2');
+        $si = $du->toSi();
+
+        $this->assertSame('m2', $si->format(true));
+        $this->assertSame('L2', $si->dimension);
+    }
+
+    public function testToSiNonSiUnitWithExponent(): void
+    {
+        // ft² should convert to m²
+        $du = DerivedUnit::parse('ft2');
+        $si = $du->toSi();
+
+        $this->assertSame('m2', $si->format(true));
+        $this->assertSame('L2', $si->dimension);
+    }
+
+    public function testToSiPrefixedUnitWithExponent(): void
+    {
+        // km² should convert to m²
+        $du = DerivedUnit::parse('km2');
+        $si = $du->toSi();
+
+        $this->assertSame('m2', $si->format(true));
+        $this->assertSame('L2', $si->dimension);
+    }
+
+    public function testToSiCompoundUnit(): void
+    {
+        // m/s is already SI
+        $du = DerivedUnit::parse('m/s');
+        $si = $du->toSi();
+
+        $this->assertSame('m*s-1', $si->format(true));
+        $this->assertSame('LT-1', $si->dimension);
+    }
+
+    public function testToSiNonSiCompoundUnit(): void
+    {
+        // ft/s should convert to m*s⁻¹
+        $du = DerivedUnit::parse('ft/s');
+        $si = $du->toSi();
+
+        $this->assertSame('m*s-1', $si->format(true));
+        $this->assertSame('LT-1', $si->dimension);
+    }
+
+    public function testToSiForceUnit(): void
+    {
+        // kg*m/s² (force) should stay as kg*m*s⁻²
+        $du = DerivedUnit::parse('kg*m/s2');
+        $si = $du->toSi();
+
+        $this->assertSame('kg*m*s-2', $si->format(true));
+        $this->assertSame('MLT-2', $si->dimension);
+    }
+
+    public function testToSiNonSiForceUnit(): void
+    {
+        // lb*ft/s² should convert to kg*m*s⁻²
+        $du = DerivedUnit::parse('lb*ft/s2');
+        $si = $du->toSi();
+
+        $this->assertSame('kg*m*s-2', $si->format(true));
+        $this->assertSame('MLT-2', $si->dimension);
+    }
+
+    public function testToSiNamedUnitNewton(): void
+    {
+        // Newton (N) has dimension MLT-2, should convert to kg*m*s⁻²
+        $du = DerivedUnit::parse('N');
+        $si = $du->toSi();
+
+        $this->assertSame('kg*m*s-2', $si->format(true));
+        $this->assertSame('MLT-2', $si->dimension);
+    }
+
+    public function testToSiNamedUnitJoule(): void
+    {
+        // Joule (J) has dimension ML²T⁻², should convert to kg*m²*s⁻²
+        $du = DerivedUnit::parse('J');
+        $si = $du->toSi();
+
+        $this->assertSame('kg*m2*s-2', $si->format(true));
+        $this->assertSame('ML2T-2', $si->dimension);
+    }
+
+    public function testToSiNamedUnitWatt(): void
+    {
+        // Watt (W) has dimension ML²T⁻³, should convert to kg*m²*s⁻³
+        $du = DerivedUnit::parse('W');
+        $si = $du->toSi();
+
+        $this->assertSame('kg*m2*s-3', $si->format(true));
+        $this->assertSame('ML2T-3', $si->dimension);
+    }
+
+    public function testToSiNamedUnitPascal(): void
+    {
+        // Pascal (Pa) has dimension ML⁻¹T⁻², should convert to kg*m⁻¹*s⁻²
+        $du = DerivedUnit::parse('Pa');
+        $si = $du->toSi();
+
+        $this->assertSame('kg*m-1*s-2', $si->format(true));
+        $this->assertSame('ML-1T-2', $si->dimension);
+    }
+
+    public function testToSiNamedUnitHertz(): void
+    {
+        // Hertz (Hz) has dimension T⁻¹, should convert to s⁻¹
+        $du = DerivedUnit::parse('Hz');
+        $si = $du->toSi();
+
+        $this->assertSame('s-1', $si->format(true));
+        $this->assertSame('T-1', $si->dimension);
+    }
+
+    public function testToSiPrefixedNamedUnit(): void
+    {
+        // kN (kilonewton) has dimension MLT-2, should convert to kg*m*s⁻²
+        $du = DerivedUnit::parse('kN');
+        $si = $du->toSi();
+
+        $this->assertSame('kg*m*s-2', $si->format(true));
+        $this->assertSame('MLT-2', $si->dimension);
+    }
+
+    public function testToSiMassUnit(): void
+    {
+        // gram should convert to kg (SI base unit for mass has 'k' prefix)
+        $du = DerivedUnit::parse('g');
+        $si = $du->toSi();
+
+        $this->assertSame('kg', $si->format(true));
+        $this->assertSame('M', $si->dimension);
+    }
+
+    public function testToSiNonSiMassUnit(): void
+    {
+        // pound should convert to kg
+        $du = DerivedUnit::parse('lb');
+        $si = $du->toSi();
+
+        $this->assertSame('kg', $si->format(true));
+        $this->assertSame('M', $si->dimension);
+    }
+
+    public function testToSiEmptyUnit(): void
+    {
+        // Empty (dimensionless) unit should stay empty
+        $du = new DerivedUnit();
+        $si = $du->toSi();
+
+        $this->assertSame('', $si->format(true));
+        $this->assertSame('', $si->dimension);
+    }
+
+    public function testToSiPreservesDimension(): void
+    {
+        // The dimension should be the same before and after toSi()
+        $du = DerivedUnit::parse('ft*lb/s2');
+        $si = $du->toSi();
+
+        $this->assertSame($du->dimension, $si->dimension);
+    }
+
+    public function testToSiDoesNotModifyOriginal(): void
+    {
+        $du = DerivedUnit::parse('ft');
+        $si = $du->toSi();
+
+        $this->assertSame('ft', $du->format(true));
+        $this->assertSame('m', $si->format(true));
+    }
+
+    public function testToSiComplexMixedUnit(): void
+    {
+        // mph (miles per hour) components: mi/h - both non-SI
+        // Dimension is LT⁻¹, should become m*s⁻¹
+        $du = DerivedUnit::parse('mi/h');
+        $si = $du->toSi();
+
+        $this->assertSame('m*s-1', $si->format(true));
+        $this->assertSame('LT-1', $si->dimension);
+    }
+
+    public function testToSiEnergyPerTime(): void
+    {
+        // J/s = W, dimension ML²T⁻³
+        $du = DerivedUnit::parse('J/s');
+        $si = $du->toSi();
+
+        $this->assertSame('kg*m2*s-3', $si->format(true));
+        $this->assertSame('ML2T-3', $si->dimension);
+    }
+
+    public function testToSiAcceleration(): void
+    {
+        // ft/s² should become m*s⁻²
+        $du = DerivedUnit::parse('ft/s2');
+        $si = $du->toSi();
+
+        $this->assertSame('m*s-2', $si->format(true));
+        $this->assertSame('LT-2', $si->dimension);
     }
 
     // endregion

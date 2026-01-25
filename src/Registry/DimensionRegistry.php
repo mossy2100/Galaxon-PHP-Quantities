@@ -117,8 +117,8 @@ class DimensionRegistry
      */
     public static function isValid(string $dimension): bool
     {
-        // Empty string is valid (represents dimensionless).
-        if ($dimension === '') {
+        // The string '1' represents dimensionless.
+        if ($dimension === '1') {
             return true;
         }
 
@@ -169,6 +169,11 @@ class DimensionRegistry
      */
     public static function implode(array $dimTerms): string
     {
+        // If there are no terms, return '1' (dimensionless).
+        if (empty($dimTerms)) {
+            return '1';
+        }
+
         // Sort the terms.
         $letters = array_flip(self::getLetterCodes());
         $fn = static fn (string $code1, string $code2) => $letters[$code1] <=> $letters[$code2];

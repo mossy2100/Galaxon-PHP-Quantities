@@ -6,9 +6,12 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class RadiationDose extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for absorbed dose and equivalent dose.
      *
@@ -18,24 +21,22 @@ class RadiationDose extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI named units
             'gray'    => [
                 'asciiSymbol'         => 'Gy',
-                'dimension'           => 'T-2L2',
-                'system'              => 'si_named',
                 'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnitSymbol' => 'm2*s-2',
             ],
             'sievert' => [
                 'asciiSymbol'         => 'Sv',
-                'dimension'           => 'T-2L2',
-                'system'              => 'si_named',
                 'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnitSymbol' => 'm2*s-2',
             ],
         ];
     }
+
+    // endregion
 }

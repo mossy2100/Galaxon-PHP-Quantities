@@ -8,7 +8,6 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Registry\DimensionRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
 use LogicException;
 
 /**
@@ -48,9 +47,11 @@ class DerivedUnit implements UnitInterface
     /**
      * Get the dimension code of the derived unit.
      *
+     * Defaults to '1' (dimensionless).
+     *
      * @return string The dimension code.
      */
-    private(set) string $dimension = '';
+    private(set) string $dimension = '1';
 
     // endregion
 
@@ -90,6 +91,13 @@ class DerivedUnit implements UnitInterface
         );
     }
 
+    /**
+     * The first unit term in the derived unit, or null if empty.
+     */
+    public ?UnitTerm $firstUnitTerm {
+        get => $this->unitTerms[array_key_first($this->unitTerms)] ?? null;
+    }
+
     // phpcs:enable PSR2.Classes.PropertyDeclaration
     // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
@@ -102,7 +110,6 @@ class DerivedUnit implements UnitInterface
      *
      * @param null|Unit|UnitTerm|list<UnitTerm> $unit The unit, unit term, or array of unit terms to add, or null to
      * create an empty unit.
-     * @throws DomainException Never.
      */
     public function __construct(null|Unit|UnitTerm|array $unit = null)
     {
@@ -142,20 +149,16 @@ class DerivedUnit implements UnitInterface
      */
     public static function parse(string $symbol): static
     {
-        // Get the parts of the compound unit.
-        $parts = preg_split('/(' . self::UNIT_TERM_SEPARATORS . ')/u', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
-        if (empty($parts)) {
-            throw new FormatException(
-                "Invalid unit format. The expected format is one or more unit terms separated by '*' or " .
-                "'/' operators, e.g. 'm', 'km', 'km2', 'm/s', 'm/s2', 'kg*m/s2', etc. To show an exponent, append it " .
-                "to the unit, e.g. 'm2'. To show 'per unit', either use a divide sign or an exponent of -1, e.g. " .
-                "'metres per second' can be expressed as 'm/s' or 'm*s-1'. The parser will also accept '·' (U+00B7), " .
-                "'⋅' (U+22C5), or '.' in place of '*', and superscript exponents."
-            );
-        }
-
         // Initialize new object.
         $new = new self();
+
+        // If the symbol is empty, there are no unit terms (dimensionless). Return the new object.
+        if ($symbol === '') {
+            return $new;
+        }
+
+        // Get the parts of the compound unit.
+        $parts = preg_split('/(' . self::UNIT_TERM_SEPARATORS . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         // Convert the substrings to unit terms.
         $nParts = count($parts);
@@ -164,7 +167,7 @@ class DerivedUnit implements UnitInterface
             $unitTerm = UnitTerm::parse($parts[$i]);
 
             if ($i > 0 && $parts[$i - 1] === '/') {
-                // If dividing, add the unit term, inverted.
+                // If dividing, invert and add the unit term.
                 $new->addUnitTerm($unitTerm->inv());
             } else {
                 // If multiplying, add the unit term.
@@ -251,15 +254,10 @@ class DerivedUnit implements UnitInterface
     // region Inspection methods
 
     /**
-     * Check if all unit terms in this derived unit are SI units.
+     * Check if this derived unit is dimensionless (has no unit terms).
      *
-     * @return bool True if all unit terms are SI units, false otherwise.
+     * @return bool True if dimensionless, false otherwise.
      */
-    public function isSi(): bool
-    {
-        return array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isSi());
-    }
-
     public function isDimensionless(): bool
     {
         return count($this->unitTerms) === 0;
@@ -276,38 +274,46 @@ class DerivedUnit implements UnitInterface
     }
 
     /**
-     * Get the maximum absolute value of exponents in this derived unit.
+     * Check if any unit term in this derived unit has an expansion.
      *
-     * @return int The maximum absolute exponent, or 0 if there are no unit terms.
+     * @return bool True if at least one unit term has an expansion, false otherwise.
      */
-    public function maxAbsExp(): int
+    public function hasExpansion(): bool
     {
-        if (empty($this->unitTerms)) {
-            return 0;
+        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->unit->hasExpansion());
+    }
+
+    /**
+     * Check if any two unit terms have the same unit dimension and could be merged.
+     *
+     * For example, a derived unit containing both 'm' and 'ft' would return true
+     * since both have dimension 'L' and could be combined.
+     *
+     * @return bool True if at least two unit terms share the same unit dimension.
+     */
+    public function hasMergeableUnits(): bool
+    {
+        $seenDimensions = [];
+
+        foreach ($this->unitTerms as $unitTerm) {
+            $dimension = $unitTerm->unit->dimension;
+            if (isset($seenDimensions[$dimension])) {
+                return true;
+            }
+            $seenDimensions[$dimension] = true;
         }
 
-        return max(array_map(
-            static fn (UnitTerm $unitTerm) => abs($unitTerm->exponent),
-            $this->unitTerms
-        ));
+        return false;
     }
 
     /**
      * Find a unit term by unit.
      *
-     * @param string|Unit $unit The unit to search for.
+     * @param Unit $unit The unit to search for.
      * @return ?UnitTerm The matching unit term, or null if not found.
      */
-    public function getUnitTermByUnit(string|Unit $unit): ?UnitTerm
+    public function getUnitTermByUnit(Unit $unit): ?UnitTerm
     {
-        // Get the unit as an object.
-        if (is_string($unit)) {
-            $unit = UnitRegistry::getBySymbol($unit);
-            if ($unit === null) {
-                return null;
-            }
-        }
-
         return array_find($this->unitTerms, static fn (UnitTerm $ut) => $ut->unit->equal($unit));
     }
 
@@ -367,7 +373,6 @@ class DerivedUnit implements UnitInterface
      * If the resulting exponent is zero, the term is removed entirely.
      *
      * @param UnitTerm $unitTerm The unit term to add.
-     * @throws DomainException Never.
      */
     public function addUnitTerm(UnitTerm $unitTerm): void
     {
@@ -397,7 +402,6 @@ class DerivedUnit implements UnitInterface
      * Remove a unit term.
      *
      * @param string|UnitTerm $unitTerm The unit term to remove.
-     * @throws DomainException Never.
      */
     public function removeUnitTerm(string|UnitTerm $unitTerm): void
     {
@@ -413,6 +417,8 @@ class DerivedUnit implements UnitInterface
 
     /**
      * Sort the unit terms into canonical order.
+     *
+     * @return void
      */
     public function sortUnitTerms(): void
     {
@@ -437,7 +443,6 @@ class DerivedUnit implements UnitInterface
      * Return a new DerivedUnit with all exponents negated.
      *
      * @return self A new instance with inverted exponents (e.g. m⋅s⁻¹ → m⁻¹⋅s).
-     * @throws DomainException Never.
      */
     public function inv(): self
     {
@@ -466,7 +471,6 @@ class DerivedUnit implements UnitInterface
      * Return a new DerivedUnit with all prefixes removed from all unit terms.
      *
      * @return self A new instance with no prefixes on any unit term.
-     * @throws DomainException Never.
      */
     public function removePrefixes(): self
     {
@@ -515,7 +519,6 @@ class DerivedUnit implements UnitInterface
      *
      * @param int $exponent The power to raise the derived unit to.
      * @return self A new instance with the exponents multiplied by the given value.
-     * @throws DomainException Never.
      */
     public function pow(int $exponent): self
     {
@@ -570,7 +573,6 @@ class DerivedUnit implements UnitInterface
      * @param UnitTerm $a The first unit term.
      * @param UnitTerm $b The second unit term.
      * @return int Negative if $a should come first, positive if $b should come first, zero if equal.
-     * @throws DomainException Never.
      */
     private static function compareUnitTerms(UnitTerm $a, UnitTerm $b): int
     {
@@ -598,7 +600,6 @@ class DerivedUnit implements UnitInterface
      * Recalculate the dimension from the current unit terms.
      *
      * @return void
-     * @throws DomainException Never.
      */
     private function updateDimension(): void
     {
@@ -610,7 +611,20 @@ class DerivedUnit implements UnitInterface
 
             // Accumulate the exponents for each letter in the dimension code.
             foreach ($dims as $dimCode => $exp) {
-                $dimCodes[$dimCode] = ($dimCodes[$dimCode] ?? 0) + $exp;
+                if ($exp === 0) {
+                    continue;
+                }
+
+                if (isset($dimCodes[$dimCode])) {
+                    $exp += $dimCodes[$dimCode];
+                    if ($exp === 0) {
+                        unset($dimCodes[$dimCode]);
+                    } else {
+                        $dimCodes[$dimCode] = $exp;
+                    }
+                } else {
+                    $dimCodes[$dimCode] = $exp;
+                }
             }
         }
 

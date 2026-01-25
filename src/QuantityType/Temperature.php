@@ -34,40 +34,32 @@ class Temperature extends Quantity
 
     // endregion
 
+    // region Overridden methods
+
     /**
      * Unit definitions for temperature.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI base unit
             'kelvin'     => [
                 'asciiSymbol' => 'K',
-                'dimension'   => 'H',
-                'system'      => 'si_base',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
-            // Non-SI metric units
             'celsius'    => [
                 'asciiSymbol'   => 'degC',
                 'unicodeSymbol' => '°C',
-                'dimension'     => 'H',
-                'system'        => 'metric',
             ],
-            // US customary units
             'fahrenheit' => [
                 'asciiSymbol'   => 'degF',
                 'unicodeSymbol' => '°F',
-                'dimension'     => 'H',
-                'system'        => 'us_customary',
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',
                 'unicodeSymbol' => '°R',
-                'dimension'     => 'H',
-                'system'        => 'us_customary',
             ],
         ];
     }
@@ -80,7 +72,8 @@ class Temperature extends Quantity
      *
      * @return list<array{string, string, float}>
      */
-    public static function getConversions(): array
+    #[Override]
+    public static function getConversionDefinitions(): array
     {
         return [
             ['degC', 'K', 1],
@@ -88,6 +81,8 @@ class Temperature extends Quantity
             ['K', 'degR', 1.8],
         ];
     }
+
+    // endregion
 
     /**
      * This override is necessary because Celsius and Fahrenheit are offset from absolute zero, but the conversion

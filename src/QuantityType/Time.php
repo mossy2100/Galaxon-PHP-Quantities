@@ -13,56 +13,41 @@ use TypeError;
 
 class Time extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for time.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI base unit
             'second'  => [
                 'asciiSymbol' => 's',
-                'dimension'   => 'T',
-                'system'      => 'si_base',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
-            // Non-SI time units
             'minute'  => [
                 'asciiSymbol' => 'min',
-                'dimension'   => 'T',
-                'system'      => 'metric',
             ],
             'hour'    => [
                 'asciiSymbol' => 'h',
-                'dimension'   => 'T',
-                'system'      => 'metric',
             ],
             'day'     => [
                 'asciiSymbol' => 'd',
-                'dimension'   => 'T',
-                'system'      => 'metric',
             ],
             'week'    => [
                 'asciiSymbol' => 'w',
-                'dimension'   => 'T',
-                'system'      => 'metric',
             ],
             'month'   => [
                 'asciiSymbol' => 'mo',
-                'dimension'   => 'T',
-                'system'      => 'metric',
             ],
             'year'    => [
                 'asciiSymbol' => 'y',
-                'dimension'   => 'T',
-                'system'      => 'metric',
             ],
             'century' => [
                 'asciiSymbol' => 'c',
-                'dimension'   => 'T',
-                'system'      => 'metric',
             ],
         ];
     }
@@ -72,7 +57,8 @@ class Time extends Quantity
      *
      * @return list<array{string, string, float}>
      */
-    public static function getConversions(): array
+    #[Override]
+    public static function getConversionDefinitions(): array
     {
         return [
             ['min', 's', 60],
@@ -84,6 +70,8 @@ class Time extends Quantity
             ['c', 'y', 100],
         ];
     }
+
+    // endregion
 
     // region Factory methods
 

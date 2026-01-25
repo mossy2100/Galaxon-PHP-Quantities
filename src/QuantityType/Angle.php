@@ -5,14 +5,12 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use DomainException;
-use Exception;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use InvalidArgumentException;
-use LogicException;
 use Override;
 
 class Angle extends Quantity
@@ -27,49 +25,38 @@ class Angle extends Quantity
 
     // endregion
 
+    // region Overridden methods
+
     /**
      * Unit definitions for angle.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI derived unit
             'radian'    => [
                 'asciiSymbol' => 'rad',
-                'dimension'   => 'A',
-                'system'      => 'si_derived',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_SMALL_METRIC,
             ],
-            // Non-SI angle units
             'degree'    => [
                 'asciiSymbol'   => 'deg',
                 'unicodeSymbol' => '°',
-                'dimension'     => 'A',
-                'system'        => 'metric',
             ],
             'arcminute' => [
                 'asciiSymbol'   => 'arcmin',
                 'unicodeSymbol' => '′',
-                'dimension'     => 'A',
-                'system'        => 'metric',
             ],
             'arcsecond' => [
                 'asciiSymbol'   => 'arcsec',
                 'unicodeSymbol' => '″',
-                'dimension'     => 'A',
-                'system'        => 'metric',
             ],
             'gradian'   => [
                 'asciiSymbol' => 'grad',
-                'dimension'   => 'A',
-                'system'      => 'metric',
             ],
             'turn'      => [
                 'asciiSymbol' => 'turn',
-                'dimension'   => 'A',
-                'system'      => 'metric',
             ],
         ];
     }
@@ -79,7 +66,8 @@ class Angle extends Quantity
      *
      * @return list<array{string, string, float}>
      */
-    public static function getConversions(): array
+    #[Override]
+    public static function getConversionDefinitions(): array
     {
         return [
             ['turn', 'rad', Floats::TAU],
@@ -89,6 +77,8 @@ class Angle extends Quantity
             ['turn', 'grad', 400],
         ];
     }
+
+    // endregion
 
     // region Factory methods
 
@@ -108,7 +98,6 @@ class Angle extends Quantity
      * @return static A new Angle equivalent to the provided string.
      * @throws FormatException If the string has an invalid format.
      * @throws DomainException If any of the values are non-finite or negative.
-     * @throws LogicException Never.
      */
     public static function parse(string $value): static
     {

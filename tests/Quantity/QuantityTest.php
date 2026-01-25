@@ -423,7 +423,7 @@ class Coolness extends Quantity
     }
 
     /** @return array<array{0: string, 1: string, 2: int|float, 3?: int|float}> */
-    public static function getConversions(): array
+    public static function getConversionDefinitions(): array
     {
         return [];
     }
@@ -441,7 +441,7 @@ class Badness extends Quantity
     }
 
     /** @return array<array{0: string, 1: string, 2: int|float, 3?: int|float}> */
-    public static function getConversions(): array
+    public static function getConversionDefinitions(): array
     {
         return [
             ['foo', 'bar', 10],
@@ -469,7 +469,7 @@ class EmptySymbol extends Quantity
     }
 
     /** @return array<array{0: string, 1: string, 2: int|float, 3?: int|float}> */
-    public static function getConversions(): array
+    public static function getConversionDefinitions(): array
     {
         return [];
     }

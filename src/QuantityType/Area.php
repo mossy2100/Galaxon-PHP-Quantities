@@ -5,28 +5,26 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
+use Override;
 
 class Area extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for area.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // Non-SI metric units
             'hectare' => [
                 'asciiSymbol' => 'ha',
-                'dimension'   => 'L2',
-                'system'      => 'metric',
             ],
-            // US customary units
             'acre'    => [
                 'asciiSymbol' => 'ac',
-                'dimension'   => 'L2',
-                'system'      => 'us_customary',
             ],
         ];
     }
@@ -36,7 +34,8 @@ class Area extends Quantity
      *
      * @return list<array{string, string, float}>
      */
-    public static function getConversions(): array
+    #[Override]
+    public static function getConversionDefinitions(): array
     {
         return [
             // Metric
@@ -47,4 +46,6 @@ class Area extends Quantity
             ['ac', 'yd2', 4840],
         ];
     }
+
+    // endregion
 }

@@ -6,9 +6,12 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class Frequency extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for frequency.
      *
@@ -17,24 +20,22 @@ class Frequency extends Quantity
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI named unit
             'hertz'     => [
                 'asciiSymbol'         => 'Hz',
-                'dimension'           => 'T-1',
-                'system'              => 'si_named',
                 'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnitSymbol' => 's-1',
             ],
             'becquerel' => [
                 'asciiSymbol'         => 'Bq',
-                'dimension'           => 'T-1',
-                'system'              => 'si_named',
                 'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
                 'expansionUnitSymbol' => 's-1',
             ],
         ];
     }
+
+    // endregion
 }

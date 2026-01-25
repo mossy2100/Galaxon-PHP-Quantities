@@ -6,24 +6,27 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Override;
 
 class AmountOfSubstance extends Quantity
 {
+    // region Overridden methods
+
     /**
      * Unit definitions for amount of substance.
      *
      * @return array<string, array<string, string|int>>
      */
+    #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            // SI base unit
             'mole' => [
                 'asciiSymbol' => 'mol',
-                'dimension'   => 'N',
-                'system'      => 'si_base',
                 'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
             ],
         ];
     }
+
+    // endregion
 }
