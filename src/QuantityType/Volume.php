@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class Volume extends Quantity
@@ -21,38 +22,50 @@ class Volume extends Quantity
     public static function getUnitDefinitions(): array
     {
         return [
-            'litre'       => [
+            'litre'                => [
                 'asciiSymbol' => 'L',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'systems'     => [System::SIAccepted],
             ],
-            'teaspoon'    => [
-                'asciiSymbol' => 'tsp',
+            // US customary volume units
+            'US fluid ounce'       => [
+                'asciiSymbol' => 'US fl oz',
+                'systems'     => [System::US],
             ],
-            'tablespoon'  => [
-                'asciiSymbol' => 'tbsp',
+            'US pint'              => [
+                'asciiSymbol' => 'US pt',
+                'systems'     => [System::US],
             ],
-            'fluid ounce' => [
-                'asciiSymbol' => 'fl oz',
+            'US quart'             => [
+                'asciiSymbol' => 'US qt',
+                'systems'     => [System::US],
             ],
-            'cup'         => [
-                'asciiSymbol' => 'cup',
+            'US gallon'            => [
+                'asciiSymbol' => 'US gal',
+                'systems'     => [System::US],
             ],
-            'pint'        => [
-                'asciiSymbol' => 'pt',
+            // Imperial volume units
+            'imperial fluid ounce' => [
+                'asciiSymbol' => 'imp fl oz',
+                'systems'     => [System::Imperial],
             ],
-            'quart'       => [
-                'asciiSymbol' => 'qt',
+            'imperial pint'        => [
+                'asciiSymbol' => 'imp pt',
+                'systems'     => [System::Imperial],
             ],
-            'gallon'      => [
-                'asciiSymbol' => 'gal',
+            'imperial quart'       => [
+                'asciiSymbol' => 'imp qt',
+                'systems'     => [System::Imperial],
+            ],
+            'imperial gallon'      => [
+                'asciiSymbol' => 'imp gal',
+                'systems'     => [System::Imperial],
             ],
         ];
     }
 
     /**
      * Conversion factors for volume units.
-     *
-     * US customary units are used here, not imperial.
      *
      * @return list<array{string, string, float}>
      */
@@ -63,15 +76,18 @@ class Volume extends Quantity
             // Metric
             ['m3', 'L', 1000],
             // Metric-US bridge
-            ['in3', 'mL', 16.387064],
+//            ['in3', 'mL', 16.387064],
             // US customary
-            ['gal', 'in3', 231],
-            ['gal', 'qt', 4],
-            ['qt', 'pt', 2],
-            ['pt', 'cup', 2],
-            ['cup', 'fl oz', 8],
-            ['fl oz', 'tbsp', 2],
-            ['tbsp', 'tsp', 3],
+            ['US gal', 'in3', 231],
+            ['US gal', 'US qt', 4],
+            ['US qt', 'US pt', 2],
+            ['US pt', 'US fl oz', 16],
+            // Imperial - metric bridge
+            ['imp gal', 'L', 4.54609],
+            // Imperial
+            ['imp gal', 'imp qt', 4],
+            ['imp qt', 'imp pt', 2],
+            ['imp pt', 'imp fl oz', 20],
         ];
     }
 

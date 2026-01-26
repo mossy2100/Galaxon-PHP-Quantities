@@ -30,7 +30,7 @@ final class UnitTest extends TestCase
             'quantityType' => 'length',
             'dimension'    => 'L',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
         ];
 
         $unit = new Unit('metre', $data);
@@ -41,7 +41,7 @@ final class UnitTest extends TestCase
         $this->assertSame('length', $unit->quantityType);
         $this->assertSame('L', $unit->dimension);
         $this->assertSame('si_base', $unit->system);
-        $this->assertSame(PrefixRegistry::PREFIX_GROUP_METRIC, $unit->prefixGroup);
+        $this->assertSame(PrefixRegistry::GROUP_CODE_METRIC, $unit->prefixGroup);
         $this->assertNull($unit->expansionUnitSymbol);
     }
 
@@ -55,7 +55,7 @@ final class UnitTest extends TestCase
             'quantityType'        => 'frequency',
             'dimension'           => 'T-1',
             'system'              => 'si_named',
-            'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
             'expansionUnitSymbol' => 's-1',
         ];
 
@@ -81,7 +81,7 @@ final class UnitTest extends TestCase
             'quantityType'        => 'resistance',
             'dimension'           => 'T-3L2MI-2',
             'system'              => 'si_named',
-            'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
             'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
         ];
 
@@ -326,7 +326,7 @@ final class UnitTest extends TestCase
             'quantityType' => 'length',
             'dimension'    => 'L',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
         ];
 
         $unit = new Unit('metre', $data);
@@ -361,7 +361,7 @@ final class UnitTest extends TestCase
             'quantityType' => 'length',
             'dimension'    => 'L',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
         ];
 
         $unit = new Unit('metre', $data);
@@ -383,7 +383,7 @@ final class UnitTest extends TestCase
             'quantityType' => 'length',
             'dimension'    => 'L',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
         ];
 
         $unit = new Unit('metre', $data);
@@ -419,7 +419,7 @@ final class UnitTest extends TestCase
             'quantityType' => 'angle',
             'dimension'    => 'A',
             'system'       => 'si_derived',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_SMALL_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_SMALL_METRIC,
         ];
 
         $unit = new Unit('radian', $data);
@@ -444,7 +444,7 @@ final class UnitTest extends TestCase
             'quantityType' => 'energy',
             'dimension'    => 'T-2L2M',
             'system'       => 'metric',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_LARGE_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_LARGE_METRIC,
         ];
 
         $unit = new Unit('calorie', $data);
@@ -468,7 +468,7 @@ final class UnitTest extends TestCase
             'quantityType' => 'data',
             'dimension'    => 'D',
             'system'       => 'metric',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_LARGE,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_LARGE,
         ];
 
         $unit = new Unit('byte', $data);
@@ -498,7 +498,7 @@ final class UnitTest extends TestCase
             'quantityType' => 'length',
             'dimension'    => 'L',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
         ];
 
         $unit = new Unit('metre', $data);
@@ -775,7 +775,7 @@ final class UnitTest extends TestCase
             'asciiSymbol'  => 'm',
             'dimension'    => 'L',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
             'quantityType' => 'length',
         ];
         $unit = new Unit('metre', $data);
@@ -800,7 +800,7 @@ final class UnitTest extends TestCase
             'asciiSymbol'  => 'g',
             'dimension'    => 'M',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
             'quantityType' => 'mass',
         ];
         $unit = new Unit('gram', $data);
@@ -820,7 +820,7 @@ final class UnitTest extends TestCase
             'unicodeSymbol'       => 'Ω',
             'dimension'           => 'T-3L2MI-2',
             'system'              => 'si_named',
-            'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
             'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
             'quantityType'        => 'resistance',
         ];
@@ -843,7 +843,7 @@ final class UnitTest extends TestCase
             'asciiSymbol'  => 'B',
             'dimension'    => 'D',
             'system'       => 'metric',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_LARGE,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_LARGE,
             'quantityType' => 'data',
         ];
         $unit = new Unit('byte', $data);

@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for Memory measurement class.
  *
- * Memory uses PREFIX_GROUP_LARGE which includes both metric (KB, MB, GB)
+ * Memory uses GROUP_CODE_LARGE which includes both metric (KB, MB, GB)
  * and binary (KiB, MiB, GiB) prefixes.
  */
 #[CoversClass(Data::class)]

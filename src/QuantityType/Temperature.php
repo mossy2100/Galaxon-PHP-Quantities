@@ -10,6 +10,7 @@ use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitInterface;
 use Override;
 
@@ -47,19 +48,23 @@ class Temperature extends Quantity
         return [
             'kelvin'     => [
                 'asciiSymbol' => 'K',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'systems'     => [System::SI],
             ],
             'celsius'    => [
                 'asciiSymbol'   => 'degC',
                 'unicodeSymbol' => '°C',
+                'systems'       => [System::SI],
             ],
             'fahrenheit' => [
                 'asciiSymbol'   => 'degF',
                 'unicodeSymbol' => '°F',
+                'systems'       => [System::Imperial, System::US],
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',
                 'unicodeSymbol' => '°R',
+                'systems'       => [System::Imperial, System::US],
             ],
         ];
     }

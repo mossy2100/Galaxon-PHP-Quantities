@@ -229,6 +229,10 @@ class QuantityTypeRegistry
             'siUnit' => 'B',
             'class'  => Data::class,
         ],
+        'C'          => [
+            'name'   => 'currency',
+            'siUnit' => 'XAU',
+        ],
     ];
 
     // endregion

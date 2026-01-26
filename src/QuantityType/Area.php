@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\System;
 use Override;
 
 class Area extends Quantity
@@ -22,9 +23,11 @@ class Area extends Quantity
         return [
             'hectare' => [
                 'asciiSymbol' => 'ha',
+                'systems'     => [System::SIAccepted],
             ],
             'acre'    => [
                 'asciiSymbol' => 'ac',
+                'systems'     => [System::Imperial, System::US],
             ],
         ];
     }

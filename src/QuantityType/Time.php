@@ -8,6 +8,7 @@ use DateInterval;
 use DomainException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 use TypeError;
 
@@ -24,30 +25,34 @@ class Time extends Quantity
     public static function getUnitDefinitions(): array
     {
         return [
-            'second'  => [
+            'second' => [
                 'asciiSymbol' => 's',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'systems'     => [System::SI],
             ],
-            'minute'  => [
+            'minute' => [
                 'asciiSymbol' => 'min',
+                'systems'     => [System::SIAccepted],
             ],
-            'hour'    => [
+            'hour'   => [
                 'asciiSymbol' => 'h',
+                'systems'     => [System::SIAccepted],
             ],
-            'day'     => [
+            'day'    => [
                 'asciiSymbol' => 'd',
+                'systems'     => [System::SIAccepted],
             ],
-            'week'    => [
+            'week'   => [
                 'asciiSymbol' => 'w',
+                'systems'     => [System::Common],
             ],
-            'month'   => [
+            'month'  => [
                 'asciiSymbol' => 'mo',
+                'systems'     => [System::Common],
             ],
-            'year'    => [
+            'year'   => [
                 'asciiSymbol' => 'y',
-            ],
-            'century' => [
-                'asciiSymbol' => 'c',
+                'systems'     => [System::Common],
             ],
         ];
     }
@@ -67,7 +72,6 @@ class Time extends Quantity
             ['w', 'd', 7],
             ['y', 'mo', 12],
             ['y', 'd', 365.2425],
-            ['c', 'y', 100],
         ];
     }
 

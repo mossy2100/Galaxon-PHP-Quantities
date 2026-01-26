@@ -156,32 +156,9 @@ class Conversion implements Stringable
      */
     public function removePrefixes(): self
     {
-        // Initialize new units and factor.
-        $srcUnit = new DerivedUnit();
-        $destUnit = new DerivedUnit();
-        $factor = $this->factor;
-
-        // Collect the unprefixed destination unit terms.
-        foreach ($this->destUnit->unitTerms as $destUnitTerm) {
-            if ($destUnitTerm->hasPrefix()) {
-                $factor = $factor->mul($destUnitTerm->multiplier);
-                $destUnit->addUnitTerm($destUnitTerm->removePrefix());
-            } else {
-                $destUnit->addUnitTerm($destUnitTerm);
-            }
-        }
-
-        // Collect the unprefixed source unit terms.
-        foreach ($this->srcUnit->unitTerms as $srcUnitTerm) {
-            if ($srcUnitTerm->hasPrefix()) {
-                $factor = $factor->div($srcUnitTerm->multiplier);
-                $srcUnit->addUnitTerm($srcUnitTerm->removePrefix());
-            } else {
-                $srcUnit->addUnitTerm($srcUnitTerm);
-            }
-        }
-
-        // Construct the new conversion.
+        $srcUnit = $this->srcUnit->removePrefixes();
+        $destUnit = $this->destUnit->removePrefixes();
+        $factor = $this->factor->mul($this->destUnit->multiplier)->div($this->srcUnit->multiplier);
         return new self($srcUnit, $destUnit, $factor);
     }
 

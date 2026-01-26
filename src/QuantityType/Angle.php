@@ -10,6 +10,7 @@ use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use InvalidArgumentException;
 use Override;
 
@@ -38,25 +39,32 @@ class Angle extends Quantity
         return [
             'radian'    => [
                 'asciiSymbol' => 'rad',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_SMALL_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'systems'     => [System::SI],
             ],
             'degree'    => [
                 'asciiSymbol'   => 'deg',
                 'unicodeSymbol' => '°',
+                'systems'       => [System::SIAccepted],
             ],
             'arcminute' => [
                 'asciiSymbol'   => 'arcmin',
                 'unicodeSymbol' => '′',
+                'systems'       => [System::SIAccepted],
             ],
             'arcsecond' => [
                 'asciiSymbol'   => 'arcsec',
                 'unicodeSymbol' => '″',
+                'prefixGroup'   => PrefixRegistry::GROUP_CODE_SMALL_ENGINEERING_METRIC,
+                'systems'       => [System::SIAccepted],
             ],
             'gradian'   => [
                 'asciiSymbol' => 'grad',
+                'systems'     => [System::Common],
             ],
             'turn'      => [
                 'asciiSymbol' => 'turn',
+                'systems'     => [System::Common],
             ],
         ];
     }

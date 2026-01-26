@@ -68,6 +68,13 @@ class Unit implements UnitInterface
      */
     private(set) ?float $expansionValue;
 
+    /**
+     * The measurement systems this unit belongs to.
+     *
+     * @var list<System>
+     */
+    private(set) array $systems;
+
     // endregion
 
     // region Property hooks
@@ -85,7 +92,7 @@ class Unit implements UnitInterface
          */
         get {
             if ($this->expansionUnitSymbol === null) {
-                return null;
+        return null;
             }
 
             // Convert the expansion unit symbol into a DerivedUnit if not already done.
@@ -97,10 +104,47 @@ class Unit implements UnitInterface
     /**
      * Get all allowed prefixes for this unit.
      *
-     * @var array<string, float>
+     * @var list<Prefix>
      */
     public array $allowedPrefixes {
         get => PrefixRegistry::getPrefixes($this->prefixGroup);
+    }
+
+    /**
+     * Get all symbol variants for a unit, including prefixed versions.
+     *
+     * @var list<string> All symbol variants.
+     */
+    public array $symbols {
+        get {
+            // Add ASCII symbol.
+            $symbols = [$this->asciiSymbol];
+
+            // Add Unicode symbol, if different.
+            if ($this->unicodeSymbol !== $this->asciiSymbol) {
+                $symbols[] = $this->unicodeSymbol;
+            }
+
+            // Add prefixed symbols.
+            $prefixes = $this->allowedPrefixes;
+            foreach ($prefixes as $prefix) {
+                // Add prefixed ASCII symbols.
+                $symbols[] = $prefix->asciiSymbol . $this->asciiSymbol;
+                if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
+                    $symbols[] = $prefix->unicodeSymbol . $this->asciiSymbol;
+                }
+
+                // Add prefixed Unicode symbols, if different.
+                if ($this->unicodeSymbol !== $this->asciiSymbol) {
+                    $symbols[] = $prefix->asciiSymbol . $this->unicodeSymbol;
+                    if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
+                        $symbols[] = $prefix->unicodeSymbol . $this->unicodeSymbol;
+                    }
+                }
+            }
+
+            return $symbols;
+        }
     }
 
     // phpcs:enable PSR2.Classes.PropertyDeclaration
@@ -142,11 +186,16 @@ class Unit implements UnitInterface
         $this->prefixGroup = $data['prefixGroup'] ?? 0;
         $this->expansionUnitSymbol = $data['expansionUnitSymbol'] ?? null;
         $this->expansionValue = isset($data['expansionUnitSymbol']) ? ($data['expansionValue'] ?? 1.0) : null;
+        $this->systems = $data['systems'] ?? [];
     }
 
     // endregion
 
-    // region Prefix methods
+    // region Accessors
+
+    // endregion
+
+// region Prefix methods
 
     /**
      * Check if this unit accepts prefixes.
@@ -161,12 +210,12 @@ class Unit implements UnitInterface
     /**
      * Check if a specific prefix is allowed for this unit.
      *
-     * @param string $prefix The prefix to check.
+     * @param Prefix $prefix The prefix to check.
      * @return bool True if the prefix is allowed.
      */
-    public function acceptsPrefix(string $prefix): bool
+    public function acceptsPrefix(Prefix $prefix): bool
     {
-        return isset($this->allowedPrefixes[$prefix]);
+        return array_any($this->allowedPrefixes, static fn ($allowedPrefix) => $allowedPrefix->equal($prefix));
     }
 
     // endregion

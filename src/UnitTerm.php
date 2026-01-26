@@ -42,9 +42,9 @@ class UnitTerm implements UnitInterface
     public readonly Unit $unit;
 
     /**
-     * The SI/binary prefix symbol (e.g. 'k', 'm', 'G'), or null if none.
+     * The SI/binary prefix or null if none.
      */
-    public readonly ?string $prefix;
+    public readonly ?Prefix $prefix;
 
     /**
      * The exponent (e.g. 2 for m², -1 for s⁻¹).
@@ -88,17 +88,14 @@ class UnitTerm implements UnitInterface
      * This property returns the ASCII version. For the Unicode symbol, cast to string (__toString()).
      */
     public string $unexponentiatedAsciiSymbol {
-        get => $this->prefix . $this->unit->asciiSymbol;
+        get => $this->prefix->asciiSymbol . $this->unit->asciiSymbol;
     }
 
     /**
      * The prefix multiplier.
      */
     public float $prefixMultiplier {
-        get => !$this->hasPrefix()
-            ? 1.0
-            : PrefixRegistry::getPrefixMultiplier($this->prefix)
-                ?? throw new DomainException("Prefix '{$this->prefix}' is not a valid prefix.");
+        get => !$this->hasPrefix() ? 1.0 : $this->prefix->multiplier;
     }
 
     /**
@@ -127,11 +124,11 @@ class UnitTerm implements UnitInterface
      * Constructor.
      *
      * @param string|Unit $unit The unit or its symbol (e.g. 'm', 'ft', 'N').
-     * @param ?string $prefix The prefix symbol (e.g. 'k', 'm', 'G'), or null if none.
+     * @param null|string|Prefix $prefix The prefix symbol or object, or null if none.
      * @param int $exponent The exponent (default 1).
      * @throws DomainException If the exponent or prefix is invalid.
      */
-    public function __construct(string|Unit $unit, ?string $prefix = null, int $exponent = 1)
+    public function __construct(string|Unit $unit, null|string|Prefix $prefix = null, int $exponent = 1)
     {
         // Allow for the unit to be provided as a symbol.
         if (is_string($unit)) {
@@ -142,14 +139,25 @@ class UnitTerm implements UnitInterface
             }
         }
 
+        // Allow for the prefix to be provided as a symbol.
+        if (is_string($prefix)) {
+            $prefix = PrefixRegistry::getBySymbol($prefix);
+            if ($prefix === null) {
+                throw new DomainException("Prefix '$prefix' is unknown.");
+            }
+        }
+
         // Validate prefix.
         if ($prefix !== null && !$unit->acceptsPrefix($prefix)) {
             throw new DomainException("Prefix '{$prefix}' is invalid for unit '{$unit->asciiSymbol}'.");
         }
 
         // Validate exponent.
-        if ($exponent === 0 || $exponent < -9 || $exponent > 9) {
-            throw new DomainException("Exponent can't be zero, and must be between -9 and 9.");
+        if ($exponent < -9 || $exponent > 9) {
+            throw new DomainException('Exponent must be between -9 and 9.');
+        }
+        if ($exponent === 0) {
+            throw new DomainException("Exponent can't be zero.");
         }
 
         // Set properties.
@@ -256,16 +264,15 @@ class UnitTerm implements UnitInterface
                 $matches[] = new self($unit);
             }
 
-            // Check if prefixes are allowed with this unit.
-            if ($unit->prefixGroup > 0) {
-                // Get the valid prefixes for this unit.
-                $prefixes = PrefixRegistry::getPrefixes($unit->prefixGroup);
-
-                // Loop through the prefixed units and see if any match.
-                foreach ($prefixes as $prefix => $multiplier) {
-                    if ($prefix . $unit->asciiSymbol === $symbol || $prefix . $unit->unicodeSymbol === $symbol) {
-                        $matches[] = new self($unit, $prefix);
-                    }
+            // Loop through the prefixed units and see if any match.
+            foreach ($unit->allowedPrefixes as $prefix) {
+                if (
+                    $prefix->asciiSymbol . $unit->asciiSymbol === $symbol ||
+                    $prefix->asciiSymbol . $unit->unicodeSymbol === $symbol ||
+                    $prefix->unicodeSymbol . $unit->asciiSymbol === $symbol ||
+                    $prefix->unicodeSymbol . $unit->unicodeSymbol === $symbol
+                ) {
+                    $matches[] = new self($unit, $prefix);
                 }
             }
         }
@@ -298,7 +305,7 @@ class UnitTerm implements UnitInterface
 
     // endregion
 
-    // region Conversion methods
+    // region Formatting methods
 
     /**
      * Format the unit term as a string.
@@ -315,21 +322,19 @@ class UnitTerm implements UnitInterface
     public function format(bool $ascii = false): string
     {
         if ($ascii) {
-            // Get the exponent.
-            $exp = $this->exponent === 1 ? '' : (string)$this->exponent;
-
-            // Get the ASCII symbol.
+            // Get the ASCII parts.
+            $prefix = $this->prefix?->asciiSymbol;
             $symbol = $this->unit->asciiSymbol;
+            $exp = $this->exponent === 1 ? '' : $this->exponent;
         } else {
-            // Get the exponent in superscript.
+            // Get the Unicode parts.
+            $prefix = $this->prefix?->unicodeSymbol;
+            $symbol = $this->unit->unicodeSymbol;
             $exp = $this->exponent === 1 ? '' : Integers::toSuperscript($this->exponent);
-
-            // Get the Unicode symbol if set, or fall back to the ASCII symbol.
-            $symbol = $this->unit->unicodeSymbol ?? $this->unit->asciiSymbol;
         }
 
         // Construct the full unit term symbol.
-        return $this->prefix . $symbol . $exp;
+        return $prefix . $symbol . $exp;
     }
 
     /**
@@ -411,24 +416,22 @@ class UnitTerm implements UnitInterface
         return $this->withExponent(intdiv($this->exponent, $index));
     }
 
-    /**
-     * Return a new UnitTerm with a different prefix.
-     *
-     * @param ?string $prefix The new prefix symbol, or null for no prefix.
-     * @return self A new instance with the specified prefix.
-     */
-    public function withPrefix(?string $prefix): self
-    {
-        // Make sure the prefix is allowed.
-        if ($prefix !== null && !$this->unit->acceptsPrefix($prefix)) {
-            throw new DomainException(
-                "The prefix '$prefix' is incompatible with the unit '{$this->unit->unicodeSymbol}'."
-            );
-        }
-
-        // Create the new UnitTerm.
-        return new self($this->unit, $prefix, $this->exponent);
-    }
+//    /**
+//     * Return a new UnitTerm with a different prefix.
+//     *
+//     * @param ?Prefix $prefix The new prefix, or null for no prefix.
+//     * @return self A new instance with the specified prefix.
+//     */
+//    public function withPrefix(?Prefix $prefix): self
+//    {
+//        // Make sure the prefix is allowed.
+//        if ($prefix !== null && !$this->unit->acceptsPrefix($prefix)) {
+//            throw new DomainException("The prefix '$prefix' is incompatible with the unit '$this->unit'.");
+//        }
+//
+//        // Create the new UnitTerm.
+//        return new self($this->unit, $prefix, $this->exponent);
+//    }
 
     /**
      * Return a new UnitTerm with the prefix removed.
@@ -437,7 +440,7 @@ class UnitTerm implements UnitInterface
      */
     public function removePrefix(): self
     {
-        return $this->withPrefix(null);
+        return new UnitTerm($this->unit, null, $this->exponent);
     }
 
     // endregion

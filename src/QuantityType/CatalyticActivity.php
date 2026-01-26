@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class CatalyticActivity extends Quantity
@@ -23,8 +24,9 @@ class CatalyticActivity extends Quantity
         return [
             'katal' => [
                 'asciiSymbol'         => 'kat',
-                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'mol*s-1',
+                'systems'             => [System::SI],
             ],
         ];
     }

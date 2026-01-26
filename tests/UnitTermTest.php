@@ -28,7 +28,7 @@ final class UnitTermTest extends TestCase
             'unicodeSymbol' => 'Ω',
             'dimension'     => 'T-3L2MI-2',
             'system'        => 'si_named',
-            'prefixGroup'   => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'   => PrefixRegistry::GROUP_CODE_METRIC,
             'expansionUnit' => 'kg*m2*s-3*A-2',
             'quantityType'  => 'resistance',
         ]);
@@ -47,7 +47,7 @@ final class UnitTermTest extends TestCase
                 'asciiSymbol'  => 'm',
                 'dimension'    => 'L',
                 'system'       => 'si_base',
-                'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
                 'quantityType' => 'length',
             ]
         );
@@ -62,7 +62,7 @@ final class UnitTermTest extends TestCase
             'asciiSymbol'  => 's',
             'dimension'    => 'T',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixRegistry::PREFIX_GROUP_METRIC,
+            'prefixGroup'  => PrefixRegistry::GROUP_CODE_METRIC,
             'quantityType' => 'time',
         ]);
     }

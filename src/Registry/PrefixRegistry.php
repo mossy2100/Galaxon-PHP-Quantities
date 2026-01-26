@@ -6,194 +6,122 @@ namespace Galaxon\Quantities\Registry;
 
 use DomainException;
 use Galaxon\Core\Floats;
+use Galaxon\Quantities\Prefix;
 
+/**
+ * Registry for SI and binary prefixes.
+ *
+ * Provides access to metric prefixes (milli, kilo, mega, etc.) and binary prefixes (kibi, mebi, etc.)
+ * organized by group codes for flexible filtering.
+ */
 class PrefixRegistry
 {
-    // region Constants
+    // region Prefix group constants
 
-    /**
-     * Constants for prefix groups.
-     */
+    public const int GROUP_CODE_SMALL_ENGINEERING = 1;
+    public const int GROUP_CODE_SMALL_NON_ENGINEERING = 2;
+    public const int GROUP_CODE_LARGE_NON_ENGINEERING = 4;
+    public const int GROUP_CODE_LARGE_ENGINEERING = 8;
+    public const int GROUP_CODE_BINARY = 16;
 
-    // 1 = Small metric (quecto to deci)
-    public const int PREFIX_GROUP_SMALL_METRIC = 1;
+    public const int GROUP_CODE_SMALL_METRIC =
+        self::GROUP_CODE_SMALL_ENGINEERING |
+        self::GROUP_CODE_SMALL_NON_ENGINEERING;
 
-    // 2 = Large metric (deca to quetta)
-    public const int PREFIX_GROUP_LARGE_METRIC = 2;
+    public const int GROUP_CODE_LARGE_METRIC =
+        self::GROUP_CODE_LARGE_NON_ENGINEERING |
+        self::GROUP_CODE_LARGE_ENGINEERING;
 
-    // 3 = All metric (1|2)
-    public const int PREFIX_GROUP_METRIC = self::PREFIX_GROUP_SMALL_METRIC | self::PREFIX_GROUP_LARGE_METRIC;
+    public const int GROUP_CODE_ENGINEERING = self::GROUP_CODE_SMALL_ENGINEERING | self::GROUP_CODE_LARGE_ENGINEERING;
 
-    // 4 = Binary (Ki, Mi, Gi, etc.)
-    public const int PREFIX_GROUP_BINARY = 4;
+    public const int GROUP_CODE_METRIC = self::GROUP_CODE_SMALL_METRIC | self::GROUP_CODE_LARGE_METRIC;
 
-    // 6 = Large metric + binary (2|4)
-    public const int PREFIX_GROUP_LARGE = self::PREFIX_GROUP_LARGE_METRIC | self::PREFIX_GROUP_BINARY;
+    public const int GROUP_CODE_LARGE = self::GROUP_CODE_LARGE_ENGINEERING | self::GROUP_CODE_BINARY;
 
-    // 7 = All (1|2|4)
-    public const int PREFIX_GROUP_ALL = self::PREFIX_GROUP_METRIC | self::PREFIX_GROUP_BINARY;
-
-    /**
-     * Standard metric prefixes down to quecto (10^-30).
-     *
-     * Includes both standard symbols and alternatives (e.g. 'u' for micro).
-     *
-     * @var array<string, float>
-     */
-    public const array PREFIXES_SMALL_METRIC = [
-        'q' => 1e-30,  // quecto
-        'r' => 1e-27,  // ronto
-        'y' => 1e-24,  // yocto
-        'z' => 1e-21,  // zepto
-        'a' => 1e-18,  // atto
-        'f' => 1e-15,  // femto
-        'p' => 1e-12,  // pico
-        'n' => 1e-9,   // nano
-        'μ' => 1e-6,   // micro
-        'u' => 1e-6,   // micro (alias)
-        'm' => 1e-3,   // milli
-        'c' => 1e-2,   // centi
-        'd' => 1e-1,   // deci
-    ];
-
-    /**
-     * Standard metric prefixes up to quetta (10^30).
-     *
-     * @var array<string, float>
-     */
-    public const array PREFIXES_LARGE_METRIC = [
-        'da' => 1e1,    // deca
-        'h'  => 1e2,    // hecto
-        'k'  => 1e3,    // kilo
-        'M'  => 1e6,    // mega
-        'G'  => 1e9,    // giga
-        'T'  => 1e12,   // tera
-        'P'  => 1e15,   // peta
-        'E'  => 1e18,   // exa
-        'Z'  => 1e21,   // zetta
-        'Y'  => 1e24,   // yotta
-        'R'  => 1e27,   // ronna
-        'Q'  => 1e30,   // quetta
-    ];
-
-    /**
-     * Binary prefixes for memory measurements.
-     *
-     * @var array<string, float>
-     */
-    public const array PREFIXES_BINARY = [
-        'Ki' => 2 ** 10, // kibi
-        'Mi' => 2 ** 20, // mebi
-        'Gi' => 2 ** 30, // gibi
-        'Ti' => 2 ** 40, // tebi
-        'Pi' => 2 ** 50, // pebi
-        'Ei' => 2 ** 60, // exbi
-        'Zi' => 2 ** 70, // zebi
-        'Yi' => 2 ** 80, // yobi
-    ];
+    public const int GROUP_CODE_ALL = self::GROUP_CODE_METRIC | self::GROUP_CODE_BINARY;
 
     // endregion
 
-    // region Static methods
+    // region Static properties
 
     /**
-     * Return an array of prefixes, with multipliers, given an integer group code comprising bitwise flags.
+     * List of all prefixes, ordered by multiplier.
      *
-     * This can be overridden in the derived class.
-     *
-     * @param int $prefixGroup Code indicating the prefix groups to include.
-     * @return array<string, float>
+     * @var ?list<Prefix>
      */
-    public static function getPrefixes(int $prefixGroup = self::PREFIX_GROUP_ALL): array
+    private static ?array $prefixes = null;
+
+    // endregion
+
+    // region Static methods for public API
+
+    /**
+     * Return an array of prefixes given an integer group code comprising bitwise flags.
+     *
+     * @param int $prefixGroup Code indicating the prefix group(s) to include.
+     * @return list<Prefix>
+     */
+    public static function getPrefixes(int $prefixGroup = self::GROUP_CODE_ALL): array
     {
-        $prefixes = [];
+        self::init();
 
         // No prefixes.
         if ($prefixGroup === 0) {
-            return $prefixes;
+            return [];
         }
 
-        // Get the prefixes corresponding to the given code.
-        if ($prefixGroup & self::PREFIX_GROUP_SMALL_METRIC) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_SMALL_METRIC);
-        }
-        if ($prefixGroup & self::PREFIX_GROUP_LARGE_METRIC) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_LARGE_METRIC);
-        }
-        if ($prefixGroup & self::PREFIX_GROUP_BINARY) {
-            $prefixes = array_merge($prefixes, self::PREFIXES_BINARY);
-        }
-
-        return $prefixes;
+        // Get the prefixes for the given group code.
+        return array_values(
+            array_filter(
+                self::$prefixes,
+                static fn (Prefix $prefix) => $prefix->groupCode & $prefixGroup
+            )
+        );
     }
 
     /**
-     * Return all metric prefixes (small and large).
+     * Get a prefix by its symbol.
      *
-     * @return array<string, float> Prefix symbols mapped to multipliers.
+     * Supports both ASCII and Unicode symbols.
+     *
+     * @param string $symbol The prefix symbol to search for.
+     * @return ?Prefix The matching prefix, or null if not found.
      */
-    public static function getMetricPrefixes(): array
+    public static function getBySymbol(string $symbol): ?Prefix
     {
-        return self::getPrefixes(self::PREFIX_GROUP_METRIC);
+        self::init();
+
+        return array_find(
+            self::$prefixes,
+            static fn (Prefix $prefix) => $prefix->asciiSymbol === $symbol || $prefix->unicodeSymbol === $symbol
+        );
     }
 
     /**
-     * Return engineering prefixes only (exponents that are multiples of 3).
-     *
-     * Excludes c (centi), d (deci), da (deca), and h (hecto).
-     * This is the standard convention in engineering and scientific notation.
-     *
-     * @return array<string, float> Prefix symbols mapped to multipliers.
-     */
-    public static function getEngineeringPrefixes(): array
-    {
-        return array_filter(self::getMetricPrefixes(), self::isPowerOf1000(...));
-    }
-
-    /**
-     * Return the multiplier for a given prefix.
-     *
-     * @param string $prefix Prefix code, e.g. 'k' for kilo.
-     * @return ?float Prefix multiplier, e.g. 1000 for kilo, or null if not found.
-     */
-    public static function getPrefixMultiplier(string $prefix): ?float
-    {
-        // Get all the prefixes.
-        $prefixes = self::getPrefixes();
-
-        // Return the multiplier for the given prefix, or null if not found.
-        return $prefixes[$prefix] ?? null;
-    }
-
-    /**
-     * Invert a metric prefix symbol.
+     * Invert a prefix.
      *
      * Returns the prefix with the opposite exponent, e.g. 'k' (10³) → 'm' (10⁻³).
      *
-     * @param ?string $prefix The prefix symbol to invert.
-     * @return ?string The inverted prefix symbol, or null if null was passed.
-     * @throws \DomainException If the prefix is not a metric prefix (e.g. binary prefix).
+     * @param ?Prefix $prefix The prefix to invert.
+     * @return ?Prefix The inverted prefix, or null if null was passed.
+     * @throws DomainException If no inverse could be found for the given prefix.
      */
-    public static function invert(?string $prefix): ?string
+    public static function invert(?Prefix $prefix): ?Prefix
     {
+        self::init();
+
         // Handle the null case.
         if ($prefix === null) {
             return null;
         }
 
-        // Get the multiplier for this prefix.
-        $prefixes = self::getPrefixes();
-
-        // Check the prefix is valid.
-        if (!isset($prefixes[$prefix])) {
-            throw new DomainException("Unknown prefix '$prefix'.");
-        }
-
         // Find the reciprocal multiplier and matching prefix.
-        $multiplier = $prefixes[$prefix];
-        $inversePrefix = array_find_key($prefixes, static fn ($mul) => Floats::approxEqual($mul, 1.0 / $multiplier));
+        $inversePrefix = array_find(
+            self::$prefixes,
+            static fn (Prefix $p) => Floats::approxEqual($p->multiplier, 1.0 / $prefix->multiplier)
+        );
 
-        // If an inverse could not be found, throw. Should never happen.
+        // Throw an exception if no inverse could be found.
         if ($inversePrefix === null) {
             throw new DomainException("Inverse of prefix '$prefix' not found.");
         }
@@ -201,13 +129,120 @@ class PrefixRegistry
         return $inversePrefix;
     }
 
+    /**
+     * Check if a group code is valid.
+     *
+     * Valid group codes are the base codes (1, 2, 4, 8, 16) that represent individual prefix groups.
+     *
+     * @param int $groupCode The group code to validate.
+     * @return bool True if the group code is valid.
+     */
+    public static function isValidGroupCode(int $groupCode): bool
+    {
+        return in_array($groupCode, self::getValidGroupCodes(), true);
+    }
+
     // endregion
 
     // region Helper methods
 
-    public static function isPowerOf1000(float $multiplier): bool
+    /**
+     * Get all the prefix definitions.
+     *
+     * @return array<int, array<string, array{0: string, 1: float, 2?: string}>>
+     */
+    private static function getPrefixDefinitions(): array
     {
-        return Floats::isApproxInt(log($multiplier, 1000));
+        return [
+            self::GROUP_CODE_SMALL_ENGINEERING     => [
+                'quecto' => ['q', 1e-30],
+                'ronto'  => ['r', 1e-27],
+                'yocto'  => ['y', 1e-24],
+                'zepto'  => ['z', 1e-21],
+                'atto'   => ['a', 1e-18],
+                'femto'  => ['f', 1e-15],
+                'pico'   => ['p', 1e-12],
+                'nano'   => ['n', 1e-9],
+                'micro'  => ['u', 1e-6, 'μ'],
+                'milli'  => ['m', 1e-3],
+            ],
+            self::GROUP_CODE_SMALL_NON_ENGINEERING => [
+                'centi' => ['c', 1e-2],
+                'deci'  => ['d', 1e-1],
+            ],
+            self::GROUP_CODE_LARGE_NON_ENGINEERING => [
+                'deca'  => ['da', 1e1],
+                'hecto' => ['h', 1e2],
+            ],
+            self::GROUP_CODE_LARGE_ENGINEERING     => [
+                'kilo'   => ['k', 1e3],
+                'mega'   => ['M', 1e6],
+                'giga'   => ['G', 1e9],
+                'tera'   => ['T', 1e12],
+                'peta'   => ['P', 1e15],
+                'exa'    => ['E', 1e18],
+                'zetta'  => ['Z', 1e21],
+                'yotta'  => ['Y', 1e24],
+                'ronna'  => ['R', 1e27],
+                'quetta' => ['Q', 1e30],
+            ],
+            self::GROUP_CODE_BINARY                => [
+                'kibi'  => ['Ki', 2 ** 10],
+                'mebi'  => ['Mi', 2 ** 20],
+                'gibi'  => ['Gi', 2 ** 30],
+                'tebi'  => ['Ti', 2 ** 40],
+                'pebi'  => ['Pi', 2 ** 50],
+                'exbi'  => ['Ei', 2 ** 60],
+                'zebi'  => ['Zi', 2 ** 70],
+                'yobi'  => ['Yi', 2 ** 80],
+                'robi'  => ['Ri', 2 ** 90],
+                'quebi' => ['Qi', 2 ** 100],
+            ],
+        ];
+    }
+
+    /**
+     * Initialize the prefixes array from the prefix definitions.
+     *
+     * This is called lazily on first access.
+     */
+    private static function init(): void
+    {
+        if (self::$prefixes === null) {
+            // Reset the prefixes array.
+            self::$prefixes = [];
+
+            // Get the prefix definitions.
+            $prefixDefinitions = self::getPrefixDefinitions();
+
+            // Create the prefix objects from the definitions, and add to the array.
+            foreach ($prefixDefinitions as $groupCode => $groupDefinitions) {
+                foreach ($groupDefinitions as $name => $definition) {
+                    [$asciiSymbol, $multiplier] = $definition;
+                    $unicodeSymbol = $definition[2] ?? null;
+                    self::$prefixes[] = new Prefix($name, $asciiSymbol, $unicodeSymbol, $multiplier, $groupCode);
+                }
+            }
+
+            // Sort the prefixes by multiplier.
+            usort(self::$prefixes, static fn (Prefix $a, Prefix $b) => $a->multiplier <=> $b->multiplier);
+        }
+    }
+
+    /**
+     * Get the list of valid base group codes.
+     *
+     * @return list<int> The valid group codes.
+     */
+    private static function getValidGroupCodes(): array
+    {
+        return [
+            self::GROUP_CODE_SMALL_ENGINEERING,
+            self::GROUP_CODE_SMALL_NON_ENGINEERING,
+            self::GROUP_CODE_LARGE_NON_ENGINEERING,
+            self::GROUP_CODE_LARGE_ENGINEERING,
+            self::GROUP_CODE_BINARY
+        ];
     }
 
     // endregion

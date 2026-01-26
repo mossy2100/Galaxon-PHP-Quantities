@@ -474,35 +474,37 @@ class DerivedUnit implements UnitInterface
         return new self($newUnitTerms);
     }
 
-    /**
-     * Return a new DerivedUnit with the given prefix applied to the first unit term.
-     *
-     * @param ?string $prefix The prefix symbol to apply, or null for no prefix.
-     * @return self A new instance with the prefix applied to the first unit term.
-     * @throws DomainException If the prefix is invalid for the first unit term's unit.
-     */
-    public function withPrefix(?string $prefix): self
-    {
-        // If there are no unit terms, do nothing.
-        if (empty($this->unitTerms)) {
-            return clone $this;
-        }
-
-        // Create a list of UnitTerms for the result DerivedUnit. Only the first one will be altered.
-        $first = true;
-        $newUnitTerms = [];
-        foreach ($this->unitTerms as $unitTerm) {
-            if ($first) {
-                $newUnitTerms[] = $unitTerm->withPrefix($prefix);
-                $first = false;
-            } else {
-                $newUnitTerms[] = $unitTerm;
-            }
-        }
-
-        // Construct the new DerivedUnit object.
-        return new self($newUnitTerms);
-    }
+//    /**
+//     * Return a new DerivedUnit with the given prefix applied to the first unit term.
+//     *
+//     * TODO check if we actually need this method.
+//     *
+//     * @param ?Prefix $prefix The prefix to apply, or null for no prefix.
+//     * @return self A new instance with the prefix applied to the first unit term.
+//     * @throws DomainException If the prefix is invalid for the first unit term's unit.
+//     */
+//    public function withPrefix(?Prefix $prefix): self
+//    {
+//        // If there are no unit terms, do nothing.
+//        if (empty($this->unitTerms)) {
+//            return clone $this;
+//        }
+//
+//        // Create a list of UnitTerms for the result DerivedUnit. Only the first one will be altered.
+//        $first = true;
+//        $newUnitTerms = [];
+//        foreach ($this->unitTerms as $unitTerm) {
+//            if ($first) {
+//                $newUnitTerms[] = $unitTerm->withPrefix($prefix);
+//                $first = false;
+//            } else {
+//                $newUnitTerms[] = $unitTerm;
+//            }
+//        }
+//
+//        // Construct the new DerivedUnit object.
+//        return new self($newUnitTerms);
+//    }
 
     /**
      * Return a new DerivedUnit raised to a given power.

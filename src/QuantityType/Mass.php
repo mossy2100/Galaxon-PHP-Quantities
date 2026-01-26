@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class Mass extends Quantity
@@ -25,25 +24,40 @@ class Mass extends Quantity
         return [
             'gram'      => [
                 'asciiSymbol' => 'g',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'systems'     => [System::SI],
             ],
             'tonne'     => [
                 'asciiSymbol' => 't',
+                'systems'     => [System::SIAccepted],
+            ],
+            'dalton'    => [
+                'asciiSymbol' => 'Da',
+                'systems'     => [System::SIAccepted],
             ],
             'grain'     => [
                 'asciiSymbol' => 'gr',
+                'systems'     => [System::Imperial, System::US],
             ],
             'ounce'     => [
                 'asciiSymbol' => 'oz',
+                'systems'     => [System::Imperial, System::US],
             ],
             'pound'     => [
                 'asciiSymbol' => 'lb',
+                'systems'     => [System::Imperial, System::US],
             ],
             'stone'     => [
                 'asciiSymbol' => 'st',
+                'systems'     => [System::Imperial],
             ],
             'short ton' => [
-                'asciiSymbol' => 'ton',
+                'asciiSymbol' => 'tn',
+                'systems'     => [System::US],
+            ],
+            'long ton'  => [
+                'asciiSymbol' => 'LT',
+                'systems'     => [System::Imperial],
             ],
         ];
     }
@@ -58,32 +72,18 @@ class Mass extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
-            // Metric
+            // SI accepted
             ['t', 'kg', 1000],
-            // Metric-US bridge
+            ['Da', 'kg', 1.66053906892e-27],
+            // Metric-Imperial/US bridge
             ['lb', 'kg', 0.453_592_37],
             ['gr', 'mg', 64.79891],
-            // US customary
+            // Imperial and US customary
             ['lb', 'oz', 16],
             ['st', 'lb', 14],
             ['ton', 'lb', 2000],
+            ['lng tn', 'lb', 2240],
         ];
-    }
-
-    // endregion
-
-    // region Modification methods
-
-    /**
-     * Use British (imperial or long) ton instead of US (short) ton.
-     *
-     * Default:                   1 ton = 2000 lb (short ton)
-     * After calling this method: 1 ton = 2240 lb (long ton)
-     */
-    public static function useBritishUnits(): void
-    {
-        $conversion = new Conversion('ton', 'lb', 2240);
-        ConversionRegistry::addConversion($conversion);
     }
 
     // endregion

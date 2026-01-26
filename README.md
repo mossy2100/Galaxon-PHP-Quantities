@@ -236,7 +236,7 @@ be a stylistic choice (e.g. 'L').
 
 1. Use `p` (lower-case) for points (1/72 in), not `pt`, which means pint.
 2. Use `P` (upper-case) for picas (12 points or 1/6 in), not `pc`, which means parsec.
-3. Use `arcsec` for arcsecond, not `as`, which means attosecond. Similarly, use `marcsec` for milliarcsecond, etc.
+3. Use `arcsec` for arcsecond, not `as`, which means attosecond.
 4. Use `ft` for feet, not `′` (the prime symbol), which means arcminutes.
 5. Use `in` for inches, not `″` (the double prime symbol), which means arcseconds.
 6. Use `°C` or `degC` (see below) for degrees Celsius, not `C`, which means coulomb, the unit for electric charge.
@@ -248,7 +248,7 @@ be a stylistic choice (e.g. 'L').
 12. Use `cm3` for cubic centimetres, not `cc`.
 13. Use `km/h` for kilometres per hour, not `kph`.
 14. Use `mi/h` for miles per hour, not `mph`. 
-15. Use `u` as an ASCII alternative for `µ`, meaning 'micro', and not `mc`. e.g. Use `ug` for `µg`, not `mcg`. 
+15. Use `u` as an ASCII alternative for `µ`, meaning 'micro', and not `mc`. e.g. Use `ug` as the ASCII alternative to `µg`, not `mcg`. 
 
 All units have a "primary" symbol, which uses ASCII characters only, so they are easy to type.
 Therefore, you can use the following:

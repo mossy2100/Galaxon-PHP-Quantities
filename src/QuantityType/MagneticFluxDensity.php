@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class MagneticFluxDensity extends Quantity
@@ -23,8 +24,9 @@ class MagneticFluxDensity extends Quantity
         return [
             'tesla' => [
                 'asciiSymbol'         => 'T',
-                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*s-2*A-1',
+                'systems'             => [System::SI],
             ],
         ];
     }

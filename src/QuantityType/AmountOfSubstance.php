@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class AmountOfSubstance extends Quantity
@@ -23,7 +24,8 @@ class AmountOfSubstance extends Quantity
         return [
             'mole' => [
                 'asciiSymbol' => 'mol',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'systems'     => [System::SI],
             ],
         ];
     }

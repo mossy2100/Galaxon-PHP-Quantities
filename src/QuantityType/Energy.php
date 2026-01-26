@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class Energy extends Quantity
@@ -23,16 +24,19 @@ class Energy extends Quantity
         return [
             'joule'        => [
                 'asciiSymbol'         => 'J',
-                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-2',
+                'systems'             => [System::SI],
             ],
             'electronvolt' => [
                 'asciiSymbol' => 'eV',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'systems'     => [System::SIAccepted],
             ],
             'calorie'      => [
                 'asciiSymbol' => 'cal',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+                'systems'     => [System::Common],
             ],
         ];
     }

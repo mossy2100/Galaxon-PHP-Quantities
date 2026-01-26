@@ -172,7 +172,7 @@ final class UnitRegistryTest extends TestCase
      */
     public function testGetAllValidSymbolsReturnsArrayOfStrings(): void
     {
-        $result = UnitRegistry::getAllValidSymbols();
+        $result = UnitRegistry::getAllSymbols();
 
         $this->assertIsArray($result);
         foreach ($result as $symbol) {
@@ -185,7 +185,7 @@ final class UnitRegistryTest extends TestCase
      */
     public function testGetAllValidSymbolsIncludesBaseSymbols(): void
     {
-        $result = UnitRegistry::getAllValidSymbols();
+        $result = UnitRegistry::getAllSymbols();
 
         $this->assertContains('m', $result);
         $this->assertContains('kg', $result);
@@ -197,7 +197,7 @@ final class UnitRegistryTest extends TestCase
      */
     public function testGetAllValidSymbolsIncludesPrefixedSymbols(): void
     {
-        $result = UnitRegistry::getAllValidSymbols();
+        $result = UnitRegistry::getAllSymbols();
 
         // Metre should have metric prefixes
         $this->assertContains('km', $result);   // kilo
@@ -212,7 +212,7 @@ final class UnitRegistryTest extends TestCase
      */
     public function testGetAllValidSymbolsIncludesUnicodeSymbols(): void
     {
-        $result = UnitRegistry::getAllValidSymbols();
+        $result = UnitRegistry::getAllSymbols();
 
         // Ohm has Unicode symbol
         $this->assertContains('Ω', $result);
@@ -227,7 +227,7 @@ final class UnitRegistryTest extends TestCase
      */
     public function testGetExpandableUnitsReturnsArray(): void
     {
-        $result = UnitRegistry::getExpandableUnits();
+        $result = UnitRegistry::getExpandable();
 
         $this->assertIsArray($result);
     }
@@ -237,7 +237,7 @@ final class UnitRegistryTest extends TestCase
      */
     public function testGetExpandableUnitsContainsExpansions(): void
     {
-        $result = UnitRegistry::getExpandableUnits();
+        $result = UnitRegistry::getExpandable();
 
         // All items should be Unit objects with non-null expansion
         foreach ($result as $unit) {
@@ -347,14 +347,14 @@ final class UnitRegistryTest extends TestCase
             quantityType: 'length',
             dimension: 'L',
             system: 'custom',
-            prefixGroup: PrefixRegistry::PREFIX_GROUP_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_CODE_METRIC,
             expansionUnit: 'm'
         );
 
         $unit = UnitRegistry::getAll()[$name];
         $this->assertSame($symbol, $unit->asciiSymbol);
         $this->assertSame('custom', $unit->system);
-        $this->assertSame(PrefixRegistry::PREFIX_GROUP_METRIC, $unit->prefixGroup);
+        $this->assertSame(PrefixRegistry::GROUP_CODE_METRIC, $unit->prefixGroup);
 
         // Clean up
         UnitRegistry::remove($name);

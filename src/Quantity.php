@@ -31,7 +31,7 @@ use Stringable;
  * - getConversionDefinitions(): Define conversions between units.
  *
  * Prefix system:
- * - Units can specify allowed prefixes using bitwise flags (PREFIX_GROUP_METRIC, PREFIX_GROUP_BINARY, etc.)
+ * - Units can specify allowed prefixes using bitwise flags (GROUP_CODE_METRIC, GROUP_CODE_BINARY, etc.)
  * - Provides fine-grained control (e.g. radian can accept only small metric prefixes)
  * - Supports combinations (e.g. byte can accept both metric and binary prefixes)
  *
@@ -469,7 +469,7 @@ class Quantity implements Stringable
         $newUnit = clone $qty->derivedUnit;
 
         // Get all expandable units.
-        $expandableUnits = UnitRegistry::getExpandableUnits();
+        $expandableUnits = UnitRegistry::getExpandable();
 
         // Track best match.
         $bestExpandableUnit = null;
@@ -573,14 +573,20 @@ class Quantity implements Stringable
             if ($newUnitTerm1 === null) {
                 $newUnit->addUnitTerm($thisUnitTerm);
             } else {
-                // If there is already a unit with this dimension, convert the second unit term to the same unit as the
-                // first.
+                // If the unexponentiated units are different, convert one to the other.
                 $unexponentiatedThisUnitTerm = $thisUnitTerm->removeExponent();
-                $factor = static::convert(1, $unexponentiatedThisUnitTerm, $newUnitTerm1->unexponentiatedAsciiSymbol);
-                // Multiply by the conversion factor raised to the exponent of the second unit term.
-                $newValue *= $factor ** $thisUnitTerm->exponent;
+                $unexponentiatedNewUnitTerm1 = $newUnitTerm1->removeExponent();
+                if (!$unexponentiatedThisUnitTerm->equal($unexponentiatedNewUnitTerm1)) {
+                    // Convert the second unit term to the same unit as the first.
+                    $factor = static::convert(1, $unexponentiatedThisUnitTerm, $unexponentiatedNewUnitTerm1);
+
+                    // Multiply by the conversion factor raised to the exponent of the second unit term.
+                    $newValue *= $factor ** $thisUnitTerm->exponent;
+                }
+
                 // Create a second term with the same unit as the first, but the exponent of the second term.
                 $newUnitTerm2 = $newUnitTerm1->withExponent($thisUnitTerm->exponent);
+
                 // Adding the second unit term will combine it with the first, because they have the same
                 // unexponentiated symbol.
                 $newUnit->addUnitTerm($newUnitTerm2);
@@ -621,15 +627,15 @@ class Quantity implements Stringable
 
         // Try each allowed prefix to see if it's better. We want the prefix that produces the smallest value greater
         // than or equal to 1.
-        foreach ($firstUnitTerm->unit->allowedPrefixes as $prefix => $prefixMultiplier) {
+        foreach ($firstUnitTerm->unit->allowedPrefixes as $prefix) {
             // We only want to consider engineering prefixes for this. The others (c, d, da, h) are rarely used for most
-            // units.
-            if (!PrefixRegistry::isPowerOf1000($prefixMultiplier)) {
+            // units. We also don't want binary prefixes (e.g. 'kB' is usually preferred to 'KiB').
+            if (!$prefix->isEngineering()) {
                 continue;
             }
 
             // Compute the value we'd have if we use this prefix.
-            $prefixedValue = $absValue / ($prefixMultiplier ** $firstUnitTerm->exponent);
+            $prefixedValue = $absValue / ($prefix->multiplier ** $firstUnitTerm->exponent);
 
             // Check if it's an improvement.
             if (
@@ -646,7 +652,7 @@ class Quantity implements Stringable
             // Remove the first unit term.
             $newDerivedUnit->removeUnitTerm($firstUnitTerm);
             // Create a new one with the prefix applied.
-            $newUnitTerm = $firstUnitTerm->withPrefix($bestPrefix);
+            $newUnitTerm = new UnitTerm($firstUnitTerm->unit, $bestPrefix, $firstUnitTerm->exponent);
             // Add it.
             $newDerivedUnit->addUnitTerm($newUnitTerm);
         }

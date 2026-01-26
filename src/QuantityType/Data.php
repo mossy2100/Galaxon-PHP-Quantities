@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class Data extends Quantity
@@ -23,11 +24,13 @@ class Data extends Quantity
         return [
             'bit'  => [
                 'asciiSymbol' => 'b',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_LARGE,
+                'systems'     => [System::Common],
             ],
             'byte' => [
                 'asciiSymbol' => 'B',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_LARGE,
+                'systems'     => [System::Common],
             ],
         ];
     }

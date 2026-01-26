@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class Length extends Quantity
@@ -21,49 +22,68 @@ class Length extends Quantity
     public static function getUnitDefinitions(): array
     {
         return [
+            // SI
             'metre'             => [
                 'asciiSymbol' => 'm',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'systems'     => [System::SI],
             ],
+            // Astronomical
             'astronomical unit' => [
                 'asciiSymbol' => 'au',
+                'systems'     => [System::SIAccepted, System::Astronomical],
             ],
             'light year'        => [
                 'asciiSymbol' => 'ly',
+                'systems'     => [System::Astronomical],
             ],
             'parsec'            => [
                 'asciiSymbol' => 'pc',
-                'prefixGroup' => PrefixRegistry::PREFIX_GROUP_LARGE_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+                'systems'     => [System::Astronomical],
             ],
+            // Typography/CSS
             'pixel'             => [
                 'asciiSymbol' => 'px',
+                'systems'     => [System::Typography],
             ],
             'point'             => [
                 'asciiSymbol' => 'p',
+                'systems'     => [System::Typography],
             ],
             'pica'              => [
                 'asciiSymbol' => 'P',
+                'systems'     => [System::Typography],
             ],
+            // Imperial/US
             'inch'              => [
                 'asciiSymbol' => 'in',
+                'systems'     => [System::Imperial, System::US],
             ],
             'foot'              => [
                 'asciiSymbol' => 'ft',
+                'systems'     => [System::Imperial, System::US],
             ],
             'yard'              => [
                 'asciiSymbol' => 'yd',
+                'systems'     => [System::Imperial, System::US],
             ],
             'mile'              => [
                 'asciiSymbol' => 'mi',
+                'systems'     => [System::Imperial, System::US],
             ],
             'league'            => [
                 'asciiSymbol' => 'le',
+                'systems'     => [System::Imperial, System::US],
             ],
+            // Nautical
             'fathom'            => [
                 'asciiSymbol' => 'ftm',
+                'systems'     => [System::Nautical],
             ],
             'nautical mile'     => [
                 'asciiSymbol' => 'nmi',
+                'systems'     => [System::Nautical],
             ],
         ];
     }

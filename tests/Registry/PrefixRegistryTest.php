@@ -22,12 +22,12 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testPrefixGroupConstantValues(): void
     {
-        $this->assertSame(1, PrefixRegistry::PREFIX_GROUP_SMALL_METRIC);
-        $this->assertSame(2, PrefixRegistry::PREFIX_GROUP_LARGE_METRIC);
-        $this->assertSame(3, PrefixRegistry::PREFIX_GROUP_METRIC);
-        $this->assertSame(4, PrefixRegistry::PREFIX_GROUP_BINARY);
-        $this->assertSame(6, PrefixRegistry::PREFIX_GROUP_LARGE);
-        $this->assertSame(7, PrefixRegistry::PREFIX_GROUP_ALL);
+        $this->assertSame(1, PrefixRegistry::GROUP_CODE_SMALL_METRIC);
+        $this->assertSame(2, PrefixRegistry::GROUP_CODE_LARGE_METRIC);
+        $this->assertSame(3, PrefixRegistry::GROUP_CODE_METRIC);
+        $this->assertSame(4, PrefixRegistry::GROUP_CODE_BINARY);
+        $this->assertSame(6, PrefixRegistry::GROUP_CODE_LARGE);
+        $this->assertSame(7, PrefixRegistry::GROUP_CODE_ALL);
     }
 
     /**
@@ -36,16 +36,16 @@ final class PrefixRegistryTest extends TestCase
     public function testPrefixGroupConstantsBitwiseCombinations(): void
     {
         $this->assertSame(
-            PrefixRegistry::PREFIX_GROUP_SMALL_METRIC | PrefixRegistry::PREFIX_GROUP_LARGE_METRIC,
-            PrefixRegistry::PREFIX_GROUP_METRIC
+            PrefixRegistry::GROUP_CODE_SMALL_METRIC | PrefixRegistry::GROUP_CODE_LARGE_METRIC,
+            PrefixRegistry::GROUP_CODE_METRIC
         );
         $this->assertSame(
-            PrefixRegistry::PREFIX_GROUP_LARGE_METRIC | PrefixRegistry::PREFIX_GROUP_BINARY,
-            PrefixRegistry::PREFIX_GROUP_LARGE
+            PrefixRegistry::GROUP_CODE_LARGE_METRIC | PrefixRegistry::GROUP_CODE_BINARY,
+            PrefixRegistry::GROUP_CODE_LARGE
         );
         $this->assertSame(
-            PrefixRegistry::PREFIX_GROUP_METRIC | PrefixRegistry::PREFIX_GROUP_BINARY,
-            PrefixRegistry::PREFIX_GROUP_ALL
+            PrefixRegistry::GROUP_CODE_METRIC | PrefixRegistry::GROUP_CODE_BINARY,
+            PrefixRegistry::GROUP_CODE_ALL
         );
     }
 
@@ -54,7 +54,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testSmallMetricPrefixesConstant(): void
     {
-        $prefixes = PrefixRegistry::PREFIXES_SMALL_METRIC;
+        $prefixes = PrefixRegistry::PREFIXES_SMALL_ENGINEERING_METRIC;
 
         $this->assertArrayHasKey('m', $prefixes);  // milli
         $this->assertArrayHasKey('μ', $prefixes);  // micro
@@ -76,7 +76,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testLargeMetricPrefixesConstant(): void
     {
-        $prefixes = PrefixRegistry::PREFIXES_LARGE_METRIC;
+        $prefixes = PrefixRegistry::PREFIXES_LARGE_ENGINEERING_METRIC;
 
         $this->assertArrayHasKey('k', $prefixes);   // kilo
         $this->assertArrayHasKey('M', $prefixes);   // mega
@@ -128,9 +128,9 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesSmallMetric(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::PREFIX_GROUP_SMALL_METRIC);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_SMALL_METRIC);
 
-        $this->assertSame(PrefixRegistry::PREFIXES_SMALL_METRIC, $result);
+        $this->assertSame(PrefixRegistry::PREFIXES_SMALL_ENGINEERING_METRIC, $result);
         $this->assertArrayHasKey('m', $result);
         $this->assertArrayHasKey('μ', $result);
         $this->assertArrayNotHasKey('k', $result);
@@ -142,9 +142,9 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesLargeMetric(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::PREFIX_GROUP_LARGE_METRIC);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_LARGE_METRIC);
 
-        $this->assertSame(PrefixRegistry::PREFIXES_LARGE_METRIC, $result);
+        $this->assertSame(PrefixRegistry::PREFIXES_LARGE_ENGINEERING_METRIC, $result);
         $this->assertArrayHasKey('k', $result);
         $this->assertArrayHasKey('M', $result);
         $this->assertArrayNotHasKey('m', $result);
@@ -156,7 +156,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesMetric(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::PREFIX_GROUP_METRIC);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_METRIC);
 
         $this->assertArrayHasKey('m', $result);   // small
         $this->assertArrayHasKey('μ', $result);   // small
@@ -170,7 +170,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesBinary(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::PREFIX_GROUP_BINARY);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_BINARY);
 
         $this->assertSame(PrefixRegistry::PREFIXES_BINARY, $result);
         $this->assertArrayHasKey('Ki', $result);
@@ -184,7 +184,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesLarge(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::PREFIX_GROUP_LARGE);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_LARGE);
 
         $this->assertArrayHasKey('k', $result);   // large metric
         $this->assertArrayHasKey('M', $result);   // large metric
@@ -199,7 +199,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesAll(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::PREFIX_GROUP_ALL);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_ALL);
 
         $this->assertArrayHasKey('m', $result);   // small metric
         $this->assertArrayHasKey('k', $result);   // large metric
@@ -213,7 +213,7 @@ final class PrefixRegistryTest extends TestCase
     {
         $result = PrefixRegistry::getPrefixes();
 
-        $this->assertSame(PrefixRegistry::getPrefixes(PrefixRegistry::PREFIX_GROUP_ALL), $result);
+        $this->assertSame(PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_ALL), $result);
     }
 
     // endregion
@@ -240,7 +240,7 @@ final class PrefixRegistryTest extends TestCase
     public function testGetMetricPrefixesEqualsGetPrefixesMetric(): void
     {
         $this->assertSame(
-            PrefixRegistry::getPrefixes(PrefixRegistry::PREFIX_GROUP_METRIC),
+            PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_METRIC),
             PrefixRegistry::getMetricPrefixes()
         );
     }

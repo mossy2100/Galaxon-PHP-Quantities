@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Registry;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitInterface;
 
@@ -18,6 +19,13 @@ use Galaxon\Quantities\UnitInterface;
  */
 class ConversionRegistry
 {
+    // region Constants
+
+    public const int ON_MISSING_UNIT_IGNORE = 1;
+    public const int ON_MISSING_UNIT_THROW = 2;
+
+    // endregion
+
     // region Static properties
 
     /**
@@ -25,67 +33,25 @@ class ConversionRegistry
      *
      * Structure: $conversions[$dimension][$srcSymbol][$destSymbol] = Conversion
      *
-     * @var ?array<string, array<string, array<string, Conversion>>>
+     * @var array<string, array<string, array<string, Conversion>>>
      */
-    private static ?array $conversions = null;
+    private static array $conversions = [];
 
     // endregion
 
-    // region Static methods
+    // region Static methods for looking up conversions
 
     /**
-     * Initialize the conversions array from the QuantityType class corresponding to a given dimension.
+     * Get a conversion between two units.
      *
-     * This is called lazily on first access.
-     *
-     * @param string $dimension
+     * @param string $dimension The conversion dimension.
+     * @param string $srcUnitSymbol The source unit symbol.
+     * @param string $destUnitSymbol The destination unit symbol.
+     * @return ?Conversion The conversion, or null if not found.
      */
-    private static function init(string $dimension): void
+    public static function get(string $dimension, string $srcUnitSymbol, string $destUnitSymbol): ?Conversion
     {
-        if (!isset(self::$conversions[$dimension])) {
-            self::$conversions[$dimension] = [];
-
-            // Find the relevant QuantityType.
-            $qtyType = QuantityTypeRegistry::getByDimension($dimension);
-
-            /** @var ?class-string<Quantity> $qtyTypeClass */
-            $qtyTypeClass = $qtyType?->class;
-
-            // If this quantity type has a class with conversion definitions, load them.
-            if ($qtyTypeClass !== null) {
-                // Get conversions from the class and add them.
-                /** @var list<array{string, string, float}> $conversionList */
-                $conversionList = $qtyTypeClass::getConversionDefinitions();
-                foreach ($conversionList as [$srcSymbol, $destSymbol, $factor]) {
-                    self::add($srcSymbol, $destSymbol, $factor);
-                }
-            }
-
-            // Also include any expansions.
-            $units = UnitRegistry::getByDimension($dimension);
-            foreach ($units as $unit) {
-                if ($unit->hasExpansion()) {
-                    self::add($unit, $unit->expansionUnitSymbol, $unit->expansionValue);
-                }
-            }
-        }
-    }
-
-    private static function add(string|UnitInterface $srcUnit, string|UnitInterface $destUnit, float $factor): void
-    {
-        // Construct the new Conversion.
-        $conversion = new Conversion($srcUnit, $destUnit, $factor);
-
-        // Add the Conversion to the registry.
-        self::addConversion($conversion);
-
-        // If prefixes are present, also add the unprefixed conversion.
-        if ($conversion->srcUnit->hasPrefixes() || $conversion->destUnit->hasPrefixes()) {
-            $unprefixedConversion = $conversion->removePrefixes();
-            if (!self::hasConversion($unprefixedConversion)) {
-                self::addConversion($unprefixedConversion);
-            }
-        }
+        return self::$conversions[$dimension][$srcUnitSymbol][$destUnitSymbol] ?? null;
     }
 
     /**
@@ -111,6 +77,130 @@ class ConversionRegistry
         return self::$conversions[$dimension] ?? [];
     }
 
+    // endregion
+
+    // region Static methods for adding/removing conversions
+
+    /**
+     * Add a conversion between two units.
+     *
+     * If the units have prefixes, the unprefixed conversion is also added automatically.
+     *
+     * @param string|UnitInterface $srcUnit The source unit symbol or object.
+     * @param string|UnitInterface $destUnit The destination unit symbol or object.
+     * @param float $factor The conversion factor (destValue = srcValue * factor).
+     * @param int $onMissingUnit How to handle missing units:
+     *   - ON_MISSING_UNIT_IGNORE: Skip the conversion silently.
+     *   - ON_MISSING_UNIT_THROW: Throw a DomainException.
+     * @throws DomainException If a unit is unknown and $onMissingUnit is ON_MISSING_UNIT_THROW.
+     */
+    public static function add(
+        string|UnitInterface $srcUnit,
+        string|UnitInterface $destUnit,
+        float $factor,
+        int $onMissingUnit = self::ON_MISSING_UNIT_THROW
+    ): void {
+        // If the source unit is not in the registry, check if we should ignore this conversion.
+        if (is_string($srcUnit) && UnitRegistry::getBySymbol($srcUnit) === null) {
+            if ($onMissingUnit === self::ON_MISSING_UNIT_IGNORE) {
+                return;
+            }
+            throw new DomainException("Unit '$srcUnit' is unknown.");
+        }
+
+        // If the destination unit is not in the registry, check if we should ignore this conversion.
+        if (is_string($destUnit) && UnitRegistry::getBySymbol($destUnit) === null) {
+            if ($onMissingUnit === self::ON_MISSING_UNIT_IGNORE) {
+                return;
+            }
+            throw new DomainException("Unit '$destUnit' is unknown.");
+        }
+
+        // Construct the new Conversion.
+        $conversion = new Conversion($srcUnit, $destUnit, $factor);
+
+        // Add the Conversion to the registry.
+        self::addConversion($conversion);
+
+        // If prefixes are present, also add the unprefixed conversion.
+        if ($conversion->srcUnit->hasPrefixes() || $conversion->destUnit->hasPrefixes()) {
+            $unprefixedConversion = $conversion->removePrefixes();
+            if (!self::hasConversion($unprefixedConversion)) {
+                self::addConversion($unprefixedConversion);
+            }
+        }
+    }
+
+    /**
+     * Add a conversion to the registry.
+     *
+     * @param Conversion $conversion The conversion to add.
+     */
+    public static function addConversion(Conversion $conversion): void
+    {
+        $dim = $conversion->dimension;
+        $src = $conversion->srcUnit->asciiSymbol;
+        $dest = $conversion->destUnit->asciiSymbol;
+        self::$conversions[$dim][$src][$dest] = $conversion;
+    }
+
+    /**
+     * Remove a conversion from the registry.
+     *
+     * @param Conversion $conversion The conversion to remove.
+     */
+    public static function removeConversion(Conversion $conversion): void
+    {
+        $dim = $conversion->dimension;
+        $src = $conversion->srcUnit->asciiSymbol;
+        $dest = $conversion->destUnit->asciiSymbol;
+        unset(self::$conversions[$dim][$src][$dest]);
+    }
+
+    /**
+     * Remove all conversions involving a given unit.
+     *
+     * @param string|UnitInterface $unit The unit to remove conversions for.
+     * @throws DomainException If the unit symbol is invalid.
+     * @throws FormatException If the unit format is invalid.
+     */
+    public static function removeByUnit(string|UnitInterface $unit): void
+    {
+        $unit = DerivedUnit::toDerivedUnit($unit);
+
+        foreach (self::$conversions as $dim => $conversionMatrix) {
+            foreach ($conversionMatrix as $src => $conversionList) {
+                foreach ($conversionList as $dest => $conversion) {
+                    if ($conversion->srcUnit->equal($unit) || $conversion->destUnit->equal($unit)) {
+                        unset(self::$conversions[$dim][$src][$dest]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Reset the conversions array.
+     */
+    public static function reset(): void
+    {
+        self::$conversions = [];
+    }
+
+    /**
+     * Reset the conversions for a given dimension.
+     *
+     * @param string $dimension The dimension code to reset.
+     */
+    public static function resetByDimension(string $dimension): void
+    {
+        self::$conversions[$dimension] = [];
+    }
+
+    // endregion
+
+    // region Static inspection methods
+
     /**
      * Check if a conversion exists between two units.
      *
@@ -125,43 +215,55 @@ class ConversionRegistry
     }
 
     /**
-     * Check if a conversion exists between two units.
+     * Check if a conversion exists.
      *
      * @param Conversion $conversion The conversion to check.
      * @return bool If the conversion exists in the registry.
      */
     public static function hasConversion(Conversion $conversion): bool
     {
-        $dim = $conversion->dimension;
-        $src = $conversion->srcUnit->asciiSymbol;
-        $dest = $conversion->destUnit->asciiSymbol;
-        return isset(self::$conversions[$dim][$src][$dest]);
+        return self::has($conversion->dimension, $conversion->srcUnit->asciiSymbol, $conversion->destUnit->asciiSymbol);
     }
 
-    /**
-     * Get a conversion between two units.
-     *
-     * @param string $dimension The conversion dimension.
-     * @param string $srcUnitSymbol The source unit symbol.
-     * @param string $destUnitSymbol The destination unit symbol.
-     * @return ?Conversion The conversion, or null if not found.
-     */
-    public static function get(string $dimension, string $srcUnitSymbol, string $destUnitSymbol): ?Conversion
-    {
-        return self::$conversions[$dimension][$srcUnitSymbol][$destUnitSymbol] ?? null;
-    }
+    // endregion
+
+    // region Private static helper methods
 
     /**
-     * Add a conversion to the registry.
+     * Initialize the conversions array from the QuantityType class corresponding to a given dimension.
      *
-     * @param Conversion $conversion The conversion to add.
+     * This is called lazily on first access.
+     *
+     * @param string $dimension The dimension code to initialize.
      */
-    public static function addConversion(Conversion $conversion): void
+    private static function init(string $dimension): void
     {
-        $dim = $conversion->dimension;
-        $src = $conversion->srcUnit->asciiSymbol;
-        $dest = $conversion->destUnit->asciiSymbol;
-        self::$conversions[$dim][$src][$dest] = $conversion;
+        if (!isset(self::$conversions[$dimension])) {
+            self::resetByDimension($dimension);
+
+            // Find the relevant QuantityType.
+            $qtyType = QuantityTypeRegistry::getByDimension($dimension);
+
+            /** @var ?class-string<Quantity> $qtyTypeClass */
+            $qtyTypeClass = $qtyType?->class;
+
+            // If this quantity type has a class with conversion definitions, load them.
+            if ($qtyTypeClass !== null) {
+                // Get conversions from the class and add them.
+                $conversionList = $qtyTypeClass::getConversionDefinitions();
+                foreach ($conversionList as [$srcSymbol, $destSymbol, $factor]) {
+                    self::add($srcSymbol, $destSymbol, $factor, self::ON_MISSING_UNIT_IGNORE);
+                }
+            }
+
+            // Also include any expansions.
+            $units = UnitRegistry::getByDimension($dimension);
+            foreach ($units as $unit) {
+                if ($unit->hasExpansion()) {
+                    self::add($unit, $unit->expansionUnitSymbol, $unit->expansionValue, self::ON_MISSING_UNIT_IGNORE);
+                }
+            }
+        }
     }
 
     // endregion

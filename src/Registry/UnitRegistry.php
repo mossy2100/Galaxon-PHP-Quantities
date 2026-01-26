@@ -6,10 +6,19 @@ namespace Galaxon\Quantities\Registry;
 
 use DomainException;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
 
 class UnitRegistry
 {
+    // region Constants
+
+    public const int ON_DUPLICATE_IGNORE = 1;
+    public const int ON_DUPLICATE_REPLACE = 2;
+    public const int ON_DUPLICATE_THROW = 3;
+
+    // endregion
+
     // region Static properties
 
     /**
@@ -21,218 +30,7 @@ class UnitRegistry
 
     // endregion
 
-    // region Static methods
-
-    /**
-     * @param string $asciiSymbol
-     * @param string|null $unicodeSymbol
-     * @param int $prefixGroup
-     * @return string[]
-     */
-    private static function getSymbols(string $asciiSymbol, ?string $unicodeSymbol, int $prefixGroup): array
-    {
-        // Add ASCII symbol.
-        $symbols = [$asciiSymbol];
-
-        // Add Unicode symbol, if different.
-        if ($unicodeSymbol !== null) {
-            $symbols[] = $unicodeSymbol;
-        }
-
-        // Add prefixed symbols.
-        if ($prefixGroup > 0) {
-            $prefixes = PrefixRegistry::getPrefixes($prefixGroup);
-            foreach ($prefixes as $prefix => $multiplier) {
-                // Add prefixed ASCII symbol.
-                $symbols[] = $prefix . $asciiSymbol;
-
-                // Add prefixed Unicode symbol, if different.
-                if ($unicodeSymbol !== null) {
-                    $symbols[] = $prefix . $unicodeSymbol;
-                }
-            }
-        }
-
-        return $symbols;
-    }
-
-    /**
-     * Initialize the units array from the QuantityType classes.
-     *
-     * This is called lazily on first access.
-     */
-    private static function init(): void
-    {
-        if (self::$units === null) {
-            self::$units = [];
-
-            // Load units from QuantityType classes.
-            foreach (QuantityTypeRegistry::getAll() as $dimension => $qtyType) {
-                /** @var ?class-string<Quantity> $qtyTypeClass */
-                $qtyTypeClass = $qtyType->class;
-
-                // Skip quantity types without a class.
-                if ($qtyTypeClass === null) {
-                    continue;
-                }
-
-                // Get units from the class and add them.
-                $units = $qtyTypeClass::getUnitDefinitions();
-                foreach ($units as $name => $definition) {
-                    self::add(
-                        $name,
-                        $definition['asciiSymbol'],
-                        $definition['unicodeSymbol'] ?? null,
-                        $qtyType->name,
-                        $dimension,
-                        $definition['prefixGroup'] ?? 0,
-                        $definition['expansionUnitSymbol'] ?? null,
-                        $definition['expansionValue'] ?? null
-                    );
-                }
-            }
-        }
-    }
-
-    /**
-     * Get all known/supported units.
-     *
-     * @return array<string, Unit>
-     */
-    public static function getAll(): array
-    {
-        self::init();
-        return self::$units;
-    }
-
-    /**
-     * Get all units with an expansion.
-     *
-     * @return list<Unit>
-     */
-    public static function getExpandableUnits(): array
-    {
-        $allUnits = self::getAll();
-        $namedUnits = [];
-        foreach ($allUnits as $name => $unit) {
-            if ($unit->hasExpansion()) {
-                $namedUnits[] = $unit;
-            }
-        }
-        return $namedUnits;
-    }
-
-    /**
-     * Add a unit to the system.
-     *
-     * @param string $name The unit name (e.g. 'metre', 'gram').
-     * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
-     * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if same as ASCII.
-     * @param string $quantityType The quantity type (e.g. 'length', 'mass').
-     * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
-     * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
-     * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
-     * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
-     * @throws DomainException If the name or symbol already exists.
-     */
-    public static function add(
-        string $name,
-        string $asciiSymbol,
-        ?string $unicodeSymbol,
-        string $quantityType,
-        string $dimension,
-        int $prefixGroup = 0,
-        ?string $expansionUnitSymbol = null,
-        ?float $expansionValue = null
-    ): void {
-        // Ensure registry is initialized (unless we're in the middle of init).
-        if (self::$units === null) {
-            self::init();
-        }
-
-        // Check name is unique.
-        if (isset(self::$units[$name])) {
-            throw new DomainException("Unit name '$name' already exists.");
-        }
-
-        // Get all symbols for the new unit (including prefixed variants).
-        $newSymbols = self::getSymbols($asciiSymbol, $unicodeSymbol, $prefixGroup);
-
-        // Get all existing symbols.
-        $existingSymbols = self::getAllValidSymbols();
-
-        // Check for conflicts.
-        foreach ($newSymbols as $symbol) {
-            if (in_array($symbol, $existingSymbols, true)) {
-                throw new DomainException("Unit symbol '$symbol' already exists.");
-            }
-        }
-
-        // Build the data array for the Unit constructor.
-        $data = [
-            'asciiSymbol'         => $asciiSymbol,
-            'unicodeSymbol'       => $unicodeSymbol,
-            'quantityType'        => $quantityType,
-            'dimension'           => $dimension,
-            'prefixGroup'         => $prefixGroup,
-            'expansionUnitSymbol' => $expansionUnitSymbol,
-            'expansionValue'      => $expansionValue,
-        ];
-
-        self::$units[$name] = new Unit($name, $data);
-    }
-
-    /**
-     * Remove a unit from the system.
-     *
-     * @param string $name The unit name to remove.
-     */
-    public static function remove(string $name): void
-    {
-        self::init();
-        unset(self::$units[$name]);
-    }
-
-    /**
-     * Get all valid supported unit symbols, include base and prefixed variants, but excluding exponents.
-     *
-     * @return list<string>
-     */
-    public static function getAllValidSymbols(): array
-    {
-        self::init();
-
-        $validUnits = [];
-
-        // Loop through the base units.
-        foreach (self::$units as $unit) {
-            // Add the base unit symbol.
-            $validUnits[] = $unit->asciiSymbol;
-
-            // Add the Unicode symbol, if different.
-            if ($unit->unicodeSymbol !== $unit->asciiSymbol) {
-                $validUnits[] = $unit->unicodeSymbol;
-            }
-
-            // Check if prefixes are allowed with this unit.
-            if ($unit->prefixGroup > 0) {
-                // Get the valid prefixes for this unit.
-                $prefixes = PrefixRegistry::getPrefixes($unit->prefixGroup);
-
-                // Add all prefixed units.
-                foreach ($prefixes as $prefix => $multiplier) {
-                    $validUnits[] = $prefix . $unit->asciiSymbol;
-
-                    // Add the Unicode symbol with a prefix, if different.
-                    if ($unit->unicodeSymbol !== $unit->asciiSymbol) {
-                        $validUnits[] = $prefix . $unit->unicodeSymbol;
-                    }
-                }
-            }
-        }
-
-        return $validUnits;
-    }
+    // region Static methods for unit lookup
 
     /**
      * Get the Unit object matching the given symbol, or null if not found.
@@ -254,13 +52,250 @@ class UnitRegistry
     /**
      * Get all units matching the given dimension.
      *
-     * @param string $dimension
-     * @return array<string, Unit>
+     * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
+     * @return array<string, Unit> Units keyed by name.
      */
     public static function getByDimension(string $dimension): array
     {
         self::init();
         return array_filter(self::$units, static fn ($unit) => $unit->dimension === $dimension);
+    }
+
+    /**
+     * Get all known/supported units.
+     *
+     * @return array<string, Unit>
+     */
+    public static function getAll(): array
+    {
+        self::init();
+        return self::$units;
+    }
+
+    /**
+     * Get all units with an expansion.
+     *
+     * @return list<Unit>
+     */
+    public static function getExpandable(): array
+    {
+        $allUnits = self::getAll();
+        $expandableUnits = [];
+        foreach ($allUnits as $unit) {
+            if ($unit->hasExpansion()) {
+                $expandableUnits[] = $unit;
+            }
+        }
+        return $expandableUnits;
+    }
+
+    // endregion
+
+    // region Static methods for adding/removing units to/from the registry
+
+    /**
+     * Add a unit to the system.
+     *
+     * @param string $name The unit name (e.g. 'metre', 'gram').
+     * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
+     * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if same as ASCII.
+     * @param string $quantityType The quantity type (e.g. 'length', 'mass').
+     * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
+     * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
+     * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
+     * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
+     * @param list<System> $systems The measurement systems this unit belongs to.
+     * @param int $onDuplicateAction How to handle duplicate names:
+     * - self::ON_DUPLICATE_IGNORE: Ignore the unit and do nothing.
+     * - self::ON_DUPLICATE_REPLACE: Replace the existing unit with the new one.
+     * - self::ON_DUPLICATE_THROW: Throw an exception.
+     * @throws DomainException If the name or symbol already exists.
+     */
+    public static function add(
+        string $name,
+        string $asciiSymbol,
+        ?string $unicodeSymbol,
+        string $quantityType,
+        string $dimension,
+        int $prefixGroup = 0,
+        ?string $expansionUnitSymbol = null,
+        ?float $expansionValue = null,
+        array $systems = [],
+        int $onDuplicateAction = self::ON_DUPLICATE_THROW
+    ): void {
+        // Ensure registry is initialized (unless we're in the middle of init).
+        if (self::$units === null) {
+            self::init();
+        }
+
+        // Check if we already have a unit with this name.
+        if (isset(self::$units[$name])) {
+            switch ($onDuplicateAction) {
+                case self::ON_DUPLICATE_IGNORE:
+                    return;
+
+                case self::ON_DUPLICATE_REPLACE:
+                    // Replace the existing unit.
+                    // Remove it first so the call to getAllValidSymbols() doesn't include the symbols from this unit.
+                    self::remove($name);
+                    break;
+
+                case self::ON_DUPLICATE_THROW:
+                    throw new DomainException(
+                        "The unit name '$name' is being used by another unit. Either call `remove()` first, " .
+                        'or call `add()` with `onDuplicateAction` set to `ON_DUPLICATE_REPLACE`.'
+                    );
+
+                default:
+                    throw new DomainException("Invalid onDuplicateAction value: $onDuplicateAction");
+            }
+        }
+
+        // Create the new unit.
+        $unit = new Unit($name, [
+            'asciiSymbol'         => $asciiSymbol,
+            'unicodeSymbol'       => $unicodeSymbol,
+            'quantityType'        => $quantityType,
+            'dimension'           => $dimension,
+            'prefixGroup'         => $prefixGroup,
+            'expansionUnitSymbol' => $expansionUnitSymbol,
+            'expansionValue'      => $expansionValue,
+            'systems'             => $systems,
+        ]);
+
+        // Get all existing symbols.
+        $existingSymbols = self::getAllSymbols();
+
+        // Check if the new unit's symbols conflict with existing ones.
+        foreach ($unit->symbols as $symbol) {
+            if (in_array($symbol, $existingSymbols, true)) {
+                throw new DomainException("The symbol '$symbol' for $name is already being used by another unit.");
+            }
+        }
+
+        // All good, add the unit to the registry.
+        self::$units[$name] = $unit;
+    }
+
+    /**
+     * Remove a unit from the system.
+     *
+     * @param string $name The unit name to remove.
+     */
+    public static function remove(string $name): void
+    {
+        self::init();
+        unset(self::$units[$name]);
+    }
+
+    /**
+     * Reset the registry to an empty state.
+     *
+     * After calling this method, use loadSystem() or add() to populate the registry
+     * with the desired units. This allows customizing which measurement systems are available.
+     */
+    public static function reset(): void
+    {
+        self::$units = [];
+    }
+
+    /**
+     * Load all units belonging to a specific measurement system.
+     *
+     * @param System $system The measurement system to load units for.
+     */
+    public static function loadSystem(System $system): void
+    {
+        foreach (QuantityTypeRegistry::getAll() as $dimension => $qtyType) {
+            /** @var ?class-string<Quantity> $qtyTypeClass */
+            $qtyTypeClass = $qtyType->class;
+
+            // Skip quantity types without a class.
+            if ($qtyTypeClass === null) {
+                continue;
+            }
+
+            // Get units from the class and add them.
+            $units = $qtyTypeClass::getUnitDefinitions();
+            foreach ($units as $name => $definition) {
+                // Only load units for the specified system.
+                $unitSystems = $definition['systems'] ?? [];
+                if (!in_array($system, $unitSystems, true)) {
+                    continue;
+                }
+
+                // Add the unit. If it's already in there, ignore it.
+                self::add(
+                    $name,
+                    $definition['asciiSymbol'],
+                    $definition['unicodeSymbol'] ?? null,
+                    $qtyType->name,
+                    $dimension,
+                    $definition['prefixGroup'] ?? 0,
+                    $definition['expansionUnitSymbol'] ?? null,
+                    $definition['expansionValue'] ?? null,
+                    $unitSystems,
+                    self::ON_DUPLICATE_IGNORE
+                );
+            }
+        }
+    }
+
+    // endregion
+
+    // region Static inspection methods
+
+    /**
+     * Check if a unit is in the registry.
+     *
+     * @param string $name The unit name to check.
+     * @return bool True if the unit is in the registry.
+     */
+    public static function has(string $name): bool
+    {
+        self::init();
+        return isset(self::$units[$name]);
+    }
+
+    // endregion
+
+    // region Private static helper methods
+
+    /**
+     * Initialize the units array from the QuantityType classes.
+     *
+     * This is called lazily on first access.
+     */
+    private static function init(): void
+    {
+        if (self::$units === null) {
+            self::reset();
+
+            // Load the default measurement systems.
+            self::loadSystem(System::SI);
+            self::loadSystem(System::SIAccepted);
+            self::loadSystem(System::Common);
+            self::loadSystem(System::US);
+        }
+    }
+
+    /**
+     * Get all valid unit symbols, including base and prefixed variants.
+     *
+     * @return list<string> All valid symbols.
+     */
+    private static function getAllSymbols(): array
+    {
+        self::init();
+
+        $allSymbols = [];
+
+        // Loop through the units, adding all its valid symbols.
+        foreach (self::$units as $unit) {
+            $allSymbols = array_merge($allSymbols, $unit->symbols);
+        }
+
+        return $allSymbols;
     }
 
     // endregion

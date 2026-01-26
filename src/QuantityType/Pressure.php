@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 class Pressure extends Quantity
@@ -23,17 +24,21 @@ class Pressure extends Quantity
         return [
             'pascal'     => [
                 'asciiSymbol'         => 'Pa',
-                'prefixGroup'         => PrefixRegistry::PREFIX_GROUP_METRIC,
+                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m-1*s-2',
-            ],
-            'bar'        => [
-                'asciiSymbol' => 'bar',
-            ],
-            'mmHg'       => [
-                'asciiSymbol' => 'mmHg',
+                'systems'             => [System::SI],
             ],
             'atmosphere' => [
                 'asciiSymbol' => 'atm',
+                'systems'     => [System::Scientific],
+            ],
+            'mmHg'       => [
+                'asciiSymbol' => 'mmHg',
+                'systems'     => [System::Scientific],
+            ],
+            'inHg'       => [
+                'asciiSymbol' => 'inHg',
+                'systems'     => [System::US],
             ],
         ];
     }
@@ -47,9 +52,9 @@ class Pressure extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
-            ['bar', 'Pa', 100000],
             ['mmHg', 'Pa', 133.322387415],
             ['atm', 'Pa', 101325],
+            ['inHg', 'mmHg', 25.4],
         ];
     }
 

@@ -14,9 +14,10 @@ use LogicException;
 /**
  * Manages unit conversions for a measurement type.
  *
- * This class handles:
+ * This class uses the multiton pattern to maintain a map of dimensions to Converter objects.
+ *
+ * The class handles:
  * - Validation of base units, prefixes, and conversion definitions
- * - Storage and retrieval of conversion factors between units
  * - Automatic discovery of indirect conversion paths via graph traversal
  * - Prefix algebra for converting between prefixed units
  *
@@ -253,10 +254,10 @@ class Converter
         $unprefixedUnit = $derivedUnit->removePrefixes();
         $this->units[$unprefixedUnit->asciiSymbol] = $unprefixedUnit;
 
-        // Also add the merged unit to the converter, if different.
+        // Add the merged unit to the converter, if different.
         $this->addMergedUnit($derivedUnit);
 
-        // Also add the expanded unit to the converter, if different.
+        // Add the expanded unit to the converter, if different.
         $this->addExpandedUnit($derivedUnit);
     }
 
@@ -576,13 +577,17 @@ class Converter
                         $srcToMid = ConversionRegistry::get($dim, $src, $mid);
                         $midToDest = ConversionRegistry::get($dim, $mid, $dest);
 
-                        // Combine source->mid with mid->dest (sequential).
-                        if ($srcToMid !== null && $midToDest !== null) {
-                            if ($srcToMid->factor->isInteger() && $midToDest->factor->isInteger()) {
-                                $newConversion = $srcToMid->combineSequential($midToDest);
-                                ConversionRegistry::addConversion($newConversion);
-                                $foundNew = true;
-                            }
+                        // If the conversions exist and the factors are integers, combine source->mid with mid->dest
+                        // (sequential).
+                        if (
+                            $srcToMid !== null &&
+                            $midToDest !== null &&
+                            $srcToMid->factor->isInteger() &&
+                            $midToDest->factor->isInteger()
+                        ) {
+                            $newConversion = $srcToMid->combineSequential($midToDest);
+                            ConversionRegistry::addConversion($newConversion);
+                            $foundNew = true;
                         }
                     }
                 }
