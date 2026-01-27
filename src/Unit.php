@@ -86,17 +86,21 @@ class Unit implements UnitInterface
      * The expansion unit.
      */
     public ?DerivedUnit $expansionUnit {
-        /**
-         * @throws FormatException If the expansion unit symbol format is invalid.
-         * @throws DomainException If the expansion unit symbol contains unknown units.
-         */
         get {
             if ($this->expansionUnitSymbol === null) {
-        return null;
+                return null;
             }
 
-            // Convert the expansion unit symbol into a DerivedUnit if not already done.
-            $this->expansionUnit ??= DerivedUnit::parse($this->expansionUnitSymbol);
+            // Convert the expansion unit symbol into a DerivedUnit if not already done, and the expansion unit symbol
+            // is valid.
+            if ($this->expansionUnit === null) {
+                try {
+                    $this->expansionUnit = DerivedUnit::parse($this->expansionUnitSymbol);
+                } catch (DomainException) {
+                    return null;
+                }
+            }
+
             return $this->expansionUnit;
         }
     }
@@ -229,7 +233,7 @@ class Unit implements UnitInterface
      */
     public function hasExpansion(): bool
     {
-        return $this->expansionUnitSymbol !== null;
+        return $this->expansionUnit !== null;
     }
 
     // endregion
@@ -253,19 +257,19 @@ class Unit implements UnitInterface
 
     public static function regex(): string
     {
-        return '([\p{L}°′″]+|' . self::RX_ASCII_WORDS . ')';
+        return '([°′″]|°[a-z]|\p{L}+|' . self::RX_ASCII_WORDS . ')';
     }
 
     /**
      * Parse a unit symbol and return the matching Unit.
      *
      * @param string $symbol The unit symbol to parse (e.g. 'm', 'kg', 'Hz').
-     * @return static The matching Unit.
+     * @return self The matching Unit.
      * @throws FormatException If the symbol contains invalid characters.
      * @throws DomainException If the symbol is not recognized.
      */
     #[Override]
-    public static function parse(string $symbol): static
+    public static function parse(string $symbol): self
     {
         // Validate the symbol format.
         if (!self::isValidUnicodeSymbol($symbol)) {

@@ -184,7 +184,12 @@ class UnitRegistry
      */
     public static function remove(string $name): void
     {
-        self::init();
+        // If the registry is not initialized yet, do nothing.
+        if (self::$units === null) {
+            return;
+        }
+
+        // Remove the unit from the registry.
         unset(self::$units[$name]);
     }
 
@@ -201,6 +206,8 @@ class UnitRegistry
 
     /**
      * Load all units belonging to a specific measurement system.
+     *
+     * Also loads any conversions involving the newly loaded units.
      *
      * @param System $system The measurement system to load units for.
      */
@@ -239,6 +246,9 @@ class UnitRegistry
                 );
             }
         }
+
+        // Load any conversions involving the newly loaded units.
+        ConversionRegistry::loadConversions();
     }
 
     // endregion
@@ -275,7 +285,6 @@ class UnitRegistry
             self::loadSystem(System::SI);
             self::loadSystem(System::SIAccepted);
             self::loadSystem(System::Common);
-            self::loadSystem(System::US);
         }
     }
 

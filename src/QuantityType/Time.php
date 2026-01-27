@@ -6,9 +6,12 @@ namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
+use InvalidArgumentException;
+use LogicException;
 use Override;
 use TypeError;
 
@@ -19,7 +22,14 @@ class Time extends Quantity
     /**
      * Unit definitions for time.
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
+     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -88,9 +98,9 @@ class Time extends Quantity
      * - 1 week = 7 days
      *
      * @param DateInterval $interval The DateInterval to convert.
-     * @return self A new Time instance.
+     * @return parent A new Time instance.
      */
-    public static function fromDateInterval(DateInterval $interval): self
+    public static function fromDateInterval(DateInterval $interval): parent
     {
         // Convert all the parts of the DateInterval to seconds and sum.
         $seconds = self::convert($interval->y, 'y', 's') +
@@ -221,9 +231,9 @@ class Time extends Quantity
      * @param float $minutes The number of minutes.
      * @param float $seconds The number of seconds.
      * @param int $sign -1 if the Time is negative, 1 (or omitted) otherwise.
-     * @return static A new Time in seconds with a magnitude equal to the sum of the parts.
-     * @throws TypeError If any of the values are not numbers.
+     * @return parent A new Time in seconds with a magnitude equal to the sum of the parts.
      * @throws DomainException If any of the values are non-finite or negative.
+     * @throws LogicException If getPartUnits() has not been overridden properly.
      */
     public static function fromParts(
         float $years = 0,
@@ -233,7 +243,7 @@ class Time extends Quantity
         float $minutes = 0,
         float $seconds = 0,
         int $sign = 1
-    ): static {
+    ): parent {
         return self::fromPartsArray([
             'y'    => $years,
             'mo'   => $months,

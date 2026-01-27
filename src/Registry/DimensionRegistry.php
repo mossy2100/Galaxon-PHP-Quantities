@@ -41,47 +41,49 @@ class DimensionRegistry
      *
      * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
      * @see https://en.wikipedia.org/wiki/Dimensional_analysis
+     *
+     * @var array<string, array{name: string, siUnitSymbol: string}>
      */
     public const array DIMENSION_CODES = [
         'M' => [
             'name'   => 'mass',
-            'siBase' => 'kg',
+            'siUnitSymbol' => 'kg',
         ],
         'L' => [
             'name'   => 'length',
-            'siBase' => 'm',
+            'siUnitSymbol' => 'm',
         ],
         'A' => [
             'name'   => 'angle',
-            'siBase' => 'rad',
+            'siUnitSymbol' => 'rad',
         ],
         'D' => [
             'name'   => 'data',
-            'siBase' => 'B',
+            'siUnitSymbol' => 'B',
         ],
         'C' => [
             'name'   => 'currency',
-            'siBase' => 'XAU',
+            'siUnitSymbol' => 'XAU',
         ],
         'T' => [
             'name'   => 'time',
-            'siBase' => 's',
+            'siUnitSymbol' => 's',
         ],
         'I' => [
             'name'   => 'electric current',
-            'siBase' => 'A',
+            'siUnitSymbol' => 'A',
         ],
         'H' => [
             'name'   => 'temperature',
-            'siBase' => 'K',
+            'siUnitSymbol' => 'K',
         ],
         'N' => [
             'name'   => 'amount of substance',
-            'siBase' => 'mol',
+            'siUnitSymbol' => 'mol',
         ],
         'J' => [
             'name'   => 'luminous intensity',
-            'siBase' => 'cd',
+            'siUnitSymbol' => 'cd',
         ],
     ];
 
@@ -265,15 +267,15 @@ class DimensionRegistry
      * @return ?string The unit term symbol or null if not found.
      * @throws DomainException If the dimension code is invalid.
      */
-    public static function getSiBase(string $code): ?string
+    public static function getSiUnitTermSymbol(string $code): ?string
     {
         // Validate the code.
         if (strlen($code) !== 1 || !array_key_exists($code, self::DIMENSION_CODES)) {
-            throw new DomainException("Invalid dimension code '$code'.");
+            throw new DomainException("Invalid dimension code: '$code'.");
         }
 
-        // Get the SI base unit (which may have a prefix).
-        return self::DIMENSION_CODES[$code]['siBase'] ?? null;
+        // Get the SI base unit (which may have a prefix, e.g. 'kg').
+        return self::DIMENSION_CODES[$code]['siUnitSymbol'];
     }
 
     /**
@@ -286,10 +288,10 @@ class DimensionRegistry
      * @throws DomainException If the dimension code is invalid.
      * @throws LogicException If no SI base unit is defined for a given dimension code.
      */
-    public static function getSiBaseUnitTerm(string $code): UnitTerm
+    public static function getSiUnitTerm(string $code): UnitTerm
     {
         // Get the SI base unit symbol (which may have a prefix).
-        $siBase = self::getSiBase($code);
+        $siBase = self::getSiUnitTermSymbol($code);
 
         // Make sure we got the SI base unit.
         if ($siBase === null) {

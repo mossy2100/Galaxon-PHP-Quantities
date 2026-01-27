@@ -15,9 +15,9 @@ enum System
 
     case Common;
 
-    case US;
-
     case Imperial;
+
+    case US;
 
     case Scientific;
 

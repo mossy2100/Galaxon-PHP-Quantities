@@ -64,7 +64,7 @@ interface UnitInterface extends Stringable
      * @throws FormatException If the symbol has the wrong format.
      * @throws DomainException If the symbol contains unknown units.
      */
-    public static function parse(string $symbol): static;
+    public static function parse(string $symbol): self;
 
     // endregion
 }

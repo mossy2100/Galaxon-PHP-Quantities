@@ -15,7 +15,14 @@ class Area extends Quantity
     /**
      * Unit definitions for area.
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
+     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array

@@ -18,25 +18,27 @@ class PrefixRegistry
 {
     // region Prefix group constants
 
-    public const int GROUP_CODE_SMALL_ENGINEERING = 1;
-    public const int GROUP_CODE_SMALL_NON_ENGINEERING = 2;
-    public const int GROUP_CODE_LARGE_NON_ENGINEERING = 4;
-    public const int GROUP_CODE_LARGE_ENGINEERING = 8;
+    public const int GROUP_CODE_SMALL_ENGINEERING_METRIC = 1;
+    public const int GROUP_CODE_SMALL_NON_ENGINEERING_METRIC = 2;
+    public const int GROUP_CODE_LARGE_NON_ENGINEERING_METRIC = 4;
+    public const int GROUP_CODE_LARGE_ENGINEERING_METRIC = 8;
     public const int GROUP_CODE_BINARY = 16;
 
     public const int GROUP_CODE_SMALL_METRIC =
-        self::GROUP_CODE_SMALL_ENGINEERING |
-        self::GROUP_CODE_SMALL_NON_ENGINEERING;
+        self::GROUP_CODE_SMALL_ENGINEERING_METRIC |
+        self::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC;
 
     public const int GROUP_CODE_LARGE_METRIC =
-        self::GROUP_CODE_LARGE_NON_ENGINEERING |
-        self::GROUP_CODE_LARGE_ENGINEERING;
+        self::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC |
+        self::GROUP_CODE_LARGE_ENGINEERING_METRIC;
 
-    public const int GROUP_CODE_ENGINEERING = self::GROUP_CODE_SMALL_ENGINEERING | self::GROUP_CODE_LARGE_ENGINEERING;
+    public const int GROUP_CODE_ENGINEERING_METRIC =
+        self::GROUP_CODE_SMALL_ENGINEERING_METRIC |
+        self::GROUP_CODE_LARGE_ENGINEERING_METRIC;
 
     public const int GROUP_CODE_METRIC = self::GROUP_CODE_SMALL_METRIC | self::GROUP_CODE_LARGE_METRIC;
 
-    public const int GROUP_CODE_LARGE = self::GROUP_CODE_LARGE_ENGINEERING | self::GROUP_CODE_BINARY;
+    public const int GROUP_CODE_LARGE = self::GROUP_CODE_LARGE_ENGINEERING_METRIC | self::GROUP_CODE_BINARY;
 
     public const int GROUP_CODE_ALL = self::GROUP_CODE_METRIC | self::GROUP_CODE_BINARY;
 
@@ -72,10 +74,7 @@ class PrefixRegistry
 
         // Get the prefixes for the given group code.
         return array_values(
-            array_filter(
-                self::$prefixes,
-                static fn (Prefix $prefix) => $prefix->groupCode & $prefixGroup
-            )
+            array_filter(self::$prefixes, static fn (Prefix $prefix) => (bool)($prefix->groupCode & $prefixGroup))
         );
     }
 
@@ -154,7 +153,7 @@ class PrefixRegistry
     private static function getPrefixDefinitions(): array
     {
         return [
-            self::GROUP_CODE_SMALL_ENGINEERING     => [
+            self::GROUP_CODE_SMALL_ENGINEERING_METRIC     => [
                 'quecto' => ['q', 1e-30],
                 'ronto'  => ['r', 1e-27],
                 'yocto'  => ['y', 1e-24],
@@ -166,15 +165,15 @@ class PrefixRegistry
                 'micro'  => ['u', 1e-6, 'μ'],
                 'milli'  => ['m', 1e-3],
             ],
-            self::GROUP_CODE_SMALL_NON_ENGINEERING => [
+            self::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC => [
                 'centi' => ['c', 1e-2],
                 'deci'  => ['d', 1e-1],
             ],
-            self::GROUP_CODE_LARGE_NON_ENGINEERING => [
+            self::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC => [
                 'deca'  => ['da', 1e1],
                 'hecto' => ['h', 1e2],
             ],
-            self::GROUP_CODE_LARGE_ENGINEERING     => [
+            self::GROUP_CODE_LARGE_ENGINEERING_METRIC     => [
                 'kilo'   => ['k', 1e3],
                 'mega'   => ['M', 1e6],
                 'giga'   => ['G', 1e9],
@@ -186,7 +185,7 @@ class PrefixRegistry
                 'ronna'  => ['R', 1e27],
                 'quetta' => ['Q', 1e30],
             ],
-            self::GROUP_CODE_BINARY                => [
+            self::GROUP_CODE_BINARY                       => [
                 'kibi'  => ['Ki', 2 ** 10],
                 'mebi'  => ['Mi', 2 ** 20],
                 'gibi'  => ['Gi', 2 ** 30],
@@ -237,10 +236,10 @@ class PrefixRegistry
     private static function getValidGroupCodes(): array
     {
         return [
-            self::GROUP_CODE_SMALL_ENGINEERING,
-            self::GROUP_CODE_SMALL_NON_ENGINEERING,
-            self::GROUP_CODE_LARGE_NON_ENGINEERING,
-            self::GROUP_CODE_LARGE_ENGINEERING,
+            self::GROUP_CODE_SMALL_ENGINEERING_METRIC,
+            self::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC,
+            self::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC,
+            self::GROUP_CODE_LARGE_ENGINEERING_METRIC,
             self::GROUP_CODE_BINARY
         ];
     }

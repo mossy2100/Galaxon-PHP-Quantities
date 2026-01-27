@@ -16,7 +16,14 @@ class Volume extends Quantity
     /**
      * Unit definitions for volume.
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
+     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -82,9 +89,8 @@ class Volume extends Quantity
             ['US gal', 'US qt', 4],
             ['US qt', 'US pt', 2],
             ['US pt', 'US fl oz', 16],
-            // Imperial - metric bridge
-            ['imp gal', 'L', 4.54609],
             // Imperial
+            ['imp gal', 'L', 4.54609],
             ['imp gal', 'imp qt', 4],
             ['imp qt', 'imp pt', 2],
             ['imp pt', 'imp fl oz', 20],

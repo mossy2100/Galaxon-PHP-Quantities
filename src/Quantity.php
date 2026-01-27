@@ -150,7 +150,7 @@ class Quantity implements Stringable
      *
      * @param float $value The numeric value.
      * @param null|string|UnitInterface $unit The unit.
-     * @return static A Quantity of the appropriate type.
+     * @return self A Quantity of the appropriate type.
      * @throws DomainException If the value is non-finite (±INF or NAN).
      * @throws FormatException If the unit is provided as a string, and it cannot be parsed.
      * @throws DomainException If the unit is provided as a string, and it contains unknown units.
@@ -182,7 +182,7 @@ class Quantity implements Stringable
      * Whitespace between value and unit is optional.
      *
      * @param string $value The string to parse.
-     * @return static A new Quantity parsed from the string.
+     * @return self A new Quantity parsed from the string.
      * @throws FormatException If the string format is invalid.
      * @throws DomainException If the string contains unknown units.
      *
@@ -191,7 +191,7 @@ class Quantity implements Stringable
      *   Angle::parse("90deg")       // Angle(90.0, 'deg')
      *   Time::parse("1.5e3 ms")     // Time(1500.0, 'ms')
      */
-    public static function parse(string $value): static
+    public static function parse(string $value): self
     {
         // Prepare an error message with the original value.
         $qtyType = QuantityTypeRegistry::getByClass(static::class);
@@ -270,7 +270,14 @@ class Quantity implements Stringable
      *
      * This method should be overridden in subclasses to specify the units relevant to that quantity type.
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
+     * }>
      */
     public static function getUnitDefinitions(): array
     {
@@ -313,7 +320,7 @@ class Quantity implements Stringable
      * Returns a new Quantity object with the equivalent value in the destination unit.
      *
      * @param string|UnitInterface $destUnit The destination unit to convert to.
-     * @return static A new Quantity in the specified unit.
+     * @return self A new Quantity in the specified unit.
      * @throws DomainException If the destination unit is invalid.
      * @throws LogicException If no conversion path exists between the units.
      *
@@ -367,9 +374,9 @@ class Quantity implements Stringable
      * Create a new Quantity with the same unit but a different value.
      *
      * @param float $value The new numeric value.
-     * @return static A new Quantity with the given value in the same unit.
+     * @return self A new Quantity with the given value in the same unit.
      */
-    public function withValue(float $value): static
+    public function withValue(float $value): self
     {
         return self::create($value, $this->derivedUnit);
     }
@@ -599,7 +606,7 @@ class Quantity implements Stringable
     /**
      * Find the best SI prefix and modify the Quantity accordingly.
      *
-     * @return $this
+     * @return self
      */
     public function autoPrefix(): self
     {
@@ -719,13 +726,13 @@ class Quantity implements Stringable
     /**
      * Get the absolute value of this measurement.
      *
-     * @return static A new Quantity with non-negative value in the same unit.
+     * @return self A new Quantity with non-negative value in the same unit.
      *
      * @example
      *   $temp = new Temperature(-10, 'C');
      *   $abs = $temp->abs();  // Temperature(10, 'C')
      */
-    public function abs(): static
+    public function abs(): self
     {
         return self::create(abs($this->value), $this->derivedUnit);
     }
@@ -733,7 +740,7 @@ class Quantity implements Stringable
     /**
      * Negate a measurement.
      *
-     * @return static A new Quantity containing the negative of this measurement's unit.
+     * @return self A new Quantity containing the negative of this measurement's unit.
      */
     public function neg(): self
     {
@@ -751,7 +758,7 @@ class Quantity implements Stringable
      *
      * @param self|float $otherOrValue Another Quantity or a numeric value.
      * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
-     * @return static A new Quantity containing the sum in this measurement's unit.
+     * @return self A new Quantity containing the sum in this measurement's unit.
      * @throws DomainException If value is non-finite or unit is invalid.
      * @throws LogicException If no conversion path exists between units.
      *
@@ -786,7 +793,7 @@ class Quantity implements Stringable
      *
      * @param self|float $otherOrValue Another Quantity or a numeric value.
      * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
-     * @return static A new Quantity containing the difference in this measurement's unit.
+     * @return self A new Quantity containing the difference in this measurement's unit.
      * @throws DomainException If value is non-finite or unit is invalid.
      * @throws LogicException If no conversion path exists between units.
      *
@@ -812,7 +819,7 @@ class Quantity implements Stringable
     /**
      * Invert this quantity (1/x).
      *
-     * @return Quantity A new Quantity with inverted value and unit.
+     * @return self A new Quantity with inverted value and unit.
      * @throws DivisionByZeroError If the value is zero.
      */
     public function inv(): self
@@ -838,7 +845,7 @@ class Quantity implements Stringable
      *
      * @param self|float $otherOrValue Another Quantity or a numeric value.
      * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
-     * @return Quantity A new Quantity representing the result of the multiplication.
+     * @return self A new Quantity representing the result of the multiplication.
      * @throws DomainException If the multiplier is a non-finite float (±INF or NAN).
      *
      * @example
@@ -875,7 +882,7 @@ class Quantity implements Stringable
      *
      * @param float|self $otherOrValue The scalar or Quantity to divide by.
      * @param null|string|DerivedUnit $otherUnit The other quantity's unit, if a numeric value was provided.
-     * @return Quantity A new Quantity representing the result of the division.
+     * @return self A new Quantity representing the result of the division.
      * @throws DivisionByZeroError If the divisor is zero.
      * @throws DomainException If the divisor is non-finite (±INF or NAN).
      *
@@ -901,7 +908,7 @@ class Quantity implements Stringable
      * Raise the Quantity to an exponent.
      *
      * @param int $exponent
-     * @return Quantity
+     * @return self
      */
     public function pow(int $exponent): self
     {
@@ -1018,12 +1025,12 @@ class Quantity implements Stringable
      * If the resulting value should be negative, include a 'sign' part with a value of -1.
      *
      * @param array<string, int|float> $parts The parts and optional sign.
-     * @return static A new Quantity equal to the sum of the parts, with the unit equal to the smallest unit.
+     * @return self A new Quantity equal to the sum of the parts, with the unit equal to the smallest unit.
      * @throws InvalidArgumentException If any of the values are not numbers.
      * @throws DomainException If any of the values are non-finite or negative.
      * @throws LogicException If getPartUnits() has not been overridden properly.
      */
-    public static function fromPartsArray(array $parts): static
+    public static function fromPartsArray(array $parts): self
     {
         // Validate and get part units.
         $symbols = static::validateAndTransformPartUnits();
@@ -1254,7 +1261,7 @@ class Quantity implements Stringable
     /**
      * Validate and transform the part units array.
      *
-     * @return array<string, string>
+     * @return non-empty-array<string, string>
      * @throws LogicException If getPartUnits() returns an empty array, or if any of the units or symbols are invalid.
      */
     protected static function validateAndTransformPartUnits(): array

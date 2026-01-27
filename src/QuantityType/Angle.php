@@ -31,7 +31,14 @@ class Angle extends Quantity
     /**
      * Unit definitions for angle.
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
+     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -103,11 +110,11 @@ class Angle extends Quantity
      * If valid, the angle is returned; otherwise, an exception is thrown.
      *
      * @param string $value The string to parse.
-     * @return static A new Angle equivalent to the provided string.
+     * @return parent A new Angle equivalent to the provided string.
      * @throws FormatException If the string has an invalid format.
      * @throws DomainException If any of the values are non-finite or negative.
      */
-    public static function parse(string $value): static
+    public static function parse(string $value): parent
     {
         try {
             // Try to parse the angle using Quantity::parse().
@@ -222,13 +229,13 @@ class Angle extends Quantity
      * For degrees, this is [0, 360)
      *
      * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
-     * @return self A new angle with the wrapped value.
+     * @return parent A new angle with the wrapped value.
      *
      * @example
      * $alpha = new Angle(270, 'deg');
      * $wrapped = $alpha->wrap(); // now $wrapped->value == -90
      */
-    public function wrap(bool $signed = true): self
+    public function wrap(bool $signed = true): parent
     {
         // Get the units per turn for the current unit.
         $unitsPerTurn = self::convert(1, 'turn', $this->derivedUnit);
@@ -368,11 +375,11 @@ class Angle extends Quantity
      * @param float $arcmin The number of arcminutes.
      * @param float $arcsec The number of arcseconds.
      * @param int $sign -1 if the Angle is negative, 1 (or omitted) otherwise.
-     * @return static A new Angle in degrees with a magnitude equal to the sum of the parts.
+     * @return parent A new Angle in degrees with a magnitude equal to the sum of the parts.
      * @throws InvalidArgumentException If any of the values are not numbers.
      * @throws DomainException If any of the values are non-finite or negative.
      */
-    public static function fromParts(float $degrees = 0, float $arcmin = 0, float $arcsec = 0, int $sign = 1): static
+    public static function fromParts(float $degrees = 0, float $arcmin = 0, float $arcsec = 0, int $sign = 1): parent
     {
         return self::fromPartsArray([
             'deg'    => $degrees,

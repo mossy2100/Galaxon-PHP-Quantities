@@ -16,7 +16,14 @@ class ElectricCurrent extends Quantity
     /**
      * Unit definitions for electric current.
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
+     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array

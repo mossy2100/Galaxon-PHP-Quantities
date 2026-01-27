@@ -40,6 +40,8 @@ class Prefix
 
     /**
      * The group code for the prefix (see PrefixRegistry::GROUP_CODE_* constants).
+     * This will only be one of the base groups and will therefore be a power of 2 (i.e. 1, 2, 4, 8, or 16).
+     * @see PrefixRegistry::GROUP_CODE_SMALL_ENGINEERING_METRIC
      */
     private(set) int $groupCode;
 
@@ -124,7 +126,7 @@ class Prefix
      */
     public function isEngineering(): bool
     {
-        return (bool)($this->groupCode & PrefixRegistry::GROUP_CODE_ENGINEERING);
+        return (bool)($this->groupCode & PrefixRegistry::GROUP_CODE_ENGINEERING_METRIC);
     }
 
     // endregion

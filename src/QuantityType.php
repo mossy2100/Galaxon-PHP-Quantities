@@ -24,6 +24,9 @@ class QuantityType
     // phpcs:disable PSR2.Classes.PropertyDeclaration
     // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
+    /**
+     * @var ?class-string<Quantity>
+     */
     public ?string $class {
         set {
             // Validate the class.
@@ -31,7 +34,7 @@ class QuantityType
                 throw new DomainException("$value must be a subclass of " . Quantity::class . '.');
             }
 
-            /** @var class-string $value */
+            /** @var class-string<Quantity> $value */
             $this->class = $value;
         }
     }
@@ -43,6 +46,13 @@ class QuantityType
 
     // region Constructor
 
+    /**
+     * @param string $dimension
+     * @param string $name
+     * @param string $siUnitSymbol
+     * @param ?class-string<Quantity> $class
+     * @throws DomainException
+     */
     public function __construct(string $dimension, string $name, string $siUnitSymbol, ?string $class = null)
     {
         $this->dimension = DimensionRegistry::normalize($dimension);

@@ -19,14 +19,13 @@ use Override;
  *
  * A unit symbol like 'km2' is decomposed into:
  * - unit: The unit object.
- * - prefix: The SI/binary prefix ('k').
+ * - prefix: The SI/binary prefix object.
  * - exponent: The power (2).
  *
  * Computed properties:
  * - symbol: The full unit symbol ('km2').
  * - symbolWithoutPrefix: The unit without prefix ('m2').
  * - symbolWithoutExponent: The unit without exponent ('km').
- * - prefixMultiplier: The prefix multiplier (1000).
  * - multiplier: The prefix multiplier raised to the exponent (1000² = 1e6).
  * - dimension: The dimension code with exponent applied.
  */
@@ -178,7 +177,7 @@ class UnitTerm implements UnitInterface
      * @throws FormatException If the format is invalid.
      * @throws DomainException If the unit is unknown or the exponent is zero.
      */
-    public static function parse(string $symbol): static
+    public static function parse(string $symbol): self
     {
         // Validate the unit string.
         $unitValid = preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);
@@ -416,23 +415,6 @@ class UnitTerm implements UnitInterface
         return $this->withExponent(intdiv($this->exponent, $index));
     }
 
-//    /**
-//     * Return a new UnitTerm with a different prefix.
-//     *
-//     * @param ?Prefix $prefix The new prefix, or null for no prefix.
-//     * @return self A new instance with the specified prefix.
-//     */
-//    public function withPrefix(?Prefix $prefix): self
-//    {
-//        // Make sure the prefix is allowed.
-//        if ($prefix !== null && !$this->unit->acceptsPrefix($prefix)) {
-//            throw new DomainException("The prefix '$prefix' is incompatible with the unit '$this->unit'.");
-//        }
-//
-//        // Create the new UnitTerm.
-//        return new self($this->unit, $prefix, $this->exponent);
-//    }
-
     /**
      * Return a new UnitTerm with the prefix removed.
      *
@@ -440,7 +422,7 @@ class UnitTerm implements UnitInterface
      */
     public function removePrefix(): self
     {
-        return new UnitTerm($this->unit, null, $this->exponent);
+        return new self($this->unit, null, $this->exponent);
     }
 
     // endregion

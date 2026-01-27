@@ -20,7 +20,14 @@ class RadiationDose extends Quantity
      * Sievert measures equivalent dose (biological effect of radiation).
      * Both have the same dimension but measure different aspects of radiation.
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
+     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array

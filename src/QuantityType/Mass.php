@@ -16,7 +16,14 @@ class Mass extends Quantity
     /**
      * Unit definitions for mass.
      *
-     * @return array<string, array<string, string|int>>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
+     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -81,8 +88,8 @@ class Mass extends Quantity
             // Imperial and US customary
             ['lb', 'oz', 16],
             ['st', 'lb', 14],
-            ['ton', 'lb', 2000],
-            ['lng tn', 'lb', 2240],
+            ['tn', 'lb', 2000],
+            ['LT', 'lb', 2240],
         ];
     }
 

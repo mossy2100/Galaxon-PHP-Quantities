@@ -143,11 +143,12 @@ class DerivedUnit implements UnitInterface
      * Parse a string into a new DerivedUnit.
      *
      * @param string $symbol The unit symbol, which can be simple or complex (e.g. 'm', 'kg*m/s2', etc.).
-     * @return static The new DerivedUnit instance.
+     * @return self The new DerivedUnit instance.
      * @throws FormatException If the symbol format is invalid.
      * @throws DomainException If any units are unknown.
+     * @throws LogicException If there was an error extracting unit terms from the symbol.
      */
-    public static function parse(string $symbol): static
+    public static function parse(string $symbol): self
     {
         // Initialize new object.
         $new = new self();
@@ -159,6 +160,11 @@ class DerivedUnit implements UnitInterface
 
         // Get the parts of the compound unit.
         $parts = preg_split('/(' . self::UNIT_TERM_SEPARATORS . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        // Check for error.
+        if ($parts === false) {
+            throw new LogicException("Error parsing unit symbol: '$symbol'");
+        }
 
         // Convert the substrings to unit terms.
         $nParts = count($parts);
@@ -200,6 +206,7 @@ class DerivedUnit implements UnitInterface
         }
 
         // Otherwise, construct a new DerivedUnit.
+        /** @var null|Unit|UnitTerm $value */
         return new self($value);
     }
 
@@ -439,6 +446,7 @@ class DerivedUnit implements UnitInterface
      */
     public function inv(): self
     {
+        /** @var list<UnitTerm> $unitTerms */
         $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->inv(), $this->unitTerms);
         return new self($unitTerms);
     }
@@ -455,7 +463,7 @@ class DerivedUnit implements UnitInterface
         $unitTerms = [];
         $dimTerms = DimensionRegistry::explode($this->dimension);
         foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = DimensionRegistry::getSiBaseUnitTerm($code)->pow($exp);
+            $unitTerms[] = DimensionRegistry::getSiUnitTerm($code)->pow($exp);
         }
         return new self($unitTerms);
     }
@@ -467,44 +475,10 @@ class DerivedUnit implements UnitInterface
      */
     public function removePrefixes(): self
     {
-        $newUnitTerms = array_map(
-            static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(),
-            $this->unitTerms
-        );
-        return new self($newUnitTerms);
+        /** @var list<UnitTerm> $unitTerms */
+        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(), $this->unitTerms);
+        return new self($unitTerms);
     }
-
-//    /**
-//     * Return a new DerivedUnit with the given prefix applied to the first unit term.
-//     *
-//     * TODO check if we actually need this method.
-//     *
-//     * @param ?Prefix $prefix The prefix to apply, or null for no prefix.
-//     * @return self A new instance with the prefix applied to the first unit term.
-//     * @throws DomainException If the prefix is invalid for the first unit term's unit.
-//     */
-//    public function withPrefix(?Prefix $prefix): self
-//    {
-//        // If there are no unit terms, do nothing.
-//        if (empty($this->unitTerms)) {
-//            return clone $this;
-//        }
-//
-//        // Create a list of UnitTerms for the result DerivedUnit. Only the first one will be altered.
-//        $first = true;
-//        $newUnitTerms = [];
-//        foreach ($this->unitTerms as $unitTerm) {
-//            if ($first) {
-//                $newUnitTerms[] = $unitTerm->withPrefix($prefix);
-//                $first = false;
-//            } else {
-//                $newUnitTerms[] = $unitTerm;
-//            }
-//        }
-//
-//        // Construct the new DerivedUnit object.
-//        return new self($newUnitTerms);
-//    }
 
     /**
      * Return a new DerivedUnit raised to a given power.
@@ -518,13 +492,11 @@ class DerivedUnit implements UnitInterface
     public function pow(int $exponent): self
     {
         // Get the unit terms raised to the given power.
-        $newUnitTerms = array_map(
-            static fn (UnitTerm $unitTerm) => $unitTerm->pow($exponent),
-            $this->unitTerms
-        );
+        /** @var list<UnitTerm> $unitTerms */
+        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->pow($exponent), $this->unitTerms);
 
         // Construct the new DerivedUnit object.
-        return new self($newUnitTerms);
+        return new self($unitTerms);
     }
 
     /**
@@ -545,13 +517,11 @@ class DerivedUnit implements UnitInterface
         }
 
         // Calculate the root of each unit term.
-        $newUnitTerms = array_map(
-            static fn (UnitTerm $unitTerm) => $unitTerm->root($index),
-            $this->unitTerms
-        );
+        /** @var list<UnitTerm> $unitTerms */
+        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->root($index), $this->unitTerms);
 
         // Construct the new DerivedUnit object.
-        return new self($newUnitTerms);
+        return new self($unitTerms);
     }
 
     // endregion
