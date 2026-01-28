@@ -279,6 +279,8 @@ class QuantityTypeRegistry
     public static function getAll(): array
     {
         self::init();
+        assert(self::$quantityTypes !== null);
+
         return self::$quantityTypes;
     }
 
@@ -304,6 +306,8 @@ class QuantityTypeRegistry
     public static function getByName(string $name): ?QuantityType
     {
         self::init();
+        assert(self::$quantityTypes !== null);
+
         return array_find(
             self::$quantityTypes,
             static fn (QuantityType $qtyType): bool => strtolower($qtyType->name) === strtolower($name)
@@ -319,6 +323,8 @@ class QuantityTypeRegistry
     public static function getByClass(string $class): ?QuantityType
     {
         self::init();
+        assert(self::$quantityTypes !== null);
+
         return array_find(
             self::$quantityTypes,
             static fn (QuantityType $qtyType): bool => $qtyType->class === $class

@@ -87,14 +87,14 @@ class UnitTerm implements UnitInterface
      * This property returns the ASCII version. For the Unicode symbol, cast to string (__toString()).
      */
     public string $unexponentiatedAsciiSymbol {
-        get => $this->prefix->asciiSymbol . $this->unit->asciiSymbol;
+        get => $this->prefix?->asciiSymbol . $this->unit->asciiSymbol;
     }
 
     /**
      * The prefix multiplier.
      */
     public float $prefixMultiplier {
-        get => !$this->hasPrefix() ? 1.0 : $this->prefix->multiplier;
+        get => $this->prefix === null ? 1.0 : $this->prefix->multiplier;
     }
 
     /**
@@ -282,11 +282,11 @@ class UnitTerm implements UnitInterface
     /**
      * Convert the argument to a UnitTerm if necessary.
      *
-     * @param null|string|Unit|self $value The value to convert.
+     * @param string|Unit|self $value The value to convert.
      * @return self The equivalent UnitTerm object.
      * @throws DomainException If a string is provided that cannot be parsed into a UnitTerm.
      */
-    public static function toUnitTerm(null|string|Unit|self $value): self
+    public static function toUnitTerm(string|Unit|self $value): self
     {
         // If the value is already a UnitTerm, return it as is.
         if ($value instanceof self) {
@@ -431,23 +431,10 @@ class UnitTerm implements UnitInterface
     #[Override]
     public function equal(mixed $other): bool
     {
-        // Check for same types.
-        if (!Types::same($this, $other)) {
-            return false;
-        }
-
-        return $this->unit->equal($other->unit) &&
-               $this->prefix === $other->prefix &&
-               $this->exponent === $other->exponent;
-    }
-
-    // endregion
-
-    // region Inspection methods
-
-    public function hasPrefix(): bool
-    {
-        return $this->prefix !== null;
+        return $other instanceof self &&
+            $this->unit->equal($other->unit) &&
+            $this->prefix === $other->prefix &&
+            $this->exponent === $other->exponent;
     }
 
     // endregion

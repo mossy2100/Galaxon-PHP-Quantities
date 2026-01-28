@@ -110,7 +110,7 @@ class Prefix
      */
     public function equal(mixed $other): bool
     {
-        return Types::same($this, $other) && $this->asciiSymbol === $other->asciiSymbol;
+        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
     }
 
     // endregion

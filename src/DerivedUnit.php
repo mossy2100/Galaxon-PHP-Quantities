@@ -95,7 +95,10 @@ class DerivedUnit implements UnitInterface
      * The first unit term in the derived unit, or null if empty.
      */
     public ?UnitTerm $firstUnitTerm {
-        get => $this->unitTerms[array_key_first($this->unitTerms)] ?? null;
+        get {
+            $firstKey = array_key_first($this->unitTerms) ?? null;
+            return $firstKey === null ? null : $this->unitTerms[$firstKey];
+        }
     }
 
     // phpcs:enable PSR2.Classes.PropertyDeclaration
@@ -277,7 +280,7 @@ class DerivedUnit implements UnitInterface
      */
     public function hasPrefixes(): bool
     {
-        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->hasPrefix());
+        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->prefix !== null);
     }
 
     /**
@@ -287,7 +290,7 @@ class DerivedUnit implements UnitInterface
      */
     public function hasExpansion(): bool
     {
-        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->unit->hasExpansion());
+        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->unit->expansionUnit !== null);
     }
 
     /**
@@ -534,6 +537,7 @@ class DerivedUnit implements UnitInterface
      * Sorting order:
      * 1. More complex dimensions (expandable units) before simpler ones.
      * 2. By dimension code order.
+     * 3. By exponent (descending - higher exponents first).
      *
      * @param UnitTerm $a The first unit term.
      * @param UnitTerm $b The second unit term.
@@ -541,6 +545,11 @@ class DerivedUnit implements UnitInterface
      */
     private static function compareUnitTerms(UnitTerm $a, UnitTerm $b): int
     {
+        // If the dimensions are the same, the unit terms are equal for ordering.
+        if ($a->dimension === $b->dimension) {
+            return 0;
+        }
+
         // Parse the dimension into dimension terms.
         $aDimTerms = DimensionRegistry::explode($a->dimension);
         $bDimTerms = DimensionRegistry::explode($b->dimension);
@@ -553,12 +562,31 @@ class DerivedUnit implements UnitInterface
             return 1;
         }
 
-        // If the unit terms have the same number of dimension terms, they most likely have 1 each.
-        // We can assume as much, anyway, and, compare the only/first terms.
-        // Order unit terms to match order in the Dimensions::DIMENSION_CODES array.
-        $aFirstKey = array_key_first($aDimTerms);
-        $bFirstKey = array_key_first($bDimTerms);
-        return DimensionRegistry::letterToInt($aFirstKey) <=> DimensionRegistry::letterToInt($bFirstKey);
+        // The number of dimensions in the two unit terms is the same, most likely 1.
+        // We'll order them by the dimension codes and exponents of the dimension terms.
+        $nTerms = count($aDimTerms);
+        $aDims = array_keys($aDimTerms);
+        $bDims = array_keys($bDimTerms);
+
+        // First loop: compare all letters in the order given by DimensionRegistry::DIMENSION_CODES.
+        for ($i = 0; $i < $nTerms; $i++) {
+            $cmp = DimensionRegistry::letterToInt($aDims[$i]) <=> DimensionRegistry::letterToInt($bDims[$i]);
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+        }
+
+        // Second loop: compare exponents in descending order (higher first).
+        // e.g. Pa (M*L-1*T-2) vs J (M*L2*T-2) - same letters, different exponents.
+        for ($i = 0; $i < $nTerms; $i++) {
+            $cmp = $bDimTerms[$bDims[$i]] <=> $aDimTerms[$aDims[$i]];
+            if ($cmp !== 0) {
+                return $cmp;
+            }
+        }
+
+        // Unit terms are equal; shouldn't happen since dimensions differ.
+        return 0;
     }
 
     /**

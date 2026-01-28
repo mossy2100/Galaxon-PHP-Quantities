@@ -44,14 +44,14 @@ class Unit implements UnitInterface
     private(set) string $unicodeSymbol;
 
     /**
-     * The dimension code (e.g. 'L', 'M', 'T-1').
-     */
-    private(set) string $dimension;
-
-    /**
      * The quantity type, e.g. 'length'.
      */
     private(set) string $quantityType;
+
+    /**
+     * The dimension code (e.g. 'L', 'M', 'T-1').
+     */
+    private(set) string $dimension;
 
     /**
      * Bitwise flags indicating which prefixes are allowed (0 if none).
@@ -161,36 +161,52 @@ class Unit implements UnitInterface
     /**
      * Constructor.
      *
-     * @param string $name The unit name.
-     * @param array<string, mixed> $data The unit details.
+     * @param string $name The unit name (e.g. 'metre', 'gram').
+     * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
+     * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if same as ASCII.
+     * @param string $quantityType The quantity type (e.g. 'length', 'mass').
+     * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
+     * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
+     * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
+     * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
+     * @param list<System> $systems The measurement systems this unit belongs to.
      * @throws FormatException If the unit symbols contain invalid characters.
      * @throws DomainException If the dimension code is invalid.
      */
-    public function __construct(string $name, array $data)
-    {
+    public function __construct(
+        string $name,
+        string $asciiSymbol,
+        ?string $unicodeSymbol,
+        string $quantityType,
+        string $dimension,
+        int $prefixGroup = 0,
+        ?string $expansionUnitSymbol = null,
+        ?float $expansionValue = null,
+        array $systems = []
+    ) {
         // Check ASCII symbol contains ASCII letters only.
-        if (!self::isValidAsciiSymbol($data['asciiSymbol'])) {
-            throw new FormatException("Unit symbol '{$data['asciiSymbol']}' must only contain ASCII letters.");
+        if (!self::isValidAsciiSymbol($asciiSymbol)) {
+            throw new FormatException("Unit symbol '$asciiSymbol' must only contain ASCII letters.");
         }
 
         // Validate Unicode symbol.
-        if (isset($data['unicodeSymbol']) && !self::isValidUnicodeSymbol($data['unicodeSymbol'])) {
+        if (isset($unicodeSymbol) && !self::isValidUnicodeSymbol($unicodeSymbol)) {
             throw new FormatException(
-                "Unit symbol '{$data['unicodeSymbol']}' must only contain letters, or the degree, prime, or " .
+                "Unit symbol '$unicodeSymbol' must only contain letters, or the degree, prime, or " .
                 'double prime characters (i.e. °′″).'
             );
         }
 
         // Set the properties.
         $this->name = $name;
-        $this->asciiSymbol = $data['asciiSymbol'];
-        $this->unicodeSymbol = $data['unicodeSymbol'] ?? $data['asciiSymbol'];
-        $this->quantityType = $data['quantityType'];
-        $this->dimension = DimensionRegistry::normalize($data['dimension']);
-        $this->prefixGroup = $data['prefixGroup'] ?? 0;
-        $this->expansionUnitSymbol = $data['expansionUnitSymbol'] ?? null;
-        $this->expansionValue = isset($data['expansionUnitSymbol']) ? ($data['expansionValue'] ?? 1.0) : null;
-        $this->systems = $data['systems'] ?? [];
+        $this->asciiSymbol = $asciiSymbol;
+        $this->unicodeSymbol = $unicodeSymbol ?? $asciiSymbol;
+        $this->quantityType = $quantityType;
+        $this->dimension = DimensionRegistry::normalize($dimension);
+        $this->prefixGroup = $prefixGroup;
+        $this->expansionUnitSymbol = $expansionUnitSymbol ?? null;
+        $this->expansionValue = isset($expansionUnitSymbol) ? ($expansionValue ?? 1.0) : null;
+        $this->systems = $systems;
     }
 
     // endregion
@@ -220,20 +236,6 @@ class Unit implements UnitInterface
     public function acceptsPrefix(Prefix $prefix): bool
     {
         return array_any($this->allowedPrefixes, static fn ($allowedPrefix) => $allowedPrefix->equal($prefix));
-    }
-
-    // endregion
-
-    // region Inspection methods
-
-    /**
-     * Check if this unit has an expansion (i.e. can be expressed in terms of other units).
-     *
-     * @return bool True if this unit has an expansion.
-     */
-    public function hasExpansion(): bool
-    {
-        return $this->expansionUnit !== null;
     }
 
     // endregion
@@ -304,12 +306,7 @@ class Unit implements UnitInterface
     #[Override]
     public function equal(mixed $other): bool
     {
-        // Check for same types.
-        if (!Types::same($this, $other)) {
-            return false;
-        }
-
-        return $this->name === $other->name;
+        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
     }
 
     // endregion

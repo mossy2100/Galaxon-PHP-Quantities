@@ -249,7 +249,7 @@ class ConversionRegistry
             // Also include any expansions for units now in the registry.
             $units = UnitRegistry::getByDimension($qtyType->dimension);
             foreach ($units as $unit) {
-                if ($unit->hasExpansion()) {
+                if ($unit->expansionUnit !== null && $unit->expansionValue !== null) {
                     // Construct the new Conversion.
                     $newConversion = new Conversion($unit, $unit->expansionUnit, $unit->expansionValue);
 
@@ -324,7 +324,7 @@ class ConversionRegistry
             // Also include any expansions.
             $units = UnitRegistry::getByDimension($dimension);
             foreach ($units as $unit) {
-                if ($unit->hasExpansion()) {
+                if ($unit->expansionUnitSymbol !== null && $unit->expansionValue !== null) {
                     self::add($unit, $unit->expansionUnitSymbol, $unit->expansionValue, self::ON_MISSING_UNIT_IGNORE);
                 }
             }

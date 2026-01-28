@@ -43,6 +43,8 @@ class UnitRegistry
     public static function getBySymbol(string $symbol): ?Unit
     {
         self::init();
+        assert(self::$units !== null);
+
         return array_find(
             self::$units,
             static fn (Unit $unit) => $unit->asciiSymbol === $symbol || $unit->unicodeSymbol === $symbol
@@ -58,6 +60,8 @@ class UnitRegistry
     public static function getByDimension(string $dimension): array
     {
         self::init();
+        assert(self::$units !== null);
+
         return array_filter(self::$units, static fn ($unit) => $unit->dimension === $dimension);
     }
 
@@ -69,6 +73,8 @@ class UnitRegistry
     public static function getAll(): array
     {
         self::init();
+        assert(self::$units !== null);
+
         return self::$units;
     }
 
@@ -82,7 +88,7 @@ class UnitRegistry
         $allUnits = self::getAll();
         $expandableUnits = [];
         foreach ($allUnits as $unit) {
-            if ($unit->hasExpansion()) {
+            if ($unit->expansionUnit !== null) {
                 $expandableUnits[] = $unit;
             }
         }
@@ -152,16 +158,17 @@ class UnitRegistry
         }
 
         // Create the new unit.
-        $unit = new Unit($name, [
-            'asciiSymbol'         => $asciiSymbol,
-            'unicodeSymbol'       => $unicodeSymbol,
-            'quantityType'        => $quantityType,
-            'dimension'           => $dimension,
-            'prefixGroup'         => $prefixGroup,
-            'expansionUnitSymbol' => $expansionUnitSymbol,
-            'expansionValue'      => $expansionValue,
-            'systems'             => $systems,
-        ]);
+        $unit = new Unit(
+            $name,
+            $asciiSymbol,
+            $unicodeSymbol,
+            $quantityType,
+            $dimension,
+            $prefixGroup,
+            $expansionUnitSymbol,
+            $expansionValue,
+            $systems
+        );
 
         // Get all existing symbols.
         $existingSymbols = self::getAllSymbols();
@@ -296,6 +303,7 @@ class UnitRegistry
     private static function getAllSymbols(): array
     {
         self::init();
+        assert(self::$units !== null);
 
         $allSymbols = [];
 

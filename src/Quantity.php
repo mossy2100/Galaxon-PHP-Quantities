@@ -81,9 +81,9 @@ class Quantity implements Stringable
     /**
      * The quantity type.
      *
-     * @var QuantityType
+     * @var ?QuantityType
      */
-    public QuantityType $type {
+    public ?QuantityType $type {
         get => QuantityTypeRegistry::getByDimension($this->dimension);
     }
 
@@ -251,7 +251,7 @@ class Quantity implements Stringable
         }
 
         // Load the dimension corresponding to the calling class.
-        $dimension = QuantityTypeRegistry::getByClass(static::class)->dimension;
+        $dimension = QuantityTypeRegistry::getByClass(static::class)?->dimension;
 
         // This method won't work if called from a Quantity subclass that isn't in the QuantityTypeRegistry.
         if ($dimension === null) {
@@ -413,6 +413,7 @@ class Quantity implements Stringable
                     }
 
                     // Get the first unit term.
+                    /** @var UnitTerm $converterUnitTerm */
                     $converterUnitTerm = $converterUnit->firstUnitTerm;
 
                     // See if it's useful for this purpose.
@@ -465,7 +466,7 @@ class Quantity implements Stringable
         // Handle Hertz separately. We only want to swap 's-1' for 'Hz' if it's the only unit term.
         if (count($qty->derivedUnit->unitTerms) === 1) {
             $unitTerm = $qty->derivedUnit->firstUnitTerm;
-            if ($unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
+            if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
                 $newUnitTerm = new UnitTerm('Hz', PrefixRegistry::invert($unitTerm->prefix));
                 return self::create($qty->value, $newUnitTerm);
             }
@@ -484,8 +485,11 @@ class Quantity implements Stringable
         $bestUnitToReplace = null;
 
         foreach ($expandableUnits as $expandableUnit) {
+            /** @var DerivedUnit $expansionUnit */
+            $expansionUnit = $expandableUnit->expansionUnit;
+
             // Skip 'Hz' or 'Bq'; these are the only expandable units with one unit term in their expansion.
-            if (count($expandableUnit->expansionUnit->unitTerms) === 1) {
+            if (count($expansionUnit->unitTerms) === 1) {
                 continue;
             }
 
@@ -494,7 +498,7 @@ class Quantity implements Stringable
             $unitToReplace = new DerivedUnit();
 
             // Go through the expansion unit terms and try to match against the quantity unit terms.
-            foreach ($expandableUnit->expansionUnit->unitTerms as $expansionUnitTerm) {
+            foreach ($expansionUnit->unitTerms as $expansionUnitTerm) {
                 $matchingQtyUnitTermFound = false;
 
                 // See if the quantity has all the unit terms of the expansion unit.
@@ -534,7 +538,7 @@ class Quantity implements Stringable
         }
 
         // If we found a match, substitute the necessary unit terms for the expandable unit.
-        if ($bestExpandableUnit) {
+        if ($bestExpandableUnit !== null && $bestUnitToReplace !== null) {
             // Remove the unit terms to replace.
             foreach ($bestUnitToReplace->unitTerms as $unitTermToReplace) {
                 $newUnit->removeUnitTerm($unitTermToReplace);
@@ -623,6 +627,7 @@ class Quantity implements Stringable
         $newDerivedUnit = $this->derivedUnit->removePrefixes();
 
         // Get the new first unit term.
+        /** @var UnitTerm $firstUnitTerm */
         $firstUnitTerm = $newDerivedUnit->firstUnitTerm;
 
         // Choose the prefix that produces the smallest value greater than or equal to 1.
@@ -1061,6 +1066,7 @@ class Quantity implements Stringable
         }
 
         // Initialize the Quantity to 0, with the unit set to the smallest unit.
+        /** @var string $smallestUnit */
         $smallestUnit = Arrays::last($partUnits);
         $t = new (static::class)(0, $smallestUnit);
 

@@ -336,7 +336,9 @@ class Converter
         }
 
         // Check they have the same exponent, and it's not equal to 1.
+        /** @var UnitTerm $srcUnitTerm */
         $srcUnitTerm = $srcUnit->firstUnitTerm;
+        /** @var UnitTerm $destUnitTerm */
         $destUnitTerm = $destUnit->firstUnitTerm;
         if (
             $srcUnitTerm->exponent === 1 ||

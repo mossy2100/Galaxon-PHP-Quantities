@@ -66,6 +66,7 @@ class PrefixRegistry
     public static function getPrefixes(int $prefixGroup = self::GROUP_CODE_ALL): array
     {
         self::init();
+        assert(self::$prefixes !== null);
 
         // No prefixes.
         if ($prefixGroup === 0) {
@@ -89,6 +90,7 @@ class PrefixRegistry
     public static function getBySymbol(string $symbol): ?Prefix
     {
         self::init();
+        assert(self::$prefixes !== null);
 
         return array_find(
             self::$prefixes,
@@ -108,6 +110,7 @@ class PrefixRegistry
     public static function invert(?Prefix $prefix): ?Prefix
     {
         self::init();
+        assert(self::$prefixes !== null);
 
         // Handle the null case.
         if ($prefix === null) {
