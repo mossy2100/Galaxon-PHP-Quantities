@@ -9,13 +9,14 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitInterface;
 
 /**
  * Registry for unit conversions.
  *
  * Stores and retrieves conversions between units, organized by dimension.
- * Conversions are loaded lazily from QuantityType classes on first access.
+ * Conversions are loaded per-system via loadConversions().
  */
 class ConversionRegistry
 {
@@ -60,7 +61,6 @@ class ConversionRegistry
      * @param string $dimension The dimension code.
      * @return array<string, array<string, Conversion>>
      * @throws FormatException If the dimension code is invalid.
-     * @throws DomainException If any conversion definitions are invalid.
      */
     public static function getByDimension(string $dimension): array
     {
@@ -69,10 +69,7 @@ class ConversionRegistry
             throw new FormatException("Invalid dimension code '$dimension'.");
         }
 
-        // Load the conversion for this dimension.
-        self::init($dimension);
-
-        // Check if we have it.
+        // Return conversions for this dimension.
         $dimension = DimensionRegistry::normalize($dimension);
         return self::$conversions[$dimension] ?? [];
     }
@@ -199,16 +196,16 @@ class ConversionRegistry
     }
 
     /**
-     * Load any missing conversions from QuantityType definitions.
+     * Get all conversion definitions from all QuantityType classes.
      *
-     * This method iterates through all QuantityType classes and adds any conversions
-     * where both units are now in the UnitRegistry but the conversion isn't already present.
-     * This is useful after calling UnitRegistry::loadSystem() to pick up conversions
-     * that were previously skipped due to missing units.
+     * This includes both explicit conversion definitions and expansion-based conversions.
+     *
+     * @return list<array{string, string, float}> Array of [srcSymbol, destSymbol, factor] tuples.
      */
-    public static function loadConversions(): void
+    public static function getAllConversionDefinitions(): array
     {
-        // Iterate through all QuantityType classes.
+        $definitions = [];
+
         foreach (QuantityTypeRegistry::getAll() as $qtyType) {
             /** @var ?class-string<Quantity> $qtyTypeClass */
             $qtyTypeClass = $qtyType->class;
@@ -218,47 +215,62 @@ class ConversionRegistry
                 continue;
             }
 
-            // Get conversions from the class.
-            $conversionList = $qtyTypeClass::getConversionDefinitions();
-            foreach ($conversionList as [$srcSymbol, $destSymbol, $factor]) {
-                // Get the source unit as a DerivedUnit object.
-                try {
-                    $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
-                } catch (DomainException) {
-                    // Unit is unknown.
-                    continue;
-                }
-
-                // Get the destination unit as a DerivedUnit object.
-                try {
-                    $destUnit = DerivedUnit::toDerivedUnit($destSymbol);
-                } catch (DomainException) {
-                    // Unit is unknown.
-                    continue;
-                }
-
-                // Construct the new Conversion.
-                $newConversion = new Conversion($srcUnit, $destUnit, $factor);
-
-                // Add it to the registry if it's not already there.
-                if (!self::hasConversion($newConversion)) {
-                    self::addConversion($newConversion);
-                }
+            // Explicit conversion definitions.
+            foreach ($qtyTypeClass::getConversionDefinitions() as $definition) {
+                $definitions[] = $definition;
             }
 
-            // Also include any expansions for units now in the registry.
-            $units = UnitRegistry::getByDimension($qtyType->dimension);
-            foreach ($units as $unit) {
-                if ($unit->expansionUnit !== null && $unit->expansionValue !== null) {
-                    // Construct the new Conversion.
-                    $newConversion = new Conversion($unit, $unit->expansionUnit, $unit->expansionValue);
-
-                    // Add it to the registry if it's not already there.
-                    if (!self::hasConversion($newConversion)) {
-                        self::addConversion($newConversion);
-                    }
+            // Expansion-based conversions.
+            foreach ($qtyTypeClass::getUnitDefinitions() as $unitDef) {
+                if (isset($unitDef['expansionUnitSymbol'])) {
+                    $definitions[] = [
+                        $unitDef['asciiSymbol'],
+                        $unitDef['expansionUnitSymbol'],
+                        $unitDef['expansionValue'] ?? 1.0,
+                    ];
                 }
             }
+        }
+
+        return $definitions;
+    }
+
+    /**
+     * Load conversions for a specific measurement system.
+     *
+     * Iterates through all conversion definitions and adds any where at least one unit belongs to the specified system.
+     * Both units must be known (in the registry).
+     *
+     * @param System $system The measurement system to load conversions for.
+     */
+    public static function loadConversions(System $system): void
+    {
+        foreach (self::getAllConversionDefinitions() as [$srcSymbol, $destSymbol, $factor]) {
+            // Try to get the source unit.
+            try {
+                $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
+            } catch (DomainException) {
+                // Unit is unknown.
+                continue;
+            }
+
+            // Try to get the destination unit.
+            try {
+                $destUnit = DerivedUnit::toDerivedUnit($destSymbol);
+            } catch (DomainException) {
+                // Unit is unknown.
+                continue;
+            }
+
+            // Check if at least one unit belongs to the specified system.
+            $srcBelongs = $srcUnit->firstUnitTerm?->unit->belongsToSystem($system) ?? false;
+            $destBelongs = $destUnit->firstUnitTerm?->unit->belongsToSystem($system) ?? false;
+            if (!$srcBelongs && !$destBelongs) {
+                continue;
+            }
+
+            // Add the conversion (replacing any existing).
+            self::addConversion(new Conversion($srcUnit, $destUnit, $factor));
         }
     }
 
@@ -292,44 +304,4 @@ class ConversionRegistry
 
     // endregion
 
-    // region Private static helper methods
-
-    /**
-     * Initialize the conversions array from the QuantityType class corresponding to a given dimension.
-     *
-     * This is called lazily on first access.
-     *
-     * @param string $dimension The dimension code to initialize.
-     */
-    private static function init(string $dimension): void
-    {
-        if (!isset(self::$conversions[$dimension])) {
-            self::resetByDimension($dimension);
-
-            // Find the relevant QuantityType.
-            $qtyType = QuantityTypeRegistry::getByDimension($dimension);
-
-            /** @var ?class-string<Quantity> $qtyTypeClass */
-            $qtyTypeClass = $qtyType?->class;
-
-            // If this quantity type has a class with conversion definitions, load them.
-            if ($qtyTypeClass !== null) {
-                // Get conversions from the class and add them.
-                $conversionList = $qtyTypeClass::getConversionDefinitions();
-                foreach ($conversionList as [$srcSymbol, $destSymbol, $factor]) {
-                    self::add($srcSymbol, $destSymbol, $factor, self::ON_MISSING_UNIT_IGNORE);
-                }
-            }
-
-            // Also include any expansions.
-            $units = UnitRegistry::getByDimension($dimension);
-            foreach ($units as $unit) {
-                if ($unit->expansionUnitSymbol !== null && $unit->expansionValue !== null) {
-                    self::add($unit, $unit->expansionUnitSymbol, $unit->expansionValue, self::ON_MISSING_UNIT_IGNORE);
-                }
-            }
-        }
-    }
-
-    // endregion
 }

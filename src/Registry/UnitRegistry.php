@@ -255,7 +255,7 @@ class UnitRegistry
         }
 
         // Load any conversions involving the newly loaded units.
-        ConversionRegistry::loadConversions();
+        ConversionRegistry::loadConversions($system);
     }
 
     // endregion

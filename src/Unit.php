@@ -215,7 +215,22 @@ class Unit implements UnitInterface
 
     // endregion
 
-// region Prefix methods
+    // region System methods
+
+    /**
+     * Check if this unit belongs to a specific measurement system.
+     *
+     * @param System $system The system to check.
+     * @return bool True if the unit belongs to the system.
+     */
+    public function belongsToSystem(System $system): bool
+    {
+        return in_array($system, $this->systems, true);
+    }
+
+    // endregion
+
+    // region Prefix methods
 
     /**
      * Check if this unit accepts prefixes.

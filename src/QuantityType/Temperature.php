@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use DomainException;
 use Galaxon\Core\Arrays;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
@@ -62,11 +63,13 @@ class Temperature extends Quantity
                 'asciiSymbol'   => 'degC',
                 'unicodeSymbol' => '°C',
                 'systems'       => [System::SI],
+                'expansionUnitSymbol' => 'K',
             ],
             'fahrenheit' => [
                 'asciiSymbol'   => 'degF',
                 'unicodeSymbol' => '°F',
                 'systems'       => [System::Imperial, System::US],
+                'expansionUnitSymbol' => 'degR',
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',
@@ -88,91 +91,93 @@ class Temperature extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
-            ['degC', 'K', 1],
-            ['degF', 'degR', 1],
             ['K', 'degR', 1.8],
         ];
     }
 
-    // endregion
-
     /**
-     * This override is necessary because Celsius and Fahrenheit are offset from absolute zero, but the conversion
-     * engine used by the package only supports conversion by multipliying.
+     * Convert temperature from one unit to another.
      *
-     * @param float $value
-     * @param string|UnitInterface $srcUnit
-     * @param string|UnitInterface $destUnit
-     * @return float
+     * This override is necessary because Celsius and Fahrenheit are offset from absolute zero, but the conversion
+     * engine used by the package only supports conversion by multiplying.
+     *
+     * The offset (e.g. 273.15 for Celsius→Kelvin) only applies when converting actual temperatures - that is,
+     * quantities with dimension H and no other unit terms or exponents. For derived units containing temperature
+     * (e.g. J/°C → J/K), the standard conversion engine is used, which applies only the conversion factor (1),
+     * not the offset. This is correct because such quantities represent rates of change, not absolute temperatures.
+     *
+     * @param float $value The temperature value to convert.
+     * @param string|UnitInterface $srcUnit The source temperature unit.
+     * @param string|UnitInterface $destUnit The destination temperature unit.
+     * @return float The converted temperature value.
+     * @throws FormatException If a string cannot be parsed.
+     * @throws DomainException If the unit is unknown or not a temperature unit.
      */
     #[Override]
     public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
     {
-        $origSrcUnitSymbol = (string)$srcUnit;
-        $origDestUnitSymbol = (string)$destUnit;
+        // Get the original arguments as strings in case of exception.
+        $srcSymbol = (string)$srcUnit;
+        $destSymbol = (string)$destUnit;
 
-        // If the source unit is provided as a string, convert it to an object.
-        if (is_string($srcUnit)) {
-            $srcUnit = DerivedUnit::parse($srcUnit);
+        // Get the units as DerivedUnit objects. These calls could throw exceptions.
+        $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
+        $destUnit = DerivedUnit::toDerivedUnit($destUnit);
+
+        // Validate units.
+        if ($srcUnit->dimension !== 'H') {
+            throw new DomainException("Invalid temperature unit: '$srcSymbol'.");
+        }
+        if ($destUnit->dimension !== 'H') {
+            throw new DomainException("Invalid temperature unit: '$destSymbol'.");
         }
 
-        // If the destination unit is provided as a string, convert it to an object.
-        if (is_string($destUnit)) {
-            $destUnit = DerivedUnit::parse($destUnit);
-        }
-
-        $srcUnitSymbol = (string)$srcUnit;
-        $destUnitSymbol = (string)$destUnit;
-
-        // Check that the source and destination units are valid.
-        $validUnitSymbols = self::getUnitSymbols();
-        $quoted = implode(', ', Arrays::quoteValues($validUnitSymbols));
-        if (!in_array($srcUnitSymbol, $validUnitSymbols, true)) {
-            throw new DomainException("Invalid temperature unit '$origSrcUnitSymbol'. Valid units are: $quoted.");
-        }
-        if (!in_array($destUnitSymbol, $validUnitSymbols, true)) {
-            throw new DomainException("Invalid temperature unit '$origDestUnitSymbol'. Valid units are: $quoted.");
-        }
+        // Get the ASCII symbols.
+        $srcSymbol = $srcUnit->asciiSymbol;
+        $destSymbol = $destUnit->asciiSymbol;
 
         // We done?
-        if ($srcUnitSymbol === $destUnitSymbol) {
+        if ($srcSymbol === $destSymbol) {
             return $value;
         }
 
         // Apply offset as needed to get value from absolute zero.
-        if ($srcUnitSymbol === 'degC') {
+        if ($srcSymbol === 'degC') {
             // Convert Celsius to Kelvin.
             $value += self::CELSIUS_OFFSET;
-            $srcUnitSymbol = 'K';
-        } elseif ($srcUnitSymbol === 'degF') {
+            $srcSymbol = 'K';
+        } elseif ($srcUnit->asciiSymbol === 'degF') {
             // Convert Fahrenheit to Rankine.
             $value += self::FAHRENHEIT_OFFSET;
-            $srcUnitSymbol = 'degR';
+            $srcSymbol = 'degR';
         }
 
         // We done?
-        if ($srcUnitSymbol === $destUnitSymbol) {
+        if ($srcSymbol === $destSymbol) {
             return $value;
         }
 
-        // Scale as needed.
-        if ($srcUnitSymbol === 'K') {
+        // Determine if we need to convert from metric (K/degC) to US/imperial (degR/degF) or vice versa.
+        $destIsImperial = in_array($destSymbol, ['degR', 'degF'], true);
+
+        // Scale only if crossing sides.
+        if ($srcSymbol === 'K' && $destIsImperial) {
             // Convert Kelvin to Rankine.
             $value *= self::RANKINE_PER_KELVIN;
-            $srcUnitSymbol = 'degR';
-        } else {
+            $srcSymbol = 'degR';
+        } elseif ($srcSymbol === 'degR' && !$destIsImperial) {
             // Convert Rankine to Kelvin.
             $value /= self::RANKINE_PER_KELVIN;
-            $srcUnitSymbol = 'K';
+            $srcSymbol = 'K';
         }
 
         // We done?
-        if ($srcUnitSymbol === $destUnitSymbol) {
+        if ($srcSymbol === $destSymbol) {
             return $value;
         }
 
         // Convert Kelvin to Celsius.
-        if ($srcUnitSymbol === 'K') {
+        if ($srcSymbol === 'K') {
             return $value - self::CELSIUS_OFFSET;
         }
 
@@ -180,21 +185,5 @@ class Temperature extends Quantity
         return $value - self::FAHRENHEIT_OFFSET;
     }
 
-    /**
-     * Get all temperature unit symbols.
-     *
-     * @return list<string>
-     */
-    public static function getUnitSymbols(): array
-    {
-        $symbols = [];
-        $units = UnitRegistry::getByDimension('H');
-        foreach ($units as $unit) {
-            $symbols[] = $unit->asciiSymbol;
-            if ($unit->unicodeSymbol !== $unit->asciiSymbol) {
-                $symbols[] = $unit->unicodeSymbol;
-            }
-        }
-        return $symbols;
-    }
+    // endregion
 }
