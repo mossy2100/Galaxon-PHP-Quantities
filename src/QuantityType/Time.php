@@ -6,14 +6,11 @@ namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use InvalidArgumentException;
 use LogicException;
 use Override;
-use TypeError;
 
 class Time extends Quantity
 {

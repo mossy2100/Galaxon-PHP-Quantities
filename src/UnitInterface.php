@@ -40,21 +40,7 @@ interface UnitInterface extends Stringable
 
     // endregion
 
-    // region Formatting methods
-
-    /**
-     * Format the unit as a string.
-     *
-     * @param bool $ascii If true, return ASCII format; if false (default), return Unicode format.
-     * @return string The formatted unit.
-     */
-    public function format(bool $ascii = false): string;
-
-    // __toString() is inherited from Stringable
-
-    // endregion
-
-    // region Static methods
+    // region String methods
 
     /**
      * Parse a string into the unit type.
@@ -65,6 +51,16 @@ interface UnitInterface extends Stringable
      * @throws DomainException If the symbol contains unknown units.
      */
     public static function parse(string $symbol): self;
+
+    /**
+     * Format the unit as a string.
+     *
+     * @param bool $ascii If true, return ASCII format; if false (default), return Unicode format.
+     * @return string The formatted unit.
+     */
+    public function format(bool $ascii = false): string;
+
+    // __toString() is inherited from Stringable
 
     // endregion
 }

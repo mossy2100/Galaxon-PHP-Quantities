@@ -46,43 +46,43 @@ class DimensionRegistry
      */
     public const array DIMENSION_CODES = [
         'M' => [
-            'name'   => 'mass',
+            'name'         => 'mass',
             'siUnitSymbol' => 'kg',
         ],
         'L' => [
-            'name'   => 'length',
+            'name'         => 'length',
             'siUnitSymbol' => 'm',
         ],
         'A' => [
-            'name'   => 'angle',
+            'name'         => 'angle',
             'siUnitSymbol' => 'rad',
         ],
         'D' => [
-            'name'   => 'data',
+            'name'         => 'data',
             'siUnitSymbol' => 'B',
         ],
         'C' => [
-            'name'   => 'currency',
+            'name'         => 'currency',
             'siUnitSymbol' => 'XAU',
         ],
         'T' => [
-            'name'   => 'time',
+            'name'         => 'time',
             'siUnitSymbol' => 's',
         ],
         'I' => [
-            'name'   => 'electric current',
+            'name'         => 'electric current',
             'siUnitSymbol' => 'A',
         ],
         'H' => [
-            'name'   => 'temperature',
+            'name'         => 'temperature',
             'siUnitSymbol' => 'K',
         ],
         'N' => [
-            'name'   => 'amount of substance',
+            'name'         => 'amount of substance',
             'siUnitSymbol' => 'mol',
         ],
         'J' => [
-            'name'   => 'luminous intensity',
+            'name'         => 'luminous intensity',
             'siUnitSymbol' => 'cd',
         ],
     ];

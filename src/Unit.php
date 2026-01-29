@@ -7,7 +7,6 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Core\Types;
 use Galaxon\Quantities\Registry\DimensionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -85,7 +84,7 @@ class Unit implements UnitInterface
     /**
      * The expansion unit.
      */
-    public ?DerivedUnit $expansionUnit {
+    public ?DerivedUnit $expansionUnit = null {
         get {
             if ($this->expansionUnitSymbol === null) {
                 return null;
@@ -126,25 +125,25 @@ class Unit implements UnitInterface
 
             // Add Unicode symbol, if different.
             if ($this->unicodeSymbol !== $this->asciiSymbol) {
-                $symbols[] = $this->unicodeSymbol;
+        $symbols[] = $this->unicodeSymbol;
             }
 
             // Add prefixed symbols.
             $prefixes = $this->allowedPrefixes;
             foreach ($prefixes as $prefix) {
-                // Add prefixed ASCII symbols.
-                $symbols[] = $prefix->asciiSymbol . $this->asciiSymbol;
-                if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
-                    $symbols[] = $prefix->unicodeSymbol . $this->asciiSymbol;
-                }
+        // Add prefixed ASCII symbols.
+        $symbols[] = $prefix->asciiSymbol . $this->asciiSymbol;
+        if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
+            $symbols[] = $prefix->unicodeSymbol . $this->asciiSymbol;
+        }
 
-                // Add prefixed Unicode symbols, if different.
-                if ($this->unicodeSymbol !== $this->asciiSymbol) {
-                    $symbols[] = $prefix->asciiSymbol . $this->unicodeSymbol;
-                    if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
-                        $symbols[] = $prefix->unicodeSymbol . $this->unicodeSymbol;
-                    }
-                }
+        // Add prefixed Unicode symbols, if different.
+        if ($this->unicodeSymbol !== $this->asciiSymbol) {
+            $symbols[] = $prefix->asciiSymbol . $this->unicodeSymbol;
+            if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
+                $symbols[] = $prefix->unicodeSymbol . $this->unicodeSymbol;
+            }
+        }
             }
 
             return $symbols;
@@ -211,10 +210,6 @@ class Unit implements UnitInterface
 
     // endregion
 
-    // region Accessors
-
-    // endregion
-
     // region System methods
 
     /**
@@ -255,22 +250,7 @@ class Unit implements UnitInterface
 
     // endregion
 
-    // region Formatting methods
-
-    /**
-     * Format the unit as a string.
-     *
-     * If $ascii is false (default), returns the Unicode symbol if available, otherwise the ASCII symbol.
-     * If $ascii is true, returns the ASCII symbol.
-     *
-     * @param bool $ascii If true, return ASCII symbol; if false (default), return Unicode symbol if available.
-     * @return string The formatted unit.
-     */
-    #[Override]
-    public function format(bool $ascii = false): string
-    {
-        return $ascii ? $this->asciiSymbol : $this->unicodeSymbol;
-    }
+    // region String methods
 
     public static function regex(): string
     {
@@ -301,6 +281,21 @@ class Unit implements UnitInterface
 
         // If not found, throw an exception.
         return $unit ?? throw new DomainException("Unknown unit symbol '$symbol'.");
+    }
+
+    /**
+     * Format the unit as a string.
+     *
+     * If $ascii is false (default), returns the Unicode symbol if available, otherwise the ASCII symbol.
+     * If $ascii is true, returns the ASCII symbol.
+     *
+     * @param bool $ascii If true, return ASCII symbol; if false (default), return Unicode symbol if available.
+     * @return string The formatted unit.
+     */
+    #[Override]
+    public function format(bool $ascii = false): string
+    {
+        return $ascii ? $this->asciiSymbol : $this->unicodeSymbol;
     }
 
     /**

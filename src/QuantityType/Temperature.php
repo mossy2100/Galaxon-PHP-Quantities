@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use DomainException;
-use Galaxon\Core\Arrays;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitInterface;
 use Override;
@@ -60,15 +58,15 @@ class Temperature extends Quantity
                 'systems'     => [System::SI],
             ],
             'celsius'    => [
-                'asciiSymbol'   => 'degC',
-                'unicodeSymbol' => '°C',
-                'systems'       => [System::SI],
+                'asciiSymbol'         => 'degC',
+                'unicodeSymbol'       => '°C',
+                'systems'             => [System::SI],
                 'expansionUnitSymbol' => 'K',
             ],
             'fahrenheit' => [
-                'asciiSymbol'   => 'degF',
-                'unicodeSymbol' => '°F',
-                'systems'       => [System::Imperial, System::US],
+                'asciiSymbol'         => 'degF',
+                'unicodeSymbol'       => '°F',
+                'systems'             => [System::Imperial, System::US],
                 'expansionUnitSymbol' => 'degR',
             ],
             'rankine'    => [
@@ -91,7 +89,7 @@ class Temperature extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
-            ['K', 'degR', 1.8],
+            ['K', 'degR', self::RANKINE_PER_KELVIN],
         ];
     }
 
@@ -146,7 +144,7 @@ class Temperature extends Quantity
             // Convert Celsius to Kelvin.
             $value += self::CELSIUS_OFFSET;
             $srcSymbol = 'K';
-        } elseif ($srcUnit->asciiSymbol === 'degF') {
+        } elseif ($srcSymbol === 'degF') {
             // Convert Fahrenheit to Rankine.
             $value += self::FAHRENHEIT_OFFSET;
             $srcSymbol = 'degR';

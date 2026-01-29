@@ -226,7 +226,7 @@ class ConversionRegistry
                     $definitions[] = [
                         $unitDef['asciiSymbol'],
                         $unitDef['expansionUnitSymbol'],
-                        $unitDef['expansionValue'] ?? 1.0,
+                        $unitDef['expansionValue'] ?? 1.0
                     ];
                 }
             }
@@ -303,5 +303,4 @@ class ConversionRegistry
     }
 
     // endregion
-
 }

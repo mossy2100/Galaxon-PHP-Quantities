@@ -55,7 +55,7 @@ class PrefixRegistry
 
     // endregion
 
-    // region Static methods for public API
+    // region Static public methods
 
     /**
      * Return an array of prefixes given an integer group code comprising bitwise flags.
@@ -149,7 +149,7 @@ class PrefixRegistry
     // region Helper methods
 
     /**
-     * Get all the prefix definitions.
+     * Get the prefix definitions.
      *
      * @return array<int, array<string, array{0: string, 1: float, 2?: string}>>
      */

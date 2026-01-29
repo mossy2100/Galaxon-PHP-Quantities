@@ -24,9 +24,7 @@ class QuantityType
     // phpcs:disable PSR2.Classes.PropertyDeclaration
     // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
-    /**
-     * @var ?class-string<Quantity>
-     */
+    /** @var ?class-string<Quantity> */
     public ?string $class {
         set {
             // Validate the class.

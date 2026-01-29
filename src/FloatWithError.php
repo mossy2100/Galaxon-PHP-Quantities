@@ -305,7 +305,7 @@ class FloatWithError implements Stringable
 
     // endregion
 
-    // region Conversion methods
+    // region String methods
 
     /**
      * Convert to string representation showing value and absolute error.

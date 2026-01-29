@@ -8,7 +8,6 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Core\Types;
 use Galaxon\Quantities\Registry\DimensionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -167,7 +166,84 @@ class UnitTerm implements UnitInterface
 
     // endregion
 
-    // region Static methods
+    // region Static public methods
+
+    /**
+     * Look up a unit or prefixed unit by its symbol.
+     *
+     * @param string $symbol The prefixed unit symbol to search for.
+     * @return list<self> Array of matching unit terms.
+     */
+    public static function getBySymbol(string $symbol): array
+    {
+        $matches = [];
+
+        // Look for any matching units.
+        foreach (UnitRegistry::getAll() as $unit) {
+            // See if the unprefixed unit matches.
+            if ($unit->asciiSymbol === $symbol || $unit->unicodeSymbol === $symbol) {
+                $matches[] = new self($unit);
+            }
+
+            // Loop through the prefixed units and see if any match.
+            foreach ($unit->allowedPrefixes as $prefix) {
+                if (
+                    $prefix->asciiSymbol . $unit->asciiSymbol === $symbol ||
+                    $prefix->asciiSymbol . $unit->unicodeSymbol === $symbol ||
+                    $prefix->unicodeSymbol . $unit->asciiSymbol === $symbol ||
+                    $prefix->unicodeSymbol . $unit->unicodeSymbol === $symbol
+                ) {
+                    $matches[] = new self($unit, $prefix);
+                }
+            }
+        }
+
+        return $matches;
+    }
+
+    /**
+     * Convert the argument to a UnitTerm if necessary.
+     *
+     * @param string|Unit|self $value The value to convert.
+     * @return self The equivalent UnitTerm object.
+     * @throws DomainException If a string is provided that cannot be parsed into a UnitTerm.
+     */
+    public static function toUnitTerm(string|Unit|self $value): self
+    {
+        // If the value is already a UnitTerm, return it as is.
+        if ($value instanceof self) {
+            return $value;
+        }
+
+        // If the value is a string, parse it.
+        if (is_string($value)) {
+            return self::parse($value);
+        }
+
+        // Otherwise, construct a new UnitTerm.
+        return new self($value);
+    }
+
+    // endregion
+
+    // region String methods
+
+    /**
+     * Get the regex pattern for matching a unit term.
+     *
+     * Matches one or more letters (the unit symbol) optionally followed by an exponent
+     * in either ASCII digits or Unicode superscript characters.
+     *
+     * @return string The regex pattern (without delimiters or anchors).
+     */
+    public static function regex(): string
+    {
+        $superscriptChars = Integers::SUPERSCRIPT_CHARACTERS;
+        $superscriptMinus = $superscriptChars['-'];
+        unset($superscriptChars['-']);
+        $superscriptDigits = implode('', $superscriptChars);
+        return Unit::regex() . "((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
+    }
 
     /**
      * Parses the given symbol to extract the unit, prefix, and exponent.
@@ -228,83 +304,6 @@ class UnitTerm implements UnitInterface
         // Create the new object.
         return $matchingUnits[0]->pow($exp);
     }
-
-    /**
-     * Get the regex pattern for matching a unit term.
-     *
-     * Matches one or more letters (the unit symbol) optionally followed by an exponent
-     * in either ASCII digits or Unicode superscript characters.
-     *
-     * @return string The regex pattern (without delimiters or anchors).
-     */
-    public static function regex(): string
-    {
-        $superscriptChars = Integers::SUPERSCRIPT_CHARACTERS;
-        $superscriptMinus = $superscriptChars['-'];
-        unset($superscriptChars['-']);
-        $superscriptDigits = implode('', $superscriptChars);
-        return Unit::regex() . "((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
-    }
-
-    /**
-     * Look up a unit or prefixed unit by its symbol.
-     *
-     * @param string $symbol The prefixed unit symbol to search for.
-     * @return list<self> Array of matching unit terms.
-     */
-    public static function getBySymbol(string $symbol): array
-    {
-        $matches = [];
-
-        // Look for any matching units.
-        foreach (UnitRegistry::getAll() as $unit) {
-            // See if the unprefixed unit matches.
-            if ($unit->asciiSymbol === $symbol || $unit->unicodeSymbol === $symbol) {
-                $matches[] = new self($unit);
-            }
-
-            // Loop through the prefixed units and see if any match.
-            foreach ($unit->allowedPrefixes as $prefix) {
-                if (
-                    $prefix->asciiSymbol . $unit->asciiSymbol === $symbol ||
-                    $prefix->asciiSymbol . $unit->unicodeSymbol === $symbol ||
-                    $prefix->unicodeSymbol . $unit->asciiSymbol === $symbol ||
-                    $prefix->unicodeSymbol . $unit->unicodeSymbol === $symbol
-                ) {
-                    $matches[] = new self($unit, $prefix);
-                }
-            }
-        }
-
-        return $matches;
-    }
-
-    /**
-     * Convert the argument to a UnitTerm if necessary.
-     *
-     * @param string|Unit|self $value The value to convert.
-     * @return self The equivalent UnitTerm object.
-     * @throws DomainException If a string is provided that cannot be parsed into a UnitTerm.
-     */
-    public static function toUnitTerm(string|Unit|self $value): self
-    {
-        // If the value is already a UnitTerm, return it as is.
-        if ($value instanceof self) {
-            return $value;
-        }
-
-        // If the value is a string, parse it.
-        if (is_string($value)) {
-            return self::parse($value);
-        }
-
-        // Otherwise, construct a new UnitTerm.
-        return new self($value);
-    }
-
-    // endregion
-
-    // region Formatting methods
 
     /**
      * Format the unit term as a string.

@@ -140,7 +140,47 @@ class DerivedUnit implements UnitInterface
 
     // endregion
 
-    // region Static methods
+    // region Static public methods
+
+    /**
+     * Convert the argument to a DerivedUnit if necessary.
+     *
+     * @param null|string|UnitInterface $value The value to convert.
+     * @return self The equivalent DerivedUnit object.
+     * @throws FormatException If a string is provided and it cannot be parsed.
+     * @throws DomainException If a string is provided and it contains unknown units.
+     */
+    public static function toDerivedUnit(null|string|UnitInterface $value): self
+    {
+        // If the value is already a DerivedUnit, return it as is.
+        if ($value instanceof self) {
+            return $value;
+        }
+
+        // If the value is a string, parse it.
+        if (is_string($value)) {
+            return self::parse($value);
+        }
+
+        // Otherwise, construct a new DerivedUnit.
+        /** @var null|Unit|UnitTerm $value */
+        return new self($value);
+    }
+
+    // endregion
+
+    // region String methods
+
+    /**
+     * Get the regex pattern for matching a derived unit.
+     *
+     * @return string The regex pattern (without delimiters or anchors).
+     */
+    public static function regex(): string
+    {
+        $rxUnitTerm = UnitTerm::regex();
+        return "$rxUnitTerm(" . self::UNIT_TERM_SEPARATORS . "$rxUnitTerm)*";
+    }
 
     /**
      * Parse a string into a new DerivedUnit.
@@ -187,46 +227,6 @@ class DerivedUnit implements UnitInterface
         // Return the new object.
         return $new;
     }
-
-    /**
-     * Convert the argument to a DerivedUnit if necessary.
-     *
-     * @param null|string|UnitInterface $value The value to convert.
-     * @return self The equivalent DerivedUnit object.
-     * @throws FormatException If a string is provided and it cannot be parsed.
-     * @throws DomainException If a string is provided and it contains unknown units.
-     */
-    public static function toDerivedUnit(null|string|UnitInterface $value): self
-    {
-        // If the value is already a DerivedUnit, return it as is.
-        if ($value instanceof self) {
-            return $value;
-        }
-
-        // If the value is a string, parse it.
-        if (is_string($value)) {
-            return self::parse($value);
-        }
-
-        // Otherwise, construct a new DerivedUnit.
-        /** @var null|Unit|UnitTerm $value */
-        return new self($value);
-    }
-
-    /**
-     * Get the regex pattern for matching a derived unit.
-     *
-     * @return string The regex pattern (without delimiters or anchors).
-     */
-    public static function regex(): string
-    {
-        $rxUnitTerm = UnitTerm::regex();
-        return "$rxUnitTerm(" . self::UNIT_TERM_SEPARATORS . "$rxUnitTerm)*";
-    }
-
-    // endregion
-
-    // region Formatting methods
 
     /**
      * Format the derived unit as a string.

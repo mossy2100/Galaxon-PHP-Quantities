@@ -139,7 +139,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Static methods
+    // region Static public methods
 
     /**
      * Create a Quantity of the appropriate type for the given unit.
@@ -173,92 +173,6 @@ class Quantity implements Stringable
 
         // Fall back to a generic Quantity object.
         return new self($value, $unit);
-    }
-
-    /**
-     * Parse a string representation into a Quantity object.
-     *
-     * Accepts formats like "123.45 km", "90deg", "1.5e3 ms".
-     * Whitespace between value and unit is optional.
-     *
-     * @param string $value The string to parse.
-     * @return self A new Quantity parsed from the string.
-     * @throws FormatException If the string format is invalid.
-     * @throws DomainException If the string contains unknown units.
-     *
-     * @example
-     *   Length::parse("123.45 km")  // Length(123.45, 'km')
-     *   Angle::parse("90deg")       // Angle(90.0, 'deg')
-     *   Time::parse("1.5e3 ms")     // Time(1500.0, 'ms')
-     */
-    public static function parse(string $value): self
-    {
-        // Prepare an error message with the original value.
-        $qtyType = QuantityTypeRegistry::getByClass(static::class);
-        $name = $qtyType === null ? '' : (' ' . strtolower($qtyType->name));
-        $err = "The provided string '$value' does not represent a valid$name quantity.";
-
-        // Reject empty input.
-        $value = trim($value);
-        if ($value === '') {
-            throw new FormatException($err);
-        }
-
-        // Look for <num><unit>. Whitespace between the number and unit is permitted. Unit is optional, for a
-        // dimensionless quantity.
-        $rxNum = Numbers::REGEX;
-        $rxDerivedUnit = DerivedUnit::regex();
-        if (preg_match("/^($rxNum)\s*($rxDerivedUnit)?$/iu", $value, $m)) {
-            return self::create((float)$m[1], $m[2] ?? null);
-        }
-
-        // Invalid format.
-        throw new FormatException($err);
-    }
-
-    /**
-     * Convert a value from a source unit to a destination unit.
-     *
-     * @param float $value The numeric value to convert.
-     * @param string|UnitInterface $srcUnit The source unit.
-     * @param string|UnitInterface $destUnit The destination unit.
-     * @return float The converted value.
-     * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If a unit string contains unknown units.
-     * @throws LogicException If no conversion path exists between the units.
-     */
-    public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
-    {
-        $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
-        $converter = Converter::getByDimension($srcUnit->dimension);
-        return $converter->convert($value, $srcUnit, $destUnit);
-    }
-
-    /**
-     * Get the converter matching the quantity type.
-     *
-     * This method must be called from a registered subclass of Quantity.
-     *
-     * @return Converter The converter for this quantity type's dimension.
-     * @throws LogicException If called from Quantity or an unregistered subclass.
-     * @throws DomainException If the dimension is invalid.
-     */
-    public static function getConverter(): Converter
-    {
-        // This method won't work if called from Quantity.
-        if (self::class === static::class) {
-            throw new LogicException('This method should be called from a registered subclass of ' . self::class . '.');
-        }
-
-        // Load the dimension corresponding to the calling class.
-        $dimension = QuantityTypeRegistry::getByClass(static::class)?->dimension;
-
-        // This method won't work if called from a Quantity subclass that isn't in the QuantityTypeRegistry.
-        if ($dimension === null) {
-            throw new LogicException('This method should be called from a registered subclass of ' . self::class . '.');
-        }
-
-        return Converter::getByDimension($dimension);
     }
 
     // endregion
@@ -296,18 +210,22 @@ class Quantity implements Stringable
         return [];
     }
 
-    // endregion
-
-    // region Inspection methods
-
     /**
-     * Check if the quantity is dimensionless (has no unit terms).
+     * Convert a value from a source unit to a destination unit.
      *
-     * @return bool True if dimensionless, false otherwise.
+     * @param float $value The numeric value to convert.
+     * @param string|UnitInterface $srcUnit The source unit.
+     * @param string|UnitInterface $destUnit The destination unit.
+     * @return float The converted value.
+     * @throws FormatException If a unit string cannot be parsed.
+     * @throws DomainException If a unit string contains unknown units.
+     * @throws LogicException If no conversion path exists between the units.
      */
-    public function isDimensionless(): bool
+    public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
     {
-        return $this->derivedUnit->isDimensionless();
+        $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
+        $converter = Converter::getByDimension($srcUnit->dimension);
+        return $converter->convert($value, $srcUnit, $destUnit);
     }
 
     // endregion
@@ -932,16 +850,58 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Formatting methods
+    // region String methods
+
+    /**
+     * Parse a string representation into a Quantity object.
+     *
+     * Accepts formats like "123.45 km", "90deg", "1.5e3 ms".
+     * Whitespace between value and unit is optional.
+     *
+     * @param string $value The string to parse.
+     * @return self A new Quantity parsed from the string.
+     * @throws FormatException If the string format is invalid.
+     * @throws DomainException If the string contains unknown units.
+     *
+     * @example
+     *   Length::parse("123.45 km")  // Length(123.45, 'km')
+     *   Angle::parse("90deg")       // Angle(90.0, 'deg')
+     *   Time::parse("1.5e3 ms")     // Time(1500.0, 'ms')
+     */
+    public static function parse(string $value): self
+    {
+        // Prepare an error message with the original value.
+        $qtyType = QuantityTypeRegistry::getByClass(static::class);
+        $name = $qtyType === null ? '' : (' ' . strtolower($qtyType->name));
+        $err = "The provided string '$value' does not represent a valid$name quantity.";
+
+        // Reject empty input.
+        $value = trim($value);
+        if ($value === '') {
+            throw new FormatException($err);
+        }
+
+        // Look for <num><unit>. Whitespace between the number and unit is permitted. Unit is optional, for a
+        // dimensionless quantity.
+        $rxNum = Numbers::REGEX;
+        $rxDerivedUnit = DerivedUnit::regex();
+        if (preg_match("/^($rxNum)\s*($rxDerivedUnit)?$/iu", $value, $m)) {
+            return self::create((float)$m[1], $m[2] ?? null);
+        }
+
+        // Invalid format.
+        throw new FormatException($err);
+    }
 
     /**
      * Format the measurement as a string with control over precision and notation.
      *
-     *  Precision meaning varies by specifier:
+     * Precision meaning varies by specifier:
      *  - 'f'/'F': Number of decimal places
      *  - 'e'/'E': Number of mantissa digits
      *  - 'g'/'G': Number of significant figures
      *
+     * @param bool $ascii If true, use ASCII characters only.
      * @param string $specifier Format type: 'f'/'F' (fixed), 'e'/'E' (scientific), 'g'/'G' (shortest).
      * @param ?int $precision Number of digits (meaning depends on specifier).
      * @param bool $trimZeros If true, remove trailing zeros and decimal point.
@@ -950,15 +910,17 @@ class Quantity implements Stringable
      * @throws DomainException If specifier or precision are invalid.
      *
      * @example
-     *   $angle->format('f', 2)       // "90.00 deg"
-     *   $angle->format('e', 3)       // "1.571e+0 rad"
-     *   $angle->format('f', 0, true, false)  // "90deg"
+     *   $angle->format(true, 'f', 2)       // "90.00 deg"
+     *   $angle->format(false, 'f', 2)      // "90.00°"
+     *   $angle->format(true, 'e', 3)       // "1.571e+0 rad"
+     *   $angle->format(true, 'f', 0, true, false)  // "90deg"
      */
     public function format(
+        bool $ascii = false,
         string $specifier = 'f',
         ?int $precision = null,
         bool $trimZeros = true,
-        bool $includeSpace = true
+        ?bool $includeSpace = null
     ): string {
         // Validate the specifier.
         if (!in_array($specifier, ['e', 'E', 'f', 'F', 'g', 'G'], true)) {
@@ -976,27 +938,32 @@ class Quantity implements Stringable
         // Format with the desired precision and specifier.
         // If the precision is null, omit it from the format string to use the sprintf default (usually 6).
         $formatString = $precision === null ? "%$specifier" : "%.$precision$specifier";
-        $str = sprintf($formatString, $value);
+        $valueStr = sprintf($formatString, $value);
 
         // If $trimZeros is true and there's a decimal point in the string, remove trailing zeros and decimal point from
         // the number. If there's an 'E' or 'e' in the string, this only applies to the mantissa.
-        if ($trimZeros && str_contains($str, '.')) {
-            $ePos = stripos($str, 'E');
-            $mantissa = $ePos === false ? $str : substr($str, 0, $ePos);
-            $exp = $ePos === false ? '' : substr($str, $ePos);
-            $str = rtrim($mantissa, '0.') . $exp;
+        if ($trimZeros && str_contains($valueStr, '.')) {
+            $ePos = stripos($valueStr, 'E');
+            $mantissa = $ePos === false ? $valueStr : substr($valueStr, 0, $ePos);
+            $exp = $ePos === false ? '' : substr($valueStr, $ePos);
+            $valueStr = rtrim(rtrim($mantissa, '0'), '.') . $exp;
+        }
+
+        // Get the unit as a string.
+        $unitSymbol = $this->derivedUnit->format($ascii);
+
+        // If $includeSpace is not specified, insert a space between the value and unit only if the unit starts with a
+        // letter. Conversely, if it starts with a non-letter, like '°' or '%', don't include a space.
+        if ($includeSpace === null) {
+            $includeSpace = preg_match('/^\p{L}/u', $unitSymbol) === 1;
         }
 
         // Return the formatted string.
-        return $str . ($includeSpace ? ' ' : '') . $this->derivedUnit;
+        return $valueStr . ($includeSpace ? ' ' : '') . $unitSymbol;
     }
 
-    // endregion
-
-    // region Conversion methods
-
     /**
-     * Convert the measurement to a string using basic formatting.
+     * Convert the measurement to a string using default formatting.
      *
      * For custom formatting, use format().
      *
@@ -1005,7 +972,7 @@ class Quantity implements Stringable
     #[Override]
     public function __toString(): string
     {
-        return $this->value . ' ' . $this->derivedUnit;
+        return $this->format();
     }
 
     // endregion

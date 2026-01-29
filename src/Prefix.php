@@ -7,7 +7,6 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Core\Types;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 
 class Prefix
@@ -131,7 +130,7 @@ class Prefix
 
     // endregion
 
-    // region Formatting methods
+    // region String methods
 
     /**
      * Format the prefix for display.
