@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfbd3e8ff199ce4ce851f9e6d1b9d7e1",
+    "content-hash": "f1c4c4814a9d5f3fb3e56141dc34568d",
     "packages": [
         {
             "name": "galaxon/core",
@@ -172,17 +172,11 @@
         },
         {
             "name": "galaxon/coding-standard",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard",
-                "reference": "fb877bbc0879e732a14830037aeb27755707d7db"
-            },
+            "version": "dev-main",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Coding-Standard/zipball/fb877bbc0879e732a14830037aeb27755707d7db",
-                "reference": "fb877bbc0879e732a14830037aeb27755707d7db",
-                "shasum": ""
+                "type": "path",
+                "url": "../CodingStandard",
+                "reference": "fb877bbc0879e732a14830037aeb27755707d7db"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
@@ -197,7 +191,25 @@
             "extra": {
                 "phpcodesniffer-search-depth": 3
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "fix": [
+                    "vendor/bin/phpcbf -vp"
+                ],
+                "check": [
+                    "vendor/bin/phpcs -s"
+                ],
+                "report": [
+                    "vendor/bin/phpcs -q --report=summary"
+                ],
+                "analyze": [
+                    "vendor/bin/phpstan analyze -l 9"
+                ],
+                "quality": [
+                    "@fix",
+                    "@check",
+                    "@analyze"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -222,7 +234,9 @@
                 "issues": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard/issues",
                 "source": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard"
             },
-            "time": "2026-01-04T05:17:16+00:00"
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "myclabs/deep-copy",
@@ -896,16 +910,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.7",
+            "version": "12.5.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "79dee3d2685b80518e94b9ea741b3f822b213a5e"
+                "reference": "37ddb96c14bfee10304825edbb7e66d341ec6889"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/79dee3d2685b80518e94b9ea741b3f822b213a5e",
-                "reference": "79dee3d2685b80518e94b9ea741b3f822b213a5e",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/37ddb96c14bfee10304825edbb7e66d341ec6889",
+                "reference": "37ddb96c14bfee10304825edbb7e66d341ec6889",
                 "shasum": ""
             },
             "require": {
@@ -973,7 +987,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.7"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.8"
             },
             "funding": [
                 {
@@ -997,7 +1011,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-01-24T16:12:53+00:00"
+            "time": "2026-01-27T06:12:29+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -2145,7 +2159,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "galaxon/coding-standard": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

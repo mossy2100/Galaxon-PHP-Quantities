@@ -21,9 +21,6 @@ class QuantityType
 
     // region Property hooks
 
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /** @var ?class-string<Quantity> */
     public ?string $class {
         set {
@@ -36,9 +33,6 @@ class QuantityType
             $this->class = $value;
         }
     }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 

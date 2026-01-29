@@ -17,9 +17,6 @@ interface UnitInterface extends Stringable
 {
     // region Property hooks
 
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /**
      * The ASCII symbol for the unit (e.g. 'm', 'km2', 'kg*m/s2').
      */
@@ -34,9 +31,6 @@ interface UnitInterface extends Stringable
      * The dimension code (e.g. 'L', 'L2', 'MLT-2').
      */
     public string $dimension { get; }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 

@@ -36,10 +36,6 @@ class FloatWithError implements Stringable
 
     // region Property hooks
 
-    // PHPCS doesn't know property hooks yet.
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /**
      * Get the relative error (absolute error divided by value).
      *
@@ -56,9 +52,6 @@ class FloatWithError implements Stringable
             return abs($this->absoluteError / $this->value);
         }
     }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 

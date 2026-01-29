@@ -251,6 +251,7 @@ class Converter
      */
     public function addUnit(DerivedUnit $derivedUnit): void
     {
+        // Add the unprefixed unit to the converter.
         $unprefixedUnit = $derivedUnit->removePrefixes();
         $this->units[$unprefixedUnit->asciiSymbol] = $unprefixedUnit;
 
@@ -524,7 +525,7 @@ class Converter
         if ($best !== null) {
             // Remember the best conversion we found for this scan.
             ConversionRegistry::addConversion($best);
-//            echo $best, ' ', $minErr, PHP_EOL;
+            // echo $best, ' ', $minErr, PHP_EOL;
 
             // Report we found one.
             return true;

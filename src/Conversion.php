@@ -49,9 +49,6 @@ class Conversion implements Stringable
 
     // region Property hooks
 
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /**
      * The Conversion dimension.
      *
@@ -60,9 +57,6 @@ class Conversion implements Stringable
     public string $dimension {
         get => $this->srcUnit->dimension;
     }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 

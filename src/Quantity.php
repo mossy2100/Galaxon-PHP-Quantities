@@ -66,9 +66,6 @@ class Quantity implements Stringable
 
     // region Property hooks
 
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /**
      * The dimension.
      *
@@ -86,9 +83,6 @@ class Quantity implements Stringable
     public ?QuantityType $type {
         get => QuantityTypeRegistry::getByDimension($this->dimension);
     }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 

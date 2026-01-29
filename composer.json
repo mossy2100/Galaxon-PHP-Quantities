@@ -3,6 +3,12 @@
     "description": "Contains classes for working with measurements such as angles, lengths, etc.",
     "type": "library",
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../CodingStandard"
+        }
+    ],
     "require": {
         "php": "^8.4",
         "galaxon/core": "^1.0"
@@ -12,7 +18,7 @@
         "squizlabs/php_codesniffer": "^4.0",
         "phpstan/phpstan": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "galaxon/coding-standard": "^1.0"
+        "galaxon/coding-standard": "@dev"
     },
     "autoload": {
         "psr-4": {

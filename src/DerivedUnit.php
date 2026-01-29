@@ -57,9 +57,6 @@ class DerivedUnit implements UnitInterface
 
     // region Property hooks
 
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /**
      * The full unit symbol with prefix and exponent (e.g. 'km2', 'ms-1').
      * This property returns the ASCII symbol (e.g. 'deg').
@@ -100,9 +97,6 @@ class DerivedUnit implements UnitInterface
             return $firstKey === null ? null : $this->unitTerms[$firstKey];
         }
     }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 

@@ -78,9 +78,6 @@ class Unit implements UnitInterface
 
     // region Property hooks
 
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /**
      * The expansion unit.
      */
@@ -125,33 +122,30 @@ class Unit implements UnitInterface
 
             // Add Unicode symbol, if different.
             if ($this->unicodeSymbol !== $this->asciiSymbol) {
-        $symbols[] = $this->unicodeSymbol;
+                $symbols[] = $this->unicodeSymbol;
             }
 
             // Add prefixed symbols.
             $prefixes = $this->allowedPrefixes;
             foreach ($prefixes as $prefix) {
-        // Add prefixed ASCII symbols.
-        $symbols[] = $prefix->asciiSymbol . $this->asciiSymbol;
-        if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
-            $symbols[] = $prefix->unicodeSymbol . $this->asciiSymbol;
-        }
+                // Add prefixed ASCII symbols.
+                $symbols[] = $prefix->asciiSymbol . $this->asciiSymbol;
+                if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
+                    $symbols[] = $prefix->unicodeSymbol . $this->asciiSymbol;
+                }
 
-        // Add prefixed Unicode symbols, if different.
-        if ($this->unicodeSymbol !== $this->asciiSymbol) {
-            $symbols[] = $prefix->asciiSymbol . $this->unicodeSymbol;
-            if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
-                $symbols[] = $prefix->unicodeSymbol . $this->unicodeSymbol;
-            }
-        }
+                // Add prefixed Unicode symbols, if different.
+                if ($this->unicodeSymbol !== $this->asciiSymbol) {
+                    $symbols[] = $prefix->asciiSymbol . $this->unicodeSymbol;
+                    if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
+                        $symbols[] = $prefix->unicodeSymbol . $this->unicodeSymbol;
+                    }
+                }
             }
 
             return $symbols;
         }
     }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 

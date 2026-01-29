@@ -53,10 +53,6 @@ class UnitTerm implements UnitInterface
 
     // region Property hooks
 
-    // PHP_CodeSniffer doesn't know about property hooks yet.
-    // phpcs:disable PSR2.Classes.PropertyDeclaration
-    // phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact
-
     /**
      * The full unit symbol with prefix and exponent (e.g. 'km2', 'ms-1').
      * This property returns the ASCII symbol (e.g. 'deg').
@@ -110,9 +106,6 @@ class UnitTerm implements UnitInterface
     {
         get => DimensionRegistry::applyExponent($this->unit->dimension, $this->exponent);
     }
-
-    // phpcs:enable PSR2.Classes.PropertyDeclaration
-    // phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact
 
     // endregion
 
