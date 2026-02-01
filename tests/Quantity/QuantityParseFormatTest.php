@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Quantity;
 
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
@@ -231,7 +231,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $length = new Length(5.0, 'm');
 
-        $this->assertSame('5.00 m', $length->format(false, 'f', 2, false));
+        $this->assertSame('5.00 m', $length->format('f', 2, false));
     }
 
     /**
@@ -241,7 +241,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $length = new Length(5.7, 'm');
 
-        $this->assertSame('6 m', $length->format(false, 'f', 0));
+        $this->assertSame('6 m', $length->format('f', 0));
     }
 
     /**
@@ -251,7 +251,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $length = new Length(5.0, 'm');
 
-        $this->assertSame('5 m', $length->format(false, 'f', 2, true));
+        $this->assertSame('5 m', $length->format('f', 2, true));
     }
 
     // endregion
@@ -264,7 +264,7 @@ final class QuantityParseFormatTest extends TestCase
     public function testFormatScientificNotation(): void
     {
         $length = new Length(1500.0, 'm');
-        $result = $length->format(false, 'e', 2, false);
+        $result = $length->format('e', 2, false);
 
         $this->assertSame('1.50e+3 m', $result);
     }
@@ -275,7 +275,7 @@ final class QuantityParseFormatTest extends TestCase
     public function testFormatScientificNotationUppercase(): void
     {
         $length = new Length(1500.0, 'm');
-        $result = $length->format(false, 'E', 2, false);
+        $result = $length->format('E', 2, false);
 
         $this->assertSame('1.50E+3 m', $result);
     }
@@ -291,7 +291,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $temp = new Temperature(25, 'degC');
 
-        $this->assertSame('25 degC', $temp->format(true));
+        $this->assertSame('25 degC', $temp->format(ascii: true));
     }
 
     /**
@@ -301,7 +301,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $temp = new Temperature(25, 'degC');
 
-        $this->assertSame('25°C', $temp->format(false));
+        $this->assertSame('25 °C', $temp->format());
     }
 
     /**
@@ -312,7 +312,7 @@ final class QuantityParseFormatTest extends TestCase
         $angle = new Angle(45, 'deg');
 
         // Unicode format - no space before degree symbol
-        $this->assertSame('45°', $angle->format(false));
+        $this->assertSame('45°', $angle->format());
     }
 
     // endregion
@@ -326,7 +326,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $angle = new Angle(45, 'deg');
 
-        $this->assertSame('45 °', $angle->format(false, 'f', null, true, true));
+        $this->assertSame('45 °', $angle->format('f', null, true, true));
     }
 
     /**
@@ -336,7 +336,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->assertSame('100m', $length->format(false, 'f', null, true, false));
+        $this->assertSame('100m', $length->format('f', null, true, false));
     }
 
     // endregion
@@ -370,7 +370,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $temp = new Temperature(-10, 'degC');
 
-        $this->assertSame('-10°C', (string)$temp);
+        $this->assertSame('-10 °C', (string)$temp);
     }
 
     /**
@@ -394,7 +394,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         $original = '123.45 km';
         $parsed = Length::parse($original);
-        $formatted = $parsed->format(true, 'f', 2, false, true);
+        $formatted = $parsed->format('f', 2, false, true, true);
 
         $this->assertSame($original, $formatted);
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Quantity;
 
 use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Quantities\Quantity;

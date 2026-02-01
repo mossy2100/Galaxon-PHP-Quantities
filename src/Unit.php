@@ -21,7 +21,20 @@ class Unit implements UnitInterface
 
     // region Constants
 
-    private const string RX_ASCII_WORDS = '[a-z]+(?: [a-z]+)*';
+    private const string RX_ASCII_WORD = '[a-z]+';
+
+    private const string RX_ASCII_SYMBOL = '|%|' . self::RX_ASCII_WORD . '(?: ' . self::RX_ASCII_WORD . '){0,2}';
+
+    private const string RX_NON_LETTER_SYMBOL = '[\p{Po}\p{So}\p{Sc}]';
+
+    private const string RX_TEMPERATURE_SYMBOL = '°[a-z]';
+
+    private const string RX_UNICODE_WORD = '\p{L}+';
+
+    private const string RX_UNICODE_SYMBOL =
+        self::RX_NON_LETTER_SYMBOL . '|' . self::RX_TEMPERATURE_SYMBOL . '|' . self::RX_UNICODE_WORD;
+
+    // endregion Constants
 
     // region Properties
 
@@ -38,9 +51,14 @@ class Unit implements UnitInterface
 
     /**
      * The Unicode symbol (e.g. 'Ω' for ohm, '°' for degree).
-     * This symbol is mainly for display and can contain Unicode characters.
+     * This symbol is mainly for display and can contain Unicode character.
      */
     private(set) string $unicodeSymbol;
+
+    /**
+     * An additional symbol that will be accepted by the parser. It cannot accept prefixes.
+     */
+    private(set) ?string $alternateSymbol = null;
 
     /**
      * The quantity type, e.g. 'length'.
@@ -125,6 +143,11 @@ class Unit implements UnitInterface
                 $symbols[] = $this->unicodeSymbol;
             }
 
+            // Add alternate symbol, if set and different.
+            if ($this->alternateSymbol !== null && $this->alternateSymbol !== $this->asciiSymbol) {
+                $symbols[] = $this->alternateSymbol;
+            }
+
             // Add prefixed symbols.
             $prefixes = $this->allowedPrefixes;
             foreach ($prefixes as $prefix) {
@@ -160,6 +183,7 @@ class Unit implements UnitInterface
      * @param string $quantityType The quantity type (e.g. 'length', 'mass').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
+     * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
      * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
      * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
      * @param list<System> $systems The measurement systems this unit belongs to.
@@ -173,20 +197,23 @@ class Unit implements UnitInterface
         string $quantityType,
         string $dimension,
         int $prefixGroup = 0,
+        ?string $alternateSymbol = null,
         ?string $expansionUnitSymbol = null,
         ?float $expansionValue = null,
         array $systems = []
     ) {
         // Check ASCII symbol contains ASCII letters only.
         if (!self::isValidAsciiSymbol($asciiSymbol)) {
-            throw new FormatException("Unit symbol '$asciiSymbol' must only contain ASCII letters.");
+            throw new FormatException(
+                "Unit symbol '$asciiSymbol' must only contain ASCII letters. " .
+                "Up to three words are allowed, separated by single spaces."
+            );
         }
 
         // Validate Unicode symbol.
         if (isset($unicodeSymbol) && !self::isValidUnicodeSymbol($unicodeSymbol)) {
             throw new FormatException(
-                "Unit symbol '$unicodeSymbol' must only contain letters, or the degree, prime, or " .
-                'double prime characters (i.e. °′″).'
+                "Unit symbol '$unicodeSymbol' must only contain letters or punctuation or mathematical symbols (e.g. °′″)."
             );
         }
 
@@ -197,6 +224,7 @@ class Unit implements UnitInterface
         $this->quantityType = $quantityType;
         $this->dimension = DimensionRegistry::normalize($dimension);
         $this->prefixGroup = $prefixGroup;
+        $this->alternateSymbol = $alternateSymbol;
         $this->expansionUnitSymbol = $expansionUnitSymbol ?? null;
         $this->expansionValue = isset($expansionUnitSymbol) ? ($expansionValue ?? 1.0) : null;
         $this->systems = $systems;
@@ -248,7 +276,7 @@ class Unit implements UnitInterface
 
     public static function regex(): string
     {
-        return '([°′″]|°[a-z]|\p{L}+|' . self::RX_ASCII_WORDS . ')';
+        return '(' . self::RX_NON_LETTER_SYMBOL . '|°[a-z]|\p{L}+|' . self::RX_ASCII_SYMBOL . ')';
     }
 
     /**
@@ -265,8 +293,8 @@ class Unit implements UnitInterface
         // Validate the symbol format.
         if (!self::isValidUnicodeSymbol($symbol)) {
             throw new FormatException(
-                "Unit symbol '$symbol' can only contain letters, or the degree, prime, or double prime " .
-                'characters (i.e. °′″).'
+                "Unit symbol '$symbol' can only contain letters, or the degree, prime, double prime, single " .
+                "quote, or double quote characters (i.e. °′″'\")."
             );
         }
 
@@ -318,27 +346,38 @@ class Unit implements UnitInterface
     // region Helper methods
 
     /**
+     * Check if a string is a single non-letter, non-digit, non-space symbol (punctuation or other).
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string contains only a single non-letter symbol.
+     */
+    public static function isValidNonLetterSymbol(string $symbol): bool
+    {
+        return (bool)preg_match('/^' . self::RX_NON_LETTER_SYMBOL . '$/iu', $symbol);
+    }
+
+    /**
      * Check if a string contains only ASCII letters (a-z, A-Z).
      *
      * @param string $symbol The string to check.
      * @return bool True if the string contains only ASCII letters.
      */
-    private static function isValidAsciiSymbol(string $symbol): bool
+    public static function isValidAsciiSymbol(string $symbol): bool
     {
-        return (bool)preg_match('/^' . self::RX_ASCII_WORDS . '$/i', $symbol);
+        return (bool)preg_match('/^(' . self::RX_ASCII_SYMBOL . ')$/i', $symbol);
     }
 
     /**
      * Check if a string is a valid Unicode unit symbol.
      *
-     * Valid symbols contain only Unicode letters or the degree (°), prime (′), or double prime (″) characters.
+     * Valid symbols contain only ASCII or Unicode letters or punctuation or mathematical symbols.
      *
      * @param string $symbol The string to check.
      * @return bool True if the string is a valid Unicode unit symbol.
      */
-    private static function isValidUnicodeSymbol(string $symbol): bool
+    public static function isValidUnicodeSymbol(string $symbol): bool
     {
-        return (bool)preg_match('/^' . self::regex() . '$/iu', $symbol);
+        return (bool)preg_match('/^(' . self::RX_UNICODE_SYMBOL . ')$/iu', $symbol);
     }
 
     // endregion

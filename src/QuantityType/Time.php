@@ -124,28 +124,43 @@ class Time extends Quantity
      *
      * Format: P[y]Y[m]M[w]W[d]DT[h]H[i]M[s]S
      *
-     * @param string $smallestUnit The smallest unit to include (default 's').
+     * @param string $smallestUnitSymbol The smallest unit to include (default 's').
      * @return string A DateInterval specification string.
      * @throws DomainException If the smallest unit argument is invalid.
      */
-    public function toDateIntervalSpecifier(string $smallestUnit = 's'): string
+    public function toDateIntervalSpecifier(string $smallestUnitSymbol = 's'): string
     {
-        // Validate argument.
-        self::validateSmallestUnit($smallestUnit);
-        self::validateAndTransformPartUnits();
+        // Validate the provided smallest unit.
+        self::validateSmallestUnitSymbol($smallestUnitSymbol);
+
+        // Validate the part units.
+        self::validatePartUnitSymbols();
 
         // Prep.
-        $partUnits = static::getPartUnits();
-        $smallestUnitIndex = (int)array_search($smallestUnit, $partUnits, true);
-        $parts = $this->toPartsArray($smallestUnit, 0);  // DateInterval requires integer parts.
+        $partUnits = static::getPartsConfig()['to'];
+        $smallestUnitIndex = (int)array_search($smallestUnitSymbol, $partUnits, true);
+        $parts = $this->toParts($smallestUnitSymbol, 0);  // DateInterval requires integer parts.
         $spec = 'P';
-        $labels = ['Y', 'M', 'W', 'D', 'H', 'M', 'S'];
+        $labels = [
+            'y'   => 'Y',
+            'mo'  => 'M',
+            'w'   => 'W',
+            'd'   => 'D',
+            'h'   => 'H',
+            'min' => 'M',
+            's'   => 'S',
+        ];
         $timeSeparatorAdded = false;
 
         // Build the specification string.
         for ($i = 0; $i <= $smallestUnitIndex; $i++) {
             $unit = $partUnits[$i];
             $value = $parts[$unit] ?? 0;
+
+            // Check we have a label.
+            if (!isset($labels[$unit])) {
+                throw new LogicException("Unit '$unit' is not compatible with DateInterval specifiers.");
+            }
 
             // Add time separator before hours.
             if ($unit === 'h' && !$timeSeparatorAdded) {
@@ -154,8 +169,8 @@ class Time extends Quantity
             }
 
             // Add the specifier part if it isn't 0.
-            if ($parts[$unit] !== 0) {
-                $spec .= $value . $labels[$i];
+            if ($parts[$unit] !== 0.0) {
+                $spec .= (int)$value . $labels[$unit];
             }
         }
 
@@ -170,17 +185,17 @@ class Time extends Quantity
     /**
      * Convert time to a PHP DateInterval object.
      *
-     * @param string $smallestUnit The smallest unit to include (default 's').
+     * @param string $smallestUnitSymbol The smallest unit to include (default 's').
      * @return DateInterval A new DateInterval object.
      * @throws DomainException If the smallest unit argument is invalid.
      */
-    public function toDateInterval(string $smallestUnit = 's'): DateInterval
+    public function toDateInterval(string $smallestUnitSymbol = 's'): DateInterval
     {
-        // Validate argument.
-        self::validateSmallestUnit($smallestUnit);
+        // Validate the provided smallest unit.
+        self::validateSmallestUnitSymbol($smallestUnitSymbol);
 
         // Get the specifier string.
-        $spec = $this->toDateIntervalSpecifier($smallestUnit);
+        $spec = $this->toDateIntervalSpecifier($smallestUnitSymbol);
 
         // Construct the DateInterval.
         $dateInterval = new DateInterval($spec);
@@ -198,76 +213,17 @@ class Time extends Quantity
     // region Part-related methods
 
     /**
-     * Ordered list of Time unit abbreviations from largest (years) to smallest (seconds).
-     * Used for parts decomposition and validation.
+     * Configuration for parts-related methods.
      *
-     * @return array<int|string, string>
+     * @return array{from: ?string, to: list<string>}
      */
     #[Override]
-    public static function getPartUnits(): array
+    public static function getPartsConfig(): array
     {
-        return ['y', 'mo', 'w', 'd', 'h', 'min', 's'];
-    }
-
-    /**
-     * Create a Time as a sum of times in different units.
-     *
-     * All parts must be non-negative.
-     * If the Time is negative, set the $sign parameter to -1.
-     *
-     * NB: This method doesn't include a parameter for weeks, as this could be confusing and lead to bugs.
-     * Many date and time constructors don't include a parameter for weeks, and only have the 6 usual ones.
-     * So, this design is following the "Principle of Least Surprise".
-     * If you need to create a Time from weeks, you can convert weeks to days, or use fromPartsArray() instead, which
-     * accepts a 'w' key.
-     *
-     * @param float $years The number of years.
-     * @param float $months The number of months.
-     * @param float $days The number of days.
-     * @param float $hours The number of hours.
-     * @param float $minutes The number of minutes.
-     * @param float $seconds The number of seconds.
-     * @param int $sign -1 if the Time is negative, 1 (or omitted) otherwise.
-     * @return parent A new Time in seconds with a magnitude equal to the sum of the parts.
-     * @throws DomainException If any of the values are non-finite or negative.
-     * @throws LogicException If getPartUnits() has not been overridden properly.
-     */
-    public static function fromParts(
-        float $years = 0,
-        float $months = 0,
-        float $days = 0,
-        float $hours = 0,
-        float $minutes = 0,
-        float $seconds = 0,
-        int $sign = 1
-    ): parent {
-        return self::fromPartsArray([
-            'y'    => $years,
-            'mo'   => $months,
-            'd'    => $days,
-            'h'    => $hours,
-            'min'  => $minutes,
-            's'    => $seconds,
-            'sign' => $sign,
-        ]);
-    }
-
-    /**
-     * Format time as component parts with units.
-     *
-     * Returns a string like "1y 3mo 2w 4d 12h 34min 56.789s".
-     * Units other than the smallest unit are shown as integers.
-     *
-     * @param string $smallestUnit The smallest unit to include (default 's').
-     * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
-     * @param bool $showZeros If true, show all components including zeros (default false for Time).
-     * @return string Formatted time string.
-     * @throws DomainException If any arguments are invalid.
-     */
-    #[Override]
-    public function formatParts(string $smallestUnit = 's', ?int $precision = null, bool $showZeros = false): string
-    {
-        return parent::formatParts($smallestUnit, $precision, $showZeros);
+        return [
+            'from' => 's',
+            'to'   => ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
+        ];
     }
 
     // endregion

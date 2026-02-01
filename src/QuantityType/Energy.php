@@ -45,6 +45,10 @@ class Energy extends Quantity
                 'prefixGroup' => PrefixRegistry::GROUP_CODE_LARGE_ENGINEERING_METRIC,
                 'systems'     => [System::Common],
             ],
+            'British thermal unit' => [
+                'asciiSymbol' => 'Btu',
+                'systems'     => [System::US],
+            ],
         ];
     }
 
@@ -59,6 +63,7 @@ class Energy extends Quantity
         return [
             ['eV', 'J', 1.602_176_634e-19],
             ['cal', 'J', 4.184],
+            ['Btu', 'J', 1055.05585262],
         ];
     }
 

@@ -165,18 +165,26 @@ class Converter
 
         // Find the conversion between unprefixed units.
         $dim = $this->dimension;
-        $src = $srcUnit->removePrefixes()->asciiSymbol;
-        $dest = $destUnit->removePrefixes()->asciiSymbol;
+        $unprefixedSrcUnit = $srcUnit->removePrefixes();
+        $unprefixedDestUnit = $destUnit->removePrefixes();
+        $src = $unprefixedSrcUnit->asciiSymbol;
+        $dest = $unprefixedDestUnit->asciiSymbol;
 
-        // Generate new conversions until we get a match, or we're out of options.
-        do {
-            $result = $this->findNextConversion();
-            $unprefixedConversion = ConversionRegistry::get($dim, $src, $dest);
-        } while ($unprefixedConversion === null && $result);
+        if ($src === $dest) {
+            // Units are the same, so create the identity conversion; we'll add prefixes below.
+            $unprefixedConversion = new Conversion($unprefixedSrcUnit, $unprefixedDestUnit, 1);
+        }
+        else {
+            // Generate new conversions until we get a match, or we're out of options.
+            do {
+                $result = $this->findNextConversion();
+                $unprefixedConversion = ConversionRegistry::get($dim, $src, $dest);
+            } while ($unprefixedConversion === null && $result);
 
-        // If we couldn't find an unprefixed conversion, return null.
-        if ($unprefixedConversion === null) {
-            return null;
+            // If we couldn't find an unprefixed conversion, return null.
+            if ($unprefixedConversion === null) {
+                return null;
+            }
         }
 
         // Apply prefixes if necessary.
@@ -435,7 +443,7 @@ class Converter
                 $src = $srcUnit->asciiSymbol;
                 $dest = $destUnit->asciiSymbol;
 
-                // Skip identity conversions and those already known.
+                // If the units are the same or this conversion is already known, continue.
                 if ($src === $dest || ConversionRegistry::has($dim, $src, $dest)) {
                     continue;
                 }
@@ -554,16 +562,8 @@ class Converter
                     $src = $srcUnit->asciiSymbol;
                     $dest = $destUnit->asciiSymbol;
 
-                    // If this conversion is already known, continue.
-                    if (ConversionRegistry::has($dim, $src, $dest)) {
-                        continue;
-                    }
-
-                    // Look for identity conversions.
-                    if ($src === $dest) {
-                        $newConversion = new Conversion($srcUnit, $destUnit, 1);
-                        ConversionRegistry::addConversion($newConversion);
-                        $foundNew = true;
+                    // If the units are the same or this conversion is already known, continue.
+                    if ($src === $dest || ConversionRegistry::has($dim, $src, $dest)) {
                         continue;
                     }
 

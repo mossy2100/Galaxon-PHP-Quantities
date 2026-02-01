@@ -16,6 +16,7 @@ use Galaxon\Quantities\QuantityType\CatalyticActivity;
 use Galaxon\Quantities\QuantityType\Conductance;
 use Galaxon\Quantities\QuantityType\Data;
 use Galaxon\Quantities\QuantityType\Density;
+use Galaxon\Quantities\QuantityType\Dimensionless;
 use Galaxon\Quantities\QuantityType\ElectricCharge;
 use Galaxon\Quantities\QuantityType\ElectricCurrent;
 use Galaxon\Quantities\QuantityType\Energy;
@@ -59,178 +60,185 @@ class QuantityTypeRegistry
      * - 'siUnitSymbol': The SI unit symbol for this quantity
      * - 'class': The QuantityType class (if one exists)
      *
-     * @var array<string, array{name: string, siUnitSymbol: string, class?: class-string<Quantity>}>
+     * @var array<string, array{dimension: string, siUnitSymbol: string, class?: class-string<Quantity>}>
      */
     private const array QUANTITY_TYPES = [
+        // Dimensionless
+        'dimensionless'        => [
+            'dimension'    => '1',
+            'siUnitSymbol' => '',
+            'class'        => Dimensionless::class,
+        ],
+
         // SI base dimensions
-        'L'          => [
-            'name'         => 'length',
+        'length'               => [
+            'dimension'    => 'L',
             'siUnitSymbol' => 'm',
             'class'        => Length::class,
         ],
-        'M'          => [
-            'name'         => 'mass',
+        'mass'                 => [
+            'dimension'    => 'M',
             'siUnitSymbol' => 'kg',
             'class'        => Mass::class,
         ],
-        'T'          => [
-            'name'         => 'time',
+        'time'                 => [
+            'dimension'    => 'T',
             'siUnitSymbol' => 's',
             'class'        => Time::class,
         ],
-        'I'          => [
-            'name'         => 'electric current',
+        'electric current'     => [
+            'dimension'    => 'I',
             'siUnitSymbol' => 'A',
             'class'        => ElectricCurrent::class,
         ],
-        'H'          => [
-            'name'         => 'temperature',
+        'temperature'          => [
+            'dimension'    => 'H',
             'siUnitSymbol' => 'K',
             'class'        => Temperature::class,
         ],
-        'N'          => [
-            'name'         => 'amount of substance',
+        'amount of substance'  => [
+            'dimension'    => 'N',
             'siUnitSymbol' => 'mol',
             'class'        => AmountOfSubstance::class,
         ],
-        'J'          => [
-            'name'         => 'luminous intensity',
+        'luminous intensity'   => [
+            'dimension'    => 'J',
             'siUnitSymbol' => 'cd',
             'class'        => LuminousIntensity::class,
         ],
 
         // SI derived unit dimensions
-        'A'          => [
-            'name'         => 'angle',
+        'angle'                => [
+            'dimension'    => 'A',
             'siUnitSymbol' => 'rad',
             'class'        => Angle::class,
         ],
-        'A2'         => [
-            'name'         => 'solid angle',
+        'solid angle'          => [
+            'dimension'    => 'A2',
             'siUnitSymbol' => 'sr',
             'class'        => SolidAngle::class,
         ],
-        'L2'         => [
-            'name'         => 'area',
+        'area'                 => [
+            'dimension'    => 'L2',
             'siUnitSymbol' => 'm2',
             'class'        => Area::class,
         ],
-        'L3'         => [
-            'name'         => 'volume',
+        'volume'               => [
+            'dimension'    => 'L3',
             'siUnitSymbol' => 'm3',
             'class'        => Volume::class,
         ],
-        'T-1L'       => [
-            'name'         => 'velocity',
+        'velocity'             => [
+            'dimension'    => 'T-1L',
             'siUnitSymbol' => 'm/s',
             'class'        => Velocity::class,
         ],
-        'T-2L'       => [
-            'name'         => 'acceleration',
+        'acceleration'         => [
+            'dimension'    => 'T-2L',
             'siUnitSymbol' => 'm/s2',
             'class'        => Acceleration::class,
         ],
-        'L-3M'       => [
-            'name'         => 'density',
+        'density'              => [
+            'dimension'    => 'L-3M',
             'siUnitSymbol' => 'kg/m3',
             'class'        => Density::class,
         ],
 
         // SI named units
-        'T-1'        => [
-            'name'         => 'frequency',
+        'frequency'            => [
+            'dimension'    => 'T-1',
             'siUnitSymbol' => 'Hz',
             'class'        => Frequency::class,
         ],
-        'T-2LM'      => [
-            'name'         => 'force',
+        'force'                => [
+            'dimension'    => 'T-2LM',
             'siUnitSymbol' => 'N',
             'class'        => Force::class,
         ],
-        'T-2L-1M'    => [
-            'name'         => 'pressure',
+        'pressure'             => [
+            'dimension'    => 'T-2L-1M',
             'siUnitSymbol' => 'Pa',
             'class'        => Pressure::class,
         ],
-        'T-2L2M'     => [
-            'name'         => 'energy',
+        'energy'               => [
+            'dimension'    => 'T-2L2M',
             'siUnitSymbol' => 'J',
             'class'        => Energy::class,
         ],
-        'T-3L2M'     => [
-            'name'         => 'power',
+        'power'                => [
+            'dimension'    => 'T-3L2M',
             'siUnitSymbol' => 'W',
             'class'        => Power::class,
         ],
-        'TI'         => [
-            'name'         => 'electric charge',
+        'electric charge'      => [
+            'dimension'    => 'TI',
             'siUnitSymbol' => 'C',
             'class'        => ElectricCharge::class,
         ],
-        'T-3L2MI-1'  => [
-            'name'         => 'voltage',
+        'voltage'              => [
+            'dimension'    => 'T-3L2MI-1',
             'siUnitSymbol' => 'V',
             'class'        => Voltage::class,
         ],
-        'T4L-2M-1I2' => [
-            'name'         => 'capacitance',
+        'capacitance'          => [
+            'dimension'    => 'T4L-2M-1I2',
             'siUnitSymbol' => 'F',
             'class'        => Capacitance::class,
         ],
-        'T-3L2MI-2'  => [
-            'name'         => 'resistance',
+        'resistance'           => [
+            'dimension'    => 'T-3L2MI-2',
             'siUnitSymbol' => 'ohm',
             'class'        => Resistance::class,
         ],
-        'T3L-2M-1I2' => [
-            'name'         => 'conductance',
+        'conductance'          => [
+            'dimension'    => 'T3L-2M-1I2',
             'siUnitSymbol' => 'S',
             'class'        => Conductance::class,
         ],
-        'T-2L2MI-1'  => [
-            'name'         => 'magnetic flux',
+        'magnetic flux'        => [
+            'dimension'    => 'T-2L2MI-1',
             'siUnitSymbol' => 'Wb',
             'class'        => MagneticFlux::class,
         ],
-        'T-2MI-1'    => [
-            'name'         => 'magnetic flux density',
+        'magnetic flux density' => [
+            'dimension'    => 'T-2MI-1',
             'siUnitSymbol' => 'T',
             'class'        => MagneticFluxDensity::class,
         ],
-        'T-2L2MI-2'  => [
-            'name'         => 'inductance',
+        'inductance'           => [
+            'dimension'    => 'T-2L2MI-2',
             'siUnitSymbol' => 'H',
             'class'        => Inductance::class,
         ],
-        'JA2'        => [
-            'name'         => 'luminous flux',
+        'luminous flux'        => [
+            'dimension'    => 'JA2',
             'siUnitSymbol' => 'lm',
             'class'        => LuminousFlux::class,
         ],
-        'L-2JA2'     => [
-            'name'         => 'illuminance',
+        'illuminance'          => [
+            'dimension'    => 'L-2JA2',
             'siUnitSymbol' => 'lx',
             'class'        => Illuminance::class,
         ],
-        'T-2L2'      => [
-            'name'         => 'absorbed dose',
+        'absorbed dose'        => [
+            'dimension'    => 'T-2L2',
             'siUnitSymbol' => 'Gy',
             'class'        => RadiationDose::class,
         ],
-        'T-1N'       => [
-            'name'         => 'catalytic activity',
+        'catalytic activity'   => [
+            'dimension'    => 'T-1N',
             'siUnitSymbol' => 'kat',
             'class'        => CatalyticActivity::class,
         ],
 
         // Non-SI dimensions
-        'D'          => [
-            'name'         => 'data',
+        'data'                 => [
+            'dimension'    => 'D',
             'siUnitSymbol' => 'B',
             'class'        => Data::class,
         ],
-        'C'          => [
-            'name'         => 'currency',
+        'currency'             => [
+            'dimension'    => 'C',
             'siUnitSymbol' => 'XAU',
         ],
     ];
@@ -274,7 +282,10 @@ class QuantityTypeRegistry
     {
         self::init();
         $dimension = DimensionRegistry::normalize($dimension);
-        return self::$quantityTypes[$dimension] ?? null;
+        return array_find(
+            self::$quantityTypes,
+            static fn (QuantityType $qtyType): bool => strtolower($qtyType->dimension) === strtolower($dimension)
+        );
     }
 
     /**
@@ -287,11 +298,7 @@ class QuantityTypeRegistry
     {
         self::init();
         assert(self::$quantityTypes !== null);
-
-        return array_find(
-            self::$quantityTypes,
-            static fn (QuantityType $qtyType): bool => strtolower($qtyType->name) === strtolower($name)
-        );
+        return self::$quantityTypes[$name] ?? null;
     }
 
     /**
@@ -348,13 +355,13 @@ class QuantityTypeRegistry
         }
 
         // Add the new quantity type.
-        self::$quantityTypes[$dimension] = new QuantityType($dimension, $name, $siUnitSymbol, $class);
+        self::$quantityTypes[$name] = new QuantityType($name, $dimension, $siUnitSymbol, $class);
     }
 
     /**
      * Set or update the class for an existing quantity type.
      *
-     * Use this to override the default class for a dimension, or to add a class to a quantity type that doesn't have
+     * Use this to override the default class for a quantity type or to add a class to a quantity type that doesn't have
      * one.
      *
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2').
@@ -392,10 +399,10 @@ class QuantityTypeRegistry
             self::$quantityTypes = [];
 
             // Convert info in constant into array of objects.
-            foreach (self::QUANTITY_TYPES as $dimension => $info) {
-                $dimension = DimensionRegistry::normalize($dimension);
-                self::$quantityTypes[$dimension] =
-                    new QuantityType($dimension, $info['name'], $info['siUnitSymbol'], $info['class'] ?? null);
+            foreach (self::QUANTITY_TYPES as $name => $info) {
+                $dimension = DimensionRegistry::normalize($info['dimension']);
+                self::$quantityTypes[$name] =
+                    new QuantityType($name, $dimension, $info['siUnitSymbol'], $info['class'] ?? null);
             }
         }
     }

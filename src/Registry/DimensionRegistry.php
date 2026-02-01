@@ -146,6 +146,11 @@ class DimensionRegistry
             throw new DomainException("Invalid dimension code '$dimension'.");
         }
 
+        // Check for dimensionless.
+        if ($dimension === '1') {
+            return [];
+        }
+
         // Get the matching terms.
         $validCodes = self::getLetterCodesString();
         preg_match_all("/([$validCodes])(-?\d)?/", $dimension, $matches, PREG_SET_ORDER);

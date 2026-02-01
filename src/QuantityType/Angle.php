@@ -57,11 +57,13 @@ class Angle extends Quantity
             'arcminute' => [
                 'asciiSymbol'   => 'arcmin',
                 'unicodeSymbol' => '′',
+                'alternateSymbol' => "'",
                 'systems'       => [System::SIAccepted],
             ],
             'arcsecond' => [
                 'asciiSymbol'   => 'arcsec',
                 'unicodeSymbol' => '″',
+                'alternateSymbol' => '"',
                 'prefixGroup'   => PrefixRegistry::GROUP_CODE_SMALL_ENGINEERING_METRIC,
                 'systems'       => [System::SIAccepted],
             ],
@@ -95,7 +97,7 @@ class Angle extends Quantity
 
     // endregion
 
-    // region Factory methods
+    // region String methods
 
     /**
      * Checks that the input string, which is meant to indicate an angle, is valid.
@@ -141,7 +143,12 @@ class Angle extends Quantity
                 $s = isset($matches['sec']) ? (float)$matches['sec'] : 0.0;
 
                 // Convert to Angle.
-                return static::fromParts($d, $m, $s, $sign);
+                return static::fromParts([
+                    'deg'    => $d,
+                    'arcmin' => $m,
+                    'arcsec' => $s,
+                    'sign'   => $sign,
+                ]);
             }
 
             // Invalid format.
@@ -350,61 +357,17 @@ class Angle extends Quantity
     // region Part-related methods
 
     /**
-     * Ordered list of angle units from largest (degrees) to smallest (arcseconds).
-     * Used for parts decomposition and validation.
+     * Configuration for parts-related methods.
      *
-     * @return array<int|string, string>
+     * @return array{from: ?string, to: list<string>}
      */
     #[Override]
-    public static function getPartUnits(): array
+    public static function getPartsConfig(): array
     {
         return [
-            'deg'    => '°',
-            'arcmin' => '′',
-            'arcsec' => '″',
+            'from' => 'deg',
+            'to'   => ['deg', 'arcmin', 'arcsec'],
         ];
-    }
-
-    /**
-     * Create an Angle as a sum of angles in different units.
-     *
-     * All parts must be non-negative.
-     * If the Angle is negative, set the $sign parameter to -1.
-     *
-     * @param float $degrees The number of degrees.
-     * @param float $arcmin The number of arcminutes.
-     * @param float $arcsec The number of arcseconds.
-     * @param int $sign -1 if the Angle is negative, 1 (or omitted) otherwise.
-     * @return parent A new Angle in degrees with a magnitude equal to the sum of the parts.
-     * @throws InvalidArgumentException If any of the values are not numbers.
-     * @throws DomainException If any of the values are non-finite or negative.
-     */
-    public static function fromParts(float $degrees = 0, float $arcmin = 0, float $arcsec = 0, int $sign = 1): parent
-    {
-        return self::fromPartsArray([
-            'deg'    => $degrees,
-            'arcmin' => $arcmin,
-            'arcsec' => $arcsec,
-            'sign'   => $sign,
-        ]);
-    }
-
-    /**
-     * Format angle as component parts (degrees, arcminutes, arcseconds).
-     *
-     * Returns a string like "12° 34′ 56.789″".
-     * Units other than the smallest unit are shown as integers.
-     *
-     * @param string $smallestUnit The smallest unit to include (default 'arcsec').
-     * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
-     * @param bool $showZeros If true, show all components including zeros (default true for Angle/DMS notation).
-     * @return string Formatted angle string.
-     * @throws DomainException If any arguments are invalid.
-     */
-    #[Override]
-    public function formatParts(string $smallestUnit = 'arcsec', ?int $precision = null, bool $showZeros = true): string
-    {
-        return parent::formatParts($smallestUnit, $precision, $showZeros);
     }
 
     // endregion

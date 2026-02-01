@@ -236,10 +236,47 @@ class DerivedUnit implements UnitInterface
      */
     public function format(bool $ascii = false): string
     {
-        return implode(
+        // Collection the unit terms with positive and negative exponents.
+        $posTerms = [];
+        $negTerms = [];
+        foreach ($this->unitTerms as $unitTerm) {
+            if ($unitTerm->exponent > 0) {
+                $posTerms[] = $unitTerm;
+            } elseif ($unitTerm->exponent < 0) {
+                $negTerms[] = $unitTerm;
+            }
+        }
+
+        // If there are no positive terms, don't use a divide symbol, just show exponents as negative.
+        if (count($posTerms) === 0) {
+            return implode(
+                $ascii ? '*' : '⋅',
+                array_map(static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii), $negTerms)
+            );
+        }
+
+        // Get the positive terms as a string.
+        $posTermsStr = implode(
             $ascii ? '*' : '⋅',
-            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii), $this->unitTerms)
+            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii), $posTerms)
         );
+
+        // Get the negative terms as a string.
+        $negTermsStr = implode(
+            $ascii ? '*' : '⋅',
+            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->inv()->format($ascii), $negTerms)
+        );
+        if (count($negTerms) > 1) {
+            $negTermsStr = "($negTermsStr)";
+        }
+
+        // Combine the positive and negative terms.
+        $result = $posTermsStr;
+        if (count($negTerms) > 0) {
+            $result .= '/' . $negTermsStr;
+        }
+
+        return $result;
     }
 
     /**

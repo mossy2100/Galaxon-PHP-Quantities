@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Quantity;
 
-use Galaxon\Core\Floats;
+use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Energy;
 use Galaxon\Quantities\QuantityType\Force;
@@ -21,6 +21,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityTransformTest extends TestCase
 {
+    use FloatAssertions;
+
     // region Setup
 
     public static function setUpBeforeClass(): void
@@ -120,7 +122,7 @@ final class QuantityTransformTest extends TestCase
 
         // N = kg⋅m⋅s⁻²
         $this->assertSame(1.0, $expanded->value);
-        $this->assertSame('kg*m*s-2', $expanded->derivedUnit->asciiSymbol);
+        $this->assertSame('kg*m/s2', $expanded->derivedUnit->asciiSymbol);
     }
 
     /**
@@ -133,7 +135,7 @@ final class QuantityTransformTest extends TestCase
 
         // J = kg⋅m²⋅s⁻²
         $this->assertSame(1.0, $expanded->value);
-        $this->assertSame('kg*m2*s-2', $expanded->derivedUnit->asciiSymbol);
+        $this->assertSame('kg*m2/s2', $expanded->derivedUnit->asciiSymbol);
     }
 
     /**
@@ -208,23 +210,26 @@ final class QuantityTransformTest extends TestCase
 
     /**
      * Test merge() combines same dimension units.
+     *
+     * Note: Since mul() now calls merge() internally, the product
+     * already has merged units. This test verifies merge() is idempotent.
      */
     public function testMergeSameDimension(): void
     {
-        // Create m*ft (metres times feet)
+        // Create m² from m*ft (mul now auto-merges)
         $length1 = new Length(2, 'm');
         $length2 = new Length(3, 'ft');
         $product = $length1->mul($length2);
 
-        // Before merge: m*ft
-        $this->assertSame('m*ft', $product->derivedUnit->asciiSymbol);
+        // mul() now auto-merges to m²
+        $this->assertSame('m2', $product->derivedUnit->asciiSymbol);
 
-        // After merge: m2
+        // merge() is idempotent - calling again produces same result
         $merged = $product->merge();
         $this->assertSame('m2', $merged->derivedUnit->asciiSymbol);
 
         // Value should be 2 * (3 * 0.3048) = 1.8288 m²
-        $this->assertTrue(Floats::approxEqual(2 * 3 * 0.3048, $merged->value));
+        $this->assertApproxEqual(2 * 3 * 0.3048, $merged->value);
     }
 
     /**
@@ -287,7 +292,7 @@ final class QuantityTransformTest extends TestCase
         $length = new Length(0.000005, 'm');
         $prefixed = $length->autoPrefix();
 
-        $this->assertTrue(Floats::approxEqual(5.0, $prefixed->value));
+        $this->assertApproxEqual(5.0, $prefixed->value);
         $this->assertSame('μm', $prefixed->derivedUnit->unicodeSymbol);
     }
 

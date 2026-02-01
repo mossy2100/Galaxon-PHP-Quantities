@@ -11,9 +11,9 @@ class QuantityType
 {
     // region Properties
 
-    public readonly string $dimension;
-
     public readonly string $name;
+
+    public readonly string $dimension;
 
     public readonly string $siUnitSymbol;
 
@@ -39,16 +39,16 @@ class QuantityType
     // region Constructor
 
     /**
-     * @param string $dimension
      * @param string $name
+     * @param string $dimension
      * @param string $siUnitSymbol
      * @param ?class-string<Quantity> $class
      * @throws DomainException
      */
-    public function __construct(string $dimension, string $name, string $siUnitSymbol, ?string $class = null)
+    public function __construct(string $name, string $dimension, string $siUnitSymbol, ?string $class = null)
     {
-        $this->dimension = DimensionRegistry::normalize($dimension);
         $this->name = $name;
+        $this->dimension = DimensionRegistry::normalize($dimension);
         $this->siUnitSymbol = $siUnitSymbol;
         $this->class = $class;
     }

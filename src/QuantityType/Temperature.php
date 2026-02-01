@@ -139,7 +139,17 @@ class Temperature extends Quantity
             return $value;
         }
 
-        // Apply offset as needed to get value from absolute zero.
+        // ----------------------------------------------------------------------------------------
+        // Get the source unit as a value from absolute zero (i.e. either K or degR).
+
+        // Check for a source unit of Kelvin with SI prefix.
+        if (self::isPrefixedKelvin($srcUnit)) {
+            // Convert to unprefixed Kelvin.
+            $value *= $srcUnit->multiplier;
+            $srcSymbol = 'K';
+        }
+
+        // Apply offset as needed.
         if ($srcSymbol === 'degC') {
             // Convert Celsius to Kelvin.
             $value += self::CELSIUS_OFFSET;
@@ -155,7 +165,9 @@ class Temperature extends Quantity
             return $value;
         }
 
-        // Determine if we need to convert from metric (K/degC) to US/imperial (degR/degF) or vice versa.
+        // ----------------------------------------------------------------------------------------
+        // Convert SI to imperial or vice-versa.
+
         $destIsImperial = in_array($destSymbol, ['degR', 'degF'], true);
 
         // Scale only if crossing sides.
@@ -174,13 +186,40 @@ class Temperature extends Quantity
             return $value;
         }
 
+        // ----------------------------------------------------------------------------------------
+        // The source unit is now in the same system as the destination unit and will be a
+        // value from absolute zero (i.e. in K or degR). Convert it to the destination unit.
+
         // Convert Kelvin to Celsius.
-        if ($srcSymbol === 'K') {
+        if ($destSymbol === 'degC') {
             return $value - self::CELSIUS_OFFSET;
         }
 
         // Convert Rankine to Fahrenheit.
-        return $value - self::FAHRENHEIT_OFFSET;
+        if ($destSymbol === 'degF') {
+            return $value - self::FAHRENHEIT_OFFSET;
+        }
+
+        // Check for a destination unit of Kelvin with SI prefix.
+        if (self::isPrefixedKelvin($destUnit)) {
+            return $value / $destUnit->multiplier;
+        }
+
+        return $value;
+    }
+
+    // endregion
+
+    // region Private helper methods
+
+    /**
+     * Check if a unit is a prefixed Kelvin (e.g. mK, μK).
+     */
+    private static function isPrefixedKelvin(DerivedUnit $unit): bool
+    {
+        return count($unit->unitTerms) === 1 &&
+            $unit->firstUnitTerm->unit->asciiSymbol === 'K' &&
+            $unit->multiplier !== 1.0;
     }
 
     // endregion

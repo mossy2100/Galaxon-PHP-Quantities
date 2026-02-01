@@ -166,15 +166,25 @@ class UnitTerm implements UnitInterface
      *
      * @param string $symbol The prefixed unit symbol to search for.
      * @return list<self> Array of matching unit terms.
+     * @throws DomainException If the symbol is empty.
      */
     public static function getBySymbol(string $symbol): array
     {
+        // Validate the symbol.
+        if ($symbol === '') {
+            throw new DomainException('Symbol must not be empty.');
+        }
+
         $matches = [];
 
         // Look for any matching units.
         foreach (UnitRegistry::getAll() as $unit) {
             // See if the unprefixed unit matches.
-            if ($unit->asciiSymbol === $symbol || $unit->unicodeSymbol === $symbol) {
+            if (
+                $unit->asciiSymbol === $symbol ||
+                $unit->unicodeSymbol === $symbol ||
+                $unit->alternateSymbol === $symbol
+            ) {
                 $matches[] = new self($unit);
             }
 

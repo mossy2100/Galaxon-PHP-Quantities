@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
+use DomainException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
+use InvalidArgumentException;
+use LogicException;
 use Override;
 
 class Length extends Quantity
@@ -124,6 +127,25 @@ class Length extends Quantity
             // Nautical
             ['ftm', 'yd', 2],
             ['nmi', 'm', 1852],
+        ];
+    }
+
+    // endregion
+
+
+    // region Part-related methods
+
+    /**
+     * Configuration for parts-related methods.
+     *
+     * @return array{from: ?string, to: list<string>}
+     */
+    #[Override]
+    public static function getPartsConfig(): array
+    {
+        return [
+            'from' => 'ft',
+            'to'   => ['le', 'mi', 'yd', 'ft', 'in', 'P', 'p'],
         ];
     }
 

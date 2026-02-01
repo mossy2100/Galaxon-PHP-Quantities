@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Quantity;
 
 use DivisionByZeroError;
 use DomainException;
-use Galaxon\Core\Floats;
+use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
@@ -23,6 +23,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityArithmeticTest extends TestCase
 {
+    use FloatAssertions;
+
     // region Setup
 
     public static function setUpBeforeClass(): void
@@ -303,7 +305,7 @@ final class QuantityArithmeticTest extends TestCase
         $velocity = $distance->div($time);
 
         $this->assertSame(10.0, $velocity->value);
-        $this->assertSame('m*s-1', $velocity->derivedUnit->asciiSymbol);
+        $this->assertSame('m/s', $velocity->derivedUnit->asciiSymbol);
     }
 
     /**
@@ -465,7 +467,7 @@ final class QuantityArithmeticTest extends TestCase
         $sum = $m->add($ft);
 
         // 1 m + 1 ft = 1 m + 0.3048 m = 1.3048 m
-        $this->assertTrue(Floats::approxEqual(1.3048, $sum->value));
+        $this->assertApproxEqual(1.3048, $sum->value);
         $this->assertSame('m', $sum->derivedUnit->asciiSymbol);
     }
 
@@ -479,7 +481,7 @@ final class QuantityArithmeticTest extends TestCase
         $diff = $kg->sub($lb);
 
         // 1 kg - 1 lb = 1 kg - 0.45359237 kg = 0.54640763 kg
-        $this->assertTrue(Floats::approxEqual(1 - 0.45359237, $diff->value));
+        $this->assertApproxEqual(1 - 0.45359237, $diff->value);
     }
 
     // endregion

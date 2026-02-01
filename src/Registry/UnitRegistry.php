@@ -47,7 +47,10 @@ class UnitRegistry
 
         return array_find(
             self::$units,
-            static fn (Unit $unit) => $unit->asciiSymbol === $symbol || $unit->unicodeSymbol === $symbol
+            static fn (Unit $unit) =>
+                $unit->asciiSymbol === $symbol ||
+                $unit->unicodeSymbol === $symbol ||
+                $unit->alternateSymbol === $symbol
         );
     }
 
@@ -95,6 +98,26 @@ class UnitRegistry
         return $expandableUnits;
     }
 
+    /**
+     * Get all valid unit symbols, including base and prefixed variants.
+     *
+     * @return list<string> All valid symbols.
+     */
+    public static function getAllSymbols(): array
+    {
+        self::init();
+        assert(self::$units !== null);
+
+        $allSymbols = [];
+
+        // Loop through the units, adding all its valid symbols.
+        foreach (self::$units as $unit) {
+            $allSymbols = array_merge($allSymbols, $unit->symbols);
+        }
+
+        return $allSymbols;
+    }
+
     // endregion
 
     // region Static methods for adding/removing units to/from the registry
@@ -108,6 +131,7 @@ class UnitRegistry
      * @param string $quantityType The quantity type (e.g. 'length', 'mass').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
+     * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
      * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
      * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
      * @param list<System> $systems The measurement systems this unit belongs to.
@@ -124,6 +148,7 @@ class UnitRegistry
         string $quantityType,
         string $dimension,
         int $prefixGroup = 0,
+        ?string $alternateSymbol = null,
         ?string $expansionUnitSymbol = null,
         ?float $expansionValue = null,
         array $systems = [],
@@ -165,6 +190,7 @@ class UnitRegistry
             $quantityType,
             $dimension,
             $prefixGroup,
+            $alternateSymbol,
             $expansionUnitSymbol,
             $expansionValue,
             $systems
@@ -220,7 +246,7 @@ class UnitRegistry
      */
     public static function loadSystem(System $system): void
     {
-        foreach (QuantityTypeRegistry::getAll() as $dimension => $qtyType) {
+        foreach (QuantityTypeRegistry::getAll() as $qtyType) {
             /** @var ?class-string<Quantity> $qtyTypeClass */
             $qtyTypeClass = $qtyType->class;
 
@@ -244,8 +270,9 @@ class UnitRegistry
                     $definition['asciiSymbol'],
                     $definition['unicodeSymbol'] ?? null,
                     $qtyType->name,
-                    $dimension,
+                    $qtyType->dimension,
                     $definition['prefixGroup'] ?? 0,
+                    $definition['alternateSymbol'] ?? null,
                     $definition['expansionUnitSymbol'] ?? null,
                     $definition['expansionValue'] ?? null,
                     $unitSystems,
@@ -293,26 +320,6 @@ class UnitRegistry
             self::loadSystem(System::SIAccepted);
             self::loadSystem(System::Common);
         }
-    }
-
-    /**
-     * Get all valid unit symbols, including base and prefixed variants.
-     *
-     * @return list<string> All valid symbols.
-     */
-    private static function getAllSymbols(): array
-    {
-        self::init();
-        assert(self::$units !== null);
-
-        $allSymbols = [];
-
-        // Loop through the units, adding all its valid symbols.
-        foreach (self::$units as $unit) {
-            $allSymbols = array_merge($allSymbols, $unit->symbols);
-        }
-
-        return $allSymbols;
     }
 
     // endregion
