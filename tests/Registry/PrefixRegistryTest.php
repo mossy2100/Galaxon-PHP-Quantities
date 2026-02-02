@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
-use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Helpers\PrefixUtils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -23,10 +23,10 @@ final class PrefixRegistryTest extends TestCase
     public function testPrefixGroupConstantValues(): void
     {
         $this->assertSame(1, PrefixRegistry::GROUP_CODE_SMALL_METRIC);
-        $this->assertSame(2, PrefixRegistry::GROUP_CODE_LARGE_METRIC);
-        $this->assertSame(3, PrefixRegistry::GROUP_CODE_METRIC);
-        $this->assertSame(4, PrefixRegistry::GROUP_CODE_BINARY);
-        $this->assertSame(6, PrefixRegistry::GROUP_CODE_LARGE);
+        $this->assertSame(2, PrefixUtils::GROUP_CODE_LARGE_METRIC);
+        $this->assertSame(3, PrefixUtils::GROUP_CODE_METRIC);
+        $this->assertSame(4, PrefixUtils::GROUP_CODE_BINARY);
+        $this->assertSame(6, PrefixUtils::GROUP_CODE_LARGE);
         $this->assertSame(7, PrefixRegistry::GROUP_CODE_ALL);
     }
 
@@ -36,15 +36,15 @@ final class PrefixRegistryTest extends TestCase
     public function testPrefixGroupConstantsBitwiseCombinations(): void
     {
         $this->assertSame(
-            PrefixRegistry::GROUP_CODE_SMALL_METRIC | PrefixRegistry::GROUP_CODE_LARGE_METRIC,
+            PrefixRegistry::GROUP_CODE_SMALL_METRIC | PrefixUtils::GROUP_CODE_LARGE_METRIC,
             PrefixRegistry::GROUP_CODE_METRIC
         );
         $this->assertSame(
             PrefixRegistry::GROUP_CODE_LARGE_METRIC | PrefixRegistry::GROUP_CODE_BINARY,
-            PrefixRegistry::GROUP_CODE_LARGE
+            PrefixUtils::GROUP_CODE_LARGE
         );
         $this->assertSame(
-            PrefixRegistry::GROUP_CODE_METRIC | PrefixRegistry::GROUP_CODE_BINARY,
+            PrefixUtils::GROUP_CODE_METRIC | PrefixUtils::GROUP_CODE_BINARY,
             PrefixRegistry::GROUP_CODE_ALL
         );
     }
@@ -54,7 +54,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testSmallMetricPrefixesConstant(): void
     {
-        $prefixes = PrefixRegistry::PREFIXES_SMALL_ENGINEERING_METRIC;
+        $prefixes = PrefixUtils::PREFIXES_SMALL_ENGINEERING_METRIC;
 
         $this->assertArrayHasKey('m', $prefixes);  // milli
         $this->assertArrayHasKey('μ', $prefixes);  // micro
@@ -76,7 +76,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testLargeMetricPrefixesConstant(): void
     {
-        $prefixes = PrefixRegistry::PREFIXES_LARGE_ENGINEERING_METRIC;
+        $prefixes = PrefixUtils::PREFIXES_LARGE_ENGINEERING_METRIC;
 
         $this->assertArrayHasKey('k', $prefixes);   // kilo
         $this->assertArrayHasKey('M', $prefixes);   // mega
@@ -96,7 +96,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testBinaryPrefixesConstant(): void
     {
-        $prefixes = PrefixRegistry::PREFIXES_BINARY;
+        $prefixes = PrefixUtils::PREFIXES_BINARY;
 
         $this->assertArrayHasKey('Ki', $prefixes);  // kibi
         $this->assertArrayHasKey('Mi', $prefixes);  // mebi
@@ -118,7 +118,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesWithZeroReturnsEmpty(): void
     {
-        $result = PrefixRegistry::getPrefixes(0);
+        $result = PrefixUtils::getPrefixes(0);
 
         $this->assertSame([], $result);
     }
@@ -128,9 +128,9 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesSmallMetric(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_SMALL_METRIC);
+        $result = PrefixUtils::getPrefixes(PrefixUtils::GROUP_CODE_SMALL_METRIC);
 
-        $this->assertSame(PrefixRegistry::PREFIXES_SMALL_ENGINEERING_METRIC, $result);
+        $this->assertSame(PrefixUtils::PREFIXES_SMALL_ENGINEERING_METRIC, $result);
         $this->assertArrayHasKey('m', $result);
         $this->assertArrayHasKey('μ', $result);
         $this->assertArrayNotHasKey('k', $result);
@@ -144,7 +144,7 @@ final class PrefixRegistryTest extends TestCase
     {
         $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_LARGE_METRIC);
 
-        $this->assertSame(PrefixRegistry::PREFIXES_LARGE_ENGINEERING_METRIC, $result);
+        $this->assertSame(PrefixUtils::PREFIXES_LARGE_ENGINEERING_METRIC, $result);
         $this->assertArrayHasKey('k', $result);
         $this->assertArrayHasKey('M', $result);
         $this->assertArrayNotHasKey('m', $result);
@@ -156,7 +156,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesMetric(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_METRIC);
+        $result = PrefixUtils::getPrefixes(PrefixUtils::GROUP_CODE_METRIC);
 
         $this->assertArrayHasKey('m', $result);   // small
         $this->assertArrayHasKey('μ', $result);   // small
@@ -170,9 +170,9 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesBinary(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_BINARY);
+        $result = PrefixUtils::getPrefixes(PrefixRegistry::GROUP_CODE_BINARY);
 
-        $this->assertSame(PrefixRegistry::PREFIXES_BINARY, $result);
+        $this->assertSame(PrefixUtils::PREFIXES_BINARY, $result);
         $this->assertArrayHasKey('Ki', $result);
         $this->assertArrayHasKey('Mi', $result);
         $this->assertArrayNotHasKey('k', $result);
@@ -184,7 +184,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesLarge(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_LARGE);
+        $result = PrefixUtils::getPrefixes(PrefixUtils::GROUP_CODE_LARGE);
 
         $this->assertArrayHasKey('k', $result);   // large metric
         $this->assertArrayHasKey('M', $result);   // large metric
@@ -199,7 +199,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesAll(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_ALL);
+        $result = PrefixUtils::getPrefixes(PrefixUtils::GROUP_CODE_ALL);
 
         $this->assertArrayHasKey('m', $result);   // small metric
         $this->assertArrayHasKey('k', $result);   // large metric
@@ -211,9 +211,9 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixesDefaultReturnsAll(): void
     {
-        $result = PrefixRegistry::getPrefixes();
+        $result = PrefixUtils::getPrefixes();
 
-        $this->assertSame(PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_ALL), $result);
+        $this->assertSame(PrefixRegistry::getPrefixes(PrefixUtils::GROUP_CODE_ALL), $result);
     }
 
     // endregion
@@ -240,8 +240,8 @@ final class PrefixRegistryTest extends TestCase
     public function testGetMetricPrefixesEqualsGetPrefixesMetric(): void
     {
         $this->assertSame(
-            PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_METRIC),
-            PrefixRegistry::getMetricPrefixes()
+            PrefixUtils::getPrefixes(PrefixUtils::GROUP_CODE_METRIC),
+            PrefixUtils::getMetricPrefixes()
         );
     }
 
@@ -254,7 +254,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetEngineeringPrefixesIncludesMultiplesOf3(): void
     {
-        $result = PrefixRegistry::getEngineeringPrefixes();
+        $result = PrefixUtils::getEngineeringPrefixes();
 
         // Large prefixes (10^3, 10^6, 10^9, etc.)
         $this->assertArrayHasKey('k', $result);
@@ -274,7 +274,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetEngineeringPrefixesExcludesNonMultiplesOf3(): void
     {
-        $result = PrefixRegistry::getEngineeringPrefixes();
+        $result = PrefixUtils::getEngineeringPrefixes();
 
         $this->assertArrayNotHasKey('c', $result);   // centi (10^-2)
         $this->assertArrayNotHasKey('d', $result);   // deci (10^-1)
@@ -287,7 +287,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetEngineeringPrefixesExcludesBinary(): void
     {
-        $result = PrefixRegistry::getEngineeringPrefixes();
+        $result = PrefixUtils::getEngineeringPrefixes();
 
         $this->assertArrayNotHasKey('Ki', $result);
         $this->assertArrayNotHasKey('Mi', $result);
@@ -299,7 +299,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetEngineeringPrefixesMultiplierValues(): void
     {
-        $result = PrefixRegistry::getEngineeringPrefixes();
+        $result = PrefixUtils::getEngineeringPrefixes();
 
         $this->assertSame(1e3, $result['k']);
         $this->assertSame(1e6, $result['M']);
@@ -340,7 +340,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testGetPrefixMultiplierMicroAscii(): void
     {
-        $this->assertSame(1e-6, PrefixRegistry::getPrefixMultiplier('u'));
+        $this->assertSame(1e-6, PrefixUtils::getPrefixMultiplier('u'));
     }
 
     /**
@@ -349,7 +349,7 @@ final class PrefixRegistryTest extends TestCase
     public function testGetPrefixMultiplierBinary(): void
     {
         $this->assertEquals(2 ** 10, PrefixRegistry::getPrefixMultiplier('Ki'));
-        $this->assertEquals(2 ** 20, PrefixRegistry::getPrefixMultiplier('Mi'));
+        $this->assertEquals(2 ** 20, PrefixUtils::getPrefixMultiplier('Mi'));
     }
 
     /**
@@ -358,8 +358,8 @@ final class PrefixRegistryTest extends TestCase
     public function testGetPrefixMultiplierInvalidReturnsNull(): void
     {
         $this->assertNull(PrefixRegistry::getPrefixMultiplier('X'));
-        $this->assertNull(PrefixRegistry::getPrefixMultiplier('invalid'));
-        $this->assertNull(PrefixRegistry::getPrefixMultiplier(''));
+        $this->assertNull(PrefixUtils::getPrefixMultiplier('invalid'));
+        $this->assertNull(PrefixUtils::getPrefixMultiplier(''));
     }
 
     /**
@@ -368,11 +368,11 @@ final class PrefixRegistryTest extends TestCase
     public function testGetPrefixMultiplierCaseSensitive(): void
     {
         // 'M' is mega (1e6), 'm' is milli (1e-3)
-        $this->assertSame(1e6, PrefixRegistry::getPrefixMultiplier('M'));
+        $this->assertSame(1e6, PrefixUtils::getPrefixMultiplier('M'));
         $this->assertSame(1e-3, PrefixRegistry::getPrefixMultiplier('m'));
 
         // 'K' is not a valid prefix (kilo is lowercase 'k')
-        $this->assertNull(PrefixRegistry::getPrefixMultiplier('K'));
+        $this->assertNull(PrefixUtils::getPrefixMultiplier('K'));
     }
 
     // endregion
@@ -384,7 +384,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertKiloToMilli(): void
     {
-        $this->assertSame('m', PrefixRegistry::invert('k'));
+        $this->assertSame('m', PrefixUtils::invert('k'));
     }
 
     /**
@@ -392,7 +392,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertMilliToKilo(): void
     {
-        $this->assertSame('k', PrefixRegistry::invert('m'));
+        $this->assertSame('k', PrefixUtils::invert('m'));
     }
 
     /**
@@ -400,7 +400,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertMegaToMicro(): void
     {
-        $this->assertSame('μ', PrefixRegistry::invert('M'));
+        $this->assertSame('μ', PrefixUtils::invert('M'));
     }
 
     /**
@@ -416,7 +416,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertMicroAliasToMega(): void
     {
-        $this->assertSame('M', PrefixRegistry::invert('u'));
+        $this->assertSame('M', PrefixUtils::invert('u'));
     }
 
     /**
@@ -424,7 +424,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertGigaToNano(): void
     {
-        $this->assertSame('n', PrefixRegistry::invert('G'));
+        $this->assertSame('n', PrefixUtils::invert('G'));
     }
 
     /**
@@ -440,7 +440,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertTeraToPico(): void
     {
-        $this->assertSame('p', PrefixRegistry::invert('T'));
+        $this->assertSame('p', PrefixUtils::invert('T'));
     }
 
     /**
@@ -448,7 +448,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertPicoToTera(): void
     {
-        $this->assertSame('T', PrefixRegistry::invert('p'));
+        $this->assertSame('T', PrefixUtils::invert('p'));
     }
 
     /**
@@ -456,7 +456,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertHectoToCenti(): void
     {
-        $this->assertSame('c', PrefixRegistry::invert('h'));
+        $this->assertSame('c', PrefixUtils::invert('h'));
     }
 
     /**
@@ -464,7 +464,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertCentiToHecto(): void
     {
-        $this->assertSame('h', PrefixRegistry::invert('c'));
+        $this->assertSame('h', PrefixUtils::invert('c'));
     }
 
     /**
@@ -488,7 +488,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertQuettaToQuecto(): void
     {
-        $this->assertSame('q', PrefixRegistry::invert('Q'));
+        $this->assertSame('q', PrefixUtils::invert('Q'));
     }
 
     /**
@@ -496,7 +496,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertQuectoToQuetta(): void
     {
-        $this->assertSame('Q', PrefixRegistry::invert('q'));
+        $this->assertSame('Q', PrefixUtils::invert('q'));
     }
 
     /**
@@ -506,7 +506,7 @@ final class PrefixRegistryTest extends TestCase
     {
         $this->expectException(DomainException::class);
 
-        PrefixRegistry::invert('Ki');
+        PrefixUtils::invert('Ki');
     }
 
     /**
@@ -516,7 +516,7 @@ final class PrefixRegistryTest extends TestCase
     {
         $this->expectException(DomainException::class);
 
-        PrefixRegistry::invert('X');
+        PrefixUtils::invert('X');
     }
 
     /**
@@ -526,7 +526,7 @@ final class PrefixRegistryTest extends TestCase
     {
         $this->expectException(DomainException::class);
 
-        PrefixRegistry::invert('');
+        PrefixUtils::invert('');
     }
 
     /**
@@ -534,7 +534,7 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testInvertReturnsNullForNullInput(): void
     {
-        $this->assertNull(PrefixRegistry::invert(null));
+        $this->assertNull(PrefixUtils::invert(null));
     }
 
     /**
@@ -543,14 +543,14 @@ final class PrefixRegistryTest extends TestCase
     public function testInvertRoundTrip(): void
     {
         // Small → Large → Small
-        $this->assertSame('m', PrefixRegistry::invert(PrefixRegistry::invert('m')));
-        $this->assertSame('n', PrefixRegistry::invert(PrefixRegistry::invert('n')));
-        $this->assertSame('p', PrefixRegistry::invert(PrefixRegistry::invert('p')));
+        $this->assertSame('m', PrefixRegistry::invert(PrefixUtils::invert('m')));
+        $this->assertSame('n', PrefixUtils::invert(PrefixUtils::invert('n')));
+        $this->assertSame('p', PrefixUtils::invert(PrefixUtils::invert('p')));
 
         // Large → Small → Large
-        $this->assertSame('k', PrefixRegistry::invert(PrefixRegistry::invert('k')));
-        $this->assertSame('M', PrefixRegistry::invert(PrefixRegistry::invert('M')));
-        $this->assertSame('G', PrefixRegistry::invert(PrefixRegistry::invert('G')));
+        $this->assertSame('k', PrefixUtils::invert(PrefixUtils::invert('k')));
+        $this->assertSame('M', PrefixUtils::invert(PrefixRegistry::invert('M')));
+        $this->assertSame('G', PrefixUtils::invert(PrefixUtils::invert('G')));
     }
 
     /**
@@ -564,8 +564,8 @@ final class PrefixRegistryTest extends TestCase
             $inverse = PrefixRegistry::invert($prefix);
             $this->assertNotNull($inverse);
 
-            $multiplier = PrefixRegistry::getPrefixMultiplier($prefix);
-            $inverseMultiplier = PrefixRegistry::getPrefixMultiplier($inverse);
+            $multiplier = PrefixUtils::getPrefixMultiplier($prefix);
+            $inverseMultiplier = PrefixUtils::getPrefixMultiplier($inverse);
 
             // multiplier × inverseMultiplier should equal 1
             $this->assertEqualsWithDelta(1.0, $multiplier * $inverseMultiplier, 1e-20);

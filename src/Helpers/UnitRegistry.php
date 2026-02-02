@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Registry;
+namespace Galaxon\Quantities\Helpers;
 
 use DomainException;
 use Galaxon\Quantities\Quantity;
@@ -47,8 +47,7 @@ class UnitRegistry
 
         return array_find(
             self::$units,
-            static fn (Unit $unit) =>
-                $unit->asciiSymbol === $symbol ||
+            static fn (Unit $unit) => $unit->asciiSymbol === $symbol ||
                 $unit->unicodeSymbol === $symbol ||
                 $unit->alternateSymbol === $symbol
         );

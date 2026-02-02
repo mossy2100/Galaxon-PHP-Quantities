@@ -6,7 +6,7 @@ namespace Galaxon\Quantities\Tests;
 
 use DomainException;
 use Galaxon\Quantities\DerivedUnit;
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Helpers\UnitRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -275,33 +275,6 @@ class DerivedUnitTest extends TestCase
         // Energy (Joule): mass⋅length²/time²
         $du = DerivedUnit::parse('kg*m2/s2');
         $this->assertSame('ML2T-2', $du->dimension);
-    }
-
-    // endregion
-
-    // region getUnitTermByDimension() tests
-
-    public function testGetUnitTermByDimensionFound(): void
-    {
-        $du = DerivedUnit::parse('kg*m/s2');
-
-        $massTerm = $du->getUnitTermByDimension('M');
-        $this->assertNotNull($massTerm);
-        $this->assertSame('kg', $massTerm->format(true));
-
-        $lengthTerm = $du->getUnitTermByDimension('L');
-        $this->assertNotNull($lengthTerm);
-        $this->assertSame('m', $lengthTerm->format(true));
-
-        $timeTerm = $du->getUnitTermByDimension('T-2');
-        $this->assertNotNull($timeTerm);
-        $this->assertSame('s-2', $timeTerm->format(true));
-    }
-
-    public function testGetUnitTermByDimensionNotFound(): void
-    {
-        $du = DerivedUnit::parse('m');
-        $this->assertNull($du->getUnitTermByDimension('M'));
     }
 
     // endregion

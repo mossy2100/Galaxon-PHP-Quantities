@@ -6,7 +6,7 @@ namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
 use Galaxon\Quantities\Conversion;
-use Galaxon\Quantities\Registry\ConversionRegistry;
+use Galaxon\Quantities\Helpers\ConversionRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

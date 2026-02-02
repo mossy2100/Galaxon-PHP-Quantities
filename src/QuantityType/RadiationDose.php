@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 use Override;
 

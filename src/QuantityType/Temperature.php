@@ -7,8 +7,8 @@ namespace Galaxon\Quantities\QuantityType;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitInterface;
 use Override;
@@ -54,7 +54,7 @@ class Temperature extends Quantity
         return [
             'kelvin'     => [
                 'asciiSymbol' => 'K',
-                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
                 'systems'     => [System::SI],
             ],
             'celsius'    => [

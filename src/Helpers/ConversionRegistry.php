@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Registry;
+namespace Galaxon\Quantities\Helpers;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
@@ -65,12 +65,12 @@ class ConversionRegistry
     public static function getByDimension(string $dimension): array
     {
         // Check the dimension code is valid.
-        if (!DimensionRegistry::isValid($dimension)) {
+        if (!DimensionUtils::isValid($dimension)) {
             throw new FormatException("Invalid dimension code '$dimension'.");
         }
 
         // Return conversions for this dimension.
-        $dimension = DimensionRegistry::normalize($dimension);
+        $dimension = DimensionUtils::normalize($dimension);
         return self::$conversions[$dimension] ?? [];
     }
 
@@ -153,28 +153,6 @@ class ConversionRegistry
         $src = $conversion->srcUnit->asciiSymbol;
         $dest = $conversion->destUnit->asciiSymbol;
         unset(self::$conversions[$dim][$src][$dest]);
-    }
-
-    /**
-     * Remove all conversions involving a given unit.
-     *
-     * @param string|UnitInterface $unit The unit to remove conversions for.
-     * @throws DomainException If the unit symbol is invalid.
-     * @throws FormatException If the unit format is invalid.
-     */
-    public static function removeByUnit(string|UnitInterface $unit): void
-    {
-        $unit = DerivedUnit::toDerivedUnit($unit);
-
-        foreach (self::$conversions as $dim => $conversionMatrix) {
-            foreach ($conversionMatrix as $src => $conversionList) {
-                foreach ($conversionList as $dest => $conversion) {
-                    if ($conversion->srcUnit->equal($unit) || $conversion->destUnit->equal($unit)) {
-                        unset(self::$conversions[$dim][$src][$dest]);
-                    }
-                }
-            }
-        }
     }
 
     /**

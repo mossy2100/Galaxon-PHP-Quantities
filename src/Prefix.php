@@ -7,7 +7,7 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Helpers\PrefixUtils;
 
 class Prefix
 {
@@ -40,7 +40,7 @@ class Prefix
     /**
      * The group code for the prefix (see PrefixRegistry::GROUP_CODE_* constants).
      * This will only be one of the base groups and will therefore be a power of 2 (i.e. 1, 2, 4, 8, or 16).
-     * @see PrefixRegistry::GROUP_CODE_SMALL_ENGINEERING_METRIC
+     * @see PrefixUtils::GROUP_CODE_SMALL_ENGINEERING_METRIC
      */
     private(set) int $groupCode;
 
@@ -72,7 +72,7 @@ class Prefix
         }
 
         // Validate the Unicode symbol. Max two Unicode letters.
-        if ($unicodeSymbol !== null && !preg_match('/^[\p{L}]{1, 2}$/u', $unicodeSymbol)) {
+        if ($unicodeSymbol !== null && !preg_match('/^\p{L}{1, 2}$/u', $unicodeSymbol)) {
             throw new FormatException("Invalid Unicode symbol: $unicodeSymbol");
         }
 
@@ -85,7 +85,7 @@ class Prefix
         }
 
         // Validate group code.
-        if (!PrefixRegistry::isValidGroupCode($groupCode)) {
+        if (!PrefixUtils::isValidGroupCode($groupCode)) {
             throw new DomainException("Invalid group code: $groupCode");
         }
 
@@ -125,7 +125,7 @@ class Prefix
      */
     public function isEngineering(): bool
     {
-        return (bool)($this->groupCode & PrefixRegistry::GROUP_CODE_ENGINEERING_METRIC);
+        return (bool)($this->groupCode & PrefixUtils::GROUP_CODE_ENGINEERING_METRIC);
     }
 
     // endregion

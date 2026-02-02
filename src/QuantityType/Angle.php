@@ -8,10 +8,9 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
+use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use InvalidArgumentException;
 use Override;
 
 class Angle extends Quantity
@@ -46,7 +45,7 @@ class Angle extends Quantity
         return [
             'radian'    => [
                 'asciiSymbol' => 'rad',
-                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
                 'systems'     => [System::SI],
             ],
             'degree'    => [
@@ -55,17 +54,17 @@ class Angle extends Quantity
                 'systems'       => [System::SIAccepted],
             ],
             'arcminute' => [
-                'asciiSymbol'   => 'arcmin',
-                'unicodeSymbol' => '′',
+                'asciiSymbol'     => 'arcmin',
+                'unicodeSymbol'   => '′',
                 'alternateSymbol' => "'",
-                'systems'       => [System::SIAccepted],
+                'systems'         => [System::SIAccepted],
             ],
             'arcsecond' => [
-                'asciiSymbol'   => 'arcsec',
-                'unicodeSymbol' => '″',
+                'asciiSymbol'     => 'arcsec',
+                'unicodeSymbol'   => '″',
                 'alternateSymbol' => '"',
-                'prefixGroup'   => PrefixRegistry::GROUP_CODE_SMALL_ENGINEERING_METRIC,
-                'systems'       => [System::SIAccepted],
+                'prefixGroup'     => PrefixUtils::GROUP_CODE_SMALL_ENGINEERING_METRIC,
+                'systems'         => [System::SIAccepted],
             ],
             'gradian'   => [
                 'asciiSymbol' => 'grad',
@@ -92,6 +91,20 @@ class Angle extends Quantity
             ['deg', 'arcmin', 60],
             ['arcmin', 'arcsec', 60],
             ['turn', 'grad', 400],
+        ];
+    }
+
+    /**
+     * Configuration for parts-related methods.
+     *
+     * @return array{from: ?string, to: list<string>}
+     */
+    #[Override]
+    public static function getPartsConfig(): array
+    {
+        return [
+            'from' => 'deg',
+            'to'   => ['deg', 'arcmin', 'arcsec'],
         ];
     }
 
@@ -350,24 +363,6 @@ class Angle extends Quantity
         }
 
         return fdiv($c, $s);
-    }
-
-    // endregion
-
-    // region Part-related methods
-
-    /**
-     * Configuration for parts-related methods.
-     *
-     * @return array{from: ?string, to: list<string>}
-     */
-    #[Override]
-    public static function getPartsConfig(): array
-    {
-        return [
-            'from' => 'deg',
-            'to'   => ['deg', 'arcmin', 'arcsec'],
-        ];
     }
 
     // endregion

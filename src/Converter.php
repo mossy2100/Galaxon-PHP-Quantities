@@ -6,9 +6,9 @@ namespace Galaxon\Quantities;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Registry\ConversionRegistry;
-use Galaxon\Quantities\Registry\DimensionRegistry;
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Helpers\ConversionRegistry;
+use Galaxon\Quantities\Helpers\DimensionUtils;
+use Galaxon\Quantities\Helpers\QuantityTypeRegistry;
 use LogicException;
 
 /**
@@ -78,7 +78,7 @@ class Converter
     private function __construct(string $dimension)
     {
         // Check the dimension is valid.
-        if (!DimensionRegistry::isValid($dimension)) {
+        if (!DimensionUtils::isValid($dimension)) {
             throw new FormatException("Invalid dimension code '$dimension'.");
         }
 
@@ -173,8 +173,7 @@ class Converter
         if ($src === $dest) {
             // Units are the same, so create the identity conversion; we'll add prefixes below.
             $unprefixedConversion = new Conversion($unprefixedSrcUnit, $unprefixedDestUnit, 1);
-        }
-        else {
+        } else {
             // Generate new conversions until we get a match, or we're out of options.
             do {
                 $result = $this->findNextConversion();

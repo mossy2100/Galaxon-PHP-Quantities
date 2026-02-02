@@ -6,16 +6,14 @@ namespace Galaxon\Quantities;
 
 use DivisionByZeroError;
 use DomainException;
-use Galaxon\Core\Arrays;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
-use Galaxon\Quantities\Registry\DimensionRegistry;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Helpers\PrefixUtils;
+use Galaxon\Quantities\Helpers\QuantityTypeRegistry;
+use Galaxon\Quantities\Helpers\UnitRegistry;
 use InvalidArgumentException;
 use LogicException;
 use Override;
@@ -124,7 +122,7 @@ class Quantity implements Stringable
             throw new LogicException(
                 "Cannot instantiate a $qtyType->name quantity by calling `new $callingClass()`. Instead, " .
                 " call `new $qtyType->class()`. Otherwise, call `$qtyClass::create()`, which will automatically " .
-                "create an object of the correct class."
+                'create an object of the correct class.'
             );
         }
 
@@ -381,7 +379,7 @@ class Quantity implements Stringable
         if (count($qty->derivedUnit->unitTerms) === 1) {
             $unitTerm = $qty->derivedUnit->firstUnitTerm;
             if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
-                $newUnitTerm = new UnitTerm('Hz', PrefixRegistry::invert($unitTerm->prefix));
+                $newUnitTerm = new UnitTerm('Hz', PrefixUtils::invert($unitTerm->prefix));
                 return self::create($qty->value, $newUnitTerm);
             }
         }
@@ -512,7 +510,7 @@ class Quantity implements Stringable
                 // Create a second term with the same unit as the first, but the exponent of the second term.
                 $newUnitTerm2 = $newUnitTerm1->withExponent($thisUnitTerm->exponent);
 
-                // Adding the second unit term will combine it with the first, because they have the same
+                // Adding the second unit term will combine it with the first because they have the same
                 // unexponentiated symbol.
                 $newUnit->addUnitTerm($newUnitTerm2);
             }
@@ -974,6 +972,11 @@ class Quantity implements Stringable
         // Get the unit as a string.
         $unitSymbol = $this->derivedUnit->format($ascii);
 
+        // If the unit is empty, return the value as a string.
+        if ($unitSymbol === '') {
+            return $valueStr;
+        }
+
         // If $includeSpace is not specified, do not insert a space between the value and unit if the unit is a single
         // non-letter unit symbol (e.g. °, %, "). Otherwise, insert one space.
         if ($includeSpace === null) {
@@ -1048,8 +1051,9 @@ class Quantity implements Stringable
         $qtyType = QuantityTypeRegistry::getByClass(static::class);
         if ($qtyType === null) {
             throw new LogicException(
-                "Quantity type not found for class " . static::class . ". Ensure the class is registered " .
-                "using `QuantityTypeRegistry::add()` or `QuantityTypeRegistry::setClass()`.");
+                'Quantity type not found for class ' . static::class . '. Ensure the class is registered ' .
+                'using `QuantityTypeRegistry::add()` or `QuantityTypeRegistry::setClass()`.'
+            );
         }
 
         // Get the unit.
@@ -1069,15 +1073,12 @@ class Quantity implements Stringable
     /**
      * Validate and transform the 'to' part units array into a list of Units.
      *
+     * @param list<string> $partUnitSymbols The part unit symbols to validate and transform.
      * @return list<Unit> The part units.
      * @throws LogicException If the 'to' array is empty or contains invalid symbols.
      */
-    protected static function validatePartUnitSymbols(): array
+    protected static function validatePartUnitSymbols(array $partUnitSymbols): array
     {
-        // Get the parts config.
-        $config = static::getPartsConfig();
-        $partUnitSymbols = $config['to'];
-
         // Ensure we have some part units.
         if (empty($partUnitSymbols)) {
             throw new LogicException(
@@ -1098,31 +1099,59 @@ class Quantity implements Stringable
     }
 
     /**
-     * Validate that a unit symbol is valid for this quantity type and is in the 'to' list of part units.
-     *
-     * @param string $smallestUnitSymbol The unit symbol to validate.
-     * @return Unit The validated unit as a Unit object.
-     * @throws LogicException If the calling class is not a registered quantity type.
-     * @throws DomainException If the symbol is unknown, invalid for this quantity type, or not in the 'to' list.
+     * @param list<string> $partUnitSymbols
+     * @param ?string $largestUnitSymbol
+     * @param ?string $smallestUnitSymbol
+     * @return array{string, int, string, int}
+     * @throws DomainException
      */
-    protected static function validateSmallestUnitSymbol(string $smallestUnitSymbol): Unit
-    {
-        $smallestUnit = static::validateUnitSymbol($smallestUnitSymbol);
-        $partUnitSymbols = static::getPartsConfig()['to'];
-        if (!in_array($smallestUnitSymbol, $partUnitSymbols, true)) {
-            throw new DomainException("Smallest unit symbol '$smallestUnitSymbol' is not a valid part unit.");
+    protected static function validateLargestAndSmallest(
+        array $partUnitSymbols,
+        ?string $largestUnitSymbol,
+        ?string $smallestUnitSymbol
+    ): array {
+        // Get default largest unit symbol.
+        if ($largestUnitSymbol === null) {
+            $largestUnitIndex = 0;
+            $largestUnitSymbol = $partUnitSymbols[$largestUnitIndex];
+        } else {
+            // Validate largest unit symbol.
+            $largestUnitIndex = array_search($largestUnitSymbol, $partUnitSymbols, true);
+            if ($largestUnitIndex === false) {
+                throw new DomainException("The unit '$largestUnitSymbol' is not a valid part unit.");
+            }
         }
-        return $smallestUnit;
+
+        // Get default smallest unit symbol.
+        if ($smallestUnitSymbol === null) {
+            $smallestUnitIndex = count($partUnitSymbols) - 1;
+            $smallestUnitSymbol = $partUnitSymbols[$smallestUnitIndex];
+        } else {
+            // Validate smallest unit symbol.
+            $smallestUnitIndex = array_search($smallestUnitSymbol, $partUnitSymbols, true);
+            if ($smallestUnitIndex === false) {
+                throw new DomainException("The unit '$smallestUnitSymbol' is not a valid part unit.");
+            }
+        }
+
+        return [$largestUnitSymbol, $largestUnitIndex, $smallestUnitSymbol, $smallestUnitIndex];
     }
 
     /**
-     * Create a new Quantity object (of the derived type) as a sum of measurements of the same type in different
-     * units.
+     * Create a new Quantity object (of the derived type) as a sum of measurements of different units, which must be
+     * valid for the quantity type corresponding to the calling class.
      *
-     * All parts must be non-negative.
+     * The $parts array may include an optional 'sign' key to indicate the sign of the sum, which can be 1
+     * (non-negative) or -1 (negative). If omitted, the sign is assumed to be 1.
      *
-     * @param array<string, int|float> $parts The parts. This may include an optional 'sign' key to indicate the sign of
-     * the sum, which can be 1 (non-negative) or -1 (negative). If omitted, the sign is assumed to be 1.
+     * Part values may be positive or negative, but if you specify a sign of -1, the Quantity will be negated after all
+     * parts are summed.
+     *
+     * TODO It's plausuble that this method could be used for quantities that don't have a specific quantity type
+     * subclass. The only requirement would be that the parts unit symbols specified in the $parts array have the ssame
+     * dimension as the result unit. So I have to change the validation.
+     *
+     * @param array<string, int|float> $parts The parts.
      * @param ?string $resultUnitSymbol The unit to use for the resulting quantity, or null to use the class default.
      * @return self A new Quantity representing the sum of the parts.
      * @throws InvalidArgumentException If any of the values are not numbers, or if no result unit is specified and
@@ -1134,7 +1163,7 @@ class Quantity implements Stringable
     {
         // Use class default if not specified.
         if ($resultUnitSymbol === null) {
-            $resultUnitSymbol = static::getPartsConfig()['from'];
+            $resultUnitSymbol = static::getPartsConfig()['from'] ?? null;
             if ($resultUnitSymbol === null) {
                 throw new InvalidArgumentException(
                     'Result unit symbol is required; no default is defined for ' . static::class . '.'
@@ -1181,75 +1210,78 @@ class Quantity implements Stringable
      * Convert Quantity to component parts.
      *
      * Returns an array with components from the largest to the smallest unit.
-     * A sign part is also included with a value of 1 for positive or zero, or -1 for negative.
-     * All the unit values will be floats; the sign will be an integer.
-     * Only the last component may have a fractional part; the others will not.
+     * All the part values will be floats.
+     * A sign key is also included with an integer value of 1 for positive or zero, or -1 for negative.
      *
-     * @param ?string $smallestUnitSymbol The smallest unit to include in the result.
+     * If $largestUnitSymbol is null, the default will be used, which is the first and largest unit in the 'to'
+     * array in the parts config array returned by getPartsConfig().
+     * If $smallestUnitSymbol is null, the default will be used, which is the last and smallest unit in the 'to'
+     * array in the parts config array returned by getPartsConfig().
+     *
+     * @param ?string $largestUnitSymbol The largest unit to include in the result (default: null).
+     * @param ?string $smallestUnitSymbol The smallest unit to include in the result (default: null).
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the optional sign (1 or -1).
      * @throws DomainException If any arguments are invalid.
      * @throws LogicException If getPartsConfig() has not been overridden properly.
      */
-    public function toParts(?string $smallestUnitSymbol = null, ?int $precision = null): array
-    {
-        // Get and validate the part units.
-        $partUnits = static::validatePartUnitSymbols();
+    public function toParts(
+        ?string $largestUnitSymbol = null,
+        ?string $smallestUnitSymbol = null,
+        ?int $precision = null
+    ): array {
+        // Validate the part unit symbols.
         $partUnitSymbols = static::getPartsConfig()['to'];
+        $partUnits = static::validatePartUnitSymbols($partUnitSymbols);
 
-        // Default the smallest unit to the last part unit if not specified.
-        if ($smallestUnitSymbol === null) {
-            $smallestUnitSymbol = Arrays::last($partUnitSymbols);
-            $smallestUnit = Arrays::last($partUnits);
-        }
-        else {
-            // Validate the provided smallest unit.
-            $smallestUnit = static::validateSmallestUnitSymbol($smallestUnitSymbol);
-        }
+        // Get the default or validate the largest and smallest unit symbols.
+        [$largestUnitSymbol, $largestUnitIndex, $smallestUnitSymbol, $smallestUnitIndex] =
+            static::validateLargestAndSmallest($partUnitSymbols, $largestUnitSymbol, $smallestUnitSymbol);
 
         // Validate precision.
         static::validatePrecision($precision);
 
-        // Prep.
+        // Initialize the result array.
         $parts = [
             'sign' => Numbers::sign($this->value, false),
         ];
-        $smallestUnitIndex = (int)array_search($smallestUnitSymbol, $partUnitSymbols, true);
 
         // Initialize the remainder to the source value converted to the smallest unit.
-        $rem = abs($this->to($smallestUnit)->value);
+        $rem = abs($this->to($smallestUnitSymbol)->value);
 
         // Get the integer parts.
-        foreach ($partUnitSymbols as $partUnitSymbol) {
-            // If we've reached the smallest unit, stop.
-            if ($partUnitSymbol === $smallestUnitSymbol) {
-                break;
-            }
+        for ($i = $largestUnitIndex; $i < $smallestUnitIndex; $i++) {
+            $symbol = $partUnitSymbols[$i];
+            $unit = $partUnits[$i];
 
             // Get the number of current units in the smallest unit.
-            $factor = static::convert(1, $partUnitSymbol, $smallestUnit);
-            $wholeNumCurUnit = floor($rem / $factor);
-            $parts[$partUnitSymbol] = $wholeNumCurUnit;
+            $factor = static::convert(1, $unit, $smallestUnitSymbol);
+            $wholeNumCurUnit = (int)floor($rem / $factor);
+            $parts[$symbol] = $wholeNumCurUnit;
             $rem = $rem - $wholeNumCurUnit * $factor;
         }
 
         // If the precision is specified, round off the smallest unit.
-        $parts[$smallestUnitSymbol] = $precision === null ? $rem : round($rem, $precision);
-
-        // Carry in reverse order.
-        if ($precision !== null) {
-            for ($i = $smallestUnitIndex; $i >= 1; $i--) {
-                $curUnit = $partUnitSymbols[$i];
-                $prevUnit = $partUnitSymbols[$i - 1];
-                $conversionFactor = static::convert(1, $prevUnit, $curUnit);
-                if ($parts[$curUnit] >= $conversionFactor) {
-                    $parts[$curUnit] -= $conversionFactor;
-                    $parts[$prevUnit]++;
-                }
-            }
+        if ($precision === null) {
+            $parts[$smallestUnitSymbol] = $rem;
+            return $parts;
         }
 
-        return $parts;
+        // Round off the remainder to the requested precision.
+        $rem2 = round($rem, $precision);
+        $parts[$smallestUnitSymbol] = $rem2;
+
+        // If the rounding doesn't increase the remainder, we're done.
+        if ($rem2 <= $rem) {
+            return $parts;
+        }
+
+        // If the rounding does increase the remainder, then rounding up one or more parts may be necessary.
+        // To account for non-integer conversion factors, rebuild the parts array.
+        // We call toParts() with $precision = null to avoid infinite recursion.
+        $rebuilt = static::fromParts($parts)->toParts($largestUnitSymbol, $smallestUnitSymbol);
+        $rebuilt[$smallestUnitSymbol] = round($rebuilt[$smallestUnitSymbol], $precision);
+        return $rebuilt;
     }
 
     /**
@@ -1261,72 +1293,66 @@ class Quantity implements Stringable
      *
      * Only the smallest unit may have a decimal point. Larger units will be integers.
      *
-     * @param ?string $smallestUnitSymbol The smallest unit to include (null for default).
+     * If $largestUnitSymbol is null, the default will be used, which is the first and largest unit in the 'to'
+     * array in the parts config array returned by getPartsConfig().
+     * If $smallestUnitSymbol is null, the default will be used, which is the last and smallest unit in the 'to'
+     * array in the parts config array returned by getPartsConfig().
+     *
+     * @param ?string $largestUnitSymbol The largest unit to include in the result (default: null).
+     * @param ?string $smallestUnitSymbol The smallest unit to include in the result (default: null).
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
-     * @param bool $showZeros If true, show all components (largest to smallest) including zeros; if false, skip
-     * zero-value components.
+     * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
      * @return string The formatted string.
      * @throws DomainException If any arguments are invalid.
      * @throws LogicException If the 'to' array is empty or contains invalid symbols.
      */
     public function formatParts(
+        ?string $largestUnitSymbol = null,
         ?string $smallestUnitSymbol = null,
         ?int $precision = null,
         bool $showZeros = false,
         bool $ascii = false
-    ): string
-    {
+    ): string {
+        // Validate the part unit symbols.
+        $partUnitSymbols = static::getPartsConfig()['to'];
+        $partUnits = static::validatePartUnitSymbols($partUnitSymbols);
+
+        // Get the default or validate the largest and smallest unit symbols.
+        [$largestUnitSymbol, $largestUnitIndex, $smallestUnitSymbol, $smallestUnitIndex] =
+            static::validateLargestAndSmallest($partUnitSymbols, $largestUnitSymbol, $smallestUnitSymbol);
+
         // Validate precision.
         static::validatePrecision($precision);
 
-        // Get the part unit symbols.
-        $partUnits = static::validatePartUnitSymbols();
-        $partUnitSymbols = static::getPartsConfig()['to'];
-
-        // If the smallest unit is not specified, use the last part unit.
-        if ($smallestUnitSymbol === null) {
-            $smallestUnitSymbol = Arrays::last($partUnitSymbols);
-        }
-
         // Get the quantity as parts. This will validate the parts units and the smallest unit.
-        $parts = $this->toParts($smallestUnitSymbol, $precision);
-
-        // Get the smallest unit.
-        $smallestUnitIndex = (int)array_search($smallestUnitSymbol, $partUnitSymbols, true);
-        $smallestUnit = $partUnits[$smallestUnitIndex];
+        $parts = $this->toParts($largestUnitSymbol, $smallestUnitSymbol, $precision);
 
         // Prep.
         $result = [];
-        $hasNonZero = false;
 
         // Generate string as parts.
-        for ($i = 0; $i <= $smallestUnitIndex; $i++) {
+        for ($i = $largestUnitIndex; $i <= $smallestUnitIndex; $i++) {
             $symbol = $partUnitSymbols[$i];
             $unit = $partUnits[$i];
             $value = $parts[$symbol] ?? 0;
             $isZero = Numbers::equal($value, 0);
 
-            // Track if we've seen any non-zero values.
-            if (!$isZero) {
-                $hasNonZero = true;
-            }
-
-            // Skip zero components based on $showZeros flag.
-            // When $showZeros is true: show zeros only after the first non-zero (standard DMS notation).
-            // When $showZeros is false: skip all zeros (compact time notation).
-            if ($isZero && !($showZeros && $hasNonZero)) {
+            // Skip zeros if requested.
+            if ($isZero && !$showZeros) {
                 continue;
             }
 
             // Format the part with no space between the value and unit.
-            $valueStr = static::formatValue($value, 'f', $i === $smallestUnitIndex ? $precision : 0);
+            $valueStr = $i === $smallestUnitIndex
+                ? static::formatValue($value, 'f', $precision)
+                : (string)$value;
             $result[] = $valueStr . $unit->format($ascii);
         }
 
         // If the value is zero, just show '0' with the smallest unit.
         if (empty($result)) {
-            $result[] = '0' . $smallestUnit->format($ascii);
+            $result[] = '0' . $partUnits[$smallestUnitIndex]->format($ascii);
         }
 
         // Return string of units, separated by spaces. Prepend minus sign if negative.
@@ -1338,7 +1364,7 @@ class Quantity implements Stringable
     // region Helper methods
 
     /**
-     * Check the $this and $other objects have the same type, and get the value of the $other Quantity in the same
+     * Check the $this and $other objects have the same type and get the value of the $other Quantity in the same
      * unit as the $this one. Return the value.
      *
      * @param mixed $other The other measurement to compare with.

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 use Override;
 
@@ -29,9 +28,10 @@ class Volume extends Quantity
     public static function getUnitDefinitions(): array
     {
         return [
+            // Metric volume units
             'litre'                => [
                 'asciiSymbol' => 'L',
-                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup' => Prefixes::GROUP_CODE_METRIC,
                 'systems'     => [System::SIAccepted],
             ],
             // US customary volume units
@@ -82,8 +82,6 @@ class Volume extends Quantity
         return [
             // Metric
             ['m3', 'L', 1000],
-            // Metric-US bridge
-        //            ['in3', 'mL', 16.387064],
             // US customary
             ['US gal', 'in3', 231],
             ['US gal', 'US qt', 4],

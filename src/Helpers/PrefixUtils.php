@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Registry;
+namespace Galaxon\Quantities\Helpers;
 
 use DomainException;
 use Galaxon\Core\Floats;
@@ -14,7 +14,7 @@ use Galaxon\Quantities\Prefix;
  * Provides access to metric prefixes (milli, kilo, mega, etc.) and binary prefixes (kibi, mebi, etc.)
  * organized by group codes for flexible filtering.
  */
-class PrefixRegistry
+class PrefixUtils
 {
     // region Prefix group constants
 

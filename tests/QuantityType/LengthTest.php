@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\QuantityType;
 
-use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Quantities\Helpers\UnitRegistry;
 use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -556,7 +555,7 @@ final class LengthTest extends TestCase
         $this->assertArrayHasKey('from', $config);
         $this->assertArrayHasKey('to', $config);
         $this->assertSame('ft', $config['from']);
-        $this->assertSame(['le', 'mi', 'yd', 'ft', 'in', 'P', 'p'], $config['to']);
+        $this->assertSame(['le', 'mi', 'yd', 'ft', 'in'], $config['to']);
     }
 
     /**
@@ -564,7 +563,10 @@ final class LengthTest extends TestCase
      */
     public function testFromPartsFeetInches(): void
     {
-        $length = Length::fromParts(['ft' => 5, 'in' => 6]);
+        $length = Length::fromParts([
+            'ft' => 5,
+            'in' => 6,
+        ]);
 
         // 5 feet + 6 inches = 5.5 feet
         $this->assertSame(5.5, $length->value);
@@ -576,7 +578,10 @@ final class LengthTest extends TestCase
      */
     public function testFromPartsMilesYards(): void
     {
-        $length = Length::fromParts(['mi' => 1, 'yd' => 880]);
+        $length = Length::fromParts([
+            'mi' => 1,
+            'yd' => 880,
+        ]);
 
         // 1 mile + 880 yards = 1.5 miles
         $this->assertSame(7920.0, $length->value);  // in feet (default)
@@ -588,7 +593,10 @@ final class LengthTest extends TestCase
      */
     public function testFromPartsNegative(): void
     {
-        $length = Length::fromParts(['ft' => 6, 'sign' => -1]);
+        $length = Length::fromParts([
+            'ft'   => 6,
+            'sign' => -1,
+        ]);
 
         $this->assertSame(-6.0, $length->value);
     }
@@ -599,7 +607,10 @@ final class LengthTest extends TestCase
     public function testFromPartsNegativeValueUsesSign(): void
     {
         // Negative values in parts are handled via the 'sign' key
-        $length = Length::fromParts(['ft' => 5, 'sign' => -1]);
+        $length = Length::fromParts([
+            'ft'   => 5,
+            'sign' => -1,
+        ]);
 
         $this->assertSame(-5.0, $length->value);
     }
@@ -609,7 +620,9 @@ final class LengthTest extends TestCase
      */
     public function testFromPartsDefaultResultUnit(): void
     {
-        $length = Length::fromParts(['yd' => 1]);
+        $length = Length::fromParts([
+            'yd' => 1,
+        ]);
 
         // Default result unit for Length is 'ft'
         $this->assertSame('ft', $length->derivedUnit->asciiSymbol);
@@ -620,7 +633,9 @@ final class LengthTest extends TestCase
      */
     public function testFromPartsCustomResultUnit(): void
     {
-        $length = Length::fromParts(['ft' => 3], 'yd');
+        $length = Length::fromParts([
+            'ft' => 3,
+        ], 'yd');
 
         // 3 feet = 1 yard
         $this->assertSame(1.0, $length->value);
@@ -634,13 +649,13 @@ final class LengthTest extends TestCase
     {
         // 5.5 feet = 1 yard + 2 feet + 6 inches (since 3 ft = 1 yd)
         $length = new Length(5.5, 'ft');
-        $parts = $length->toParts('in', 0);
+        $parts = $length->toParts(null, 'in', 0);
 
         $this->assertSame(1, $parts['sign']);
-        $this->assertSame(0.0, $parts['le']);
-        $this->assertSame(0.0, $parts['mi']);
-        $this->assertSame(1.0, $parts['yd']);
-        $this->assertSame(2.0, $parts['ft']);
+        $this->assertSame(0, $parts['le']);
+        $this->assertSame(0, $parts['mi']);
+        $this->assertSame(1, $parts['yd']);
+        $this->assertSame(2, $parts['ft']);
         $this->assertSame(6.0, $parts['in']);
     }
 
@@ -651,11 +666,11 @@ final class LengthTest extends TestCase
     {
         // -5.5 feet = -(1 yard + 2 feet + 6 inches)
         $length = new Length(-5.5, 'ft');
-        $parts = $length->toParts('in', 0);
+        $parts = $length->toParts(null, 'in', 0);
 
         $this->assertSame(-1, $parts['sign']);
-        $this->assertSame(1.0, $parts['yd']);
-        $this->assertSame(2.0, $parts['ft']);
+        $this->assertSame(1, $parts['yd']);
+        $this->assertSame(2, $parts['ft']);
         $this->assertSame(6.0, $parts['in']);
     }
 
@@ -665,10 +680,10 @@ final class LengthTest extends TestCase
     public function testToPartsCarry(): void
     {
         $length = new Length(2.99999999, 'ft');  // Just under 3 feet = 1 yard
-        $parts = $length->toParts('ft', 0);
+        $parts = $length->toParts(null, 'ft', 0);
 
         // Should round to 3 feet and carry to 1 yard
-        $this->assertSame(1.0, $parts['yd']);
+        $this->assertSame(1, $parts['yd']);
         $this->assertSame(0.0, $parts['ft']);
     }
 
@@ -679,7 +694,7 @@ final class LengthTest extends TestCase
     {
         // 5.5 feet = 1 yard 2 feet 6 inches
         $length = new Length(5.5, 'ft');
-        $result = $length->formatParts('in', 0);
+        $result = $length->formatParts(null, 'in', 0);
 
         $this->assertSame('1yd 2ft 6in', $result);
     }
@@ -691,7 +706,7 @@ final class LengthTest extends TestCase
     {
         // 4.5 feet = 1 yard 1 foot 6 inches
         $length = new Length(4.5, 'ft');
-        $result = $length->formatParts('in', 0);
+        $result = $length->formatParts(null, 'in', 0);
 
         $this->assertSame('1yd 1ft 6in', $result);
     }
@@ -703,7 +718,7 @@ final class LengthTest extends TestCase
     {
         // 5.541666... feet = 1 yard 2 feet 6.5 inches
         $length = new Length(5.541666666666667, 'ft');
-        $result = $length->formatParts('in', 1);
+        $result = $length->formatParts(null, 'in', 1);
 
         $this->assertSame('1yd 2ft 6.5in', $result);
     }
@@ -715,7 +730,7 @@ final class LengthTest extends TestCase
     {
         // -5.5 feet = -(1 yard 2 feet 6 inches)
         $length = new Length(-5.5, 'ft');
-        $result = $length->formatParts('in', 0);
+        $result = $length->formatParts(null, 'in', 0);
 
         $this->assertSame('-1yd 2ft 6in', $result);
     }
@@ -726,10 +741,10 @@ final class LengthTest extends TestCase
     public function testFormatPartsShowZeros(): void
     {
         $length = new Length(5280, 'ft');  // 1 mile
-        $result = $length->formatParts('ft', 0, true);
+        $result = $length->formatParts(null, 'ft', 0, true);
 
-        // Shows zeros after first non-zero
-        $this->assertSame('1mi 0yd 0ft', $result);
+        // Shows all parts including zeros
+        $this->assertSame('0le 1mi 0yd 0ft', $result);
     }
 
     /**
@@ -737,8 +752,12 @@ final class LengthTest extends TestCase
      */
     public function testPartsRoundTrip(): void
     {
-        $length = Length::fromParts(['yd' => 1, 'ft' => 2, 'in' => 6]);
-        $formatted = $length->formatParts('in', 0);
+        $length = Length::fromParts([
+            'yd' => 1,
+            'ft' => 2,
+            'in' => 6,
+        ]);
+        $formatted = $length->formatParts(null, 'in', 0);
 
         $this->assertSame('1yd 2ft 6in', $formatted);
     }

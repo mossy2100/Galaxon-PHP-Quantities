@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Quantity;
 
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Helpers\UnitRegistry;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

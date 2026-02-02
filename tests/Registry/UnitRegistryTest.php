@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Helpers\PrefixUtils;
+use Galaxon\Quantities\Helpers\UnitRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -347,15 +347,15 @@ final class UnitRegistryTest extends TestCase
             unicodeSymbol: '§' . $symbol,  // Use unique unicode symbol to avoid null conflict
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixRegistry::GROUP_CODE_METRIC,
+            prefixGroup: PrefixUtils::GROUP_CODE_METRIC,
             expansionUnitSymbol: 'm',
-            systems: [System::Common],
+            systems: [System::Common]
         );
 
         $unit = UnitRegistry::getAll()[$name];
         $this->assertSame($symbol, $unit->asciiSymbol);
         $this->assertSame('custom', $unit->system);
-        $this->assertSame(PrefixRegistry::GROUP_CODE_METRIC, $unit->prefixGroup);
+        $this->assertSame(PrefixUtils::GROUP_CODE_METRIC, $unit->prefixGroup);
 
         // Clean up
         UnitRegistry::remove($name);

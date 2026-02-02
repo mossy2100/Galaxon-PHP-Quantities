@@ -173,7 +173,7 @@ use Galaxon\Quantities\QuantityType\Time;
 
 // Angle to degrees, arcminutes, arcseconds
 $angle = new Angle(45.5042, 'deg');
-$parts = $angle->toPartsArray('arcsec', 2);
+$parts = $angle->toParts('arcsec', 2);
 // ['sign' => 1, 'deg' => 45, 'arcmin' => 30, 'arcsec' => 15.12]
 
 echo $angle->formatParts('arcsec', 1);  // "45° 30′ 15.1″"

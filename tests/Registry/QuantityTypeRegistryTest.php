@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
+use Galaxon\Quantities\Helpers\QuantityTypeRegistry;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\QuantityType\Area;
@@ -12,7 +13,6 @@ use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

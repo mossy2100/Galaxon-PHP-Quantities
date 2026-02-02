@@ -27,26 +27,26 @@ class Dimensionless extends Quantity
     public static function getUnitDefinitions(): array
     {
         return [
-            'scalar'    => [
+            'scalar'             => [
                 'asciiSymbol' => '',
                 'systems'     => [System::Common],
             ],
-            'percentage'    => [
+            'percentage'         => [
                 'asciiSymbol' => '%',
                 'systems'     => [System::Common],
             ],
-            'parts per thousand'    => [
+            'parts per thousand' => [
                 'asciiSymbol'   => 'ppt',
                 'unicodeSymbol' => '‰',
                 'systems'       => [System::Common],
             ],
-            'parts per million'    =>  [
-                'asciiSymbol'   => 'ppm',
-                'systems'       => [System::Common],
+            'parts per million'  =>  [
+                'asciiSymbol' => 'ppm',
+                'systems'     => [System::Common],
             ],
-            'parts per billion' => [
-                'asciiSymbol'   => 'ppb',
-                'systems'       => [System::Common],
+            'parts per billion'  => [
+                'asciiSymbol' => 'ppb',
+                'systems'     => [System::Common],
             ],
         ];
     }

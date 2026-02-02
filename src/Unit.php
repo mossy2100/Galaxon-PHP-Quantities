@@ -7,9 +7,9 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Registry\DimensionRegistry;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Helpers\DimensionUtils;
+use Galaxon\Quantities\Helpers\PrefixUtils;
+use Galaxon\Quantities\Helpers\UnitRegistry;
 use Override;
 
 /**
@@ -125,7 +125,7 @@ class Unit implements UnitInterface
      * @var list<Prefix>
      */
     public array $allowedPrefixes {
-        get => PrefixRegistry::getPrefixes($this->prefixGroup);
+        get => PrefixUtils::getPrefixes($this->prefixGroup);
     }
 
     /**
@@ -206,14 +206,15 @@ class Unit implements UnitInterface
         if (!self::isValidAsciiSymbol($asciiSymbol)) {
             throw new FormatException(
                 "Unit symbol '$asciiSymbol' must only contain ASCII letters. " .
-                "Up to three words are allowed, separated by single spaces."
+                'Up to three words are allowed, separated by single spaces.'
             );
         }
 
         // Validate Unicode symbol.
         if (isset($unicodeSymbol) && !self::isValidUnicodeSymbol($unicodeSymbol)) {
             throw new FormatException(
-                "Unit symbol '$unicodeSymbol' must only contain letters or punctuation or mathematical symbols (e.g. °′″)."
+                "Unit symbol '$unicodeSymbol' must only contain letters, or punctuation or mathematical " .
+                'symbols (e.g. °′″%).'
             );
         }
 
@@ -222,7 +223,7 @@ class Unit implements UnitInterface
         $this->asciiSymbol = $asciiSymbol;
         $this->unicodeSymbol = $unicodeSymbol ?? $asciiSymbol;
         $this->quantityType = $quantityType;
-        $this->dimension = DimensionRegistry::normalize($dimension);
+        $this->dimension = DimensionUtils::normalize($dimension);
         $this->prefixGroup = $prefixGroup;
         $this->alternateSymbol = $alternateSymbol;
         $this->expansionUnitSymbol = $expansionUnitSymbol ?? null;

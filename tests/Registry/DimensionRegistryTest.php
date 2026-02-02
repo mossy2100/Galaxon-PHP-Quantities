@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
-use Galaxon\Quantities\Registry\DimensionRegistry;
+use Galaxon\Quantities\Helpers\DimensionUtils;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for Dimensions class.
  */
-#[CoversClass(DimensionRegistry::class)]
+#[CoversClass(DimensionUtils::class)]
 final class DimensionRegistryTest extends TestCase
 {
     // region isValid() tests
@@ -22,9 +22,9 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidSingleCode(): void
     {
-        $this->assertTrue(DimensionRegistry::isValid('L'));
-        $this->assertTrue(DimensionRegistry::isValid('M'));
-        $this->assertTrue(DimensionRegistry::isValid('T'));
+        $this->assertTrue(DimensionUtils::isValid('L'));
+        $this->assertTrue(DimensionUtils::isValid('M'));
+        $this->assertTrue(DimensionUtils::isValid('T'));
     }
 
     /**
@@ -32,10 +32,10 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidSingleCodeWithExponent(): void
     {
-        $this->assertTrue(DimensionRegistry::isValid('L2'));
-        $this->assertTrue(DimensionRegistry::isValid('L3'));
-        $this->assertTrue(DimensionRegistry::isValid('T-1'));
-        $this->assertTrue(DimensionRegistry::isValid('T-2'));
+        $this->assertTrue(DimensionUtils::isValid('L2'));
+        $this->assertTrue(DimensionUtils::isValid('L3'));
+        $this->assertTrue(DimensionUtils::isValid('T-1'));
+        $this->assertTrue(DimensionUtils::isValid('T-2'));
     }
 
     /**
@@ -43,10 +43,10 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidCompoundCode(): void
     {
-        $this->assertTrue(DimensionRegistry::isValid('ML'));
-        $this->assertTrue(DimensionRegistry::isValid('MLT'));
-        $this->assertTrue(DimensionRegistry::isValid('MLT-2'));
-        $this->assertTrue(DimensionRegistry::isValid('M2L2T-4'));
+        $this->assertTrue(DimensionUtils::isValid('ML'));
+        $this->assertTrue(DimensionUtils::isValid('MLT'));
+        $this->assertTrue(DimensionUtils::isValid('MLT-2'));
+        $this->assertTrue(DimensionUtils::isValid('M2L2T-4'));
     }
 
     /**
@@ -54,8 +54,8 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidAllCodes(): void
     {
-        foreach (array_keys(DimensionRegistry::DIMENSION_CODES) as $code) {
-            $this->assertTrue(DimensionRegistry::isValid($code), "Code '$code' should be valid");
+        foreach (array_keys(DimensionUtils::DIMENSION_CODES) as $code) {
+            $this->assertTrue(DimensionUtils::isValid($code), "Code '$code' should be valid");
         }
     }
 
@@ -64,7 +64,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidEmptyString(): void
     {
-        $this->assertTrue(DimensionRegistry::isValid(''));
+        $this->assertTrue(DimensionUtils::isValid(''));
     }
 
     /**
@@ -72,9 +72,9 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidInvalidLetters(): void
     {
-        $this->assertFalse(DimensionRegistry::isValid('X'));
-        $this->assertFalse(DimensionRegistry::isValid('Z'));
-        $this->assertFalse(DimensionRegistry::isValid('B'));
+        $this->assertFalse(DimensionUtils::isValid('X'));
+        $this->assertFalse(DimensionUtils::isValid('Z'));
+        $this->assertFalse(DimensionUtils::isValid('B'));
     }
 
     /**
@@ -82,9 +82,9 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidLowercaseLetters(): void
     {
-        $this->assertFalse(DimensionRegistry::isValid('l'));
-        $this->assertFalse(DimensionRegistry::isValid('m'));
-        $this->assertFalse(DimensionRegistry::isValid('mlt'));
+        $this->assertFalse(DimensionUtils::isValid('l'));
+        $this->assertFalse(DimensionUtils::isValid('m'));
+        $this->assertFalse(DimensionUtils::isValid('mlt'));
     }
 
     /**
@@ -92,10 +92,10 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidInvalidFormat(): void
     {
-        $this->assertFalse(DimensionRegistry::isValid('2L'));    // Exponent before letter
-        $this->assertFalse(DimensionRegistry::isValid('L*M'));   // Invalid character
-        $this->assertFalse(DimensionRegistry::isValid('L M'));   // Space
-        $this->assertFalse(DimensionRegistry::isValid('L-'));    // Minus without digit
+        $this->assertFalse(DimensionUtils::isValid('2L'));    // Exponent before letter
+        $this->assertFalse(DimensionUtils::isValid('L*M'));   // Invalid character
+        $this->assertFalse(DimensionUtils::isValid('L M'));   // Space
+        $this->assertFalse(DimensionUtils::isValid('L-'));    // Minus without digit
     }
 
     /**
@@ -104,8 +104,8 @@ final class DimensionRegistryTest extends TestCase
     public function testIsValidExponentFollowedByDimension(): void
     {
         // L2M is valid: it means L² × M
-        $this->assertTrue(DimensionRegistry::isValid('L2M'));
-        $this->assertTrue(DimensionRegistry::isValid('M2L2T-2'));
+        $this->assertTrue(DimensionUtils::isValid('L2M'));
+        $this->assertTrue(DimensionUtils::isValid('M2L2T-2'));
     }
 
     /**
@@ -113,8 +113,8 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testIsValidMultiDigitExponents(): void
     {
-        $this->assertFalse(DimensionRegistry::isValid('L10'));
-        $this->assertFalse(DimensionRegistry::isValid('L-10'));
+        $this->assertFalse(DimensionUtils::isValid('L10'));
+        $this->assertFalse(DimensionUtils::isValid('L-10'));
     }
 
     // endregion
@@ -126,7 +126,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testExplodeSingleCode(): void
     {
-        $result = DimensionRegistry::explode('L');
+        $result = DimensionUtils::explode('L');
 
         $this->assertSame([
             'L' => 1,
@@ -140,16 +140,16 @@ final class DimensionRegistryTest extends TestCase
     {
         $this->assertSame([
             'L' => 2,
-        ], DimensionRegistry::explode('L2'));
+        ], DimensionUtils::explode('L2'));
         $this->assertSame([
             'L' => 3,
-        ], DimensionRegistry::explode('L3'));
+        ], DimensionUtils::explode('L3'));
         $this->assertSame([
             'T' => -1,
-        ], DimensionRegistry::explode('T-1'));
+        ], DimensionUtils::explode('T-1'));
         $this->assertSame([
             'T' => -2,
-        ], DimensionRegistry::explode('T-2'));
+        ], DimensionUtils::explode('T-2'));
     }
 
     /**
@@ -157,7 +157,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testExplodeCompoundCode(): void
     {
-        $result = DimensionRegistry::explode('MLT-2');
+        $result = DimensionUtils::explode('MLT-2');
 
         $this->assertSame([
             'M' => 1,
@@ -171,7 +171,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testExplodeComplexCode(): void
     {
-        $result = DimensionRegistry::explode('ML2T-2');
+        $result = DimensionUtils::explode('ML2T-2');
 
         $this->assertSame([
             'M' => 1,
@@ -188,7 +188,7 @@ final class DimensionRegistryTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code 'XYZ'");
 
-        DimensionRegistry::explode('XYZ');
+        DimensionUtils::explode('XYZ');
     }
 
     /**
@@ -196,7 +196,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testExplodeReturnsEmptyArrayForEmptyString(): void
     {
-        $result = DimensionRegistry::explode('');
+        $result = DimensionUtils::explode('');
 
         $this->assertSame([], $result);
     }
@@ -210,7 +210,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testImplodeSingleTerm(): void
     {
-        $result = DimensionRegistry::implode([
+        $result = DimensionUtils::implode([
             'L' => 1,
         ]);
 
@@ -222,16 +222,16 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testImplodeSingleTermWithExponent(): void
     {
-        $this->assertSame('L2', DimensionRegistry::implode([
+        $this->assertSame('L2', DimensionUtils::implode([
             'L' => 2,
         ]));
-        $this->assertSame('L3', DimensionRegistry::implode([
+        $this->assertSame('L3', DimensionUtils::implode([
             'L' => 3,
         ]));
-        $this->assertSame('T-1', DimensionRegistry::implode([
+        $this->assertSame('T-1', DimensionUtils::implode([
             'T' => -1,
         ]));
-        $this->assertSame('T-2', DimensionRegistry::implode([
+        $this->assertSame('T-2', DimensionUtils::implode([
             'T' => -2,
         ]));
     }
@@ -241,7 +241,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testImplodeMultipleTerms(): void
     {
-        $result = DimensionRegistry::implode([
+        $result = DimensionUtils::implode([
             'M' => 1,
             'L' => 1,
             'T' => -2,
@@ -256,7 +256,7 @@ final class DimensionRegistryTest extends TestCase
     public function testImplodeSortsTerms(): void
     {
         // Input in wrong order (T before M before L)
-        $result = DimensionRegistry::implode([
+        $result = DimensionUtils::implode([
             'T' => -2,
             'M' => 1,
             'L' => 1,
@@ -271,7 +271,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testImplodeEmptyArray(): void
     {
-        $result = DimensionRegistry::implode([]);
+        $result = DimensionUtils::implode([]);
 
         $this->assertSame('', $result);
     }
@@ -281,7 +281,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testImplodeOmitsExponentOne(): void
     {
-        $result = DimensionRegistry::implode([
+        $result = DimensionUtils::implode([
             'M' => 1,
             'L' => 2,
         ]);
@@ -299,7 +299,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testNormalizeAlreadyNormalized(): void
     {
-        $this->assertSame('MLT-2', DimensionRegistry::normalize('MLT-2'));
+        $this->assertSame('MLT-2', DimensionUtils::normalize('MLT-2'));
     }
 
     /**
@@ -308,7 +308,7 @@ final class DimensionRegistryTest extends TestCase
     public function testNormalizeReordersTerms(): void
     {
         // T-2 L M should become M L T-2
-        $this->assertSame('MLT-2', DimensionRegistry::normalize('T-2LM'));
+        $this->assertSame('MLT-2', DimensionUtils::normalize('T-2LM'));
     }
 
     /**
@@ -316,8 +316,8 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testNormalizeSingleCode(): void
     {
-        $this->assertSame('L', DimensionRegistry::normalize('L'));
-        $this->assertSame('L2', DimensionRegistry::normalize('L2'));
+        $this->assertSame('L', DimensionUtils::normalize('L'));
+        $this->assertSame('L2', DimensionUtils::normalize('L2'));
     }
 
     /**
@@ -327,7 +327,7 @@ final class DimensionRegistryTest extends TestCase
     {
         $this->expectException(DomainException::class);
 
-        DimensionRegistry::normalize('invalid');
+        DimensionUtils::normalize('invalid');
     }
 
     // endregion
@@ -339,8 +339,8 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testApplyExponentOne(): void
     {
-        $this->assertSame('L', DimensionRegistry::applyExponent('L', 1));
-        $this->assertSame('MLT-2', DimensionRegistry::applyExponent('MLT-2', 1));
+        $this->assertSame('L', DimensionUtils::applyExponent('L', 1));
+        $this->assertSame('MLT-2', DimensionUtils::applyExponent('MLT-2', 1));
     }
 
     /**
@@ -348,7 +348,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testApplyExponentSquare(): void
     {
-        $this->assertSame('L2', DimensionRegistry::applyExponent('L', 2));
+        $this->assertSame('L2', DimensionUtils::applyExponent('L', 2));
     }
 
     /**
@@ -356,7 +356,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testApplyExponentCube(): void
     {
-        $this->assertSame('L3', DimensionRegistry::applyExponent('L', 3));
+        $this->assertSame('L3', DimensionUtils::applyExponent('L', 3));
     }
 
     /**
@@ -364,7 +364,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testApplyExponentNegative(): void
     {
-        $this->assertSame('T-2', DimensionRegistry::applyExponent('T-1', 2));
+        $this->assertSame('T-2', DimensionUtils::applyExponent('T-1', 2));
     }
 
     /**
@@ -373,7 +373,7 @@ final class DimensionRegistryTest extends TestCase
     public function testApplyExponentCompound(): void
     {
         // Force (MLT-2) squared = M2L2T-4
-        $this->assertSame('M2L2T-4', DimensionRegistry::applyExponent('MLT-2', 2));
+        $this->assertSame('M2L2T-4', DimensionUtils::applyExponent('MLT-2', 2));
     }
 
     /**
@@ -382,7 +382,7 @@ final class DimensionRegistryTest extends TestCase
     public function testApplyExponentZero(): void
     {
         // L^0 = dimensionless (all exponents become 0)
-        $result = DimensionRegistry::applyExponent('L', 0);
+        $result = DimensionUtils::applyExponent('L', 0);
 
         $this->assertSame('L0', $result);
     }
@@ -393,7 +393,7 @@ final class DimensionRegistryTest extends TestCase
     public function testApplyExponentInverse(): void
     {
         // Inverse of velocity (LT-1) = L-1T
-        $this->assertSame('L-1T', DimensionRegistry::applyExponent('LT-1', -1));
+        $this->assertSame('L-1T', DimensionUtils::applyExponent('LT-1', -1));
     }
 
     /**
@@ -403,7 +403,7 @@ final class DimensionRegistryTest extends TestCase
     {
         $this->expectException(DomainException::class);
 
-        DimensionRegistry::applyExponent('invalid', 2);
+        DimensionUtils::applyExponent('invalid', 2);
     }
 
     // endregion
@@ -415,9 +415,9 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testLetterToIntValidCodes(): void
     {
-        $codes = array_keys(DimensionRegistry::DIMENSION_CODES);
+        $codes = array_keys(DimensionUtils::DIMENSION_CODES);
         foreach ($codes as $index => $code) {
-            $this->assertSame($index, DimensionRegistry::letterToInt($code), "Code '$code' should have index $index");
+            $this->assertSame($index, DimensionUtils::letterToInt($code), "Code '$code' should have index $index");
         }
     }
 
@@ -426,9 +426,9 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testLetterToIntInvalidCode(): void
     {
-        $this->assertNull(DimensionRegistry::letterToInt('X'));
-        $this->assertNull(DimensionRegistry::letterToInt('Z'));
-        $this->assertNull(DimensionRegistry::letterToInt('B'));
+        $this->assertNull(DimensionUtils::letterToInt('X'));
+        $this->assertNull(DimensionUtils::letterToInt('Z'));
+        $this->assertNull(DimensionUtils::letterToInt('B'));
     }
 
     /**
@@ -436,8 +436,8 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testLetterToIntLowercase(): void
     {
-        $this->assertNull(DimensionRegistry::letterToInt('l'));
-        $this->assertNull(DimensionRegistry::letterToInt('m'));
+        $this->assertNull(DimensionUtils::letterToInt('l'));
+        $this->assertNull(DimensionUtils::letterToInt('m'));
     }
 
     /**
@@ -445,7 +445,7 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testLetterToIntEmptyString(): void
     {
-        $this->assertNull(DimensionRegistry::letterToInt(''));
+        $this->assertNull(DimensionUtils::letterToInt(''));
     }
 
     /**
@@ -453,8 +453,8 @@ final class DimensionRegistryTest extends TestCase
      */
     public function testLetterToIntMultiCharacter(): void
     {
-        $this->assertNull(DimensionRegistry::letterToInt('ML'));
-        $this->assertNull(DimensionRegistry::letterToInt('L2'));
+        $this->assertNull(DimensionUtils::letterToInt('ML'));
+        $this->assertNull(DimensionUtils::letterToInt('L2'));
     }
 
     // endregion
@@ -469,9 +469,9 @@ final class DimensionRegistryTest extends TestCase
         $codes = ['L', 'L2', 'T-1', 'MLT-2', 'M2L2T-4', 'MLIT-2'];
 
         foreach ($codes as $code) {
-            $normalized = DimensionRegistry::normalize($code);
-            $exploded = DimensionRegistry::explode($normalized);
-            $imploded = DimensionRegistry::implode($exploded);
+            $normalized = DimensionUtils::normalize($code);
+            $exploded = DimensionUtils::explode($normalized);
+            $imploded = DimensionUtils::implode($exploded);
 
             $this->assertSame($normalized, $imploded, "Round-trip failed for '$code'");
         }

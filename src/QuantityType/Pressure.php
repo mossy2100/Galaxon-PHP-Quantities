@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 use Override;
 
@@ -31,7 +30,7 @@ class Pressure extends Quantity
         return [
             'pascal'     => [
                 'asciiSymbol'         => 'Pa',
-                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup'         => Prefixes::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m-1*s-2',
                 'systems'             => [System::SI],
             ],

@@ -7,7 +7,7 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Registry\DimensionRegistry;
+use Galaxon\Quantities\Helpers\DimensionUtils;
 use LogicException;
 
 /**
@@ -347,28 +347,6 @@ class DerivedUnit implements UnitInterface
         return false;
     }
 
-    /**
-     * Find a unit term by unit.
-     *
-     * @param Unit $unit The unit to search for.
-     * @return ?UnitTerm The matching unit term, or null if not found.
-     */
-    public function getUnitTermByUnit(Unit $unit): ?UnitTerm
-    {
-        return array_find($this->unitTerms, static fn (UnitTerm $ut) => $ut->unit->equal($unit));
-    }
-
-    /**
-     * Find a unit term by its dimension code.
-     *
-     * @param string $dimension The dimension code to search for (e.g. 'L', 'T-1').
-     * @return ?UnitTerm The matching unit term, or null if not found.
-     */
-    public function getUnitTermByDimension(string $dimension): ?UnitTerm
-    {
-        return array_find($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->dimension === $dimension);
-    }
-
     // endregion
 
     // region Comparison methods
@@ -495,9 +473,9 @@ class DerivedUnit implements UnitInterface
     public function toSi(): self
     {
         $unitTerms = [];
-        $dimTerms = DimensionRegistry::explode($this->dimension);
+        $dimTerms = DimensionUtils::explode($this->dimension);
         foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = DimensionRegistry::getSiUnitTerm($code)->pow($exp);
+            $unitTerms[] = DimensionUtils::getSiUnitTerm($code)->pow($exp);
         }
         return new self($unitTerms);
     }
@@ -582,8 +560,8 @@ class DerivedUnit implements UnitInterface
         }
 
         // Parse the dimension into dimension terms.
-        $aDimTerms = DimensionRegistry::explode($a->dimension);
-        $bDimTerms = DimensionRegistry::explode($b->dimension);
+        $aDimTerms = DimensionUtils::explode($a->dimension);
+        $bDimTerms = DimensionUtils::explode($b->dimension);
 
         // Put more complex dimensions (indicating expandable units) first.
         if (count($aDimTerms) > count($bDimTerms)) {
@@ -599,9 +577,9 @@ class DerivedUnit implements UnitInterface
         $aDims = array_keys($aDimTerms);
         $bDims = array_keys($bDimTerms);
 
-        // First loop: compare all letters in the order given by DimensionRegistry::DIMENSION_CODES.
+        // First loop: compare all letters in the order given by Dimensions::DIMENSION_CODES.
         for ($i = 0; $i < $nTerms; $i++) {
-            $cmp = DimensionRegistry::letterToInt($aDims[$i]) <=> DimensionRegistry::letterToInt($bDims[$i]);
+            $cmp = DimensionUtils::letterToInt($aDims[$i]) <=> DimensionUtils::letterToInt($bDims[$i]);
             if ($cmp !== 0) {
                 return $cmp;
             }
@@ -631,7 +609,7 @@ class DerivedUnit implements UnitInterface
         $dimCodes = [];
         foreach ($this->unitTerms as $unitTerm) {
             // Get the dimension code terms for this unit term.
-            $dims = DimensionRegistry::explode($unitTerm->dimension);
+            $dims = DimensionUtils::explode($unitTerm->dimension);
 
             // Accumulate the exponents for each letter in the dimension code.
             foreach ($dims as $dimCode => $exp) {
@@ -653,6 +631,6 @@ class DerivedUnit implements UnitInterface
         }
 
         // Generate the full dimension code.
-        $this->dimension = DimensionRegistry::implode($dimCodes);
+        $this->dimension = DimensionUtils::implode($dimCodes);
     }
 }

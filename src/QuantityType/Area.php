@@ -50,8 +50,6 @@ class Area extends Quantity
         return [
             // Metric
             ['ha', 'm2', 10000],
-            // Metric-US bridge
-            ['ac', 'm2', 4046.8564224],
             // US customary
             ['ac', 'yd2', 4840],
         ];

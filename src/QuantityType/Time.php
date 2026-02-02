@@ -6,10 +6,10 @@ namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
 use DomainException;
+use Galaxon\Core\Numbers;
+use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use LogicException;
 use Override;
 
 class Time extends Quantity
@@ -34,7 +34,7 @@ class Time extends Quantity
         return [
             'second' => [
                 'asciiSymbol' => 's',
-                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
                 'systems'     => [System::SI],
             ],
             'minute' => [
@@ -82,6 +82,20 @@ class Time extends Quantity
         ];
     }
 
+    /**
+     * Configuration for parts-related methods.
+     *
+     * @return array{from: ?string, to: list<string>}
+     */
+    #[Override]
+    public static function getPartsConfig(): array
+    {
+        return [
+            'from' => 's',
+            'to'   => ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
+        ];
+    }
+
     // endregion
 
     // region Factory methods
@@ -124,53 +138,43 @@ class Time extends Quantity
      *
      * Format: P[y]Y[m]M[w]W[d]DT[h]H[i]M[s]S
      *
+     * @param string $largestUnitSymbol The largest unit to include (default 'y').
      * @param string $smallestUnitSymbol The smallest unit to include (default 's').
      * @return string A DateInterval specification string.
-     * @throws DomainException If the smallest unit argument is invalid.
+     * @throws DomainException If the largest or smallest unit argument is invalid.
      */
-    public function toDateIntervalSpecifier(string $smallestUnitSymbol = 's'): string
+    public function toDateIntervalSpecifier(string $largestUnitSymbol = 'y', string $smallestUnitSymbol = 's'): string
     {
-        // Validate the provided smallest unit.
-        self::validateSmallestUnitSymbol($smallestUnitSymbol);
+        // Validate the part unit symbols.
+        $partUnitSymbols = static::getPartsConfig()['to'];
+        static::validatePartUnitSymbols($partUnitSymbols);
 
-        // Validate the part units.
-        self::validatePartUnitSymbols();
+        // Get the default or validate the largest and smallest unit symbols.
+        [$largestUnitSymbol, $largestUnitIndex, $smallestUnitSymbol, $smallestUnitIndex] =
+            static::validateLargestAndSmallest($partUnitSymbols, $largestUnitSymbol, $smallestUnitSymbol);
 
-        // Prep.
-        $partUnits = static::getPartsConfig()['to'];
-        $smallestUnitIndex = (int)array_search($smallestUnitSymbol, $partUnits, true);
-        $parts = $this->toParts($smallestUnitSymbol, 0);  // DateInterval requires integer parts.
+        // Get the time parts. Set precision to 0 because DateInterval requires integer parts.
+        $parts = $this->toParts($largestUnitSymbol, $smallestUnitSymbol, 0);
+
+        // Prep
+        $partUnitSymbols = static::getPartsConfig()['to'];
         $spec = 'P';
-        $labels = [
-            'y'   => 'Y',
-            'mo'  => 'M',
-            'w'   => 'W',
-            'd'   => 'D',
-            'h'   => 'H',
-            'min' => 'M',
-            's'   => 'S',
-        ];
         $timeSeparatorAdded = false;
 
         // Build the specification string.
-        for ($i = 0; $i <= $smallestUnitIndex; $i++) {
-            $unit = $partUnits[$i];
-            $value = $parts[$unit] ?? 0;
+        for ($i = $largestUnitIndex; $i <= $smallestUnitIndex; $i++) {
+            $symbol = $partUnitSymbols[$i];
+            $value = $parts[$symbol] ?? 0;
 
-            // Check we have a label.
-            if (!isset($labels[$unit])) {
-                throw new LogicException("Unit '$unit' is not compatible with DateInterval specifiers.");
-            }
-
-            // Add time separator before hours.
-            if ($unit === 'h' && !$timeSeparatorAdded) {
+            // Add time separator before any time parts.
+            if (in_array($symbol, ['h', 'min', 's'], true) && !$timeSeparatorAdded) {
                 $spec .= 'T';
                 $timeSeparatorAdded = true;
             }
 
             // Add the specifier part if it isn't 0.
-            if ($parts[$unit] !== 0.0) {
-                $spec .= (int)$value . $labels[$unit];
+            if (!Numbers::equal($parts[$symbol], 0.0)) {
+                $spec .= (int)$value . strtoupper($symbol[0]);
             }
         }
 
@@ -185,17 +189,15 @@ class Time extends Quantity
     /**
      * Convert time to a PHP DateInterval object.
      *
+     * @param string $largestUnitSymbol The largest unit to include (default 'y').
      * @param string $smallestUnitSymbol The smallest unit to include (default 's').
      * @return DateInterval A new DateInterval object.
-     * @throws DomainException If the smallest unit argument is invalid.
+     * @throws DomainException If the largest or smallest unit argument is invalid.
      */
-    public function toDateInterval(string $smallestUnitSymbol = 's'): DateInterval
+    public function toDateInterval(string $largestUnitSymbol = 'y', string $smallestUnitSymbol = 's'): DateInterval
     {
-        // Validate the provided smallest unit.
-        self::validateSmallestUnitSymbol($smallestUnitSymbol);
-
         // Get the specifier string.
-        $spec = $this->toDateIntervalSpecifier($smallestUnitSymbol);
+        $spec = $this->toDateIntervalSpecifier($largestUnitSymbol, $smallestUnitSymbol);
 
         // Construct the DateInterval.
         $dateInterval = new DateInterval($spec);
@@ -206,24 +208,6 @@ class Time extends Quantity
         }
 
         return $dateInterval;
-    }
-
-    // endregion
-
-    // region Part-related methods
-
-    /**
-     * Configuration for parts-related methods.
-     *
-     * @return array{from: ?string, to: list<string>}
-     */
-    #[Override]
-    public static function getPartsConfig(): array
-    {
-        return [
-            'from' => 's',
-            'to'   => ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
-        ];
     }
 
     // endregion

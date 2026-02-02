@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use DomainException;
+use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use InvalidArgumentException;
-use LogicException;
 use Override;
 
 class Length extends Quantity
@@ -35,7 +32,7 @@ class Length extends Quantity
             // SI
             'metre'             => [
                 'asciiSymbol' => 'm',
-                'prefixGroup' => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
                 'systems'     => [System::SI],
             ],
             // Astronomical
@@ -49,7 +46,7 @@ class Length extends Quantity
             ],
             'parsec'            => [
                 'asciiSymbol' => 'pc',
-                'prefixGroup' => PrefixRegistry::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+                'prefixGroup' => PrefixUtils::GROUP_CODE_LARGE_ENGINEERING_METRIC,
                 'systems'     => [System::Astronomical],
             ],
             // Typography/CSS
@@ -130,11 +127,6 @@ class Length extends Quantity
         ];
     }
 
-    // endregion
-
-
-    // region Part-related methods
-
     /**
      * Configuration for parts-related methods.
      *
@@ -145,7 +137,7 @@ class Length extends Quantity
     {
         return [
             'from' => 'ft',
-            'to'   => ['le', 'mi', 'yd', 'ft', 'in', 'P', 'p'],
+            'to'   => ['le', 'mi', 'yd', 'ft', 'in'],
         ];
     }
 

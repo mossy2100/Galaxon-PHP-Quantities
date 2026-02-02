@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Quantities\Helpers\UnitRegistry;
 use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

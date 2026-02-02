@@ -6,9 +6,9 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Quantities\Helpers\UnitRegistry;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

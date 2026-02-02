@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
+use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 use Override;
 
@@ -31,7 +31,7 @@ class Inductance extends Quantity
         return [
             'henry' => [
                 'asciiSymbol'         => 'H',
-                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtils::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-2*A-2',
                 'systems'             => [System::SI],
             ],

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\QuantityType;
 
-use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Angle;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -569,7 +568,11 @@ final class AngleTest extends TestCase
      */
     public function testFromParts(): void
     {
-        $angle = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'arcsec' => 15]);
+        $angle = Angle::fromParts([
+            'deg'    => 45,
+            'arcmin' => 30,
+            'arcsec' => 15,
+        ]);
 
         // 45 + 30/60 + 15/3600 = 45.504166...
         $this->assertApproxEqual(45.504166666666666, $angle->value);
@@ -581,7 +584,9 @@ final class AngleTest extends TestCase
      */
     public function testFromPartsDegreesOnly(): void
     {
-        $angle = Angle::fromParts(['deg' => 90]);
+        $angle = Angle::fromParts([
+            'deg' => 90,
+        ]);
 
         $this->assertSame(90.0, $angle->value);
     }
@@ -591,7 +596,11 @@ final class AngleTest extends TestCase
      */
     public function testFromPartsNegative(): void
     {
-        $angle = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'sign' => -1]);
+        $angle = Angle::fromParts([
+            'deg'    => 45,
+            'arcmin' => 30,
+            'sign'   => -1,
+        ]);
 
         // -(45 + 30/60) = -45.5
         $this->assertSame(-45.5, $angle->value);
@@ -603,7 +612,10 @@ final class AngleTest extends TestCase
     public function testFromPartsNegativeValueUsesSign(): void
     {
         // Negative values in parts are handled via the 'sign' key
-        $angle = Angle::fromParts(['deg' => 45, 'sign' => -1]);
+        $angle = Angle::fromParts([
+            'deg'  => 45,
+            'sign' => -1,
+        ]);
 
         $this->assertSame(-45.0, $angle->value);
     }
@@ -613,7 +625,9 @@ final class AngleTest extends TestCase
      */
     public function testFromPartsDefaultResultUnit(): void
     {
-        $angle = Angle::fromParts(['deg' => 45]);
+        $angle = Angle::fromParts([
+            'deg' => 45,
+        ]);
 
         // Default result unit for Angle is 'deg'
         $this->assertSame('deg', $angle->derivedUnit->asciiSymbol);
@@ -624,7 +638,9 @@ final class AngleTest extends TestCase
      */
     public function testFromPartsCustomResultUnit(): void
     {
-        $angle = Angle::fromParts(['deg' => 180], 'rad');
+        $angle = Angle::fromParts([
+            'deg' => 180,
+        ], 'rad');
 
         // 180 degrees = π radians
         $this->assertApproxEqual(M_PI, $angle->value);
@@ -637,11 +653,11 @@ final class AngleTest extends TestCase
     public function testToParts(): void
     {
         $angle = new Angle(45.504166666666666, 'deg');
-        $parts = $angle->toParts('arcsec', 0);
+        $parts = $angle->toParts(null, 'arcsec', 0);
 
         $this->assertSame(1, $parts['sign']);
-        $this->assertSame(45.0, $parts['deg']);
-        $this->assertSame(30.0, $parts['arcmin']);
+        $this->assertSame(45, $parts['deg']);
+        $this->assertSame(30, $parts['arcmin']);
         $this->assertSame(15.0, $parts['arcsec']);
     }
 
@@ -651,10 +667,10 @@ final class AngleTest extends TestCase
     public function testToPartsNegative(): void
     {
         $angle = new Angle(-45.5, 'deg');
-        $parts = $angle->toParts('arcmin', 0);
+        $parts = $angle->toParts(null, 'arcmin', 0);
 
         $this->assertSame(-1, $parts['sign']);
-        $this->assertSame(45.0, $parts['deg']);
+        $this->assertSame(45, $parts['deg']);
         $this->assertSame(30.0, $parts['arcmin']);
     }
 
@@ -664,12 +680,11 @@ final class AngleTest extends TestCase
     public function testToPartsCarry(): void
     {
         $angle = new Angle(44.99999999, 'deg');  // Just under 45 degrees
-        $parts = $angle->toParts('arcsec', 0);
+        $parts = $angle->toParts(null, 'arcsec', 0);
 
         // Should round and carry to 45 degrees
-        // Use assertEquals because carry logic may produce floats
-        $this->assertSame(45.0, $parts['deg']);
-        $this->assertSame(0.0, $parts['arcmin']);
+        $this->assertSame(45, $parts['deg']);
+        $this->assertSame(0, $parts['arcmin']);
         $this->assertSame(0.0, $parts['arcsec']);
     }
 
@@ -679,7 +694,7 @@ final class AngleTest extends TestCase
     public function testFormatPartsDefault(): void
     {
         $angle = new Angle(45.504166666666666, 'deg');
-        $result = $angle->formatParts('arcsec', 0);
+        $result = $angle->formatParts(null, 'arcsec', 0);
 
         $this->assertSame('45° 30′ 15″', $result);
     }
@@ -690,7 +705,7 @@ final class AngleTest extends TestCase
     public function testFormatPartsToArcminutes(): void
     {
         $angle = new Angle(45.5, 'deg');
-        $result = $angle->formatParts('arcmin', 0);
+        $result = $angle->formatParts(null, 'arcmin', 0);
 
         $this->assertSame('45° 30′', $result);
     }
@@ -701,7 +716,7 @@ final class AngleTest extends TestCase
     public function testFormatPartsWithPrecision(): void
     {
         $angle = new Angle(45.504305555555556, 'deg');
-        $result = $angle->formatParts('arcsec', 1);
+        $result = $angle->formatParts(null, 'arcsec', 1);
 
         $this->assertSame('45° 30′ 15.5″', $result);
     }
@@ -712,7 +727,7 @@ final class AngleTest extends TestCase
     public function testFormatPartsNegative(): void
     {
         $angle = new Angle(-45.5, 'deg');
-        $result = $angle->formatParts('arcmin', 0);
+        $result = $angle->formatParts(null, 'arcmin', 0);
 
         $this->assertSame('-45° 30′', $result);
     }
@@ -722,8 +737,12 @@ final class AngleTest extends TestCase
      */
     public function testPartsRoundTrip(): void
     {
-        $angle = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'arcsec' => 15]);
-        $formatted = $angle->formatParts('arcsec', 0);
+        $angle = Angle::fromParts([
+            'deg'    => 45,
+            'arcmin' => 30,
+            'arcsec' => 15,
+        ]);
+        $formatted = $angle->formatParts(null, 'arcsec', 0);
 
         $this->assertSame('45° 30′ 15″', $formatted);
     }

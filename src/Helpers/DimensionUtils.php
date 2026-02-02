@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Registry;
+namespace Galaxon\Quantities\Helpers;
 
 use DomainException;
 use Galaxon\Quantities\UnitTerm;
@@ -17,7 +17,7 @@ use LogicException;
  * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
  * @see https://en.wikipedia.org/wiki/Dimensional_analysis
  */
-class DimensionRegistry
+class DimensionUtils
 {
     // region Constants
 
