@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class Power extends Quantity
@@ -31,7 +31,7 @@ class Power extends Quantity
         return [
             'watt' => [
                 'asciiSymbol'         => 'W',
-                'prefixGroup'         => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-3',
                 'systems'             => [System::SI],
             ],

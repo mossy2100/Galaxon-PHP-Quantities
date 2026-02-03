@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class Voltage extends Quantity
@@ -30,7 +31,7 @@ class Voltage extends Quantity
         return [
             'volt' => [
                 'asciiSymbol'         => 'V',
-                'prefixGroup'         => Prefixes::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-3*A-1',
                 'systems'             => [System::SI],
             ],

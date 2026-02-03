@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class MagneticFlux extends Quantity
@@ -30,7 +31,7 @@ class MagneticFlux extends Quantity
         return [
             'weber' => [
                 'asciiSymbol'         => 'Wb',
-                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-2*A-1',
                 'systems'             => [System::SI],
             ],

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Helpers;
+namespace Galaxon\Quantities\Utility;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\UnitTerm;
 use LogicException;
 
@@ -17,7 +18,7 @@ use LogicException;
  * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
  * @see https://en.wikipedia.org/wiki/Dimensional_analysis
  */
-class DimensionUtils
+class DimensionUtility
 {
     // region Constants
 
@@ -137,13 +138,13 @@ class DimensionUtils
      *
      * @param string $dimension The dimension code (e.g. 'MLT-2').
      * @return array<string, int> Array mapping dimension codes to their exponents.
-     * @throws DomainException If the dimension code is invalid.
+     * @throws FormatException If the dimension code is invalid.
      */
     public static function explode(string $dimension): array
     {
         // Check the dimension code is valid.
         if (!self::isValid($dimension)) {
-            throw new DomainException("Invalid dimension code '$dimension'.");
+            throw new FormatException("Invalid dimension code '$dimension'.");
         }
 
         // Check for dimensionless.
@@ -203,7 +204,7 @@ class DimensionUtils
      *
      * @param string $dimension The dimension code string to normalize.
      * @return string The normalized dimension code.
-     * @throws DomainException If the dimension code is invalid.
+     * @throws FormatException If the dimension code is invalid.
      */
     public static function normalize(string $dimension): string
     {

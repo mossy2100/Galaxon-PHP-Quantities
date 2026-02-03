@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class ElectricCurrent extends Quantity
@@ -31,7 +31,7 @@ class ElectricCurrent extends Quantity
         return [
             'ampere' => [
                 'asciiSymbol' => 'A',
-                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
                 'systems'     => [System::SI],
             ],
         ];

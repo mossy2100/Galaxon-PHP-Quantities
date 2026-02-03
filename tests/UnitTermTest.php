@@ -6,8 +6,8 @@ namespace Galaxon\Quantities\Tests;
 
 use DomainException;
 use Galaxon\Quantities\DerivedUnit;
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Unit;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -28,7 +28,7 @@ final class UnitTermTest extends TestCase
             'unicodeSymbol' => 'Ω',
             'dimension'     => 'T-3L2MI-2',
             'system'        => 'si_named',
-            'prefixGroup'   => PrefixRegistry::GROUP_CODE_METRIC,
+            'prefixGroup'   => PrefixUtility::GROUP_CODE_METRIC,
             'expansionUnit' => 'kg*m2*s-3*A-2',
             'quantityType'  => 'resistance',
         ]);
@@ -47,7 +47,7 @@ final class UnitTermTest extends TestCase
                 'asciiSymbol'  => 'm',
                 'dimension'    => 'L',
                 'system'       => 'si_base',
-                'prefixGroup'  => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
                 'quantityType' => 'length',
             ]
         );
@@ -62,7 +62,7 @@ final class UnitTermTest extends TestCase
             'asciiSymbol'  => 's',
             'dimension'    => 'T',
             'system'       => 'si_base',
-            'prefixGroup'  => PrefixUtils::GROUP_CODE_METRIC,
+            'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
             'quantityType' => 'time',
         ]);
     }

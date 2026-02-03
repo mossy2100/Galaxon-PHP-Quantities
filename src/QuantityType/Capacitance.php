@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class Capacitance extends Quantity
@@ -31,7 +31,7 @@ class Capacitance extends Quantity
         return [
             'farad' => [
                 'asciiSymbol'         => 'F',
-                'prefixGroup'         => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg-1*m-2*s4*A2',
                 'systems'             => [System::SI],
             ],

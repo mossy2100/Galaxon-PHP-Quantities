@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class Energy extends Quantity
@@ -31,18 +31,18 @@ class Energy extends Quantity
         return [
             'joule'                => [
                 'asciiSymbol'         => 'J',
-                'prefixGroup'         => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-2',
                 'systems'             => [System::SI],
             ],
             'electronvolt'         => [
                 'asciiSymbol' => 'eV',
-                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
                 'systems'     => [System::SIAccepted],
             ],
             'calorie'              => [
                 'asciiSymbol' => 'cal',
-                'prefixGroup' => PrefixUtils::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC,
                 'systems'     => [System::Common],
             ],
             'British thermal unit' => [

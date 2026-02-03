@@ -7,9 +7,9 @@ namespace Galaxon\Quantities\QuantityType;
 use DateInterval;
 use DomainException;
 use Galaxon\Core\Numbers;
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class Time extends Quantity
@@ -34,7 +34,7 @@ class Time extends Quantity
         return [
             'second' => [
                 'asciiSymbol' => 's',
-                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
                 'systems'     => [System::SI],
             ],
             'minute' => [

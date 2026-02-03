@@ -7,10 +7,10 @@ namespace Galaxon\Quantities\QuantityType;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitInterface;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class Temperature extends Quantity
@@ -54,7 +54,7 @@ class Temperature extends Quantity
         return [
             'kelvin'     => [
                 'asciiSymbol' => 'K',
-                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
                 'systems'     => [System::SI],
             ],
             'celsius'    => [
@@ -218,7 +218,7 @@ class Temperature extends Quantity
     private static function isPrefixedKelvin(DerivedUnit $unit): bool
     {
         return count($unit->unitTerms) === 1 &&
-            $unit->firstUnitTerm->unit->asciiSymbol === 'K' &&
+            $unit->firstUnitTerm?->unit->asciiSymbol === 'K' &&
             $unit->multiplier !== 1.0;
     }
 

@@ -7,9 +7,9 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Helpers\DimensionUtils;
-use Galaxon\Quantities\Helpers\PrefixUtils;
-use Galaxon\Quantities\Helpers\UnitRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Utility\DimensionUtility;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 /**
@@ -125,7 +125,7 @@ class Unit implements UnitInterface
      * @var list<Prefix>
      */
     public array $allowedPrefixes {
-        get => PrefixUtils::getPrefixes($this->prefixGroup);
+        get => PrefixUtility::getPrefixes($this->prefixGroup);
     }
 
     /**
@@ -223,7 +223,7 @@ class Unit implements UnitInterface
         $this->asciiSymbol = $asciiSymbol;
         $this->unicodeSymbol = $unicodeSymbol ?? $asciiSymbol;
         $this->quantityType = $quantityType;
-        $this->dimension = DimensionUtils::normalize($dimension);
+        $this->dimension = DimensionUtility::normalize($dimension);
         $this->prefixGroup = $prefixGroup;
         $this->alternateSymbol = $alternateSymbol;
         $this->expansionUnitSymbol = $expansionUnitSymbol ?? null;

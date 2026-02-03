@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class RadiationDose extends Quantity
@@ -34,13 +35,13 @@ class RadiationDose extends Quantity
         return [
             'gray'    => [
                 'asciiSymbol'         => 'Gy',
-                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'm2*s-2',
                 'systems'             => [System::SI],
             ],
             'sievert' => [
                 'asciiSymbol'         => 'Sv',
-                'prefixGroup'         => PrefixRegistry::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'm2*s-2',
                 'systems'             => [System::SI],
             ],

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Helpers;
+namespace Galaxon\Quantities\Registry;
 
 use DomainException;
 use Galaxon\Quantities\Quantity;
@@ -27,6 +27,26 @@ class UnitRegistry
      * @var ?array<string, Unit>
      */
     private static ?array $units = null;
+
+    /**
+     * The systems of units that have been loaded so far.
+     *
+     * @var list<System>
+     */
+    private static array $loadedSystems = [];
+
+    // endregion
+
+    // region Static accessors
+
+    /**
+     * @return list<System>
+     */
+    public static function getLoadedSystems(): array
+    {
+        self::init();
+        return self::$loadedSystems;
+    }
 
     // endregion
 
@@ -239,12 +259,16 @@ class UnitRegistry
     /**
      * Load all units belonging to a specific measurement system.
      *
-     * Also loads any conversions involving the newly loaded units.
-     *
      * @param System $system The measurement system to load units for.
      */
     public static function loadSystem(System $system): void
     {
+        // If this system has already been loaded, do nothing.
+        if (in_array($system, self::$loadedSystems, true)) {
+            return;
+        }
+
+        // Loop through all QuantityType classes and add any units belonging to the specified system.
         foreach (QuantityTypeRegistry::getAll() as $qtyType) {
             /** @var ?class-string<Quantity> $qtyTypeClass */
             $qtyTypeClass = $qtyType->class;
@@ -254,8 +278,9 @@ class UnitRegistry
                 continue;
             }
 
-            // Get units from the class and add them.
+            // Get units from the class.
             $units = $qtyTypeClass::getUnitDefinitions();
+
             foreach ($units as $name => $definition) {
                 // Only load units for the specified system.
                 $unitSystems = $definition['systems'] ?? [];
@@ -280,8 +305,8 @@ class UnitRegistry
             }
         }
 
-        // Load any conversions involving the newly loaded units.
-        ConversionRegistry::loadConversions($system);
+        // Keep track of which systems have been loaded.
+        self::$loadedSystems[] = $system;
     }
 
     // endregion

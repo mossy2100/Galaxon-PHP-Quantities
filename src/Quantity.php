@@ -11,9 +11,9 @@ use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
-use Galaxon\Quantities\Helpers\PrefixUtils;
-use Galaxon\Quantities\Helpers\QuantityTypeRegistry;
-use Galaxon\Quantities\Helpers\UnitRegistry;
+use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use InvalidArgumentException;
 use LogicException;
 use Override;
@@ -379,7 +379,7 @@ class Quantity implements Stringable
         if (count($qty->derivedUnit->unitTerms) === 1) {
             $unitTerm = $qty->derivedUnit->firstUnitTerm;
             if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
-                $newUnitTerm = new UnitTerm('Hz', PrefixUtils::invert($unitTerm->prefix));
+                $newUnitTerm = new UnitTerm('Hz', PrefixUtility::invert($unitTerm->prefix));
                 return self::create($qty->value, $newUnitTerm);
             }
         }
@@ -1175,7 +1175,7 @@ class Quantity implements Stringable
         $resultUnit = static::validateUnitSymbol($resultUnitSymbol);
 
         // Initialize the Quantity to 0, with the unit set to the result unit.
-        /** @var self $qty */
+        /** @var static $qty */
         $qty = new (static::class)(0, $resultUnit);
 
         // Add each of the possible units.
@@ -1345,7 +1345,7 @@ class Quantity implements Stringable
 
             // Format the part with no space between the value and unit.
             $valueStr = $i === $smallestUnitIndex
-                ? static::formatValue($value, 'f', $precision)
+                ? self::formatValue($value, 'f', $precision)
                 : (string)$value;
             $result[] = $valueStr . $unit->format($ascii);
         }

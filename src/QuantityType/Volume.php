@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class Volume extends Quantity
@@ -31,7 +32,7 @@ class Volume extends Quantity
             // Metric volume units
             'litre'                => [
                 'asciiSymbol' => 'L',
-                'prefixGroup' => Prefixes::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
                 'systems'     => [System::SIAccepted],
             ],
             // US customary volume units

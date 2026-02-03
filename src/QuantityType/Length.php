@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class Length extends Quantity
@@ -32,7 +32,7 @@ class Length extends Quantity
             // SI
             'metre'             => [
                 'asciiSymbol' => 'm',
-                'prefixGroup' => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
                 'systems'     => [System::SI],
             ],
             // Astronomical
@@ -46,7 +46,7 @@ class Length extends Quantity
             ],
             'parsec'            => [
                 'asciiSymbol' => 'pc',
-                'prefixGroup' => PrefixUtils::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC,
                 'systems'     => [System::Astronomical],
             ],
             // Typography/CSS

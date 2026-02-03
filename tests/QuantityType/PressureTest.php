@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
-use Galaxon\Quantities\Helpers\UnitRegistry;
 use Galaxon\Quantities\QuantityType\Acceleration;
 use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Density;
 use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Pressure;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

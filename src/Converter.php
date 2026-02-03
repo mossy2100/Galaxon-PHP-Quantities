@@ -6,9 +6,9 @@ namespace Galaxon\Quantities;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Helpers\ConversionRegistry;
-use Galaxon\Quantities\Helpers\DimensionUtils;
-use Galaxon\Quantities\Helpers\QuantityTypeRegistry;
+use Galaxon\Quantities\Registry\ConversionRegistry;
+use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Utility\DimensionUtility;
 use LogicException;
 
 /**
@@ -78,7 +78,7 @@ class Converter
     private function __construct(string $dimension)
     {
         // Check the dimension is valid.
-        if (!DimensionUtils::isValid($dimension)) {
+        if (!DimensionUtility::isValid($dimension)) {
             throw new FormatException("Invalid dimension code '$dimension'.");
         }
 

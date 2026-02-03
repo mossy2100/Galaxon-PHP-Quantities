@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class SolidAngle extends Quantity
@@ -30,7 +31,7 @@ class SolidAngle extends Quantity
         return [
             'steradian' => [
                 'asciiSymbol'         => 'sr',
-                'prefixGroup'         => PrefixRegistry::GROUP_CODE_SMALL_ENGINEERING_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC,
                 'expansionUnitSymbol' => 'rad2',
                 'systems'             => [System::SI],
             ],

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
-use Galaxon\Quantities\Helpers\PrefixUtils;
-use Galaxon\Quantities\Helpers\UnitRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -264,7 +264,7 @@ final class UnitRegistryTest extends TestCase
         UnitRegistry::add(
             name: $name,
             asciiSymbol: $symbol,
-            unicodeSymbol: '†' . $symbol,  // Use unique unicode symbol to avoid null conflict
+            unicodeSymbol: 'τυα',  // Greek letters (valid Unicode word)
             quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
@@ -285,12 +285,12 @@ final class UnitRegistryTest extends TestCase
     public function testAddThrowsForDuplicateName(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Unit name 'metre' already exists");
+        $this->expectExceptionMessage("The unit name 'metre' is being used");
 
         UnitRegistry::add(
             name: 'metre',
             asciiSymbol: 'xx',
-            unicodeSymbol: '‖xx',  // Use unique unicode symbol to avoid null conflict
+            unicodeSymbol: 'ξξ',  // Greek letters (valid Unicode word)
             quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
@@ -303,12 +303,12 @@ final class UnitRegistryTest extends TestCase
     public function testAddThrowsForDuplicateAsciiSymbol(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("ASCII symbol 'm' conflicts with ASCII symbol of 'metre'");
+        $this->expectExceptionMessage("The symbol 'm' for newunitdup is already being used by another unit");
 
         UnitRegistry::add(
             name: 'newunitdup',
             asciiSymbol: 'm',
-            unicodeSymbol: '⊕dup',  // Use unique unicode symbol to avoid null conflict
+            unicodeSymbol: 'δυπ',  // Greek letters (valid Unicode word)
             quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
@@ -316,17 +316,17 @@ final class UnitRegistryTest extends TestCase
     }
 
     /**
-     * Test add() throws when ASCII symbol conflicts with existing Unicode symbol.
+     * Test add() throws when Unicode symbol conflicts with existing Unicode symbol.
      */
-    public function testAddThrowsWhenAsciiConflictsWithUnicode(): void
+    public function testAddThrowsForDuplicateUnicodeSymbol(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("ASCII symbol 'Ω' conflicts with Unicode symbol of 'ohm'");
+        $this->expectExceptionMessage("The symbol 'Ω' for newunitohm is already being used by another unit");
 
         UnitRegistry::add(
             name: 'newunitohm',
-            asciiSymbol: 'Ω',
-            unicodeSymbol: '‡unique',  // Use unique unicode symbol to avoid null conflict
+            asciiSymbol: 'nuo',
+            unicodeSymbol: 'Ω',  // Conflicts with ohm's Unicode symbol
             quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             systems: [System::Common]
@@ -344,18 +344,18 @@ final class UnitRegistryTest extends TestCase
         UnitRegistry::add(
             name: $name,
             asciiSymbol: $symbol,
-            unicodeSymbol: '§' . $symbol,  // Use unique unicode symbol to avoid null conflict
+            unicodeSymbol: 'φυπ',  // Greek letters (valid Unicode word)
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtils::GROUP_CODE_METRIC,
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
             expansionUnitSymbol: 'm',
             systems: [System::Common]
         );
 
         $unit = UnitRegistry::getAll()[$name];
         $this->assertSame($symbol, $unit->asciiSymbol);
-        $this->assertSame('custom', $unit->system);
-        $this->assertSame(PrefixUtils::GROUP_CODE_METRIC, $unit->prefixGroup);
+        $this->assertContains(System::Common, $unit->systems);
+        $this->assertSame(PrefixUtility::GROUP_CODE_METRIC, $unit->prefixGroup);
 
         // Clean up
         UnitRegistry::remove($name);
@@ -376,7 +376,7 @@ final class UnitRegistryTest extends TestCase
         UnitRegistry::add(
             name: $name,
             asciiSymbol: $symbol,
-            unicodeSymbol: '¶' . $symbol,  // Use unique unicode symbol to avoid null conflict
+            unicodeSymbol: 'ρμτ',  // Greek letters (valid Unicode word)
             quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
@@ -418,9 +418,8 @@ final class UnitRegistryTest extends TestCase
 
         foreach ($all as $name => $unit) {
             $this->assertNotEmpty($unit->name, "Unit '$name' has empty name");
-            $this->assertNotEmpty($unit->asciiSymbol, "Unit '$name' has empty ASCII symbol");
             $this->assertNotEmpty($unit->dimension, "Unit '$name' has empty dimension");
-            $this->assertNotEmpty($unit->system, "Unit '$name' has empty system");
+            $this->assertNotEmpty($unit->systems, "Unit '$name' has empty system");
         }
     }
 

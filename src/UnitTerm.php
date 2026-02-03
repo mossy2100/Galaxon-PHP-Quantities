@@ -8,9 +8,9 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Helpers\DimensionUtils;
-use Galaxon\Quantities\Helpers\PrefixUtils;
-use Galaxon\Quantities\Helpers\UnitRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Utility\DimensionUtility;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 /**
@@ -104,7 +104,7 @@ class UnitTerm implements UnitInterface
      */
     public string $dimension
     {
-        get => DimensionUtils::applyExponent($this->unit->dimension, $this->exponent);
+        get => DimensionUtility::applyExponent($this->unit->dimension, $this->exponent);
     }
 
     // endregion
@@ -132,7 +132,7 @@ class UnitTerm implements UnitInterface
 
         // Allow for the prefix to be provided as a symbol.
         if (is_string($prefix)) {
-            $prefix = PrefixUtils::getBySymbol($prefix);
+            $prefix = PrefixUtility::getBySymbol($prefix);
             if ($prefix === null) {
                 throw new DomainException("Prefix '$prefix' is unknown.");
             }

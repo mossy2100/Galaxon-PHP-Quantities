@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Helpers;
+namespace Galaxon\Quantities\Registry;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
@@ -11,6 +11,7 @@ use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitInterface;
+use Galaxon\Quantities\Utility\DimensionUtility;
 
 /**
  * Registry for unit conversions.
@@ -34,9 +35,9 @@ class ConversionRegistry
      *
      * Structure: $conversions[$dimension][$srcSymbol][$destSymbol] = Conversion
      *
-     * @var array<string, array<string, array<string, Conversion>>>
+     * @var ?array<string, array<string, array<string, Conversion>>>
      */
-    private static array $conversions = [];
+    private static ?array $conversions = null;
 
     // endregion
 
@@ -52,6 +53,9 @@ class ConversionRegistry
      */
     public static function get(string $dimension, string $srcUnitSymbol, string $destUnitSymbol): ?Conversion
     {
+        self::init();
+        assert(self::$conversions !== null);
+
         return self::$conversions[$dimension][$srcUnitSymbol][$destUnitSymbol] ?? null;
     }
 
@@ -64,13 +68,11 @@ class ConversionRegistry
      */
     public static function getByDimension(string $dimension): array
     {
-        // Check the dimension code is valid.
-        if (!DimensionUtils::isValid($dimension)) {
-            throw new FormatException("Invalid dimension code '$dimension'.");
-        }
+        self::init();
+        assert(self::$conversions !== null);
 
-        // Return conversions for this dimension.
-        $dimension = DimensionUtils::normalize($dimension);
+        // This will throw if the dimension is invalid.
+        $dimension = DimensionUtility::normalize($dimension);
         return self::$conversions[$dimension] ?? [];
     }
 
@@ -97,6 +99,9 @@ class ConversionRegistry
         float $factor,
         int $onMissingUnit = self::ON_MISSING_UNIT_THROW
     ): void {
+        self::init();
+        assert(self::$conversions !== null);
+
         // Get the source unit as a DerivedUnit object.
         try {
             $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
@@ -131,6 +136,9 @@ class ConversionRegistry
      */
     public static function addConversion(Conversion $conversion): void
     {
+        self::init();
+        assert(self::$conversions !== null);
+
         $dim = $conversion->dimension;
         $src = $conversion->srcUnit->asciiSymbol;
         $dest = $conversion->destUnit->asciiSymbol;
@@ -149,6 +157,11 @@ class ConversionRegistry
      */
     public static function removeConversion(Conversion $conversion): void
     {
+        // Skip if the registry is not initialized yet.
+        if (self::$conversions === null) {
+            return;
+        }
+
         $dim = $conversion->dimension;
         $src = $conversion->srcUnit->asciiSymbol;
         $dest = $conversion->destUnit->asciiSymbol;
@@ -170,6 +183,11 @@ class ConversionRegistry
      */
     public static function resetByDimension(string $dimension): void
     {
+        // Skip if the registry is not initialized yet.
+        if (self::$conversions === null) {
+            return;
+        }
+
         self::$conversions[$dimension] = [];
     }
 
@@ -216,10 +234,13 @@ class ConversionRegistry
     /**
      * Load conversions for a specific measurement system.
      *
-     * Iterates through all conversion definitions and adds any where at least one unit belongs to the specified system.
+     * Iterates through all conversion definitions and adds anywhere at least one unit belongs to the specified system.
      * Both units must be known (in the registry).
      *
      * @param System $system The measurement system to load conversions for.
+     * @throws FormatException If either unit in a conversion definition is provided as a string that cannot be parsed.
+     * @throws DomainException If the dimensions of the units in a conversion definition don't match or the factor is
+     * not positive.
      */
     public static function loadConversions(System $system): void
     {
@@ -266,6 +287,9 @@ class ConversionRegistry
      */
     public static function has(string $dimension, string $srcUnitSymbol, string $destUnitSymbol): bool
     {
+        self::init();
+        assert(self::$conversions !== null);
+
         return isset(self::$conversions[$dimension][$srcUnitSymbol][$destUnitSymbol]);
     }
 
@@ -277,7 +301,35 @@ class ConversionRegistry
      */
     public static function hasConversion(Conversion $conversion): bool
     {
+        self::init();
+        assert(self::$conversions !== null);
+
         return self::has($conversion->dimension, $conversion->srcUnit->asciiSymbol, $conversion->destUnit->asciiSymbol);
+    }
+
+    // endregion
+
+    // region Private static helper methods
+
+    /**
+     * Initialize the conversions array.
+     *
+     * This is called lazily on first access.
+     *
+     * @throws FormatException If a unit definition cannot be parsed.
+     * @throws DomainException If any unit is unknown, or dimensions mismatch, or a conversion factor is non-positive.
+     */
+    private static function init(): void
+    {
+        if (self::$conversions === null) {
+            self::reset();
+
+            // Get the loaded systems of units.
+            $systems = UnitRegistry::getLoadedSystems();
+            foreach ($systems as $system) {
+                self::loadConversions($system);
+            }
+        }
     }
 
     // endregion

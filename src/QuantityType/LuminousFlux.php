@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Helpers\PrefixUtils;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 class LuminousFlux extends Quantity
@@ -31,7 +31,7 @@ class LuminousFlux extends Quantity
         return [
             'lumen' => [
                 'asciiSymbol'         => 'lm',
-                'prefixGroup'         => PrefixUtils::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'cd*rad2',
                 'systems'             => [System::SI],
             ],

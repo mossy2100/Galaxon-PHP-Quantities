@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Helpers;
+namespace Galaxon\Quantities\Registry;
 
 use DomainException;
 use Galaxon\Quantities\Quantity;
@@ -40,6 +40,7 @@ use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
 use Galaxon\Quantities\QuantityType\Voltage;
 use Galaxon\Quantities\QuantityType\Volume;
+use Galaxon\Quantities\Utility\DimensionUtility;
 use LogicException;
 
 /**
@@ -281,7 +282,10 @@ class QuantityTypeRegistry
     public static function getByDimension(string $dimension): ?QuantityType
     {
         self::init();
-        $dimension = DimensionUtils::normalize($dimension);
+        assert(self::$quantityTypes !== null);
+
+        $dimension = DimensionUtility::normalize($dimension);
+
         return array_find(
             self::$quantityTypes,
             static fn (QuantityType $qtyType): bool => strtolower($qtyType->dimension) === strtolower($dimension)
@@ -298,6 +302,8 @@ class QuantityTypeRegistry
     {
         self::init();
         assert(self::$quantityTypes !== null);
+
+        $name = strtolower($name);
         return self::$quantityTypes[$name] ?? null;
     }
 
@@ -319,20 +325,41 @@ class QuantityTypeRegistry
     }
 
     /**
+     * Get all the registered quantity type classes.
+     *
+     * @return list<class-string<Quantity>> The list of classes.
+     */
+    public static function getClasses(): array
+    {
+        self::init();
+
+        $classes = [];
+        foreach (self::$quantityTypes as $quantityType) {
+            if ($quantityType->class !== null) {
+                $classes[] = $quantityType->class;
+            }
+        }
+        return $classes;
+    }
+
+    /**
      * Register a new quantity type for a dimension code.
      *
      * This allows Quantity::create() to instantiate the appropriate subclass based on dimensional analysis.
      * For example, when multiplying Length * Length, create() can return an Area object.
      *
-     * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2', 'LT-1').
      * @param string $name The name of the physical quantity (e.g. 'length', 'velocity').
+     * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2', 'LT-1').
      * @param string $siUnitSymbol The SI unit symbol for this quantity (e.g. 'm', 'm/s').
      * @param ?class-string<Quantity> $class The Quantity subclass to use for this dimension.
      */
-    public static function add(string $dimension, string $name, string $siUnitSymbol, ?string $class): void
+    public static function add(string $name, string $dimension, string $siUnitSymbol, ?string $class): void
     {
         self::init();
-        $dimension = DimensionUtils::normalize($dimension);
+
+        // Normalize arguments.
+        $name = strtolower($name);
+        $dimension = DimensionUtility::normalize($dimension);
 
         // Check name is unique.
         $qt = self::getByName($name);
@@ -364,19 +391,22 @@ class QuantityTypeRegistry
      * Use this to override the default class for a quantity type or to add a class to a quantity type that doesn't have
      * one.
      *
-     * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2').
+     * @param string $name The quantity type name.
      * @param class-string<Quantity> $class The Quantity subclass to use for this dimension.
      * @throws DomainException If the dimension is not registered, or the class is invalid.
      */
-    public static function setClass(string $dimension, string $class): void
+    public static function setClass(string $name, string $class): void
     {
         self::init();
 
-        // Check we have a quantity type with the specified dimension.
-        $qt = self::getByDimension($dimension);
+        // Normalize argument.
+        $name = strtolower($name);
+
+        // Check we have a quantity type with the specified name.
+        $qt = self::$quantityTypes[$name] ?? null;
         if ($qt === null) {
             throw new DomainException(
-                "Quantity type with dimension '$dimension' not found. Use add() to register a new quantity type."
+                "Quantity type '$name' not found. Use add() to register a new quantity type."
             );
         }
 
@@ -400,7 +430,7 @@ class QuantityTypeRegistry
 
             // Convert info in constant into array of objects.
             foreach (self::QUANTITY_TYPES as $name => $info) {
-                $dimension = DimensionUtils::normalize($info['dimension']);
+                $dimension = DimensionUtility::normalize($info['dimension']);
                 self::$quantityTypes[$name] =
                     new QuantityType($name, $dimension, $info['siUnitSymbol'], $info['class'] ?? null);
             }

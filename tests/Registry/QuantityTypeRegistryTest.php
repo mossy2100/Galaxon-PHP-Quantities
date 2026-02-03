@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
-use Galaxon\Quantities\Helpers\QuantityTypeRegistry;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\QuantityType\Area;
@@ -13,6 +12,7 @@ use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
+use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -55,13 +55,13 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         $result = QuantityTypeRegistry::getAll();
 
-        $this->assertArrayHasKey('L', $result);  // length
-        $this->assertArrayHasKey('M', $result);  // mass
-        $this->assertArrayHasKey('T', $result);  // time
-        $this->assertArrayHasKey('I', $result);  // electric current
-        $this->assertArrayHasKey('H', $result);  // temperature
-        $this->assertArrayHasKey('N', $result);  // amount of substance
-        $this->assertArrayHasKey('J', $result);  // luminous intensity
+        $this->assertArrayHasKey('length', $result);
+        $this->assertArrayHasKey('mass', $result);
+        $this->assertArrayHasKey('time', $result);
+        $this->assertArrayHasKey('electric current', $result);
+        $this->assertArrayHasKey('temperature', $result);
+        $this->assertArrayHasKey('amount of substance', $result);
+        $this->assertArrayHasKey('luminous intensity', $result);
     }
 
     /**
@@ -71,10 +71,10 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         $result = QuantityTypeRegistry::getAll();
 
-        $this->assertArrayHasKey('L2', $result);    // area
-        $this->assertArrayHasKey('L3', $result);    // volume
-        $this->assertArrayHasKey('T-1', $result);   // frequency
-        $this->assertArrayHasKey('LT-1', $result);  // velocity
+        $this->assertArrayHasKey('area', $result);
+        $this->assertArrayHasKey('volume', $result);
+        $this->assertArrayHasKey('frequency', $result);
+        $this->assertArrayHasKey('velocity', $result);
     }
 
     // endregion
@@ -140,17 +140,6 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectExceptionMessage("Invalid dimension code 'X9Y9Z9'");
 
         QuantityTypeRegistry::getByDimension('X9Y9Z9');
-    }
-
-    /**
-     * Test getByDimension() returns null for empty string (dimensionless).
-     */
-    public function testGetByDimensionReturnsNullForEmptyDimension(): void
-    {
-        // Empty dimension (dimensionless) has no registered quantity type
-        $result = QuantityTypeRegistry::getByDimension('');
-
-        $this->assertNull($result);
     }
 
     // endregion
@@ -272,7 +261,7 @@ final class QuantityTypeRegistryTest extends TestCase
         }
 
         // Add it
-        QuantityTypeRegistry::add($dimension, 'hypervolume', 'm4', null);
+        QuantityTypeRegistry::add('hypervolume', $dimension, 'm4', null);
 
         // Verify it exists
         $result = QuantityTypeRegistry::getByDimension($dimension);
@@ -290,7 +279,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the name 'length'");
 
-        QuantityTypeRegistry::add('L9', 'length', 'x', null);
+        QuantityTypeRegistry::add('length', 'L9', 'x', null);
     }
 
     /**
@@ -301,7 +290,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the dimension 'L'");
 
-        QuantityTypeRegistry::add('L', 'another length', 'm', null);
+        QuantityTypeRegistry::add('another length', 'L', 'm', null);
     }
 
     /**
@@ -312,7 +301,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Cannot add another quantity type with the class');
 
-        QuantityTypeRegistry::add('L8', 'another', 'x', Length::class);
+        QuantityTypeRegistry::add('another', 'L8', 'x', Length::class);
     }
 
     // endregion
@@ -331,7 +320,7 @@ final class QuantityTypeRegistryTest extends TestCase
             $this->markTestSkipped("Dimension '$dimension' already exists");
         }
 
-        QuantityTypeRegistry::add($dimension, 'pentavolume', 'm5', null);
+        QuantityTypeRegistry::add('pentavolume', $dimension, 'm5', null);
 
         // Verify it has no class
         $result = QuantityTypeRegistry::getByDimension($dimension);
@@ -347,26 +336,14 @@ final class QuantityTypeRegistryTest extends TestCase
     public function testSetClassThrowsForNonExistentDimension(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Quantity type with dimension 'L9' not found");
+        $this->expectExceptionMessage("Quantity type 'coolness' not found");
 
-        QuantityTypeRegistry::setClass('L9', Length::class);
+        QuantityTypeRegistry::setClass('coolness', Length::class);
     }
 
     // endregion
 
     // region Data integrity tests
-
-    /**
-     * Test all quantity types have valid dimension codes.
-     */
-    public function testAllQuantityTypesHaveValidDimensions(): void
-    {
-        $all = QuantityTypeRegistry::getAll();
-
-        foreach ($all as $dimension => $qtyType) {
-            $this->assertSame($dimension, $qtyType->dimension);
-        }
-    }
 
     /**
      * Test all quantity types have non-empty names.

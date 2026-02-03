@@ -7,7 +7,7 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Helpers\PrefixUtils;
+use Galaxon\Quantities\Utility\PrefixUtility;
 
 class Prefix
 {
@@ -38,9 +38,9 @@ class Prefix
     private(set) float $multiplier;
 
     /**
-     * The group code for the prefix (see PrefixRegistry::GROUP_CODE_* constants).
+     * The group code for the prefix (see PrefixUtility::GROUP_CODE_* constants).
      * This will only be one of the base groups and will therefore be a power of 2 (i.e. 1, 2, 4, 8, or 16).
-     * @see PrefixUtils::GROUP_CODE_SMALL_ENGINEERING_METRIC
+     * @see PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC
      */
     private(set) int $groupCode;
 
@@ -55,7 +55,7 @@ class Prefix
      * @param string $asciiSymbol The ASCII symbol.
      * @param ?string $unicodeSymbol The Unicode symbol, or null to use the ASCII symbol.
      * @param float $multiplier The multiplier.
-     * @param int $groupCode The group code (see PrefixRegistry::GROUP_CODE_* constants).
+     * @param int $groupCode The group code (see PrefixUtility::GROUP_CODE_* constants).
      * @throws FormatException If the ASCII or Unicode symbols are invalid.
      * @throws DomainException If the multiplier is invalid.
      */
@@ -85,7 +85,7 @@ class Prefix
         }
 
         // Validate group code.
-        if (!PrefixUtils::isValidGroupCode($groupCode)) {
+        if (!PrefixUtility::isValidGroupCode($groupCode)) {
             throw new DomainException("Invalid group code: $groupCode");
         }
 
@@ -125,7 +125,7 @@ class Prefix
      */
     public function isEngineering(): bool
     {
-        return (bool)($this->groupCode & PrefixUtils::GROUP_CODE_ENGINEERING_METRIC);
+        return (bool)($this->groupCode & PrefixUtility::GROUP_CODE_ENGINEERING_METRIC);
     }
 
     // endregion

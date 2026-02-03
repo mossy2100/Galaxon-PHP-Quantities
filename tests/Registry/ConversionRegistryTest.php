@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Registry;
 
-use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
-use Galaxon\Quantities\Helpers\ConversionRegistry;
+use Galaxon\Quantities\Registry\ConversionRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -16,6 +18,18 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(ConversionRegistry::class)]
 final class ConversionRegistryTest extends TestCase
 {
+    // region Setup
+
+    public static function setUpBeforeClass(): void
+    {
+        // Load Imperial/US units for cross-system tests.
+        UnitRegistry::loadSystem(System::Imperial);
+        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::Nautical);
+    }
+
+    // endregion
+
     // region getByDimension() tests
 
     /**
@@ -67,7 +81,7 @@ final class ConversionRegistryTest extends TestCase
      */
     public function testGetByDimensionThrowsForInvalidDimension(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
 
         ConversionRegistry::getByDimension('X9');
     }
@@ -392,6 +406,192 @@ final class ConversionRegistryTest extends TestCase
                 );
             }
         }
+    }
+
+    // endregion
+
+    // region add() with parameters tests
+
+    /**
+     * Test add() with string unit symbols.
+     */
+    public function testAddWithStringSymbols(): void
+    {
+        ConversionRegistry::add('m', 'cm', 100.0);
+
+        $result = ConversionRegistry::get('L', 'm', 'cm');
+
+        $this->assertNotNull($result);
+        $this->assertEqualsWithDelta(100.0, $result->factor->value, 1e-10);
+    }
+
+    /**
+     * Test add() with ON_MISSING_UNIT_IGNORE silently skips unknown units.
+     */
+    public function testAddWithOnMissingUnitIgnore(): void
+    {
+        // This should not throw, just silently skip.
+        ConversionRegistry::add(
+            'nonexistent_unit_xyz',
+            'm',
+            1.0,
+            ConversionRegistry::ON_MISSING_UNIT_IGNORE
+        );
+
+        // Verify no conversion was added.
+        $result = ConversionRegistry::get('L', 'nonexistent_unit_xyz', 'm');
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test add() with ON_MISSING_UNIT_THROW throws for unknown source unit.
+     */
+    public function testAddThrowsForUnknownSourceUnit(): void
+    {
+        $this->expectException(\DomainException::class);
+
+        ConversionRegistry::add(
+            'nonexistent_unit_xyz',
+            'm',
+            1.0,
+            ConversionRegistry::ON_MISSING_UNIT_THROW
+        );
+    }
+
+    /**
+     * Test add() with ON_MISSING_UNIT_THROW throws for unknown destination unit.
+     */
+    public function testAddThrowsForUnknownDestUnit(): void
+    {
+        $this->expectException(\DomainException::class);
+
+        ConversionRegistry::add(
+            'm',
+            'nonexistent_unit_xyz',
+            1.0,
+            ConversionRegistry::ON_MISSING_UNIT_THROW
+        );
+    }
+
+    // endregion
+
+    // region removeConversion() tests
+
+    /**
+     * Test removeConversion() removes an existing conversion.
+     */
+    public function testRemoveConversionRemovesExisting(): void
+    {
+        // Add a conversion.
+        $conversion = new Conversion('m', 'dm', 10.0);
+        ConversionRegistry::addConversion($conversion);
+
+        // Verify it exists.
+        $this->assertTrue(ConversionRegistry::has('L', 'm', 'dm'));
+
+        // Remove it.
+        ConversionRegistry::removeConversion($conversion);
+
+        // Verify it's gone.
+        $this->assertFalse(ConversionRegistry::has('L', 'm', 'dm'));
+    }
+
+    // endregion
+
+    // region hasConversion() tests
+
+    /**
+     * Test hasConversion() returns true for existing conversion.
+     */
+    public function testHasConversionReturnsTrueForExisting(): void
+    {
+        $conversion = new Conversion('m', 'mm', 1000.0);
+        ConversionRegistry::addConversion($conversion);
+
+        $result = ConversionRegistry::hasConversion($conversion);
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test hasConversion() returns false for non-existing conversion.
+     */
+    public function testHasConversionReturnsFalseForNonExisting(): void
+    {
+        // Use valid units but a conversion that doesn't exist.
+        $conversion = new Conversion('ft', 'km', 0.0003048);
+
+        // Remove it if it exists to ensure clean state.
+        ConversionRegistry::removeConversion($conversion);
+
+        $result = ConversionRegistry::hasConversion($conversion);
+
+        $this->assertFalse($result);
+    }
+
+    // endregion
+
+    // region getAllConversionDefinitions() tests
+
+    /**
+     * Test getAllConversionDefinitions() returns an array.
+     */
+    public function testGetAllConversionDefinitionsReturnsArray(): void
+    {
+        $result = ConversionRegistry::getAllConversionDefinitions();
+
+        $this->assertIsArray($result);
+    }
+
+    /**
+     * Test getAllConversionDefinitions() returns non-empty array.
+     */
+    public function testGetAllConversionDefinitionsReturnsNonEmpty(): void
+    {
+        $result = ConversionRegistry::getAllConversionDefinitions();
+
+        $this->assertNotEmpty($result);
+    }
+
+    /**
+     * Test getAllConversionDefinitions() returns tuples with correct structure.
+     */
+    public function testGetAllConversionDefinitionsReturnsTuples(): void
+    {
+        $result = ConversionRegistry::getAllConversionDefinitions();
+
+        foreach ($result as $definition) {
+            $this->assertIsArray($definition);
+            $this->assertCount(3, $definition);
+            $this->assertIsString($definition[0]); // srcSymbol
+            $this->assertIsString($definition[1]); // destSymbol
+            $this->assertIsNumeric($definition[2]); // factor (int or float)
+        }
+    }
+
+    // endregion
+
+    // region reset() and resetByDimension() tests
+
+    /**
+     * Test resetByDimension() clears conversions for specific dimension.
+     */
+    public function testResetByDimensionClearsSpecificDimension(): void
+    {
+        // Ensure we have some time conversions.
+        $conversion = new Conversion('h', 'd', 1 / 24);
+        ConversionRegistry::addConversion($conversion);
+        $this->assertTrue(ConversionRegistry::has('T', 'h', 'd'));
+
+        // Reset time dimension.
+        ConversionRegistry::resetByDimension('T');
+
+        // Verify time conversions are gone.
+        $this->assertFalse(ConversionRegistry::has('T', 'h', 'd'));
+
+        // Verify length conversions still exist.
+        $lengthConversions = ConversionRegistry::getByDimension('L');
+        $this->assertNotEmpty($lengthConversions);
     }
 
     // endregion
