@@ -451,9 +451,9 @@ class Quantity implements Stringable
 
         // If we found a match, substitute the necessary unit terms for the expandable unit.
         if ($bestExpandableUnit !== null && $bestUnitToReplace !== null) {
-            // Remove the unit terms to replace.
+            // Remove the unit terms (or parts thereof) to replace.
             foreach ($bestUnitToReplace->unitTerms as $unitTermToReplace) {
-                $newUnit->removeUnitTerm($unitTermToReplace);
+                $newUnit->addUnitTerm($unitTermToReplace->inv());
             }
 
             // Add the expandable unit.

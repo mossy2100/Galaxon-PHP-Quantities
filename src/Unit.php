@@ -263,11 +263,16 @@ class Unit implements UnitInterface
     /**
      * Check if a specific prefix is allowed for this unit.
      *
-     * @param Prefix $prefix The prefix to check.
+     * @param string|Prefix $prefix The prefix to check.
      * @return bool True if the prefix is allowed.
      */
-    public function acceptsPrefix(Prefix $prefix): bool
+    public function acceptsPrefix(string|Prefix $prefix): bool
     {
+        // Convert the prefix to a Prefix object if needed.
+        if (is_string($prefix)) {
+            $prefix = PrefixUtility::getBySymbol($prefix);
+        }
+
         return array_any($this->allowedPrefixes, static fn ($allowedPrefix) => $allowedPrefix->equal($prefix));
     }
 

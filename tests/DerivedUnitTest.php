@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Tests;
 use DomainException;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -17,6 +18,16 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DerivedUnit::class)]
 class DerivedUnitTest extends TestCase
 {
+    // region Setup
+
+    public static function setUpBeforeClass(): void
+    {
+        // Load Imperial units for cross-system tests.
+        UnitRegistry::loadSystem(System::Imperial);
+    }
+
+    // endregion
+
     // region Constructor tests
 
     public function testConstructorWithNull(): void
@@ -61,7 +72,7 @@ class DerivedUnitTest extends TestCase
 
         $this->assertCount(3, $du->unitTerms);
         // Sorted by dimension order: M, L, T.
-        $this->assertSame('kg*m*s-2', $du->format(true));
+        $this->assertSame('kg*m/s2', $du->format(true));
     }
 
     // endregion
@@ -115,7 +126,7 @@ class DerivedUnitTest extends TestCase
     {
         $du = DerivedUnit::parse('m/s');
         $this->assertCount(2, $du->unitTerms);
-        $this->assertSame('m*s-1', $du->format(true));
+        $this->assertSame('m/s', $du->format(true));
     }
 
     public function testParseComplexUnit(): void
@@ -123,7 +134,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('kg*m/s2');
         $this->assertCount(3, $du->unitTerms);
         // Sorted by dimension order: M, L, T.
-        $this->assertSame('kg*m*s-2', $du->format(true));
+        $this->assertSame('kg*m/s2', $du->format(true));
     }
 
     public function testParseNewton(): void
@@ -150,7 +161,7 @@ class DerivedUnitTest extends TestCase
     {
         // m/s/s should be m⋅s⁻²
         $du = DerivedUnit::parse('m/s/s');
-        $this->assertSame('m*s-2', $du->format(true));
+        $this->assertSame('m/s2', $du->format(true));
     }
 
     // endregion
@@ -173,7 +184,7 @@ class DerivedUnitTest extends TestCase
     {
         $du = DerivedUnit::parse('m*s-2');
         // __toString returns Unicode format with superscript exponents
-        $this->assertSame('m⋅s⁻²', (string)$du);
+        $this->assertSame('m/s²', (string)$du);
     }
 
     public function testToStringUsesUnicodeSymbol(): void
@@ -199,7 +210,7 @@ class DerivedUnitTest extends TestCase
     {
         $du = DerivedUnit::parse('m*s-2');
         // format(true) returns ASCII format with '*' separator
-        $this->assertSame('m*s-2', $du->format(true));
+        $this->assertSame('m/s2', $du->format(true));
     }
 
     public function testFormatAsciiUsesAsciiSymbol(): void
@@ -219,7 +230,7 @@ class DerivedUnitTest extends TestCase
     public function testFormatUnicodeCompoundUnit(): void
     {
         $du = DerivedUnit::parse('m*s-1');
-        $this->assertSame('m⋅s⁻¹', $du->format());
+        $this->assertSame('m/s', $du->format());
     }
 
     // endregion
@@ -247,7 +258,7 @@ class DerivedUnitTest extends TestCase
     public function testDimensionEmptyUnit(): void
     {
         $du = new DerivedUnit();
-        $this->assertSame('', $du->dimension);
+        $this->assertSame('1', $du->dimension);
     }
 
     public function testDimensionVelocity(): void
@@ -366,7 +377,7 @@ class DerivedUnitTest extends TestCase
     {
         $du = DerivedUnit::parse('m');
         $this->assertCount(1, $du->unitTerms);
-        $unitTerm = new UnitTerm('kg');
+        $unitTerm = UnitTerm::parse('kg');
 
         // Should not throw
         $du->removeUnitTerm($unitTerm);
@@ -462,7 +473,7 @@ class DerivedUnitTest extends TestCase
         $result = DerivedUnit::toDerivedUnit('m/s');
 
         $this->assertInstanceOf(DerivedUnit::class, $result);
-        $this->assertSame('m*s-1', $result->format(true));
+        $this->assertSame('m/s', $result->format(true));
     }
 
     public function testToDerivedUnitFromUnit(): void
@@ -518,7 +529,7 @@ class DerivedUnitTest extends TestCase
         $inv = $du->inv();
 
         // m⋅s⁻¹ inverted is m⁻¹⋅s
-        $this->assertSame('m-1*s', $inv->format(true));
+        $this->assertSame('s/m', $inv->format(true));
     }
 
     public function testInvDoesNotModifyOriginal(): void
@@ -565,7 +576,7 @@ class DerivedUnitTest extends TestCase
         $du = new DerivedUnit([$s, $m, $kg]);
 
         // Sorted by dimension order: M, L, T.
-        $this->assertSame('kg*m*s-2', $du->format(true));
+        $this->assertSame('kg*m/s2', $du->format(true));
     }
 
     // endregion
@@ -690,7 +701,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('m/s');
         $si = $du->toSi();
 
-        $this->assertSame('m*s-1', $si->format(true));
+        $this->assertSame('m/s', $si->format(true));
         $this->assertSame('LT-1', $si->dimension);
     }
 
@@ -700,7 +711,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('ft/s');
         $si = $du->toSi();
 
-        $this->assertSame('m*s-1', $si->format(true));
+        $this->assertSame('m/s', $si->format(true));
         $this->assertSame('LT-1', $si->dimension);
     }
 
@@ -710,7 +721,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('kg*m/s2');
         $si = $du->toSi();
 
-        $this->assertSame('kg*m*s-2', $si->format(true));
+        $this->assertSame('kg*m/s2', $si->format(true));
         $this->assertSame('MLT-2', $si->dimension);
     }
 
@@ -720,7 +731,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('lb*ft/s2');
         $si = $du->toSi();
 
-        $this->assertSame('kg*m*s-2', $si->format(true));
+        $this->assertSame('kg*m/s2', $si->format(true));
         $this->assertSame('MLT-2', $si->dimension);
     }
 
@@ -730,7 +741,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('N');
         $si = $du->toSi();
 
-        $this->assertSame('kg*m*s-2', $si->format(true));
+        $this->assertSame('kg*m/s2', $si->format(true));
         $this->assertSame('MLT-2', $si->dimension);
     }
 
@@ -740,7 +751,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('J');
         $si = $du->toSi();
 
-        $this->assertSame('kg*m2*s-2', $si->format(true));
+        $this->assertSame('kg*m2/s2', $si->format(true));
         $this->assertSame('ML2T-2', $si->dimension);
     }
 
@@ -750,7 +761,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('W');
         $si = $du->toSi();
 
-        $this->assertSame('kg*m2*s-3', $si->format(true));
+        $this->assertSame('kg*m2/s3', $si->format(true));
         $this->assertSame('ML2T-3', $si->dimension);
     }
 
@@ -760,7 +771,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('Pa');
         $si = $du->toSi();
 
-        $this->assertSame('kg*m-1*s-2', $si->format(true));
+        $this->assertSame('kg/(m*s2)', $si->format(true));
         $this->assertSame('ML-1T-2', $si->dimension);
     }
 
@@ -780,7 +791,7 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('kN');
         $si = $du->toSi();
 
-        $this->assertSame('kg*m*s-2', $si->format(true));
+        $this->assertSame('kg*m/s2', $si->format(true));
         $this->assertSame('MLT-2', $si->dimension);
     }
 
@@ -811,7 +822,7 @@ class DerivedUnitTest extends TestCase
         $si = $du->toSi();
 
         $this->assertSame('', $si->format(true));
-        $this->assertSame('', $si->dimension);
+        $this->assertSame('1', $si->dimension);
     }
 
     public function testToSiPreservesDimension(): void
@@ -835,11 +846,11 @@ class DerivedUnitTest extends TestCase
     public function testToSiComplexMixedUnit(): void
     {
         // mph (miles per hour) components: mi/h - both non-SI
-        // Dimension is LT⁻¹, should become m*s⁻¹
+        // Dimension is LT⁻¹, should become m/s
         $du = DerivedUnit::parse('mi/h');
         $si = $du->toSi();
 
-        $this->assertSame('m*s-1', $si->format(true));
+        $this->assertSame('m/s', $si->format(true));
         $this->assertSame('LT-1', $si->dimension);
     }
 
@@ -849,17 +860,17 @@ class DerivedUnitTest extends TestCase
         $du = DerivedUnit::parse('J/s');
         $si = $du->toSi();
 
-        $this->assertSame('kg*m2*s-3', $si->format(true));
+        $this->assertSame('kg*m2/s3', $si->format(true));
         $this->assertSame('ML2T-3', $si->dimension);
     }
 
     public function testToSiAcceleration(): void
     {
-        // ft/s² should become m*s⁻²
+        // ft/s² should become m/s²
         $du = DerivedUnit::parse('ft/s2');
         $si = $du->toSi();
 
-        $this->assertSame('m*s-2', $si->format(true));
+        $this->assertSame('m/s2', $si->format(true));
         $this->assertSame('LT-2', $si->dimension);
     }
 

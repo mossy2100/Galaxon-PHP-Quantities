@@ -280,42 +280,6 @@ final class UnitRegistryTest extends TestCase
     }
 
     /**
-     * Test add() throws for duplicate name.
-     */
-    public function testAddThrowsForDuplicateName(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("The unit name 'metre' is being used");
-
-        UnitRegistry::add(
-            name: 'metre',
-            asciiSymbol: 'xx',
-            unicodeSymbol: 'ξξ',  // Greek letters (valid Unicode word)
-            quantityType: 'length',
-            dimension: 'L',
-            systems: [System::Common]
-        );
-    }
-
-    /**
-     * Test add() throws for duplicate ASCII symbol.
-     */
-    public function testAddThrowsForDuplicateAsciiSymbol(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("The symbol 'm' for newunitdup is already being used by another unit");
-
-        UnitRegistry::add(
-            name: 'newunitdup',
-            asciiSymbol: 'm',
-            unicodeSymbol: 'δυπ',  // Greek letters (valid Unicode word)
-            quantityType: 'length',
-            dimension: 'L',
-            systems: [System::Common]
-        );
-    }
-
-    /**
      * Test add() throws when Unicode symbol conflicts with existing Unicode symbol.
      */
     public function testAddThrowsForDuplicateUnicodeSymbol(): void

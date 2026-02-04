@@ -8,6 +8,8 @@ use DomainException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Converter;
 use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -17,6 +19,16 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Converter::class)]
 class ConverterTest extends TestCase
 {
+    // region Setup
+
+    public static function setUpBeforeClass(): void
+    {
+        // Load Imperial units for cross-system tests.
+        UnitRegistry::loadSystem(System::Imperial);
+    }
+
+    // endregion
+
     // region getByDimension() tests
 
     /**
@@ -36,7 +48,7 @@ class ConverterTest extends TestCase
     public function testGetByDimensionThrowsForInvalidDimension(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid dimension 'X'.");
+        $this->expectExceptionMessage("Invalid dimension code 'X'.");
 
         Converter::getByDimension('X');
     }
@@ -217,10 +229,10 @@ class ConverterTest extends TestCase
     {
         $converter = Converter::getByDimension('L');
 
-        $unitTerm = $converter->validateUnit('m');
+        $unit = $converter->validateUnit('m');
 
-        $this->assertInstanceOf(DerivedUnit::class, $unitTerm);
-        $this->assertSame('m', (string)$unitTerm);
+        $this->assertInstanceOf(DerivedUnit::class, $unit);
+        $this->assertSame('m', (string)$unit);
     }
 
     /**
@@ -230,9 +242,9 @@ class ConverterTest extends TestCase
     {
         $converter = Converter::getByDimension('L');
 
-        $unitTerm = $converter->validateUnit('km');
+        $unit = $converter->validateUnit('km');
 
-        $this->assertSame('km', (string)$unitTerm);
+        $this->assertSame('km', (string)$unit);
     }
 
     /**
@@ -243,7 +255,7 @@ class ConverterTest extends TestCase
         $converter = Converter::getByDimension('L');
 
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid unit term');
+        $this->expectExceptionMessage("The unit 's' is invalid for length quantities.");
 
         $converter->validateUnit('s'); // seconds is time, not length
     }
@@ -520,8 +532,8 @@ class ConverterTest extends TestCase
         $this->assertNotEmpty($converter->units);
 
         // All unit terms should be unprefixed
-        foreach ($converter->units as $unitTerm) {
-            $this->assertNull($unitTerm->prefix);
+        foreach ($converter->units as $unit) {
+            $this->assertFalse($unit->hasPrefixes());
         }
     }
 

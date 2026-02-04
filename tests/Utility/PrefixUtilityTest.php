@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Utility;
 
 use DomainException;
+use Galaxon\Quantities\Prefix;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -18,95 +19,57 @@ final class PrefixUtilityTest extends TestCase
     // region Constants tests
 
     /**
-     * Test prefix group constants have correct values.
+     * Test base prefix group constants have correct values.
      */
-    public function testPrefixGroupConstantValues(): void
+    public function testBaseGroupConstantValues(): void
     {
-        $this->assertSame(1, PrefixUtility::GROUP_CODE_SMALL_METRIC);
-        $this->assertSame(2, PrefixUtility::GROUP_CODE_LARGE_METRIC);
-        $this->assertSame(3, PrefixUtility::GROUP_CODE_METRIC);
-        $this->assertSame(4, PrefixUtility::GROUP_CODE_BINARY);
-        $this->assertSame(6, PrefixUtility::GROUP_CODE_LARGE);
-        $this->assertSame(7, PrefixUtility::GROUP_CODE_ALL);
+        $this->assertSame(1, PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC);
+        $this->assertSame(2, PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC);
+        $this->assertSame(4, PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC);
+        $this->assertSame(8, PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC);
+        $this->assertSame(16, PrefixUtility::GROUP_CODE_BINARY);
     }
 
     /**
-     * Test prefix group constants are proper bitwise combinations.
+     * Test combined prefix group constants have correct values.
      */
-    public function testPrefixGroupConstantsBitwiseCombinations(): void
+    public function testCombinedGroupConstantValues(): void
     {
+        // Small metric = small engineering + small non-engineering.
+        $this->assertSame(
+            PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC | PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC,
+            PrefixUtility::GROUP_CODE_SMALL_METRIC
+        );
+
+        // Large metric = large non-engineering + large engineering.
+        $this->assertSame(
+            PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC | PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+            PrefixUtility::GROUP_CODE_LARGE_METRIC
+        );
+
+        // Engineering metric = small engineering + large engineering.
+        $this->assertSame(
+            PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC | PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+            PrefixUtility::GROUP_CODE_ENGINEERING_METRIC
+        );
+
+        // Metric = small metric + large metric.
         $this->assertSame(
             PrefixUtility::GROUP_CODE_SMALL_METRIC | PrefixUtility::GROUP_CODE_LARGE_METRIC,
             PrefixUtility::GROUP_CODE_METRIC
         );
+
+        // Large = large engineering metric + binary.
         $this->assertSame(
-            PrefixUtility::GROUP_CODE_LARGE_METRIC | PrefixUtility::GROUP_CODE_BINARY,
+            PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC | PrefixUtility::GROUP_CODE_BINARY,
             PrefixUtility::GROUP_CODE_LARGE
         );
+
+        // All = metric + binary.
         $this->assertSame(
             PrefixUtility::GROUP_CODE_METRIC | PrefixUtility::GROUP_CODE_BINARY,
             PrefixUtility::GROUP_CODE_ALL
         );
-    }
-
-    /**
-     * Test small metric prefixes constant contains expected prefixes.
-     */
-    public function testSmallMetricPrefixesConstant(): void
-    {
-        $prefixes = PrefixUtility::PREFIXES_SMALL_ENGINEERING_METRIC;
-
-        $this->assertArrayHasKey('m', $prefixes);  // milli
-        $this->assertArrayHasKey('μ', $prefixes);  // micro
-        $this->assertArrayHasKey('u', $prefixes);  // micro alias
-        $this->assertArrayHasKey('n', $prefixes);  // nano
-        $this->assertArrayHasKey('p', $prefixes);  // pico
-        $this->assertArrayHasKey('q', $prefixes);  // quecto
-
-        $this->assertSame(1e-3, $prefixes['m']);
-        $this->assertSame(1e-6, $prefixes['μ']);
-        $this->assertSame(1e-6, $prefixes['u']);
-        $this->assertSame(1e-9, $prefixes['n']);
-        $this->assertSame(1e-12, $prefixes['p']);
-        $this->assertSame(1e-30, $prefixes['q']);
-    }
-
-    /**
-     * Test large metric prefixes constant contains expected prefixes.
-     */
-    public function testLargeMetricPrefixesConstant(): void
-    {
-        $prefixes = PrefixUtility::PREFIXES_LARGE_ENGINEERING_METRIC;
-
-        $this->assertArrayHasKey('k', $prefixes);   // kilo
-        $this->assertArrayHasKey('M', $prefixes);   // mega
-        $this->assertArrayHasKey('G', $prefixes);   // giga
-        $this->assertArrayHasKey('T', $prefixes);   // tera
-        $this->assertArrayHasKey('Q', $prefixes);   // quetta
-
-        $this->assertSame(1e3, $prefixes['k']);
-        $this->assertSame(1e6, $prefixes['M']);
-        $this->assertSame(1e9, $prefixes['G']);
-        $this->assertSame(1e12, $prefixes['T']);
-        $this->assertSame(1e30, $prefixes['Q']);
-    }
-
-    /**
-     * Test binary prefixes constant contains expected prefixes.
-     */
-    public function testBinaryPrefixesConstant(): void
-    {
-        $prefixes = PrefixUtility::PREFIXES_BINARY;
-
-        $this->assertArrayHasKey('Ki', $prefixes);  // kibi
-        $this->assertArrayHasKey('Mi', $prefixes);  // mebi
-        $this->assertArrayHasKey('Gi', $prefixes);  // gibi
-        $this->assertArrayHasKey('Ti', $prefixes);  // tebi
-
-        $this->assertSame(2 ** 10, $prefixes['Ki']);
-        $this->assertSame(2 ** 20, $prefixes['Mi']);
-        $this->assertSame(2 ** 30, $prefixes['Gi']);
-        $this->assertSame(2 ** 40, $prefixes['Ti']);
     }
 
     // endregion
@@ -124,45 +87,79 @@ final class PrefixUtilityTest extends TestCase
     }
 
     /**
-     * Test getPrefixes() with small metric group.
+     * Test getPrefixes() returns array of Prefix objects.
      */
-    public function testGetPrefixesSmallMetric(): void
-    {
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_METRIC);
-
-        $this->assertSame(PrefixUtility::PREFIXES_SMALL_ENGINEERING_METRIC, $result);
-        $this->assertArrayHasKey('m', $result);
-        $this->assertArrayHasKey('μ', $result);
-        $this->assertArrayNotHasKey('k', $result);
-        $this->assertArrayNotHasKey('Ki', $result);
-    }
-
-    /**
-     * Test getPrefixes() with large metric group.
-     */
-    public function testGetPrefixesLargeMetric(): void
-    {
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_METRIC);
-
-        $this->assertSame(PrefixUtility::PREFIXES_LARGE_ENGINEERING_METRIC, $result);
-        $this->assertArrayHasKey('k', $result);
-        $this->assertArrayHasKey('M', $result);
-        $this->assertArrayNotHasKey('m', $result);
-        $this->assertArrayNotHasKey('Ki', $result);
-    }
-
-    /**
-     * Test getPrefixes() with metric group returns both small and large.
-     */
-    public function testGetPrefixesMetric(): void
+    public function testGetPrefixesReturnsArrayOfPrefixObjects(): void
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_METRIC);
 
-        $this->assertArrayHasKey('m', $result);   // small
-        $this->assertArrayHasKey('μ', $result);   // small
-        $this->assertArrayHasKey('k', $result);   // large
-        $this->assertArrayHasKey('M', $result);   // large
-        $this->assertArrayNotHasKey('Ki', $result);  // binary
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result);
+        $this->assertContainsOnlyInstancesOf(Prefix::class, $result);
+    }
+
+    /**
+     * Test getPrefixes() with small engineering metric group.
+     */
+    public function testGetPrefixesSmallEngineeringMetric(): void
+    {
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC);
+
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        $this->assertContains('m', $symbols);  // milli
+        $this->assertContains('u', $symbols);  // micro
+        $this->assertContains('n', $symbols);  // nano
+        $this->assertContains('p', $symbols);  // pico
+        $this->assertContains('q', $symbols);  // quecto
+        $this->assertNotContains('c', $symbols);  // centi (non-engineering)
+        $this->assertNotContains('k', $symbols);  // kilo (large)
+    }
+
+    /**
+     * Test getPrefixes() with small non-engineering metric group.
+     */
+    public function testGetPrefixesSmallNonEngineeringMetric(): void
+    {
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC);
+
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        $this->assertContains('c', $symbols);  // centi
+        $this->assertContains('d', $symbols);  // deci
+        $this->assertNotContains('m', $symbols);  // milli (engineering)
+    }
+
+    /**
+     * Test getPrefixes() with large engineering metric group.
+     */
+    public function testGetPrefixesLargeEngineeringMetric(): void
+    {
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC);
+
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        $this->assertContains('k', $symbols);   // kilo
+        $this->assertContains('M', $symbols);   // mega
+        $this->assertContains('G', $symbols);   // giga
+        $this->assertContains('T', $symbols);   // tera
+        $this->assertContains('Q', $symbols);   // quetta
+        $this->assertNotContains('h', $symbols);  // hecto (non-engineering)
+        $this->assertNotContains('m', $symbols);  // milli (small)
+    }
+
+    /**
+     * Test getPrefixes() with large non-engineering metric group.
+     */
+    public function testGetPrefixesLargeNonEngineeringMetric(): void
+    {
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC);
+
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        $this->assertContains('da', $symbols);  // deca
+        $this->assertContains('h', $symbols);   // hecto
+        $this->assertNotContains('k', $symbols);  // kilo (engineering)
     }
 
     /**
@@ -172,26 +169,38 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_BINARY);
 
-        $this->assertSame(PrefixUtility::PREFIXES_BINARY, $result);
-        $this->assertArrayHasKey('Ki', $result);
-        $this->assertArrayHasKey('Mi', $result);
-        $this->assertArrayNotHasKey('k', $result);
-        $this->assertArrayNotHasKey('m', $result);
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        $this->assertContains('Ki', $symbols);  // kibi
+        $this->assertContains('Mi', $symbols);  // mebi
+        $this->assertContains('Gi', $symbols);  // gibi
+        $this->assertContains('Ti', $symbols);  // tebi
+        $this->assertNotContains('k', $symbols);  // no metric
     }
 
     /**
-     * Test getPrefixes() with large group returns large metric and binary.
+     * Test getPrefixes() with metric group returns all metric prefixes.
      */
-    public function testGetPrefixesLarge(): void
+    public function testGetPrefixesMetric(): void
     {
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE);
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_METRIC);
 
-        $this->assertArrayHasKey('k', $result);   // large metric
-        $this->assertArrayHasKey('M', $result);   // large metric
-        $this->assertArrayHasKey('Ki', $result);  // binary
-        $this->assertArrayHasKey('Mi', $result);  // binary
-        $this->assertArrayNotHasKey('m', $result);   // small metric
-        $this->assertArrayNotHasKey('μ', $result);   // small metric
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        // Small engineering.
+        $this->assertContains('m', $symbols);
+        $this->assertContains('u', $symbols);
+        // Small non-engineering.
+        $this->assertContains('c', $symbols);
+        $this->assertContains('d', $symbols);
+        // Large non-engineering.
+        $this->assertContains('da', $symbols);
+        $this->assertContains('h', $symbols);
+        // Large engineering.
+        $this->assertContains('k', $symbols);
+        $this->assertContains('M', $symbols);
+        // No binary.
+        $this->assertNotContains('Ki', $symbols);
     }
 
     /**
@@ -201,9 +210,14 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_ALL);
 
-        $this->assertArrayHasKey('m', $result);   // small metric
-        $this->assertArrayHasKey('k', $result);   // large metric
-        $this->assertArrayHasKey('Ki', $result);  // binary
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        // Metric.
+        $this->assertContains('m', $symbols);
+        $this->assertContains('k', $symbols);
+        $this->assertContains('c', $symbols);
+        // Binary.
+        $this->assertContains('Ki', $symbols);
     }
 
     /**
@@ -211,168 +225,107 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testGetPrefixesDefaultReturnsAll(): void
     {
-        $result = PrefixUtility::getPrefixes();
+        $default = PrefixUtility::getPrefixes();
+        $all = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_ALL);
 
-        $this->assertSame(PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_ALL), $result);
+        $this->assertSame(count($all), count($default));
+    }
+
+    /**
+     * Test getPrefixes() results are sorted by multiplier.
+     */
+    public function testGetPrefixesAreSortedByMultiplier(): void
+    {
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_METRIC);
+
+        $multipliers = array_map(fn (Prefix $p) => $p->multiplier, $result);
+
+        // Check ascending order.
+        $sorted = $multipliers;
+        sort($sorted);
+
+        $this->assertSame($sorted, $multipliers);
     }
 
     // endregion
 
-    // region getMetricPrefixes() tests
+    // region getBySymbol() tests
 
     /**
-     * Test getMetricPrefixes() returns both small and large metric prefixes.
+     * Test getBySymbol() returns Prefix for valid ASCII symbol.
      */
-    public function testGetMetricPrefixes(): void
+    public function testGetBySymbolReturnsForValidAscii(): void
     {
-        $result = PrefixUtility::getMetricPrefixes();
+        $prefix = PrefixUtility::getBySymbol('k');
 
-        $this->assertArrayHasKey('m', $result);   // small
-        $this->assertArrayHasKey('μ', $result);   // small
-        $this->assertArrayHasKey('k', $result);   // large
-        $this->assertArrayHasKey('M', $result);   // large
-        $this->assertArrayNotHasKey('Ki', $result);  // no binary
+        $this->assertInstanceOf(Prefix::class, $prefix);
+        $this->assertSame('kilo', $prefix->name);
+        $this->assertSame('k', $prefix->asciiSymbol);
+        $this->assertSame(1e3, $prefix->multiplier);
     }
 
     /**
-     * Test getMetricPrefixes() equals getPrefixes() with metric group.
+     * Test getBySymbol() returns Prefix for valid Unicode symbol.
      */
-    public function testGetMetricPrefixesEqualsGetPrefixesMetric(): void
+    public function testGetBySymbolReturnsForValidUnicode(): void
     {
-        $this->assertSame(
-            PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_METRIC),
-            PrefixUtility::getMetricPrefixes()
-        );
-    }
+        $prefix = PrefixUtility::getBySymbol('μ');
 
-    // endregion
-
-    // region getEngineeringPrefixes() tests
-
-    /**
-     * Test getEngineeringPrefixes() includes multiples-of-3 prefixes.
-     */
-    public function testGetEngineeringPrefixesIncludesMultiplesOf3(): void
-    {
-        $result = PrefixUtility::getEngineeringPrefixes();
-
-        // Large prefixes (10^3, 10^6, 10^9, etc.)
-        $this->assertArrayHasKey('k', $result);
-        $this->assertArrayHasKey('M', $result);
-        $this->assertArrayHasKey('G', $result);
-        $this->assertArrayHasKey('T', $result);
-
-        // Small prefixes (10^-3, 10^-6, 10^-9, etc.)
-        $this->assertArrayHasKey('m', $result);
-        $this->assertArrayHasKey('μ', $result);
-        $this->assertArrayHasKey('n', $result);
-        $this->assertArrayHasKey('p', $result);
+        $this->assertInstanceOf(Prefix::class, $prefix);
+        $this->assertSame('micro', $prefix->name);
+        $this->assertSame(1e-6, $prefix->multiplier);
     }
 
     /**
-     * Test getEngineeringPrefixes() excludes non-multiples-of-3 prefixes.
+     * Test getBySymbol() returns Prefix for micro ASCII alias.
      */
-    public function testGetEngineeringPrefixesExcludesNonMultiplesOf3(): void
+    public function testGetBySymbolReturnsForMicroAsciiAlias(): void
     {
-        $result = PrefixUtility::getEngineeringPrefixes();
+        $prefix = PrefixUtility::getBySymbol('u');
 
-        $this->assertArrayNotHasKey('c', $result);   // centi (10^-2)
-        $this->assertArrayNotHasKey('d', $result);   // deci (10^-1)
-        $this->assertArrayNotHasKey('da', $result);  // deca (10^1)
-        $this->assertArrayNotHasKey('h', $result);   // hecto (10^2)
+        $this->assertInstanceOf(Prefix::class, $prefix);
+        $this->assertSame('micro', $prefix->name);
     }
 
     /**
-     * Test getEngineeringPrefixes() excludes binary prefixes.
+     * Test getBySymbol() returns Prefix for binary prefix.
      */
-    public function testGetEngineeringPrefixesExcludesBinary(): void
+    public function testGetBySymbolReturnsForBinaryPrefix(): void
     {
-        $result = PrefixUtility::getEngineeringPrefixes();
+        $prefix = PrefixUtility::getBySymbol('Ki');
 
-        $this->assertArrayNotHasKey('Ki', $result);
-        $this->assertArrayNotHasKey('Mi', $result);
-        $this->assertArrayNotHasKey('Gi', $result);
+        $this->assertInstanceOf(Prefix::class, $prefix);
+        $this->assertSame('kibi', $prefix->name);
+        $this->assertSame((float)(2 ** 10), $prefix->multiplier);
     }
 
     /**
-     * Test getEngineeringPrefixes() has correct multiplier values.
+     * Test getBySymbol() returns null for invalid symbol.
      */
-    public function testGetEngineeringPrefixesMultiplierValues(): void
+    public function testGetBySymbolReturnsNullForInvalid(): void
     {
-        $result = PrefixUtility::getEngineeringPrefixes();
-
-        $this->assertSame(1e3, $result['k']);
-        $this->assertSame(1e6, $result['M']);
-        $this->assertSame(1e-3, $result['m']);
-        $this->assertSame(1e-6, $result['μ']);
-    }
-
-    // endregion
-
-    // region getPrefixMultiplier() tests
-
-    /**
-     * Test getPrefixMultiplier() returns correct value for kilo.
-     */
-    public function testGetPrefixMultiplierKilo(): void
-    {
-        $this->assertSame(1e3, PrefixUtility::getPrefixMultiplier('k'));
+        $this->assertNull(PrefixUtility::getBySymbol('X'));
+        $this->assertNull(PrefixUtility::getBySymbol('invalid'));
+        $this->assertNull(PrefixUtility::getBySymbol(''));
     }
 
     /**
-     * Test getPrefixMultiplier() returns correct value for milli.
+     * Test getBySymbol() is case-sensitive.
      */
-    public function testGetPrefixMultiplierMilli(): void
+    public function testGetBySymbolIsCaseSensitive(): void
     {
-        $this->assertSame(1e-3, PrefixUtility::getPrefixMultiplier('m'));
-    }
+        // 'M' is mega (1e6).
+        $mega = PrefixUtility::getBySymbol('M');
+        $this->assertSame('mega', $mega->name);
+        $this->assertSame(1e6, $mega->multiplier);
 
-    /**
-     * Test getPrefixMultiplier() returns correct value for micro (μ).
-     */
-    public function testGetPrefixMultiplierMicroUnicode(): void
-    {
-        $this->assertSame(1e-6, PrefixUtility::getPrefixMultiplier('μ'));
-    }
+        // 'm' is milli (1e-3).
+        $milli = PrefixUtility::getBySymbol('m');
+        $this->assertSame('milli', $milli->name);
+        $this->assertSame(1e-3, $milli->multiplier);
 
-    /**
-     * Test getPrefixMultiplier() returns correct value for micro (u alias).
-     */
-    public function testGetPrefixMultiplierMicroAscii(): void
-    {
-        $this->assertSame(1e-6, PrefixUtility::getPrefixMultiplier('u'));
-    }
-
-    /**
-     * Test getPrefixMultiplier() returns correct value for binary prefix.
-     */
-    public function testGetPrefixMultiplierBinary(): void
-    {
-        $this->assertEquals(2 ** 10, PrefixUtility::getPrefixMultiplier('Ki'));
-        $this->assertEquals(2 ** 20, PrefixUtility::getPrefixMultiplier('Mi'));
-    }
-
-    /**
-     * Test getPrefixMultiplier() returns null for invalid prefix.
-     */
-    public function testGetPrefixMultiplierInvalidReturnsNull(): void
-    {
-        $this->assertNull(PrefixUtility::getPrefixMultiplier('X'));
-        $this->assertNull(PrefixUtility::getPrefixMultiplier('invalid'));
-        $this->assertNull(PrefixUtility::getPrefixMultiplier(''));
-    }
-
-    /**
-     * Test getPrefixMultiplier() is case-sensitive.
-     */
-    public function testGetPrefixMultiplierCaseSensitive(): void
-    {
-        // 'M' is mega (1e6), 'm' is milli (1e-3)
-        $this->assertSame(1e6, PrefixUtility::getPrefixMultiplier('M'));
-        $this->assertSame(1e-3, PrefixUtility::getPrefixMultiplier('m'));
-
-        // 'K' is not a valid prefix (kilo is lowercase 'k')
-        $this->assertNull(PrefixUtility::getPrefixMultiplier('K'));
+        // 'K' is not a valid prefix (kilo is lowercase 'k').
+        $this->assertNull(PrefixUtility::getBySymbol('K'));
     }
 
     // endregion
@@ -384,7 +337,12 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testInvertKiloToMilli(): void
     {
-        $this->assertSame('m', PrefixUtility::invert('k'));
+        $kilo = PrefixUtility::getBySymbol('k');
+        $result = PrefixUtility::invert($kilo);
+
+        $this->assertInstanceOf(Prefix::class, $result);
+        $this->assertSame('milli', $result->name);
+        $this->assertSame('m', $result->asciiSymbol);
     }
 
     /**
@@ -392,31 +350,35 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testInvertMilliToKilo(): void
     {
-        $this->assertSame('k', PrefixUtility::invert('m'));
+        $milli = PrefixUtility::getBySymbol('m');
+        $result = PrefixUtility::invert($milli);
+
+        $this->assertInstanceOf(Prefix::class, $result);
+        $this->assertSame('kilo', $result->name);
     }
 
     /**
-     * Test invert() converts mega to micro (μ).
+     * Test invert() converts mega to micro.
      */
     public function testInvertMegaToMicro(): void
     {
-        $this->assertSame('μ', PrefixUtility::invert('M'));
+        $mega = PrefixUtility::getBySymbol('M');
+        $result = PrefixUtility::invert($mega);
+
+        $this->assertInstanceOf(Prefix::class, $result);
+        $this->assertSame('micro', $result->name);
     }
 
     /**
-     * Test invert() converts micro (μ) to mega.
+     * Test invert() converts micro to mega.
      */
     public function testInvertMicroToMega(): void
     {
-        $this->assertSame('M', PrefixUtility::invert('μ'));
-    }
+        $micro = PrefixUtility::getBySymbol('μ');
+        $result = PrefixUtility::invert($micro);
 
-    /**
-     * Test invert() converts micro alias (u) to mega.
-     */
-    public function testInvertMicroAliasToMega(): void
-    {
-        $this->assertSame('M', PrefixUtility::invert('u'));
+        $this->assertInstanceOf(Prefix::class, $result);
+        $this->assertSame('mega', $result->name);
     }
 
     /**
@@ -424,15 +386,10 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testInvertGigaToNano(): void
     {
-        $this->assertSame('n', PrefixUtility::invert('G'));
-    }
+        $giga = PrefixUtility::getBySymbol('G');
+        $result = PrefixUtility::invert($giga);
 
-    /**
-     * Test invert() converts nano to giga.
-     */
-    public function testInvertNanoToGiga(): void
-    {
-        $this->assertSame('G', PrefixUtility::invert('n'));
+        $this->assertSame('nano', $result->name);
     }
 
     /**
@@ -440,15 +397,10 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testInvertTeraToPico(): void
     {
-        $this->assertSame('p', PrefixUtility::invert('T'));
-    }
+        $tera = PrefixUtility::getBySymbol('T');
+        $result = PrefixUtility::invert($tera);
 
-    /**
-     * Test invert() converts pico to tera.
-     */
-    public function testInvertPicoToTera(): void
-    {
-        $this->assertSame('T', PrefixUtility::invert('p'));
+        $this->assertSame('pico', $result->name);
     }
 
     /**
@@ -456,15 +408,10 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testInvertHectoToCenti(): void
     {
-        $this->assertSame('c', PrefixUtility::invert('h'));
-    }
+        $hecto = PrefixUtility::getBySymbol('h');
+        $result = PrefixUtility::invert($hecto);
 
-    /**
-     * Test invert() converts centi to hecto.
-     */
-    public function testInvertCentiToHecto(): void
-    {
-        $this->assertSame('h', PrefixUtility::invert('c'));
+        $this->assertSame('centi', $result->name);
     }
 
     /**
@@ -472,15 +419,10 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testInvertDecaToDeci(): void
     {
-        $this->assertSame('d', PrefixUtility::invert('da'));
-    }
+        $deca = PrefixUtility::getBySymbol('da');
+        $result = PrefixUtility::invert($deca);
 
-    /**
-     * Test invert() converts deci to deca.
-     */
-    public function testInvertDeciToDeca(): void
-    {
-        $this->assertSame('da', PrefixUtility::invert('d'));
+        $this->assertSame('deci', $result->name);
     }
 
     /**
@@ -488,45 +430,23 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testInvertQuettaToQuecto(): void
     {
-        $this->assertSame('q', PrefixUtility::invert('Q'));
+        $quetta = PrefixUtility::getBySymbol('Q');
+        $result = PrefixUtility::invert($quetta);
+
+        $this->assertSame('quecto', $result->name);
     }
 
     /**
-     * Test invert() converts quecto to quetta.
-     */
-    public function testInvertQuectoToQuetta(): void
-    {
-        $this->assertSame('Q', PrefixUtility::invert('q'));
-    }
-
-    /**
-     * Test invert() throws for binary prefixes.
+     * Test invert() throws for binary prefixes (no inverse exists).
      */
     public function testInvertThrowsForBinaryPrefixes(): void
     {
+        $kibi = PrefixUtility::getBySymbol('Ki');
+
         $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("Inverse of prefix 'Ki' not found");
 
-        PrefixUtility::invert('Ki');
-    }
-
-    /**
-     * Test invert() throws for invalid prefix.
-     */
-    public function testInvertThrowsForInvalidPrefix(): void
-    {
-        $this->expectException(DomainException::class);
-
-        PrefixUtility::invert('X');
-    }
-
-    /**
-     * Test invert() throws for empty string.
-     */
-    public function testInvertThrowsForEmptyString(): void
-    {
-        $this->expectException(DomainException::class);
-
-        PrefixUtility::invert('');
+        PrefixUtility::invert($kibi);
     }
 
     /**
@@ -538,19 +458,20 @@ final class PrefixUtilityTest extends TestCase
     }
 
     /**
-     * Test invert() round-trip returns original prefix.
+     * Test invert() round-trip returns equivalent prefix.
      */
     public function testInvertRoundTrip(): void
     {
-        // Small → Large → Small
-        $this->assertSame('m', PrefixUtility::invert(PrefixUtility::invert('m')));
-        $this->assertSame('n', PrefixUtility::invert(PrefixUtility::invert('n')));
-        $this->assertSame('p', PrefixUtility::invert(PrefixUtility::invert('p')));
+        $prefixes = ['m', 'n', 'p', 'k', 'M', 'G'];
 
-        // Large → Small → Large
-        $this->assertSame('k', PrefixUtility::invert(PrefixUtility::invert('k')));
-        $this->assertSame('M', PrefixUtility::invert(PrefixUtility::invert('M')));
-        $this->assertSame('G', PrefixUtility::invert(PrefixUtility::invert('G')));
+        foreach ($prefixes as $symbol) {
+            $original = PrefixUtility::getBySymbol($symbol);
+            $inverted = PrefixUtility::invert($original);
+            $roundTrip = PrefixUtility::invert($inverted);
+
+            $this->assertSame($original->name, $roundTrip->name);
+            $this->assertSame($original->multiplier, $roundTrip->multiplier);
+        }
     }
 
     /**
@@ -558,18 +479,161 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testInvertMultipliersAreReciprocals(): void
     {
-        $prefixes = ['k', 'm', 'M', 'μ', 'G', 'n', 'T', 'p'];
+        $prefixes = ['k', 'm', 'M', 'G', 'n', 'T', 'p'];
 
-        foreach ($prefixes as $prefix) {
+        foreach ($prefixes as $symbol) {
+            $prefix = PrefixUtility::getBySymbol($symbol);
             $inverse = PrefixUtility::invert($prefix);
-            $this->assertNotNull($inverse);
 
-            $multiplier = PrefixUtility::getPrefixMultiplier($prefix);
-            $inverseMultiplier = PrefixUtility::getPrefixMultiplier($inverse);
-
-            // multiplier × inverseMultiplier should equal 1
-            $this->assertEqualsWithDelta(1.0, $multiplier * $inverseMultiplier, 1e-20);
+            // multiplier × inverseMultiplier should equal 1.
+            $this->assertEqualsWithDelta(1.0, $prefix->multiplier * $inverse->multiplier, 1e-20);
         }
+    }
+
+    // endregion
+
+    // region isValidGroupCode() tests
+
+    /**
+     * Test isValidGroupCode() returns true for base group codes.
+     */
+    public function testIsValidGroupCodeReturnsTrueForBaseGroups(): void
+    {
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC));
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC));
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC));
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC));
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_BINARY));
+    }
+
+    /**
+     * Test isValidGroupCode() returns false for combined group codes.
+     */
+    public function testIsValidGroupCodeReturnsFalseForCombinedGroups(): void
+    {
+        // Combined codes are not "valid" base codes.
+        $this->assertFalse(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_SMALL_METRIC));
+        $this->assertFalse(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_LARGE_METRIC));
+        $this->assertFalse(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_METRIC));
+        $this->assertFalse(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_ALL));
+    }
+
+    /**
+     * Test isValidGroupCode() returns false for invalid values.
+     */
+    public function testIsValidGroupCodeReturnsFalseForInvalidValues(): void
+    {
+        $this->assertFalse(PrefixUtility::isValidGroupCode(0));
+        $this->assertFalse(PrefixUtility::isValidGroupCode(-1));
+        $this->assertFalse(PrefixUtility::isValidGroupCode(32));
+        $this->assertFalse(PrefixUtility::isValidGroupCode(100));
+    }
+
+    // endregion
+
+    // region Prefix object property tests
+
+    /**
+     * Test that prefixes have correct groupCode property.
+     */
+    public function testPrefixGroupCodeProperty(): void
+    {
+        $kilo = PrefixUtility::getBySymbol('k');
+        $this->assertSame(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC, $kilo->groupCode);
+
+        $milli = PrefixUtility::getBySymbol('m');
+        $this->assertSame(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC, $milli->groupCode);
+
+        $centi = PrefixUtility::getBySymbol('c');
+        $this->assertSame(PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC, $centi->groupCode);
+
+        $hecto = PrefixUtility::getBySymbol('h');
+        $this->assertSame(PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC, $hecto->groupCode);
+
+        $kibi = PrefixUtility::getBySymbol('Ki');
+        $this->assertSame(PrefixUtility::GROUP_CODE_BINARY, $kibi->groupCode);
+    }
+
+    /**
+     * Test that micro prefix has correct Unicode symbol.
+     */
+    public function testMicroPrefixUnicodeSymbol(): void
+    {
+        $micro = PrefixUtility::getBySymbol('u');
+
+        $this->assertSame('u', $micro->asciiSymbol);
+        $this->assertSame('μ', $micro->unicodeSymbol);
+    }
+
+    /**
+     * Test that prefixes without special Unicode have matching symbols.
+     */
+    public function testPrefixesWithoutUnicodeHaveMatchingSymbols(): void
+    {
+        $kilo = PrefixUtility::getBySymbol('k');
+        $this->assertSame($kilo->asciiSymbol, $kilo->unicodeSymbol);
+
+        $mega = PrefixUtility::getBySymbol('M');
+        $this->assertSame($mega->asciiSymbol, $mega->unicodeSymbol);
+    }
+
+    // endregion
+
+    // region Prefix definitions tests
+
+    /**
+     * Test all small engineering metric prefixes are defined.
+     */
+    public function testSmallEngineeringMetricPrefixesDefined(): void
+    {
+        $expected = ['q', 'r', 'y', 'z', 'a', 'f', 'p', 'n', 'u', 'm'];
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC);
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        foreach ($expected as $symbol) {
+            $this->assertContains($symbol, $symbols, "Expected prefix '$symbol' not found");
+        }
+    }
+
+    /**
+     * Test all large engineering metric prefixes are defined.
+     */
+    public function testLargeEngineeringMetricPrefixesDefined(): void
+    {
+        $expected = ['k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q'];
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC);
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        foreach ($expected as $symbol) {
+            $this->assertContains($symbol, $symbols, "Expected prefix '$symbol' not found");
+        }
+    }
+
+    /**
+     * Test all binary prefixes are defined.
+     */
+    public function testBinaryPrefixesDefined(): void
+    {
+        $expected = ['Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi', 'Ri', 'Qi'];
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_BINARY);
+        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+
+        foreach ($expected as $symbol) {
+            $this->assertContains($symbol, $symbols, "Expected prefix '$symbol' not found");
+        }
+    }
+
+    /**
+     * Test binary prefix multipliers are powers of 2.
+     */
+    public function testBinaryPrefixMultipliers(): void
+    {
+        $this->assertSame((float)(2 ** 10), PrefixUtility::getBySymbol('Ki')->multiplier);
+        $this->assertSame((float)(2 ** 20), PrefixUtility::getBySymbol('Mi')->multiplier);
+        $this->assertSame((float)(2 ** 30), PrefixUtility::getBySymbol('Gi')->multiplier);
+        $this->assertSame((float)(2 ** 40), PrefixUtility::getBySymbol('Ti')->multiplier);
+        $this->assertSame((float)(2 ** 50), PrefixUtility::getBySymbol('Pi')->multiplier);
+        $this->assertSame((float)(2 ** 60), PrefixUtility::getBySymbol('Ei')->multiplier);
     }
 
     // endregion

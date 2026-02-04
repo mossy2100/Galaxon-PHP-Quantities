@@ -420,11 +420,16 @@ class DerivedUnit implements UnitInterface
     /**
      * Remove a unit term.
      *
-     * @param UnitTerm $unitTerm The unit term to remove.
+     * @param UnitTerm $unitTermToRemove The unit term to remove.
      */
-    public function removeUnitTerm(UnitTerm $unitTerm): void
+    public function removeUnitTerm(UnitTerm $unitTermToRemove): void
     {
-        $this->addUnitTerm($unitTerm->inv());
+        foreach ($this->unitTerms as $symbol => $unitTerm) {
+            if ($unitTerm->equal($unitTermToRemove)) {
+                unset($this->unitTerms[$symbol]);
+                break;
+            }
+        }
     }
 
     /**
@@ -506,31 +511,6 @@ class DerivedUnit implements UnitInterface
         // Get the unit terms raised to the given power.
         /** @var list<UnitTerm> $unitTerms */
         $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->pow($exponent), $this->unitTerms);
-
-        // Construct the new DerivedUnit object.
-        return new self($unitTerms);
-    }
-
-    /**
-     * Return a new DerivedUnit by taking the root (i.e. square root, cube root, etc.).
-     *
-     * Each unit term's exponent is divided by the given value.
-     * For example, (m²⋅s⁻²)->root(2) returns m⋅s⁻¹.
-     *
-     * @param int $index The index of the root to calculate.
-     * @return self A new instance with the exponents divided by the given value.
-     * @throws DomainException If the root is not a positive integer.
-     */
-    public function root(int $index): self
-    {
-        // Check the index is positive.
-        if ($index < 1) {
-            throw new DomainException('Index must be a positive integer.');
-        }
-
-        // Calculate the root of each unit term.
-        /** @var list<UnitTerm> $unitTerms */
-        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->root($index), $this->unitTerms);
 
         // Construct the new DerivedUnit object.
         return new self($unitTerms);

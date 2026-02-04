@@ -164,17 +164,11 @@ class UnitTerm implements UnitInterface
     /**
      * Look up a unit or prefixed unit by its symbol.
      *
-     * @param string $symbol The prefixed unit symbol to search for.
+     * @param string $symbol The prefixed unit symbol to search for. Empty string matches the scalar unit.
      * @return list<self> Array of matching unit terms.
-     * @throws DomainException If the symbol is empty.
      */
     public static function getBySymbol(string $symbol): array
     {
-        // Validate the symbol.
-        if ($symbol === '') {
-            throw new DomainException('Symbol must not be empty.');
-        }
-
         $matches = [];
 
         // Look for any matching units.
@@ -189,6 +183,7 @@ class UnitTerm implements UnitInterface
             }
 
             // Loop through the prefixed units and see if any match.
+            // Alternate symbols aren't checked because they can't have prefixes.
             foreach ($unit->allowedPrefixes as $prefix) {
                 if (
                     $prefix->asciiSymbol . $unit->asciiSymbol === $symbol ||
@@ -393,28 +388,6 @@ class UnitTerm implements UnitInterface
     public function pow(int $exponent): self
     {
         return $this->withExponent($this->exponent * $exponent);
-    }
-
-    /**
-     * Return a new UnitTerm with the exponent divided by the given value.
-     *
-     * @param int $index The index of the root (must be a positive integer).
-     * @return self A new instance with the divided exponent (e.g. m⁶ with exp=3 → m²).
-     */
-    public function root(int $index): self
-    {
-        // Check the index is positive.
-        if ($index < 1) {
-            throw new DomainException('Index must be a positive integer.');
-        }
-
-        // Check that the exponent is an integer multiple of the index.
-        if ($this->exponent % $index !== 0) {
-            throw new DomainException('Exponent must be an integer multiple of the index.');
-        }
-
-        // Divide the exponent by the index.
-        return $this->withExponent(intdiv($this->exponent, $index));
     }
 
     /**

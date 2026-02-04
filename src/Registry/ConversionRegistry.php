@@ -249,7 +249,7 @@ class ConversionRegistry
             try {
                 $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
             } catch (DomainException) {
-                // Unit is unknown.
+                // The symbol contains an unknown unit.
                 continue;
             }
 
@@ -257,7 +257,7 @@ class ConversionRegistry
             try {
                 $destUnit = DerivedUnit::toDerivedUnit($destSymbol);
             } catch (DomainException) {
-                // Unit is unknown.
+                // The symbol contains an unknown unit.
                 continue;
             }
 

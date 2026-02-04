@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests;
 
 use Error;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -18,6 +21,16 @@ use stdClass;
 #[CoversClass(Unit::class)]
 final class UnitTest extends TestCase
 {
+    // region Setup
+
+    public static function setUpBeforeClass(): void
+    {
+        // Load units for tests.
+        UnitRegistry::loadSystem(System::Imperial);
+    }
+
+    // endregion
+
     // region Constructor tests
 
     /**
@@ -25,22 +38,22 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithSiBaseUnit(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
-        ];
-
-        $unit = new Unit('metre', $data);
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
 
         $this->assertSame('metre', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
         $this->assertSame('m', $unit->unicodeSymbol);
         $this->assertSame('length', $unit->quantityType);
         $this->assertSame('L', $unit->dimension);
-        $this->assertSame('si_base', $unit->system);
+        $this->assertContains(System::SI, $unit->systems);
         $this->assertSame(PrefixUtility::GROUP_CODE_METRIC, $unit->prefixGroup);
         $this->assertNull($unit->expansionUnitSymbol);
     }
@@ -50,23 +63,22 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithSiNamedUnit(): void
     {
-        $data = [
-            'asciiSymbol'         => 'Hz',
-            'quantityType'        => 'frequency',
-            'dimension'           => 'T-1',
-            'system'              => 'si_named',
-            'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
-            'expansionUnitSymbol' => 's-1',
-        ];
-
-        $unit = new Unit('hertz', $data);
+        $unit = new Unit(
+            name: 'hertz',
+            asciiSymbol: 'Hz',
+            unicodeSymbol: null,
+            quantityType: 'frequency',
+            dimension: 'T-1',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            expansionUnitSymbol: 's-1',
+            systems: [System::SI]
+        );
 
         $this->assertSame('hertz', $unit->name);
         $this->assertSame('Hz', $unit->asciiSymbol);
         $this->assertSame('Hz', $unit->unicodeSymbol);
         $this->assertSame('frequency', $unit->quantityType);
         $this->assertSame('T-1', $unit->dimension);
-        $this->assertSame('si_named', $unit->system);
         $this->assertSame('s-1', $unit->expansionUnitSymbol);
     }
 
@@ -75,17 +87,16 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithCustomUnicodeSymbol(): void
     {
-        $data = [
-            'asciiSymbol'         => 'ohm',
-            'unicodeSymbol'       => 'Ω',
-            'quantityType'        => 'resistance',
-            'dimension'           => 'T-3L2MI-2',
-            'system'              => 'si_named',
-            'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
-            'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
-        ];
-
-        $unit = new Unit('ohm', $data);
+        $unit = new Unit(
+            name: 'ohm',
+            asciiSymbol: 'ohm',
+            unicodeSymbol: 'Ω',
+            quantityType: 'resistance',
+            dimension: 'T-3L2MI-2',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            expansionUnitSymbol: 'kg*m2/s3/A2',
+            systems: [System::SI]
+        );
 
         $this->assertSame('ohm', $unit->asciiSymbol);
         $this->assertSame('Ω', $unit->unicodeSymbol);
@@ -96,14 +107,14 @@ final class UnitTest extends TestCase
      */
     public function testConstructorWithNoPrefixGroup(): void
     {
-        $data = [
-            'asciiSymbol'  => 'ha',
-            'quantityType' => 'area',
-            'dimension'    => 'L2',
-            'system'       => 'metric',
-        ];
-
-        $unit = new Unit('hectare', $data);
+        $unit = new Unit(
+            name: 'hectare',
+            asciiSymbol: 'ha',
+            unicodeSymbol: null,
+            quantityType: 'area',
+            dimension: 'L2',
+            systems: [System::SIAccepted]
+        );
 
         $this->assertSame(0, $unit->prefixGroup);
     }
@@ -113,36 +124,72 @@ final class UnitTest extends TestCase
      */
     public function testConstructorNormalizesDimension(): void
     {
-        $data = [
-            'asciiSymbol'  => 'N',
-            'quantityType' => 'force',
-            'dimension'    => 'MLT-2', // Not in canonical order
-            'system'       => 'si_named',
-        ];
+        $unit = new Unit(
+            name: 'newton',
+            asciiSymbol: 'N',
+            unicodeSymbol: null,
+            quantityType: 'force',
+            dimension: 'MLT-2',
+            systems: [System::SI]
+        );
 
-        $unit = new Unit('newton', $data);
-
-        // Dimension should be normalized to canonical order (T, L, M...)
+        // Dimension should be normalized.
         $this->assertSame('MLT-2', $unit->dimension);
+    }
+
+    /**
+     * Test constructor throws for invalid ASCII symbol.
+     */
+    public function testConstructorThrowsForInvalidAsciiSymbol(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('must only contain ASCII letters');
+
+        new Unit(
+            name: 'test',
+            asciiSymbol: 'm²',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
+    }
+
+    /**
+     * Test constructor throws for invalid Unicode symbol.
+     */
+    public function testConstructorThrowsForInvalidUnicodeSymbol(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('must only contain letters');
+
+        new Unit(
+            name: 'test',
+            asciiSymbol: 'm',
+            unicodeSymbol: '123',
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
     }
 
     // endregion
 
-    // region Property hook tests
+    // region Property tests
 
     /**
      * Test asciiSymbol property can be read.
      */
     public function testAsciiSymbolPropertyIsReadable(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
 
         $this->assertSame('m', $unit->asciiSymbol);
     }
@@ -152,15 +199,14 @@ final class UnitTest extends TestCase
      */
     public function testUnicodeSymbolPropertyIsReadable(): void
     {
-        $data = [
-            'asciiSymbol'   => 'ohm',
-            'unicodeSymbol' => 'Ω',
-            'quantityType'  => 'resistance',
-            'dimension'     => 'T-3L2MI-2',
-            'system'        => 'si_named',
-        ];
-
-        $unit = new Unit('ohm', $data);
+        $unit = new Unit(
+            name: 'ohm',
+            asciiSymbol: 'ohm',
+            unicodeSymbol: 'Ω',
+            quantityType: 'resistance',
+            dimension: 'T-3L2MI-2',
+            systems: [System::SI]
+        );
 
         $this->assertSame('Ω', $unit->unicodeSymbol);
     }
@@ -170,14 +216,14 @@ final class UnitTest extends TestCase
      */
     public function testUnicodeSymbolDefaultsToAsciiSymbol(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
 
         $this->assertSame('m', $unit->unicodeSymbol);
     }
@@ -187,103 +233,32 @@ final class UnitTest extends TestCase
      */
     public function testDimensionPropertyIsReadable(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
 
         $this->assertSame('L', $unit->dimension);
     }
 
     /**
-     * Test asciiSymbol property cannot be written.
+     * Test expansionUnit property returns DerivedUnit when expansionUnitSymbol is set.
      */
-    public function testAsciiSymbolPropertyIsNotWritable(): void
+    public function testExpansionUnitPropertyReturnsDerivedUnit(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
-
-        $this->expectException(Error::class);
-        $unit->asciiSymbol = 'km';
-    }
-
-    /**
-     * Test unicodeSymbol property cannot be written.
-     */
-    public function testUnicodeSymbolPropertyIsNotWritable(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
-
-        $this->expectException(Error::class);
-        $unit->unicodeSymbol = 'km';
-    }
-
-    /**
-     * Test dimension property cannot be written.
-     */
-    public function testDimensionPropertyIsNotWritable(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
-
-        $this->expectException(Error::class);
-        $unit->dimension = 'M';
-    }
-
-    /**
-     * Test equivalent property returns null when expansionUnitSymbol is null.
-     */
-    public function testEquivalentPropertyReturnsNullWhenNoEquivalentUnit(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
-
-        $this->assertNull($unit->expansionUnitSymbol);
-    }
-
-    /**
-     * Test equivalent property returns Quantity when expansionUnitSymbol is set.
-     */
-    public function testEquivalentPropertyReturnsQuantity(): void
-    {
-        $data = [
-            'asciiSymbol'         => 'Hz',
-            'quantityType'        => 'frequency',
-            'dimension'           => 'T-1',
-            'system'              => 'si_named',
-            'expansionUnitSymbol' => 's-1',
-        ];
-
-        $unit = new Unit('hertz', $data);
+        $unit = new Unit(
+            name: 'hertz',
+            asciiSymbol: 'Hz',
+            unicodeSymbol: null,
+            quantityType: 'frequency',
+            dimension: 'T-1',
+            expansionUnitSymbol: 's-1',
+            systems: [System::SI]
+        );
 
         $expansionUnit = $unit->expansionUnit;
 
@@ -292,24 +267,20 @@ final class UnitTest extends TestCase
     }
 
     /**
-     * Test equivalent property caches the Quantity instance.
+     * Test expansionUnit property returns null when expansionUnitSymbol is null.
      */
-    public function testEquivalentPropertyCachesInstance(): void
+    public function testExpansionUnitPropertyReturnsNullWhenNoExpansion(): void
     {
-        $data = [
-            'asciiSymbol'         => 'Hz',
-            'quantityType'        => 'frequency',
-            'dimension'           => 'T-1',
-            'system'              => 'si_named',
-            'expansionUnitSymbol' => 's-1',
-        ];
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
 
-        $unit = new Unit('hertz', $data);
-
-        $expansion1 = $unit->expansionUnitSymbol;
-        $expansion2 = $unit->expansionUnitSymbol;
-
-        $this->assertSame($expansion1, $expansion2);
+        $this->assertNull($unit->expansionUnit);
     }
 
     // endregion
@@ -321,15 +292,15 @@ final class UnitTest extends TestCase
      */
     public function testAcceptsPrefixesReturnsTrueWhenPrefixGroupSet(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
-        ];
-
-        $unit = new Unit('metre', $data);
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
 
         $this->assertTrue($unit->acceptsPrefixes());
     }
@@ -339,32 +310,51 @@ final class UnitTest extends TestCase
      */
     public function testAcceptsPrefixesReturnsFalseWhenNoPrefixGroup(): void
     {
-        $data = [
-            'asciiSymbol'  => 'ha',
-            'quantityType' => 'area',
-            'dimension'    => 'L2',
-            'system'       => 'metric',
-        ];
-
-        $unit = new Unit('hectare', $data);
+        $unit = new Unit(
+            name: 'hectare',
+            asciiSymbol: 'ha',
+            unicodeSymbol: null,
+            quantityType: 'area',
+            dimension: 'L2',
+            systems: [System::SIAccepted]
+        );
 
         $this->assertFalse($unit->acceptsPrefixes());
     }
 
     /**
-     * Test acceptsPrefix returns true for valid metric prefix.
+     * Test acceptsPrefix returns true for valid metric prefix with Prefix object.
      */
-    public function testAcceptsPrefixReturnsTrueForValidPrefix(): void
+    public function testAcceptsPrefixReturnsTrueForValidPrefixObject(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
-        ];
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
 
-        $unit = new Unit('metre', $data);
+        $prefix = PrefixUtility::getBySymbol('k');
+        $this->assertTrue($unit->acceptsPrefix($prefix));
+    }
+
+    /**
+     * Test acceptsPrefix returns true for valid metric prefix with string.
+     */
+    public function testAcceptsPrefixReturnsTrueForValidPrefixString(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
 
         $this->assertTrue($unit->acceptsPrefix('k'));
         $this->assertTrue($unit->acceptsPrefix('m'));
@@ -374,22 +364,59 @@ final class UnitTest extends TestCase
     }
 
     /**
-     * Test acceptsPrefix returns false for invalid prefix.
+     * Test acceptsPrefix returns true for Unicode prefix string.
+     */
+    public function testAcceptsPrefixReturnsTrueForUnicodePrefixString(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
+
+        $this->assertTrue($unit->acceptsPrefix('μ'));
+    }
+
+    /**
+     * Test acceptsPrefix returns false for prefix not in unit's group.
      */
     public function testAcceptsPrefixReturnsFalseForInvalidPrefix(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
-        ];
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
 
-        $unit = new Unit('metre', $data);
+        // Binary prefix not in METRIC group.
+        $this->assertFalse($unit->acceptsPrefix('Ki'));
+    }
+
+    /**
+     * Test acceptsPrefix returns false for unknown prefix string.
+     */
+    public function testAcceptsPrefixReturnsFalseForUnknownPrefixString(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
 
         $this->assertFalse($unit->acceptsPrefix('invalid'));
-        $this->assertFalse($unit->acceptsPrefix('Ki')); // Binary prefix not in METRIC group
+        $this->assertFalse($unit->acceptsPrefix('X'));
     }
 
     /**
@@ -397,139 +424,54 @@ final class UnitTest extends TestCase
      */
     public function testAcceptsPrefixReturnsFalseWhenNoPrefixesAllowed(): void
     {
-        $data = [
-            'asciiSymbol'  => 'ha',
-            'quantityType' => 'area',
-            'dimension'    => 'L2',
-            'system'       => 'metric',
-        ];
-
-        $unit = new Unit('hectare', $data);
+        $unit = new Unit(
+            name: 'hectare',
+            asciiSymbol: 'ha',
+            unicodeSymbol: null,
+            quantityType: 'area',
+            dimension: 'L2',
+            systems: [System::SIAccepted]
+        );
 
         $this->assertFalse($unit->acceptsPrefix('k'));
     }
 
     /**
-     * Test acceptsPrefix with small metric prefixes only.
+     * Test allowedPrefixes property returns array of Prefix objects.
      */
-    public function testAcceptsPrefixWithSmallMetricOnly(): void
+    public function testAllowedPrefixesPropertyReturnsArray(): void
     {
-        $data = [
-            'asciiSymbol'  => 'rad',
-            'quantityType' => 'angle',
-            'dimension'    => 'A',
-            'system'       => 'si_derived',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_SMALL_METRIC,
-        ];
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
 
-        $unit = new Unit('radian', $data);
+        $prefixes = $unit->allowedPrefixes;
 
-        // Small metric prefixes should be accepted
-        $this->assertTrue($unit->acceptsPrefix('m'));
-        $this->assertTrue($unit->acceptsPrefix('c'));
-        $this->assertTrue($unit->acceptsPrefix('n'));
-
-        // Large metric prefixes should not be accepted
-        $this->assertFalse($unit->acceptsPrefix('k'));
-        $this->assertFalse($unit->acceptsPrefix('M'));
+        $this->assertIsArray($prefixes);
+        $this->assertNotEmpty($prefixes);
     }
 
     /**
-     * Test acceptsPrefix with large metric prefixes only.
+     * Test allowedPrefixes property returns empty array when no prefixes allowed.
      */
-    public function testAcceptsPrefixWithLargeMetricOnly(): void
+    public function testAllowedPrefixesPropertyReturnsEmptyArray(): void
     {
-        $data = [
-            'asciiSymbol'  => 'cal',
-            'quantityType' => 'energy',
-            'dimension'    => 'T-2L2M',
-            'system'       => 'metric',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_LARGE_METRIC,
-        ];
+        $unit = new Unit(
+            name: 'hectare',
+            asciiSymbol: 'ha',
+            unicodeSymbol: null,
+            quantityType: 'area',
+            dimension: 'L2',
+            systems: [System::SIAccepted]
+        );
 
-        $unit = new Unit('calorie', $data);
-
-        // Large metric prefixes should be accepted
-        $this->assertTrue($unit->acceptsPrefix('k'));
-        $this->assertTrue($unit->acceptsPrefix('M'));
-
-        // Small metric prefixes should not be accepted
-        $this->assertFalse($unit->acceptsPrefix('m'));
-        $this->assertFalse($unit->acceptsPrefix('c'));
-    }
-
-    /**
-     * Test acceptsPrefix with binary prefixes.
-     */
-    public function testAcceptsPrefixWithBinaryPrefixes(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'B',
-            'quantityType' => 'data',
-            'dimension'    => 'D',
-            'system'       => 'metric',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_LARGE,
-        ];
-
-        $unit = new Unit('byte', $data);
-
-        // Binary prefixes should be accepted
-        $this->assertTrue($unit->acceptsPrefix('Ki'));
-        $this->assertTrue($unit->acceptsPrefix('Mi'));
-        $this->assertTrue($unit->acceptsPrefix('Gi'));
-
-        // Large metric prefixes should also be accepted
-        $this->assertTrue($unit->acceptsPrefix('k'));
-        $this->assertTrue($unit->acceptsPrefix('M'));
-        $this->assertTrue($unit->acceptsPrefix('G'));
-
-        // Small metric prefixes should not be accepted
-        $this->assertFalse($unit->acceptsPrefix('m'));
-        $this->assertFalse($unit->acceptsPrefix('c'));
-    }
-
-    /**
-     * Test getAllowedPrefixes returns correct prefixes for metric units.
-     */
-    public function testGetAllowedPrefixesForMetricUnit(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
-        ];
-
-        $unit = new Unit('metre', $data);
-
-        $prefixes = $unit->getAllowedPrefixes();
-
-        $this->assertArrayHasKey('k', $prefixes);
-        $this->assertArrayHasKey('m', $prefixes);
-        $this->assertArrayHasKey('c', $prefixes);
-        $this->assertArrayHasKey('M', $prefixes);
-        $this->assertArrayHasKey('G', $prefixes);
-        $this->assertArrayHasKey('n', $prefixes);
-        $this->assertSame(1e3, $prefixes['k']);
-        $this->assertSame(1e-3, $prefixes['m']);
-    }
-
-    /**
-     * Test getAllowedPrefixes returns empty array when no prefixes allowed.
-     */
-    public function testGetAllowedPrefixesReturnsEmptyArray(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'ha',
-            'quantityType' => 'area',
-            'dimension'    => 'L2',
-            'system'       => 'metric',
-        ];
-
-        $unit = new Unit('hectare', $data);
-
-        $prefixes = $unit->getAllowedPrefixes();
+        $prefixes = $unit->allowedPrefixes;
 
         $this->assertSame([], $prefixes);
     }
@@ -543,14 +485,14 @@ final class UnitTest extends TestCase
      */
     public function testToStringReturnsUnicodeSymbol(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
 
         $this->assertSame('m', (string)$unit);
     }
@@ -560,15 +502,14 @@ final class UnitTest extends TestCase
      */
     public function testToStringReturnsUnicodeSymbolWhenDifferent(): void
     {
-        $data = [
-            'asciiSymbol'   => 'ohm',
-            'unicodeSymbol' => 'Ω',
-            'quantityType'  => 'resistance',
-            'dimension'     => 'T-3L2MI-2',
-            'system'        => 'si_named',
-        ];
-
-        $unit = new Unit('ohm', $data);
+        $unit = new Unit(
+            name: 'ohm',
+            asciiSymbol: 'ohm',
+            unicodeSymbol: 'Ω',
+            quantityType: 'resistance',
+            dimension: 'T-3L2MI-2',
+            systems: [System::SI]
+        );
 
         $this->assertSame('Ω', (string)$unit);
     }
@@ -578,15 +519,14 @@ final class UnitTest extends TestCase
      */
     public function testFormatReturnsUnicodeSymbol(): void
     {
-        $data = [
-            'asciiSymbol'   => 'ohm',
-            'unicodeSymbol' => 'Ω',
-            'quantityType'  => 'resistance',
-            'dimension'     => 'T-3L2MI-2',
-            'system'        => 'si_named',
-        ];
-
-        $unit = new Unit('ohm', $data);
+        $unit = new Unit(
+            name: 'ohm',
+            asciiSymbol: 'ohm',
+            unicodeSymbol: 'Ω',
+            quantityType: 'resistance',
+            dimension: 'T-3L2MI-2',
+            systems: [System::SI]
+        );
 
         $this->assertSame('Ω', $unit->format());
         $this->assertSame('Ω', $unit->format(false));
@@ -597,35 +537,16 @@ final class UnitTest extends TestCase
      */
     public function testFormatAsciiReturnsSymbol(): void
     {
-        $data = [
-            'asciiSymbol'   => 'ohm',
-            'unicodeSymbol' => 'Ω',
-            'quantityType'  => 'resistance',
-            'dimension'     => 'T-3L2MI-2',
-            'system'        => 'si_named',
-        ];
-
-        $unit = new Unit('ohm', $data);
+        $unit = new Unit(
+            name: 'ohm',
+            asciiSymbol: 'ohm',
+            unicodeSymbol: 'Ω',
+            quantityType: 'resistance',
+            dimension: 'T-3L2MI-2',
+            systems: [System::SI]
+        );
 
         $this->assertSame('ohm', $unit->format(true));
-    }
-
-    /**
-     * Test format() returns symbol when format is not specified.
-     */
-    public function testFormatReturnsSymbolWhenNoFormatSpecified(): void
-    {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
-
-        $this->assertSame('m', $unit->format());
-        $this->assertSame('m', $unit->format(true));
     }
 
     /**
@@ -633,15 +554,14 @@ final class UnitTest extends TestCase
      */
     public function testFormatWithDegreeSymbol(): void
     {
-        $data = [
-            'asciiSymbol'   => 'deg',
-            'unicodeSymbol' => '°',
-            'quantityType'  => 'angle',
-            'dimension'     => 'A',
-            'system'        => 'metric',
-        ];
-
-        $unit = new Unit('degree', $data);
+        $unit = new Unit(
+            name: 'degree',
+            asciiSymbol: 'deg',
+            unicodeSymbol: '°',
+            quantityType: 'angle',
+            dimension: 'A',
+            systems: [System::SIAccepted]
+        );
 
         $this->assertSame('°', (string)$unit);
         $this->assertSame('°', $unit->format());
@@ -653,18 +573,18 @@ final class UnitTest extends TestCase
     // region Comparison methods tests
 
     /**
-     * Test equal returns true for same BaseUnit instance.
+     * Test equal returns true for same Unit instance.
      */
     public function testEqualReturnsTrueForSameInstance(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
 
         $this->assertTrue($unit->equal($unit));
     }
@@ -674,15 +594,22 @@ final class UnitTest extends TestCase
      */
     public function testEqualReturnsTrueForSameName(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit1 = new Unit('metre', $data);
-        $unit2 = new Unit('metre', $data);
+        $unit1 = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
+        $unit2 = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
 
         $this->assertTrue($unit1->equal($unit2));
     }
@@ -692,22 +619,22 @@ final class UnitTest extends TestCase
      */
     public function testEqualReturnsFalseForDifferentNames(): void
     {
-        $metreData = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $footData = [
-            'asciiSymbol'  => 'ft',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'us_customary',
-        ];
-
-        $metre = new Unit('metre', $metreData);
-        $foot = new Unit('foot', $footData);
+        $metre = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
+        $foot = new Unit(
+            name: 'foot',
+            asciiSymbol: 'ft',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::Imperial]
+        );
 
         $this->assertFalse($metre->equal($foot));
     }
@@ -717,14 +644,14 @@ final class UnitTest extends TestCase
      */
     public function testEqualReturnsFalseForDifferentTypes(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $unit = new Unit('metre', $data);
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
 
         $this->assertFalse($unit->equal('m'));
         $this->assertFalse($unit->equal(1));
@@ -732,135 +659,517 @@ final class UnitTest extends TestCase
         $this->assertFalse($unit->equal(new stdClass()));
     }
 
-    /**
-     * Test equal is symmetric.
-     */
-    public function testEqualIsSymmetric(): void
-    {
-        $data1 = [
-            'asciiSymbol'  => 'm',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-        ];
-
-        $data2 = [
-            'asciiSymbol'  => 'ft',
-            'quantityType' => 'length',
-            'dimension'    => 'L',
-            'system'       => 'us_customary',
-        ];
-
-        $metre1 = new Unit('metre', $data1);
-        $metre2 = new Unit('metre', $data1);
-        $foot = new Unit('foot', $data2);
-
-        // Same name: both directions should be true
-        $this->assertSame($metre1->equal($metre2), $metre2->equal($metre1));
-
-        // Different name: both directions should be false
-        $this->assertSame($metre1->equal($foot), $foot->equal($metre1));
-    }
-
     // endregion
 
-    // region Integration tests with UnitData
+    // region Integration tests with UnitRegistry
 
     /**
-     * Test creating BaseUnit from actual UnitData::UNITS data.
+     * Test getting metre from UnitRegistry.
      */
-    public function testCreateFromUnitDataMetre(): void
+    public function testGetMetreFromRegistry(): void
     {
-        $data = [
-            'asciiSymbol'  => 'm',
-            'dimension'    => 'L',
-            'system'       => 'si_base',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
-            'quantityType' => 'length',
-        ];
-        $unit = new Unit('metre', $data);
+        $unit = UnitRegistry::getBySymbol('m');
 
+        $this->assertNotNull($unit);
         $this->assertSame('metre', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
         $this->assertSame('length', $unit->quantityType);
         $this->assertSame('L', $unit->dimension);
-        $this->assertSame('si_base', $unit->system);
         $this->assertTrue($unit->acceptsPrefixes());
-        $this->assertTrue($unit->isSiBase());
-        $this->assertTrue($unit->isSi());
-        $this->assertTrue($unit->isMetric());
     }
 
     /**
-     * Test creating BaseUnit from actual UnitData::UNITS data for gram.
+     * Test getting ohm from UnitRegistry.
      */
-    public function testCreateFromUnitDataGram(): void
+    public function testGetOhmFromRegistry(): void
     {
-        $data = [
-            'asciiSymbol'  => 'g',
-            'dimension'    => 'M',
-            'system'       => 'si_base',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_METRIC,
-            'quantityType' => 'mass',
-        ];
-        $unit = new Unit('gram', $data);
+        $unit = UnitRegistry::getBySymbol('ohm');
 
-        $this->assertSame('gram', $unit->name);
-        $this->assertSame('g', $unit->asciiSymbol);
-        $this->assertTrue($unit->isSiBase());
-    }
-
-    /**
-     * Test creating BaseUnit from actual UnitData::UNITS data for ohm.
-     */
-    public function testCreateFromUnitDataOhm(): void
-    {
-        $data = [
-            'asciiSymbol'         => 'ohm',
-            'unicodeSymbol'       => 'Ω',
-            'dimension'           => 'T-3L2MI-2',
-            'system'              => 'si_named',
-            'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
-            'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
-            'quantityType'        => 'resistance',
-        ];
-        $unit = new Unit('ohm', $data);
-
+        $this->assertNotNull($unit);
         $this->assertSame('ohm', $unit->asciiSymbol);
         $this->assertSame('Ω', $unit->unicodeSymbol);
         $this->assertSame('Ω', $unit->format());
         $this->assertSame('Ω', (string)$unit);
         $this->assertSame('ohm', $unit->format(true));
-        $this->assertTrue($unit->isSiNamed());
     }
 
     /**
-     * Test creating BaseUnit from actual UnitData::UNITS data for byte.
+     * Test getting byte from UnitRegistry.
      */
-    public function testCreateFromUnitDataByte(): void
+    public function testGetByteFromRegistry(): void
     {
-        $data = [
-            'asciiSymbol'  => 'B',
-            'dimension'    => 'D',
-            'system'       => 'metric',
-            'prefixGroup'  => PrefixUtility::GROUP_CODE_LARGE,
-            'quantityType' => 'data',
-        ];
-        $unit = new Unit('byte', $data);
+        $unit = UnitRegistry::getBySymbol('B');
 
+        $this->assertNotNull($unit);
         $this->assertSame('byte', $unit->name);
         $this->assertSame('B', $unit->asciiSymbol);
         $this->assertSame('data', $unit->quantityType);
 
-        // Should accept both binary and large metric prefixes
+        // Should accept both binary and large metric prefixes.
         $this->assertTrue($unit->acceptsPrefix('Ki'));
         $this->assertTrue($unit->acceptsPrefix('Mi'));
         $this->assertTrue($unit->acceptsPrefix('k'));
         $this->assertTrue($unit->acceptsPrefix('M'));
 
-        // Should not accept small metric prefixes
+        // Should not accept small metric prefixes.
         $this->assertFalse($unit->acceptsPrefix('m'));
         $this->assertFalse($unit->acceptsPrefix('c'));
+    }
+
+    // endregion
+
+    // region Symbol validation tests
+
+    /**
+     * Test isValidAsciiSymbol returns true for valid symbols.
+     */
+    public function testIsValidAsciiSymbolReturnsTrueForValid(): void
+    {
+        $this->assertTrue(Unit::isValidAsciiSymbol('m'));
+        $this->assertTrue(Unit::isValidAsciiSymbol('km'));
+        $this->assertTrue(Unit::isValidAsciiSymbol('Hz'));
+        $this->assertTrue(Unit::isValidAsciiSymbol('ohm'));
+    }
+
+    /**
+     * Test isValidAsciiSymbol returns false for invalid symbols.
+     */
+    public function testIsValidAsciiSymbolReturnsFalseForInvalid(): void
+    {
+        $this->assertFalse(Unit::isValidAsciiSymbol('m²'));
+        $this->assertFalse(Unit::isValidAsciiSymbol('123'));
+        $this->assertFalse(Unit::isValidAsciiSymbol('Ω'));
+    }
+
+    /**
+     * Test isValidUnicodeSymbol returns true for valid symbols.
+     */
+    public function testIsValidUnicodeSymbolReturnsTrueForValid(): void
+    {
+        $this->assertTrue(Unit::isValidUnicodeSymbol('m'));
+        $this->assertTrue(Unit::isValidUnicodeSymbol('Ω'));
+        $this->assertTrue(Unit::isValidUnicodeSymbol('°'));
+        $this->assertTrue(Unit::isValidUnicodeSymbol('μ'));
+    }
+
+    /**
+     * Test isValidUnicodeSymbol returns false for invalid symbols.
+     */
+    public function testIsValidUnicodeSymbolReturnsFalseForInvalid(): void
+    {
+        $this->assertFalse(Unit::isValidUnicodeSymbol('123'));
+    }
+
+    // endregion
+
+    // region regex() tests
+
+    /**
+     * Test regex matches valid unit symbols.
+     */
+    public function testRegexMatchesValidSymbols(): void
+    {
+        $pattern = '/^' . Unit::regex() . '$/u';
+
+        $this->assertSame(1, preg_match($pattern, 'm'));
+        $this->assertSame(1, preg_match($pattern, 'km'));
+        $this->assertSame(1, preg_match($pattern, 'Hz'));
+        $this->assertSame(1, preg_match($pattern, 'ohm'));
+        $this->assertSame(1, preg_match($pattern, 'Ω'));
+    }
+
+    /**
+     * Test regex does not match invalid symbols.
+     */
+    public function testRegexDoesNotMatchInvalidSymbols(): void
+    {
+        $pattern = '/^' . Unit::regex() . '$/u';
+
+        $this->assertSame(0, preg_match($pattern, '123'));
+        $this->assertSame(0, preg_match($pattern, 'm²'));
+    }
+
+    // endregion
+
+    // region alternateSymbol tests
+
+    /**
+     * Test alternateSymbol property is set correctly.
+     */
+    public function testAlternateSymbolPropertyIsSet(): void
+    {
+        $unit = new Unit(
+            name: 'litre',
+            asciiSymbol: 'L',
+            unicodeSymbol: null,
+            quantityType: 'volume',
+            dimension: 'L3',
+            alternateSymbol: 'l',
+            systems: [System::SIAccepted]
+        );
+
+        $this->assertSame('l', $unit->alternateSymbol);
+    }
+
+    /**
+     * Test alternateSymbol property is null when not set.
+     */
+    public function testAlternateSymbolPropertyIsNullByDefault(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
+
+        $this->assertNull($unit->alternateSymbol);
+    }
+
+    // endregion
+
+    // region expansionValue tests
+
+    /**
+     * Test expansionValue property is set when expansionUnitSymbol is provided.
+     */
+    public function testExpansionValuePropertyIsSet(): void
+    {
+        $unit = new Unit(
+            name: 'minute',
+            asciiSymbol: 'min',
+            unicodeSymbol: null,
+            quantityType: 'time',
+            dimension: 'T',
+            expansionUnitSymbol: 's',
+            expansionValue: 60.0,
+            systems: [System::SIAccepted]
+        );
+
+        $this->assertSame(60.0, $unit->expansionValue);
+    }
+
+    /**
+     * Test expansionValue defaults to 1.0 when expansionUnitSymbol is provided without value.
+     */
+    public function testExpansionValueDefaultsToOneWhenExpansionUnitProvided(): void
+    {
+        $unit = new Unit(
+            name: 'hertz',
+            asciiSymbol: 'Hz',
+            unicodeSymbol: null,
+            quantityType: 'frequency',
+            dimension: 'T-1',
+            expansionUnitSymbol: 's-1',
+            systems: [System::SI]
+        );
+
+        $this->assertSame(1.0, $unit->expansionValue);
+    }
+
+    /**
+     * Test expansionValue is null when no expansionUnitSymbol.
+     */
+    public function testExpansionValueIsNullWhenNoExpansionUnit(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
+
+        $this->assertNull($unit->expansionValue);
+    }
+
+    // endregion
+
+    // region symbols property tests
+
+    /**
+     * Test symbols property returns array with ASCII symbol.
+     */
+    public function testSymbolsPropertyIncludesAsciiSymbol(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
+
+        $symbols = $unit->symbols;
+
+        $this->assertIsArray($symbols);
+        $this->assertContains('m', $symbols);
+    }
+
+    /**
+     * Test symbols property includes Unicode symbol when different.
+     */
+    public function testSymbolsPropertyIncludesUnicodeSymbol(): void
+    {
+        $unit = new Unit(
+            name: 'ohm',
+            asciiSymbol: 'ohm',
+            unicodeSymbol: 'Ω',
+            quantityType: 'resistance',
+            dimension: 'T-3L2MI-2',
+            systems: [System::SI]
+        );
+
+        $symbols = $unit->symbols;
+
+        $this->assertContains('ohm', $symbols);
+        $this->assertContains('Ω', $symbols);
+    }
+
+    /**
+     * Test symbols property includes alternate symbol when set.
+     */
+    public function testSymbolsPropertyIncludesAlternateSymbol(): void
+    {
+        $unit = new Unit(
+            name: 'litre',
+            asciiSymbol: 'L',
+            unicodeSymbol: null,
+            quantityType: 'volume',
+            dimension: 'L3',
+            alternateSymbol: 'l',
+            systems: [System::SIAccepted]
+        );
+
+        $symbols = $unit->symbols;
+
+        $this->assertContains('L', $symbols);
+        $this->assertContains('l', $symbols);
+    }
+
+    /**
+     * Test symbols property includes prefixed symbols.
+     */
+    public function testSymbolsPropertyIncludesPrefixedSymbols(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
+
+        $symbols = $unit->symbols;
+
+        $this->assertContains('m', $symbols);
+        $this->assertContains('km', $symbols);
+        $this->assertContains('cm', $symbols);
+        $this->assertContains('mm', $symbols);
+    }
+
+    /**
+     * Test symbols property includes prefixed Unicode symbols.
+     */
+    public function testSymbolsPropertyIncludesPrefixedUnicodeSymbols(): void
+    {
+        $unit = new Unit(
+            name: 'ohm',
+            asciiSymbol: 'ohm',
+            unicodeSymbol: 'Ω',
+            quantityType: 'resistance',
+            dimension: 'T-3L2MI-2',
+            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            systems: [System::SI]
+        );
+
+        $symbols = $unit->symbols;
+
+        // ASCII prefixed.
+        $this->assertContains('kohm', $symbols);
+        $this->assertContains('Mohm', $symbols);
+
+        // Unicode symbol prefixed.
+        $this->assertContains('kΩ', $symbols);
+        $this->assertContains('MΩ', $symbols);
+    }
+
+    // endregion
+
+    // region belongsToSystem tests
+
+    /**
+     * Test belongsToSystem returns true for system the unit belongs to.
+     */
+    public function testBelongsToSystemReturnsTrueForMatchingSystem(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
+
+        $this->assertTrue($unit->belongsToSystem(System::SI));
+    }
+
+    /**
+     * Test belongsToSystem returns false for system the unit doesn't belong to.
+     */
+    public function testBelongsToSystemReturnsFalseForNonMatchingSystem(): void
+    {
+        $unit = new Unit(
+            name: 'metre',
+            asciiSymbol: 'm',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::SI]
+        );
+
+        $this->assertFalse($unit->belongsToSystem(System::Imperial));
+    }
+
+    /**
+     * Test belongsToSystem with unit belonging to multiple systems.
+     */
+    public function testBelongsToSystemWithMultipleSystems(): void
+    {
+        $unit = new Unit(
+            name: 'second',
+            asciiSymbol: 's',
+            unicodeSymbol: null,
+            quantityType: 'time',
+            dimension: 'T',
+            systems: [System::SI, System::Imperial]
+        );
+
+        $this->assertTrue($unit->belongsToSystem(System::SI));
+        $this->assertTrue($unit->belongsToSystem(System::Imperial));
+    }
+
+    // endregion
+
+    // region parse() tests
+
+    /**
+     * Test parse returns Unit for valid symbol.
+     */
+    public function testParseReturnsUnitForValidSymbol(): void
+    {
+        $unit = Unit::parse('m');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertSame('metre', $unit->name);
+        $this->assertSame('m', $unit->asciiSymbol);
+    }
+
+    /**
+     * Test parse returns Unit for Unicode symbol.
+     */
+    public function testParseReturnsUnitForUnicodeSymbol(): void
+    {
+        $unit = Unit::parse('Ω');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertSame('ohm', $unit->name);
+    }
+
+    /**
+     * Test parse throws FormatException for invalid characters.
+     */
+    public function testParseThrowsFormatExceptionForInvalidCharacters(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('can only contain letters');
+
+        Unit::parse('m²');
+    }
+
+    /**
+     * Test parse throws DomainException for unknown symbol.
+     */
+    public function testParseThrowsDomainExceptionForUnknownSymbol(): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage("Unknown unit symbol 'xyz'");
+
+        Unit::parse('xyz');
+    }
+
+    // endregion
+
+    // region isValidNonLetterSymbol tests
+
+    /**
+     * Test isValidNonLetterSymbol returns true for valid symbols.
+     */
+    public function testIsValidNonLetterSymbolReturnsTrueForValid(): void
+    {
+        $this->assertTrue(Unit::isValidNonLetterSymbol('°'));
+        $this->assertTrue(Unit::isValidNonLetterSymbol('%'));
+        $this->assertTrue(Unit::isValidNonLetterSymbol('$'));
+        $this->assertTrue(Unit::isValidNonLetterSymbol('€'));
+        $this->assertTrue(Unit::isValidNonLetterSymbol('′'));
+        $this->assertTrue(Unit::isValidNonLetterSymbol('″'));
+    }
+
+    /**
+     * Test isValidNonLetterSymbol returns false for letters.
+     */
+    public function testIsValidNonLetterSymbolReturnsFalseForLetters(): void
+    {
+        $this->assertFalse(Unit::isValidNonLetterSymbol('m'));
+        $this->assertFalse(Unit::isValidNonLetterSymbol('abc'));
+    }
+
+    /**
+     * Test isValidNonLetterSymbol returns false for digits.
+     */
+    public function testIsValidNonLetterSymbolReturnsFalseForDigits(): void
+    {
+        $this->assertFalse(Unit::isValidNonLetterSymbol('1'));
+        $this->assertFalse(Unit::isValidNonLetterSymbol('123'));
+    }
+
+    /**
+     * Test isValidNonLetterSymbol returns false for multiple symbols.
+     */
+    public function testIsValidNonLetterSymbolReturnsFalseForMultipleSymbols(): void
+    {
+        $this->assertFalse(Unit::isValidNonLetterSymbol('°C'));
+        $this->assertFalse(Unit::isValidNonLetterSymbol('%%'));
+    }
+
+    // endregion
+
+    // region expansionUnit edge case tests
+
+    /**
+     * Test expansionUnit returns null when expansionUnitSymbol is invalid.
+     */
+    public function testExpansionUnitReturnsNullForInvalidSymbol(): void
+    {
+        $unit = new Unit(
+            name: 'test',
+            asciiSymbol: 'tst',
+            unicodeSymbol: null,
+            quantityType: 'test',
+            dimension: 'L',
+            expansionUnitSymbol: 'invalid_unit_symbol_xyz',
+            systems: []
+        );
+
+        // Should return null because 'invalid_unit_symbol_xyz' can't be parsed.
+        $this->assertNull($unit->expansionUnit);
     }
 
     // endregion

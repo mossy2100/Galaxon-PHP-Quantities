@@ -5,20 +5,13 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Registry;
 
 use DomainException;
+use Galaxon\Quantities\Converter;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
 
 class UnitRegistry
 {
-    // region Constants
-
-    public const int ON_DUPLICATE_IGNORE = 1;
-    public const int ON_DUPLICATE_REPLACE = 2;
-    public const int ON_DUPLICATE_THROW = 3;
-
-    // endregion
-
     // region Static properties
 
     /**
@@ -158,6 +151,7 @@ class UnitRegistry
      * - self::ON_DUPLICATE_IGNORE: Ignore the unit and do nothing.
      * - self::ON_DUPLICATE_REPLACE: Replace the existing unit with the new one.
      * - self::ON_DUPLICATE_THROW: Throw an exception.
+     * @return Unit The newly created Unit object.
      * @throws DomainException If the name or symbol already exists.
      */
     public static function add(
@@ -170,9 +164,8 @@ class UnitRegistry
         ?string $alternateSymbol = null,
         ?string $expansionUnitSymbol = null,
         ?float $expansionValue = null,
-        array $systems = [],
-        int $onDuplicateAction = self::ON_DUPLICATE_THROW
-    ): void {
+        array $systems = []
+    ): Unit {
         // Ensure registry is initialized (unless we're in the middle of init).
         if (self::$units === null) {
             self::init();
@@ -180,25 +173,9 @@ class UnitRegistry
 
         // Check if we already have a unit with this name.
         if (isset(self::$units[$name])) {
-            switch ($onDuplicateAction) {
-                case self::ON_DUPLICATE_IGNORE:
-                    return;
-
-                case self::ON_DUPLICATE_REPLACE:
-                    // Replace the existing unit.
-                    // Remove it first so the call to getAllValidSymbols() doesn't include the symbols from this unit.
-                    self::remove($name);
-                    break;
-
-                case self::ON_DUPLICATE_THROW:
-                    throw new DomainException(
-                        "The unit name '$name' is being used by another unit. Either call `remove()` first, " .
-                        'or call `add()` with `onDuplicateAction` set to `ON_DUPLICATE_REPLACE`.'
-                    );
-
-                default:
-                    throw new DomainException("Invalid onDuplicateAction value: $onDuplicateAction");
-            }
+            // Remove the existing unit first, so the call to getAllValidSymbols() doesn't include the symbols from this
+            // unit.
+            self::remove($name);
         }
 
         // Create the new unit.
@@ -227,6 +204,9 @@ class UnitRegistry
 
         // All good, add the unit to the registry.
         self::$units[$name] = $unit;
+
+        // Return the newly created unit.
+        return $unit;
     }
 
     /**
@@ -299,14 +279,16 @@ class UnitRegistry
                     $definition['alternateSymbol'] ?? null,
                     $definition['expansionUnitSymbol'] ?? null,
                     $definition['expansionValue'] ?? null,
-                    $unitSystems,
-                    self::ON_DUPLICATE_IGNORE
+                    $unitSystems
                 );
             }
         }
 
         // Keep track of which systems have been loaded.
         self::$loadedSystems[] = $system;
+
+        // Load any conversions involving these units.
+        ConversionRegistry::loadConversions($system);
     }
 
     // endregion

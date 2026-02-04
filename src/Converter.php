@@ -60,7 +60,7 @@ class Converter
      *
      * @var array<string, Converter>
      */
-    private static array $instances;
+    private static array $instances = [];
 
     // endregion
 
