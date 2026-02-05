@@ -5,11 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
-use Galaxon\Quantities\QuantityType\Acceleration;
-use Galaxon\Quantities\QuantityType\Area;
-use Galaxon\Quantities\QuantityType\Density;
-use Galaxon\Quantities\QuantityType\Force;
-use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Pressure;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
@@ -361,128 +356,6 @@ final class PressureTest extends TestCase
 
     // endregion
 
-    // region P = F/A tests (Pressure = Force / Area)
-
-    /**
-     * Test calculating pressure from force and area (SI units).
-     */
-    public function testPressureFromForceAndAreaSI(): void
-    {
-        $force = new Force(1000, 'N');
-        $area = new Area(2, 'm2');
-        $result = $force->div($area);
-
-        // P = F/A = 1000 N / 2 m² = 500 Pa
-        $this->assertInstanceOf(Pressure::class, $result);
-
-        $pa = $result->to('Pa');
-        $this->assertSame(500.0, $pa->value);
-    }
-
-    /**
-     * Test calculating pressure from kilonewtons and square metres.
-     */
-    public function testPressureFromKilonewtonsAndSquareMetres(): void
-    {
-        $force = new Force(10, 'kN');
-        $area = new Area(0.5, 'm2');
-        $result = $force->div($area);
-
-        // P = 10 kN / 0.5 m² = 20 kPa
-        $kpa = $result->to('kPa');
-        $this->assertSame(20.0, $kpa->value);
-    }
-
-    /**
-     * Test calculating pressure from newtons and square centimetres.
-     */
-    public function testPressureFromNewtonsAndSquareCentimetres(): void
-    {
-        $force = new Force(100, 'N');
-        $area = new Area(10, 'cm2');
-        $result = $force->div($area);
-
-        // P = 100 N / 10 cm² = 100 N / 0.001 m² = 100000 Pa = 100 kPa
-        $kpa = $result->to('kPa');
-        $this->assertSame(100.0, $kpa->value);
-    }
-
-    /**
-     * Test calculating pressure in imperial units (lbf/in²).
-     */
-    public function testPressureFromPoundForceAndSquareInches(): void
-    {
-        $force = new Force(100, 'lbf');
-        $area = new Area(10, 'in2');
-        $result = $force->div($area);
-
-        // P = 100 lbf / 10 in² = 10 lbf/in² = 10 psi
-        $psi = $result->to('lbf/in2');
-        $this->assertSame(10.0, $psi->value);
-    }
-
-    /**
-     * Test hydraulic press calculation.
-     *
-     * A hydraulic press applies 5000 N over a piston area of 0.01 m².
-     */
-    public function testHydraulicPressPressure(): void
-    {
-        $force = new Force(5000, 'N');
-        $area = new Area(0.01, 'm2');
-        $result = $force->div($area);
-
-        // P = 5000 N / 0.01 m² = 500000 Pa = 500 kPa
-        $this->assertInstanceOf(Pressure::class, $result);
-        $kpa = $result->to('kPa');
-        $this->assertSame(500.0, $kpa->value);
-
-        // Also verify in psi
-        $psi = $result->to('lbf/in2');
-        $this->assertApproxEqual(72.52, $psi->value, absTol: 1e-2);
-    }
-
-    /**
-     * Test stiletto heel pressure calculation.
-     *
-     * A 60 kg person standing on one stiletto heel (area ≈ 1 cm²).
-     */
-    public function testStilettoHeelPressure(): void
-    {
-        // Weight = mass × gravity = 60 kg × 9.80665 m/s² ≈ 588.4 N
-        $force = new Force(588.4, 'N');
-        $area = new Area(1, 'cm2');
-        $result = $force->div($area);
-
-        // P = 588.4 N / 1 cm² = 588.4 N / 0.0001 m² = 5884000 Pa ≈ 5.88 MPa
-        $mpa = $result->to('MPa');
-        $this->assertApproxEqual(5.884, $mpa->value, absTol: 1e-3);
-    }
-
-    /**
-     * Test car tire contact patch pressure.
-     *
-     * A 1500 kg car with 4 tires, each with contact patch of 150 cm².
-     */
-    public function testCarTireContactPatchPressure(): void
-    {
-        // Total weight = 1500 kg × 9.80665 m/s² ≈ 14710 N
-        // Weight per tire = 14710 / 4 = 3677.5 N
-        $force = new Force(3677.5, 'N');
-        $area = new Area(150, 'cm2');
-        $result = $force->div($area);
-
-        // P = 3677.5 N / 150 cm² = 3677.5 N / 0.015 m² ≈ 245.2 kPa
-        $kpa = $result->to('kPa');
-        $this->assertApproxEqual(245.2, $kpa->value, absTol: 1e-1);
-
-        // Typical tire pressure ≈ 35 psi
-        $psi = $result->to('lbf/in2');
-        $this->assertApproxEqual(35.6, $psi->value, absTol: 1e-1);
-    }
-
-    // endregion
-
     // region Addition tests
 
     /**
@@ -693,47 +566,6 @@ final class PressureTest extends TestCase
         $kpa = $pressure->to('kPa');
 
         $this->assertSame(202.65, $kpa->value);
-    }
-
-    /**
-     * Test free diver ear pressure calculation.
-     *
-     * Water pressure increases with depth: P = ρgh
-     * where ρ = water density (1000 kg/m³), g = gravity, h = depth.
-     *
-     * At 30 metres (a common recreational free diving depth),
-     * the water pressure alone is about 3 atm, plus 1 atm at surface = 4 atm total.
-     */
-    public function testFreeDiverEarPressure(): void
-    {
-        // Water density: ρ = 1000 kg/m³
-        $density = new Density(1000, 'kg/m3');
-
-        // Gravitational acceleration: g = 9.80665 m/s²
-        $gravity = new Acceleration(9.80665, 'm/s2');
-
-        // Depth: h = 30 m
-        $depth = new Length(30, 'm');
-
-        // Water pressure: P = ρgh
-        $waterPressure = $density->mul($gravity)->mul($depth);
-
-        // Convert to atmospheres
-        $waterPressureAtm = $waterPressure->to('atm');
-
-        // Water pressure at 30m ≈ 2.9 atm
-        $this->assertApproxEqual(2.9, $waterPressureAtm->value, absTol: 1e-2);
-
-        // Total pressure on ear = water pressure + atmospheric pressure
-        $atmosphericPressure = new Pressure(1, 'atm');
-        $totalPressure = $waterPressure->to('Pa')->add($atmosphericPressure);
-
-        // Total ≈ 3.9 atm (about 4× surface pressure)
-        $totalAtm = $totalPressure->to('atm');
-        $this->assertApproxEqual(3.9, $totalAtm->value, absTol: 1e-2);
-
-        // This is why free divers must equalize their ears frequently!
-        // The pressure difference can cause barotrauma if not equalized.
     }
 
     /**

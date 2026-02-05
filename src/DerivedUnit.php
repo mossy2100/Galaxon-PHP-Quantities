@@ -21,19 +21,6 @@ class DerivedUnit implements UnitInterface
 {
     use Equatable;
 
-    // region Constants
-
-    /**
-     * Regular expression character class with multiply and divide characters.
-     * Allow dots for multiply.
-     *     . = Period (full stop) character.
-     *     · = Middle dot (U+00B7) - used in typography, Catalan, etc.
-     *     ⋅ = Dot operator (U+22C5) - mathematical multiplication symbol.
-     */
-    public const string UNIT_TERM_SEPARATORS = "[*.\x{00B7}\x{22C5}\/]";
-
-    // endregion
-
     // region Properties
 
     /**
@@ -173,7 +160,10 @@ class DerivedUnit implements UnitInterface
     public static function regex(): string
     {
         $rxUnitTerm = UnitTerm::regex();
-        return "$rxUnitTerm(" . self::UNIT_TERM_SEPARATORS . "$rxUnitTerm)*";
+        $form1 = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_PLUS_DIV . "$rxUnitTerm)*";
+        $mulTerms = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_ONLY . "$rxUnitTerm)*";
+        $form2 = "(?:$mulTerms)\/\\((?:$mulTerms)\\)";
+        return "(?:$form1)|(?:$form2)";
     }
 
     /**
@@ -187,16 +177,53 @@ class DerivedUnit implements UnitInterface
      */
     public static function parse(string $symbol): self
     {
+        // If the symbol is empty, there are no unit terms (dimensionless).
+        if ($symbol === '') {
+            return new self();
+        }
+
+        $rxUnitTerm = UnitTerm::regex();
+
+        // Check for series of unit terms separated by multiplication and/or division operators.
+        $form1 = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_PLUS_DIV . "$rxUnitTerm)*";
+        if (preg_match("/^$form1$/iu", $symbol, $matches) === 1) {
+            return self::parseHelper($symbol);
+        }
+
+        // Check for parentheses. The only permitted use of parentheses is "<terms>/(<terms>)", where <terms> is a
+        // sequence of one or more multiplied unit terms. Examples: 'J/(mol*K)', 'W/(m2*K4)'.
+        $mulTerms = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_ONLY . "$rxUnitTerm)*";
+        $form2 = "(?<num>$mulTerms)\/\((?<den>$mulTerms)\)";
+        if (preg_match("/^$form2$/iu", $symbol, $matches) === 1) {
+            $numerator = $matches['num'];
+            $denominator = $matches['den'];
+            $numUnit = self::parseHelper($numerator);
+            $denUnit = self::parseHelper($denominator);
+            foreach ($denUnit->unitTerms as $denUnitTerm) {
+                $numUnit->addUnitTerm($denUnitTerm->inv());
+            }
+            return $numUnit;
+        }
+
+        throw new FormatException("Invalid derived unit symbol: '$symbol'");
+    }
+
+    /**
+     * Parse a sequence of unit terms separated by multiplication and/or division operators.
+     *
+     * @param string $symbol The derived unit symbol.
+     * @return self The new DerivedUnit instance.
+     * @throws DomainException If any units are unknown.
+     * @throws FormatException If the symbol format is invalid.
+     * @throws LogicException If there was an error extracting unit terms from the symbol.
+     */
+    private static function parseHelper(string $symbol): self
+    {
         // Initialize new object.
         $new = new self();
 
-        // If the symbol is empty, there are no unit terms (dimensionless). Return the new object.
-        if ($symbol === '') {
-            return $new;
-        }
-
         // Get the parts of the compound unit.
-        $parts = preg_split('/(' . self::UNIT_TERM_SEPARATORS . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split('/(' . Unit::RX_MUL_OPS_PLUS_DIV . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         // Check for error.
         if ($parts === false) {

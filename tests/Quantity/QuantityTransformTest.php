@@ -322,6 +322,109 @@ final class QuantityTransformTest extends TestCase
 
     // endregion
 
+    // region simplify() tests
+
+    /**
+     * Test simplify() compacts base units to a named unit.
+     */
+    public function testSimplifyCompactsToNamedUnit(): void
+    {
+        $qty = Quantity::create(1, 'kg*m*s-2');
+        $simplified = $qty->simplify();
+
+        $this->assertSame(1.0, $simplified->value);
+        $this->assertSame('N', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() compacts and auto-prefixes a large value.
+     */
+    public function testSimplifyCompactsAndPrefixes(): void
+    {
+        // 5000 kg⋅m⋅s⁻² → 5000 N → 5 kN
+        $qty = Quantity::create(5000, 'kg*m*s-2');
+        $simplified = $qty->simplify();
+
+        $this->assertSame(5.0, $simplified->value);
+        $this->assertSame('kN', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() compacts and auto-prefixes a small value.
+     */
+    public function testSimplifyCompactsAndPrefixesSmall(): void
+    {
+        // 0.005 kg⋅m²⋅s⁻² → 0.005 J → 5 mJ
+        $qty = Quantity::create(0.005, 'kg*m2*s-2');
+        $simplified = $qty->simplify();
+
+        $this->assertSame(5.0, $simplified->value);
+        $this->assertSame('mJ', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() on a base unit applies auto-prefix only.
+     */
+    public function testSimplifyBaseUnitAutoPrefixOnly(): void
+    {
+        $length = new Length(5000, 'm');
+        $simplified = $length->simplify();
+
+        $this->assertSame(5.0, $simplified->value);
+        $this->assertSame('km', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() on an already-simple value is a no-op.
+     */
+    public function testSimplifyAlreadySimple(): void
+    {
+        $force = new Force(10, 'N');
+        $simplified = $force->simplify();
+
+        $this->assertSame(10.0, $simplified->value);
+        $this->assertSame('N', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() on s⁻¹ compacts to Hz and auto-prefixes.
+     */
+    public function testSimplifyInverseSecondsToKilohertz(): void
+    {
+        // 5000 s⁻¹ → 5000 Hz → 5 kHz
+        $qty = Quantity::create(5000, 's-1');
+        $simplified = $qty->simplify();
+
+        $this->assertSame(5.0, $simplified->value);
+        $this->assertSame('kHz', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() on a negative value.
+     */
+    public function testSimplifyNegativeValue(): void
+    {
+        $qty = Quantity::create(-3000, 'kg*m*s-2');
+        $simplified = $qty->simplify();
+
+        $this->assertSame(-3.0, $simplified->value);
+        $this->assertSame('kN', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() on zero value.
+     */
+    public function testSimplifyZero(): void
+    {
+        $qty = Quantity::create(0, 'kg*m2*s-2');
+        $simplified = $qty->simplify();
+
+        $this->assertSame(0.0, $simplified->value);
+        $this->assertSame('J', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    // endregion
+
     // region Round-trip tests
 
     /**

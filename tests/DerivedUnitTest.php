@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
@@ -162,6 +163,84 @@ class DerivedUnitTest extends TestCase
         // m/s/s should be m⋅s⁻²
         $du = DerivedUnit::parse('m/s/s');
         $this->assertSame('m/s2', $du->format(true));
+    }
+
+    public function testParseParenthesesMultipleTermsInDenominator(): void
+    {
+        // J/(mol*K) - energy per amount per temperature
+        $du = DerivedUnit::parse('J/(K*mol)');
+        $this->assertSame('J/(K*mol)', $du->format(true));
+        $this->assertSame('ML2T-2H-1N-1', $du->dimension);
+    }
+
+    public function testParseParenthesesSingleTermInDenominator(): void
+    {
+        // m/(s) - single term in parentheses should work
+        $du = DerivedUnit::parse('m/(s)');
+        $this->assertSame('m/s', $du->format(true));
+    }
+
+    public function testParseParenthesesMultipleTermsInBoth(): void
+    {
+        // kg*m/(s2*A) - multiple terms in numerator and denominator
+        $du = DerivedUnit::parse('kg*m/(s2*A)');
+        $this->assertSame('kg*m/(s2*A)', $du->format(true));
+    }
+
+    public function testParseParenthesesWithMiddleDot(): void
+    {
+        // J/(mol·K) - using middle dot separator
+        $du = DerivedUnit::parse('J/(K·mol)');
+        $this->assertSame('J/(K*mol)', $du->format(true));
+    }
+
+    public function testParseParenthesesInNumeratorIsInvalid(): void
+    {
+        // (kg*m)/s - parentheses in numerator not allowed
+        $this->expectException(FormatException::class);
+        DerivedUnit::parse('(kg*m)/s');
+    }
+
+    public function testParseNestedParenthesesIsInvalid(): void
+    {
+        // J/((mol*K)) - nested parentheses not allowed
+        $this->expectException(FormatException::class);
+        DerivedUnit::parse('J/((mol*K))');
+    }
+
+    public function testParseUnbalancedParenthesesIsInvalid(): void
+    {
+        // J/(mol*K - missing closing parenthesis
+        $this->expectException(FormatException::class);
+        DerivedUnit::parse('J/(mol*K');
+    }
+
+    public function testParseEmptyParenthesesIsInvalid(): void
+    {
+        // m/() - empty parentheses not allowed
+        $this->expectException(FormatException::class);
+        DerivedUnit::parse('m/()');
+    }
+
+    public function testParseFormatRoundTrip(): void
+    {
+        // Parsing formatted output should produce equivalent unit
+        $original = DerivedUnit::parse('J/(mol*K)');
+        $formatted = $original->format(true);
+        $reparsed = DerivedUnit::parse($formatted);
+
+        $this->assertTrue($original->equal($reparsed));
+        $this->assertSame($original->dimension, $reparsed->dimension);
+    }
+
+    public function testParseFormatRoundTripUnicode(): void
+    {
+        // Round-trip with Unicode format
+        $original = DerivedUnit::parse('W/(m2*K4)');
+        $formatted = $original->format(); // Unicode format
+        $reparsed = DerivedUnit::parse($formatted);
+
+        $this->assertTrue($original->equal($reparsed));
     }
 
     // endregion

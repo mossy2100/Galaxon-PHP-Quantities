@@ -585,6 +585,19 @@ class Quantity implements Stringable
         return self::create($bestValue * $sign, $newDerivedUnit);
     }
 
+    /**
+     * Reduce the quantity's units to the simplest form, by:
+     * 1. Merging compatible units
+     * 2. Compacting (substituting named units)
+     * 3. Auto-prefixing (adding an SI prefix if possible)
+     *
+     * @return self The simplified Quantity.
+     */
+    public function simplify(): self
+    {
+        return $this->compact()->autoPrefix();
+    }
+
     // endregion
 
     // region Comparison methods
@@ -752,13 +765,8 @@ class Quantity implements Stringable
     /**
      * Multiply this measurement by a scalar factor or another Quantity.
      *
-     * Note, this operation does no conversions. If you multiply a quantity in metres by one in feet, you will get a
-     * quantity in m*ft, not m2.
-     *
-     * There are several ways to avoid this effect:
-     * 1. Convert both operands to SI, e.g. $a->toSi()->mul($b->toSi())
-     * 2. Convert the result to SI, e.g. $a->mul($b)->toSi(). Same result as above, just a different path.
-     * 3. Simplify the result. e.g. $a->mul($b)->simplify().
+     * Note, this operation merges compatible units.
+     * If you multiply a quantity in metres by one in feet, you will get a quantity in m2, not m*ft.
      *
      * @param self|float $otherOrValue Another Quantity or a numeric value.
      * @param null|string|UnitInterface $otherUnit The other quantity's unit, if a numeric value was provided.

@@ -105,7 +105,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC);
 
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         $this->assertContains('m', $symbols);  // milli
         $this->assertContains('u', $symbols);  // micro
@@ -123,7 +123,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC);
 
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         $this->assertContains('c', $symbols);  // centi
         $this->assertContains('d', $symbols);  // deci
@@ -137,7 +137,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC);
 
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         $this->assertContains('k', $symbols);   // kilo
         $this->assertContains('M', $symbols);   // mega
@@ -155,7 +155,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC);
 
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         $this->assertContains('da', $symbols);  // deca
         $this->assertContains('h', $symbols);   // hecto
@@ -169,7 +169,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_BINARY);
 
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         $this->assertContains('Ki', $symbols);  // kibi
         $this->assertContains('Mi', $symbols);  // mebi
@@ -185,7 +185,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_METRIC);
 
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         // Small engineering.
         $this->assertContains('m', $symbols);
@@ -210,7 +210,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_ALL);
 
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         // Metric.
         $this->assertContains('m', $symbols);
@@ -238,7 +238,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_METRIC);
 
-        $multipliers = array_map(fn (Prefix $p) => $p->multiplier, $result);
+        $multipliers = array_map(static fn (Prefix $p) => $p->multiplier, $result);
 
         // Check ascending order.
         $sorted = $multipliers;
@@ -588,7 +588,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $expected = ['q', 'r', 'y', 'z', 'a', 'f', 'p', 'n', 'u', 'm'];
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC);
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         foreach ($expected as $symbol) {
             $this->assertContains($symbol, $symbols, "Expected prefix '$symbol' not found");
@@ -602,7 +602,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $expected = ['k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q'];
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC);
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         foreach ($expected as $symbol) {
             $this->assertContains($symbol, $symbols, "Expected prefix '$symbol' not found");
@@ -616,7 +616,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $expected = ['Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi', 'Yi', 'Ri', 'Qi'];
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_BINARY);
-        $symbols = array_map(fn (Prefix $p) => $p->asciiSymbol, $result);
+        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         foreach ($expected as $symbol) {
             $this->assertContains($symbol, $symbols, "Expected prefix '$symbol' not found");

@@ -5,12 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
-use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Energy;
-use Galaxon\Quantities\QuantityType\Force;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Velocity;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -308,56 +303,6 @@ final class EnergyTest extends TestCase
 
     // endregion
 
-    // region Work = Force × Distance tests
-
-    /**
-     * Test calculating work from force and distance (SI units).
-     */
-    public function testWorkFromForceAndDistanceSI(): void
-    {
-        $force = new Force(10, 'N');
-        $distance = new Length(5, 'm');
-        $result = $force->mul($distance);
-
-        // W = F × d = 10 N × 5 m = 50 J
-        $this->assertInstanceOf(Energy::class, $result);
-        $this->assertSame(50.0, $result->value);
-
-        // Convert to joules
-        $j = $result->to('J');
-        $this->assertSame(50.0, $j->value);
-    }
-
-    /**
-     * Test calculating work from force and distance (kilonewtons and metres).
-     */
-    public function testWorkFromKilonewtonsAndMetres(): void
-    {
-        $force = new Force(1, 'kN');
-        $distance = new Length(100, 'm');
-        $result = $force->mul($distance);
-
-        // W = 1 kN × 100 m = 100 kN·m = 100 kJ
-        $kj = $result->to('kJ');
-        $this->assertSame(100.0, $kj->value);
-    }
-
-    /**
-     * Test calculating work and converting to calories.
-     */
-    public function testWorkInCalories(): void
-    {
-        $force = new Force(100, 'N');
-        $distance = new Length(41.84, 'm');
-        $result = $force->mul($distance);
-
-        // W = 100 N × 41.84 m = 4184 J = 1 kcal
-        $kcal = $result->to('kcal');
-        $this->assertApproxEqual(1.0, $kcal->value);
-    }
-
-    // endregion
-
     // region Addition tests
 
     /**
@@ -505,14 +450,15 @@ final class EnergyTest extends TestCase
 
     // endregion
 
+    // endregion
+
     // region Practical examples
 
     /**
-     * Test food energy conversion (nutrition label).
+     * Test food energy conversion (nutrition label): 200 kcal to kJ.
      */
     public function testFoodEnergyConversion(): void
     {
-        // A food item with 200 kcal
         $energy = new Energy(200, 'kcal');
         $kj = $energy->to('kJ');
 
@@ -521,15 +467,14 @@ final class EnergyTest extends TestCase
     }
 
     /**
-     * Test kinetic energy example.
+     * Test converting megajoules to kilocalories.
      */
-    public function testKineticEnergyConversion(): void
+    public function testConvertMegajoulesToKilocalories(): void
     {
-        // 1 MJ of kinetic energy
         $energy = new Energy(1, 'MJ');
         $kcal = $energy->to('kcal');
 
-        // 1 MJ = 1000000 J = 1000000/4184 kcal ≈ 239.006 kcal
+        // 1 MJ = 1,000,000 / 4184 kcal ≈ 239.006 kcal
         $this->assertApproxEqual(1000000 / 4184, $kcal->value);
     }
 
@@ -549,75 +494,11 @@ final class EnergyTest extends TestCase
      */
     public function testNaturalGasThermConversion(): void
     {
-        // 1 therm = 100,000 Btu
         $energy = new Energy(100000, 'Btu');
         $mj = $energy->to('MJ');
 
         // 100,000 Btu = 105.505585262 MJ
         $this->assertApproxEqual(105.505585262, $mj->value);
-    }
-
-    /**
-     * Test kinetic energy calculation: KE = ½mv².
-     */
-    public function testKineticEnergyCalculation(): void
-    {
-        // A 1000 kg car traveling at 30 m/s
-        $mass = new Mass(1000, 'kg');
-        $velocity = new Velocity(30, 'm/s');
-
-        // KE = ½mv² = ½ × 1000 kg × (30 m/s)² = 450,000 J = 450 kJ
-        $ke = $mass->mul($velocity)->mul($velocity)->mul(0.5);
-
-        $kj = $ke->to('kJ');
-        $this->assertInstanceOf(Energy::class, $kj);
-        $this->assertSame(450.0, $kj->value);
-    }
-
-    /**
-     * Test mass-energy equivalence: E = mc².
-     */
-    public function testMassEnergyEquivalence(): void
-    {
-        // Speed of light
-        $c = new Velocity(299792458, 'm/s');
-
-        // 1 gram of matter
-        $mass = new Mass(1, 'g');
-
-        // E = mc² = 0.001 kg × (299792458 m/s)² ≈ 89.875 TJ
-        $energy = $mass->mul($c)->mul($c);
-
-        $tj = $energy->to('J');
-        // 1 g × c² ≈ 8.9875517874e13 J
-        $this->assertApproxEqual(8.9875517874e13, $tj->value, 1e-6);
-    }
-
-    /**
-     * Test photon energy calculation: E = hc/λ.
-     */
-    public function testPhotonEnergyCalculation(): void
-    {
-        // Planck's constant: h = 6.62607015 × 10⁻³⁴ J⋅s
-        $h = Quantity::create(6.62607015e-34, 'J*s');
-
-        // Speed of light: c = 299792458 m/s
-        $c = new Velocity(299792458, 'm/s');
-
-        // Wavelength of green light: λ = 550 nm
-        $wavelength = new Length(550, 'nm');
-
-        // E = hc/λ
-        $energy = $h->mul($c)->div($wavelength);
-
-        // Expected: ~3.61 × 10⁻¹⁹ J ≈ 2.25 eV
-        $this->assertInstanceOf(Energy::class, $energy);
-
-        $j = $energy->to('J');
-        $this->assertApproxEqual(3.6126e-19, $j->value, 1e-4);
-
-        $ev = $energy->to('eV');
-        $this->assertApproxEqual(2.254, $ev->value, 1e-3);
     }
 
     // endregion

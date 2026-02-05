@@ -405,9 +405,7 @@ class QuantityTypeRegistry
         // Check we have a quantity type with the specified name.
         $qt = self::$quantityTypes[$name] ?? null;
         if ($qt === null) {
-            throw new DomainException(
-                "Quantity type '$name' not found. Use add() to register a new quantity type."
-            );
+            throw new DomainException("Quantity type '$name' not found. Use add() to register a new quantity type.");
         }
 
         // Update the class.

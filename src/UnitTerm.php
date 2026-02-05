@@ -119,7 +119,7 @@ class UnitTerm implements UnitInterface
      * @param int $exponent The exponent (default 1).
      * @throws DomainException If the exponent or prefix is invalid.
      */
-    public function __construct(string|Unit $unit, null|string|Prefix $prefix = null, int $exponent = 1)
+    public function __construct(string|Unit $unit = '', null|string|Prefix $prefix = null, int $exponent = 1)
     {
         // Allow for the unit to be provided as a symbol.
         if (is_string($unit)) {
@@ -253,6 +253,11 @@ class UnitTerm implements UnitInterface
      */
     public static function parse(string $symbol): self
     {
+        // Handle dimensionless units.
+        if ($symbol === '') {
+            return new self();
+        }
+
         // Validate the unit string.
         $unitValid = preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);
         if (!$unitValid) {

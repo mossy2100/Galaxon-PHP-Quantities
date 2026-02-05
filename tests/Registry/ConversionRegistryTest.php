@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Registry;
 
+use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Registry\ConversionRegistry;
@@ -431,12 +432,7 @@ final class ConversionRegistryTest extends TestCase
     public function testAddWithOnMissingUnitIgnore(): void
     {
         // This should not throw, just silently skip.
-        ConversionRegistry::add(
-            'nonexistent_unit_xyz',
-            'm',
-            1.0,
-            ConversionRegistry::ON_MISSING_UNIT_IGNORE
-        );
+        ConversionRegistry::add('nonexistent_unit_xyz', 'm', 1.0, ConversionRegistry::ON_MISSING_UNIT_IGNORE);
 
         // Verify no conversion was added.
         $result = ConversionRegistry::get('L', 'nonexistent_unit_xyz', 'm');
@@ -448,14 +444,9 @@ final class ConversionRegistryTest extends TestCase
      */
     public function testAddThrowsForUnknownSourceUnit(): void
     {
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
 
-        ConversionRegistry::add(
-            'nonexistent_unit_xyz',
-            'm',
-            1.0,
-            ConversionRegistry::ON_MISSING_UNIT_THROW
-        );
+        ConversionRegistry::add('nonexistent_unit_xyz', 'm', 1.0, ConversionRegistry::ON_MISSING_UNIT_THROW);
     }
 
     /**
@@ -463,14 +454,9 @@ final class ConversionRegistryTest extends TestCase
      */
     public function testAddThrowsForUnknownDestUnit(): void
     {
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
 
-        ConversionRegistry::add(
-            'm',
-            'nonexistent_unit_xyz',
-            1.0,
-            ConversionRegistry::ON_MISSING_UNIT_THROW
-        );
+        ConversionRegistry::add('m', 'nonexistent_unit_xyz', 1.0, ConversionRegistry::ON_MISSING_UNIT_THROW);
     }
 
     // endregion

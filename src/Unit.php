@@ -23,16 +23,39 @@ class Unit implements UnitInterface
 
     private const string RX_ASCII_WORD = '[a-z]+';
 
-    private const string RX_ASCII_SYMBOL = '|%|' . self::RX_ASCII_WORD . '(?: ' . self::RX_ASCII_WORD . '){0,2}';
+    private const string RX_ASCII_WORDS = self::RX_ASCII_WORD . '(?: ' . self::RX_ASCII_WORD . '){0,2}';
 
-    private const string RX_NON_LETTER_SYMBOL = '[\p{Po}\p{So}\p{Sc}]';
+    private const string RX_ASCII_NON_LETTER_SYMBOL = '[%"\']';
+
+    private const string RX_ASCII_SYMBOL = self::RX_ASCII_WORDS . '|' . self::RX_ASCII_NON_LETTER_SYMBOL;
+
+    private const string RX_UNICODE_NON_LETTER_SYMBOL = '[\'′"″%‰\p{So}\p{Sc}]';
 
     private const string RX_TEMPERATURE_SYMBOL = '°[a-z]';
 
     private const string RX_UNICODE_WORD = '\p{L}+';
 
     private const string RX_UNICODE_SYMBOL =
-        self::RX_NON_LETTER_SYMBOL . '|' . self::RX_TEMPERATURE_SYMBOL . '|' . self::RX_UNICODE_WORD;
+        self::RX_UNICODE_NON_LETTER_SYMBOL . '|' . self::RX_TEMPERATURE_SYMBOL . '|' . self::RX_UNICODE_WORD;
+
+    /**
+     * Allowed multiply operators.
+     *     * = Asterisk
+     *     . = Period (full stop) character.
+     *     · = Middle dot (U+00B7) - used in typography, Catalan, etc.
+     *     ⋅ = Dot operator (U+22C5) - mathematical multiplication symbol.
+     */
+    private const string RX_MUL_OPS = '*.\x{00B7}\x{22C5}';
+
+    /**
+     * Regular expression character class with multiply operators only.
+     */
+    public const string RX_MUL_OPS_ONLY = '[' . self::RX_MUL_OPS . ']';
+
+    /**
+     * Regular expression character class with multiply and divide operators.
+     */
+    public const string RX_MUL_OPS_PLUS_DIV = '[' . self::RX_MUL_OPS . '\/]';
 
     // endregion Constants
 
@@ -203,18 +226,25 @@ class Unit implements UnitInterface
         array $systems = []
     ) {
         // Check ASCII symbol contains ASCII letters only.
-        if (!self::isValidAsciiSymbol($asciiSymbol)) {
+        if ($asciiSymbol !== '' && !self::isValidAsciiSymbol($asciiSymbol)) {
             throw new FormatException(
-                "Unit symbol '$asciiSymbol' must only contain ASCII letters. " .
-                'Up to three words are allowed, separated by single spaces.'
+                "Unit symbol '$asciiSymbol' must only contain ASCII characters. " .
+                'Up to three words are allowed, separated by single spaces, or a single valid unit symbol (e.g. \'"%).'
             );
         }
 
         // Validate Unicode symbol.
-        if (isset($unicodeSymbol) && !self::isValidUnicodeSymbol($unicodeSymbol)) {
+        if (isset($unicodeSymbol) && $unicodeSymbol !== '' && !self::isValidUnicodeSymbol($unicodeSymbol)) {
             throw new FormatException(
                 "Unit symbol '$unicodeSymbol' must only contain letters, or punctuation or mathematical " .
                 'symbols (e.g. °′″%).'
+            );
+        }
+
+        // Check alternate symbol contains ASCII letters only.
+        if (isset($alternateSymbol) && $alternateSymbol !== '' && !self::isValidAsciiSymbol($alternateSymbol)) {
+            throw new FormatException(
+                "Unit symbol '$alternateSymbol' may only contain a single ASCII unit symbol (e.g. '\"%)."
             );
         }
 
@@ -282,7 +312,7 @@ class Unit implements UnitInterface
 
     public static function regex(): string
     {
-        return '(' . self::RX_NON_LETTER_SYMBOL . '|°[a-z]|\p{L}+|' . self::RX_ASCII_SYMBOL . ')';
+        return '(' . self::RX_UNICODE_NON_LETTER_SYMBOL . '|°[a-z]|\p{L}+|' . self::RX_ASCII_SYMBOL . ')';
     }
 
     /**
@@ -297,7 +327,7 @@ class Unit implements UnitInterface
     public static function parse(string $symbol): self
     {
         // Validate the symbol format.
-        if (!self::isValidUnicodeSymbol($symbol)) {
+        if ($symbol !== '' && !self::isValidUnicodeSymbol($symbol)) {
             throw new FormatException(
                 "Unit symbol '$symbol' can only contain letters, or the degree, prime, double prime, single " .
                 "quote, or double quote characters (i.e. °′″'\")."
@@ -359,7 +389,7 @@ class Unit implements UnitInterface
      */
     public static function isValidNonLetterSymbol(string $symbol): bool
     {
-        return (bool)preg_match('/^' . self::RX_NON_LETTER_SYMBOL . '$/iu', $symbol);
+        return (bool)preg_match('/^' . self::RX_UNICODE_NON_LETTER_SYMBOL . '$/iu', $symbol);
     }
 
     /**

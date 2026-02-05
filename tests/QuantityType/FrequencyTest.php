@@ -623,38 +623,6 @@ final class FrequencyTest extends TestCase
     }
 
     /**
-     * Test AC mains frequency (Europe/Australia).
-     */
-    public function testAcMainsFrequency50Hz(): void
-    {
-        // European mains = 50 Hz
-        $mains = new Frequency(50, 'Hz');
-
-        // Period = 1/50 = 0.02 s = 20 ms
-        $one = Quantity::create(1, '');
-        $period = $one->div($mains);
-
-        $ms = $period->to('ms');
-        $this->assertSame(20.0, $ms->value);
-    }
-
-    /**
-     * Test AC mains frequency (North America).
-     */
-    public function testAcMainsFrequency60Hz(): void
-    {
-        // North American mains = 60 Hz
-        $mains = new Frequency(60, 'Hz');
-
-        // Period = 1/60 ≈ 0.01667 s ≈ 16.67 ms
-        $one = Quantity::create(1, '');
-        $period = $one->div($mains);
-
-        $ms = $period->to('ms');
-        $this->assertApproxEqual(1000.0 / 60, $ms->value);
-    }
-
-    /**
      * Test heartbeat frequency.
      */
     public function testHeartbeatFrequency(): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests;
 
-use Error;
+use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -143,7 +143,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForInvalidAsciiSymbol(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('must only contain ASCII letters');
+        $this->expectExceptionMessage('must only contain ASCII characters');
 
         new Unit(
             name: 'test',
@@ -1099,7 +1099,7 @@ final class UnitTest extends TestCase
      */
     public function testParseThrowsDomainExceptionForUnknownSymbol(): void
     {
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Unknown unit symbol 'xyz'");
 
         Unit::parse('xyz');

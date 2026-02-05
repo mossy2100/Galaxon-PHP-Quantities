@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Registry;
 
 use DomainException;
-use Galaxon\Quantities\Converter;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
@@ -32,9 +31,7 @@ class UnitRegistry
 
     // region Static accessors
 
-    /**
-     * @return list<System>
-     */
+    /** @return list<System> */
     public static function getLoadedSystems(): array
     {
         self::init();
