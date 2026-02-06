@@ -74,13 +74,13 @@ class DimensionUtility
             'name'         => 'electric current',
             'siUnitSymbol' => 'A',
         ],
-        'H' => [
-            'name'         => 'temperature',
-            'siUnitSymbol' => 'K',
-        ],
         'N' => [
             'name'         => 'amount of substance',
             'siUnitSymbol' => 'mol',
+        ],
+        'H' => [
+            'name'         => 'temperature',
+            'siUnitSymbol' => 'K',
         ],
         'J' => [
             'name'         => 'luminous intensity',

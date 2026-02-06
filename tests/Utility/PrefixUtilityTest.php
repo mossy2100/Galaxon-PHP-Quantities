@@ -93,7 +93,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_METRIC);
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertNotEmpty($result);
         $this->assertContainsOnlyInstancesOf(Prefix::class, $result);
     }
@@ -316,11 +316,13 @@ final class PrefixUtilityTest extends TestCase
     {
         // 'M' is mega (1e6).
         $mega = PrefixUtility::getBySymbol('M');
+        $this->assertInstanceOf(Prefix::class, $mega);
         $this->assertSame('mega', $mega->name);
         $this->assertSame(1e6, $mega->multiplier);
 
         // 'm' is milli (1e-3).
         $milli = PrefixUtility::getBySymbol('m');
+        $this->assertInstanceOf(Prefix::class, $milli);
         $this->assertSame('milli', $milli->name);
         $this->assertSame(1e-3, $milli->multiplier);
 
@@ -389,6 +391,7 @@ final class PrefixUtilityTest extends TestCase
         $giga = PrefixUtility::getBySymbol('G');
         $result = PrefixUtility::invert($giga);
 
+        $this->assertInstanceOf(Prefix::class, $result);
         $this->assertSame('nano', $result->name);
     }
 
@@ -400,6 +403,7 @@ final class PrefixUtilityTest extends TestCase
         $tera = PrefixUtility::getBySymbol('T');
         $result = PrefixUtility::invert($tera);
 
+        $this->assertInstanceOf(Prefix::class, $result);
         $this->assertSame('pico', $result->name);
     }
 
@@ -411,6 +415,7 @@ final class PrefixUtilityTest extends TestCase
         $hecto = PrefixUtility::getBySymbol('h');
         $result = PrefixUtility::invert($hecto);
 
+        $this->assertInstanceOf(Prefix::class, $result);
         $this->assertSame('centi', $result->name);
     }
 
@@ -422,6 +427,7 @@ final class PrefixUtilityTest extends TestCase
         $deca = PrefixUtility::getBySymbol('da');
         $result = PrefixUtility::invert($deca);
 
+        $this->assertInstanceOf(Prefix::class, $result);
         $this->assertSame('deci', $result->name);
     }
 
@@ -433,6 +439,7 @@ final class PrefixUtilityTest extends TestCase
         $quetta = PrefixUtility::getBySymbol('Q');
         $result = PrefixUtility::invert($quetta);
 
+        $this->assertInstanceOf(Prefix::class, $result);
         $this->assertSame('quecto', $result->name);
     }
 
@@ -469,6 +476,8 @@ final class PrefixUtilityTest extends TestCase
             $inverted = PrefixUtility::invert($original);
             $roundTrip = PrefixUtility::invert($inverted);
 
+            $this->assertInstanceOf(Prefix::class, $original);
+            $this->assertInstanceOf(Prefix::class, $roundTrip);
             $this->assertSame($original->name, $roundTrip->name);
             $this->assertSame($original->multiplier, $roundTrip->multiplier);
         }
@@ -486,6 +495,8 @@ final class PrefixUtilityTest extends TestCase
             $inverse = PrefixUtility::invert($prefix);
 
             // multiplier × inverseMultiplier should equal 1.
+            $this->assertInstanceOf(Prefix::class, $prefix);
+            $this->assertInstanceOf(Prefix::class, $inverse);
             $this->assertEqualsWithDelta(1.0, $prefix->multiplier * $inverse->multiplier, 1e-20);
         }
     }
@@ -539,18 +550,23 @@ final class PrefixUtilityTest extends TestCase
     public function testPrefixGroupCodeProperty(): void
     {
         $kilo = PrefixUtility::getBySymbol('k');
+        $this->assertInstanceOf(Prefix::class, $kilo);
         $this->assertSame(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC, $kilo->groupCode);
 
         $milli = PrefixUtility::getBySymbol('m');
+        $this->assertInstanceOf(Prefix::class, $milli);
         $this->assertSame(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC, $milli->groupCode);
 
         $centi = PrefixUtility::getBySymbol('c');
+        $this->assertInstanceOf(Prefix::class, $centi);
         $this->assertSame(PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC, $centi->groupCode);
 
         $hecto = PrefixUtility::getBySymbol('h');
+        $this->assertInstanceOf(Prefix::class, $hecto);
         $this->assertSame(PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC, $hecto->groupCode);
 
         $kibi = PrefixUtility::getBySymbol('Ki');
+        $this->assertInstanceOf(Prefix::class, $kibi);
         $this->assertSame(PrefixUtility::GROUP_CODE_BINARY, $kibi->groupCode);
     }
 
@@ -561,6 +577,7 @@ final class PrefixUtilityTest extends TestCase
     {
         $micro = PrefixUtility::getBySymbol('u');
 
+        $this->assertInstanceOf(Prefix::class, $micro);
         $this->assertSame('u', $micro->asciiSymbol);
         $this->assertSame('μ', $micro->unicodeSymbol);
     }
@@ -571,9 +588,11 @@ final class PrefixUtilityTest extends TestCase
     public function testPrefixesWithoutUnicodeHaveMatchingSymbols(): void
     {
         $kilo = PrefixUtility::getBySymbol('k');
+        $this->assertInstanceOf(Prefix::class, $kilo);
         $this->assertSame($kilo->asciiSymbol, $kilo->unicodeSymbol);
 
         $mega = PrefixUtility::getBySymbol('M');
+        $this->assertInstanceOf(Prefix::class, $mega);
         $this->assertSame($mega->asciiSymbol, $mega->unicodeSymbol);
     }
 
@@ -628,12 +647,12 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testBinaryPrefixMultipliers(): void
     {
-        $this->assertSame((float)(2 ** 10), PrefixUtility::getBySymbol('Ki')->multiplier);
-        $this->assertSame((float)(2 ** 20), PrefixUtility::getBySymbol('Mi')->multiplier);
-        $this->assertSame((float)(2 ** 30), PrefixUtility::getBySymbol('Gi')->multiplier);
-        $this->assertSame((float)(2 ** 40), PrefixUtility::getBySymbol('Ti')->multiplier);
-        $this->assertSame((float)(2 ** 50), PrefixUtility::getBySymbol('Pi')->multiplier);
-        $this->assertSame((float)(2 ** 60), PrefixUtility::getBySymbol('Ei')->multiplier);
+        $this->assertSame((float)(2 ** 10), PrefixUtility::getBySymbol('Ki')?->multiplier);
+        $this->assertSame((float)(2 ** 20), PrefixUtility::getBySymbol('Mi')?->multiplier);
+        $this->assertSame((float)(2 ** 30), PrefixUtility::getBySymbol('Gi')?->multiplier);
+        $this->assertSame((float)(2 ** 40), PrefixUtility::getBySymbol('Ti')?->multiplier);
+        $this->assertSame((float)(2 ** 50), PrefixUtility::getBySymbol('Pi')?->multiplier);
+        $this->assertSame((float)(2 ** 60), PrefixUtility::getBySymbol('Ei')?->multiplier);
     }
 
     // endregion

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use Galaxon\Quantities\PhysicalConstant;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
@@ -39,7 +38,8 @@ class Force extends Quantity
             'pound force' => [
                 'asciiSymbol'         => 'lbf',
                 'expansionUnitSymbol' => 'lb*ft/s2',
-                'expansionValue'      => PhysicalConstant::get('g')->value / 0.3048,
+                // g₀ (standard gravity) = 9.80665 m/s² exactly.
+                'expansionValue'      => 9.80665 / 0.3048,
                 'systems'             => [System::Imperial, System::US],
             ],
         ];

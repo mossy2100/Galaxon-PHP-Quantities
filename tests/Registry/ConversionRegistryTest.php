@@ -40,7 +40,7 @@ final class ConversionRegistryTest extends TestCase
     {
         $result = ConversionRegistry::getByDimension('L');
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
@@ -236,7 +236,7 @@ final class ConversionRegistryTest extends TestCase
 
         $result = ConversionRegistry::get('L', 'in', 'cm');
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(Conversion::class, $result);
         $this->assertEqualsWithDelta($factor, $result->factor->value, 1e-10);
     }
 
@@ -251,7 +251,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Forward should return the conversion
         $forward = ConversionRegistry::get('L', 'm', 'mi');
-        $this->assertNotNull($forward);
+        $this->assertInstanceOf(Conversion::class, $forward);
 
         // Reverse should return null (unless separately added)
         $reverse = ConversionRegistry::get('L', 'mi', 'm');
@@ -273,7 +273,7 @@ final class ConversionRegistryTest extends TestCase
 
         $result = ConversionRegistry::get('L', 'm', 'nmi');
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(Conversion::class, $result);
         $this->assertSame($conversion->factor->value, $result->factor->value);
     }
 
@@ -293,7 +293,7 @@ final class ConversionRegistryTest extends TestCase
 
         $result = ConversionRegistry::get('L', 'm', 'yd');
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(Conversion::class, $result);
         $this->assertEqualsWithDelta($newFactor, $result->factor->value, 1e-10);
     }
 
@@ -308,7 +308,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Should be retrievable from time dimension
         $result = ConversionRegistry::get('T', 's', 'min');
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(Conversion::class, $result);
 
         // Should not be in length dimension
         $wrongDim = ConversionRegistry::get('L', 's', 'min');
@@ -326,7 +326,7 @@ final class ConversionRegistryTest extends TestCase
 
         $result = ConversionRegistry::get('L', 'km', 'mi');
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(Conversion::class, $result);
         $this->assertSame('km', $result->srcUnit->asciiSymbol);
         $this->assertSame('mi', $result->destUnit->asciiSymbol);
     }
@@ -342,7 +342,7 @@ final class ConversionRegistryTest extends TestCase
 
         $result = ConversionRegistry::get('L2', 'm2', 'ft2');
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(Conversion::class, $result);
         $this->assertSame('m2', $result->srcUnit->asciiSymbol);
         $this->assertSame('ft2', $result->destUnit->asciiSymbol);
     }
@@ -422,7 +422,7 @@ final class ConversionRegistryTest extends TestCase
 
         $result = ConversionRegistry::get('L', 'm', 'cm');
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(Conversion::class, $result);
         $this->assertEqualsWithDelta(100.0, $result->factor->value, 1e-10);
     }
 
@@ -526,7 +526,7 @@ final class ConversionRegistryTest extends TestCase
     {
         $result = ConversionRegistry::getAllConversionDefinitions();
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**

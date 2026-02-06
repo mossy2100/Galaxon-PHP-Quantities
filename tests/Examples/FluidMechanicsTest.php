@@ -52,7 +52,7 @@ class FluidMechanicsTest extends TestCase
     public function testHydrostaticPressure(): void
     {
         $rho = new Density(1000, 'kg/m3');
-        $g = PhysicalConstant::get('g');
+        $g = PhysicalConstant::earthGravity();
         $h = new Length(10, 'm');
         $pressure = $rho->mul($g)->mul($h);
 
@@ -70,7 +70,7 @@ class FluidMechanicsTest extends TestCase
     {
         $rho = new Density(1000, 'kg/m3');
         $volume = new Volume(0.01, 'm3');
-        $g = PhysicalConstant::get('g');
+        $g = PhysicalConstant::earthGravity();
         $force = $rho->mul($volume)->mul($g);
 
         $this->assertInstanceOf(Force::class, $force);

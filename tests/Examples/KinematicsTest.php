@@ -73,7 +73,7 @@ class KinematicsTest extends TestCase
      */
     public function testFreeFallDistance(): void
     {
-        $g = PhysicalConstant::get('g');
+        $g = PhysicalConstant::earthGravity();
         $t = new Time(3, 's');
         $d = $g->mul($t->pow(2))->mul(0.5);
 

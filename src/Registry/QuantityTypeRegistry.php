@@ -332,6 +332,7 @@ class QuantityTypeRegistry
     public static function getClasses(): array
     {
         self::init();
+        assert(self::$quantityTypes !== null);
 
         $classes = [];
         foreach (self::$quantityTypes as $quantityType) {

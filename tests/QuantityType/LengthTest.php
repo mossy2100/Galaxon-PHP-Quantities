@@ -140,17 +140,6 @@ final class LengthTest extends TestCase
         $this->assertSame(1760.0, $yd->value);
     }
 
-    /**
-     * Test converting leagues to miles.
-     */
-    public function testConvertLeaguesToMiles(): void
-    {
-        $length = new Length(1, 'le');
-        $mi = $length->to('mi');
-
-        $this->assertSame(3.0, $mi->value);
-    }
-
     // endregion
 
     // region Cross-system conversion tests (metric to imperial)
@@ -555,7 +544,7 @@ final class LengthTest extends TestCase
         $this->assertArrayHasKey('from', $config);
         $this->assertArrayHasKey('to', $config);
         $this->assertSame('ft', $config['from']);
-        $this->assertSame(['le', 'mi', 'yd', 'ft', 'in'], $config['to']);
+        $this->assertSame(['mi', 'yd', 'ft', 'in'], $config['to']);
     }
 
     /**
@@ -652,7 +641,6 @@ final class LengthTest extends TestCase
         $parts = $length->toParts(null, 'in', 0);
 
         $this->assertSame(1, $parts['sign']);
-        $this->assertSame(0, $parts['le']);
         $this->assertSame(0, $parts['mi']);
         $this->assertSame(1, $parts['yd']);
         $this->assertSame(2, $parts['ft']);
@@ -744,7 +732,7 @@ final class LengthTest extends TestCase
         $result = $length->formatParts(null, 'ft', 0, true);
 
         // Shows all parts including zeros
-        $this->assertSame('0le 1mi 0yd 0ft', $result);
+        $this->assertSame('1mi 0yd 0ft', $result);
     }
 
     /**

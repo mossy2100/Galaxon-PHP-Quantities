@@ -529,7 +529,7 @@ final class TemperatureTest extends TestCase
     public function testEntropyToSiNoOffset(): void
     {
         $entropy = Quantity::create(100, 'J/degC');
-        $si = $entropy->toSi();
+        $si = $entropy->toSiBase();
 
         // Value should be unchanged - no offset applied.
         $this->assertSame(100.0, $si->value);

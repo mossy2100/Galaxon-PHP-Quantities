@@ -27,7 +27,7 @@ class LightAndWavesTest extends TestCase
      */
     public function testPhotonEnergy(): void
     {
-        $h = PhysicalConstant::get('h');
+        $h = PhysicalConstant::planck();
         $f = new Frequency(5.49e14, 'Hz');
         $energy = $h->mul($f);
 
@@ -43,7 +43,7 @@ class LightAndWavesTest extends TestCase
      */
     public function testWavelengthFromFrequency(): void
     {
-        $c = PhysicalConstant::get('c');
+        $c = PhysicalConstant::speedOfLight();
         $f = new Frequency(101.5e6, 'Hz');
         $lambda = $c->div($f);
 
@@ -60,7 +60,7 @@ class LightAndWavesTest extends TestCase
     public function testMassEnergyEquivalence(): void
     {
         $m = new Mass(0.001, 'kg');
-        $c = PhysicalConstant::get('c');
+        $c = PhysicalConstant::speedOfLight();
         $energy = $m->mul($c->pow(2));
 
         $this->assertInstanceOf(Energy::class, $energy);
@@ -75,8 +75,8 @@ class LightAndWavesTest extends TestCase
      */
     public function testDeBroglieWavelength(): void
     {
-        $h = PhysicalConstant::get('h');
-        $me = PhysicalConstant::get('me');
+        $h = PhysicalConstant::planck();
+        $me = PhysicalConstant::electronMass();
         $v = new Velocity(1e6, 'm/s');
 
         $lambda = $h->div($me->mul($v));
@@ -93,8 +93,8 @@ class LightAndWavesTest extends TestCase
      */
     public function testPhotonEnergyFromWavelength(): void
     {
-        $h = PhysicalConstant::get('h');
-        $c = PhysicalConstant::get('c');
+        $h = PhysicalConstant::planck();
+        $c = PhysicalConstant::speedOfLight();
         $lambda = new Length(550, 'nm');
 
         $energy = $h->mul($c)->div($lambda);

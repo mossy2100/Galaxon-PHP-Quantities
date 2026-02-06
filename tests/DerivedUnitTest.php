@@ -168,9 +168,9 @@ class DerivedUnitTest extends TestCase
     public function testParseParenthesesMultipleTermsInDenominator(): void
     {
         // J/(mol*K) - energy per amount per temperature
-        $du = DerivedUnit::parse('J/(K*mol)');
-        $this->assertSame('J/(K*mol)', $du->format(true));
-        $this->assertSame('ML2T-2H-1N-1', $du->dimension);
+        $du = DerivedUnit::parse('J/(mol*K)');
+        $this->assertSame('J/(mol*K)', $du->format(true));
+        $this->assertSame('ML2T-2N-1H-1', $du->dimension);
     }
 
     public function testParseParenthesesSingleTermInDenominator(): void
@@ -190,8 +190,8 @@ class DerivedUnitTest extends TestCase
     public function testParseParenthesesWithMiddleDot(): void
     {
         // J/(mol·K) - using middle dot separator
-        $du = DerivedUnit::parse('J/(K·mol)');
-        $this->assertSame('J/(K*mol)', $du->format(true));
+        $du = DerivedUnit::parse('J/(mol·K)');
+        $this->assertSame('J/(mol*K)', $du->format(true));
     }
 
     public function testParseParenthesesInNumeratorIsInvalid(): void
@@ -951,6 +951,70 @@ class DerivedUnitTest extends TestCase
 
         $this->assertSame('m/s2', $si->format(true));
         $this->assertSame('LT-2', $si->dimension);
+    }
+
+    // endregion
+
+    // region isSi() tests
+
+    /**
+     * Test isSi returns true for simple SI unit.
+     */
+    public function testIsSiReturnsTrueForSimpleSiUnit(): void
+    {
+        $du = DerivedUnit::parse('m');
+
+        $this->assertTrue($du->isSi());
+    }
+
+    /**
+     * Test isSi returns true for compound SI unit.
+     */
+    public function testIsSiReturnsTrueForCompoundSiUnit(): void
+    {
+        $du = DerivedUnit::parse('kg*m/s2');
+
+        $this->assertTrue($du->isSi());
+    }
+
+    /**
+     * Test isSi returns true for prefixed SI unit.
+     */
+    public function testIsSiReturnsTrueForPrefixedSiUnit(): void
+    {
+        $du = DerivedUnit::parse('km/s');
+
+        $this->assertTrue($du->isSi());
+    }
+
+    /**
+     * Test isSi returns false for Imperial unit.
+     */
+    public function testIsSiReturnsFalseForImperialUnit(): void
+    {
+        $du = DerivedUnit::parse('ft');
+
+        $this->assertFalse($du->isSi());
+    }
+
+    /**
+     * Test isSi returns false for mixed SI and Imperial units.
+     */
+    public function testIsSiReturnsFalseForMixedUnits(): void
+    {
+        $du = DerivedUnit::parse('kg*ft/s2');
+
+        $this->assertFalse($du->isSi());
+    }
+
+    /**
+     * Test isSi returns true for dimensionless unit.
+     */
+    public function testIsSiReturnsTrueForDimensionless(): void
+    {
+        $du = new DerivedUnit();
+
+        $this->assertTrue($du->isSi());
     }
 
     // endregion

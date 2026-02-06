@@ -250,4 +250,48 @@ final class QuantityCreateTest extends TestCase
     }
 
     // endregion
+
+    // region isSi() tests
+
+    /**
+     * Test isSi returns true for SI unit.
+     */
+    public function testIsSiReturnsTrueForSiUnit(): void
+    {
+        $length = new Length(1, 'm');
+
+        $this->assertTrue($length->isSi());
+    }
+
+    /**
+     * Test isSi returns true for prefixed SI unit.
+     */
+    public function testIsSiReturnsTrueForPrefixedSiUnit(): void
+    {
+        $length = new Length(1, 'km');
+
+        $this->assertTrue($length->isSi());
+    }
+
+    /**
+     * Test isSi returns true for compound SI unit.
+     */
+    public function testIsSiReturnsTrueForCompoundSiUnit(): void
+    {
+        $qty = Quantity::create(1, 'kg*m/s2');
+
+        $this->assertTrue($qty->isSi());
+    }
+
+    /**
+     * Test isSi returns false for non-SI unit.
+     */
+    public function testIsSiReturnsFalseForNonSiUnit(): void
+    {
+        $time = new Time(1, 'min');
+
+        $this->assertFalse($time->isSi());
+    }
+
+    // endregion
 }

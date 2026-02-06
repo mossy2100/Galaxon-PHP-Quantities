@@ -335,7 +335,7 @@ final class PressureTest extends TestCase
     public function testConvertPascalsToBaseSI(): void
     {
         $pressure = new Pressure(1000, 'Pa');
-        $si = $pressure->toSi();
+        $si = $pressure->toSiBase();
 
         // Pa = kg·m⁻¹·s⁻²
         $this->assertSame(1000.0, $si->value);
@@ -348,7 +348,7 @@ final class PressureTest extends TestCase
     public function testConvertAtmospheresToBaseSI(): void
     {
         $pressure = new Pressure(1, 'atm');
-        $si = $pressure->toSi();
+        $si = $pressure->toSiBase();
 
         $this->assertSame(101325.0, $si->value);
         $this->assertSame('kg/(m*s2)', $si->derivedUnit->asciiSymbol);

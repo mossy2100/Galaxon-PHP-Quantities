@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Unit;
 use Galaxon\Quantities\UnitTerm;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -51,7 +52,7 @@ final class UnitTermTest extends TestCase
     {
         $term = new UnitTerm('m', 'k');
 
-        $this->assertSame('k', $term->prefix->asciiSymbol);
+        $this->assertSame('k', $term->prefix?->asciiSymbol);
         $this->assertSame(1, $term->exponent);
     }
 
@@ -73,7 +74,7 @@ final class UnitTermTest extends TestCase
     {
         $term = new UnitTerm('m', 'k', 2);
 
-        $this->assertSame('k', $term->prefix->asciiSymbol);
+        $this->assertSame('k', $term->prefix?->asciiSymbol);
         $this->assertSame(2, $term->exponent);
     }
 
@@ -420,7 +421,7 @@ final class UnitTermTest extends TestCase
         $term = UnitTerm::parse('km');
 
         $this->assertSame('metre', $term->unit->name);
-        $this->assertSame('k', $term->prefix->asciiSymbol);
+        $this->assertSame('k', $term->prefix?->asciiSymbol);
         $this->assertSame(1, $term->exponent);
     }
 
@@ -476,7 +477,7 @@ final class UnitTermTest extends TestCase
         $term = UnitTerm::parse('km2');
 
         $this->assertSame('metre', $term->unit->name);
-        $this->assertSame('k', $term->prefix->asciiSymbol);
+        $this->assertSame('k', $term->prefix?->asciiSymbol);
         $this->assertSame(2, $term->exponent);
     }
 
@@ -636,7 +637,7 @@ final class UnitTermTest extends TestCase
         $inverted = $term->inv();
 
         $this->assertSame(-2, $inverted->exponent);
-        $this->assertSame('k', $inverted->prefix->asciiSymbol);
+        $this->assertSame('k', $inverted->prefix?->asciiSymbol);
         $this->assertSame($term->unit, $inverted->unit);
     }
 
@@ -662,7 +663,7 @@ final class UnitTermTest extends TestCase
         $newTerm = $term->withExponent(3);
 
         $this->assertSame(3, $newTerm->exponent);
-        $this->assertSame('k', $newTerm->prefix->asciiSymbol);
+        $this->assertSame('k', $newTerm->prefix?->asciiSymbol);
     }
 
     /**
@@ -699,7 +700,7 @@ final class UnitTermTest extends TestCase
         $newTerm = $term->removeExponent();
 
         $this->assertSame(1, $newTerm->exponent);
-        $this->assertSame('k', $newTerm->prefix->asciiSymbol);
+        $this->assertSame('k', $newTerm->prefix?->asciiSymbol);
     }
 
     /**
@@ -809,7 +810,7 @@ final class UnitTermTest extends TestCase
             }
         }
 
-        $this->assertNotNull($metreMatch);
+        $this->assertInstanceOf(UnitTerm::class, $metreMatch);
         $this->assertSame('metre', $metreMatch->unit->name);
         $this->assertNull($metreMatch->prefix);
     }
@@ -884,7 +885,7 @@ final class UnitTermTest extends TestCase
     {
         $matches = UnitTerm::getBySymbol('xyz');
 
-        $this->assertIsArray($matches);
+        $this->assertIsArray($matches); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertEmpty($matches);
     }
 
@@ -895,7 +896,7 @@ final class UnitTermTest extends TestCase
     {
         $matches = UnitTerm::getBySymbol('s');
 
-        $this->assertIsArray($matches);
+        $this->assertIsArray($matches); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertNotEmpty($matches);
 
         foreach ($matches as $match) {
@@ -928,7 +929,7 @@ final class UnitTermTest extends TestCase
 
         $this->assertInstanceOf(UnitTerm::class, $result);
         $this->assertSame('metre', $result->unit->name);
-        $this->assertSame('k', $result->prefix->asciiSymbol);
+        $this->assertSame('k', $result->prefix?->asciiSymbol);
         $this->assertSame(2, $result->exponent);
     }
 
@@ -938,6 +939,8 @@ final class UnitTermTest extends TestCase
     public function testToUnitTermWithUnitCreatesUnitTerm(): void
     {
         $unit = UnitRegistry::getBySymbol('m');
+
+        $this->assertInstanceOf(Unit::class, $unit);
         $result = UnitTerm::toUnitTerm($unit);
 
         $this->assertInstanceOf(UnitTerm::class, $result);
@@ -956,8 +959,9 @@ final class UnitTermTest extends TestCase
     public function testConstructorWithUnitObject(): void
     {
         $unit = UnitRegistry::getBySymbol('m');
-        $term = new UnitTerm($unit);
+        $this->assertInstanceOf(Unit::class, $unit);
 
+        $term = new UnitTerm($unit);
         $this->assertSame($unit, $term->unit);
         $this->assertNull($term->prefix);
         $this->assertSame(1, $term->exponent);
@@ -969,10 +973,12 @@ final class UnitTermTest extends TestCase
     public function testConstructorWithUnitObjectAndPrefixString(): void
     {
         $unit = UnitRegistry::getBySymbol('m');
+        $this->assertInstanceOf(Unit::class, $unit);
+
         $term = new UnitTerm($unit, 'k', 2);
 
         $this->assertSame($unit, $term->unit);
-        $this->assertSame('k', $term->prefix->asciiSymbol);
+        $this->assertSame('k', $term->prefix?->asciiSymbol);
         $this->assertSame(2, $term->exponent);
     }
 
@@ -994,6 +1000,8 @@ final class UnitTermTest extends TestCase
     public function testConstructorWithUnitAndPrefixObjects(): void
     {
         $unit = UnitRegistry::getBySymbol('m');
+        $this->assertInstanceOf(Unit::class, $unit);
+
         $prefix = PrefixUtility::getBySymbol('M');
         $term = new UnitTerm($unit, $prefix, 3);
 
@@ -1083,6 +1091,40 @@ final class UnitTermTest extends TestCase
         }
 
         $this->assertTrue($found, 'Should find micrometre by alternate prefix symbol um');
+    }
+
+    // endregion
+
+    // region isSi() tests
+
+    /**
+     * Test isSi returns true for SI unit.
+     */
+    public function testIsSiReturnsTrueForSiUnit(): void
+    {
+        $term = new UnitTerm('m');
+
+        $this->assertTrue($term->isSi());
+    }
+
+    /**
+     * Test isSi returns true for prefixed SI unit.
+     */
+    public function testIsSiReturnsTrueForPrefixedSiUnit(): void
+    {
+        $term = new UnitTerm('m', 'k', 2);
+
+        $this->assertTrue($term->isSi());
+    }
+
+    /**
+     * Test isSi returns false for Imperial unit.
+     */
+    public function testIsSiReturnsFalseForImperialUnit(): void
+    {
+        $term = new UnitTerm('ft');
+
+        $this->assertFalse($term->isSi());
     }
 
     // endregion

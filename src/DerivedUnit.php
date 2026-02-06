@@ -332,6 +332,25 @@ class DerivedUnit implements UnitInterface
     }
 
     /**
+     * Check if all unit terms in this derived unit belong to the SI system.
+     *
+     * Returns true only if every component unit is an SI unit.
+     * Dimensionless units (with no terms) are considered SI.
+     *
+     * @return bool True if all units are SI units.
+     */
+    public function isSi(): bool
+    {
+        foreach ($this->unitTerms as $unitTerm) {
+            if (!$unitTerm->isSi()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Check if any unit term in this derived unit has a prefix.
      *
      * @return bool True if at least one unit term has a prefix, false otherwise.

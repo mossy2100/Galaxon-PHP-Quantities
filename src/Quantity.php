@@ -252,7 +252,7 @@ class Quantity implements Stringable
     /**
      * Convert this quantity to SI units.
      *
-     * If $compact is true, base units will be replaced by expandable units where possible, e.g. kg*m/s2 => N
+     * If $simplify is true, base units will be replaced by expandable units where possible, e.g. kg*m/s2 => N
      * The expandable unit that replaces the largest number of base units will be chosen.
      *
      * If $autoPrefix is true, the result will be converted to use the best prefix, defined as:
@@ -260,26 +260,42 @@ class Quantity implements Stringable
      * 2. Represents a multiple of 1000 or 1/1000. This is often called an engineering prefix.
      * 3. Produces the smallest value greater than or equal to 1.
      *
-     * @param bool $compact If true, base units will be replaced by expandable units where possible.
+     * @param bool $simplify If true, base units will be replaced by expandable units where possible.
      * @param bool $autoPrefix If true, the result will be converted to the best SI prefix.
      * @return self A new Quantity with the value converted to SI units.
      * @throws DomainException If any dimension codes are invalid or conversion fails.
      * @throws LogicException If any dimension codes do not have an SI base unit defined.
      */
-    public function toSi(bool $compact = false, bool $autoPrefix = false): self
+    public function toSi(bool $simplify = true, bool $autoPrefix = true): self
     {
         // Expand and merge to get the base units.
         $result = $this->expand()->merge();
 
-        // Convert to SI base units.
-        $result = $this->to($result->derivedUnit->toSi());
-
-        // Substitute expandable units if requested.
-        if ($compact) {
-            $result = $result->compact();
+        // Convert to SI base units if necessary.
+        if (!$result->isSi()) {
+            $result = $this->to($result->derivedUnit->toSi());
         }
 
+        // Simplify if requested.
+        if ($simplify) {
+            return $result->simplify($autoPrefix);
+        }
+
+        // Auto-prefix if requested.
         return $autoPrefix ? $result->autoPrefix() : $result;
+    }
+
+    /**
+     * Convert this Quantity to SI base units without simplification or auto-prefixing.
+     *
+     * Unlike toSi(), this method returns the raw expanded base units (e.g., kg·m·s⁻²
+     * instead of N). Useful for calculations or when you need the fundamental SI form.
+     *
+     * @return self A new Quantity expressed in SI base units.
+     */
+    public function toSiBase(): self
+    {
+        return $this->toSi(false, false);
     }
 
     /**
@@ -358,113 +374,6 @@ class Quantity implements Stringable
         }
 
         return self::create($newValue, $newUnit)->merge();
-    }
-
-    /**
-     * Substitute base units for expandable units, e.g. kg*m/s2 => N
-     *
-     * The expandable unit that replaces the largest number of base units will be chosen.
-     *
-     * 's-1' will not be replaced by 'Hz' unless it's the only unit term.
-     * Furthermore, 's-1' is not replaced by 'Bq'. You can call $q->to('Bq') to get that effect.
-     *
-     * @return self
-     */
-    public function compact(): self
-    {
-        // Merge compatible units.
-        $qty = $this->merge();
-
-        // Handle Hertz separately. We only want to swap 's-1' for 'Hz' if it's the only unit term.
-        if (count($qty->derivedUnit->unitTerms) === 1) {
-            $unitTerm = $qty->derivedUnit->firstUnitTerm;
-            if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
-                $newUnitTerm = new UnitTerm('Hz', PrefixUtility::invert($unitTerm->prefix));
-                return self::create($qty->value, $newUnitTerm);
-            }
-        }
-
-        // Start constructing result.
-        $newValue = $qty->value;
-        $newUnit = clone $qty->derivedUnit;
-
-        // Get all expandable units.
-        $expandableUnits = UnitRegistry::getExpandable();
-
-        // Track best match.
-        $bestExpandableUnit = null;
-        $bestMatchScore = 0;
-        $bestUnitToReplace = null;
-
-        foreach ($expandableUnits as $expandableUnit) {
-            /** @var DerivedUnit $expansionUnit */
-            $expansionUnit = $expandableUnit->expansionUnit;
-
-            // Skip 'Hz' or 'Bq'; these are the only expandable units with one unit term in their expansion.
-            if (count($expansionUnit->unitTerms) === 1) {
-                continue;
-            }
-
-            $expandableUnitMatchesQty = true;
-            $matchScore = 0;
-            $unitToReplace = new DerivedUnit();
-
-            // Go through the expansion unit terms and try to match against the quantity unit terms.
-            foreach ($expansionUnit->unitTerms as $expansionUnitTerm) {
-                $matchingQtyUnitTermFound = false;
-
-                // See if the quantity has all the unit terms of the expansion unit.
-                foreach ($qty->derivedUnit->unitTerms as $qtyUnitTerm) {
-                    // For a unit term from the quantity to match one from the expansion unit, it must have:
-                    // - the same unexponentiated symbol (i.e. matching prefixed unit)
-                    // - the same sign of the exponent
-                    // - the absolute value of the exponent greater than or equal to that of the expansion unit term
-                    $exp = abs($expansionUnitTerm->exponent);
-                    if (
-                        $qtyUnitTerm->unexponentiatedAsciiSymbol === $expansionUnitTerm->unexponentiatedAsciiSymbol &&
-                        Numbers::sign($qtyUnitTerm->exponent) === Numbers::sign($expansionUnitTerm->exponent) &&
-                        abs($qtyUnitTerm->exponent) >= $exp
-                    ) {
-                        $matchScore += $exp;
-                        $matchingQtyUnitTermFound = true;
-                        $unitToReplace->addUnitTerm(
-                            new UnitTerm($qtyUnitTerm->unit, $qtyUnitTerm->prefix, $expansionUnitTerm->exponent)
-                        );
-                        break;
-                    }
-                }
-
-                // If we didn't find a matching unit term, this expandable unit is not a match.
-                if (!$matchingQtyUnitTermFound) {
-                    $expandableUnitMatchesQty = false;
-                    break;
-                }
-            }
-
-            // If we found a better match, update our search result.
-            if ($expandableUnitMatchesQty && $matchScore > $bestMatchScore) {
-                $bestExpandableUnit = $expandableUnit;
-                $bestMatchScore = $matchScore;
-                $bestUnitToReplace = $unitToReplace;
-            }
-        }
-
-        // If we found a match, substitute the necessary unit terms for the expandable unit.
-        if ($bestExpandableUnit !== null && $bestUnitToReplace !== null) {
-            // Remove the unit terms (or parts thereof) to replace.
-            foreach ($bestUnitToReplace->unitTerms as $unitTermToReplace) {
-                $newUnit->addUnitTerm($unitTermToReplace->inv());
-            }
-
-            // Add the expandable unit.
-            $newUnit->addUnitTerm(new UnitTerm($bestExpandableUnit));
-
-            // Multiply by the conversion factor.
-            $newValue *= static::convert(1, $bestUnitToReplace, $bestExpandableUnit);
-        }
-
-        // Construct the result.
-        return self::create($newValue, $newUnit);
     }
 
     /**
@@ -586,16 +495,133 @@ class Quantity implements Stringable
     }
 
     /**
-     * Reduce the quantity's units to the simplest form, by:
-     * 1. Merging compatible units
-     * 2. Compacting (substituting named units)
-     * 3. Auto-prefixing (adding an SI prefix if possible)
+     * Substitute base units for expandable units, e.g. kg*m/s2 => N
      *
-     * @return self The simplified Quantity.
+     * The expandable unit that replaces the largest number of base units will be chosen.
+     *
+     * 's-1' will not be replaced by 'Hz' unless it's the only unit term.
+     * Furthermore, 's-1' is not replaced by 'Bq'. You can call $q->to('Bq') to get that effect.
+     *
+     * @return self
      */
-    public function simplify(): self
+    public function simplify(bool $autoPrefix = true): self
     {
-        return $this->compact()->autoPrefix();
+        // Merge compatible units.
+        $qty = $this->merge();
+
+        // Handle Hertz separately. We only want to swap 's-1' for 'Hz' if it's the only unit term.
+        if (count($qty->derivedUnit->unitTerms) === 1) {
+            $unitTerm = $qty->derivedUnit->firstUnitTerm;
+
+            // Check if we have s-1.
+            if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
+                // Create the Hz unit term.
+                $newUnitTerm = new UnitTerm('Hz', PrefixUtility::invert($unitTerm->prefix));
+                $result = self::create($qty->value, $newUnitTerm);
+
+                // Auto-prefix if requested.
+                return $autoPrefix ? $result->autoPrefix() : $result;
+            }
+        }
+
+        // Start constructing result.
+        $newValue = $qty->value;
+        $newUnit = clone $qty->derivedUnit;
+
+        // Get all expandable units.
+        $expandableUnits = UnitRegistry::getExpandable();
+
+        // Track best match.
+        $bestExpandableUnit = null;
+        $bestMatchScore = 0;
+        $bestUnitToReplace = null;
+
+        foreach ($expandableUnits as $expandableUnit) {
+            /** @var DerivedUnit $expansionUnit */
+            $expansionUnit = $expandableUnit->expansionUnit;
+
+            // Skip 'Hz' or 'Bq'; these are the only expandable units with one unit term in their expansion.
+            if (count($expansionUnit->unitTerms) === 1) {
+                continue;
+            }
+
+            $expandableUnitMatchesQty = true;
+            $matchScore = 0;
+            $unitToReplace = new DerivedUnit();
+
+            // Go through the expansion unit terms and try to match against the quantity unit terms.
+            foreach ($expansionUnit->unitTerms as $expansionUnitTerm) {
+                $matchingQtyUnitTermFound = false;
+
+                // See if the quantity has all the unit terms of the expansion unit.
+                foreach ($qty->derivedUnit->unitTerms as $qtyUnitTerm) {
+                    // For a unit term from the quantity to match one from the expansion unit, it must have:
+                    // - the same unexponentiated symbol (i.e. matching prefixed unit)
+                    // - the same sign of the exponent
+                    // - the absolute value of the exponent greater than or equal to that of the expansion unit term
+                    $exp = abs($expansionUnitTerm->exponent);
+                    if (
+                        $qtyUnitTerm->unexponentiatedAsciiSymbol === $expansionUnitTerm->unexponentiatedAsciiSymbol &&
+                        Numbers::sign($qtyUnitTerm->exponent) === Numbers::sign($expansionUnitTerm->exponent) &&
+                        abs($qtyUnitTerm->exponent) >= $exp
+                    ) {
+                        $matchScore += $exp;
+                        $matchingQtyUnitTermFound = true;
+                        $unitToReplace->addUnitTerm(
+                            new UnitTerm($qtyUnitTerm->unit, $qtyUnitTerm->prefix, $expansionUnitTerm->exponent)
+                        );
+                        break;
+                    }
+                }
+
+                // If we didn't find a matching unit term, this expandable unit is not a match.
+                if (!$matchingQtyUnitTermFound) {
+                    $expandableUnitMatchesQty = false;
+                    break;
+                }
+            }
+
+            // If we found a better match, update our search result.
+            if ($expandableUnitMatchesQty && $matchScore > $bestMatchScore) {
+                $bestExpandableUnit = $expandableUnit;
+                $bestMatchScore = $matchScore;
+                $bestUnitToReplace = $unitToReplace;
+            }
+        }
+
+        // If we found a match, substitute the necessary unit terms for the expandable unit.
+        if ($bestExpandableUnit !== null && $bestUnitToReplace !== null) {
+            // Remove the unit terms (or parts thereof) to replace.
+            foreach ($bestUnitToReplace->unitTerms as $unitTermToReplace) {
+                $newUnit->addUnitTerm($unitTermToReplace->inv());
+            }
+
+            // Add the expandable unit.
+            $newUnit->addUnitTerm(new UnitTerm($bestExpandableUnit));
+
+            // Multiply by the conversion factor.
+            $newValue *= static::convert(1, $bestUnitToReplace, $bestExpandableUnit);
+        }
+
+        // Construct the result.
+        $result = self::create($newValue, $newUnit);
+
+        // Auto-prefix if requested.
+        return $autoPrefix ? $result->autoPrefix() : $result;
+    }
+
+    // endregion
+
+    // region Inspection methods
+
+    /**
+     * Check if this quantity's unit is composed entirely of SI units.
+     *
+     * @return bool True if all component units are SI units.
+     */
+    public function isSi(): bool
+    {
+        return $this->derivedUnit->isSi();
     }
 
     // endregion
@@ -798,7 +824,7 @@ class Quantity implements Stringable
             $newUnit->addUnitTerm($otherUnitTerm);
         }
 
-        // Create the result Quantity and merge units.
+        // Create the result Quantity and merge compatible units.
         return self::create($newValue, $newUnit)->merge();
     }
 

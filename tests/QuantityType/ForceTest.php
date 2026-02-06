@@ -155,7 +155,7 @@ final class ForceTest extends TestCase
     public function testConvertNewtonsToBaseSI(): void
     {
         $force = new Force(10, 'N');
-        $si = $force->toSi();
+        $si = $force->toSiBase();
 
         // 10 N = 10 kg·m·s⁻²
         $this->assertSame(10.0, $si->value);
@@ -168,7 +168,7 @@ final class ForceTest extends TestCase
     public function testConvertPoundForceToBaseSI(): void
     {
         $force = new Force(1, 'lbf');
-        $si = $force->toSi();
+        $si = $force->toSiBase();
 
         // 1 lbf = 4.4482216152605 kg·m·s⁻²
         $this->assertApproxEqual(4.4482216152605, $si->value);

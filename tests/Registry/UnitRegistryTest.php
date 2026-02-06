@@ -27,7 +27,7 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getAll();
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
@@ -116,7 +116,7 @@ final class UnitRegistryTest extends TestCase
     {
         // 'm' is metre, 'M' is mega prefix (not a unit by itself)
         $metre = UnitRegistry::getBySymbol('m');
-        $this->assertNotNull($metre);
+        $this->assertInstanceOf(Unit::class, $metre);
         $this->assertSame('metre', $metre->name);
 
         // 'M' alone is not a unit
@@ -135,7 +135,7 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getByDimension('L');
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertNotEmpty($result);
 
         foreach ($result as $unit) {
@@ -160,7 +160,7 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getByDimension('X9');
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertEmpty($result);
     }
 
@@ -175,7 +175,8 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getAllSymbols();
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+
         foreach ($result as $symbol) {
             $this->assertIsString($symbol);
         }
@@ -230,7 +231,7 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getExpandable();
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**

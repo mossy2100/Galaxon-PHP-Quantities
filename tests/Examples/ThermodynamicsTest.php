@@ -30,7 +30,7 @@ class ThermodynamicsTest extends TestCase
     public function testIdealGasLaw(): void
     {
         $n = new AmountOfSubstance(1, 'mol');
-        $gasConst = PhysicalConstant::get('R');
+        $gasConst = PhysicalConstant::molarGas();
         $temp = new Temperature(300, 'K');
         $volume = new Volume(0.025, 'm3');
 
@@ -48,7 +48,7 @@ class ThermodynamicsTest extends TestCase
      */
     public function testStefanBoltzmannRadiation(): void
     {
-        $sigma = PhysicalConstant::get('sigma');
+        $sigma = PhysicalConstant::stefanBoltzmann();
         $area = new Area(1, 'm2');
         $temp = new Temperature(5778, 'K');
 
@@ -66,7 +66,7 @@ class ThermodynamicsTest extends TestCase
      */
     public function testThermalEnergy(): void
     {
-        $k = PhysicalConstant::get('k');
+        $k = PhysicalConstant::boltzmann();
         $temp = new Temperature(300, 'K');
 
         $energy = $k->mul($temp)->mul(1.5);

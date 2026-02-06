@@ -144,10 +144,6 @@ class UnitRegistry
      * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
      * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
      * @param list<System> $systems The measurement systems this unit belongs to.
-     * @param int $onDuplicateAction How to handle duplicate names:
-     * - self::ON_DUPLICATE_IGNORE: Ignore the unit and do nothing.
-     * - self::ON_DUPLICATE_REPLACE: Replace the existing unit with the new one.
-     * - self::ON_DUPLICATE_THROW: Throw an exception.
      * @return Unit The newly created Unit object.
      * @throws DomainException If the name or symbol already exists.
      */

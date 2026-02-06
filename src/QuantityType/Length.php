@@ -79,10 +79,6 @@ class Length extends Quantity
                 'asciiSymbol' => 'mi',
                 'systems'     => [System::Imperial, System::US],
             ],
-            'league'            => [
-                'asciiSymbol' => 'le',
-                'systems'     => [System::Imperial, System::US],
-            ],
             // Nautical
             'fathom'            => [
                 'asciiSymbol' => 'ftm',
@@ -116,7 +112,6 @@ class Length extends Quantity
             ['ft', 'in', 12],
             ['yd', 'ft', 3],
             ['mi', 'yd', 1760],
-            ['le', 'mi', 3],
             // Astronomical
             ['au', 'm', 149597870700],
             ['ly', 'm', 9460730472580800],
@@ -137,7 +132,7 @@ class Length extends Quantity
     {
         return [
             'from' => 'ft',
-            'to'   => ['le', 'mi', 'yd', 'ft', 'in'],
+            'to'   => ['mi', 'yd', 'ft', 'in'],
         ];
     }
 

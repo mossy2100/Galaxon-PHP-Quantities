@@ -32,7 +32,7 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         $result = QuantityTypeRegistry::getAll();
 
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
@@ -101,6 +101,7 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         $result = QuantityTypeRegistry::getByDimension('M');
 
+        $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('M', $result->dimension);
         $this->assertSame('mass', $result->name);
         $this->assertSame(Mass::class, $result->class);
@@ -113,6 +114,7 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         $result = QuantityTypeRegistry::getByDimension('L2');
 
+        $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('L2', $result->dimension);
         $this->assertSame('area', $result->name);
         $this->assertSame(Area::class, $result->class);
@@ -126,7 +128,7 @@ final class QuantityTypeRegistryTest extends TestCase
         // 'LT-1' should be normalized to 'LT-1' (canonical order)
         $result = QuantityTypeRegistry::getByDimension('LT-1');
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('LT-1', $result->dimension);
         $this->assertSame('velocity', $result->name);
     }
@@ -167,9 +169,9 @@ final class QuantityTypeRegistryTest extends TestCase
         $upper = QuantityTypeRegistry::getByName('LENGTH');
         $mixed = QuantityTypeRegistry::getByName('Length');
 
-        $this->assertNotNull($lower);
-        $this->assertNotNull($upper);
-        $this->assertNotNull($mixed);
+        $this->assertInstanceOf(QuantityType::class, $lower);
+        $this->assertInstanceOf(QuantityType::class, $upper);
+        $this->assertInstanceOf(QuantityType::class, $mixed);
         $this->assertSame($lower->dimension, $upper->dimension);
         $this->assertSame($lower->dimension, $mixed->dimension);
     }
@@ -181,7 +183,7 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         $result = QuantityTypeRegistry::getByName('electric current');
 
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('I', $result->dimension);
     }
 
@@ -216,10 +218,10 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByClassDifferentClasses(): void
     {
-        $this->assertSame('M', QuantityTypeRegistry::getByClass(Mass::class)->dimension);
-        $this->assertSame('T', QuantityTypeRegistry::getByClass(Time::class)->dimension);
-        $this->assertSame('L2', QuantityTypeRegistry::getByClass(Area::class)->dimension);
-        $this->assertSame('LT-1', QuantityTypeRegistry::getByClass(Velocity::class)->dimension);
+        $this->assertSame('M', QuantityTypeRegistry::getByClass(Mass::class)?->dimension);
+        $this->assertSame('T', QuantityTypeRegistry::getByClass(Time::class)?->dimension);
+        $this->assertSame('L2', QuantityTypeRegistry::getByClass(Area::class)?->dimension);
+        $this->assertSame('LT-1', QuantityTypeRegistry::getByClass(Velocity::class)?->dimension);
     }
 
     /**
@@ -265,7 +267,7 @@ final class QuantityTypeRegistryTest extends TestCase
 
         // Verify it exists
         $result = QuantityTypeRegistry::getByDimension($dimension);
-        $this->assertNotNull($result);
+        $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('hypervolume', $result->name);
         $this->assertSame('m4', $result->siUnitSymbol);
         $this->assertNull($result->class);
@@ -324,6 +326,7 @@ final class QuantityTypeRegistryTest extends TestCase
 
         // Verify it has no class
         $result = QuantityTypeRegistry::getByDimension($dimension);
+        $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertNull($result->class);
 
         // This would fail because Length::class is already registered

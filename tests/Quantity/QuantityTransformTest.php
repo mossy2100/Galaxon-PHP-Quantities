@@ -49,63 +49,63 @@ final class QuantityTransformTest extends TestCase
     }
 
     /**
-     * Test toSi() on a length in kilometres.
+     * Test toSi() on a length in kilometres (autoPrefix keeps it as km).
      */
     public function testToSiKilometres(): void
     {
         $length = new Length(1, 'km');
         $si = $length->toSi();
 
-        $this->assertSame(1000.0, $si->value);
-        $this->assertSame('m', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(1.0, $si->value);
+        $this->assertSame('km', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() on a length in feet.
+     * Test toSi() on a length in feet (autoPrefix chooses mm).
      */
     public function testToSiFeet(): void
     {
         $length = new Length(1, 'ft');
         $si = $length->toSi();
 
-        $this->assertSame(0.3048, $si->value);
-        $this->assertSame('m', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(304.8, $si->value);
+        $this->assertSame('mm', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() on mass in pounds.
+     * Test toSi() on mass in pounds (autoPrefix chooses g).
      */
     public function testToSiPounds(): void
     {
         $mass = new Mass(1, 'lb');
         $si = $mass->toSi();
 
-        $this->assertSame(0.45359237, $si->value);
-        $this->assertSame('kg', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(453.59237, $si->value);
+        $this->assertSame('g', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() with autoPrefix.
+     * Test toSi() without autoPrefix.
      */
-    public function testToSiWithAutoPrefix(): void
+    public function testToSiWithoutAutoPrefix(): void
     {
         $length = new Length(5000, 'm');
-        $si = $length->toSi(false, true);
+        $si = $length->toSi(true, false);
 
-        $this->assertSame(5.0, $si->value);
-        $this->assertSame('km', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(5000.0, $si->value);
+        $this->assertSame('m', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() with autoPrefix on small value.
+     * Test toSi() without simplify keeps base units.
      */
-    public function testToSiWithAutoPrefixSmall(): void
+    public function testToSiWithoutSimplify(): void
     {
-        $length = new Length(0.005, 'm');
-        $si = $length->toSi(false, true);
+        $force = new Force(1, 'N');
+        $si = $force->toSiBase();
 
-        $this->assertSame(5.0, $si->value);
-        $this->assertSame('mm', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(1.0, $si->value);
+        $this->assertSame('kg*m/s2', $si->derivedUnit->asciiSymbol);
     }
 
     // endregion
@@ -148,60 +148,6 @@ final class QuantityTransformTest extends TestCase
 
         $this->assertSame(10.0, $expanded->value);
         $this->assertSame('m', $expanded->derivedUnit->asciiSymbol);
-    }
-
-    // endregion
-
-    // region compact() tests
-
-    /**
-     * Test compact() on kg*m*s-2 to newton.
-     */
-    public function testCompactToNewton(): void
-    {
-        // Create kg⋅m⋅s⁻² manually
-        $kgms2 = Quantity::create(1, 'kg*m*s-2');
-        $compacted = $kgms2->compact();
-
-        $this->assertSame(1.0, $compacted->value);
-        $this->assertSame('N', $compacted->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test compact() on kg*m2*s-2 to joule.
-     */
-    public function testCompactToJoule(): void
-    {
-        // Create kg⋅m²⋅s⁻² manually
-        $kgm2s2 = Quantity::create(1, 'kg*m2*s-2');
-        $compacted = $kgm2s2->compact();
-
-        $this->assertSame(1.0, $compacted->value);
-        $this->assertSame('J', $compacted->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test compact() when no compaction possible.
-     */
-    public function testCompactNoChange(): void
-    {
-        $length = new Length(10, 'm');
-        $compacted = $length->compact();
-
-        $this->assertSame(10.0, $compacted->value);
-        $this->assertSame('m', $compacted->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test compact() on s-1 to Hz.
-     */
-    public function testCompactToHertz(): void
-    {
-        $frequency = Quantity::create(1, 's-1');
-        $compacted = $frequency->compact();
-
-        $this->assertSame(1.0, $compacted->value);
-        $this->assertSame('Hz', $compacted->derivedUnit->asciiSymbol);
     }
 
     // endregion
@@ -387,7 +333,19 @@ final class QuantityTransformTest extends TestCase
     }
 
     /**
-     * Test simplify() on s⁻¹ compacts to Hz and auto-prefixes.
+     * Test simplify() on s⁻¹ compacts to Hz.
+     */
+    public function testSimplifyInverseSecondsToHertz(): void
+    {
+        $qty = Quantity::create(1, 's-1');
+        $simplified = $qty->simplify();
+
+        $this->assertSame(1.0, $simplified->value);
+        $this->assertSame('Hz', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() on large s⁻¹ compacts to Hz with autoPrefix.
      */
     public function testSimplifyInverseSecondsToKilohertz(): void
     {
@@ -395,6 +353,7 @@ final class QuantityTransformTest extends TestCase
         $qty = Quantity::create(5000, 's-1');
         $simplified = $qty->simplify();
 
+        // Note: Hz special case in simplify() should apply autoPrefix
         $this->assertSame(5.0, $simplified->value);
         $this->assertSame('kHz', $simplified->derivedUnit->asciiSymbol);
     }
@@ -428,16 +387,16 @@ final class QuantityTransformTest extends TestCase
     // region Round-trip tests
 
     /**
-     * Test expand then compact returns equivalent value.
+     * Test expand() then simplify() returns equivalent value.
      */
     public function testExpandCompactRoundTrip(): void
     {
         $force = new Force(10, 'N');
         $expanded = $force->expand();
-        $compacted = $expanded->compact();
+        $simplified = $expanded->simplify();
 
-        $this->assertTrue($force->approxEqual($compacted));
-        $this->assertSame('N', $compacted->derivedUnit->asciiSymbol);
+        $this->assertTrue($force->approxEqual($simplified));
+        $this->assertSame('N', $simplified->derivedUnit->asciiSymbol);
     }
 
     // endregion

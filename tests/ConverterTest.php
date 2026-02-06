@@ -105,6 +105,7 @@ class ConverterTest extends TestCase
 
         $conversion = $converter->getConversion('m', 'm');
 
+        $this->assertInstanceOf(Conversion::class, $conversion);
         $this->assertSame(1.0, $conversion->factor->value);
     }
 
@@ -117,6 +118,7 @@ class ConverterTest extends TestCase
 
         $conversion = $converter->getConversion('km', 'm');
 
+        $this->assertInstanceOf(Conversion::class, $conversion);
         $this->assertSame('km', (string)$conversion->srcUnit);
         $this->assertSame('m', (string)$conversion->destUnit);
         $this->assertEqualsWithDelta(1000.0, $conversion->factor->value, 1e-10);
@@ -131,6 +133,7 @@ class ConverterTest extends TestCase
 
         $conversion = $converter->getConversion('cm', 'm');
 
+        $this->assertInstanceOf(Conversion::class, $conversion);
         $this->assertEqualsWithDelta(0.01, $conversion->factor->value, 1e-10);
     }
 
@@ -172,6 +175,9 @@ class ConverterTest extends TestCase
 
         // Second call should return cached result
         $conversion2 = $converter->getConversion('m', 'ft');
+
+        $this->assertInstanceOf(Conversion::class, $conversion1);
+        $this->assertInstanceOf(Conversion::class, $conversion2);
 
         $this->assertSame($conversion1->factor->value, $conversion2->factor->value);
     }
@@ -376,7 +382,7 @@ class ConverterTest extends TestCase
         // Even if m → yd isn't directly defined, it should be found via m → ft → yd or similar
         $conversion = $converter->getConversion('m', 'yd');
 
-        $this->assertNotNull($conversion);
+        $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 meter ≈ 1.09361 yards
         $this->assertEqualsWithDelta(1.09361, $conversion->factor->value, 1e-4);
     }
@@ -391,6 +397,9 @@ class ConverterTest extends TestCase
         // If m → ft exists, ft → m should be derivable
         $mToFt = $converter->getConversion('m', 'ft');
         $ftToM = $converter->getConversion('ft', 'm');
+
+        $this->assertInstanceOf(Conversion::class, $mToFt);
+        $this->assertInstanceOf(Conversion::class, $ftToM);
 
         $this->assertEqualsWithDelta(1.0, $mToFt->factor->value * $ftToM->factor->value, 1e-6);
     }
@@ -408,7 +417,7 @@ class ConverterTest extends TestCase
 
         $conversion = $converter->getConversion('m2', 'ft2');
 
-        $this->assertNotNull($conversion);
+        $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 m² ≈ 10.7639 ft²
         $this->assertEqualsWithDelta(10.7639, $conversion->factor->value, 1e-3);
     }
@@ -421,6 +430,8 @@ class ConverterTest extends TestCase
         $converter = Converter::getByDimension('L2');
 
         $conversion = $converter->getConversion('km2', 'm2');
+
+        $this->assertInstanceOf(Conversion::class, $conversion);
 
         // 1 km² = 1,000,000 m²
         $this->assertEqualsWithDelta(1e6, $conversion->factor->value, 1e-10);
@@ -435,7 +446,7 @@ class ConverterTest extends TestCase
 
         $conversion = $converter->getConversion('m3', 'ft3');
 
-        $this->assertNotNull($conversion);
+        $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 m³ ≈ 35.3147 ft³
         $this->assertEqualsWithDelta(35.3147, $conversion->factor->value, 1e-3);
     }
@@ -468,6 +479,8 @@ class ConverterTest extends TestCase
 
         $conversion = $converter->getConversion('h', 's');
 
+        $this->assertInstanceOf(Conversion::class, $conversion);
+
         // 1 hour = 3600 seconds
         $this->assertEqualsWithDelta(3600.0, $conversion->factor->value, 1e-10);
     }
@@ -480,6 +493,8 @@ class ConverterTest extends TestCase
         $converter = Converter::getByDimension('T');
 
         $conversion = $converter->getConversion('ms', 's');
+
+        $this->assertInstanceOf(Conversion::class, $conversion);
 
         // 1 ms = 0.001 s
         $this->assertEqualsWithDelta(0.001, $conversion->factor->value, 1e-10);
@@ -498,6 +513,8 @@ class ConverterTest extends TestCase
 
         $conversion = $converter->getConversion('kg', 'g');
 
+        $this->assertInstanceOf(Conversion::class, $conversion);
+
         // 1 kg = 1000 g
         $this->assertEqualsWithDelta(1000.0, $conversion->factor->value, 1e-10);
     }
@@ -510,6 +527,8 @@ class ConverterTest extends TestCase
         $converter = Converter::getByDimension('M');
 
         $conversion = $converter->getConversion('kg', 'lb');
+
+        $this->assertInstanceOf(Conversion::class, $conversion);
 
         // 1 kg ≈ 2.20462 lb
         $this->assertEqualsWithDelta(2.20462, $conversion->factor->value, 1e-4);

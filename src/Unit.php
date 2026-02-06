@@ -263,7 +263,7 @@ class Unit implements UnitInterface
 
     // endregion
 
-    // region System methods
+    // region Inspection methods
 
     /**
      * Check if this unit belongs to a specific measurement system.
@@ -274,6 +274,16 @@ class Unit implements UnitInterface
     public function belongsToSystem(System $system): bool
     {
         return in_array($system, $this->systems, true);
+    }
+
+    /**
+     * Check if this unit belongs to the SI system.
+     *
+     * @return bool True if the unit is an SI unit.
+     */
+    public function isSi(): bool
+    {
+        return $this->belongsToSystem(System::SI);
     }
 
     // endregion

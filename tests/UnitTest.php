@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Tests;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Prefix;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
@@ -338,6 +339,7 @@ final class UnitTest extends TestCase
         );
 
         $prefix = PrefixUtility::getBySymbol('k');
+        $this->assertInstanceOf(Prefix::class, $prefix);
         $this->assertTrue($unit->acceptsPrefix($prefix));
     }
 
@@ -453,7 +455,7 @@ final class UnitTest extends TestCase
 
         $prefixes = $unit->allowedPrefixes;
 
-        $this->assertIsArray($prefixes);
+        $this->assertIsArray($prefixes); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertNotEmpty($prefixes);
     }
 
@@ -670,7 +672,7 @@ final class UnitTest extends TestCase
     {
         $unit = UnitRegistry::getBySymbol('m');
 
-        $this->assertNotNull($unit);
+        $this->assertInstanceOf(Unit::class, $unit);
         $this->assertSame('metre', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
         $this->assertSame('length', $unit->quantityType);
@@ -685,7 +687,7 @@ final class UnitTest extends TestCase
     {
         $unit = UnitRegistry::getBySymbol('ohm');
 
-        $this->assertNotNull($unit);
+        $this->assertInstanceOf(Unit::class, $unit);
         $this->assertSame('ohm', $unit->asciiSymbol);
         $this->assertSame('Ω', $unit->unicodeSymbol);
         $this->assertSame('Ω', $unit->format());
@@ -700,7 +702,7 @@ final class UnitTest extends TestCase
     {
         $unit = UnitRegistry::getBySymbol('B');
 
-        $this->assertNotNull($unit);
+        $this->assertInstanceOf(Unit::class, $unit);
         $this->assertSame('byte', $unit->name);
         $this->assertSame('B', $unit->asciiSymbol);
         $this->assertSame('data', $unit->quantityType);
@@ -906,7 +908,7 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
-        $this->assertIsArray($symbols);
+        $this->assertIsArray($symbols); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertContains('m', $symbols);
     }
 
@@ -1054,6 +1056,43 @@ final class UnitTest extends TestCase
 
         $this->assertTrue($unit->belongsToSystem(System::SI));
         $this->assertTrue($unit->belongsToSystem(System::Imperial));
+    }
+
+    // endregion
+
+    // region isSi() tests
+
+    /**
+     * Test isSi returns true for SI unit.
+     */
+    public function testIsSiReturnsTrueForSiUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('m');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertTrue($unit->isSi());
+    }
+
+    /**
+     * Test isSi returns false for Imperial unit.
+     */
+    public function testIsSiReturnsFalseForImperialUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('ft');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertFalse($unit->isSi());
+    }
+
+    /**
+     * Test isSi returns false for SIAccepted unit that is not SI.
+     */
+    public function testIsSiReturnsFalseForSiAcceptedOnly(): void
+    {
+        $unit = UnitRegistry::getBySymbol('ha');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertFalse($unit->isSi());
     }
 
     // endregion

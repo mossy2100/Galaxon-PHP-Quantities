@@ -30,7 +30,7 @@ class ChemistryTest extends TestCase
     public function testIdealGasMolarVolume(): void
     {
         $n = new AmountOfSubstance(1, 'mol');
-        $gasConst = PhysicalConstant::get('R');
+        $gasConst = PhysicalConstant::molarGas();
         $temp = new Temperature(273.15, 'K');
         $pressure = new Pressure(101325, 'Pa');
 
@@ -50,7 +50,7 @@ class ChemistryTest extends TestCase
     public function testAvogadroParticleCount(): void
     {
         $n = new AmountOfSubstance(2, 'mol');
-        $particleCountA = PhysicalConstant::get('NA');
+        $particleCountA = PhysicalConstant::avogadro();
         $particleCount = $n->mul($particleCountA);
 
         // mol × mol⁻¹ = dimensionless

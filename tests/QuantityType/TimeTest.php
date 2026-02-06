@@ -561,6 +561,9 @@ final class TimeTest extends TestCase
     {
         $original = new DateInterval('P1DT2H30M45S');
         $time = Time::fromDateInterval($original);
+
+        $this->assertInstanceOf(Time::class, $time);
+
         $result = $time->toDateInterval();
 
         $this->assertSame(1, $result->d);

@@ -28,7 +28,7 @@ class AstronomyTest extends TestCase
     public function testLightTravelTimeSunToEarth(): void
     {
         $d = new Length(149597870700, 'm');
-        $c = PhysicalConstant::get('c');
+        $c = PhysicalConstant::speedOfLight();
         $t = $d->div($c);
 
         $this->assertInstanceOf(Time::class, $t);
@@ -43,7 +43,7 @@ class AstronomyTest extends TestCase
      */
     public function testGravitationalForceSunEarth(): void
     {
-        $gravConst = PhysicalConstant::get('G');
+        $gravConst = PhysicalConstant::gravitational();
         $sunMass = new Mass(1.989e30, 'kg');
         $earthMass = new Mass(5.972e24, 'kg');
         $distance = new Length(1.496e11, 'm');
@@ -63,7 +63,7 @@ class AstronomyTest extends TestCase
      */
     public function testSurfaceGravityOfMars(): void
     {
-        $gravConst = PhysicalConstant::get('G');
+        $gravConst = PhysicalConstant::gravitational();
         $marsMass = new Mass(6.417e23, 'kg');
         $marsRadius = new Length(3.3895e6, 'm');
 

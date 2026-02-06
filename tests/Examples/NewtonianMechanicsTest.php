@@ -45,7 +45,7 @@ class NewtonianMechanicsTest extends TestCase
     public function testWeight(): void
     {
         $m = new Mass(75, 'kg');
-        $g = PhysicalConstant::get('g');
+        $g = PhysicalConstant::earthGravity();
         $weight = $m->mul($g);
 
         $this->assertInstanceOf(Force::class, $weight);
@@ -60,7 +60,7 @@ class NewtonianMechanicsTest extends TestCase
      */
     public function testGravitationalForce(): void
     {
-        $gravConst = PhysicalConstant::get('G');
+        $gravConst = PhysicalConstant::gravitational();
         $earthMass = new Mass(5.972e24, 'kg');
         $moonMass = new Mass(7.342e22, 'kg');
         $distance = new Length(3.844e8, 'm');

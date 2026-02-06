@@ -223,7 +223,7 @@ final class FrequencyTest extends TestCase
     public function testConvertHertzToSi(): void
     {
         $freq = new Frequency(100, 'Hz');
-        $si = $freq->toSi();
+        $si = $freq->toSiBase();
 
         // Hz expands to s⁻¹
         $this->assertSame(100.0, $si->value);
@@ -236,7 +236,7 @@ final class FrequencyTest extends TestCase
     public function testConvertKilohertzToSi(): void
     {
         $freq = new Frequency(1, 'kHz');
-        $si = $freq->toSi();
+        $si = $freq->toSiBase();
 
         $this->assertSame(1000.0, $si->value);
         $this->assertSame('s-1', $si->derivedUnit->asciiSymbol);
@@ -248,7 +248,7 @@ final class FrequencyTest extends TestCase
     public function testConvertMegahertzToSi(): void
     {
         $freq = new Frequency(1, 'MHz');
-        $si = $freq->toSi();
+        $si = $freq->toSiBase();
 
         $this->assertSame(1000000.0, $si->value);
         $this->assertSame('s-1', $si->derivedUnit->asciiSymbol);
@@ -260,7 +260,7 @@ final class FrequencyTest extends TestCase
     public function testConvertBecquerelToSi(): void
     {
         $activity = new Frequency(1000, 'Bq');
-        $si = $activity->toSi();
+        $si = $activity->toSiBase();
 
         // Bq also expands to s⁻¹
         $this->assertSame(1000.0, $si->value);
@@ -336,15 +336,15 @@ final class FrequencyTest extends TestCase
     }
 
     /**
-     * Test auto-prefixing after toSi() on kilohertz.
+     * Test auto-prefixing on s⁻¹ form of frequency.
      *
      * 1 kHz = 1000 s⁻¹, which autoprefixes to 1 ms⁻¹ (1 per millisecond = 1000 per second).
      * This is mathematically correct but the notation can be counterintuitive.
      */
-    public function testAutoPrefixAfterToSiOnKilohertz(): void
+    public function testAutoPrefixOnInverseSeconds(): void
     {
         $freq = new Frequency(1, 'kHz');
-        $si = $freq->toSi();
+        $si = $freq->toSiBase();
         $prefixed = $si->autoPrefix();
 
         // 1000 s⁻¹ = 1 ms⁻¹ (per millisecond)

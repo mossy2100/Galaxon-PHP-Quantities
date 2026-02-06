@@ -351,6 +351,20 @@ class UnitTerm implements UnitInterface
 
     // endregion
 
+    // region Inspection methods
+
+    /**
+     * Check if this unit term's base unit belongs to the SI system.
+     *
+     * @return bool True if the base unit is an SI unit.
+     */
+    public function isSi(): bool
+    {
+        return $this->unit->isSi();
+    }
+
+    // endregion
+
     // region Transformation methods
 
     /**

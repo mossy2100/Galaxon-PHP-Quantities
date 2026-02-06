@@ -281,7 +281,7 @@ final class EnergyTest extends TestCase
     public function testConvertJoulesToBaseSI(): void
     {
         $energy = new Energy(10, 'J');
-        $si = $energy->toSi();
+        $si = $energy->toSiBase();
 
         // 10 J = 10 kg·m²·s⁻²
         $this->assertSame(10.0, $si->value);
@@ -294,7 +294,7 @@ final class EnergyTest extends TestCase
     public function testConvertKilocaloriesToBaseSI(): void
     {
         $energy = new Energy(1, 'kcal');
-        $si = $energy->toSi();
+        $si = $energy->toSiBase();
 
         // 1 kcal = 4184 kg·m²·s⁻²
         $this->assertSame(4184.0, $si->value);
