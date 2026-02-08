@@ -121,7 +121,7 @@ class Converter
 
     // endregion
 
-    // region Conversion methods
+    // region Instance conversion methods
 
     /**
      * Find the conversion between two unit terms.
@@ -249,12 +249,149 @@ class Converter
 
     // endregion
 
+    // region Static conversion methods
+
+    /**
+     * Substitute expandable units for base units, e.g. N => kg*m/s2
+     *
+     * @param float $value The value to convert.
+     * @param DerivedUnit $unit The unit to convert from.
+     * @return array{float, DerivedUnit} A new value with the expanded derived unit.
+     * @throws DomainException|LogicException
+     */
+    public static function expand(float $value, DerivedUnit $unit): array
+    {
+        // Check if there's anything to do.
+        if (!$unit->hasExpansion()) {
+            return [$value, $unit];
+        }
+
+        // Initialize result components.
+        $expandedValue = $value;
+        $expandedUnit = new DerivedUnit();
+
+        // Expand any units with expansions.
+        foreach ($unit->unitTerms as $unitTerm) {
+            $expansionUnit = $unitTerm->unit->expansionUnit;
+            $factor = 1;
+
+            if ($expansionUnit === null) {
+                // Look for an indirect expansion.
+                $converter = self::getByDimension($unitTerm->dimension);
+
+                foreach ($converter->units as $converterUnit) {
+                    // We're just looking for an expandable unit by itself.
+                    if (count($converterUnit->unitTerms) !== 1) {
+                        continue;
+                    }
+
+                    // Get the first unit term.
+                    /** @var UnitTerm $converterUnitTerm */
+                    $converterUnitTerm = $converterUnit->firstUnitTerm;
+
+                    // See if it's useful for this purpose.
+                    if (
+                        $converterUnitTerm->exponent === 1 &&
+                        $converterUnitTerm->prefix === null &&
+                        $converterUnitTerm->unit->expansionUnit !== null
+                    ) {
+                        $factor = $converter->getConversionFactor($unitTerm, $converterUnitTerm);
+                        $expansionUnit = $converterUnitTerm->unit->expansionUnit;
+                        break;
+                    }
+                }
+            } else {
+                $factor = $unitTerm->unit->expansionValue;
+            }
+
+            if ($expansionUnit !== null) {
+                // Multiply by the conversion factor modified by prefix and exponent.
+                $expandedValue *= ($factor * $unitTerm->prefixMultiplier) ** $unitTerm->exponent;
+
+                // Add the unit terms from the expansion.
+                foreach ($expansionUnit->unitTerms as $expansionUnitTerm) {
+                    // Raise the expansion unit term to the exponent and add.
+                    $expandedUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
+                }
+            } else {
+                $expandedUnit->addUnitTerm($unitTerm);
+            }
+        }
+
+        // Since a unit expansion can add different and new unit terms, we can end up with unmerged compatible units.
+        // Merge compatible units if necessary.
+        [$expandedValue, $expandedUnit] = self::merge($expandedValue, $expandedUnit);
+
+        return [$expandedValue, $expandedUnit];
+    }
+
+    /**
+     * Merge units that have the same dimension, e.g. 'm' and 'ft', or 's' and 'h', or 'lb' and 'kg'.
+     *
+     * The first unit encountered of a given dimension will be one any others are converted to.
+     *
+     * @param float $value The value to convert.
+     * @param DerivedUnit $unit The unit to convert from.
+     * @return array{float, DerivedUnit} A new value with the merged derived unit.
+     * @throws DomainException|LogicException
+     */
+    public static function merge(float $value, DerivedUnit $unit): array
+    {
+        // Check if there's anything to do.
+        if (!$unit->hasMergeableUnits()) {
+            return [$value, $unit];
+        }
+
+        // Initialize result components.
+        $mergedValue = $value;
+        $mergedUnit = new DerivedUnit();
+
+        foreach ($unit->unitTerms as $thisUnitTerm) {
+            // See if there is already a unit term with a unit with this dimension.
+            $newUnitTerm1 = array_find(
+                $mergedUnit->unitTerms,
+                static fn (UnitTerm $ut) => $ut->unit->dimension === $thisUnitTerm->unit->dimension
+            );
+
+            // If no unit exists with this dimension, copy the existing one to the result.
+            if ($newUnitTerm1 === null) {
+                $mergedUnit->addUnitTerm($thisUnitTerm);
+            } else {
+                // If the unexponentiated units are different, convert one to the other.
+                $unexponentiatedThisUnitTerm = $thisUnitTerm->removeExponent();
+                $unexponentiatedNewUnitTerm1 = $newUnitTerm1->removeExponent();
+                if (!$unexponentiatedThisUnitTerm->equal($unexponentiatedNewUnitTerm1)) {
+                    // Get the conversion factor from the existing to the new unit term.
+                    $converter = self::getByDimension($unexponentiatedThisUnitTerm->dimension);
+                    $factor = $converter->getConversionFactor($unexponentiatedThisUnitTerm, $unexponentiatedNewUnitTerm1);
+
+                    // Multiply by the conversion factor raised to the exponent of the second unit term.
+                    $mergedValue *= $factor ** $thisUnitTerm->exponent;
+                }
+
+                // Create a second term with the same unit as the first, but the exponent of the second term.
+                $newUnitTerm2 = $newUnitTerm1->withExponent($thisUnitTerm->exponent);
+
+                // Adding the second unit term will combine it with the first because they have the same
+                // unexponentiated symbol.
+                $mergedUnit->addUnitTerm($newUnitTerm2);
+            }
+        }
+
+        // Return the merged value and unit.
+        return [$mergedValue, $mergedUnit];
+    }
+
+    // endregion
+
     // region Modification methods
 
     /**
      * Remove prefixes and add the unit to the Converter.
      *
      * @param DerivedUnit $derivedUnit The unit to add.
+     * @return void
+     * @throws DomainException|FormatException|LogicException
      */
     public function addUnit(DerivedUnit $derivedUnit): void
     {
@@ -604,11 +741,13 @@ class Converter
     /**
      * Merges compatible units.
      *
-     * If this creates a new unit, add it to the Converter.
-     * Also generates a new conversion and adds it to the ConversionRegistry.
+     * If this creates a new unit:
+     * - Add it to the Converter.
+     * - Generate a new conversion and adds it to the ConversionRegistry
      *
      * @param DerivedUnit $unit The unit to check and potentially add a merged variant for.
      * @return void
+     * @throws DomainException|FormatException|LogicException
      */
     private function addMergedUnit(DerivedUnit $unit): void
     {
@@ -617,24 +756,26 @@ class Converter
             return;
         }
 
-        // Generate the merged unit.
-        $qty = Quantity::create(1, $unit)->merge();
+        // Calculate the merged value and unit.
+        [$mergedValue, $mergedUnit] = self::merge(1, $unit);
 
         // Add the merged unit to the Converter.
-        $this->addUnit($qty->derivedUnit);
+        $this->addUnit($mergedUnit);
 
         // Add the new conversion to the registry.
-        ConversionRegistry::addConversion(new Conversion($unit, $qty->derivedUnit, $qty->value));
+        ConversionRegistry::addConversion(new Conversion($unit, $mergedUnit, $mergedValue));
     }
 
     /**
-     * Expands a unit and adds it to the Converter.
+     * Expands expandable unit.
      *
-     * If the unit has an expansion, generates the expanded form, adds it to the Converter,
-     * and registers a conversion between the original and expanded units.
+     * If this creates a new unit:
+     * - Add it to the Converter.
+     * - Generate a new conversion and adds it to the ConversionRegistry
      *
      * @param DerivedUnit $unit The unit to check and potentially add an expanded variant for.
      * @return void
+     * @throws DomainException|FormatException|LogicException
      */
     private function addExpandedUnit(DerivedUnit $unit): void
     {
@@ -643,14 +784,14 @@ class Converter
             return;
         }
 
-        // Generate the expansion quantity.
-        $qty = Quantity::create(1, $unit)->expand()->merge();
+        // Calculate the expanded value and unit.
+        [$expandedValue, $expandedUnit] = self::expand(1, $unit);
 
         // Add the expanded unit to the Converter.
-        $this->addUnit($qty->derivedUnit);
+        $this->addUnit($expandedUnit);
 
         // Add the new conversion to the registry.
-        ConversionRegistry::addConversion(new Conversion($unit, $qty->derivedUnit, $qty->value));
+        ConversionRegistry::addConversion(new Conversion($unit, $expandedUnit, $expandedValue));
     }
 
     // endregion

@@ -36,7 +36,7 @@ use Stringable;
  *
  * Features:
  * - Automatic validation of units and values
- * - Lazy initialization of UnitConverter for each measurement type
+ * - Lazy initialization of Converter for each measurement type
  * - Type-safe arithmetic operations (add, subtract, multiply, divide)
  * - Comparison and equality testing with epsilon tolerance
  * - Flexible string formatting and parsing
@@ -312,7 +312,8 @@ class Quantity implements Stringable
     /**
      * Substitute expandable units for base units, e.g. N => kg*m/s2
      *
-     * @return self
+     * @return self A new Quantity with expandable (named) units expanded.
+     * @throws DomainException|FormatException|LogicException
      */
     public function expand(): self
     {
@@ -321,59 +322,11 @@ class Quantity implements Stringable
             return $this;
         }
 
-        // Start building new Quantity.
-        $newValue = $this->value;
-        $newUnit = new DerivedUnit();
+        // Expand the expandable units.
+        [$expandedValue, $expandedUnit] = Converter::expand($this->value, $this->derivedUnit);
 
-        // Expand any units with expansions.
-        foreach ($this->derivedUnit->unitTerms as $unitTerm) {
-            $expansionUnit = $unitTerm->unit->expansionUnit;
-            $factor = 1;
-
-            if ($expansionUnit === null) {
-                // Look for an indirect expansion.
-                $converter = Converter::getByDimension($unitTerm->dimension);
-
-                foreach ($converter->units as $converterUnit) {
-                    // We're just looking for an expandable unit by itself.
-                    if (count($converterUnit->unitTerms) !== 1) {
-                        continue;
-                    }
-
-                    // Get the first unit term.
-                    /** @var UnitTerm $converterUnitTerm */
-                    $converterUnitTerm = $converterUnit->firstUnitTerm;
-
-                    // See if it's useful for this purpose.
-                    if (
-                        $converterUnitTerm->exponent === 1 &&
-                        $converterUnitTerm->prefix === null &&
-                        $converterUnitTerm->unit->expansionUnit !== null
-                    ) {
-                        $factor = $converter->getConversionFactor($unitTerm, $converterUnitTerm);
-                        $expansionUnit = $converterUnitTerm->unit->expansionUnit;
-                        break;
-                    }
-                }
-            } else {
-                $factor = $unitTerm->unit->expansionValue;
-            }
-
-            if ($expansionUnit !== null) {
-                // Multiply by the conversion factor modified by prefix and exponent.
-                $newValue *= ($factor * $unitTerm->prefixMultiplier) ** $unitTerm->exponent;
-
-                // Add the unit terms from the expansion Quantity.
-                foreach ($expansionUnit->unitTerms as $expansionUnitTerm) {
-                    // Raise the expansion unit term to the exponent and add.
-                    $newUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
-                }
-            } else {
-                $newUnit->addUnitTerm($unitTerm);
-            }
-        }
-
-        return self::create($newValue, $newUnit)->merge();
+        // Construct the new Quantity.
+        return self::create($expandedValue, $expandedUnit);
     }
 
     /**
@@ -382,6 +335,7 @@ class Quantity implements Stringable
      * The first unit encountered of a given dimension will be one any others are converted to.
      *
      * @return self A new Quantity with compatible units merged.
+     * @throws DomainException|FormatException|LogicException
      */
     public function merge(): self
     {
@@ -390,42 +344,11 @@ class Quantity implements Stringable
             return $this;
         }
 
-        // Initialize the result components.
-        $newValue = $this->value;
-        $newUnit = new DerivedUnit();
+        // Merge the mergeable units.
+        [$mergedValue, $mergedUnit] = Converter::merge($this->value, $this->derivedUnit);
 
-        foreach ($this->derivedUnit->unitTerms as $thisUnitTerm) {
-            // See if there is already a unit term with a unit with this dimension.
-            $newUnitTerm1 = array_find(
-                $newUnit->unitTerms,
-                static fn (UnitTerm $ut) => $ut->unit->dimension === $thisUnitTerm->unit->dimension
-            );
-
-            // If no unit exists with this dimension, copy the existing one to the result.
-            if ($newUnitTerm1 === null) {
-                $newUnit->addUnitTerm($thisUnitTerm);
-            } else {
-                // If the unexponentiated units are different, convert one to the other.
-                $unexponentiatedThisUnitTerm = $thisUnitTerm->removeExponent();
-                $unexponentiatedNewUnitTerm1 = $newUnitTerm1->removeExponent();
-                if (!$unexponentiatedThisUnitTerm->equal($unexponentiatedNewUnitTerm1)) {
-                    // Convert the second unit term to the same unit as the first.
-                    $factor = static::convert(1, $unexponentiatedThisUnitTerm, $unexponentiatedNewUnitTerm1);
-
-                    // Multiply by the conversion factor raised to the exponent of the second unit term.
-                    $newValue *= $factor ** $thisUnitTerm->exponent;
-                }
-
-                // Create a second term with the same unit as the first, but the exponent of the second term.
-                $newUnitTerm2 = $newUnitTerm1->withExponent($thisUnitTerm->exponent);
-
-                // Adding the second unit term will combine it with the first because they have the same
-                // unexponentiated symbol.
-                $newUnit->addUnitTerm($newUnitTerm2);
-            }
-        }
-
-        return self::create($newValue, $newUnit);
+        // Construct the new Quantity.
+        return self::create($mergedValue, $mergedUnit);
     }
 
     /**
