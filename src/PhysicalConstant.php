@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DomainException;
+use Galaxon\Core\Floats;
 
 /**
  * Provides access to physical constants as Quantity objects.
@@ -46,6 +47,8 @@ class PhysicalConstant
         // Thermodynamic constants.
         'R'         => 'molarGas',
         'sigma'     => 'stefanBoltzmann',
+        // Derived constants.
+        'hbar'      => 'reducedPlanck',
     ];
 
     // endregion
@@ -107,6 +110,7 @@ class PhysicalConstant
      * Hyperfine transition frequency of caesium (ΔνCs).
      *
      * Defines the second: exactly 9,192,631,770 Hz.
+     *
      */
     public static function caesiumFrequency(): Quantity
     {
@@ -307,6 +311,20 @@ class PhysicalConstant
     public static function stefanBoltzmann(): Quantity
     {
         return self::cached('sigma', 5.670374419e-8, 'W/(m2*K4)');
+    }
+
+    // endregion
+
+    // region Derived constants
+
+    /**
+     * Reduced Planck constant (ℏ = h / τ).
+     *
+     * Computed from Planck constant for full precision.
+     */
+    public static function reducedPlanck(): Quantity
+    {
+        return self::$cache['hbar'] ??= self::planck()->div(Floats::TAU);
     }
 
     // endregion

@@ -25,7 +25,8 @@ class DerivedUnit implements UnitInterface
 
     /**
      * Array of unit terms the DerivedUnit comprises, keyed by the unit symbol without the exponent.
-     * This is done because we will automatically combine same units with different exponents, e.g. km3 * km-1 = km2.
+     * This is done because we will automatically combine the same units with different exponents,
+     * e.g. km3 * km-1 = km2.
      *
      * @var array<string, UnitTerm>
      */
@@ -54,7 +55,7 @@ class DerivedUnit implements UnitInterface
 
     /**
      * The full unit symbol with prefix and exponent formatted as superscript (e.g. 'km²', 'ms⁻¹').
-     * This property returns the Unicode symbol, if set (e.g. '°').
+     * This property returns the Unicode symbol if set (e.g. '°').
      */
     public string $unicodeSymbol {
         get => $this->format();
@@ -94,6 +95,7 @@ class DerivedUnit implements UnitInterface
      *
      * @param null|Unit|UnitTerm|list<UnitTerm> $unit The unit, unit term, or array of unit terms to add, or null to
      * create an empty unit.
+     * @throws DomainException If the provided unit is invalid.
      */
     public function __construct(null|Unit|UnitTerm|array $unit = null)
     {
@@ -128,8 +130,8 @@ class DerivedUnit implements UnitInterface
      *
      * @param null|string|UnitInterface $value The value to convert.
      * @return self The equivalent DerivedUnit object.
-     * @throws FormatException If a string is provided and it cannot be parsed.
-     * @throws DomainException If a string is provided and it contains unknown units.
+     * @throws FormatException If a string is provided, and it cannot be parsed.
+     * @throws DomainException If a string is provided, and it contains unknown units.
      */
     public static function toDerivedUnit(null|string|UnitInterface $value): self
     {
@@ -184,7 +186,7 @@ class DerivedUnit implements UnitInterface
 
         $rxUnitTerm = UnitTerm::regex();
 
-        // Check for series of unit terms separated by multiplication and/or division operators.
+        // Check for a series of unit terms separated by multiplication and/or division operators.
         $form1 = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_PLUS_DIV . "$rxUnitTerm)*";
         if (preg_match("/^$form1$/iu", $symbol, $matches) === 1) {
             return self::parseHelper($symbol);
@@ -219,7 +221,7 @@ class DerivedUnit implements UnitInterface
      */
     private static function parseHelper(string $symbol): self
     {
-        // Initialize new object.
+        // Initialize a new object.
         $new = new self();
 
         // Get the parts of the compound unit.
@@ -258,7 +260,7 @@ class DerivedUnit implements UnitInterface
      * If $ascii is true, then the primary (ASCII) symbol will be used, exponents will not be converted to superscript,
      * and the unit terms will be separated by a '*' character.
      *
-     * @param bool $ascii If true, return ASCII format; if false (default), return Unicode format.
+     * @param bool $ascii If true, return the ASCII version; if false (default), return the Unicode version.
      * @return string The derived unit symbol.
      */
     public function format(bool $ascii = false): string
@@ -341,13 +343,7 @@ class DerivedUnit implements UnitInterface
      */
     public function isSi(): bool
     {
-        foreach ($this->unitTerms as $unitTerm) {
-            if (!$unitTerm->isSi()) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_all($this->unitTerms, static fn ($unitTerm) => $unitTerm->isSi());
     }
 
     /**
@@ -524,7 +520,7 @@ class DerivedUnit implements UnitInterface
     public function toSi(): self
     {
         $unitTerms = [];
-        $dimTerms = DimensionUtility::explode($this->dimension);
+        $dimTerms = DimensionUtility::decompose($this->dimension);
         foreach ($dimTerms as $code => $exp) {
             $unitTerms[] = DimensionUtility::getSiUnitTerm($code)->pow($exp);
         }
@@ -546,8 +542,7 @@ class DerivedUnit implements UnitInterface
     /**
      * Return a new DerivedUnit raised to a given power.
      *
-     * Each unit term's exponent is multiplied by the given value.
-     * For example, (m⋅s⁻¹)->pow(2) returns m²⋅s⁻².
+     * Each unit term's exponent is multiplied by the given value, e.g. (m⋅s⁻¹)->pow(2) returns m²⋅s⁻².
      *
      * @param int $exponent The power to raise the derived unit to.
      * @return self A new instance with the exponents multiplied by the given value.
@@ -586,8 +581,8 @@ class DerivedUnit implements UnitInterface
         }
 
         // Parse the dimension into dimension terms.
-        $aDimTerms = DimensionUtility::explode($a->dimension);
-        $bDimTerms = DimensionUtility::explode($b->dimension);
+        $aDimTerms = DimensionUtility::decompose($a->dimension);
+        $bDimTerms = DimensionUtility::decompose($b->dimension);
 
         // Put more complex dimensions (indicating expandable units) first.
         if (count($aDimTerms) > count($bDimTerms)) {
@@ -612,7 +607,7 @@ class DerivedUnit implements UnitInterface
         }
 
         // Second loop: compare exponents in descending order (higher first).
-        // e.g. Pa (M*L-1*T-2) vs J (M*L2*T-2) - same letters, different exponents.
+        // e.g. Pa (M*L-1*T-2) vs. J (M*L2*T-2) - same letters, different exponents.
         for ($i = 0; $i < $nTerms; $i++) {
             $cmp = $bDimTerms[$bDims[$i]] <=> $aDimTerms[$aDims[$i]];
             if ($cmp !== 0) {
@@ -635,7 +630,7 @@ class DerivedUnit implements UnitInterface
         $dimCodes = [];
         foreach ($this->unitTerms as $unitTerm) {
             // Get the dimension code terms for this unit term.
-            $dims = DimensionUtility::explode($unitTerm->dimension);
+            $dims = DimensionUtility::decompose($unitTerm->dimension);
 
             // Accumulate the exponents for each letter in the dimension code.
             foreach ($dims as $dimCode => $exp) {
@@ -657,6 +652,8 @@ class DerivedUnit implements UnitInterface
         }
 
         // Generate the full dimension code.
-        $this->dimension = DimensionUtility::implode($dimCodes);
+        $this->dimension = DimensionUtility::compose($dimCodes);
     }
+
+    // endregion
 }

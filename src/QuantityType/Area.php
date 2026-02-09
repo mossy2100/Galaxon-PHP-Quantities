@@ -8,6 +8,9 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 use Override;
 
+/**
+ * Represents area quantities.
+ */
 class Area extends Quantity
 {
     // region Overridden methods
@@ -30,11 +33,11 @@ class Area extends Quantity
         return [
             'hectare' => [
                 'asciiSymbol' => 'ha',
-                'systems'     => [System::SIAccepted],
+                'systems'     => [System::SiAccepted],
             ],
             'acre'    => [
                 'asciiSymbol' => 'ac',
-                'systems'     => [System::Imperial, System::US],
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
         ];
     }

@@ -25,7 +25,7 @@ final class MassTest extends TestCase
     {
         // Load Imperial/US units.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
     }
 
     // endregion
@@ -481,6 +481,63 @@ final class MassTest extends TestCase
         $value = Mass::convert(1, 'lb', 'kg');
 
         $this->assertSame(0.45359237, $value);
+    }
+
+    // endregion
+
+    // region fromParts tests
+
+    /**
+     * Test fromParts works without getPartsConfig() when result unit is provided.
+     */
+    public function testFromPartsWithoutPartsConfig(): void
+    {
+        // Mass doesn't implement getPartsConfig(), but fromParts() should still work
+        // when we provide a result unit symbol.
+        $mass = Mass::fromParts([
+            'kg' => 1,
+            'g'  => 200,
+            'mg' => 50,
+        ], 'g');
+
+        $this->assertInstanceOf(Mass::class, $mass);
+        // 1 kg = 1000 g, 200 g = 200 g, 50 mg = 0.05 g
+        // Total = 1200.05 g
+        $this->assertSame(1200.05, $mass->value);
+        $this->assertSame('g', $mass->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test fromParts with cross-system units.
+     */
+    public function testFromPartsCrossSystem(): void
+    {
+        // Mix metric and imperial units.
+        $mass = Mass::fromParts([
+            'lb' => 1,
+            'kg' => 1,
+        ], 'g');
+
+        $this->assertInstanceOf(Mass::class, $mass);
+        // 1 lb = 453.59237 g, 1 kg = 1000 g
+        // Total = 1453.59237 g
+        $this->assertSame(1453.59237, $mass->value);
+        $this->assertSame('g', $mass->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test fromParts with negative sign.
+     */
+    public function testFromPartsWithSign(): void
+    {
+        $mass = Mass::fromParts([
+            'kg'   => 1,
+            'g'    => 500,
+            'sign' => -1,
+        ], 'g');
+
+        $this->assertInstanceOf(Mass::class, $mass);
+        $this->assertSame(-1500.0, $mass->value);
     }
 
     // endregion

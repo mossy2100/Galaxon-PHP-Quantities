@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents luminous intensity quantities.
+ */
 class LuminousIntensity extends Quantity
 {
     // region Overridden methods
@@ -32,7 +35,7 @@ class LuminousIntensity extends Quantity
             'candela' => [
                 'asciiSymbol' => 'cd',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SI],
+                'systems'     => [System::Si],
             ],
         ];
     }

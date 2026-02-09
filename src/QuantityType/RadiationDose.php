@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents radiation dose quantities.
+ */
 class RadiationDose extends Quantity
 {
     // region Overridden methods
@@ -37,13 +40,13 @@ class RadiationDose extends Quantity
                 'asciiSymbol'         => 'Gy',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'm2*s-2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
             'sievert' => [
                 'asciiSymbol'         => 'Sv',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'm2*s-2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

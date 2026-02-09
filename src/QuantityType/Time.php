@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
+use DateMalformedIntervalStringException;
 use DomainException;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
@@ -12,6 +13,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents time quantities.
+ */
 class Time extends Quantity
 {
     // region Overridden methods
@@ -35,19 +39,19 @@ class Time extends Quantity
             'second' => [
                 'asciiSymbol' => 's',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SI],
+                'systems'     => [System::Si],
             ],
             'minute' => [
                 'asciiSymbol' => 'min',
-                'systems'     => [System::SIAccepted],
+                'systems'     => [System::SiAccepted],
             ],
             'hour'   => [
                 'asciiSymbol' => 'h',
-                'systems'     => [System::SIAccepted],
+                'systems'     => [System::SiAccepted],
             ],
             'day'    => [
                 'asciiSymbol' => 'd',
-                'systems'     => [System::SIAccepted],
+                'systems'     => [System::SiAccepted],
             ],
             'week'   => [
                 'asciiSymbol' => 'w',
@@ -109,9 +113,10 @@ class Time extends Quantity
      * - 1 week = 7 days
      *
      * @param DateInterval $interval The DateInterval to convert.
-     * @return parent A new Time instance.
+     * @return self A new Time instance.
+     *
      */
-    public static function fromDateInterval(DateInterval $interval): parent
+    public static function fromDateInterval(DateInterval $interval): self
     {
         // Convert all the parts of the DateInterval to seconds and sum.
         $seconds = self::convert($interval->y, 'y', 's') +
@@ -126,6 +131,7 @@ class Time extends Quantity
             $seconds = -$seconds;
         }
 
+        /** @var Time */
         return self::create($seconds, 's');
     }
 
@@ -166,7 +172,7 @@ class Time extends Quantity
             $symbol = $partUnitSymbols[$i];
             $value = $parts[$symbol] ?? 0;
 
-            // Add time separator before any time parts.
+            // Add the time separator 'T' before any time parts.
             if (in_array($symbol, ['h', 'min', 's'], true) && !$timeSeparatorAdded) {
                 $spec .= 'T';
                 $timeSeparatorAdded = true;
@@ -193,6 +199,7 @@ class Time extends Quantity
      * @param string $smallestUnitSymbol The smallest unit to include (default 's').
      * @return DateInterval A new DateInterval object.
      * @throws DomainException If the largest or smallest unit argument is invalid.
+     * @throws DateMalformedIntervalStringException If the DateInterval specification string is invalid.
      */
     public function toDateInterval(string $largestUnitSymbol = 'y', string $smallestUnitSymbol = 's'): DateInterval
     {

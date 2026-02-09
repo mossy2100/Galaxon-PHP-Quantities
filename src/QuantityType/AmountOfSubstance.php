@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents amount of substance quantities.
+ */
 class AmountOfSubstance extends Quantity
 {
     // region Overridden methods
@@ -32,7 +35,7 @@ class AmountOfSubstance extends Quantity
             'mole' => [
                 'asciiSymbol' => 'mol',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SI],
+                'systems'     => [System::Si],
             ],
         ];
     }

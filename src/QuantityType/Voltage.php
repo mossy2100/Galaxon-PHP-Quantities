@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents voltage quantities.
+ */
 class Voltage extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class Voltage extends Quantity
                 'asciiSymbol'         => 'V',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-3*A-1',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

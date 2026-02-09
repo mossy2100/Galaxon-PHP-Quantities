@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents frequency quantities.
+ */
 class Frequency extends Quantity
 {
     // region Overridden methods
@@ -36,13 +39,13 @@ class Frequency extends Quantity
                 'asciiSymbol'         => 'Hz',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 's-1',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
             'becquerel' => [
                 'asciiSymbol'         => 'Bq',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 's-1',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

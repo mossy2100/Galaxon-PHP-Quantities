@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents inductance quantities.
+ */
 class Inductance extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class Inductance extends Quantity
                 'asciiSymbol'         => 'H',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-2*A-2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

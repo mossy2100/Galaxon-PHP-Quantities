@@ -103,11 +103,21 @@ class Converter
     // region Factory methods
 
     /**
+     * Reset all Converter instances.
+     *
+     * Clears the multiton cache, forcing new instances to be created on next access.
+     * Primarily intended for test isolation.
+     */
+    public static function reset(): void
+    {
+        self::$instances = [];
+    }
+
+    /**
      * Get the Converter instance for a given dimension.
      *
      * @param string $dimension Dimension code (e.g. 'L').
      * @return self
-     * @throws DomainException
      */
     public static function getByDimension(string $dimension): self
     {
@@ -228,7 +238,6 @@ class Converter
      * @return float The converted value.
      * @throws DomainException If either unit symbol is invalid.
      * @throws LogicException If no conversion path exists between the units.
-     *
      * @example
      *   $meters = 100;
      *   $feet = $converter->convert($meters, 'm', 'ft');  // 328.084
@@ -240,7 +249,9 @@ class Converter
 
         // If no conversion was found, throw an exception.
         if ($conversion === null) {
-            throw new LogicException("No conversion found between units '$srcUnit' and '$destUnit'.");
+            throw new LogicException(
+                "No conversion path found between '$srcUnit' and '$destUnit' (dimension: $this->dimension)."
+            );
         }
 
         // Multiply by the conversion factor.
@@ -257,7 +268,6 @@ class Converter
      * @param float $value The value to convert.
      * @param DerivedUnit $unit The unit to convert from.
      * @return array{float, DerivedUnit} A new value with the expanded derived unit.
-     * @throws DomainException|LogicException
      */
     public static function expand(float $value, DerivedUnit $unit): array
     {
@@ -328,12 +338,11 @@ class Converter
     /**
      * Merge units that have the same dimension, e.g. 'm' and 'ft', or 's' and 'h', or 'lb' and 'kg'.
      *
-     * The first unit encountered of a given dimension will be one any others are converted to.
+     * The first unit encountered of a given dimension will be the one any others are converted to.
      *
      * @param float $value The value to convert.
      * @param DerivedUnit $unit The unit to convert from.
      * @return array{float, DerivedUnit} A new value with the merged derived unit.
-     * @throws DomainException|LogicException
      */
     public static function merge(float $value, DerivedUnit $unit): array
     {
@@ -363,7 +372,10 @@ class Converter
                 if (!$unexponentiatedThisUnitTerm->equal($unexponentiatedNewUnitTerm1)) {
                     // Get the conversion factor from the existing to the new unit term.
                     $converter = self::getByDimension($unexponentiatedThisUnitTerm->dimension);
-                    $factor = $converter->getConversionFactor($unexponentiatedThisUnitTerm, $unexponentiatedNewUnitTerm1);
+                    $factor = $converter->getConversionFactor(
+                        $unexponentiatedThisUnitTerm,
+                        $unexponentiatedNewUnitTerm1
+                    );
 
                     // Multiply by the conversion factor raised to the exponent of the second unit term.
                     $mergedValue *= $factor ** $thisUnitTerm->exponent;
@@ -391,7 +403,6 @@ class Converter
      *
      * @param DerivedUnit $derivedUnit The unit to add.
      * @return void
-     * @throws DomainException|FormatException|LogicException
      */
     public function addUnit(DerivedUnit $derivedUnit): void
     {
@@ -413,7 +424,7 @@ class Converter
     /**
      * Validate a string or object representing a unit.
      *
-     * Returns the validated DerivedUnit object if valid, and throws an exception if not.
+     * Returns the validated DerivedUnit object if valid and throws an exception if not.
      *
      * @param string|UnitInterface $value The unit value to validate.
      * @return DerivedUnit The validated DerivedUnit object equivalent to the provided parameter.
@@ -438,7 +449,7 @@ class Converter
 
     // endregion
 
-    // region Helper methods for finding conversions
+    // region Conversion-finding methods
 
     /**
      * Private function to help us keep track of the best conversion found so far.
@@ -455,7 +466,7 @@ class Converter
         ?Conversion &$best,
         bool &$done
     ): void {
-        // Let's see if we have a new best.
+        // Let's see if we have a new best conversion.
         if ($newConversion->factor->relativeError < $minErr) {
             $minErr = $newConversion->factor->relativeError;
             $best = $newConversion;
@@ -515,9 +526,9 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The combined conversion, or null if not applicable or no path exists.
      */
-    private static function getConversionByTerms(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private static function getConversionByUnitTermPairs(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
-        // Check number of unit terms match.
+        // Check the number of unit terms match.
         if (count($srcUnit->unitTerms) !== count($destUnit->unitTerms)) {
             return null;
         }
@@ -527,7 +538,7 @@ class Converter
             return null;
         }
 
-        // Generate conversion factor by multiplying the factors for each term.
+        // Generate the conversion factor by multiplying the factors for each term.
         $srcUnitTerms = array_values($srcUnit->unitTerms);
         $destUnitTerms = array_values($destUnit->unitTerms);
         $factor = new FloatWithError(1);
@@ -551,6 +562,79 @@ class Converter
         }
 
         return new Conversion($srcUnit, $destUnit, $factor);
+    }
+
+    /**
+     * Generate new conversions by combining existing conversions between source, destination, and intermediate units.
+     *
+     * @param string $src The source unit symbol.
+     * @param string $dest The destination unit symbol.
+     * @param float $minErr Minimum error threshold for conversion.
+     * @param ?Conversion $best Best conversion found so far.
+     * @param bool $done Flag indicating if conversion generation is complete.
+     * @return void
+     */
+    private function getConversionsByCombination(
+        string $src,
+        string $dest,
+        float &$minErr,
+        ?Conversion &$best,
+        bool &$done
+    ): void {
+        // Get the dimension.
+        $dim = $this->dimension;
+
+        // Look for a conversion opportunity via an intermediate unit.
+        foreach ($this->units as $midUnit) {
+            $mid = $midUnit->asciiSymbol;
+
+            // The intermediate unit must be different from the source and destination units.
+            if ($src === $mid || $dest === $mid) {
+                continue;
+            }
+
+            // Get conversions between the source, destination, and intermediate unit.
+            $srcToMid = ConversionRegistry::get($dim, $src, $mid);
+            $midToSrc = ConversionRegistry::get($dim, $mid, $src);
+            $destToMid = ConversionRegistry::get($dim, $dest, $mid);
+            $midToDest = ConversionRegistry::get($dim, $mid, $dest);
+
+            // Combine source->mid with mid->dest (sequential).
+            if ($srcToMid !== null && $midToDest !== null) {
+                $newConversion = $srcToMid->combineSequential($midToDest);
+                self::testNewConversion($newConversion, $minErr, $best, $done);
+                if ($done) {
+                    return;
+                }
+            }
+
+            // Combine source->mid with dest->mid (convergent).
+            if ($srcToMid !== null && $destToMid !== null) {
+                $newConversion = $srcToMid->combineConvergent($destToMid);
+                self::testNewConversion($newConversion, $minErr, $best, $done);
+                if ($done) {
+                    return;
+                }
+            }
+
+            // Combine mid->source with mid->dest (divergent).
+            if ($midToSrc !== null && $midToDest !== null) {
+                $newConversion = $midToSrc->combineDivergent($midToDest);
+                self::testNewConversion($newConversion, $minErr, $best, $done);
+                if ($done) {
+                    return;
+                }
+            }
+
+            // Combine mid->source with dest->mid (opposite).
+            if ($midToSrc !== null && $destToMid !== null) {
+                $newConversion = $midToSrc->combineOpposite($destToMid);
+                self::testNewConversion($newConversion, $minErr, $best, $done);
+                if ($done) {
+                    return;
+                }
+            }
+        }
     }
 
     /**
@@ -594,56 +678,10 @@ class Converter
                     }
                 }
 
-                // Look for a conversion opportunity via an intermediate unit.
-                foreach ($this->units as $midUnit) {
-                    $mid = $midUnit->asciiSymbol;
-
-                    // The intermediate unit must be different from the source and destination units.
-                    if ($src === $mid || $dest === $mid) {
-                        continue;
-                    }
-
-                    // Get conversions between the source, destination, and intermediate unit.
-                    $srcToMid = ConversionRegistry::get($dim, $src, $mid);
-                    $midToSrc = ConversionRegistry::get($dim, $mid, $src);
-                    $destToMid = ConversionRegistry::get($dim, $dest, $mid);
-                    $midToDest = ConversionRegistry::get($dim, $mid, $dest);
-
-                    // Combine source->mid with mid->dest (sequential).
-                    if ($srcToMid !== null && $midToDest !== null) {
-                        $newConversion = $srcToMid->combineSequential($midToDest);
-                        self::testNewConversion($newConversion, $minErr, $best, $done);
-                        if ($done) {
-                            break 3;
-                        }
-                    }
-
-                    // Combine source->mid with dest->mid (convergent).
-                    if ($srcToMid !== null && $destToMid !== null) {
-                        $newConversion = $srcToMid->combineConvergent($destToMid);
-                        self::testNewConversion($newConversion, $minErr, $best, $done);
-                        if ($done) {
-                            break 3;
-                        }
-                    }
-
-                    // Combine mid->source with mid->dest (divergent).
-                    if ($midToSrc !== null && $midToDest !== null) {
-                        $newConversion = $midToSrc->combineDivergent($midToDest);
-                        self::testNewConversion($newConversion, $minErr, $best, $done);
-                        if ($done) {
-                            break 3;
-                        }
-                    }
-
-                    // Combine mid->source with dest->mid (opposite).
-                    if ($midToSrc !== null && $destToMid !== null) {
-                        $newConversion = $midToSrc->combineOpposite($destToMid);
-                        self::testNewConversion($newConversion, $minErr, $best, $done);
-                        if ($done) {
-                            break 3;
-                        }
-                    }
+                // Look for and test conversions formed by combination.
+                self::getConversionsByCombination($src, $dest, $minErr, $best, $done);
+                if ($done) {
+                    break 2;
                 }
 
                 // Look for a conversion by exponentiation.
@@ -656,7 +694,7 @@ class Converter
                 }
 
                 // Look for a conversion by multiple unit terms.
-                $newConversion = self::getConversionByTerms($srcUnit, $destUnit);
+                $newConversion = self::getConversionByUnitTermPairs($srcUnit, $destUnit);
                 if ($newConversion !== null) {
                     self::testNewConversion($newConversion, $minErr, $best, $done);
                     if ($done) {
@@ -667,9 +705,8 @@ class Converter
         }
 
         if ($best !== null) {
-            // Remember the best conversion we found for this scan.
+            // Record the best conversion we found for this scan.
             ConversionRegistry::addConversion($best);
-            // echo $best, ' ', $minErr, PHP_EOL;
 
             // Report we found one.
             return true;
@@ -703,7 +740,7 @@ class Converter
                         continue;
                     }
 
-                    // Look for conversion opportunity via an intermediate unit involving only integer multiplications.
+                    // Look for a conversion opportunity via an intermediate unit involving only integer multiplication.
                     foreach ($this->units as $midUnit) {
                         $mid = $midUnit->asciiSymbol;
 
@@ -747,7 +784,6 @@ class Converter
      *
      * @param DerivedUnit $unit The unit to check and potentially add a merged variant for.
      * @return void
-     * @throws DomainException|FormatException|LogicException
      */
     private function addMergedUnit(DerivedUnit $unit): void
     {
@@ -775,7 +811,6 @@ class Converter
      *
      * @param DerivedUnit $unit The unit to check and potentially add an expanded variant for.
      * @return void
-     * @throws DomainException|FormatException|LogicException
      */
     private function addExpandedUnit(DerivedUnit $unit): void
     {
@@ -845,7 +880,7 @@ class Converter
     /**
      * Generate all possible conversions between units in this converter.
      *
-     * Repeatedly calls findNextConversion() until no more conversions can be discovered.
+     * This method repeatedly calls findNextConversion() until no more conversions can be discovered.
      * Useful for debugging or pre-populating the conversion matrix.
      *
      * @return void

@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents electrical resistance quantities.
+ */
 class Resistance extends Quantity
 {
     // region Overridden methods
@@ -34,7 +37,7 @@ class Resistance extends Quantity
                 'unicodeSymbol'       => 'Ω',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents capacitance quantities.
+ */
 class Capacitance extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class Capacitance extends Quantity
                 'asciiSymbol'         => 'F',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg-1*m-2*s4*A2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

@@ -28,7 +28,7 @@ final class QuantityParseFormatTest extends TestCase
     {
         // Load Imperial/US units for cross-system tests.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
     }
 
     // endregion

@@ -119,14 +119,14 @@ final class DimensionUtilityTest extends TestCase
 
     // endregion
 
-    // region explode() tests
+    // region decompose() tests
 
     /**
-     * Test explode() with single dimension code.
+     * Test decompose() with single dimension code.
      */
-    public function testExplodeSingleCode(): void
+    public function testDecomposeSingleCode(): void
     {
-        $result = DimensionUtility::explode('L');
+        $result = DimensionUtility::decompose('L');
 
         $this->assertSame([
             'L' => 1,
@@ -134,30 +134,30 @@ final class DimensionUtilityTest extends TestCase
     }
 
     /**
-     * Test explode() with single dimension code and exponent.
+     * Test decompose() with single dimension code and exponent.
      */
-    public function testExplodeSingleCodeWithExponent(): void
+    public function testDecomposeSingleCodeWithExponent(): void
     {
         $this->assertSame([
             'L' => 2,
-        ], DimensionUtility::explode('L2'));
+        ], DimensionUtility::decompose('L2'));
         $this->assertSame([
             'L' => 3,
-        ], DimensionUtility::explode('L3'));
+        ], DimensionUtility::decompose('L3'));
         $this->assertSame([
             'T' => -1,
-        ], DimensionUtility::explode('T-1'));
+        ], DimensionUtility::decompose('T-1'));
         $this->assertSame([
             'T' => -2,
-        ], DimensionUtility::explode('T-2'));
+        ], DimensionUtility::decompose('T-2'));
     }
 
     /**
-     * Test explode() with compound dimension code.
+     * Test decompose() with compound dimension code.
      */
-    public function testExplodeCompoundCode(): void
+    public function testDecomposeCompoundCode(): void
     {
-        $result = DimensionUtility::explode('MLT-2');
+        $result = DimensionUtility::decompose('MLT-2');
 
         $this->assertSame([
             'M' => 1,
@@ -167,11 +167,11 @@ final class DimensionUtilityTest extends TestCase
     }
 
     /**
-     * Test explode() with complex dimension code (energy: M L2 T-2).
+     * Test decompose() with complex dimension code (energy: M L2 T-2).
      */
-    public function testExplodeComplexCode(): void
+    public function testDecomposeComplexCode(): void
     {
-        $result = DimensionUtility::explode('ML2T-2');
+        $result = DimensionUtility::decompose('ML2T-2');
 
         $this->assertSame([
             'M' => 1,
@@ -181,36 +181,36 @@ final class DimensionUtilityTest extends TestCase
     }
 
     /**
-     * Test explode() throws DomainException for invalid code.
+     * Test decompose() throws DomainException for invalid code.
      */
-    public function testExplodeThrowsForInvalidCode(): void
+    public function testDecomposeThrowsForInvalidCode(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code 'XYZ'");
 
-        DimensionUtility::explode('XYZ');
+        DimensionUtility::decompose('XYZ');
     }
 
     /**
-     * Test explode() returns empty array for string '1' (dimensionless).
+     * Test decompose() returns empty array for string '1' (dimensionless).
      */
-    public function testExplodeReturnsEmptyArrayForEmptyString(): void
+    public function testDecomposeReturnsEmptyArrayForEmptyString(): void
     {
-        $result = DimensionUtility::explode('1');
+        $result = DimensionUtility::decompose('1');
 
         $this->assertSame([], $result);
     }
 
     // endregion
 
-    // region implode() tests
+    // region compose() tests
 
     /**
-     * Test implode() with single dimension term.
+     * Test compose() with single dimension term.
      */
-    public function testImplodeSingleTerm(): void
+    public function testComposeSingleTerm(): void
     {
-        $result = DimensionUtility::implode([
+        $result = DimensionUtility::compose([
             'L' => 1,
         ]);
 
@@ -218,30 +218,30 @@ final class DimensionUtilityTest extends TestCase
     }
 
     /**
-     * Test implode() with single dimension term and exponent.
+     * Test compose() with single dimension term and exponent.
      */
-    public function testImplodeSingleTermWithExponent(): void
+    public function testComposeSingleTermWithExponent(): void
     {
-        $this->assertSame('L2', DimensionUtility::implode([
+        $this->assertSame('L2', DimensionUtility::compose([
             'L' => 2,
         ]));
-        $this->assertSame('L3', DimensionUtility::implode([
+        $this->assertSame('L3', DimensionUtility::compose([
             'L' => 3,
         ]));
-        $this->assertSame('T-1', DimensionUtility::implode([
+        $this->assertSame('T-1', DimensionUtility::compose([
             'T' => -1,
         ]));
-        $this->assertSame('T-2', DimensionUtility::implode([
+        $this->assertSame('T-2', DimensionUtility::compose([
             'T' => -2,
         ]));
     }
 
     /**
-     * Test implode() with multiple terms.
+     * Test compose() with multiple terms.
      */
-    public function testImplodeMultipleTerms(): void
+    public function testComposeMultipleTerms(): void
     {
-        $result = DimensionUtility::implode([
+        $result = DimensionUtility::compose([
             'M' => 1,
             'L' => 1,
             'T' => -2,
@@ -251,12 +251,12 @@ final class DimensionUtilityTest extends TestCase
     }
 
     /**
-     * Test implode() sorts terms into canonical order.
+     * Test compose() sorts terms into canonical order.
      */
-    public function testImplodeSortsTerms(): void
+    public function testComposeSortsTerms(): void
     {
         // Input in wrong order (T before M before L)
-        $result = DimensionUtility::implode([
+        $result = DimensionUtility::compose([
             'T' => -2,
             'M' => 1,
             'L' => 1,
@@ -267,21 +267,21 @@ final class DimensionUtilityTest extends TestCase
     }
 
     /**
-     * Test implode() with empty array returns string '1'.
+     * Test compose() with empty array returns string '1'.
      */
-    public function testImplodeEmptyArray(): void
+    public function testComposeEmptyArray(): void
     {
-        $result = DimensionUtility::implode([]);
+        $result = DimensionUtility::compose([]);
 
         $this->assertSame('1', $result);
     }
 
     /**
-     * Test implode() omits exponent of 1.
+     * Test compose() omits exponent of 1.
      */
-    public function testImplodeOmitsExponentOne(): void
+    public function testComposeOmitsExponentOne(): void
     {
-        $result = DimensionUtility::implode([
+        $result = DimensionUtility::compose([
             'M' => 1,
             'L' => 2,
         ]);
@@ -462,18 +462,19 @@ final class DimensionUtilityTest extends TestCase
     // region Round-trip tests
 
     /**
-     * Test explode() and implode() are inverse operations.
+     * Test decompose() and compose() are inverse operations.
+     *
      */
-    public function testExplodeImplodeRoundTrip(): void
+    public function testDecomposeComposeRoundTrip(): void
     {
         $codes = ['L', 'L2', 'T-1', 'MLT-2', 'M2L2T-4', 'MLIT-2'];
 
         foreach ($codes as $code) {
             $normalized = DimensionUtility::normalize($code);
-            $exploded = DimensionUtility::explode($normalized);
-            $imploded = DimensionUtility::implode($exploded);
+            $decomposed = DimensionUtility::decompose($normalized);
+            $composed = DimensionUtility::compose($decomposed);
 
-            $this->assertSame($normalized, $imploded, "Round-trip failed for '$code'");
+            $this->assertSame($normalized, $composed, "Round-trip failed for '$code'");
         }
     }
 

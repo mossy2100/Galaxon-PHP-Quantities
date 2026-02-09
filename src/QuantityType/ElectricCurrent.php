@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents electric current quantities.
+ */
 class ElectricCurrent extends Quantity
 {
     // region Overridden methods
@@ -32,7 +35,7 @@ class ElectricCurrent extends Quantity
             'ampere' => [
                 'asciiSymbol' => 'A',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SI],
+                'systems'     => [System::Si],
             ],
         ];
     }

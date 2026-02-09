@@ -1,290 +1,160 @@
 # FloatWithError
 
-Represents a floating-point number with tracked absolute error. This class propagates numerical errors through arithmetic operations, providing a way to track precision loss in calculations.
+Represents a floating-point value with tracked numerical error.
 
 ## Overview
 
-When performing floating-point arithmetic, rounding errors accumulate with each operation. `FloatWithError` automatically tracks these errors using standard error propagation formulas, giving you insight into the reliability of computed values.
+The `FloatWithError` class wraps a float value together with an estimate of its accumulated numerical error. This allows tracking precision loss through chains of arithmetic operations, which is particularly important in unit conversion where multiple multiplications and divisions can compound rounding errors.
 
-**Key features:**
-- Automatic error estimation for inexact floats
-- Error propagation through arithmetic operations
-- Relative and absolute error tracking
-- Immutable operations (returns new instances)
+The error tracking uses a relative error model. Each operation (multiplication, division, inversion) accumulates error based on the precision limits of IEEE 754 double-precision floating-point arithmetic. The `relativeError` property provides a normalised measure of precision loss.
 
-## Constructor
+### Key Features
 
-```php
-public function __construct(float $value, ?float $error = null)
-```
-
-Creates a new FloatWithError instance.
-
-**Parameters:**
-- `$value` (float) - The numeric value
-- `$error` (float|null) - The absolute error. If `null`, estimated from float precision using ULP
-
-**Automatic Error Estimation:**
-
-When `$error` is not provided:
-- **Exact integers** (within ±2⁵³): error = 0.0
-- **Other floats**: error = `ulp($value) * 0.5` (half the spacing to next representable float)
-
-**Examples:**
-
-```php
-// Exact integer - zero error
-$exact = new FloatWithError(42);
-// value: 42.0, absoluteError: 0.0
-
-// Non-exact float - automatic error estimation
-$pi = new FloatWithError(3.14159);
-// value: 3.14159, absoluteError: ~3.5e-16
-
-// Explicit error for measurement uncertainty
-$measurement = new FloatWithError(100.0, 0.5);
-// value: 100.0, absoluteError: 0.5
-```
+- Immutable value objects (all operations return new instances)
+- Tracks relative error through arithmetic operations
+- Supports multiplication, division, and inversion
+- Allows comparison of conversion paths by precision
+- Integer values start with zero error
 
 ## Properties
 
 ### value
 
 ```php
-private(set) float $value
+public readonly float $value
 ```
 
-The numeric value. Read-only from outside the class.
+The floating-point numeric value.
 
-### absoluteError
+### error
 
 ```php
-private(set) float $absoluteError
+public readonly float $error
 ```
 
-The absolute error (uncertainty) in the value. Read-only from outside the class.
+The absolute error estimate. This represents the maximum expected deviation from the true value due to floating-point precision limits.
 
 ### relativeError
 
 ```php
-public float $relativeError { get }
+public float $relativeError { get; }
 ```
 
-The relative error (absolute error divided by value). Computed property.
+The relative error as a proportion of the absolute value. Calculated as `error / |value|`. Returns 0.0 when the value is zero (to avoid division by zero).
 
-**Behavior:**
-- Returns `absoluteError / abs(value)` for non-zero values
-- Returns `0.0` if both value and error are zero
-- Returns `INF` if value is zero but error is non-zero
+This property is useful for comparing the precision of different conversion paths.
 
-**Examples:**
+## Constructor
+
+### __construct()
 
 ```php
-$num = new FloatWithError(100.0, 1.0);
-echo $num->relativeError;  // 0.01 (1%)
+public function __construct(float|int $value, float $error = 0.0)
+```
 
-$zero = new FloatWithError(0.0, 0.0);
-echo $zero->relativeError;  // 0.0
+Create a new FloatWithError instance.
 
-$uncertain = new FloatWithError(0.0, 1.0);
-echo $uncertain->relativeError;  // INF
+**Parameters:**
+- `$value` (float|int) - The numeric value
+- `$error` (float) - The absolute error estimate (default: 0.0)
+
+**Behavior:**
+- If `$value` is an integer and `$error` is 0.0, the error remains 0.0 (integers are exact)
+- If `$value` is a float and `$error` is 0.0, error is estimated from the float's precision
+- If `$error` is provided, it is used directly
+
+**Examples:**
+```php
+// Integer with no error
+$exact = new FloatWithError(1000);
+echo $exact->error; // 0.0
+
+// Float with estimated error
+$approx = new FloatWithError(3.14159);
+echo $approx->error; // Small value based on float precision
+
+// Explicit error
+$measured = new FloatWithError(100.0, 0.5);
+echo $measured->error; // 0.5
+```
+
+## Inspection Methods
+
+### isInteger()
+
+```php
+public function isInteger(): bool
+```
+
+Check if the value represents a mathematical integer (no fractional part).
+
+**Returns:**
+- `bool` - True if the value has no fractional component
+
+**Examples:**
+```php
+$int = new FloatWithError(42.0);
+$int->isInteger(); // true
+
+$float = new FloatWithError(42.5);
+$float->isInteger(); // false
 ```
 
 ## Arithmetic Methods
 
-All arithmetic methods return new `FloatWithError` instances without modifying the original.
-
-### add()
-
-```php
-public function add(float|FloatWithError $other): self
-```
-
-Add another value to this one.
-
-**Parameters:**
-- `$other` (float|FloatWithError) - The value to add. If a float is provided, it will be automatically wrapped in a FloatWithError instance.
-
-**Error propagation:** Absolute errors add (worst-case scenario where errors align).
-
-**Formula:** `error_sum = error_a + error_b + rounding_error`
-
-**Examples:**
-
-```php
-// Adding two FloatWithError instances
-$a = new FloatWithError(10.0, 0.1);
-$b = new FloatWithError(20.0, 0.2);
-
-$sum = $a->add($b);
-// value: 30.0
-// absoluteError: ≥ 0.3 (0.1 + 0.2 + rounding)
-
-// Adding an int directly (exact value)
-$c = new FloatWithError(10.0, 0.1);
-$sum2 = $c->add(5);
-// value: 15.0
-// absoluteError: ≥ 0.1 (only from $c)
-
-// Adding a float directly (automatic error estimation)
-$d = new FloatWithError(10.0, 0.1);
-$sum3 = $d->add(3.14);
-// value: 13.14
-// absoluteError: > 0.1 (includes automatic error from 3.14)
-```
-
-### sub()
-
-```php
-public function sub(float|FloatWithError $other): self
-```
-
-Subtract another value from this one.
-
-**Parameters:**
-- `$other` (float|FloatWithError) - The value to subtract. If a float is provided, it will be automatically wrapped in a FloatWithError instance.
-
-**Error propagation:** Absolute errors add (errors don't cancel in subtraction).
-
-**Formula:** `error_diff = error_a + error_b + rounding_error`
-
-**Examples:**
-
-```php
-// Subtracting two FloatWithError instances
-$a = new FloatWithError(50.0, 0.5);
-$b = new FloatWithError(20.0, 0.2);
-
-$diff = $a->sub($b);
-// value: 30.0
-// absoluteError: ≥ 0.7 (0.5 + 0.2 + rounding)
-
-// Subtracting an int directly (exact value)
-$c = new FloatWithError(50.0, 0.5);
-$diff2 = $c->sub(20);
-// value: 30.0
-// absoluteError: ≥ 0.5 (only from $c)
-
-// Subtracting a float directly (automatic error estimation)
-$d = new FloatWithError(50.0, 0.5);
-$diff3 = $d->sub(20.14);
-// value: 29.86
-// absoluteError: > 0.5 (includes automatic error from 20.14)
-```
-
-**Note:** Subtracting nearly equal values (catastrophic cancellation) can lead to very high relative error:
-
-```php
-$a = new FloatWithError(1.0000, 0.0001);
-$b = new FloatWithError(0.9999, 0.0001);
-
-$diff = $a->sub($b);
-// value: 0.0001
-// absoluteError: 0.0002
-// relativeError: 2.0 (200%!) - most precision lost
-```
-
-### neg()
-
-```php
-public function neg(): self
-```
-
-Negate this number.
-
-**Error propagation:** Error magnitude unchanged (sign of error doesn't affect magnitude).
-
-**Example:**
-
-```php
-$num = new FloatWithError(42.0, 1.0);
-$neg = $num->neg();
-// value: -42.0
-// absoluteError: 1.0 (unchanged)
-```
-
 ### mul()
 
 ```php
-public function mul(float|FloatWithError $other): self
+public function mul(self|float|int $other): self
 ```
 
-Multiply this value by another.
+Multiply this value by another, accumulating errors.
 
 **Parameters:**
-- `$other` (float|FloatWithError) - The value to multiply by. If a float is provided, it will be automatically wrapped in a FloatWithError instance.
+- `$other` (self|float|int) - The value to multiply by
 
-**Error propagation:** Relative errors add.
+**Returns:**
+- `self` - A new instance with the product and combined error
 
-**Formula:** `rel_error_product = rel_error_a + rel_error_b`
+**Behavior:**
+- Errors are combined using the formula for multiplication error propagation
+- Multiplying by an exact integer preserves precision
+- Multiplying by a FloatWithError combines both error estimates
 
 **Examples:**
-
 ```php
-// Multiplying two FloatWithError instances
-$a = new FloatWithError(10.0, 0.1);  // 1% relative error
-$b = new FloatWithError(20.0, 0.2);  // 1% relative error
+$a = new FloatWithError(100.0);
+$b = new FloatWithError(0.3048);  // feet to metres
 
-$product = $a->mul($b);
-// value: 200.0
-// relativeError: ~2% (1% + 1%)
-// absoluteError: ~4.0 (2% of 200)
-
-// Multiplying by an int directly (exact value)
-$c = new FloatWithError(10.0, 0.1);
-$product2 = $c->mul(5);
-// value: 50.0
-// relativeError: ~1% (only from $c)
-// absoluteError: ≥ 0.5
-
-// Multiplying by a float directly (automatic error estimation)
-$d = new FloatWithError(10.0, 0.1);
-$product3 = $d->mul(2.5);
-// value: 25.0
-// absoluteError: > 0.25 (includes automatic error from 2.5)
+$result = $a->mul($b);
+echo $result->value; // 30.48
+echo $result->relativeError; // Combined relative error
 ```
 
 ### div()
 
 ```php
-public function div(float|FloatWithError $other): self
+public function div(self|float|int $other): self
 ```
 
-Divide this value by another.
+Divide this value by another, accumulating errors.
 
 **Parameters:**
-- `$other` (float|FloatWithError) - The value to divide by. If a float is provided, it will be automatically wrapped in a FloatWithError instance.
+- `$other` (self|float|int) - The value to divide by
 
-**Error propagation:** Relative errors add.
+**Returns:**
+- `self` - A new instance with the quotient and combined error
 
-**Formula:** `rel_error_quotient = rel_error_a + rel_error_b`
-
-**Throws:** `DivisionByZeroError` if dividing by zero
+**Throws:**
+- `DivisionByZeroError` - If dividing by zero
 
 **Examples:**
-
 ```php
-// Dividing two FloatWithError instances
-$a = new FloatWithError(100.0, 1.0);  // 1% relative error
-$b = new FloatWithError(10.0, 0.1);   // 1% relative error
+$distance = new FloatWithError(1000.0);
+$time = new FloatWithError(60.0);
 
-$quotient = $a->div($b);
-// value: 10.0
-// relativeError: ~2% (1% + 1%)
-// absoluteError: ~0.2 (2% of 10)
-
-// Dividing by an int directly (exact value)
-$c = new FloatWithError(100.0, 1.0);
-$quotient2 = $c->div(10);
-// value: 10.0
-// relativeError: ~1% (only from $c)
-// absoluteError: ≥ 0.1
-
-// Dividing by a float directly (automatic error estimation)
-$d = new FloatWithError(100.0, 1.0);
-$quotient3 = $d->div(2.5);
-// value: 40.0
-// absoluteError: > 0.4 (includes automatic error from 2.5)
+$speed = $distance->div($time);
+echo $speed->value; // 16.666...
 ```
 
 ### inv()
@@ -293,138 +163,84 @@ $quotient3 = $d->div(2.5);
 public function inv(): self
 ```
 
-Calculate the multiplicative inverse (1/x).
+Return the multiplicative inverse (1/value).
 
-**Error propagation:** Relative error unchanged.
+**Returns:**
+- `self` - A new instance with the inverted value and propagated error
 
-**Formula:** `rel_error_inverse = rel_error_x`
+**Throws:**
+- `DivisionByZeroError` - If the value is zero
 
-**Throws:** `DivisionByZeroError` if inverting zero
-
-**Example:**
-
+**Examples:**
 ```php
-$num = new FloatWithError(4.0, 0.04);  // 1% relative error
-
-$inverse = $num->inv();
-// value: 0.25
-// relativeError: ~1% (unchanged)
-// absoluteError: ~0.0025 (1% of 0.25)
+$factor = new FloatWithError(2.54);  // inches to cm
+$inverse = $factor->inv();           // cm to inches
+echo $inverse->value; // 0.3937...
 ```
 
-## Conversion Methods
-
-### __toString()
+### pow()
 
 ```php
-public function __toString(): string
+public function pow(int $exponent): self
 ```
 
-Convert to string representation showing value, error, and precision.
+Raise this value to an integer power.
 
-**Format:** `"value ± absoluteError (relativeError%)"`
+**Parameters:**
+- `$exponent` (int) - The exponent to raise to
 
-**Example:**
+**Returns:**
+- `self` - A new instance with the result and propagated error
 
+**Behavior:**
+- Negative exponents are supported (equivalent to 1/value^|exponent|)
+- Error is propagated according to power rules
+
+**Examples:**
 ```php
-$num = new FloatWithError(100.0, 1.0);
-echo $num;
-// "100 ± 1.00e+00 (1.00%)"
-
-$exact = new FloatWithError(42);
-echo $exact;
-// "42 ± 0.00e+00 (0.00%)"
+$factor = new FloatWithError(1000.0);  // km to m
+$squared = $factor->pow(2);             // km2 to m2
+echo $squared->value; // 1000000.0
 ```
-
-## Error Propagation Formulas
-
-Understanding how errors propagate is key to using this class effectively:
-
-### Addition and Subtraction
-
-**Absolute errors add:**
-- `δ(a + b) = δa + δb`
-- `δ(a - b) = δa + δb`
-
-Errors don't cancel in subtraction because they represent uncertainty ranges.
-
-### Multiplication and Division
-
-**Relative errors add:**
-- `δ(a × b) / (a × b) = δa/a + δb/b`
-- `δ(a / b) / (a / b) = δa/a + δb/b`
-
-This means multiplication and division preserve relative precision.
-
-### Special Case: Powers
-
-For repeated multiplication:
-- `δ(x^n) / x^n = n × (δx / x)`
-
-Relative error multiplies by the exponent!
 
 ## Usage Examples
 
-### Basic Calculation with Error Tracking
+### Tracking Conversion Precision
 
 ```php
-// Measurement with uncertainty
-$length = new FloatWithError(10.0, 0.1);  // 10.0 ± 0.1 cm
-$width = new FloatWithError(5.0, 0.05);   // 5.0 ± 0.05 cm
+use Galaxon\Quantities\FloatWithError;
 
-// Calculate area
-$area = $length->mul($width);
-echo $area;
-// "50 ± 7.50e-01 (1.50%)"
+// Direct conversion factor (high precision)
+$direct = new FloatWithError(0.3048);  // feet to metres
 
-// Relative errors: 1% + 1% = 2%
-// Absolute error: 2% of 50 = 1.0 (approximately)
+// Indirect via inches (lower precision)
+$ftToIn = new FloatWithError(12);
+$inToCm = new FloatWithError(2.54);
+$cmToM = new FloatWithError(0.01);
+
+$indirect = $ftToIn->mul($inToCm)->mul($cmToM);
+
+// Compare precision
+if ($direct->relativeError < $indirect->relativeError) {
+    echo "Direct conversion is more precise";
+}
 ```
 
-### Chain of Operations
+### Building Conversion Factors
 
 ```php
-$a = new FloatWithError(10.0, 0.1);
-$b = new FloatWithError(5.0, 0.05);
-$c = new FloatWithError(2.0, 0.02);
+use Galaxon\Quantities\FloatWithError;
 
-// (a + b) / c
-$result = $a->add($b)->div($c);
+// Conversion from yards to metres
+$ydToFt = new FloatWithError(3);      // 3 feet per yard (exact)
+$ftToM = new FloatWithError(0.3048);  // feet to metres
 
-echo $result;
-// Shows accumulated error through operations
+$ydToM = $ydToFt->mul($ftToM);
+echo $ydToM->value; // 0.9144
+echo $ydToM->relativeError; // Error from ftToM only (ydToFt was exact)
 ```
-
-### Exact Integer Arithmetic
-
-```php
-// Exact integers have zero error
-$a = new FloatWithError(10);
-$b = new FloatWithError(3);
-
-$sum = $a->add($b);      // 13, exact
-$product = $a->mul($b);  // 30, exact
-$exact = $a->div($b);    // 3.333..., not exact (rounding error added)
-
-echo "Sum: " . $sum->absoluteError;      // 0.0
-echo "Product: " . $product->absoluteError;  // 0.0
-echo "Quotient: " . $exact->absoluteError;   // > 0 (rounding occurred)
-```
-
-## Best Practices
-
-1. **Start with accurate measurements**: Garbage in, garbage out. Initial errors determine final precision.
-
-2. **Monitor relative error**: Check `relativeError` to know when results become unreliable. Values approaching or exceeding 100% indicate severe precision loss.
-
-3. **Prefer multiplication over division when possible**: Both propagate errors the same way, but multiplication is often more numerically stable, and more likely to produce exact results.
-
-4. **Use exact integers when appropriate**: They maintain zero error through addition, subtraction, and multiplication.
-
-5. **Document measurement uncertainties**: When creating from measurements, always provide explicit error estimates.
 
 ## See Also
 
-- `Floats::ulp()` - Calculate Unit in Last Place for error estimation
-- `Floats::isExactInt()` - Check if a float is exactly representable
-- Error analysis theory and numerical methods texts
+- **[Conversion](Conversion.md)** - Uses FloatWithError for conversion factors
+- **[Converter](Converter.md)** - Selects conversion paths based on error

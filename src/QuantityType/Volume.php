@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents volume quantities.
+ */
 class Volume extends Quantity
 {
     // region Overridden methods
@@ -33,24 +36,24 @@ class Volume extends Quantity
             'litre'                => [
                 'asciiSymbol' => 'L',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SIAccepted],
+                'systems'     => [System::SiAccepted],
             ],
             // US customary volume units
             'US fluid ounce'       => [
                 'asciiSymbol' => 'US fl oz',
-                'systems'     => [System::US],
+                'systems'     => [System::UsCustomary],
             ],
             'US pint'              => [
                 'asciiSymbol' => 'US pt',
-                'systems'     => [System::US],
+                'systems'     => [System::UsCustomary],
             ],
             'US quart'             => [
                 'asciiSymbol' => 'US qt',
-                'systems'     => [System::US],
+                'systems'     => [System::UsCustomary],
             ],
             'US gallon'            => [
                 'asciiSymbol' => 'US gal',
-                'systems'     => [System::US],
+                'systems'     => [System::UsCustomary],
             ],
             // Imperial volume units
             'imperial fluid ounce' => [

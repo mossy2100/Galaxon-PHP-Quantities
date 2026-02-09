@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents power quantities.
+ */
 class Power extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class Power extends Quantity
                 'asciiSymbol'         => 'W',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-3',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents force quantities.
+ */
 class Force extends Quantity
 {
     // region Overridden methods
@@ -33,14 +36,14 @@ class Force extends Quantity
                 'asciiSymbol'         => 'N',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m*s-2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
             'pound force' => [
                 'asciiSymbol'         => 'lbf',
                 'expansionUnitSymbol' => 'lb*ft/s2',
                 // g₀ (standard gravity) = 9.80665 m/s² exactly.
                 'expansionValue'      => 9.80665 / 0.3048,
-                'systems'             => [System::Imperial, System::US],
+                'systems'             => [System::Imperial, System::UsCustomary],
             ],
         ];
     }

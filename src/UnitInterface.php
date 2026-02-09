@@ -49,7 +49,7 @@ interface UnitInterface extends Stringable
     /**
      * Format the unit as a string.
      *
-     * @param bool $ascii If true, return ASCII format; if false (default), return Unicode format.
+     * @param bool $ascii If true, return the ASCII format; if false (default), return the Unicode format.
      * @return string The formatted unit.
      */
     public function format(bool $ascii = false): string;

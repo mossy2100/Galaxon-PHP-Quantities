@@ -13,6 +13,9 @@ use Galaxon\Quantities\UnitInterface;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents temperature quantities.
+ */
 class Temperature extends Quantity
 {
     // region Constants
@@ -55,24 +58,24 @@ class Temperature extends Quantity
             'kelvin'     => [
                 'asciiSymbol' => 'K',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SI],
+                'systems'     => [System::Si],
             ],
             'celsius'    => [
                 'asciiSymbol'         => 'degC',
                 'unicodeSymbol'       => '°C',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
                 'expansionUnitSymbol' => 'K',
             ],
             'fahrenheit' => [
                 'asciiSymbol'         => 'degF',
                 'unicodeSymbol'       => '°F',
-                'systems'             => [System::Imperial, System::US],
+                'systems'             => [System::Imperial, System::UsCustomary],
                 'expansionUnitSymbol' => 'degR',
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',
                 'unicodeSymbol' => '°R',
-                'systems'       => [System::Imperial, System::US],
+                'systems'       => [System::Imperial, System::UsCustomary],
             ],
         ];
     }

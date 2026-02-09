@@ -251,6 +251,73 @@ final class QuantityCreateTest extends TestCase
 
     // endregion
 
+    // region fromParts() tests
+
+    /**
+     * Test Quantity::fromParts() with mass units returns Mass instance.
+     */
+    public function testFromPartsReturnsMassInstance(): void
+    {
+        $qty = Quantity::fromParts([
+            'kg' => 1,
+            'g'  => 500,
+        ], 'g');
+
+        $this->assertInstanceOf(Mass::class, $qty);
+        $this->assertSame(1500.0, $qty->value);
+        $this->assertSame('g', $qty->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test Quantity::fromParts() with time units returns Time instance.
+     */
+    public function testFromPartsReturnsTimeInstance(): void
+    {
+        $qty = Quantity::fromParts([
+            'h'   => 1,
+            'min' => 30,
+            's'   => 45,
+        ], 's');
+
+        $this->assertInstanceOf(Time::class, $qty);
+        // 1 h = 3600 s, 30 min = 1800 s, 45 s = 45 s
+        // Total = 5445 s
+        $this->assertSame(5445.0, $qty->value);
+        $this->assertSame('s', $qty->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test Quantity::fromParts() with length units returns Length instance.
+     */
+    public function testFromPartsReturnsLengthInstance(): void
+    {
+        $qty = Quantity::fromParts([
+            'km' => 1,
+            'm'  => 500,
+        ], 'm');
+
+        $this->assertInstanceOf(Length::class, $qty);
+        $this->assertSame(1500.0, $qty->value);
+        $this->assertSame('m', $qty->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test Quantity::fromParts() with sign.
+     */
+    public function testFromPartsWithSign(): void
+    {
+        $qty = Quantity::fromParts([
+            'm'    => 100,
+            'cm'   => 50,
+            'sign' => -1,
+        ], 'm');
+
+        $this->assertInstanceOf(Length::class, $qty);
+        $this->assertSame(-100.5, $qty->value);
+    }
+
+    // endregion
+
     // region isSi() tests
 
     /**

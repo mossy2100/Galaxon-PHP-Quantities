@@ -9,6 +9,9 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
 
+/**
+ * Registry of known units.
+ */
 class UnitRegistry
 {
     // region Static properties
@@ -159,7 +162,7 @@ class UnitRegistry
         ?float $expansionValue = null,
         array $systems = []
     ): Unit {
-        // Ensure registry is initialized (unless we're in the middle of init).
+        // Ensure the registry is initialized (unless we're in the middle of init).
         if (self::$units === null) {
             self::init();
         }
@@ -226,7 +229,8 @@ class UnitRegistry
      */
     public static function reset(): void
     {
-        self::$units = [];
+        self::$units = null;
+        self::$loadedSystems = [];
     }
 
     /**
@@ -312,11 +316,11 @@ class UnitRegistry
     private static function init(): void
     {
         if (self::$units === null) {
-            self::reset();
+            self::$units = [];
 
             // Load the default measurement systems.
-            self::loadSystem(System::SI);
-            self::loadSystem(System::SIAccepted);
+            self::loadSystem(System::Si);
+            self::loadSystem(System::SiAccepted);
             self::loadSystem(System::Common);
         }
     }

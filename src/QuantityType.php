@@ -7,6 +7,9 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Quantities\Utility\DimensionUtility;
 
+/**
+ * Represents a quantity type.
+ */
 class QuantityType
 {
     // region Properties
@@ -43,7 +46,6 @@ class QuantityType
      * @param string $dimension
      * @param string $siUnitSymbol
      * @param ?class-string<Quantity> $class
-     * @throws DomainException
      */
     public function __construct(string $name, string $dimension, string $siUnitSymbol, ?string $class = null)
     {

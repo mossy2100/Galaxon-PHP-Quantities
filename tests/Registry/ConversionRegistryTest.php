@@ -25,7 +25,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Load Imperial/US units for cross-system tests.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
         UnitRegistry::loadSystem(System::Nautical);
     }
 

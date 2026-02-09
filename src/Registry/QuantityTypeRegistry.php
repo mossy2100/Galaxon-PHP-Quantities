@@ -249,7 +249,7 @@ class QuantityTypeRegistry
     // region Static properties
 
     /**
-     * All known/supported quantity types including defaults and custom.
+     * All known/supported quantity types, including defaults and custom.
      * Stored as an associative array with keys equal to dimension codes.
      *
      * @var ?array<string, QuantityType>
@@ -259,6 +259,17 @@ class QuantityTypeRegistry
     // endregion
 
     // region Static public methods
+
+    /**
+     * Reset the registry to its initial state.
+     *
+     * Clears all cached quantity types, forcing re-initialization from the constant on next access.
+     * Primarily intended for test isolation.
+     */
+    public static function reset(): void
+    {
+        self::$quantityTypes = null;
+    }
 
     /**
      * Get all registered quantity types.
@@ -427,7 +438,7 @@ class QuantityTypeRegistry
         if (self::$quantityTypes === null) {
             self::$quantityTypes = [];
 
-            // Convert info in constant into array of objects.
+            // Convert info in constant into an array of objects.
             foreach (self::QUANTITY_TYPES as $name => $info) {
                 $dimension = DimensionUtility::normalize($info['dimension']);
                 self::$quantityTypes[$name] =

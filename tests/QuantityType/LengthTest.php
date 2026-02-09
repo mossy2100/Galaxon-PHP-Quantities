@@ -25,9 +25,9 @@ final class LengthTest extends TestCase
     {
         // Load additional unit systems.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
         UnitRegistry::loadSystem(System::Astronomical);
-        UnitRegistry::loadSystem(System::Typography);
+        UnitRegistry::loadSystem(System::Typographical);
         UnitRegistry::loadSystem(System::Nautical);
     }
 

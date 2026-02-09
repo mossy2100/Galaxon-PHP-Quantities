@@ -11,6 +11,7 @@ use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\Utility\DimensionUtility;
 use Galaxon\Quantities\Utility\PrefixUtility;
+use LogicException;
 use Override;
 
 /**
@@ -63,7 +64,7 @@ class UnitTerm implements UnitInterface
 
     /**
      * The full unit symbol with prefix and exponent formatted as superscript (e.g. 'km²', 'ms⁻¹').
-     * This property returns the Unicode symbol, if set (e.g. '°').
+     * This property returns the Unicode symbol if set (e.g. '°').
      */
     public string $unicodeSymbol {
         get => $this->format();
@@ -140,7 +141,7 @@ class UnitTerm implements UnitInterface
 
         // Validate prefix.
         if ($prefix !== null && !$unit->acceptsPrefix($prefix)) {
-            throw new DomainException("Prefix '{$prefix}' is invalid for unit '{$unit->asciiSymbol}'.");
+            throw new DomainException("Prefix '$prefix' is invalid for unit '$unit->asciiSymbol'.");
         }
 
         // Validate exponent.
@@ -246,7 +247,7 @@ class UnitTerm implements UnitInterface
     /**
      * Parses the given symbol to extract the unit, prefix, and exponent.
      *
-     * @param string $symbol The unit symbol with optional prefix and/or exponent (e.g. 'm2', 's-1').
+     * @param string $symbol The unit symbol with an optional prefix and/or exponent (e.g. 'm2', 's-1').
      * @return self The parsed unit term.
      * @throws FormatException If the format is invalid.
      * @throws DomainException If the unit is unknown or the exponent is zero.
@@ -298,10 +299,9 @@ class UnitTerm implements UnitInterface
             throw new DomainException("Unknown or unsupported unit '$prefixedSymbol'.");
         }
 
-        // Check we only found one match.
-        // TODO ensure this never happens by ensuring uniqueness of unit symbols (including with prefixes).
+        // Check we only found one match. Should never happen as we ensure symbol uniqueness in UnitRegistry.
         if (count($matchingUnits) > 1) {
-            throw new DomainException("Multiple matching units found for '$prefixedSymbol'.");
+            throw new LogicException("Multiple matching units found for '$prefixedSymbol'.");
         }
 
         // Create the new object.
@@ -317,7 +317,7 @@ class UnitTerm implements UnitInterface
      * If $ascii is true, then the primary (ASCII) symbol will be used, and the exponent will not be converted to
      * superscript.
      *
-     * @param bool $ascii If true, return ASCII format; if false (default), return Unicode format.
+     * @param bool $ascii If true, return the ASCII format; if false (default), return the Unicode format.
      * @return string The formatted unit term.
      */
     public function format(bool $ascii = false): string
@@ -385,6 +385,11 @@ class UnitTerm implements UnitInterface
      */
     public function withExponent(int $exp): self
     {
+        // Return the same instance if the exponent is already set.
+        if ($this->exponent === $exp) {
+            return $this;
+        }
+
         return new self($this->unit, $this->prefix, $exp);
     }
 
@@ -416,12 +421,24 @@ class UnitTerm implements UnitInterface
      */
     public function removePrefix(): self
     {
+        // Return the same instance if there is no prefix.
+        if ($this->prefix === null) {
+            return $this;
+        }
+
         return new self($this->unit, null, $this->exponent);
     }
 
     // endregion
 
     // region Comparison methods
+
+    /**
+     * Check if this UnitTerm is equal to another.
+     *
+     * @param mixed $other The other value to compare.
+     * @return bool True if equal, false otherwise.
+     */
     #[Override]
     public function equal(mixed $other): bool
     {

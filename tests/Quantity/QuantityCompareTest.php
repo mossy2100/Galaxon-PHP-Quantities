@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Quantity;
 
+use DomainException;
 use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
@@ -11,7 +12,6 @@ use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
-use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -27,7 +27,7 @@ final class QuantityCompareTest extends TestCase
     {
         // Load Imperial/US units for cross-system tests.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
     }
 
     // endregion
@@ -99,7 +99,7 @@ final class QuantityCompareTest extends TestCase
      */
     public function testCompareDifferentDimensionsThrowsException(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(DomainException::class);
 
         $length = new Length(100, 'm');
         $mass = new Mass(100, 'kg');

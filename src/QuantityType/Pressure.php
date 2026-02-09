@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents pressure quantities.
+ */
 class Pressure extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class Pressure extends Quantity
                 'asciiSymbol'         => 'Pa',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m-1*s-2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
             'atmosphere' => [
                 'asciiSymbol' => 'atm',
@@ -45,7 +48,7 @@ class Pressure extends Quantity
             ],
             'inHg'       => [
                 'asciiSymbol' => 'inHg',
-                'systems'     => [System::US],
+                'systems'     => [System::UsCustomary],
             ],
         ];
     }

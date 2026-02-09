@@ -25,7 +25,7 @@ final class PressureTest extends TestCase
     {
         // Load Scientific and US units.
         UnitRegistry::loadSystem(System::Scientific);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
         UnitRegistry::loadSystem(System::Imperial);
     }
 

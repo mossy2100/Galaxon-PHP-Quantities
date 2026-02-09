@@ -39,7 +39,7 @@ class Unit implements UnitInterface
         self::RX_UNICODE_NON_LETTER_SYMBOL . '|' . self::RX_TEMPERATURE_SYMBOL . '|' . self::RX_UNICODE_WORD;
 
     /**
-     * Allowed multiply operators.
+     * Allowed multiplication operators.
      *     * = Asterisk
      *     . = Period (full stop) character.
      *     · = Middle dot (U+00B7) - used in typography, Catalan, etc.
@@ -48,12 +48,12 @@ class Unit implements UnitInterface
     private const string RX_MUL_OPS = '*.\x{00B7}\x{22C5}';
 
     /**
-     * Regular expression character class with multiply operators only.
+     * Regular expression character class with multiplication operators only.
      */
     public const string RX_MUL_OPS_ONLY = '[' . self::RX_MUL_OPS . ']';
 
     /**
-     * Regular expression character class with multiply and divide operators.
+     * Regular expression character class with multiplication and division operators.
      */
     public const string RX_MUL_OPS_PLUS_DIV = '[' . self::RX_MUL_OPS . '\/]';
 
@@ -74,7 +74,7 @@ class Unit implements UnitInterface
 
     /**
      * The Unicode symbol (e.g. 'Ω' for ohm, '°' for degree).
-     * This symbol is mainly for display and can contain Unicode character.
+     * This symbol is mainly for display and can contain Unicode characters.
      */
     private(set) string $unicodeSymbol;
 
@@ -161,7 +161,7 @@ class Unit implements UnitInterface
             // Add ASCII symbol.
             $symbols = [$this->asciiSymbol];
 
-            // Add Unicode symbol, if different.
+            // Add the Unicode symbol, if different.
             if ($this->unicodeSymbol !== $this->asciiSymbol) {
                 $symbols[] = $this->unicodeSymbol;
             }
@@ -202,7 +202,7 @@ class Unit implements UnitInterface
      *
      * @param string $name The unit name (e.g. 'metre', 'gram').
      * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
-     * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if same as ASCII.
+     * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if it's the same as ASCII.
      * @param string $quantityType The quantity type (e.g. 'length', 'mass').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
@@ -241,7 +241,7 @@ class Unit implements UnitInterface
             );
         }
 
-        // Check alternate symbol contains ASCII letters only.
+        // Check if the alternate symbol contains ASCII letters only.
         if (isset($alternateSymbol) && $alternateSymbol !== '' && !self::isValidAsciiSymbol($alternateSymbol)) {
             throw new FormatException(
                 "Unit symbol '$alternateSymbol' may only contain a single ASCII unit symbol (e.g. '\"%)."
@@ -283,7 +283,7 @@ class Unit implements UnitInterface
      */
     public function isSi(): bool
     {
-        return $this->belongsToSystem(System::SI);
+        return $this->belongsToSystem(System::Si);
     }
 
     // endregion
@@ -313,13 +313,18 @@ class Unit implements UnitInterface
             $prefix = PrefixUtility::getBySymbol($prefix);
         }
 
-        return array_any($this->allowedPrefixes, static fn ($allowedPrefix) => $allowedPrefix->equal($prefix));
+        return array_any($this->allowedPrefixes, static fn (Prefix $allowedPrefix) => $allowedPrefix->equal($prefix));
     }
 
     // endregion
 
     // region String methods
 
+    /**
+     * Get the regular expression pattern for matching a unit symbol (excluding dimensionless).
+     *
+     * @return string The regex pattern (without delimiters or anchors).
+     */
     public static function regex(): string
     {
         return '(' . self::RX_UNICODE_NON_LETTER_SYMBOL . '|°[a-z]|\p{L}+|' . self::RX_ASCII_SYMBOL . ')';
@@ -381,6 +386,13 @@ class Unit implements UnitInterface
     // endregion
 
     // region Comparison methods
+
+    /**
+     * Check if this unit is equal to another.
+     *
+     * @param mixed $other The other value to compare.
+     * @return bool True if equal, false otherwise.
+     */
     #[Override]
     public function equal(mixed $other): bool
     {

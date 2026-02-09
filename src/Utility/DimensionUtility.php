@@ -105,7 +105,7 @@ class DimensionUtility
     /**
      * Get the valid dimension code letters as a string for use in regex patterns.
      *
-     * @return string The valid dimension code letters concatenated (e.g. 'MLADCTINJ').
+     * @return string The valid dimension code letters concatenated (e.g. 'MLADCTINHJ').
      */
     private static function getLetterCodesString(): string
     {
@@ -131,16 +131,16 @@ class DimensionUtility
 
     // endregion
 
-    // region Explode/implode methods
+    // region Decompose/compose methods
 
     /**
-     * Explode a dimension code string into an array of dimension codes and exponents.
+     * Decompose a dimension code string into an array of dimension codes and exponents.
      *
      * @param string $dimension The dimension code (e.g. 'MLT-2').
      * @return array<string, int> Array mapping dimension codes to their exponents.
      * @throws FormatException If the dimension code is invalid.
      */
-    public static function explode(string $dimension): array
+    public static function decompose(string $dimension): array
     {
         // Check the dimension code is valid.
         if (!self::isValid($dimension)) {
@@ -168,14 +168,14 @@ class DimensionUtility
     }
 
     /**
-     * Implode an array of dimension terms into a dimension code string.
+     * Compose an array of dimension terms into a dimension code string.
      *
      * The terms are automatically sorted into canonical order.
      *
      * @param array<string, int> $dimTerms Array mapping dimension codes to exponents.
      * @return string The combined dimension code (e.g. 'MLT-2').
      */
-    public static function implode(array $dimTerms): string
+    public static function compose(array $dimTerms): string
     {
         // If there are no terms, return '1' (dimensionless).
         if (empty($dimTerms)) {
@@ -209,10 +209,10 @@ class DimensionUtility
     public static function normalize(string $dimension): string
     {
         // Disassemble it.
-        $dimTerms = self::explode($dimension);
+        $dimTerms = self::decompose($dimension);
 
         // Reassemble it.
-        return self::implode($dimTerms);
+        return self::compose($dimTerms);
     }
 
     /**
@@ -236,13 +236,13 @@ class DimensionUtility
         }
 
         // Multiply each dimension term's current exponent by the new exponent.
-        $dimTerms = self::explode($dimension);
+        $dimTerms = self::decompose($dimension);
         foreach ($dimTerms as $dim => $curExp) {
             $dimTerms[$dim] = $curExp * $exponent;
         }
 
         // Reassemble it.
-        return self::implode($dimTerms);
+        return self::compose($dimTerms);
     }
 
     // endregion

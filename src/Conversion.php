@@ -82,15 +82,18 @@ class Conversion implements Stringable
 
         // Ensure dimensions match.
         if ($srcUnit->dimension !== $destUnit->dimension) {
-            throw new DomainException('Units have different dimensions.');
+            throw new DomainException(
+                "Cannot create conversion: '$srcUnit->asciiSymbol' ($srcUnit->dimension) " .
+                "and '$destUnit->asciiSymbol' ($destUnit->dimension) have different dimensions."
+            );
         }
 
-        // Ensure factor is a FloatWithError.
+        // Ensure the factor is a FloatWithError.
         if (!$factor instanceof FloatWithError) {
             $factor = new FloatWithError($factor);
         }
 
-        // Ensure factor is positive.
+        // Ensure the factor is positive.
         if ($factor->value <= 0.0) {
             throw new DomainException('Conversion factor must be positive.');
         }

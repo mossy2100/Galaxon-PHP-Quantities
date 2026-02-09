@@ -49,13 +49,13 @@ $temp = new Temperature(25, 'C');
 $angle = new Angle(90, 'deg');
 
 // Convert between units
-$miles = $distance->to('mi');           // 3.10686... miles
-$fahrenheit = $temp->to('F');           // 77°F
-$radians = $angle->to('rad');           // 1.5707... rad
+$miles = $distance->to('mi');     // 3.10686... miles
+$fahrenheit = $temp->to('F');     // 77°F
+$radians = $angle->to('rad');     // 1.5707... rad
 
 // Arithmetic operations
 $total = $distance->add(new Length(500, 'm'));  // 5.5 km
-$doubled = $distance->mul(2);                    // 10 km
+$doubled = $distance->mul(2);     // 10 km
 
 // Parse from strings
 $length = Length::parse('123.45 km');
@@ -128,10 +128,10 @@ Quantities support addition, subtraction, multiplication, and division:
 $a = new Length(100, 'm');
 $b = new Length(50, 'm');
 
-$sum = $a->add($b);           // 150 m
-$diff = $a->sub($b);          // 50 m
-$scaled = $a->mul(2);         // 200 m
-$halved = $a->div(2);         // 50 m
+$sum = $a->add($b);     // 150 m
+$diff = $a->sub($b);     // 50 m
+$scaled = $a->mul(2);     // 200 m
+$halved = $a->div(2);     // 50 m
 $abs = $diff->neg()->abs();   // 50 m
 
 // Add with different units (auto-converted)

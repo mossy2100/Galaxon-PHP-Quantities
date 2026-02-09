@@ -8,6 +8,9 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 use Override;
 
+/**
+ * Represents velocity quantities.
+ */
 class Velocity extends Quantity
 {
     // region Overridden methods

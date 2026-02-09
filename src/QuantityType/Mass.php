@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents mass quantities.
+ */
 class Mass extends Quantity
 {
     // region Overridden methods
@@ -32,27 +35,27 @@ class Mass extends Quantity
             'gram'      => [
                 'asciiSymbol' => 'g',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SI],
+                'systems'     => [System::Si],
             ],
             'tonne'     => [
                 'asciiSymbol' => 't',
-                'systems'     => [System::SIAccepted],
+                'systems'     => [System::SiAccepted],
             ],
             'dalton'    => [
                 'asciiSymbol' => 'Da',
-                'systems'     => [System::SIAccepted],
+                'systems'     => [System::SiAccepted],
             ],
             'grain'     => [
                 'asciiSymbol' => 'gr',
-                'systems'     => [System::Imperial, System::US],
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
             'ounce'     => [
                 'asciiSymbol' => 'oz',
-                'systems'     => [System::Imperial, System::US],
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
             'pound'     => [
                 'asciiSymbol' => 'lb',
-                'systems'     => [System::Imperial, System::US],
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
             'stone'     => [
                 'asciiSymbol' => 'st',
@@ -60,7 +63,7 @@ class Mass extends Quantity
             ],
             'short ton' => [
                 'asciiSymbol' => 'tn',
-                'systems'     => [System::US],
+                'systems'     => [System::UsCustomary],
             ],
             'long ton'  => [
                 'asciiSymbol' => 'LT',
@@ -79,7 +82,7 @@ class Mass extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
-            // SI accepted
+             // SI accepted
             ['t', 'kg', 1000],
             ['Da', 'kg', 1.66053906892e-27],
             // Metric-Imperial/US bridge

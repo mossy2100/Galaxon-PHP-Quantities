@@ -25,7 +25,7 @@ class ConversionTest extends TestCase
     {
         // Load Imperial/US units for cross-system tests.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
         UnitRegistry::loadSystem(System::Nautical);
     }
 
@@ -102,7 +102,7 @@ class ConversionTest extends TestCase
     public function testConstructorThrowsForMismatchedDimensions(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Units have different dimensions.');
+        $this->expectExceptionMessage("'m' (L) and 's' (T) have different dimensions");
 
         new Conversion('m', 's', 1.0);
     }

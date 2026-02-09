@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents electric charge quantities.
+ */
 class ElectricCharge extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class ElectricCharge extends Quantity
                 'asciiSymbol'         => 'C',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 's*A',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

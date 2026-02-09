@@ -13,6 +13,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents angle quantities.
+ */
 class Angle extends Quantity
 {
     // region Constants
@@ -46,25 +49,25 @@ class Angle extends Quantity
             'radian'    => [
                 'asciiSymbol' => 'rad',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SI],
+                'systems'     => [System::Si],
             ],
             'degree'    => [
                 'asciiSymbol'   => 'deg',
                 'unicodeSymbol' => '°',
-                'systems'       => [System::SIAccepted],
+                'systems'       => [System::SiAccepted],
             ],
             'arcminute' => [
                 'asciiSymbol'     => 'arcmin',
                 'unicodeSymbol'   => '′',
                 'alternateSymbol' => "'",
-                'systems'         => [System::SIAccepted],
+                'systems'         => [System::SiAccepted],
             ],
             'arcsecond' => [
                 'asciiSymbol'     => 'arcsec',
                 'unicodeSymbol'   => '″',
                 'alternateSymbol' => '"',
-                'prefixGroup'     => PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC,
-                'systems'         => [System::SIAccepted],
+                'prefixGroup'     => PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC,
+                'systems'         => [System::SiAccepted],
             ],
             'gradian'   => [
                 'asciiSymbol' => 'grad',
@@ -215,7 +218,6 @@ class Angle extends Quantity
      * @param float $relTol The relative tolerance (default 0).
      * @param float $absTol The absolute tolerance (default 1e-9).
      * @return bool True if the values are equal, false otherwise (including for incompatible types).
-     * @throws DomainException
      */
     #[Override]
     public function approxEqual(mixed $other, float $relTol = 0, float $absTol = self::RAD_EPSILON): bool

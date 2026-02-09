@@ -9,6 +9,9 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Utility\PrefixUtility;
 
+/**
+ * Represents an SI prefix.
+ */
 class Prefix
 {
     use Equatable;
@@ -40,7 +43,7 @@ class Prefix
     /**
      * The group code for the prefix (see PrefixUtility::GROUP_CODE_* constants).
      * This will only be one of the base groups and will therefore be a power of 2 (i.e. 1, 2, 4, 8, or 16).
-     * @see PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC
+     * @see PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC
      */
     private(set) int $groupCode;
 
@@ -67,12 +70,12 @@ class Prefix
         int $groupCode
     ) {
         // Validate the ASCII symbol. Max two ASCII letters.
-        if (!preg_match('/^[a-z]{1, 2}$/i', $asciiSymbol)) {
+        if (!preg_match('/^[a-z]{1,2}$/i', $asciiSymbol)) {
             throw new FormatException("Invalid ASCII symbol: $asciiSymbol");
         }
 
         // Validate the Unicode symbol. Max two Unicode letters.
-        if ($unicodeSymbol !== null && !preg_match('/^\p{L}{1, 2}$/u', $unicodeSymbol)) {
+        if ($unicodeSymbol !== null && !preg_match('/^\p{L}{1,2}$/u', $unicodeSymbol)) {
             throw new FormatException("Invalid Unicode symbol: $unicodeSymbol");
         }
 
@@ -125,7 +128,7 @@ class Prefix
      */
     public function isEngineering(): bool
     {
-        return (bool)($this->groupCode & PrefixUtility::GROUP_CODE_ENGINEERING_METRIC);
+        return (bool)($this->groupCode & PrefixUtility::GROUP_CODE_ENG_METRIC);
     }
 
     // endregion

@@ -173,7 +173,7 @@ class ConversionRegistry
      */
     public static function reset(): void
     {
-        self::$conversions = [];
+        self::$conversions = null;
     }
 
     /**
@@ -322,7 +322,7 @@ class ConversionRegistry
     private static function init(): void
     {
         if (self::$conversions === null) {
-            self::reset();
+            self::$conversions = [];
 
             // Get the loaded systems of units.
             $systems = UnitRegistry::getLoadedSystems();

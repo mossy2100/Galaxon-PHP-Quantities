@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents length quantities.
+ */
 class Length extends Quantity
 {
     // region Overridden methods
@@ -33,12 +36,12 @@ class Length extends Quantity
             'metre'             => [
                 'asciiSymbol' => 'm',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SI],
+                'systems'     => [System::Si],
             ],
             // Astronomical
             'astronomical unit' => [
                 'asciiSymbol' => 'au',
-                'systems'     => [System::SIAccepted, System::Astronomical],
+                'systems'     => [System::SiAccepted, System::Astronomical],
             ],
             'light year'        => [
                 'asciiSymbol' => 'ly',
@@ -46,38 +49,38 @@ class Length extends Quantity
             ],
             'parsec'            => [
                 'asciiSymbol' => 'pc',
-                'prefixGroup' => PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC,
                 'systems'     => [System::Astronomical],
             ],
             // Typography/CSS
             'pixel'             => [
                 'asciiSymbol' => 'px',
-                'systems'     => [System::Typography],
+                'systems'     => [System::Typographical],
             ],
             'point'             => [
                 'asciiSymbol' => 'p',
-                'systems'     => [System::Typography],
+                'systems'     => [System::Typographical],
             ],
             'pica'              => [
                 'asciiSymbol' => 'P',
-                'systems'     => [System::Typography],
+                'systems'     => [System::Typographical],
             ],
             // Imperial/US
             'inch'              => [
                 'asciiSymbol' => 'in',
-                'systems'     => [System::Imperial, System::US],
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
             'foot'              => [
                 'asciiSymbol' => 'ft',
-                'systems'     => [System::Imperial, System::US],
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
             'yard'              => [
                 'asciiSymbol' => 'yd',
-                'systems'     => [System::Imperial, System::US],
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
             'mile'              => [
                 'asciiSymbol' => 'mi',
-                'systems'     => [System::Imperial, System::US],
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
             // Nautical
             'fathom'            => [

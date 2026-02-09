@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents luminous flux quantities.
+ */
 class LuminousFlux extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class LuminousFlux extends Quantity
                 'asciiSymbol'         => 'lm',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'cd*rad2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

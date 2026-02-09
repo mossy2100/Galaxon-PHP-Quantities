@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents catalytic activity quantities.
+ */
 class CatalyticActivity extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class CatalyticActivity extends Quantity
                 'asciiSymbol'         => 'kat',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'mol*s-1',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

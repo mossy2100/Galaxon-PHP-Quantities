@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents illuminance quantities.
+ */
 class Illuminance extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class Illuminance extends Quantity
                 'asciiSymbol'         => 'lx',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'cd*rad2*m-2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents magnetic flux density quantities.
+ */
 class MagneticFluxDensity extends Quantity
 {
     // region Overridden methods
@@ -33,7 +36,7 @@ class MagneticFluxDensity extends Quantity
                 'asciiSymbol'         => 'T',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*s-2*A-1',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

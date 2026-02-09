@@ -23,10 +23,10 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testBaseGroupConstantValues(): void
     {
-        $this->assertSame(1, PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC);
-        $this->assertSame(2, PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC);
-        $this->assertSame(4, PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC);
-        $this->assertSame(8, PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC);
+        $this->assertSame(1, PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC);
+        $this->assertSame(2, PrefixUtility::GROUP_CODE_SMALL_NON_ENG_METRIC);
+        $this->assertSame(4, PrefixUtility::GROUP_CODE_LARGE_NON_ENG_METRIC);
+        $this->assertSame(8, PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC);
         $this->assertSame(16, PrefixUtility::GROUP_CODE_BINARY);
     }
 
@@ -37,20 +37,20 @@ final class PrefixUtilityTest extends TestCase
     {
         // Small metric = small engineering + small non-engineering.
         $this->assertSame(
-            PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC | PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC,
+            PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC | PrefixUtility::GROUP_CODE_SMALL_NON_ENG_METRIC,
             PrefixUtility::GROUP_CODE_SMALL_METRIC
         );
 
         // Large metric = large non-engineering + large engineering.
         $this->assertSame(
-            PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC | PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+            PrefixUtility::GROUP_CODE_LARGE_NON_ENG_METRIC | PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC,
             PrefixUtility::GROUP_CODE_LARGE_METRIC
         );
 
         // Engineering metric = small engineering + large engineering.
         $this->assertSame(
-            PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC | PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC,
-            PrefixUtility::GROUP_CODE_ENGINEERING_METRIC
+            PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC | PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC,
+            PrefixUtility::GROUP_CODE_ENG_METRIC
         );
 
         // Metric = small metric + large metric.
@@ -61,7 +61,7 @@ final class PrefixUtilityTest extends TestCase
 
         // Large = large engineering metric + binary.
         $this->assertSame(
-            PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC | PrefixUtility::GROUP_CODE_BINARY,
+            PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC | PrefixUtility::GROUP_CODE_BINARY,
             PrefixUtility::GROUP_CODE_LARGE
         );
 
@@ -103,7 +103,7 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testGetPrefixesSmallEngineeringMetric(): void
     {
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC);
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC);
 
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
@@ -121,7 +121,7 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testGetPrefixesSmallNonEngineeringMetric(): void
     {
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC);
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_NON_ENG_METRIC);
 
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
@@ -135,7 +135,7 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testGetPrefixesLargeEngineeringMetric(): void
     {
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC);
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC);
 
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
@@ -153,7 +153,7 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testGetPrefixesLargeNonEngineeringMetric(): void
     {
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC);
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_NON_ENG_METRIC);
 
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
@@ -494,7 +494,7 @@ final class PrefixUtilityTest extends TestCase
             $prefix = PrefixUtility::getBySymbol($symbol);
             $inverse = PrefixUtility::invert($prefix);
 
-            // multiplier × inverseMultiplier should equal 1.
+     // multiplier × inverseMultiplier should equal 1.
             $this->assertInstanceOf(Prefix::class, $prefix);
             $this->assertInstanceOf(Prefix::class, $inverse);
             $this->assertEqualsWithDelta(1.0, $prefix->multiplier * $inverse->multiplier, 1e-20);
@@ -510,10 +510,10 @@ final class PrefixUtilityTest extends TestCase
      */
     public function testIsValidGroupCodeReturnsTrueForBaseGroups(): void
     {
-        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC));
-        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC));
-        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC));
-        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC));
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC));
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_SMALL_NON_ENG_METRIC));
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_LARGE_NON_ENG_METRIC));
+        $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC));
         $this->assertTrue(PrefixUtility::isValidGroupCode(PrefixUtility::GROUP_CODE_BINARY));
     }
 
@@ -551,19 +551,19 @@ final class PrefixUtilityTest extends TestCase
     {
         $kilo = PrefixUtility::getBySymbol('k');
         $this->assertInstanceOf(Prefix::class, $kilo);
-        $this->assertSame(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC, $kilo->groupCode);
+        $this->assertSame(PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC, $kilo->groupCode);
 
         $milli = PrefixUtility::getBySymbol('m');
         $this->assertInstanceOf(Prefix::class, $milli);
-        $this->assertSame(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC, $milli->groupCode);
+        $this->assertSame(PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC, $milli->groupCode);
 
         $centi = PrefixUtility::getBySymbol('c');
         $this->assertInstanceOf(Prefix::class, $centi);
-        $this->assertSame(PrefixUtility::GROUP_CODE_SMALL_NON_ENGINEERING_METRIC, $centi->groupCode);
+        $this->assertSame(PrefixUtility::GROUP_CODE_SMALL_NON_ENG_METRIC, $centi->groupCode);
 
         $hecto = PrefixUtility::getBySymbol('h');
         $this->assertInstanceOf(Prefix::class, $hecto);
-        $this->assertSame(PrefixUtility::GROUP_CODE_LARGE_NON_ENGINEERING_METRIC, $hecto->groupCode);
+        $this->assertSame(PrefixUtility::GROUP_CODE_LARGE_NON_ENG_METRIC, $hecto->groupCode);
 
         $kibi = PrefixUtility::getBySymbol('Ki');
         $this->assertInstanceOf(Prefix::class, $kibi);
@@ -606,7 +606,7 @@ final class PrefixUtilityTest extends TestCase
     public function testSmallEngineeringMetricPrefixesDefined(): void
     {
         $expected = ['q', 'r', 'y', 'z', 'a', 'f', 'p', 'n', 'u', 'm'];
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC);
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC);
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         foreach ($expected as $symbol) {
@@ -620,7 +620,7 @@ final class PrefixUtilityTest extends TestCase
     public function testLargeEngineeringMetricPrefixesDefined(): void
     {
         $expected = ['k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q'];
-        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC);
+        $result = PrefixUtility::getPrefixes(PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC);
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         foreach ($expected as $symbol) {

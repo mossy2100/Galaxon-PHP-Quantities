@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents solid angle quantities.
+ */
 class SolidAngle extends Quantity
 {
     // region Overridden methods
@@ -31,9 +34,9 @@ class SolidAngle extends Quantity
         return [
             'steradian' => [
                 'asciiSymbol'         => 'sr',
-                'prefixGroup'         => PrefixUtility::GROUP_CODE_SMALL_ENGINEERING_METRIC,
+                'prefixGroup'         => PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC,
                 'expansionUnitSymbol' => 'rad2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
         ];
     }

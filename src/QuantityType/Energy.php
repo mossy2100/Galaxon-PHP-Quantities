@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents energy quantities.
+ */
 class Energy extends Quantity
 {
     // region Overridden methods
@@ -33,21 +36,21 @@ class Energy extends Quantity
                 'asciiSymbol'         => 'J',
                 'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-2',
-                'systems'             => [System::SI],
+                'systems'             => [System::Si],
             ],
             'electronvolt'         => [
                 'asciiSymbol' => 'eV',
                 'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
-                'systems'     => [System::SIAccepted],
+                'systems'     => [System::SiAccepted],
             ],
             'calorie'              => [
                 'asciiSymbol' => 'cal',
-                'prefixGroup' => PrefixUtility::GROUP_CODE_LARGE_ENGINEERING_METRIC,
+                'prefixGroup' => PrefixUtility::GROUP_CODE_LARGE_ENG_METRIC,
                 'systems'     => [System::Common],
             ],
             'British thermal unit' => [
                 'asciiSymbol' => 'Btu',
-                'systems'     => [System::US],
+                'systems'     => [System::UsCustomary],
             ],
         ];
     }

@@ -28,7 +28,7 @@ final class VelocityTest extends TestCase
     {
         // Load Imperial/US and Nautical units.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
         UnitRegistry::loadSystem(System::Nautical);
     }
 

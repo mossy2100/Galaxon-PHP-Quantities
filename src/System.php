@@ -9,15 +9,15 @@ namespace Galaxon\Quantities;
  */
 enum System
 {
-    case SI;
+    case Si;
 
-    case SIAccepted;
+    case SiAccepted;
 
     case Common;
 
     case Imperial;
 
-    case US;
+    case UsCustomary;
 
     case Scientific;
 
@@ -25,5 +25,5 @@ enum System
 
     case Nautical;
 
-    case Typography;
+    case Typographical;
 }

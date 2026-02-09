@@ -16,6 +16,12 @@ use Stringable;
  */
 class FloatWithError implements Stringable
 {
+    // region Constants
+
+    private const float HALF = 0.5;
+
+    // endregion
+
     // region Properties
 
     /**
@@ -70,7 +76,7 @@ class FloatWithError implements Stringable
 
         // If the error isn't given, compute a source error estimate.
         if ($error === null) {
-            $this->absoluteError = Floats::isExactInt($this->value) ? 0.0 : Floats::ulp($this->value) * 0.5;
+            $this->absoluteError = Floats::isExactInt($this->value) ? 0.0 : Floats::ulp($this->value) * self::HALF;
         } else {
             $this->absoluteError = $error;
         }
@@ -118,7 +124,7 @@ class FloatWithError implements Stringable
         // If no error results from the operation (meaning both operands had zero error), and the result is an exact
         // integer, don't add any rounding error. Otherwise, add half the ULP of the result.
         if ($newError > 0 || !Floats::isExactInt($newValue)) {
-            $newError += Floats::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * self::HALF;
         }
 
         return new self($newValue, $newError);
@@ -148,7 +154,7 @@ class FloatWithError implements Stringable
         // If no error results from the operation (meaning both operands had zero error), and the result is an exact
         // integer, don't add any rounding error. Otherwise, add half the ULP of the result.
         if ($newError > 0 || !Floats::isExactInt($newValue)) {
-            $newError += Floats::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * self::HALF;
         }
 
         return new self($newValue, $newError);
@@ -191,7 +197,7 @@ class FloatWithError implements Stringable
         // If no error results from the operation (meaning both operands had zero error), and the result is an exact
         // integer, don't add any rounding error. Otherwise, add half the ULP of the result.
         if ($newError > 0 || !Floats::isExactInt($newValue)) {
-            $newError += Floats::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * self::HALF;
         }
 
         return new self($newValue, $newError);
@@ -228,7 +234,7 @@ class FloatWithError implements Stringable
         // If no error results from the operation (meaning both operands had zero error), and the result is an exact
         // integer, don't add any rounding error. Otherwise, add half the ULP of the result.
         if ($newError > 0 || !Floats::isExactInt($newValue)) {
-            $newError += Floats::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * self::HALF;
         }
 
         return new self($newValue, $newError);
@@ -257,7 +263,7 @@ class FloatWithError implements Stringable
         // If no error results from the operation (meaning the operand had zero error), and the result is an exact
         // integer, don't add any rounding error. Otherwise, add half the ULP of the result.
         if ($newError > 0 || !Floats::isExactInt($newValue)) {
-            $newError += Floats::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * self::HALF;
         }
 
         return new self($newValue, $newError);
@@ -271,11 +277,11 @@ class FloatWithError implements Stringable
      *
      * @param int $exponent The exponent.
      * @return self A new FloatWithError with the result and propagated error.
-     * @throws DivisionByZeroError If base is zero and exponent is negative.
+     * @throws DivisionByZeroError If the base is zero and the exponent is negative.
      */
     public function pow(int $exponent): self
     {
-        // Handle zero base with negative exponent.
+        // Handle zero base with a negative exponent.
         if ($this->value === 0.0 && $exponent < 0) {
             throw new DivisionByZeroError('Cannot raise zero to a negative power.');
         }
@@ -290,7 +296,7 @@ class FloatWithError implements Stringable
         // If no error results from the operation (meaning the operand had zero error), and the result is an exact
         // integer, don't add any rounding error. Otherwise, add half the ULP of the result.
         if ($newError > 0 || !Floats::isExactInt($newValue)) {
-            $newError += Floats::ulp($newValue) * 0.5;
+            $newError += Floats::ulp($newValue) * self::HALF;
         }
 
         return new self($newValue, $newError);

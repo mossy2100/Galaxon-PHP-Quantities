@@ -27,7 +27,7 @@ final class VolumeTest extends TestCase
     {
         // Load Imperial/US units.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
     }
 
     // endregion

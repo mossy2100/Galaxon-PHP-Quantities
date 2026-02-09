@@ -26,7 +26,7 @@ final class AreaTest extends TestCase
     {
         // Load Imperial/US units for acres and square feet/yards.
         UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::US);
+        UnitRegistry::loadSystem(System::UsCustomary);
     }
 
     // endregion

@@ -9,6 +9,9 @@ use Galaxon\Quantities\System;
 use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
+/**
+ * Represents data quantities.
+ */
 class Data extends Quantity
 {
     // region Overridden methods
