@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
-use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Velocity::class)]
 final class VelocityTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
 
     // region Setup
@@ -34,6 +35,30 @@ final class VelocityTest extends TestCase
 
     // endregion
 
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Velocity::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns empty array.
+     */
+    public function testGetConversionDefinitionsReturnsEmptyArray(): void
+    {
+        $conversions = Velocity::getConversionDefinitions();
+
+        $this->assertEmpty($conversions);
+    }
+
+    // endregion
+
     // region Metric conversion tests
 
     /**
@@ -41,7 +66,7 @@ final class VelocityTest extends TestCase
      */
     public function testConvertMetresPerSecondToKilometresPerHour(): void
     {
-        $vel = Quantity::create(1, 'm/s');
+        $vel = new Velocity(1, 'm/s');
         $kmh = $vel->to('km/h');
 
         // 1 m/s = 3.6 km/h
@@ -54,7 +79,7 @@ final class VelocityTest extends TestCase
      */
     public function testConvertKilometresPerHourToMetresPerSecond(): void
     {
-        $vel = Quantity::create(36, 'km/h');
+        $vel = new Velocity(36, 'km/h');
         $ms = $vel->to('m/s');
 
         // 36 km/h = 10 m/s
@@ -70,7 +95,7 @@ final class VelocityTest extends TestCase
      */
     public function testConvertMilesPerHourToFeetPerSecond(): void
     {
-        $vel = Quantity::create(60, 'mi/h');
+        $vel = new Velocity(60, 'mi/h');
         $fps = $vel->to('ft/s');
 
         // 60 mi/h = 60 × 5280 ft / 3600 s = 88 ft/s
@@ -82,7 +107,7 @@ final class VelocityTest extends TestCase
      */
     public function testConvertFeetPerSecondToMilesPerHour(): void
     {
-        $vel = Quantity::create(88, 'ft/s');
+        $vel = new Velocity(88, 'ft/s');
         $mph = $vel->to('mi/h');
 
         // 88 ft/s = 60 mi/h
@@ -122,7 +147,7 @@ final class VelocityTest extends TestCase
      */
     public function testConvertMetresPerSecondToKnots(): void
     {
-        $vel = Quantity::create(1, 'm/s');
+        $vel = new Velocity(1, 'm/s');
         $kn = $vel->to('kn');
 
         // 1 m/s = 3600/1852 kn ≈ 1.94384 kn
@@ -150,7 +175,7 @@ final class VelocityTest extends TestCase
      */
     public function testConvertKilometresPerHourToMilesPerHour(): void
     {
-        $vel = Quantity::create(100, 'km/h');
+        $vel = new Velocity(100, 'km/h');
         $mph = $vel->to('mi/h');
 
         // 1 km = 1000 m, 1 mi = 1609.344 m
@@ -163,7 +188,7 @@ final class VelocityTest extends TestCase
      */
     public function testConvertMilesPerHourToKilometresPerHour(): void
     {
-        $vel = Quantity::create(88, 'mi/h');
+        $vel = new Velocity(88, 'mi/h');
         $kmh = $vel->to('km/h');
 
         $this->assertApproxEqual(88 * 1609.344 / 1000, $kmh->value);
@@ -174,7 +199,7 @@ final class VelocityTest extends TestCase
      */
     public function testConvertMilesPerHourToKnots(): void
     {
-        $vel = Quantity::create(60, 'mi/h');
+        $vel = new Velocity(60, 'mi/h');
         $kn = $vel->to('kn');
 
         // 60 mi/h = 60 × 1609.344 / 1852 kn ≈ 52.138 kn
@@ -269,7 +294,7 @@ final class VelocityTest extends TestCase
      */
     public function testMulMetresPerSecondBySeconds(): void
     {
-        $vel = Quantity::create(10, 'm/s');
+        $vel = new Velocity(10, 'm/s');
         $time = new Time(5, 's');
         $result = $vel->mul($time);
 
@@ -284,7 +309,7 @@ final class VelocityTest extends TestCase
      */
     public function testMulKilometresPerHourByHours(): void
     {
-        $vel = Quantity::create(60, 'km/h');
+        $vel = new Velocity(60, 'km/h');
         $time = new Time(2.5, 'h');
         $result = $vel->mul($time);
 
@@ -321,8 +346,8 @@ final class VelocityTest extends TestCase
      */
     public function testAddSameUnits(): void
     {
-        $a = Quantity::create(50, 'km/h');
-        $b = Quantity::create(30, 'km/h');
+        $a = new Velocity(50, 'km/h');
+        $b = new Velocity(30, 'km/h');
         $result = $a->add($b);
 
         $this->assertInstanceOf(Velocity::class, $result);
@@ -335,8 +360,8 @@ final class VelocityTest extends TestCase
      */
     public function testAddMetresPerSecondToKilometresPerHour(): void
     {
-        $a = Quantity::create(100, 'km/h');
-        $b = Quantity::create(10, 'm/s');
+        $a = new Velocity(100, 'km/h');
+        $b = new Velocity(10, 'm/s');
         $result = $a->add($b);
 
         // 100 km/h + 10 m/s = 100 km/h + 36 km/h = 136 km/h
@@ -350,7 +375,7 @@ final class VelocityTest extends TestCase
      */
     public function testAddKnotsToMilesPerHour(): void
     {
-        $a = Quantity::create(60, 'mi/h');
+        $a = new Velocity(60, 'mi/h');
         $b = new Velocity(10, 'kn');
         $result = $a->add($b);
 
@@ -443,7 +468,7 @@ final class VelocityTest extends TestCase
     public function testSpeedOfSound(): void
     {
         // Speed of sound at sea level ≈ 343 m/s
-        $speedOfSound = Quantity::create(343, 'm/s');
+        $speedOfSound = new Velocity(343, 'm/s');
 
         $kmh = $speedOfSound->to('km/h');
         $mph = $speedOfSound->to('mi/h');
@@ -460,7 +485,7 @@ final class VelocityTest extends TestCase
     public function testSpeedLimitConversion(): void
     {
         // 100 km/h speed limit
-        $limit = Quantity::create(100, 'km/h');
+        $limit = new Velocity(100, 'km/h');
         $mph = $limit->to('mi/h');
 
         // ≈ 62.14 mph

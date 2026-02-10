@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\QuantityType;
 
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Angle;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +17,32 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Angle::class)]
 final class AngleTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Angle::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns valid conversion definitions.
+     */
+    public function testGetConversionDefinitionsReturnsValidArray(): void
+    {
+        $conversions = Angle::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
+    }
+
+    // endregion
 
     // region Conversion tests
 
@@ -267,6 +294,53 @@ final class AngleTest extends TestCase
         $angle = Angle::parse('3.14159 rad');
 
         $this->assertApproxEqual(M_PI, $angle->value, 1e-5);
+    }
+
+    // endregion
+
+    // region Parse error tests
+
+    /**
+     * Test parsing empty string throws exception.
+     */
+    public function testParseEmptyStringThrowsException(): void
+    {
+        $this->expectException(FormatException::class);
+
+        Angle::parse('');
+    }
+
+    /**
+     * Test parsing invalid format throws exception.
+     */
+    public function testParseInvalidFormatThrowsException(): void
+    {
+        $this->expectException(FormatException::class);
+
+        Angle::parse('not an angle');
+    }
+
+    /**
+     * Test parsing DMS pattern with no components throws exception.
+     *
+     * This covers the case where the DMS regex matches but all components are empty.
+     */
+    public function testParseDmsNoComponentsThrowsException(): void
+    {
+        $this->expectException(FormatException::class);
+
+        // Just symbols without numbers
+        Angle::parse('°');
+    }
+
+    /**
+     * Test parsing partial DMS with only symbols throws exception.
+     */
+    public function testParseDmsOnlySymbolsThrowsException(): void
+    {
+        $this->expectException(FormatException::class);
+
+        Angle::parse("° ' \"");
     }
 
     // endregion

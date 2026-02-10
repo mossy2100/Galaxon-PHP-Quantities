@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Registry;
 
-use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Registry\ConversionRegistry;
@@ -132,7 +131,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Add a known conversion
         $conversion = new Conversion('m', 'ft', 3.28084);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         $result = ConversionRegistry::has('L', 'm', 'ft');
 
@@ -172,7 +171,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Add a conversion in one direction
         $conversion = new Conversion('m', 'yd', 1.09361);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         // Forward direction should exist
         $this->assertTrue(ConversionRegistry::has('L', 'm', 'yd'));
@@ -193,7 +192,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add a known conversion
         $conversion = new Conversion('m', 'in', 39.3701);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         $result = ConversionRegistry::get('L', 'm', 'in');
 
@@ -232,7 +231,7 @@ final class ConversionRegistryTest extends TestCase
     {
         $factor = 2.54;
         $conversion = new Conversion('in', 'cm', $factor);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         $result = ConversionRegistry::get('L', 'in', 'cm');
 
@@ -247,7 +246,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add conversion in one direction
         $conversion = new Conversion('m', 'mi', 0.000621371);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         // Forward should return the conversion
         $forward = ConversionRegistry::get('L', 'm', 'mi');
@@ -269,7 +268,7 @@ final class ConversionRegistryTest extends TestCase
     public function testAddStoresConversion(): void
     {
         $conversion = new Conversion('m', 'nmi', 0.000539957);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         $result = ConversionRegistry::get('L', 'm', 'nmi');
 
@@ -284,12 +283,12 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add initial conversion
         $conversion1 = new Conversion('m', 'yd', 1.09361);
-        ConversionRegistry::addConversion($conversion1);
+        ConversionRegistry::add($conversion1);
 
         // Add different conversion for same units
         $newFactor = 1.09362;
         $conversion2 = new Conversion('m', 'yd', $newFactor);
-        ConversionRegistry::addConversion($conversion2);
+        ConversionRegistry::add($conversion2);
 
         $result = ConversionRegistry::get('L', 'm', 'yd');
 
@@ -304,7 +303,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add a time conversion
         $conversion = new Conversion('s', 'min', 1 / 60);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         // Should be retrievable from time dimension
         $result = ConversionRegistry::get('T', 's', 'min');
@@ -322,7 +321,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add conversion with prefixed units
         $conversion = new Conversion('km', 'mi', 0.621371);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         $result = ConversionRegistry::get('L', 'km', 'mi');
 
@@ -338,7 +337,7 @@ final class ConversionRegistryTest extends TestCase
     {
         // Add area conversion
         $conversion = new Conversion('m2', 'ft2', 10.7639);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         $result = ConversionRegistry::get('L2', 'm2', 'ft2');
 
@@ -411,75 +410,44 @@ final class ConversionRegistryTest extends TestCase
 
     // endregion
 
-    // region add() with parameters tests
+    // region remove() tests
 
     /**
-     * Test add() with string unit symbols.
+     * Test remove() removes an existing conversion.
      */
-    public function testAddWithStringSymbols(): void
-    {
-        ConversionRegistry::add('m', 'cm', 100.0);
-
-        $result = ConversionRegistry::get('L', 'm', 'cm');
-
-        $this->assertInstanceOf(Conversion::class, $result);
-        $this->assertEqualsWithDelta(100.0, $result->factor->value, 1e-10);
-    }
-
-    /**
-     * Test add() with ON_MISSING_UNIT_IGNORE silently skips unknown units.
-     */
-    public function testAddWithOnMissingUnitIgnore(): void
-    {
-        // This should not throw, just silently skip.
-        ConversionRegistry::add('nonexistent_unit_xyz', 'm', 1.0, ConversionRegistry::ON_MISSING_UNIT_IGNORE);
-
-        // Verify no conversion was added.
-        $result = ConversionRegistry::get('L', 'nonexistent_unit_xyz', 'm');
-        $this->assertNull($result);
-    }
-
-    /**
-     * Test add() with ON_MISSING_UNIT_THROW throws for unknown source unit.
-     */
-    public function testAddThrowsForUnknownSourceUnit(): void
-    {
-        $this->expectException(DomainException::class);
-
-        ConversionRegistry::add('nonexistent_unit_xyz', 'm', 1.0, ConversionRegistry::ON_MISSING_UNIT_THROW);
-    }
-
-    /**
-     * Test add() with ON_MISSING_UNIT_THROW throws for unknown destination unit.
-     */
-    public function testAddThrowsForUnknownDestUnit(): void
-    {
-        $this->expectException(DomainException::class);
-
-        ConversionRegistry::add('m', 'nonexistent_unit_xyz', 1.0, ConversionRegistry::ON_MISSING_UNIT_THROW);
-    }
-
-    // endregion
-
-    // region removeConversion() tests
-
-    /**
-     * Test removeConversion() removes an existing conversion.
-     */
-    public function testRemoveConversionRemovesExisting(): void
+    public function testRemoveRemovesExisting(): void
     {
         // Add a conversion.
         $conversion = new Conversion('m', 'dm', 10.0);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         // Verify it exists.
         $this->assertTrue(ConversionRegistry::has('L', 'm', 'dm'));
 
         // Remove it.
-        ConversionRegistry::removeConversion($conversion);
+        ConversionRegistry::remove($conversion);
 
         // Verify it's gone.
         $this->assertFalse(ConversionRegistry::has('L', 'm', 'dm'));
+    }
+
+    /**
+     * Test remove() handles uninitialized registry gracefully.
+     */
+    public function testRemoveHandlesUninitializedRegistry(): void
+    {
+        // Reset the registry to null state.
+        ConversionRegistry::reset();
+
+        // Create a conversion object (doesn't require registry to be initialized).
+        $conversion = new Conversion('m', 'ft', 3.28084);
+
+        // This should not throw, just return early.
+        ConversionRegistry::remove($conversion);
+
+        // Re-initialize by accessing the registry.
+        $result = ConversionRegistry::getByDimension('L');
+        $this->assertIsArray($result);
     }
 
     // endregion
@@ -492,7 +460,7 @@ final class ConversionRegistryTest extends TestCase
     public function testHasConversionReturnsTrueForExisting(): void
     {
         $conversion = new Conversion('m', 'mm', 1000.0);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
 
         $result = ConversionRegistry::hasConversion($conversion);
 
@@ -508,51 +476,11 @@ final class ConversionRegistryTest extends TestCase
         $conversion = new Conversion('ft', 'km', 0.0003048);
 
         // Remove it if it exists to ensure clean state.
-        ConversionRegistry::removeConversion($conversion);
+        ConversionRegistry::remove($conversion);
 
         $result = ConversionRegistry::hasConversion($conversion);
 
         $this->assertFalse($result);
-    }
-
-    // endregion
-
-    // region getAllConversionDefinitions() tests
-
-    /**
-     * Test getAllConversionDefinitions() returns an array.
-     */
-    public function testGetAllConversionDefinitionsReturnsArray(): void
-    {
-        $result = ConversionRegistry::getAllConversionDefinitions();
-
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
-    }
-
-    /**
-     * Test getAllConversionDefinitions() returns non-empty array.
-     */
-    public function testGetAllConversionDefinitionsReturnsNonEmpty(): void
-    {
-        $result = ConversionRegistry::getAllConversionDefinitions();
-
-        $this->assertNotEmpty($result);
-    }
-
-    /**
-     * Test getAllConversionDefinitions() returns tuples with correct structure.
-     */
-    public function testGetAllConversionDefinitionsReturnsTuples(): void
-    {
-        $result = ConversionRegistry::getAllConversionDefinitions();
-
-        foreach ($result as $definition) {
-            $this->assertIsArray($definition);
-            $this->assertCount(3, $definition);
-            $this->assertIsString($definition[0]); // srcSymbol
-            $this->assertIsString($definition[1]); // destSymbol
-            $this->assertIsNumeric($definition[2]); // factor (int or float)
-        }
     }
 
     // endregion
@@ -566,11 +494,11 @@ final class ConversionRegistryTest extends TestCase
     {
         // Ensure we have some time conversions.
         $conversion = new Conversion('h', 'd', 1 / 24);
-        ConversionRegistry::addConversion($conversion);
+        ConversionRegistry::add($conversion);
         $this->assertTrue(ConversionRegistry::has('T', 'h', 'd'));
 
         // Reset time dimension.
-        ConversionRegistry::resetByDimension('T');
+        ConversionRegistry::clearByDimension('T');
 
         // Verify time conversions are gone.
         $this->assertFalse(ConversionRegistry::has('T', 'h', 'd'));
@@ -578,6 +506,22 @@ final class ConversionRegistryTest extends TestCase
         // Verify length conversions still exist.
         $lengthConversions = ConversionRegistry::getByDimension('L');
         $this->assertNotEmpty($lengthConversions);
+    }
+
+    /**
+     * Test resetByDimension() handles uninitialized registry gracefully.
+     */
+    public function testResetByDimensionHandlesUninitializedRegistry(): void
+    {
+        // Reset the registry to null state.
+        ConversionRegistry::reset();
+
+        // This should not throw, just return early.
+        ConversionRegistry::clearByDimension('L');
+
+        // Re-initialize by accessing the registry.
+        $result = ConversionRegistry::getByDimension('L');
+        $this->assertIsArray($result);
     }
 
     // endregion

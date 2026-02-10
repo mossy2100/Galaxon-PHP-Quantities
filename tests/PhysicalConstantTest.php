@@ -8,6 +8,8 @@ use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\PhysicalConstant;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Mass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -380,7 +382,7 @@ final class PhysicalConstantTest extends TestCase
     public function testEnergyMassEquivalence(): void
     {
         $c = PhysicalConstant::speedOfLight();
-        $mass = Quantity::create(1, 'kg');
+        $mass = new Mass(1, 'kg');
 
         // E = mc²
         $energy = $mass->mul($c)->mul($c);
@@ -399,9 +401,9 @@ final class PhysicalConstantTest extends TestCase
 
         // Gravitational force between two 1 kg masses 1 m apart.
         // F = G * m1 * m2 / r²
-        $m1 = Quantity::create(1, 'kg');
-        $m2 = Quantity::create(1, 'kg');
-        $r = Quantity::create(1, 'm');
+        $m1 = new Mass(1, 'kg');
+        $m2 = new Mass(1, 'kg');
+        $r = new Length(1, 'm');
 
         $force = $gravConst->mul($m1)->mul($m2)->div($r->pow(2));
         $newtons = $force->to('N');

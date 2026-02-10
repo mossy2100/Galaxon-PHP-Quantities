@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Data;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -16,7 +17,32 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Data::class)]
 final class DataTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Data::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns valid conversion definitions.
+     */
+    public function testGetConversionDefinitionsReturnsValidArray(): void
+    {
+        $conversions = Data::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
+    }
+
+    // endregion
 
     // region Basic conversion tests
 

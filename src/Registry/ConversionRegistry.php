@@ -8,10 +8,9 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Dimensions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\UnitInterface;
-use Galaxon\Quantities\Utility\DimensionUtility;
 
 /**
  * Registry for unit conversions.
@@ -72,69 +71,20 @@ class ConversionRegistry
         assert(self::$conversions !== null);
 
         // This will throw if the dimension is invalid.
-        $dimension = DimensionUtility::normalize($dimension);
+        $dimension = Dimensions::normalize($dimension);
         return self::$conversions[$dimension] ?? [];
     }
 
     // endregion
 
-    // region Static methods for adding/removing conversions
-
-    /**
-     * Add a conversion between two units.
-     *
-     * If the units have prefixes, the unprefixed conversion is also added automatically.
-     *
-     * @param string|UnitInterface $srcUnit The source unit symbol or object.
-     * @param string|UnitInterface $destUnit The destination unit symbol or object.
-     * @param float $factor The conversion factor (destValue = srcValue * factor).
-     * @param int $onMissingUnit How to handle missing units:
-     *   - ON_MISSING_UNIT_IGNORE: Skip the conversion silently.
-     *   - ON_MISSING_UNIT_THROW: Throw a DomainException.
-     * @throws DomainException If a unit is unknown and $onMissingUnit is ON_MISSING_UNIT_THROW.
-     */
-    public static function add(
-        string|UnitInterface $srcUnit,
-        string|UnitInterface $destUnit,
-        float $factor,
-        int $onMissingUnit = self::ON_MISSING_UNIT_THROW
-    ): void {
-        self::init();
-        assert(self::$conversions !== null);
-
-        // Get the source unit as a DerivedUnit object.
-        try {
-            $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
-        } catch (DomainException) {
-            if ($onMissingUnit === self::ON_MISSING_UNIT_IGNORE) {
-                return;
-            }
-            throw new DomainException("Unit '$srcUnit' is unknown.");
-        }
-
-        // Get the destination unit as a DerivedUnit object.
-        try {
-            $destUnit = DerivedUnit::toDerivedUnit($destUnit);
-        } catch (DomainException) {
-            if ($onMissingUnit === self::ON_MISSING_UNIT_IGNORE) {
-                return;
-            }
-            throw new DomainException("Unit '$destUnit' is unknown.");
-        }
-
-        // Construct the new Conversion.
-        $conversion = new Conversion($srcUnit, $destUnit, $factor);
-
-        // Add the Conversion to the registry.
-        self::addConversion($conversion);
-    }
+    // region Static methods for adding conversions
 
     /**
      * Add a conversion to the registry.
      *
      * @param Conversion $conversion The conversion to add.
      */
-    public static function addConversion(Conversion $conversion): void
+    public static function add(Conversion $conversion): void
     {
         self::init();
         assert(self::$conversions !== null);
@@ -146,89 +96,8 @@ class ConversionRegistry
 
         // If prefixes are present, also add the unprefixed conversion.
         if ($conversion->srcUnit->hasPrefixes() || $conversion->destUnit->hasPrefixes()) {
-            self::addConversion($conversion->removePrefixes());
+            self::add($conversion->removePrefixes());
         }
-    }
-
-    /**
-     * Remove a conversion from the registry.
-     *
-     * @param Conversion $conversion The conversion to remove.
-     */
-    public static function removeConversion(Conversion $conversion): void
-    {
-        // Skip if the registry is not initialized yet.
-        if (self::$conversions === null) {
-            return;
-        }
-
-        $dim = $conversion->dimension;
-        $src = $conversion->srcUnit->asciiSymbol;
-        $dest = $conversion->destUnit->asciiSymbol;
-        unset(self::$conversions[$dim][$src][$dest]);
-    }
-
-    /**
-     * Reset the conversions array.
-     */
-    public static function reset(): void
-    {
-        self::$conversions = null;
-    }
-
-    /**
-     * Reset the conversions for a given dimension.
-     *
-     * @param string $dimension The dimension code to reset.
-     */
-    public static function resetByDimension(string $dimension): void
-    {
-        // Skip if the registry is not initialized yet.
-        if (self::$conversions === null) {
-            return;
-        }
-
-        self::$conversions[$dimension] = [];
-    }
-
-    /**
-     * Get all conversion definitions from all QuantityType classes.
-     *
-     * This includes both explicit conversion definitions and expansion-based conversions.
-     *
-     * @return list<array{string, string, float}> Array of [srcSymbol, destSymbol, factor] tuples.
-     */
-    public static function getAllConversionDefinitions(): array
-    {
-        $definitions = [];
-
-        foreach (QuantityTypeRegistry::getAll() as $qtyType) {
-            /** @var ?class-string<Quantity> $qtyTypeClass */
-            $qtyTypeClass = $qtyType->class;
-
-            // Skip quantity types without a class.
-            if ($qtyTypeClass === null) {
-                continue;
-            }
-
-            // Explicit conversion definitions.
-            foreach ($qtyTypeClass::getConversionDefinitions() as $definition) {
-                $definitions[] = $definition;
-            }
-
-            // Expansion-based conversions.
-            foreach ($qtyTypeClass::getUnitDefinitions() as $unitDef) {
-                if (isset($unitDef['expansionUnitSymbol'])) {
-                    $definitions[] = [
-                        $unitDef['asciiSymbol'],
-                        $unitDef['expansionUnitSymbol'],
-                        $unitDef['expansionValue'] ?? 1.0
-                    ];
-                }
-            }
-        }
-
-        return $definitions;
     }
 
     /**
@@ -269,8 +138,64 @@ class ConversionRegistry
             }
 
             // Add the conversion (replacing any existing).
-            self::addConversion(new Conversion($srcUnit, $destUnit, $factor));
+            self::add(new Conversion($srcUnit, $destUnit, $factor));
         }
+    }
+
+    // endregion
+
+    // region Static methods for removing conversions
+
+    /**
+     * Remove a conversion from the registry.
+     *
+     * @param Conversion $conversion The conversion to remove.
+     */
+    public static function remove(Conversion $conversion): void
+    {
+        // Skip if the registry is not initialized yet.
+        if (self::$conversions === null) {
+            return;
+        }
+
+        $dim = $conversion->dimension;
+        $src = $conversion->srcUnit->asciiSymbol;
+        $dest = $conversion->destUnit->asciiSymbol;
+        unset(self::$conversions[$dim][$src][$dest]);
+    }
+
+    /**
+     * Reset the registry to its default initial state.
+     * This will trigger a re-initialization on first access.
+     */
+    public static function reset(): void
+    {
+        self::$conversions = null;
+    }
+
+    /**
+     * Remove all conversions.
+     * This will NOT trigger a re-initialization on next access.
+     * The array would have to be rebuilt using init() or add().
+     */
+    public static function clear(): void
+    {
+        self::$conversions = [];
+    }
+
+    /**
+     * Remove all conversions for a given dimension.
+     *
+     * @param string $dimension The dimension code to reset.
+     */
+    public static function clearByDimension(string $dimension): void
+    {
+        // Skip if the registry is not initialized yet.
+        if (self::$conversions === null) {
+            return;
+        }
+
+        self::$conversions[$dimension] = [];
     }
 
     // endregion
@@ -322,7 +247,7 @@ class ConversionRegistry
     private static function init(): void
     {
         if (self::$conversions === null) {
-            self::$conversions = [];
+            self::clear();
 
             // Get the loaded systems of units.
             $systems = UnitRegistry::getLoadedSystems();
@@ -330,6 +255,46 @@ class ConversionRegistry
                 self::loadConversions($system);
             }
         }
+    }
+
+    /**
+     * Get all conversion definitions from all QuantityType classes.
+     *
+     * This includes both explicit conversion definitions and expansion-based conversions.
+     *
+     * @return list<array{string, string, float}> Array of [srcSymbol, destSymbol, factor] tuples.
+     */
+    private static function getAllConversionDefinitions(): array
+    {
+        $definitions = [];
+
+        foreach (QuantityTypeRegistry::getAll() as $qtyType) {
+            /** @var ?class-string<Quantity> $qtyTypeClass */
+            $qtyTypeClass = $qtyType->class;
+
+            // Skip quantity types without a class.
+            if ($qtyTypeClass === null) {
+                continue;
+            }
+
+            // Explicit conversion definitions.
+            foreach ($qtyTypeClass::getConversionDefinitions() as $definition) {
+                $definitions[] = $definition;
+            }
+
+            // Expansion-based conversions.
+            foreach ($qtyTypeClass::getUnitDefinitions() as $unitDef) {
+                if (isset($unitDef['expansionUnitSymbol'])) {
+                    $definitions[] = [
+                        $unitDef['asciiSymbol'],
+                        $unitDef['expansionUnitSymbol'],
+                        $unitDef['expansionValue'] ?? 1.0
+                    ];
+                }
+            }
+        }
+
+        return $definitions;
     }
 
     // endregion

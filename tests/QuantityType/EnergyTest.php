@@ -8,6 +8,7 @@ use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Energy;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -17,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Energy::class)]
 final class EnergyTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
 
     // region Setup
@@ -25,6 +27,30 @@ final class EnergyTest extends TestCase
     {
         // Load US units for BTU.
         UnitRegistry::loadSystem(System::UsCustomary);
+    }
+
+    // endregion
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Energy::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns valid conversion definitions.
+     */
+    public function testGetConversionDefinitionsReturnsValidArray(): void
+    {
+        $conversions = Energy::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
     }
 
     // endregion

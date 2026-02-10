@@ -6,11 +6,11 @@ namespace Galaxon\Quantities\Tests;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
 use Galaxon\Quantities\UnitTerm;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -987,7 +987,7 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithPrefixObject(): void
     {
-        $prefix = PrefixUtility::getBySymbol('k');
+        $prefix = PrefixRegistry::getBySymbol('k');
         $term = new UnitTerm('m', $prefix, 2);
 
         $this->assertSame($prefix, $term->prefix);
@@ -1002,7 +1002,7 @@ final class UnitTermTest extends TestCase
         $unit = UnitRegistry::getBySymbol('m');
         $this->assertInstanceOf(Unit::class, $unit);
 
-        $prefix = PrefixUtility::getBySymbol('M');
+        $prefix = PrefixRegistry::getBySymbol('M');
         $term = new UnitTerm($unit, $prefix, 3);
 
         $this->assertSame($unit, $term->unit);

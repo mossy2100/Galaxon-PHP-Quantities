@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Quantity;
 
+use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
@@ -20,7 +21,7 @@ use PHPUnit\Framework\TestCase;
  * Tests for parsing and formatting Quantity objects.
  */
 #[CoversClass(Quantity::class)]
-final class QuantityParseFormatTest extends TestCase
+final class QuantityStringsTest extends TestCase
 {
     // region Setup
 
@@ -397,6 +398,70 @@ final class QuantityParseFormatTest extends TestCase
         $formatted = $parsed->format('f', 2, false, true, true);
 
         $this->assertSame($original, $formatted);
+    }
+
+    // endregion
+
+    // region Format error handling tests
+
+    /**
+     * Test format() with invalid specifier throws exception.
+     */
+    public function testFormatInvalidSpecifierThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("The specifier must be 'e', 'E', 'f', 'F', 'g', or 'G'.");
+
+        $length = new Length(10, 'm');
+        $length->format('x');
+    }
+
+    /**
+     * Test format() with negative precision throws exception.
+     */
+    public function testFormatNegativePrecisionThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('The precision must be null or an integer between 0 and 17.');
+
+        $length = new Length(10, 'm');
+        $length->format('f', -1);
+    }
+
+    /**
+     * Test format() with precision > 17 throws exception.
+     */
+    public function testFormatPrecisionTooHighThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('The precision must be null or an integer between 0 and 17.');
+
+        $length = new Length(10, 'm');
+        $length->format('f', 18);
+    }
+
+    // endregion
+
+    // region Dimensionless format tests
+
+    /**
+     * Test formatting a dimensionless quantity.
+     */
+    public function testFormatDimensionless(): void
+    {
+        $qty = Quantity::create(42.5, '');
+
+        $this->assertSame('42.5', $qty->format());
+    }
+
+    /**
+     * Test __toString on dimensionless quantity.
+     */
+    public function testToStringDimensionless(): void
+    {
+        $qty = Quantity::create(3.14159, '');
+
+        $this->assertSame('3.14159', (string)$qty);
     }
 
     // endregion

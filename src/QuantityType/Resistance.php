@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 /**
@@ -35,7 +35,7 @@ class Resistance extends Quantity
             'ohm' => [
                 'asciiSymbol'         => 'ohm',
                 'unicodeSymbol'       => 'Ω',
-                'prefixGroup'         => PrefixUtility::GROUP_CODE_METRIC,
+                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
                 'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
                 'systems'             => [System::Si],
             ],

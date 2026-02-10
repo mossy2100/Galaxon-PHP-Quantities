@@ -8,6 +8,7 @@ use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Energy;
 use Galaxon\Quantities\QuantityType\Force;
+use Galaxon\Quantities\QuantityType\Frequency;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -275,7 +276,7 @@ final class QuantityTransformTest extends TestCase
      */
     public function testSimplifyCompactsToNamedUnit(): void
     {
-        $qty = Quantity::create(1, 'kg*m*s-2');
+        $qty = new Force(1, 'kg*m*s-2');
         $simplified = $qty->simplify();
 
         $this->assertSame(1.0, $simplified->value);
@@ -288,7 +289,7 @@ final class QuantityTransformTest extends TestCase
     public function testSimplifyCompactsAndPrefixes(): void
     {
         // 5000 kg⋅m⋅s⁻² → 5000 N → 5 kN
-        $qty = Quantity::create(5000, 'kg*m*s-2');
+        $qty = new Force(5000, 'kg*m*s-2');
         $simplified = $qty->simplify();
 
         $this->assertSame(5.0, $simplified->value);
@@ -301,7 +302,7 @@ final class QuantityTransformTest extends TestCase
     public function testSimplifyCompactsAndPrefixesSmall(): void
     {
         // 0.005 kg⋅m²⋅s⁻² → 0.005 J → 5 mJ
-        $qty = Quantity::create(0.005, 'kg*m2*s-2');
+        $qty = new Energy(0.005, 'kg*m2*s-2');
         $simplified = $qty->simplify();
 
         $this->assertSame(5.0, $simplified->value);
@@ -337,7 +338,7 @@ final class QuantityTransformTest extends TestCase
      */
     public function testSimplifyInverseSecondsToHertz(): void
     {
-        $qty = Quantity::create(1, 's-1');
+        $qty = new Frequency(1, 's-1');
         $simplified = $qty->simplify();
 
         $this->assertSame(1.0, $simplified->value);
@@ -350,7 +351,7 @@ final class QuantityTransformTest extends TestCase
     public function testSimplifyInverseSecondsToKilohertz(): void
     {
         // 5000 s⁻¹ → 5000 Hz → 5 kHz
-        $qty = Quantity::create(5000, 's-1');
+        $qty = new Frequency(5000, 's-1');
         $simplified = $qty->simplify();
 
         // Note: Hz special case in simplify() should apply autoPrefix
@@ -363,7 +364,7 @@ final class QuantityTransformTest extends TestCase
      */
     public function testSimplifyNegativeValue(): void
     {
-        $qty = Quantity::create(-3000, 'kg*m*s-2');
+        $qty = new Force(-3000, 'kg*m*s-2');
         $simplified = $qty->simplify();
 
         $this->assertSame(-3.0, $simplified->value);
@@ -375,7 +376,7 @@ final class QuantityTransformTest extends TestCase
      */
     public function testSimplifyZero(): void
     {
-        $qty = Quantity::create(0, 'kg*m2*s-2');
+        $qty = new Energy(0, 'kg*m2*s-2');
         $simplified = $qty->simplify();
 
         $this->assertSame(0.0, $simplified->value);
@@ -397,6 +398,51 @@ final class QuantityTransformTest extends TestCase
 
         $this->assertTrue($force->approxEqual($simplified));
         $this->assertSame('N', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    // endregion
+
+    // region withValue() tests
+
+    /**
+     * Test withValue() returns same instance when value unchanged.
+     */
+    public function testWithValueReturnsSameInstanceWhenUnchanged(): void
+    {
+        $length = new Length(10, 'm');
+        $result = $length->withValue(10.0);
+
+        $this->assertSame($length, $result);
+    }
+
+    /**
+     * Test withValue() returns new instance when value changed.
+     */
+    public function testWithValueReturnsNewInstanceWhenChanged(): void
+    {
+        $length = new Length(10, 'm');
+        $result = $length->withValue(20.0);
+
+        $this->assertNotSame($length, $result);
+        $this->assertSame(20.0, $result->value);
+        $this->assertSame('m', $result->derivedUnit->asciiSymbol);
+    }
+
+    // endregion
+
+    // region autoPrefix() edge case tests
+
+    /**
+     * Test autoPrefix() on dimensionless quantity returns same instance.
+     */
+    public function testAutoPrefixOnDimensionlessReturnsSelf(): void
+    {
+        $qty = Quantity::create(1000, '');
+        $prefixed = $qty->autoPrefix();
+
+        // Dimensionless quantities have no unit to prefix.
+        $this->assertSame(1000.0, $prefixed->value);
+        $this->assertSame('', $prefixed->derivedUnit->asciiSymbol);
     }
 
     // endregion

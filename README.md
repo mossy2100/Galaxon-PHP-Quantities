@@ -2,7 +2,7 @@
 
 Physical measurement types with automatic unit conversion and prefix support.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](docs/SupportedUnits.md)**
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
@@ -212,6 +212,32 @@ $angle->cosh();
 $angle->tanh();
 ```
 
+### Physical Constants
+
+Access fundamental physical constants as Quantity objects:
+
+```php
+use Galaxon\Quantities\PhysicalConstant;
+
+// Speed of light
+$c = PhysicalConstant::get('c');
+echo $c->to('km/s');  // 299792.458 km/s
+
+// Planck constant
+$h = PhysicalConstant::get('h');
+
+// Gravitational constant
+$G = PhysicalConstant::get('G');
+
+// Elementary charge
+$e = PhysicalConstant::get('e');
+
+// Get by name (case-insensitive)
+$avogadro = PhysicalConstant::getByName('Avogadro constant');
+```
+
+See **[PhysicalConstant](docs/PhysicalConstant.md)** for the complete list of available constants.
+
 ## Terminology
 
 | Term            | Definition                                                                       |
@@ -265,64 +291,74 @@ Therefore, you can use the following:
 
 ### Core Classes
 
-#### [Quantity](docs/Quantity.md)
-
-Abstract base class for all measurement types. Provides unit conversion, arithmetic operations, comparison, formatting, and part decomposition. Derived classes define their specific units and conversions.
-
-#### [Unit](docs/Unit.md)
-
-Represents a decomposed unit symbol (e.g. 'km2' → base 'm', prefix 'k', exponent 2). Handles prefix multipliers and exponent calculations.
-
-#### [UnitConverter](docs/UnitConverter.md)
-
-Manages unit conversions for a measurement type. Validates units and prefixes, stores conversion factors, and uses graph traversal to find indirect conversion paths.
-
-#### [Conversion](docs/Conversion.md)
-
-Represents a linear transformation (y = mx) for unit conversion. Tracks error scores to prefer shorter, more accurate conversion paths.
-
-#### [FloatWithError](docs/FloatWithError.md)
-
-Immutable class for floating-point numbers with tracked error bounds:
-- Automatic error estimation based on ULP (Unit in Last Place)
-- Error propagation through arithmetic operations (add, sub, mul, div)
-- Tracks both absolute and relative error
-- Exact integers maintain zero error through compatible operations
-- Useful for numerical analysis and precision monitoring
+| Class | Description |
+|-------|-------------|
+| [Quantity](docs/Quantity.md) | Abstract base class for all measurement types. Provides unit conversion, arithmetic operations, comparison, formatting, and part decomposition. |
+| [QuantityType](docs/QuantityType.md) | Data class representing a quantity type with its dimension, SI unit, and PHP class. |
+| [Unit](docs/Unit.md) | Represents a single-symbol measurement unit with optional prefix support. |
+| [UnitTerm](docs/UnitTerm.md) | A unit with optional prefix and exponent (e.g., km², ms⁻¹). |
+| [DerivedUnit](docs/DerivedUnit.md) | Compound unit expression combining unit terms via multiplication/division. |
+| [Prefix](docs/Prefix.md) | SI metric and binary prefixes (kilo, mega, kibi, etc.). |
+| [Conversion](docs/Conversion.md) | Represents a unit conversion with factor and error tracking. |
+| [Converter](docs/Converter.md) | Graph-based algorithm for finding conversion paths between units. |
+| [FloatWithError](docs/FloatWithError.md) | Floating-point numbers with tracked error bounds for precision monitoring. |
+| [PhysicalConstant](docs/PhysicalConstant.md) | Access to physical constants (speed of light, Planck constant, etc.) as Quantity objects. |
+| [System](docs/System.md) | Enum for measurement systems (SI, Imperial, US Customary, etc.). |
 
 ### Quantity Types
 
-#### [Angle](docs/Angle.md)
+All quantity type classes extend `Quantity` and define their specific units and conversions. See **[SupportedUnits](docs/SupportedUnits.md)** for a complete reference of all units organized by quantity type.
 
-Angular measurements in radians, degrees, arcminutes, arcseconds, gradians, and turns. Includes trigonometric and hyperbolic functions, angle wrapping, and DMS formatting.
+| Class | Dimension | SI Unit | Description |
+|-------|-----------|---------|-------------|
+| [Acceleration](docs/QuantityType/Acceleration.md) | T⁻²L | m/s² | Rate of change of velocity. |
+| [AmountOfSubstance](docs/QuantityType/AmountOfSubstance.md) | N | mol | SI base quantity for counting entities. |
+| [Angle](docs/QuantityType/Angle.md) | A | rad | Angular measurements with trig functions. |
+| [Area](docs/QuantityType/Area.md) | L² | m² | Two-dimensional extent. |
+| [Capacitance](docs/QuantityType/Capacitance.md) | T⁴I²L⁻²M⁻¹ | F | Ability to store electric charge. |
+| [CatalyticActivity](docs/QuantityType/CatalyticActivity.md) | T⁻¹N | kat | Rate of catalysis. |
+| [Conductance](docs/QuantityType/Conductance.md) | T³I²L⁻²M⁻¹ | S | Electrical conductance. |
+| [Data](docs/QuantityType/Data.md) | D | B | Digital storage with metric and binary prefixes. |
+| [Density](docs/QuantityType/Density.md) | L⁻³M | kg/m³ | Mass per unit volume. |
+| [Dimensionless](docs/QuantityType/Dimensionless.md) | 1 | — | Ratios, percentages, and pure numbers. |
+| [ElectricCharge](docs/QuantityType/ElectricCharge.md) | TI | C | Quantity of electricity. |
+| [ElectricCurrent](docs/QuantityType/ElectricCurrent.md) | I | A | SI base quantity for electric current. |
+| [Energy](docs/QuantityType/Energy.md) | T⁻²L²M | J | Capacity to do work. |
+| [Force](docs/QuantityType/Force.md) | T⁻²LM | N | Interaction causing acceleration. |
+| [Frequency](docs/QuantityType/Frequency.md) | T⁻¹ | Hz | Cycles per unit time. |
+| [Illuminance](docs/QuantityType/Illuminance.md) | L⁻²J | lx | Luminous flux per area. |
+| [Inductance](docs/QuantityType/Inductance.md) | T⁻²L²MI⁻² | H | Property opposing current change. |
+| [Length](docs/QuantityType/Length.md) | L | m | SI base quantity for distance. |
+| [LuminousFlux](docs/QuantityType/LuminousFlux.md) | AJ | lm | Perceived light power. |
+| [LuminousIntensity](docs/QuantityType/LuminousIntensity.md) | J | cd | SI base quantity for luminous intensity. |
+| [MagneticFlux](docs/QuantityType/MagneticFlux.md) | T⁻²L²MI⁻¹ | Wb | Total magnetic field through surface. |
+| [MagneticFluxDensity](docs/QuantityType/MagneticFluxDensity.md) | T⁻²MI⁻¹ | T | Magnetic field strength. |
+| [Mass](docs/QuantityType/Mass.md) | M | kg | SI base quantity for mass. |
+| [Power](docs/QuantityType/Power.md) | T⁻³L²M | W | Rate of energy transfer. |
+| [Pressure](docs/QuantityType/Pressure.md) | T⁻²L⁻¹M | Pa | Force per unit area. |
+| [RadiationDose](docs/QuantityType/RadiationDose.md) | T⁻²L² | Gy, Sv | Absorbed and equivalent radiation dose. |
+| [Resistance](docs/QuantityType/Resistance.md) | T⁻³L²MI⁻² | Ω | Opposition to electric current. |
+| [SolidAngle](docs/QuantityType/SolidAngle.md) | A² | sr | Three-dimensional angular extent. |
+| [Temperature](docs/QuantityType/Temperature.md) | H | K | SI base quantity with affine conversions. |
+| [Time](docs/QuantityType/Time.md) | T | s | SI base quantity for duration. |
+| [Velocity](docs/QuantityType/Velocity.md) | T⁻¹L | m/s | Rate of change of position. |
+| [Voltage](docs/QuantityType/Voltage.md) | T⁻³L²MI⁻¹ | V | Electric potential difference. |
+| [Volume](docs/QuantityType/Volume.md) | L³ | m³ | Three-dimensional extent. |
 
-#### [Area](docs/Area.md)
+### Registry Classes
 
-Area measurements in square metres, hectares, acres, and imperial units (mi², yd², ft², in²).
+| Class | Description |
+|-------|-------------|
+| [UnitRegistry](docs/Registry/UnitRegistry.md) | Registry of known units organized by measurement system. Provides lazy loading and lookup methods. |
+| [ConversionRegistry](docs/Registry/ConversionRegistry.md) | Registry of unit conversions organized by dimension. |
+| [QuantityTypeRegistry](docs/Registry/QuantityTypeRegistry.md) | Registry mapping dimension codes to quantity type classes. |
 
-#### [Length](docs/Length.md)
+### Utility Classes
 
-Length measurements in metres, imperial units (inches, feet, yards, miles), typography units (pixels, points), and astronomical units (au, ly, pc).
-
-#### [Mass](docs/Mass.md)
-
-Mass measurements in grams, tonnes, and imperial units (grains, ounces, pounds, stones, tons). Includes physical constants (electron, proton, neutron mass).
-
-#### [Data](docs/Data.md)
-
-Digital storage in bytes and bits with both metric (kB, MB, GB) and binary (KiB, MiB, GiB) prefixes.
-
-#### [Temperature](docs/Temperature.md)
-
-Temperature in Kelvin, Celsius, and Fahrenheit with proper affine conversions. Supports degree symbol notation (25°C).
-
-#### [Time](docs/Time.md)
-
-Time durations in seconds, minutes, hours, days, weeks, months, years, and centuries. Includes DateInterval conversion and part formatting.
-
-#### [Volume](docs/Volume.md)
-
-Volume measurements in cubic metres, litres, and imperial units (gallons, quarts, pints, cups, fluid ounces, tablespoons, teaspoons).
+| Class | Description |
+|-------|-------------|
+| [Dimensions](docs/Utility/Dimensions.md) | Utilities for working with physical dimension codes (validation, composition, transformation). |
+| [PrefixRegistry](docs/Utility/PrefixRegistry.md) | Utilities for working with SI and binary prefixes (lookup, filtering by group). |
 
 ## Testing
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Registry;
 
 use DomainException;
+use Galaxon\Quantities\Dimensions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\QuantityType\Acceleration;
@@ -40,7 +41,6 @@ use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
 use Galaxon\Quantities\QuantityType\Voltage;
 use Galaxon\Quantities\QuantityType\Volume;
-use Galaxon\Quantities\Utility\DimensionUtility;
 use LogicException;
 
 /**
@@ -54,14 +54,15 @@ class QuantityTypeRegistry
     // region Constants
 
     /**
-     * Quantity types keyed by dimension code.
+     * Quantity types keyed by name (e.g. 'time', 'length').
      *
      * Each entry contains:
-     * - 'name': The name of the physical quantity
+     * - 'dimension': The dimension of the physical quantity
      * - 'siUnitSymbol': The SI unit symbol for this quantity
      * - 'class': The QuantityType class (if one exists)
      *
      * @var array<string, array{dimension: string, siUnitSymbol: string, class?: class-string<Quantity>}>
+     * @see Dimensions
      */
     private const array QUANTITY_TYPES = [
         // Dimensionless
@@ -272,6 +273,17 @@ class QuantityTypeRegistry
     }
 
     /**
+     * Remove all quantity types from the registry.
+     *
+     * This will NOT trigger re-initialization from the constant.
+     * The array would have to be manually rebuilt using init() or add().
+     */
+    public static function clear(): void
+    {
+        self::$quantityTypes = [];
+    }
+
+    /**
      * Get all registered quantity types.
      *
      * @return array<string, QuantityType>
@@ -295,7 +307,7 @@ class QuantityTypeRegistry
         self::init();
         assert(self::$quantityTypes !== null);
 
-        $dimension = DimensionUtility::normalize($dimension);
+        $dimension = Dimensions::normalize($dimension);
 
         return array_find(
             self::$quantityTypes,
@@ -371,7 +383,7 @@ class QuantityTypeRegistry
 
         // Normalize arguments.
         $name = strtolower($name);
-        $dimension = DimensionUtility::normalize($dimension);
+        $dimension = Dimensions::normalize($dimension);
 
         // Check name is unique.
         $qt = self::getByName($name);
@@ -440,7 +452,7 @@ class QuantityTypeRegistry
 
             // Convert info in constant into an array of objects.
             foreach (self::QUANTITY_TYPES as $name => $info) {
-                $dimension = DimensionUtility::normalize($info['dimension']);
+                $dimension = Dimensions::normalize($info['dimension']);
                 self::$quantityTypes[$name] =
                     new QuantityType($name, $dimension, $info['siUnitSymbol'], $info['class'] ?? null);
             }

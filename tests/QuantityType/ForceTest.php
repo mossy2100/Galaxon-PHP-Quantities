@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
-use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Acceleration;
 use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Force::class)]
 final class ForceTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
 
     // region Setup
@@ -29,6 +30,30 @@ final class ForceTest extends TestCase
         // Load Imperial/US units.
         UnitRegistry::loadSystem(System::Imperial);
         UnitRegistry::loadSystem(System::UsCustomary);
+    }
+
+    // endregion
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Force::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns empty array.
+     */
+    public function testGetConversionDefinitionsReturnsEmptyArray(): void
+    {
+        $conversions = Force::getConversionDefinitions();
+
+        $this->assertEmpty($conversions);
     }
 
     // endregion
@@ -446,7 +471,7 @@ final class ForceTest extends TestCase
     public function testConvertLbFtPerSecondSquaredToPoundForce(): void
     {
         // g₀/0.3048 lb·ft/s² = 1 lbf
-        $force = Quantity::create(9.80665 / 0.3048, 'lb*ft/s2');
+        $force = new Force(9.80665 / 0.3048, 'lb*ft/s2');
         $lbf = $force->to('lbf');
 
         $this->assertApproxEqual(1.0, $lbf->value);
@@ -473,7 +498,7 @@ final class ForceTest extends TestCase
      */
     public function testConvertLbFtPerSecondSquaredToNewtons(): void
     {
-        $force = Quantity::create(1, 'lb*ft/s2');
+        $force = new Force(1, 'lb*ft/s2');
         $n = $force->to('N');
 
         // 1 lb·ft/s² = 0.45359237 kg × 0.3048 m / s² ≈ 0.1383 N

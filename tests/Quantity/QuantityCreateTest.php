@@ -220,6 +220,37 @@ final class QuantityCreateTest extends TestCase
     }
 
     /**
+     * Test that Quantity::create() with INF throws an exception.
+     */
+    public function testCreateWithInfinityThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Value cannot be ±INF or NAN.');
+
+        Quantity::create(INF, 'm');
+    }
+
+    /**
+     * Test that Quantity::create() with -INF throws an exception.
+     */
+    public function testCreateWithNegativeInfinityThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+
+        Quantity::create(-INF, 'm');
+    }
+
+    /**
+     * Test that Quantity::create() with NAN throws an exception.
+     */
+    public function testCreateWithNanThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+
+        Quantity::create(NAN, 'm');
+    }
+
+    /**
      * Test that calling the wrong constructor throws an exception.
      */
     public function testWrongConstructorThrowsException(): void
@@ -314,6 +345,43 @@ final class QuantityCreateTest extends TestCase
 
         $this->assertInstanceOf(Length::class, $qty);
         $this->assertSame(-100.5, $qty->value);
+    }
+
+    // endregion
+
+    // region Base class method tests
+
+    /**
+     * Test getUnitDefinitions() returns empty array by default.
+     */
+    public function testGetUnitDefinitionsReturnsEmptyArray(): void
+    {
+        $result = Quantity::getUnitDefinitions();
+
+        $this->assertSame([], $result);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns empty array by default.
+     */
+    public function testGetConversionDefinitionsReturnsEmptyArray(): void
+    {
+        $result = Quantity::getConversionDefinitions();
+
+        $this->assertSame([], $result);
+    }
+
+    /**
+     * Test getPartsConfig() returns default config.
+     */
+    public function testGetPartsConfigReturnsDefaultConfig(): void
+    {
+        $result = Quantity::getPartsConfig();
+
+        $this->assertSame([
+            'from' => null,
+            'to'   => [],
+        ], $result);
     }
 
     // endregion

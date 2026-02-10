@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
-use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\QuantityType\Dimensionless;
 use Galaxon\Quantities\QuantityType\Frequency;
 use Galaxon\Quantities\QuantityType\Time;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +18,32 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Frequency::class)]
 final class FrequencyTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Frequency::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns empty array.
+     */
+    public function testGetConversionDefinitionsReturnsEmptyArray(): void
+    {
+        $conversions = Frequency::getConversionDefinitions();
+
+        $this->assertEmpty($conversions);
+    }
+
+    // endregion
 
     // region Metric prefix conversion tests
 
@@ -531,7 +557,7 @@ final class FrequencyTest extends TestCase
     {
         // T = 1/f
         // Period of 50 Hz = 1/50 = 0.02 s = 20 ms
-        $one = Quantity::create(1, '');
+        $one = new Dimensionless(1);
         $freq = new Frequency(50, 'Hz');
         $period = $one->div($freq);
 
@@ -549,7 +575,7 @@ final class FrequencyTest extends TestCase
     {
         // f = 1/T
         // Frequency for 0.001 s period = 1/0.001 = 1000 Hz = 1 kHz
-        $one = Quantity::create(1, '');
+        $one = new Dimensionless(1);
         $period = new Time(0.001, 's');
         $freq = $one->div($period);
 

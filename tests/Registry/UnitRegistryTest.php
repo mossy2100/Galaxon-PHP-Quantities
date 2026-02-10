@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -312,7 +312,7 @@ final class UnitRegistryTest extends TestCase
             unicodeSymbol: 'φυπ',  // Greek letters (valid Unicode word)
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             expansionUnitSymbol: 'm',
             systems: [System::Common]
         );
@@ -320,10 +320,31 @@ final class UnitRegistryTest extends TestCase
         $unit = UnitRegistry::getAll()[$name];
         $this->assertSame($symbol, $unit->asciiSymbol);
         $this->assertContains(System::Common, $unit->systems);
-        $this->assertSame(PrefixUtility::GROUP_CODE_METRIC, $unit->prefixGroup);
+        $this->assertSame(PrefixRegistry::GROUP_METRIC, $unit->prefixGroup);
 
         // Clean up
         UnitRegistry::remove($name);
+    }
+
+    public function testAddAfterReset(): void
+    {
+        UnitRegistry::clear();
+
+        $name = 'fullunitparams';
+        $symbol = 'fup';
+
+        UnitRegistry::add(
+            name: $name,
+            asciiSymbol: $symbol,
+            unicodeSymbol: 'φυπ',  // Greek letters (valid Unicode word)
+            quantityType: 'length',
+            dimension: 'L',
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
+            systems: [System::Common]
+        );
+
+        $units = UnitRegistry::getAll();
+        $this->assertEquals(1, count($units));
     }
 
     // endregion
@@ -368,6 +389,68 @@ final class UnitRegistryTest extends TestCase
 
         $countAfter = count(UnitRegistry::getAll());
         $this->assertSame($countBefore, $countAfter);
+    }
+
+    /**
+     * Test remove() handles uninitialized registry gracefully.
+     */
+    public function testRemoveHandlesUninitializedRegistry(): void
+    {
+        // Reset the registry to null state.
+        UnitRegistry::reset();
+
+        // This should not throw, just return early.
+        UnitRegistry::remove('metre');
+
+        // Re-initialize by accessing the registry.
+        $result = UnitRegistry::getBySymbol('m');
+        $this->assertInstanceOf(Unit::class, $result);
+    }
+
+    // endregion
+
+    // region has() tests
+
+    /**
+     * Test has() returns true for existing unit.
+     */
+    public function testHasReturnsTrueForExistingUnit(): void
+    {
+        $result = UnitRegistry::has('metre');
+
+        $this->assertTrue($result);
+    }
+
+    /**
+     * Test has() returns true for other SI base units.
+     */
+    public function testHasReturnsTrueForOtherSiUnits(): void
+    {
+        $this->assertTrue(UnitRegistry::has('gram'));
+        $this->assertTrue(UnitRegistry::has('second'));
+        $this->assertTrue(UnitRegistry::has('ampere'));
+        $this->assertTrue(UnitRegistry::has('kelvin'));
+    }
+
+    /**
+     * Test has() returns false for non-existing unit.
+     */
+    public function testHasReturnsFalseForNonExistingUnit(): void
+    {
+        $result = UnitRegistry::has('nonexistent_unit_xyz');
+
+        $this->assertFalse($result);
+    }
+
+    /**
+     * Test has() is case sensitive.
+     */
+    public function testHasIsCaseSensitive(): void
+    {
+        // 'metre' exists, 'Metre' and 'METRE' should not
+        $this->assertTrue(UnitRegistry::has('metre'));
+        $this->assertFalse(UnitRegistry::has('Metre'));
+        $this->assertFalse(UnitRegistry::has('METRE'));
     }
 
     // endregion

@@ -7,7 +7,6 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Utility\DimensionUtility;
 use LogicException;
 
 /**
@@ -520,9 +519,9 @@ class DerivedUnit implements UnitInterface
     public function toSi(): self
     {
         $unitTerms = [];
-        $dimTerms = DimensionUtility::decompose($this->dimension);
+        $dimTerms = Dimensions::decompose($this->dimension);
         foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = DimensionUtility::getSiUnitTerm($code)->pow($exp);
+            $unitTerms[] = Dimensions::getSiUnitTerm($code)->pow($exp);
         }
         return new self($unitTerms);
     }
@@ -581,8 +580,8 @@ class DerivedUnit implements UnitInterface
         }
 
         // Parse the dimension into dimension terms.
-        $aDimTerms = DimensionUtility::decompose($a->dimension);
-        $bDimTerms = DimensionUtility::decompose($b->dimension);
+        $aDimTerms = Dimensions::decompose($a->dimension);
+        $bDimTerms = Dimensions::decompose($b->dimension);
 
         // Put more complex dimensions (indicating expandable units) first.
         if (count($aDimTerms) > count($bDimTerms)) {
@@ -598,9 +597,9 @@ class DerivedUnit implements UnitInterface
         $aDims = array_keys($aDimTerms);
         $bDims = array_keys($bDimTerms);
 
-        // First loop: compare all letters in the order given by DimensionUtility::DIMENSION_CODES.
+        // First loop: compare all letters in the order given by Dimensions::DIMENSION_CODES.
         for ($i = 0; $i < $nTerms; $i++) {
-            $cmp = DimensionUtility::letterToInt($aDims[$i]) <=> DimensionUtility::letterToInt($bDims[$i]);
+            $cmp = Dimensions::letterToInt($aDims[$i]) <=> Dimensions::letterToInt($bDims[$i]);
             if ($cmp !== 0) {
                 return $cmp;
             }
@@ -630,7 +629,7 @@ class DerivedUnit implements UnitInterface
         $dimCodes = [];
         foreach ($this->unitTerms as $unitTerm) {
             // Get the dimension code terms for this unit term.
-            $dims = DimensionUtility::decompose($unitTerm->dimension);
+            $dims = Dimensions::decompose($unitTerm->dimension);
 
             // Accumulate the exponents for each letter in the dimension code.
             foreach ($dims as $dimCode => $exp) {
@@ -652,7 +651,7 @@ class DerivedUnit implements UnitInterface
         }
 
         // Generate the full dimension code.
-        $this->dimension = DimensionUtility::compose($dimCodes);
+        $this->dimension = Dimensions::compose($dimCodes);
     }
 
     // endregion

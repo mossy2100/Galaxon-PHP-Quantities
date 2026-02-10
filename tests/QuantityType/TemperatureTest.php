@@ -6,10 +6,13 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Temperature;
+use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -19,6 +22,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Temperature::class)]
 final class TemperatureTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
 
     // region Setup
@@ -28,6 +32,30 @@ final class TemperatureTest extends TestCase
         // Load Imperial/US units for Fahrenheit and Rankine.
         UnitRegistry::loadSystem(System::Imperial);
         UnitRegistry::loadSystem(System::UsCustomary);
+    }
+
+    // endregion
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Temperature::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns valid conversion definitions.
+     */
+    public function testGetConversionDefinitionsReturnsValidArray(): void
+    {
+        $conversions = Temperature::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
     }
 
     // endregion
@@ -549,6 +577,47 @@ final class TemperatureTest extends TestCase
         $this->assertSame(100.0, $converted->value);
         // Unit should be J/K (normalized form).
         $this->assertSame('J/K', $converted->derivedUnit->asciiSymbol);
+    }
+
+    // endregion
+
+    // region Fallback conversion test
+
+    /**
+     * Test that an unknown temperature unit falls back to parent::convert().
+     *
+     * This covers the final line of Temperature::convert() which delegates
+     * to the parent class for units not handled by the special temperature logic.
+     */
+    public function testConvertFallsBackToParentForUnknownUnit(): void
+    {
+        // Register a dummy temperature unit with dimension H.
+        UnitRegistry::add(
+            name: 'dummy-temp',
+            asciiSymbol: 'degX',
+            unicodeSymbol: null,
+            quantityType: 'temperature',
+            dimension: 'H',
+            systems: [System::Si]
+        );
+
+        // Add a conversion from degX to degR (1 degX = 42 degR).
+        $conversion = new Conversion('degX', 'degR', 42.0);
+        ConversionRegistry::add($conversion);
+
+        try {
+            // Convert from degX to degR - this triggers the fallback path.
+            // degX is not one of the special-cased units (K, degC, degF, degR),
+            // so it falls through to parent::convert().
+            $result = Temperature::convert(1, 'degX', 'degR');
+
+            // 1 degX * 42 = 42 degR (based on the conversion factor).
+            $this->assertSame(42.0, $result);
+        } finally {
+            // Clean up: remove the dummy unit and conversion.
+            UnitRegistry::remove('dummy-temp');
+            ConversionRegistry::remove($conversion);
+        }
     }
 
     // endregion

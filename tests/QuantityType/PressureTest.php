@@ -8,6 +8,7 @@ use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Pressure;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -17,6 +18,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Pressure::class)]
 final class PressureTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
 
     // region Setup
@@ -27,6 +29,30 @@ final class PressureTest extends TestCase
         UnitRegistry::loadSystem(System::Scientific);
         UnitRegistry::loadSystem(System::UsCustomary);
         UnitRegistry::loadSystem(System::Imperial);
+    }
+
+    // endregion
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Pressure::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns valid conversion definitions.
+     */
+    public function testGetConversionDefinitionsReturnsValidArray(): void
+    {
+        $conversions = Pressure::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
     }
 
     // endregion

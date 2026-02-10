@@ -29,6 +29,28 @@ class ConverterTest extends TestCase
 
     // endregion
 
+    // region reset() tests
+
+    /**
+     * Test reset clears cached instances.
+     */
+    public function testResetClearsCachedInstances(): void
+    {
+        // Get an instance to populate the cache.
+        $converter1 = Converter::getByDimension('L');
+
+        // Reset the cache.
+        Converter::clear();
+
+        // Get a new instance - should be a different object.
+        $converter2 = Converter::getByDimension('L');
+
+        // They should not be the same instance.
+        $this->assertNotSame($converter1, $converter2);
+    }
+
+    // endregion
+
     // region getByDimension() tests
 
     /**
@@ -580,6 +602,70 @@ class ConverterTest extends TestCase
         $factor = $converter->getConversionFactor('km', 'mm');
 
         $this->assertEqualsWithDelta(1e6, $factor, 1e-10);
+    }
+
+    // endregion
+
+    // region expand() tests
+
+    /**
+     * Test expand returns unchanged value and unit when no expansion needed.
+     */
+    public function testExpandReturnsUnchangedWhenNoExpansion(): void
+    {
+        // Metre has no expansion - it's a base SI unit.
+        $unit = DerivedUnit::parse('m');
+
+        [$value, $resultUnit] = Converter::expand(5.0, $unit);
+
+        $this->assertSame(5.0, $value);
+        $this->assertSame('m', $resultUnit->asciiSymbol);
+    }
+
+    /**
+     * Test expand returns unchanged for unit without expansion.
+     */
+    public function testExpandReturnsUnchangedForSecond(): void
+    {
+        // Second has no expansion.
+        $unit = DerivedUnit::parse('s');
+
+        [$value, $resultUnit] = Converter::expand(10.0, $unit);
+
+        $this->assertSame(10.0, $value);
+        $this->assertSame('s', $resultUnit->asciiSymbol);
+    }
+
+    // endregion
+
+    // region merge() tests
+
+    /**
+     * Test merge returns unchanged value and unit when no merging needed.
+     */
+    public function testMergeReturnsUnchangedWhenNoMerging(): void
+    {
+        // Simple unit with no mergeable components.
+        $unit = DerivedUnit::parse('m');
+
+        [$value, $resultUnit] = Converter::merge(5.0, $unit);
+
+        $this->assertSame(5.0, $value);
+        $this->assertSame('m', $resultUnit->asciiSymbol);
+    }
+
+    /**
+     * Test merge returns unchanged for compound unit with different dimensions.
+     */
+    public function testMergeReturnsUnchangedForDifferentDimensions(): void
+    {
+        // m/s has different dimensions so nothing to merge.
+        $unit = DerivedUnit::parse('m/s');
+
+        [$value, $resultUnit] = Converter::merge(1.0, $unit);
+
+        $this->assertSame(1.0, $value);
+        $this->assertSame('m/s', $resultUnit->asciiSymbol);
     }
 
     // endregion

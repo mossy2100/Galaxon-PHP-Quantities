@@ -107,10 +107,10 @@ Engineering prefixes are those commonly used in engineering notation: kilo, mega
 
 **Examples:**
 ```php
-$kilo = PrefixUtility::getBySymbol('k');
+$kilo = PrefixRegistry::getBySymbol('k');
 $kilo->isEngineering(); // true
 
-$centi = PrefixUtility::getBySymbol('c');
+$centi = PrefixRegistry::getBySymbol('c');
 $centi->isEngineering(); // false
 ```
 
@@ -132,8 +132,8 @@ Check if this prefix equals another.
 
 **Examples:**
 ```php
-$kilo1 = PrefixUtility::getBySymbol('k');
-$kilo2 = PrefixUtility::getBySymbol('k');
+$kilo1 = PrefixRegistry::getBySymbol('k');
+$kilo2 = PrefixRegistry::getBySymbol('k');
 $kilo1->equal($kilo2); // true
 ```
 
@@ -155,7 +155,7 @@ Format the prefix as a string.
 
 **Examples:**
 ```php
-$micro = PrefixUtility::getBySymbol('u');
+$micro = PrefixRegistry::getBySymbol('u');
 $micro->format();      // 'μ'
 $micro->format(true);  // 'u'
 ```
@@ -187,24 +187,24 @@ The class defines group code constants for prefix categorisation:
 
 ```php
 use Galaxon\Quantities\Prefix;
-use Galaxon\Quantities\Utility\PrefixUtility;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 // Get all metric prefixes
-$metricPrefixes = PrefixUtility::getPrefixes(Prefix::GROUP_CODE_METRIC);
+$metricPrefixes = PrefixRegistry::getPrefixes(Prefix::GROUP_CODE_METRIC);
 
 // Get prefixes that work for both metric and binary
 $bothGroups = Prefix::GROUP_CODE_METRIC | Prefix::GROUP_CODE_BINARY;
-$allPrefixes = PrefixUtility::getPrefixes($bothGroups);
+$allPrefixes = PrefixRegistry::getPrefixes($bothGroups);
 ```
 
 ### Creating Prefixed Units
 
 ```php
 use Galaxon\Quantities\UnitTerm;
-use Galaxon\Quantities\Utility\PrefixUtility;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 
 // Create a kilometre
-$kilo = PrefixUtility::getBySymbol('k');
+$kilo = PrefixRegistry::getBySymbol('k');
 $km = new UnitTerm('m', $kilo);
 
 // The multiplier accounts for the prefix
@@ -215,4 +215,4 @@ echo $km->multiplier; // 1000
 
 - **[UnitTerm](UnitTerm.md)** - Uses prefixes when representing prefixed units
 - **[Unit](Unit.md)** - Defines which prefixes a unit accepts
-- **[PrefixUtility](Utility/PrefixUtility.md)** - Helper functions for working with prefixes
+- **[PrefixRegistry](Registry/PrefixRegistry.md)** - Helper functions for working with prefixes

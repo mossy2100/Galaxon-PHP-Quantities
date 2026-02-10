@@ -9,8 +9,8 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 /**
@@ -48,7 +48,7 @@ class Angle extends Quantity
         return [
             'radian'    => [
                 'asciiSymbol' => 'rad',
-                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
                 'systems'     => [System::Si],
             ],
             'degree'    => [
@@ -66,7 +66,7 @@ class Angle extends Quantity
                 'asciiSymbol'     => 'arcsec',
                 'unicodeSymbol'   => '″',
                 'alternateSymbol' => '"',
-                'prefixGroup'     => PrefixUtility::GROUP_CODE_SMALL_ENG_METRIC,
+                'prefixGroup'     => PrefixRegistry::GROUP_SMALL_ENG_METRIC,
                 'systems'         => [System::SiAccepted],
             ],
             'gradian'   => [

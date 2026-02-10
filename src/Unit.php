@@ -7,9 +7,8 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\Utility\DimensionUtility;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 /**
@@ -148,7 +147,7 @@ class Unit implements UnitInterface
      * @var list<Prefix>
      */
     public array $allowedPrefixes {
-        get => PrefixUtility::getPrefixes($this->prefixGroup);
+        get => PrefixRegistry::getPrefixes($this->prefixGroup);
     }
 
     /**
@@ -253,7 +252,7 @@ class Unit implements UnitInterface
         $this->asciiSymbol = $asciiSymbol;
         $this->unicodeSymbol = $unicodeSymbol ?? $asciiSymbol;
         $this->quantityType = $quantityType;
-        $this->dimension = DimensionUtility::normalize($dimension);
+        $this->dimension = Dimensions::normalize($dimension);
         $this->prefixGroup = $prefixGroup;
         $this->alternateSymbol = $alternateSymbol;
         $this->expansionUnitSymbol = $expansionUnitSymbol ?? null;
@@ -310,7 +309,7 @@ class Unit implements UnitInterface
     {
         // Convert the prefix to a Prefix object if needed.
         if (is_string($prefix)) {
-            $prefix = PrefixUtility::getBySymbol($prefix);
+            $prefix = PrefixRegistry::getBySymbol($prefix);
         }
 
         return array_any($this->allowedPrefixes, static fn (Prefix $allowedPrefix) => $allowedPrefix->equal($prefix));

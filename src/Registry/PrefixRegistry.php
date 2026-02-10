@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Utility;
+namespace Galaxon\Quantities\Registry;
 
 use DomainException;
 use Galaxon\Core\Floats;
@@ -14,33 +14,73 @@ use Galaxon\Quantities\Prefix;
  * Provides access to metric prefixes (milli, kilo, mega, etc.) and binary prefixes (kibi, mebi, etc.)
  * organized by group codes for flexible filtering.
  */
-class PrefixUtility
+class PrefixRegistry
 {
-    // region Prefix group constants
+    // region Constants
 
-    public const int GROUP_CODE_SMALL_ENG_METRIC = 1;
-    public const int GROUP_CODE_SMALL_NON_ENG_METRIC = 2;
-    public const int GROUP_CODE_LARGE_NON_ENG_METRIC = 4;
-    public const int GROUP_CODE_LARGE_ENG_METRIC = 8;
-    public const int GROUP_CODE_BINARY = 16;
+    public const int GROUP_SMALL_ENG_METRIC = 1;
+    public const int GROUP_SMALL_NON_ENG_METRIC = 2;
+    public const int GROUP_LARGE_NON_ENG_METRIC = 4;
+    public const int GROUP_LARGE_ENG_METRIC = 8;
+    public const int GROUP_BINARY = 16;
+    public const int GROUP_SMALL_METRIC = self::GROUP_SMALL_ENG_METRIC | self::GROUP_SMALL_NON_ENG_METRIC;
+    public const int GROUP_LARGE_METRIC = self::GROUP_LARGE_NON_ENG_METRIC | self::GROUP_LARGE_ENG_METRIC;
+    public const int GROUP_ENG_METRIC = self::GROUP_SMALL_ENG_METRIC | self::GROUP_LARGE_ENG_METRIC;
+    public const int GROUP_METRIC = self::GROUP_SMALL_METRIC | self::GROUP_LARGE_METRIC;
+    public const int GROUP_LARGE = self::GROUP_LARGE_ENG_METRIC | self::GROUP_BINARY;
+    public const int GROUP_ALL = self::GROUP_METRIC | self::GROUP_BINARY;
 
-    public const int GROUP_CODE_SMALL_METRIC =
-        self::GROUP_CODE_SMALL_ENG_METRIC |
-        self::GROUP_CODE_SMALL_NON_ENG_METRIC;
-
-    public const int GROUP_CODE_LARGE_METRIC =
-        self::GROUP_CODE_LARGE_NON_ENG_METRIC |
-        self::GROUP_CODE_LARGE_ENG_METRIC;
-
-    public const int GROUP_CODE_ENG_METRIC =
-        self::GROUP_CODE_SMALL_ENG_METRIC |
-        self::GROUP_CODE_LARGE_ENG_METRIC;
-
-    public const int GROUP_CODE_METRIC = self::GROUP_CODE_SMALL_METRIC | self::GROUP_CODE_LARGE_METRIC;
-
-    public const int GROUP_CODE_LARGE = self::GROUP_CODE_LARGE_ENG_METRIC | self::GROUP_CODE_BINARY;
-
-    public const int GROUP_CODE_ALL = self::GROUP_CODE_METRIC | self::GROUP_CODE_BINARY;
+    /**
+     * Prefix definitions.
+     *
+     * @var array<int, array<string, array{0: string, 1: float, 2?: string}>>
+     */
+    private const array PREFIX_DEFINITIONS = [
+        self::GROUP_SMALL_ENG_METRIC     => [
+            'quecto' => ['q', 1e-30],
+            'ronto'  => ['r', 1e-27],
+            'yocto'  => ['y', 1e-24],
+            'zepto'  => ['z', 1e-21],
+            'atto'   => ['a', 1e-18],
+            'femto'  => ['f', 1e-15],
+            'pico'   => ['p', 1e-12],
+            'nano'   => ['n', 1e-9],
+            'micro'  => ['u', 1e-6, 'μ'],
+            'milli'  => ['m', 1e-3],
+        ],
+        self::GROUP_SMALL_NON_ENG_METRIC => [
+            'centi' => ['c', 1e-2],
+            'deci'  => ['d', 1e-1],
+        ],
+        self::GROUP_LARGE_NON_ENG_METRIC => [
+            'deca'  => ['da', 1e1],
+            'hecto' => ['h', 1e2],
+        ],
+        self::GROUP_LARGE_ENG_METRIC     => [
+            'kilo'   => ['k', 1e3],
+            'mega'   => ['M', 1e6],
+            'giga'   => ['G', 1e9],
+            'tera'   => ['T', 1e12],
+            'peta'   => ['P', 1e15],
+            'exa'    => ['E', 1e18],
+            'zetta'  => ['Z', 1e21],
+            'yotta'  => ['Y', 1e24],
+            'ronna'  => ['R', 1e27],
+            'quetta' => ['Q', 1e30],
+        ],
+        self::GROUP_BINARY               => [
+            'kibi'  => ['Ki', 2 ** 10],
+            'mebi'  => ['Mi', 2 ** 20],
+            'gibi'  => ['Gi', 2 ** 30],
+            'tebi'  => ['Ti', 2 ** 40],
+            'pebi'  => ['Pi', 2 ** 50],
+            'exbi'  => ['Ei', 2 ** 60],
+            'zebi'  => ['Zi', 2 ** 70],
+            'yobi'  => ['Yi', 2 ** 80],
+            'robi'  => ['Ri', 2 ** 90],
+            'quebi' => ['Qi', 2 ** 100],
+        ],
+    ];
 
     // endregion
 
@@ -63,7 +103,7 @@ class PrefixUtility
      * @param int $prefixGroup Code indicating the prefix group(s) to include.
      * @return list<Prefix>
      */
-    public static function getPrefixes(int $prefixGroup = self::GROUP_CODE_ALL): array
+    public static function getPrefixes(int $prefixGroup = self::GROUP_ALL): array
     {
         self::init();
         assert(self::$prefixes !== null);
@@ -144,64 +184,31 @@ class PrefixUtility
         return in_array($groupCode, self::getValidGroupCodes(), true);
     }
 
+    /**
+     * Reset the prefixes cache.
+     *
+     * After calling this method, the next access will trigger re-initialization.
+     * Primarily useful for testing.
+     */
+    public static function reset(): void
+    {
+        self::$prefixes = null;
+    }
+
+    /**
+     * Clear the prefixes cache.
+     *
+     * After calling this method, the next access will NOT trigger re-initialization.
+     * It will be necessary to call init() manually to re-initialize the prefixes array.
+     */
+    public static function clear(): void
+    {
+        self::$prefixes = [];
+    }
+
     // endregion
 
     // region Helper methods
-
-    /**
-     * Get the prefix definitions.
-     *
-     * @return array<int, array<string, array{0: string, 1: float, 2?: string}>>
-     */
-    private static function getPrefixDefinitions(): array
-    {
-        return [
-            self::GROUP_CODE_SMALL_ENG_METRIC     => [
-                'quecto' => ['q', 1e-30],
-                'ronto'  => ['r', 1e-27],
-                'yocto'  => ['y', 1e-24],
-                'zepto'  => ['z', 1e-21],
-                'atto'   => ['a', 1e-18],
-                'femto'  => ['f', 1e-15],
-                'pico'   => ['p', 1e-12],
-                'nano'   => ['n', 1e-9],
-                'micro'  => ['u', 1e-6, 'μ'],
-                'milli'  => ['m', 1e-3],
-            ],
-            self::GROUP_CODE_SMALL_NON_ENG_METRIC => [
-                'centi' => ['c', 1e-2],
-                'deci'  => ['d', 1e-1],
-            ],
-            self::GROUP_CODE_LARGE_NON_ENG_METRIC => [
-                'deca'  => ['da', 1e1],
-                'hecto' => ['h', 1e2],
-            ],
-            self::GROUP_CODE_LARGE_ENG_METRIC     => [
-                'kilo'   => ['k', 1e3],
-                'mega'   => ['M', 1e6],
-                'giga'   => ['G', 1e9],
-                'tera'   => ['T', 1e12],
-                'peta'   => ['P', 1e15],
-                'exa'    => ['E', 1e18],
-                'zetta'  => ['Z', 1e21],
-                'yotta'  => ['Y', 1e24],
-                'ronna'  => ['R', 1e27],
-                'quetta' => ['Q', 1e30],
-            ],
-            self::GROUP_CODE_BINARY               => [
-                'kibi'  => ['Ki', 2 ** 10],
-                'mebi'  => ['Mi', 2 ** 20],
-                'gibi'  => ['Gi', 2 ** 30],
-                'tebi'  => ['Ti', 2 ** 40],
-                'pebi'  => ['Pi', 2 ** 50],
-                'exbi'  => ['Ei', 2 ** 60],
-                'zebi'  => ['Zi', 2 ** 70],
-                'yobi'  => ['Yi', 2 ** 80],
-                'robi'  => ['Ri', 2 ** 90],
-                'quebi' => ['Qi', 2 ** 100],
-            ],
-        ];
-    }
 
     /**
      * Initialize the prefixes array from the prefix definitions.
@@ -212,14 +219,10 @@ class PrefixUtility
     private static function init(): void
     {
         if (self::$prefixes === null) {
-            // Reset the prefixes array.
-            self::$prefixes = [];
-
-            // Get the prefix definitions.
-            $prefixDefinitions = self::getPrefixDefinitions();
+            self::clear();
 
             // Create the prefix objects from the definitions and add to the array.
-            foreach ($prefixDefinitions as $groupCode => $groupDefinitions) {
+            foreach (self::PREFIX_DEFINITIONS as $groupCode => $groupDefinitions) {
                 foreach ($groupDefinitions as $name => $definition) {
                     [$asciiSymbol, $multiplier] = $definition;
                     $unicodeSymbol = $definition[2] ?? null;
@@ -240,11 +243,11 @@ class PrefixUtility
     private static function getValidGroupCodes(): array
     {
         return [
-            self::GROUP_CODE_SMALL_ENG_METRIC,
-            self::GROUP_CODE_SMALL_NON_ENG_METRIC,
-            self::GROUP_CODE_LARGE_NON_ENG_METRIC,
-            self::GROUP_CODE_LARGE_ENG_METRIC,
-            self::GROUP_CODE_BINARY
+            self::GROUP_SMALL_ENG_METRIC,
+            self::GROUP_SMALL_NON_ENG_METRIC,
+            self::GROUP_LARGE_NON_ENG_METRIC,
+            self::GROUP_LARGE_ENG_METRIC,
+            self::GROUP_BINARY
         ];
     }
 

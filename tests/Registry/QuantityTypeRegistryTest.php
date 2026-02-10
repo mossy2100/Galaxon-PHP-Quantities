@@ -315,7 +315,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testSetClassUpdatesClass(): void
     {
-        // First add a quantity type without a class
+        // First add a quantity type without a class.
         $dimension = 'L5';
         $existing = QuantityTypeRegistry::getByDimension($dimension);
         if ($existing !== null) {
@@ -324,13 +324,17 @@ final class QuantityTypeRegistryTest extends TestCase
 
         QuantityTypeRegistry::add('pentavolume', $dimension, 'm5', null);
 
-        // Verify it has no class
+        // Verify it has no class.
         $result = QuantityTypeRegistry::getByDimension($dimension);
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertNull($result->class);
 
-        // This would fail because Length::class is already registered
-        // So we just verify the method exists and throws for invalid dimension
+        // Now set the class using our test fixture.
+        QuantityTypeRegistry::setClass('pentavolume', TestQuantity::class);
+
+        // Verify the class was set.
+        $result = QuantityTypeRegistry::getByDimension($dimension);
+        $this->assertSame(TestQuantity::class, $result->class);
     }
 
     /**
@@ -342,6 +346,100 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectExceptionMessage("Quantity type 'coolness' not found");
 
         QuantityTypeRegistry::setClass('coolness', Length::class);
+    }
+
+    // endregion
+
+    // region getClasses() tests
+
+    /**
+     * Test getClasses() returns array of registered classes.
+     */
+    public function testGetClassesReturnsArrayOfClasses(): void
+    {
+        $classes = QuantityTypeRegistry::getClasses();
+
+        $this->assertIsArray($classes); // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertNotEmpty($classes);
+
+        // Verify all elements are class strings.
+        foreach ($classes as $class) {
+            $this->assertIsString($class);
+            $this->assertTrue(class_exists($class), "Class $class should exist");
+            $this->assertTrue(is_subclass_of($class, Quantity::class), "Class $class should extend Quantity");
+        }
+    }
+
+    /**
+     * Test getClasses() contains expected quantity type classes.
+     */
+    public function testGetClassesContainsExpectedClasses(): void
+    {
+        $classes = QuantityTypeRegistry::getClasses();
+
+        // Verify some expected classes are present.
+        $this->assertContains(Length::class, $classes);
+        $this->assertContains(Mass::class, $classes);
+        $this->assertContains(Time::class, $classes);
+        $this->assertContains(Area::class, $classes);
+        $this->assertContains(Velocity::class, $classes);
+    }
+
+    /**
+     * Test getClasses() does not contain null entries.
+     */
+    public function testGetClassesDoesNotContainNull(): void
+    {
+        $classes = QuantityTypeRegistry::getClasses();
+
+        // Currency quantity type has no class, so null should not be in the list.
+        foreach ($classes as $class) {
+            $this->assertNotNull($class);
+        }
+    }
+
+    // endregion
+
+    // region clear() and reset() tests
+
+    /**
+     * Test clear() removes all quantity types.
+     */
+    public function testClearRemovesAllQuantityTypes(): void
+    {
+        // Ensure registry is initialized with default types.
+        $before = QuantityTypeRegistry::getAll();
+        $this->assertNotEmpty($before);
+
+        // Clear the registry.
+        QuantityTypeRegistry::clear();
+
+        // Verify the registry is empty.
+        $after = QuantityTypeRegistry::getAll();
+        $this->assertEmpty($after);
+
+        // Reset to restore defaults for other tests.
+        QuantityTypeRegistry::reset();
+    }
+
+    /**
+     * Test clear() does not trigger re-initialization.
+     */
+    public function testClearDoesNotReinitialize(): void
+    {
+        // Clear the registry.
+        QuantityTypeRegistry::clear();
+
+        // Add a single custom type.
+        QuantityTypeRegistry::add('custom', 'L6', 'm6', null);
+
+        // Verify only the custom type exists (defaults were not re-loaded).
+        $all = QuantityTypeRegistry::getAll();
+        $this->assertCount(1, $all);
+        $this->assertArrayHasKey('custom', $all);
+
+        // Reset to restore defaults for other tests.
+        QuantityTypeRegistry::reset();
     }
 
     // endregion
@@ -406,4 +504,13 @@ final class QuantityTypeRegistryTest extends TestCase
     }
 
     // endregion
+}
+
+/**
+ * Test fixture class for testing QuantityTypeRegistry::setClass().
+ *
+ * This is a minimal Quantity subclass used only for testing purposes.
+ */
+class TestQuantity extends Quantity
+{
 }

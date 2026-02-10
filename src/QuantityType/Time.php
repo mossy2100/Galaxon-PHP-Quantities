@@ -9,8 +9,8 @@ use DateMalformedIntervalStringException;
 use DomainException;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 /**
@@ -38,7 +38,7 @@ class Time extends Quantity
         return [
             'second' => [
                 'asciiSymbol' => 's',
-                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
                 'systems'     => [System::Si],
             ],
             'minute' => [

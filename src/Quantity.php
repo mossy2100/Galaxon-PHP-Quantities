@@ -11,9 +11,9 @@ use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use InvalidArgumentException;
 use LogicException;
 use Override;
@@ -30,7 +30,7 @@ use Stringable;
  * - getConversionDefinitions(): Define conversions between units.
  *
  * Prefix system:
- * - Units can specify allowed prefixes using bitwise flags (GROUP_CODE_METRIC, GROUP_CODE_BINARY, etc.)
+ * - Units can specify allowed prefixes using bitwise flags (GROUP_METRIC, GROUP_BINARY, etc.)
  * - Provides fine-grained control (e.g. radian can accept only small metric prefixes)
  * - Supports combinations (e.g. byte can accept both metric and binary prefixes)
  *
@@ -440,7 +440,7 @@ class Quantity implements Stringable
             // Check if we have s-1.
             if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
                 // Create the Hz unit term.
-                $newUnitTerm = new UnitTerm('Hz', PrefixUtility::invert($unitTerm->prefix));
+                $newUnitTerm = new UnitTerm('Hz', PrefixRegistry::invert($unitTerm->prefix));
                 $result = self::create($qty->value, $newUnitTerm);
 
                 // Auto-prefix if requested.
@@ -998,41 +998,6 @@ class Quantity implements Stringable
     }
 
     /**
-     * Check the given unit symbol is valid for the calling class.
-     *
-     * @param string $unitSymbol The unit symbol to validate.
-     * @return Unit The validated unit as a Unit object.
-     * @throws LogicException If the calling class is not a registered quantity type.
-     * @throws DomainException If the symbol is unknown or invalid.
-     */
-    protected static function validateUnitSymbol(string $unitSymbol): Unit
-    {
-        // Get the unit.
-        $unit = UnitRegistry::getBySymbol($unitSymbol);
-        if ($unit === null) {
-            throw new DomainException("Unknown unit symbol: '$unitSymbol'.");
-        }
-
-        // Get the dimension.
-        $qtyType = QuantityTypeRegistry::getByClass(static::class);
-        if ($qtyType === null) {
-            throw new LogicException(
-                'Quantity type not found for class ' . static::class . '. Ensure the class is registered ' .
-                'using `QuantityTypeRegistry::add()` or `QuantityTypeRegistry::setClass()`.'
-            );
-        }
-
-        // Compare dimensions.
-        if ($qtyType->dimension !== $unit->dimension) {
-            throw new DomainException(
-                "Unit '$unitSymbol' ($unit->dimension) is invalid for $qtyType->name quantities ($qtyType->dimension)."
-            );
-        }
-
-        return $unit;
-    }
-
-    /**
      * Validate and transform the 'to' part units array into a list of Units.
      *
      * @param list<string> $partUnitSymbols The part unit symbols to validate and transform.
@@ -1049,12 +1014,35 @@ class Quantity implements Stringable
             );
         }
 
+        // Get the dimension.
+        $qtyType = QuantityTypeRegistry::getByClass(static::class);
+        if ($qtyType === null) {
+            throw new LogicException(
+                'Quantity type not found for class ' . static::class . '. Ensure the class is registered ' .
+                'using `QuantityTypeRegistry::add()` or `QuantityTypeRegistry::setClass()`.'
+            );
+        }
+
         // Create a new array to contain the list of Unit objects.
         $partUnits = [];
 
         // Validate each part unit symbol.
         foreach ($partUnitSymbols as $partUnitSymbol) {
-            $partUnits[] = static::validateUnitSymbol($partUnitSymbol);
+            // Get the unit.
+            $partUnit = UnitRegistry::getBySymbol($partUnitSymbol);
+            if ($partUnit === null) {
+                throw new DomainException("Unknown unit symbol: '$partUnitSymbol'.");
+            }
+
+            // Compare dimensions.
+            if ($qtyType->dimension !== $partUnit->dimension) {
+                throw new DomainException(
+                    "Unit '$partUnitSymbol' ($partUnit->dimension) is invalid for $qtyType->name quantities " .
+                    "($qtyType->dimension)."
+                );
+            }
+
+            $partUnits[] = $partUnit;
         }
 
         return $partUnits;

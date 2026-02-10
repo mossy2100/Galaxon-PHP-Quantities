@@ -8,6 +8,7 @@ use DivisionByZeroError;
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Temperature;
@@ -248,7 +249,7 @@ final class QuantityArithmeticTest extends TestCase
      */
     public function testMulDifferentTypes(): void
     {
-        $force = Quantity::create(10, 'N');
+        $force = new Force(10, 'N');
         $distance = new Length(5, 'm');
         $energy = $force->mul($distance);
 

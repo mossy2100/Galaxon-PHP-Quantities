@@ -8,10 +8,10 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Prefix;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -45,7 +45,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
@@ -55,7 +55,7 @@ final class UnitTest extends TestCase
         $this->assertSame('length', $unit->quantityType);
         $this->assertSame('L', $unit->dimension);
         $this->assertContains(System::Si, $unit->systems);
-        $this->assertSame(PrefixUtility::GROUP_CODE_METRIC, $unit->prefixGroup);
+        $this->assertSame(PrefixRegistry::GROUP_METRIC, $unit->prefixGroup);
         $this->assertNull($unit->expansionUnitSymbol);
     }
 
@@ -70,7 +70,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'frequency',
             dimension: 'T-1',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             expansionUnitSymbol: 's-1',
             systems: [System::Si]
         );
@@ -94,7 +94,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: 'Ω',
             quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             expansionUnitSymbol: 'kg*m2/s3/A2',
             systems: [System::Si]
         );
@@ -299,7 +299,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
@@ -334,11 +334,11 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
-        $prefix = PrefixUtility::getBySymbol('k');
+        $prefix = PrefixRegistry::getBySymbol('k');
         $this->assertInstanceOf(Prefix::class, $prefix);
         $this->assertTrue($unit->acceptsPrefix($prefix));
     }
@@ -354,7 +354,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
@@ -376,7 +376,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
@@ -394,7 +394,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
@@ -413,7 +413,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
@@ -449,7 +449,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
@@ -964,7 +964,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: null,
             quantityType: 'length',
             dimension: 'L',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
@@ -987,7 +987,7 @@ final class UnitTest extends TestCase
             unicodeSymbol: 'Ω',
             quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
-            prefixGroup: PrefixUtility::GROUP_CODE_METRIC,
+            prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 

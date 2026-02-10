@@ -8,7 +8,6 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
-use Galaxon\Quantities\Utility\DimensionUtility;
 use LogicException;
 
 /**
@@ -78,7 +77,7 @@ class Converter
     private function __construct(string $dimension)
     {
         // Check the dimension is valid.
-        if (!DimensionUtility::isValid($dimension)) {
+        if (!Dimensions::isValid($dimension)) {
             throw new FormatException("Invalid dimension code '$dimension'.");
         }
 
@@ -103,12 +102,12 @@ class Converter
     // region Factory methods
 
     /**
-     * Reset all Converter instances.
+     * Remove all cached Converter instances.
      *
      * Clears the multiton cache, forcing new instances to be created on next access.
      * Primarily intended for test isolation.
      */
-    public static function reset(): void
+    public static function clear(): void
     {
         self::$instances = [];
     }
@@ -203,7 +202,7 @@ class Converter
             $conversion = new Conversion($srcUnit, $destUnit, $factor);
 
             // Add the new prefixed conversion to the Converter.
-            ConversionRegistry::addConversion($conversion);
+            ConversionRegistry::add($conversion);
 
             // Return it.
             return $conversion;
@@ -706,7 +705,7 @@ class Converter
 
         if ($best !== null) {
             // Record the best conversion we found for this scan.
-            ConversionRegistry::addConversion($best);
+            ConversionRegistry::add($best);
 
             // Report we found one.
             return true;
@@ -762,7 +761,7 @@ class Converter
                             $midToDest->factor->isInteger()
                         ) {
                             $newConversion = $srcToMid->combineSequential($midToDest);
-                            ConversionRegistry::addConversion($newConversion);
+                            ConversionRegistry::add($newConversion);
                             $foundNew = true;
                         }
                     }
@@ -799,7 +798,7 @@ class Converter
         $this->addUnit($mergedUnit);
 
         // Add the new conversion to the registry.
-        ConversionRegistry::addConversion(new Conversion($unit, $mergedUnit, $mergedValue));
+        ConversionRegistry::add(new Conversion($unit, $mergedUnit, $mergedValue));
     }
 
     /**
@@ -826,7 +825,7 @@ class Converter
         $this->addUnit($expandedUnit);
 
         // Add the new conversion to the registry.
-        ConversionRegistry::addConversion(new Conversion($unit, $expandedUnit, $expandedValue));
+        ConversionRegistry::add(new Conversion($unit, $expandedUnit, $expandedValue));
     }
 
     // endregion

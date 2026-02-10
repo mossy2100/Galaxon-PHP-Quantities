@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 /**
@@ -34,7 +34,7 @@ class LuminousIntensity extends Quantity
         return [
             'candela' => [
                 'asciiSymbol' => 'cd',
-                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
                 'systems'     => [System::Si],
             ],
         ];

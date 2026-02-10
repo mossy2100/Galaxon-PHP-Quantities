@@ -8,9 +8,9 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitInterface;
-use Galaxon\Quantities\Utility\PrefixUtility;
 use Override;
 
 /**
@@ -57,7 +57,7 @@ class Temperature extends Quantity
         return [
             'kelvin'     => [
                 'asciiSymbol' => 'K',
-                'prefixGroup' => PrefixUtility::GROUP_CODE_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
                 'systems'     => [System::Si],
             ],
             'celsius'    => [
@@ -133,6 +133,12 @@ class Temperature extends Quantity
             throw new DomainException("Invalid temperature unit: '$destSymbol'.");
         }
 
+        // If either unit is not a known temperature unit, delegate to parent immediately.
+        // This avoids partial transformations that would corrupt the value for custom units.
+        if (!self::isKnownTemperatureUnit($srcUnit) || !self::isKnownTemperatureUnit($destUnit)) {
+            return parent::convert($value, $srcUnit, $destUnit);
+        }
+
         // Get the ASCII symbols.
         $srcSymbol = $srcUnit->asciiSymbol;
         $destSymbol = $destUnit->asciiSymbol;
@@ -203,12 +209,8 @@ class Temperature extends Quantity
             return $value - self::FAHRENHEIT_OFFSET;
         }
 
-        // Check for a destination unit of Kelvin with SI prefix.
-        if (self::isPrefixedKelvin($destUnit)) {
-            return $value / $destUnit->multiplier;
-        }
-
-        return $value;
+        // Destination unit must be Kelvin with an SI prefix.
+        return $value / $destUnit->multiplier;
     }
 
     // endregion
@@ -220,9 +222,26 @@ class Temperature extends Quantity
      */
     private static function isPrefixedKelvin(DerivedUnit $unit): bool
     {
-        return count($unit->unitTerms) === 1 &&
-            $unit->firstUnitTerm?->unit->asciiSymbol === 'K' &&
-            $unit->multiplier !== 1.0;
+        $unitTerm = $unit->firstUnitTerm;
+        return $unitTerm->unit->asciiSymbol === 'K' && $unitTerm->prefix !== null && $unitTerm->exponent === 1;
+    }
+
+    /**
+     * Check if a unit is a known temperature unit that this class can convert.
+     *
+     * Known units are: K, degC, degF, degR, and prefixed Kelvin (mK, μK, etc.).
+     * Custom temperature units are not handled by this class and should be
+     * delegated to the parent convert() method.
+     */
+    private static function isKnownTemperatureUnit(DerivedUnit $unit): bool
+    {
+        // Check for prefixed Kelvin first.
+        if (self::isPrefixedKelvin($unit)) {
+            return true;
+        }
+
+        // Check for the four base temperature units.
+        return in_array($unit->asciiSymbol, ['K', 'degC', 'degF', 'degR'], true);
     }
 
     // endregion

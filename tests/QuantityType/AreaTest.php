@@ -9,6 +9,7 @@ use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -18,6 +19,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Area::class)]
 final class AreaTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
 
     // region Setup
@@ -27,6 +29,30 @@ final class AreaTest extends TestCase
         // Load Imperial/US units for acres and square feet/yards.
         UnitRegistry::loadSystem(System::Imperial);
         UnitRegistry::loadSystem(System::UsCustomary);
+    }
+
+    // endregion
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Area::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns valid conversion definitions.
+     */
+    public function testGetConversionDefinitionsReturnsValidArray(): void
+    {
+        $conversions = Area::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
     }
 
     // endregion

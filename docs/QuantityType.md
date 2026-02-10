@@ -144,4 +144,4 @@ if ($qtyType !== null) {
 
 - **[Quantity](Quantity.md)** - Uses quantity types for type-safe instantiation
 - **[QuantityTypeRegistry](Registry/QuantityTypeRegistry.md)** - Registry for quantity types
-- **[DimensionUtility](Utility/DimensionUtility.md)** - Utilities for working with dimension codes
+- **[Dimensions](Dimensions.md)** - Utilities for working with dimension codes

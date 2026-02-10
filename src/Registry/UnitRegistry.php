@@ -222,14 +222,25 @@ class UnitRegistry
     }
 
     /**
-     * Reset the registry to an empty state.
+     * Reset the registry to its default initial state.
      *
-     * After calling this method, use loadSystem() or add() to populate the registry
-     * with the desired units. This allows customizing which measurement systems are available.
+     * It will be re-initialized on next access to the default systems of units.
      */
     public static function reset(): void
     {
         self::$units = null;
+        self::$loadedSystems = [];
+    }
+
+    /**
+     * Removal all units from the registry.
+     *
+     * This will NOT trigger a re-initialization on next access.
+     * The array would have to be manually rebuilt using init(), loadSystem(), or add().
+     */
+    public static function clear(): void
+    {
+        self::$units = [];
         self::$loadedSystems = [];
     }
 
@@ -316,7 +327,7 @@ class UnitRegistry
     private static function init(): void
     {
         if (self::$units === null) {
-            self::$units = [];
+            self::clear();
 
             // Load the default measurement systems.
             self::loadSystem(System::Si);

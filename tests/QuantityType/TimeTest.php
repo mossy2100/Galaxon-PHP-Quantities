@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 use DateInterval;
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Time;
+use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -16,7 +17,32 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Time::class)]
 final class TimeTest extends TestCase
 {
+    use ArrayShapeTrait;
     use FloatAssertions;
+
+    // region Overridden methods
+
+    /**
+     * Test getUnitDefinitions() returns valid unit definitions.
+     */
+    public function testGetUnitDefinitionsReturnsValidArray(): void
+    {
+        $units = Time::getUnitDefinitions();
+
+        $this->assertValidUnitDefinitionsShape($units);
+    }
+
+    /**
+     * Test getConversionDefinitions() returns valid conversion definitions.
+     */
+    public function testGetConversionDefinitionsReturnsValidArray(): void
+    {
+        $conversions = Time::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
+    }
+
+    // endregion
 
     // region Conversion tests
 

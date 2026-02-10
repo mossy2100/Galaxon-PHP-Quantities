@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities;
 
 use DomainException;
-use Galaxon\Quantities\Utility\DimensionUtility;
 
 /**
  * Represents a quantity type.
@@ -50,7 +49,7 @@ class QuantityType
     public function __construct(string $name, string $dimension, string $siUnitSymbol, ?string $class = null)
     {
         $this->name = $name;
-        $this->dimension = DimensionUtility::normalize($dimension);
+        $this->dimension = Dimensions::normalize($dimension);
         $this->siUnitSymbol = $siUnitSymbol;
         $this->class = $class;
     }

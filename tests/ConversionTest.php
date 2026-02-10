@@ -409,6 +409,100 @@ class ConversionTest extends TestCase
 
     // endregion
 
+    // region pow() tests
+
+    /**
+     * Test pow squares a conversion.
+     */
+    public function testPowSquaresConversion(): void
+    {
+        // m → ft conversion
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $squared = $conv->pow(2);
+
+        $this->assertSame('m²', (string)$squared->srcUnit);
+        $this->assertSame('ft²', (string)$squared->destUnit);
+        // Factor should be squared: 3.28084² ≈ 10.7639
+        $this->assertEqualsWithDelta(3.28084 ** 2, $squared->factor->value, 1e-6);
+    }
+
+    /**
+     * Test pow cubes a conversion.
+     */
+    public function testPowCubesConversion(): void
+    {
+        // m → ft conversion
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $cubed = $conv->pow(3);
+
+        $this->assertSame('m³', (string)$cubed->srcUnit);
+        $this->assertSame('ft³', (string)$cubed->destUnit);
+        // Factor should be cubed: 3.28084³ ≈ 35.3147
+        $this->assertEqualsWithDelta(3.28084 ** 3, $cubed->factor->value, 1e-4);
+    }
+
+    /**
+     * Test pow with exponent 1 returns equivalent conversion.
+     */
+    public function testPowWithExponentOne(): void
+    {
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $result = $conv->pow(1);
+
+        $this->assertSame('m', (string)$result->srcUnit);
+        $this->assertSame('ft', (string)$result->destUnit);
+        $this->assertEqualsWithDelta(3.28084, $result->factor->value, 1e-10);
+    }
+
+    /**
+     * Test pow with negative exponent.
+     */
+    public function testPowWithNegativeExponent(): void
+    {
+        // m → ft conversion
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $inverted = $conv->pow(-1);
+
+        $this->assertSame('m⁻¹', (string)$inverted->srcUnit);
+        $this->assertSame('ft⁻¹', (string)$inverted->destUnit);
+        // Factor should be inverted: 1/3.28084
+        $this->assertEqualsWithDelta(1.0 / 3.28084, $inverted->factor->value, 1e-10);
+    }
+
+    /**
+     * Test pow preserves error information.
+     */
+    public function testPowPreservesError(): void
+    {
+        $factor = new FloatWithError(2.0, 0.1);
+        $conv = new Conversion('m', 'ft', $factor);
+
+        $squared = $conv->pow(2);
+
+        $this->assertEqualsWithDelta(4.0, $squared->factor->value, 1e-10);
+        // Error should be propagated
+        $this->assertGreaterThan(0.0, $squared->factor->absoluteError);
+    }
+
+    /**
+     * Test pow with factor of 1.0.
+     */
+    public function testPowWithFactorOne(): void
+    {
+        $conv = new Conversion('m', 'ft', 1.0);
+
+        $squared = $conv->pow(2);
+
+        // 1² = 1
+        $this->assertSame(1.0, $squared->factor->value);
+    }
+
+    // endregion
+
     // region removePrefixes() tests
 
     /**

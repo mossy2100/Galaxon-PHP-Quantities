@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Utility;
+namespace Galaxon\Quantities;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\UnitTerm;
 use LogicException;
 
 /**
@@ -18,7 +17,7 @@ use LogicException;
  * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
  * @see https://en.wikipedia.org/wiki/Dimensional_analysis
  */
-class DimensionUtility
+class Dimensions
 {
     // region Constants
 
@@ -270,10 +269,10 @@ class DimensionUtility
      * The unit may be prefixed.
      *
      * @param string $code Single-letter dimension code.
-     * @return ?string The unit term symbol or null if not found.
+     * @return string The unit term symbol.
      * @throws DomainException If the dimension code is invalid.
      */
-    public static function getSiUnitTermSymbol(string $code): ?string
+    public static function getSiUnitTermSymbol(string $code): string
     {
         // Validate the code.
         if (strlen($code) !== 1 || !array_key_exists($code, self::DIMENSION_CODES)) {
@@ -298,11 +297,6 @@ class DimensionUtility
     {
         // Get the SI base unit symbol (which may have a prefix).
         $siBase = self::getSiUnitTermSymbol($code);
-
-        // Make sure we got the SI base unit.
-        if ($siBase === null) {
-            throw new LogicException("No SI base unit defined for dimension code '$code'.");
-        }
 
         // Construct the UnitTerm.
         return UnitTerm::parse($siBase);
