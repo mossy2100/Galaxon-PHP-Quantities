@@ -223,7 +223,7 @@ class Temperature extends Quantity
     private static function isPrefixedKelvin(DerivedUnit $unit): bool
     {
         $unitTerm = $unit->firstUnitTerm;
-        return $unitTerm->unit->asciiSymbol === 'K' && $unitTerm->prefix !== null && $unitTerm->exponent === 1;
+        return $unitTerm->unit->asciiSymbol === 'K' && $unitTerm->prefix !== null;
     }
 
     /**
