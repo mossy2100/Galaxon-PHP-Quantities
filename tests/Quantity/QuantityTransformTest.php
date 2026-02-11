@@ -109,6 +109,19 @@ final class QuantityTransformTest extends TestCase
         $this->assertSame('kg*m/s2', $si->derivedUnit->asciiSymbol);
     }
 
+    /**
+     * Test toSi() with simplify=false expands but does not compact back to named unit.
+     */
+    public function testToSiWithSimplifyFalse(): void
+    {
+        $force = new Force(1, 'N');
+        $si = $force->toSi(simplify: false);
+
+        // Should remain in base units (not compacted back to N).
+        $this->assertSame(1.0, $si->value);
+        $this->assertSame('kg*m/s2', $si->derivedUnit->asciiSymbol);
+    }
+
     // endregion
 
     // region expand() tests

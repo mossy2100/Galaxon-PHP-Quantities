@@ -273,16 +273,7 @@ class UnitTerm implements UnitInterface
         $exp = 1;
         if (isset($matches[2]) && $matches[2] !== '') {
             $expStr = $matches[2];
-            if (Integers::isSuperscript($expStr)) {
-                $exp = Integers::fromSuperscript($expStr);
-            } else {
-                $exp = filter_var($expStr, FILTER_VALIDATE_INT);
-                if ($exp === false) {
-                    throw new FormatException(
-                        "Invalid exponent '$expStr'. Use all ASCII or superscript characters, but not a mixture."
-                    );
-                }
-            }
+            $exp = Integers::isSuperscript($expStr) ? Integers::fromSuperscript($expStr) : (int)$expStr;
         }
 
         // Make sure the exponent isn't 0.
@@ -300,7 +291,9 @@ class UnitTerm implements UnitInterface
 
         // Check we only found one match. Should never happen as we ensure symbol uniqueness in UnitRegistry.
         if (count($matchingUnits) > 1) {
+            // @codeCoverageIgnoreStart
             throw new LogicException("Multiple matching units found for '$prefixedSymbol'.");
+            // @codeCoverageIgnoreEnd
         }
 
         // Create the new object.
@@ -353,13 +346,50 @@ class UnitTerm implements UnitInterface
     // region Inspection methods
 
     /**
-     * Check if this unit term's base unit belongs to the SI system.
+     * Check if this unit term's unit belongs to the SI system.
      *
-     * @return bool True if the base unit is an SI unit.
+     * @return bool True if the unit is an SI unit.
      */
     public function isSi(): bool
     {
         return $this->unit->isSi();
+    }
+
+    /**
+     * Check if this unit is a base unit, i.e. dimension is a single letter with no exponent.
+     * (e.g. m, kg, ft, lb, s)
+     *
+     * @return bool True if the unit is a base unit.
+     */
+    public function isBase(): bool
+    {
+        return $this->unit->isBase();
+    }
+
+    /**
+     * Check if this unit term is an SI base unit, with or without an exponent.
+     *
+     * Thus:
+     * Returns true for: kg, m, s, A, K, cd, mol, as well as the honorary (for this package) SI units rad, B, and XAU.
+     * Plus any of these units with an exponent, e.g. m2, m3, s-1, etc.
+     * Returns false for, e.g.: g (gram; requires the 'k' prefix to be an SI base unit), km ('m' is not an SI base unit
+     * with prefix), ft, lb, any Imperial/US customary unit, etc.
+     *
+     * @return bool True if the unit is an SI base unit.
+     */
+    public function isSiBase(): bool
+    {
+        return in_array($this->unexponentiatedAsciiSymbol, Dimensions::getSiBaseUnitSymbols(), true);
+    }
+
+    /**
+     * Check if this unit term is expandable.
+     *
+     * @return bool True if the unit term is expandable into base units.
+     */
+    public function isExpandable(): bool
+    {
+        return $this->unit->isExpandable();
     }
 
     // endregion

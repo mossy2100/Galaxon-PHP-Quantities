@@ -222,35 +222,6 @@ final class UnitRegistryTest extends TestCase
 
     // endregion
 
-    // region getExpandableUnits() tests
-
-    /**
-     * Test getExpandableUnits() returns array.
-     */
-    public function testGetExpandableUnitsReturnsArray(): void
-    {
-        $result = UnitRegistry::getExpandable();
-
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
-    }
-
-    /**
-     * Test getExpandableUnits() contains units with expansions.
-     */
-    public function testGetExpandableUnitsContainsExpansions(): void
-    {
-        $result = UnitRegistry::getExpandable();
-
-        // All items should be Unit objects with non-null expansion
-        foreach ($result as $unit) {
-            $this->assertInstanceOf(Unit::class, $unit);
-            $this->assertNotNull($unit->expansionUnitSymbol);
-            $this->assertNotNull($unit->expansionUnit);
-        }
-    }
-
-    // endregion
-
     // region add() tests
 
     /**
@@ -313,7 +284,6 @@ final class UnitRegistryTest extends TestCase
             quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
-            expansionUnitSymbol: 'm',
             systems: [System::Common]
         );
 
@@ -345,6 +315,69 @@ final class UnitRegistryTest extends TestCase
 
         $units = UnitRegistry::getAll();
         $this->assertEquals(1, count($units));
+    }
+
+    /**
+     * Test add() auto-initializes the registry when it is null.
+     */
+    public function testAddAutoInitializesNullRegistry(): void
+    {
+        // Reset sets $units to null, triggering init() on next add().
+        UnitRegistry::reset();
+
+        $name = 'autoinitunit';
+        $symbol = 'aiu';
+
+        UnitRegistry::add(
+            name: $name,
+            asciiSymbol: $symbol,
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::Common]
+        );
+
+        // The registry should have been initialized with default units plus our new one.
+        $this->assertTrue(UnitRegistry::has('metre'));
+        $this->assertTrue(UnitRegistry::has($name));
+
+        // Clean up.
+        UnitRegistry::remove($name);
+    }
+
+    /**
+     * Test add() replaces an existing unit with the same name.
+     */
+    public function testAddReplacesExistingUnitWithSameName(): void
+    {
+        $name = 'replacetest';
+
+        // Add a unit.
+        UnitRegistry::add(
+            name: $name,
+            asciiSymbol: 'rpt',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::Common]
+        );
+        $this->assertSame('rpt', UnitRegistry::getAll()[$name]->asciiSymbol);
+
+        // Add again with the same name but different symbol.
+        UnitRegistry::add(
+            name: $name,
+            asciiSymbol: 'rpx',
+            unicodeSymbol: null,
+            quantityType: 'length',
+            dimension: 'L',
+            systems: [System::Common]
+        );
+
+        // Should have the new symbol.
+        $this->assertSame('rpx', UnitRegistry::getAll()[$name]->asciiSymbol);
+
+        // Clean up.
+        UnitRegistry::remove($name);
     }
 
     // endregion
@@ -451,6 +484,67 @@ final class UnitRegistryTest extends TestCase
         $this->assertTrue(UnitRegistry::has('metre'));
         $this->assertFalse(UnitRegistry::has('Metre'));
         $this->assertFalse(UnitRegistry::has('METRE'));
+    }
+
+    // endregion
+
+    // region loadSystem() tests
+
+    /**
+     * Test loadSystem() skips loading when the system is already loaded.
+     */
+    public function testLoadSystemSkipsAlreadyLoadedSystem(): void
+    {
+        // SI is auto-loaded during init(). Loading it again should be a no-op.
+        $countBefore = count(UnitRegistry::getAll());
+
+        UnitRegistry::loadSystem(System::Si);
+
+        $countAfter = count(UnitRegistry::getAll());
+        $this->assertSame($countBefore, $countAfter);
+    }
+
+    // endregion
+
+    // region getLoadedSystems() tests
+
+    /**
+     * Test getLoadedSystems() returns default systems after initialization.
+     */
+    public function testGetLoadedSystemsReturnsDefaultSystems(): void
+    {
+        $systems = UnitRegistry::getLoadedSystems();
+
+        $this->assertContains(System::Si, $systems);
+        $this->assertContains(System::SiAccepted, $systems);
+        $this->assertContains(System::Common, $systems);
+    }
+
+    /**
+     * Test getLoadedSystems() includes manually loaded system.
+     */
+    public function testGetLoadedSystemsIncludesManuallyLoadedSystem(): void
+    {
+        UnitRegistry::loadSystem(System::Imperial);
+
+        $systems = UnitRegistry::getLoadedSystems();
+
+        $this->assertContains(System::Imperial, $systems);
+    }
+
+    /**
+     * Test getLoadedSystems() is empty after clear().
+     */
+    public function testGetLoadedSystemsEmptyAfterClear(): void
+    {
+        UnitRegistry::clear();
+
+        $systems = UnitRegistry::getLoadedSystems();
+
+        $this->assertEmpty($systems);
+
+        // Reset the registry to null so it automatically re-initializes on next access.
+        UnitRegistry::reset();
     }
 
     // endregion

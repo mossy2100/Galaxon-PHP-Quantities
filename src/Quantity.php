@@ -182,9 +182,7 @@ class Quantity implements Stringable
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     public static function getUnitDefinitions(): array
@@ -270,9 +268,9 @@ class Quantity implements Stringable
         // Expand and merge to get the base units.
         $result = $this->expand()->merge();
 
-        // Convert to SI base units if necessary.
-        if (!$result->isSi()) {
-            $result = $this->to($result->derivedUnit->toSi());
+        // If it's not already SI, start by converting to SI base units.
+        if (!$result->derivedUnit->isSi()) {
+            $result = $this->toSiBase();
         }
 
         // Simplify if requested.
@@ -287,14 +285,14 @@ class Quantity implements Stringable
     /**
      * Convert this Quantity to SI base units without simplification or auto-prefixing.
      *
-     * Unlike toSi(), this method returns the raw expanded base units (e.g., kg·m·s⁻²
-     * instead of N). Useful for calculations or when you need the fundamental SI form.
+     * Unlike toSi(), this method returns purely SI base units (e.g., kg·m·s⁻² instead of N).
+     * Useful for calculations or when you need the fundamental SI form.
      *
      * @return self A new Quantity expressed in SI base units.
      */
     public function toSiBase(): self
     {
-        return $this->toSi(false, false);
+        return $this->to($this->derivedUnit->toSiBase());
     }
 
     /**
@@ -320,7 +318,7 @@ class Quantity implements Stringable
     public function expand(): self
     {
         // Check if there's anything to do.
-        if (!$this->derivedUnit->hasExpansion()) {
+        if (!$this->derivedUnit->isExpandable()) {
             return $this;
         }
 
@@ -452,17 +450,20 @@ class Quantity implements Stringable
         $newValue = $qty->value;
         $newUnit = clone $qty->derivedUnit;
 
-        // Get all expandable units.
-        $expandableUnits = UnitRegistry::getExpandable();
-
         // Track the best match.
         $bestExpandableUnit = null;
         $bestMatchScore = 0;
         $bestUnitToReplace = null;
 
-        foreach ($expandableUnits as $expandableUnit) {
-            /** @var DerivedUnit $expansionUnit */
-            $expansionUnit = $expandableUnit->expansionUnit;
+        // Loop through the units and try to find an expandable unit that matches the quantity.
+        foreach (UnitRegistry::getAll() as $unit) {
+            // Get the expansion for this unit if there is one.
+            $expansion = $unit->expansion;
+            if ($expansion === null) {
+                continue;
+            }
+
+            $expansionUnit = $expansion->destUnit;
 
             // Skip 'Hz' or 'Bq'; these are the only expandable units with one unit term in their expansion.
             if (count($expansionUnit->unitTerms) === 1) {
@@ -507,7 +508,7 @@ class Quantity implements Stringable
 
             // If we found a better match, update our search result.
             if ($expandableUnitMatchesQty && $matchScore > $bestMatchScore) {
-                $bestExpandableUnit = $expandableUnit;
+                $bestExpandableUnit = $unit;
                 $bestMatchScore = $matchScore;
                 $bestUnitToReplace = $unitToReplace;
             }
@@ -532,20 +533,6 @@ class Quantity implements Stringable
 
         // Auto-prefix if requested.
         return $autoPrefix ? $result->autoPrefix() : $result;
-    }
-
-    // endregion
-
-    // region Inspection methods
-
-    /**
-     * Check if this quantity's unit is composed entirely of SI units.
-     *
-     * @return bool True if all component units are SI units.
-     */
-    public function isSi(): bool
-    {
-        return $this->derivedUnit->isSi();
     }
 
     // endregion

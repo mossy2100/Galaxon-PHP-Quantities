@@ -11,6 +11,7 @@ use Galaxon\Quantities\DerivedUnit;
 use Galaxon\Quantities\Dimensions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Unit;
 
 /**
  * Registry for unit conversions.
@@ -73,6 +74,40 @@ class ConversionRegistry
         // This will throw if the dimension is invalid.
         $dimension = Dimensions::normalize($dimension);
         return self::$conversions[$dimension] ?? [];
+    }
+
+    /**
+     * Get the expansion conversion for a unit.
+     *
+     * An expansion converts a derived unit (like N) to its base unit equivalent (like kg*m/s2).
+     * Returns the first conversion found where the destination unit is a non-expandable unit.
+     *
+     * @param string|Unit $unit The unit to find an expansion for.
+     * @return ?Conversion The expansion conversion, or null if not found or unit is already base.
+     * @throws DomainException If the unit symbol is unknown.
+     */
+    public static function getExpansion(string|Unit $unit): ?Conversion
+    {
+        self::init();
+        assert(self::$conversions !== null);
+
+        // If the unit is provided as a string, convert it to a Unit object.
+        if (is_string($unit)) {
+            $unitSymbol = $unit;
+            $unit = UnitRegistry::getBySymbol($unitSymbol);
+            if ($unit === null) {
+                throw new DomainException("Unknown unit symbol: '$unitSymbol'.");
+            }
+        }
+
+        // Check if the unit could potentially have an expansion.
+        if ($unit->isBase()) {
+            return null;
+        }
+
+        // Look for a conversion from this unit to a base unit.
+        $conversionsFromUnit = self::$conversions[$unit->dimension][$unit->asciiSymbol] ?? [];
+        return array_find($conversionsFromUnit, static fn (Conversion $conversion) => $conversion->destUnit->isBase());
     }
 
     // endregion
@@ -260,8 +295,6 @@ class ConversionRegistry
     /**
      * Get all conversion definitions from all QuantityType classes.
      *
-     * This includes both explicit conversion definitions and expansion-based conversions.
-     *
      * @return list<array{string, string, float}> Array of [srcSymbol, destSymbol, factor] tuples.
      */
     private static function getAllConversionDefinitions(): array
@@ -277,20 +310,9 @@ class ConversionRegistry
                 continue;
             }
 
-            // Explicit conversion definitions.
+            // Collect conversion definitions.
             foreach ($qtyTypeClass::getConversionDefinitions() as $definition) {
                 $definitions[] = $definition;
-            }
-
-            // Expansion-based conversions.
-            foreach ($qtyTypeClass::getUnitDefinitions() as $unitDef) {
-                if (isset($unitDef['expansionUnitSymbol'])) {
-                    $definitions[] = [
-                        $unitDef['asciiSymbol'],
-                        $unitDef['expansionUnitSymbol'],
-                        $unitDef['expansionValue'] ?? 1.0
-                    ];
-                }
             }
         }
 

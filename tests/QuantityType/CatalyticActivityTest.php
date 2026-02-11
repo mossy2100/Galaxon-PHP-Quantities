@@ -30,13 +30,14 @@ final class CatalyticActivityTest extends TestCase
     }
 
     /**
-     * Test getConversionDefinitions() returns empty array.
+     * Test getConversionDefinitions() returns valid conversion definitions.
      */
-    public function testGetConversionDefinitionsReturnsEmptyArray(): void
+    public function testGetConversionDefinitionsReturnsValidArray(): void
     {
         $conversions = CatalyticActivity::getConversionDefinitions();
 
-        $this->assertEmpty($conversions);
+        $this->assertValidConversionDefinitionsShape($conversions);
+        $this->assertCount(1, $conversions);
     }
 
     // endregion

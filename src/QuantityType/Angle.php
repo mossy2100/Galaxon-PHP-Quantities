@@ -38,8 +38,6 @@ class Angle extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
      * }>
      */
     #[Override]

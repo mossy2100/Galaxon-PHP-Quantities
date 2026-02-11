@@ -23,9 +23,7 @@ class Illuminance extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -33,11 +31,24 @@ class Illuminance extends Quantity
     {
         return [
             'lux' => [
-                'asciiSymbol'         => 'lx',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'expansionUnitSymbol' => 'cd*rad2*m-2',
-                'systems'             => [System::Si],
+                'asciiSymbol' => 'lx',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for illuminance units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            // Expansion.
+            ['lx', 'cd*rad2*m-2', 1.0],
         ];
     }
 

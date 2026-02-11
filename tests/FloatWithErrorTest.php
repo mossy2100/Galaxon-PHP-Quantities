@@ -522,6 +522,236 @@ class FloatWithErrorTest extends TestCase
 
     // endregion
 
+    // region isInteger() tests
+
+    /**
+     * Test isInteger returns true for exact integer value with zero error.
+     */
+    public function testIsIntegerReturnsTrueForExactInteger(): void
+    {
+        $num = new FloatWithError(42);
+
+        $this->assertTrue($num->isInteger());
+    }
+
+    /**
+     * Test isInteger returns true for zero.
+     */
+    public function testIsIntegerReturnsTrueForZero(): void
+    {
+        $num = new FloatWithError(0.0);
+
+        $this->assertTrue($num->isInteger());
+    }
+
+    /**
+     * Test isInteger returns true for negative exact integer.
+     */
+    public function testIsIntegerReturnsTrueForNegativeExactInteger(): void
+    {
+        $num = new FloatWithError(-7);
+
+        $this->assertTrue($num->isInteger());
+    }
+
+    /**
+     * Test isInteger returns false for non-integer float value.
+     */
+    public function testIsIntegerReturnsFalseForNonIntegerFloat(): void
+    {
+        $num = new FloatWithError(3.14);
+
+        $this->assertFalse($num->isInteger());
+    }
+
+    /**
+     * Test isInteger returns false for integer value with non-zero error.
+     */
+    public function testIsIntegerReturnsFalseForIntegerWithError(): void
+    {
+        $num = new FloatWithError(42.0, 0.1);
+
+        $this->assertFalse($num->isInteger());
+    }
+
+    /**
+     * Test isInteger returns false for non-integer value with error.
+     */
+    public function testIsIntegerReturnsFalseForNonIntegerWithError(): void
+    {
+        $num = new FloatWithError(3.14, 0.01);
+
+        $this->assertFalse($num->isInteger());
+    }
+
+    /**
+     * Test isInteger returns true for large exact integer.
+     */
+    public function testIsIntegerReturnsTrueForLargeExactInteger(): void
+    {
+        $num = new FloatWithError(1_000_000);
+
+        $this->assertTrue($num->isInteger());
+    }
+
+    /**
+     * Test isInteger returns true for result of exact integer arithmetic.
+     */
+    public function testIsIntegerReturnsTrueAfterExactArithmetic(): void
+    {
+        $a = new FloatWithError(6);
+        $b = new FloatWithError(7);
+
+        $result = $a->mul($b);
+
+        $this->assertTrue($result->isInteger());
+    }
+
+    /**
+     * Test isInteger returns false after arithmetic that introduces error.
+     */
+    public function testIsIntegerReturnsFalseAfterErrorIntroducingArithmetic(): void
+    {
+        $a = new FloatWithError(10.0, 0.1);
+        $b = new FloatWithError(2);
+
+        $result = $a->mul($b);
+
+        $this->assertFalse($result->isInteger());
+    }
+
+    // endregion
+
+    // region pow() tests
+
+    /**
+     * Test pow squares a value correctly.
+     */
+    public function testPowSquaresValue(): void
+    {
+        $num = new FloatWithError(5);
+
+        $result = $num->pow(2);
+
+        $this->assertSame(25.0, $result->value);
+    }
+
+    /**
+     * Test pow cubes a value correctly.
+     */
+    public function testPowCubesValue(): void
+    {
+        $num = new FloatWithError(3);
+
+        $result = $num->pow(3);
+
+        $this->assertSame(27.0, $result->value);
+    }
+
+    /**
+     * Test pow with exponent 0 returns 1.
+     */
+    public function testPowWithZeroExponentReturnsOne(): void
+    {
+        $num = new FloatWithError(42.0, 1.0);
+
+        $result = $num->pow(0);
+
+        $this->assertSame(1.0, $result->value);
+        $this->assertSame(0.0, $result->absoluteError);
+    }
+
+    /**
+     * Test pow with exponent 1 returns same value.
+     */
+    public function testPowWithExponentOneReturnsSameValue(): void
+    {
+        $num = new FloatWithError(42.0, 1.0);
+
+        $result = $num->pow(1);
+
+        $this->assertSame(42.0, $result->value);
+    }
+
+    /**
+     * Test pow with negative exponent.
+     */
+    public function testPowWithNegativeExponent(): void
+    {
+        $num = new FloatWithError(2);
+
+        $result = $num->pow(-2);
+
+        $this->assertSame(0.25, $result->value);
+    }
+
+    /**
+     * Test pow with zero base and negative exponent throws.
+     */
+    public function testPowZeroBaseNegativeExponentThrows(): void
+    {
+        $num = new FloatWithError(0.0);
+
+        $this->expectException(DivisionByZeroError::class);
+        $num->pow(-1);
+    }
+
+    /**
+     * Test pow propagates error correctly (relative error multiplied by |exponent|).
+     */
+    public function testPowPropagatesErrorCorrectly(): void
+    {
+        // 1% relative error.
+        $num = new FloatWithError(100.0, 1.0);
+
+        $result = $num->pow(2);
+
+        // Squaring: relative error doubles to 2%, absolute error ≈ 200 plus rounding.
+        $this->assertSame(10000.0, $result->value);
+        $this->assertGreaterThanOrEqual(200.0, $result->absoluteError);
+    }
+
+    /**
+     * Test pow with exact integer maintains zero error.
+     */
+    public function testPowExactIntegerMaintainsZeroError(): void
+    {
+        $num = new FloatWithError(3);
+
+        $result = $num->pow(4);
+
+        $this->assertSame(81.0, $result->value);
+        $this->assertSame(0.0, $result->absoluteError);
+    }
+
+    /**
+     * Test pow does not modify original.
+     */
+    public function testPowDoesNotModifyOriginal(): void
+    {
+        $num = new FloatWithError(5.0, 0.1);
+
+        $num->pow(3);
+
+        $this->assertSame(5.0, $num->value);
+        $this->assertSame(0.1, $num->absoluteError);
+    }
+
+    /**
+     * Test pow with zero base and positive exponent returns zero.
+     */
+    public function testPowZeroBasePositiveExponent(): void
+    {
+        $num = new FloatWithError(0.0);
+
+        $result = $num->pow(3);
+
+        $this->assertSame(0.0, $result->value);
+        $this->assertSame(0.0, $result->absoluteError);
+    }
+
+    // endregion
+
     // region String representation tests
 
     /**

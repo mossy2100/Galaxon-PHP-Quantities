@@ -107,6 +107,18 @@ final class PhysicalConstantTest extends TestCase
         $this->assertSame('lm/W', $kcd->derivedUnit->asciiSymbol);
     }
 
+    /**
+     * Test getting the reduced Planck constant (ℏ = h/2π).
+     */
+    public function testReducedPlanckConstant(): void
+    {
+        $hbar = PhysicalConstant::reducedPlanck();
+
+        $this->assertInstanceOf(Quantity::class, $hbar);
+        $this->assertApproxEqual(1.054571817e-34, $hbar->value);
+        $this->assertSame('J*s', $hbar->derivedUnit->asciiSymbol);
+    }
+
     // endregion
 
     // region Universal constants

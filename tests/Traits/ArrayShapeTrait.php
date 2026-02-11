@@ -20,8 +20,6 @@ trait ArrayShapeTrait
      *      unicodeSymbol?: string,
      *      prefixGroup?: int,
      *      systems: list<System>,
-     *      expansionUnitSymbol?: string,
-     *      expansionValue?: float
      *  }>
      *
      * @param array<mixed> $units The array to validate.
@@ -59,22 +57,6 @@ trait ArrayShapeTrait
                     System::class,
                     $system,
                     "Unit '$key' systems must contain only System instances."
-                );
-            }
-
-            // Check expansionUnitSymbol is optional and is a string.
-            if (array_key_exists('expansionUnitSymbol', $value)) {
-                $this->assertIsString(
-                    $value['expansionUnitSymbol'],
-                    "Unit '$key' expansionUnitSymbol must be a string."
-                );
-            }
-
-            // Check expansionValue is optional and is a float or int.
-            if (array_key_exists('expansionValue', $value)) {
-                $this->assertTrue(
-                    is_float($value['expansionValue']) || is_int($value['expansionValue']),
-                    "Unit '$key' expansionValue must be a float or int."
                 );
             }
         }

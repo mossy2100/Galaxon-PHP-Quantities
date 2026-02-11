@@ -7,6 +7,7 @@ namespace Galaxon\Quantities;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
+use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Override;
@@ -98,16 +99,6 @@ class Unit implements UnitInterface
     private(set) int $prefixGroup;
 
     /**
-     * For expandable units, the expansion unit symbol. Null if not applicable.
-     */
-    private(set) ?string $expansionUnitSymbol;
-
-    /**
-     * For expandable units, the expansion value. Null if not applicable.
-     */
-    private(set) ?float $expansionValue;
-
-    /**
      * The measurement systems this unit belongs to.
      *
      * @var list<System>
@@ -119,30 +110,7 @@ class Unit implements UnitInterface
     // region Property hooks
 
     /**
-     * The expansion unit.
-     */
-    public ?DerivedUnit $expansionUnit = null {
-        get {
-            if ($this->expansionUnitSymbol === null) {
-                return null;
-            }
-
-            // Convert the expansion unit symbol into a DerivedUnit if not already done, and the expansion unit symbol
-            // is valid.
-            if ($this->expansionUnit === null) {
-                try {
-                    $this->expansionUnit = DerivedUnit::parse($this->expansionUnitSymbol);
-                } catch (DomainException) {
-                    return null;
-                }
-            }
-
-            return $this->expansionUnit;
-        }
-    }
-
-    /**
-     * Get all allowed prefixes for this unit.
+     * Allowed prefixes for this unit.
      *
      * @var list<Prefix>
      */
@@ -151,7 +119,7 @@ class Unit implements UnitInterface
     }
 
     /**
-     * Get all symbol variants for a unit, including prefixed versions.
+     * Symbol variants for this unit, including prefixed versions.
      *
      * @var list<string> All symbol variants.
      */
@@ -192,6 +160,17 @@ class Unit implements UnitInterface
         }
     }
 
+    /**
+     * Expansion conversion for this unit, if any.
+     *
+     * @var ?Conversion
+     */
+    public ?Conversion $expansion {
+        get {
+            return ConversionRegistry::getExpansion($this);
+        }
+    }
+
     // endregion
 
     // region Constructor
@@ -206,8 +185,6 @@ class Unit implements UnitInterface
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
      * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
-     * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
-     * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
      * @param list<System> $systems The measurement systems this unit belongs to.
      * @throws FormatException If the unit symbols contain invalid characters.
      * @throws DomainException If the dimension code is invalid.
@@ -220,8 +197,6 @@ class Unit implements UnitInterface
         string $dimension,
         int $prefixGroup = 0,
         ?string $alternateSymbol = null,
-        ?string $expansionUnitSymbol = null,
-        ?float $expansionValue = null,
         array $systems = []
     ) {
         // Check ASCII symbol contains ASCII letters only.
@@ -255,10 +230,14 @@ class Unit implements UnitInterface
         $this->dimension = Dimensions::normalize($dimension);
         $this->prefixGroup = $prefixGroup;
         $this->alternateSymbol = $alternateSymbol;
-        $this->expansionUnitSymbol = $expansionUnitSymbol ?? null;
-        $this->expansionValue = isset($expansionUnitSymbol) ? ($expansionValue ?? 1.0) : null;
         $this->systems = $systems;
     }
+
+    // endregion
+
+    // region Accessors
+
+
 
     // endregion
 
@@ -283,6 +262,21 @@ class Unit implements UnitInterface
     public function isSi(): bool
     {
         return $this->belongsToSystem(System::Si);
+    }
+
+    public function isBase(): bool
+    {
+        return strlen($this->dimension) === 1;
+    }
+
+    /**
+     * Check if this unit is expandable.
+     *
+     * @return bool True if the unit is expandable into base units.
+     */
+    public function isExpandable(): bool
+    {
+        return $this->expansion !== null;
     }
 
     // endregion

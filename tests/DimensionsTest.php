@@ -465,62 +465,62 @@ final class DimensionsTest extends TestCase
     /**
      * Test getSiUnitTermSymbol() returns correct symbol for each dimension code.
      */
-    public function testGetSiUnitTermSymbolReturnsCorrectSymbols(): void
+    public function testGetSiBaseUnitSymbolReturnsCorrectSymbols(): void
     {
-        $this->assertSame('kg', Dimensions::getSiUnitTermSymbol('M'));
-        $this->assertSame('m', Dimensions::getSiUnitTermSymbol('L'));
-        $this->assertSame('s', Dimensions::getSiUnitTermSymbol('T'));
-        $this->assertSame('A', Dimensions::getSiUnitTermSymbol('I'));
-        $this->assertSame('K', Dimensions::getSiUnitTermSymbol('H'));
-        $this->assertSame('mol', Dimensions::getSiUnitTermSymbol('N'));
-        $this->assertSame('cd', Dimensions::getSiUnitTermSymbol('J'));
-        $this->assertSame('rad', Dimensions::getSiUnitTermSymbol('A'));
-        $this->assertSame('B', Dimensions::getSiUnitTermSymbol('D'));
-        $this->assertSame('XAU', Dimensions::getSiUnitTermSymbol('C'));
+        $this->assertSame('kg', Dimensions::getSiBaseUnitSymbol('M'));
+        $this->assertSame('m', Dimensions::getSiBaseUnitSymbol('L'));
+        $this->assertSame('s', Dimensions::getSiBaseUnitSymbol('T'));
+        $this->assertSame('A', Dimensions::getSiBaseUnitSymbol('I'));
+        $this->assertSame('K', Dimensions::getSiBaseUnitSymbol('H'));
+        $this->assertSame('mol', Dimensions::getSiBaseUnitSymbol('N'));
+        $this->assertSame('cd', Dimensions::getSiBaseUnitSymbol('J'));
+        $this->assertSame('rad', Dimensions::getSiBaseUnitSymbol('A'));
+        $this->assertSame('B', Dimensions::getSiBaseUnitSymbol('D'));
+        $this->assertSame('XAU', Dimensions::getSiBaseUnitSymbol('C'));
     }
 
     /**
      * Test getSiUnitTermSymbol() throws for invalid dimension code.
      */
-    public function testGetSiUnitTermSymbolThrowsForInvalidCode(): void
+    public function testGetSiBaseUnitSymbolThrowsForInvalidCode(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code: 'X'");
 
-        Dimensions::getSiUnitTermSymbol('X');
+        Dimensions::getSiBaseUnitSymbol('X');
     }
 
     /**
      * Test getSiUnitTermSymbol() throws for multi-character string.
      */
-    public function testGetSiUnitTermSymbolThrowsForMultiCharacter(): void
+    public function testGetSiBaseUnitSymbolThrowsForMultiCharacter(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code: 'ML'");
 
-        Dimensions::getSiUnitTermSymbol('ML');
+        Dimensions::getSiBaseUnitSymbol('ML');
     }
 
     /**
      * Test getSiUnitTermSymbol() throws for empty string.
      */
-    public function testGetSiUnitTermSymbolThrowsForEmptyString(): void
+    public function testGetSiBaseUnitSymbolThrowsForEmptyString(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code: ''");
 
-        Dimensions::getSiUnitTermSymbol('');
+        Dimensions::getSiBaseUnitSymbol('');
     }
 
     /**
      * Test getSiUnitTermSymbol() throws for lowercase letter.
      */
-    public function testGetSiUnitTermSymbolThrowsForLowercase(): void
+    public function testGetSiBaseUnitSymbolThrowsForLowercase(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code: 'm'");
 
-        Dimensions::getSiUnitTermSymbol('m');
+        Dimensions::getSiBaseUnitSymbol('m');
     }
 
     // endregion
@@ -532,15 +532,15 @@ final class DimensionsTest extends TestCase
      */
     public function testGetSiUnitTermReturnsCorrectUnitTerms(): void
     {
-        $massUnit = Dimensions::getSiUnitTerm('M');
+        $massUnit = Dimensions::getSiBaseUnitTerm('M');
         $this->assertInstanceOf(UnitTerm::class, $massUnit);
         $this->assertSame('kg', $massUnit->asciiSymbol);
 
-        $lengthUnit = Dimensions::getSiUnitTerm('L');
+        $lengthUnit = Dimensions::getSiBaseUnitTerm('L');
         $this->assertInstanceOf(UnitTerm::class, $lengthUnit);
         $this->assertSame('m', $lengthUnit->asciiSymbol);
 
-        $timeUnit = Dimensions::getSiUnitTerm('T');
+        $timeUnit = Dimensions::getSiBaseUnitTerm('T');
         $this->assertInstanceOf(UnitTerm::class, $timeUnit);
         $this->assertSame('s', $timeUnit->asciiSymbol);
     }
@@ -550,7 +550,7 @@ final class DimensionsTest extends TestCase
      */
     public function testGetSiUnitTermHasCorrectUnit(): void
     {
-        $lengthUnit = Dimensions::getSiUnitTerm('L');
+        $lengthUnit = Dimensions::getSiBaseUnitTerm('L');
 
         $this->assertSame('metre', $lengthUnit->unit->name);
         $this->assertSame('L', $lengthUnit->unit->dimension);
@@ -564,7 +564,7 @@ final class DimensionsTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code: 'X'");
 
-        Dimensions::getSiUnitTerm('X');
+        Dimensions::getSiBaseUnitTerm('X');
     }
 
     /**
@@ -575,7 +575,37 @@ final class DimensionsTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code: 'ML'");
 
-        Dimensions::getSiUnitTerm('ML');
+        Dimensions::getSiBaseUnitTerm('ML');
+    }
+
+    // endregion
+
+    // region getSiBaseUnitSymbols() tests
+
+    /**
+     * Test getSiBaseUnitSymbols() returns all expected SI base unit symbols.
+     */
+    public function testGetSiBaseUnitSymbolsContainsExpectedSymbols(): void
+    {
+        $symbols = Dimensions::getSiBaseUnitSymbols();
+
+        $this->assertContains('kg', $symbols);
+        $this->assertContains('m', $symbols);
+        $this->assertContains('s', $symbols);
+        $this->assertContains('A', $symbols);
+        $this->assertContains('mol', $symbols);
+        $this->assertContains('K', $symbols);
+        $this->assertContains('cd', $symbols);
+    }
+
+    /**
+     * Test getSiBaseUnitSymbols() returns correct count matching DIMENSION_CODES.
+     */
+    public function testGetSiBaseUnitSymbolsCountMatchesDimensionCodes(): void
+    {
+        $symbols = Dimensions::getSiBaseUnitSymbols();
+
+        $this->assertCount(count(Dimensions::DIMENSION_CODES), $symbols);
     }
 
     // endregion

@@ -23,9 +23,7 @@ class Capacitance extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -33,11 +31,24 @@ class Capacitance extends Quantity
     {
         return [
             'farad' => [
-                'asciiSymbol'         => 'F',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'expansionUnitSymbol' => 'kg-1*m-2*s4*A2',
-                'systems'             => [System::Si],
+                'asciiSymbol' => 'F',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for capacitance units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            // Expansion.
+            ['F', 'kg-1*m-2*s4*A2', 1.0],
         ];
     }
 

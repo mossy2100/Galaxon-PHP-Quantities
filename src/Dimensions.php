@@ -34,10 +34,15 @@ class Dimensions
      * The dimension 'A' is not part of the ISQ, being considered a ratio of lengths, but we need it for this system.
      *
      * The dimension 'C' is reserved for a future currency extension. 'XAU' (which means gold troy ounces) is used as
-     * the base unit, as the least biased and most widely accepted.
+     * the base unit, being the least biased and most widely accepted currency.
      *
      * The ISQ uses 'Θ' (Greek capital theta) for temperature. 'H' is used here because ASCII characters are easier to
      * type. 'H' is chosen because capital theta has a horizontal bar, like 'H', plus 'H' suggests heat.
+     *
+     * NB: The SI base units shown here are the 7 actual SI base units, plus 3 bonus ones we need for the system:
+     * - rad (angle)
+     * - B (data)
+     * - XAU (money)
      *
      * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
      * @see https://en.wikipedia.org/wiki/Dimensional_analysis
@@ -46,44 +51,44 @@ class Dimensions
      */
     public const array DIMENSION_CODES = [
         'M' => [
-            'name'         => 'mass',
-            'siUnitSymbol' => 'kg',
+            'name'             => 'mass',
+            'siBaseUnitSymbol' => 'kg',
         ],
         'L' => [
-            'name'         => 'length',
-            'siUnitSymbol' => 'm',
+            'name'             => 'length',
+            'siBaseUnitSymbol' => 'm',
         ],
         'A' => [
-            'name'         => 'angle',
-            'siUnitSymbol' => 'rad',
+            'name'             => 'angle',
+            'siBaseUnitSymbol' => 'rad',
         ],
         'D' => [
-            'name'         => 'data',
-            'siUnitSymbol' => 'B',
+            'name'             => 'data',
+            'siBaseUnitSymbol' => 'B',
         ],
         'C' => [
-            'name'         => 'currency',
-            'siUnitSymbol' => 'XAU',
+            'name'             => 'currency',
+            'siBaseUnitSymbol' => 'XAU',
         ],
         'T' => [
-            'name'         => 'time',
-            'siUnitSymbol' => 's',
+            'name'             => 'time',
+            'siBaseUnitSymbol' => 's',
         ],
         'I' => [
-            'name'         => 'electric current',
-            'siUnitSymbol' => 'A',
+            'name'             => 'electric current',
+            'siBaseUnitSymbol' => 'A',
         ],
         'N' => [
-            'name'         => 'amount of substance',
-            'siUnitSymbol' => 'mol',
+            'name'             => 'amount of substance',
+            'siBaseUnitSymbol' => 'mol',
         ],
         'H' => [
-            'name'         => 'temperature',
-            'siUnitSymbol' => 'K',
+            'name'             => 'temperature',
+            'siBaseUnitSymbol' => 'K',
         ],
         'J' => [
-            'name'         => 'luminous intensity',
-            'siUnitSymbol' => 'cd',
+            'name'             => 'luminous intensity',
+            'siBaseUnitSymbol' => 'cd',
         ],
     ];
 
@@ -264,23 +269,36 @@ class Dimensions
     }
 
     /**
-     * Get the SI unit term symbol for the given dimension code.
+     * Get the SI base unit symbols for all dimensions.
+     *
+     * NB: We're stretching the definition of an SI base unit for this system to include a few additional units.
+     * @see DIMENSION_CODES
+     *
+     * @return list<string>
+     */
+    public static function getSiBaseUnitSymbols(): array
+    {
+        return array_column(self::DIMENSION_CODES, 'siBaseUnitSymbol');
+    }
+
+    /**
+     * Get the base unit term symbol for the given dimension code.
      *
      * The unit may be prefixed.
      *
-     * @param string $code Single-letter dimension code.
+     * @param string $dimensionLetterCode Single-letter dimension code.
      * @return string The unit term symbol.
      * @throws DomainException If the dimension code is invalid.
      */
-    public static function getSiUnitTermSymbol(string $code): string
+    public static function getSiBaseUnitSymbol(string $dimensionLetterCode): string
     {
         // Validate the code.
-        if (strlen($code) !== 1 || !array_key_exists($code, self::DIMENSION_CODES)) {
-            throw new DomainException("Invalid dimension code: '$code'.");
+        if (strlen($dimensionLetterCode) !== 1 || !array_key_exists($dimensionLetterCode, self::DIMENSION_CODES)) {
+            throw new DomainException("Invalid dimension code: '$dimensionLetterCode'.");
         }
 
         // Get the SI base unit (which may have a prefix, e.g. 'kg').
-        return self::DIMENSION_CODES[$code]['siUnitSymbol'];
+        return self::DIMENSION_CODES[$dimensionLetterCode]['siBaseUnitSymbol'];
     }
 
     /**
@@ -288,15 +306,15 @@ class Dimensions
      *
      * The unit may be prefixed.
      *
-     * @param string $code Single-letter dimension code.
+     * @param string $dimensionLetterCode Single-letter dimension code.
      * @return UnitTerm The unit term.
      * @throws DomainException If the dimension code is invalid.
      * @throws LogicException If no SI base unit is defined for a given dimension code.
      */
-    public static function getSiUnitTerm(string $code): UnitTerm
+    public static function getSiBaseUnitTerm(string $dimensionLetterCode): UnitTerm
     {
         // Get the SI base unit symbol (which may have a prefix).
-        $siBase = self::getSiUnitTermSymbol($code);
+        $siBase = self::getSiBaseUnitSymbol($dimensionLetterCode);
 
         // Construct the UnitTerm.
         return UnitTerm::parse($siBase);

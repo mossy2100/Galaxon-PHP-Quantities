@@ -7,8 +7,11 @@ namespace Galaxon\Quantities\Tests\Registry;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Registry\ConversionRegistry;
+use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Tests\Fixtures\UnknownDestQuantity;
+use Galaxon\Quantities\Tests\Fixtures\UnknownSrcQuantity;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -481,6 +484,132 @@ final class ConversionRegistryTest extends TestCase
         $result = ConversionRegistry::hasConversion($conversion);
 
         $this->assertFalse($result);
+    }
+
+    // endregion
+
+    // region getExpansion() tests
+
+    /**
+     * Test getExpansion() returns a Conversion for an expandable unit.
+     */
+    public function testGetExpansionReturnsConversionForExpandableUnit(): void
+    {
+        $result = ConversionRegistry::getExpansion('N');
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertSame('N', $result->srcUnit->asciiSymbol);
+        // Destination should be base units (kg*m/s2).
+        $this->assertTrue($result->destUnit->isBase());
+    }
+
+    /**
+     * Test getExpansion() returns a Conversion for Hertz.
+     */
+    public function testGetExpansionReturnsConversionForHertz(): void
+    {
+        $result = ConversionRegistry::getExpansion('Hz');
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertSame('Hz', $result->srcUnit->asciiSymbol);
+        $this->assertTrue($result->destUnit->isBase());
+    }
+
+    /**
+     * Test getExpansion() returns null for a base SI unit.
+     */
+    public function testGetExpansionReturnsNullForBaseUnit(): void
+    {
+        $result = ConversionRegistry::getExpansion('m');
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test getExpansion() returns null for a non-SI base unit.
+     */
+    public function testGetExpansionReturnsNullForNonSiBaseUnit(): void
+    {
+        $result = ConversionRegistry::getExpansion('ft');
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test getExpansion() accepts a Unit object.
+     */
+    public function testGetExpansionAcceptsUnitObject(): void
+    {
+        $unit = UnitRegistry::getBySymbol('N');
+        $this->assertNotNull($unit);
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertInstanceOf(Conversion::class, $result);
+    }
+
+    /**
+     * Test getExpansion() throws for unknown unit symbol.
+     */
+    public function testGetExpansionThrowsForUnknownSymbol(): void
+    {
+        $this->expectException(\DomainException::class);
+
+        ConversionRegistry::getExpansion('xyz');
+    }
+
+    // endregion
+
+    // region loadConversions() tests
+
+    /**
+     * Test loadConversions() skips entries where the source unit is unknown.
+     */
+    public function testLoadConversionsSkipsUnknownSrcUnit(): void
+    {
+        // Register a fixture quantity type whose conversions reference an unknown src unit.
+        QuantityTypeRegistry::add(
+            name: 'badsrc',
+            dimension: 'L9',
+            siUnitSymbol: 'm',
+            class: UnknownSrcQuantity::class,
+        );
+
+        // Clear conversion registry and reload.
+        ConversionRegistry::clearByDimension('L9');
+        ConversionRegistry::loadConversions(System::Si);
+
+        // The conversion from 'zzzsrc' (unknown) to 'm' should have been skipped.
+        $this->assertFalse(ConversionRegistry::has('L9', 'zzzsrc', 'm'));
+
+        // Clean up.
+        QuantityTypeRegistry::reset();
+        ConversionRegistry::reset();
+    }
+
+    /**
+     * Test loadConversions() skips entries where the destination unit is unknown.
+     */
+    public function testLoadConversionsSkipsUnknownDestUnit(): void
+    {
+        // Register a fixture quantity type whose conversions reference an unknown dest unit.
+        QuantityTypeRegistry::add(
+            name: 'baddest',
+            dimension: 'L8',
+            siUnitSymbol: 'm',
+            class: UnknownDestQuantity::class,
+        );
+
+        // Clear conversion registry and reload.
+        ConversionRegistry::clearByDimension('L8');
+        ConversionRegistry::loadConversions(System::Si);
+
+        // The conversion from 'm' to 'zzzdest' (unknown) should have been skipped.
+        $this->assertFalse(ConversionRegistry::has('L8', 'm', 'zzzdest'));
+
+        // Clean up.
+        QuantityTypeRegistry::reset();
+        ConversionRegistry::reset();
     }
 
     // endregion

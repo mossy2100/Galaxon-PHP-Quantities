@@ -94,23 +94,6 @@ class UnitRegistry
     }
 
     /**
-     * Get all units with an expansion.
-     *
-     * @return list<Unit>
-     */
-    public static function getExpandable(): array
-    {
-        $allUnits = self::getAll();
-        $expandableUnits = [];
-        foreach ($allUnits as $unit) {
-            if ($unit->expansionUnit !== null) {
-                $expandableUnits[] = $unit;
-            }
-        }
-        return $expandableUnits;
-    }
-
-    /**
      * Get all valid unit symbols, including base and prefixed variants.
      *
      * @return list<string> All valid symbols.
@@ -144,8 +127,6 @@ class UnitRegistry
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
      * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
-     * @param ?string $expansionUnitSymbol For expandable units, the expansion unit symbol, or null.
-     * @param ?float $expansionValue For expandable units with non-1:1 expansion, the multiplier.
      * @param list<System> $systems The measurement systems this unit belongs to.
      * @return Unit The newly created Unit object.
      * @throws DomainException If the name or symbol already exists.
@@ -158,8 +139,6 @@ class UnitRegistry
         string $dimension,
         int $prefixGroup = 0,
         ?string $alternateSymbol = null,
-        ?string $expansionUnitSymbol = null,
-        ?float $expansionValue = null,
         array $systems = []
     ): Unit {
         // Ensure the registry is initialized (unless we're in the middle of init).
@@ -183,8 +162,6 @@ class UnitRegistry
             $dimension,
             $prefixGroup,
             $alternateSymbol,
-            $expansionUnitSymbol,
-            $expansionValue,
             $systems
         );
 
@@ -285,8 +262,6 @@ class UnitRegistry
                     $qtyType->dimension,
                     $definition['prefixGroup'] ?? 0,
                     $definition['alternateSymbol'] ?? null,
-                    $definition['expansionUnitSymbol'] ?? null,
-                    $definition['expansionValue'] ?? null,
                     $unitSystems
                 );
             }

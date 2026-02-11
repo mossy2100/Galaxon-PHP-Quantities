@@ -23,9 +23,7 @@ class Pressure extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -33,10 +31,9 @@ class Pressure extends Quantity
     {
         return [
             'pascal'     => [
-                'asciiSymbol'         => 'Pa',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'expansionUnitSymbol' => 'kg*m-1*s-2',
-                'systems'             => [System::Si],
+                'asciiSymbol' => 'Pa',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
             'atmosphere' => [
                 'asciiSymbol' => 'atm',
@@ -62,6 +59,9 @@ class Pressure extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
+            // Expansion.
+            ['Pa', 'kg*m-1*s-2', 1.0],
+            // Conversions.
             ['mmHg', 'Pa', 133.322387415],
             ['atm', 'Pa', 101325],
             ['inHg', 'mmHg', 25.4],

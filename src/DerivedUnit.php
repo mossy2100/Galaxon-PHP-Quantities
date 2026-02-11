@@ -13,7 +13,7 @@ use LogicException;
  * Represents a compound unit composed of one or more unit terms.
  *
  * A derived unit like 'kg⋅m⋅s⁻²' (newton) comprises multiple UnitTerm objects.
- * Unit terms with the same base unit are automatically combined
+ * Unit terms with the same unit are automatically combined
  * (e.g. km³ * km⁻¹ = km²).
  */
 class DerivedUnit implements UnitInterface
@@ -228,7 +228,7 @@ class DerivedUnit implements UnitInterface
 
         // Check for error.
         if ($parts === false) {
-            throw new LogicException("Error parsing unit symbol: '$symbol'");
+            throw new LogicException("Error parsing unit symbol: '$symbol'"); // @codeCoverageIgnore
         }
 
         // Convert the substrings to unit terms.
@@ -335,14 +335,51 @@ class DerivedUnit implements UnitInterface
     /**
      * Check if all unit terms in this derived unit belong to the SI system.
      *
-     * Returns true only if every component unit is an SI unit.
-     * Dimensionless units (with no terms) are considered SI.
+     * Dimensionless units (with no terms) are not considered SI.
      *
      * @return bool True if all units are SI units.
      */
     public function isSi(): bool
     {
-        return array_all($this->unitTerms, static fn ($unitTerm) => $unitTerm->isSi());
+        return !$this->isDimensionless() &&
+            array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isSi());
+    }
+
+    /**
+     * Check if this derived unit is expressed in base units.
+     *
+     * "Base units" are those with only 1 dimension term, i.e. not expandable units.
+     *
+     * Dimensionless units (with no terms) are not considered base.
+     *
+     * @return bool True if this derived unit is expressed in base units only.
+     */
+    public function isBase(): bool
+    {
+        return !$this->isDimensionless() &&
+            array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isBase());
+    }
+
+    /**
+     * Check that this derived unit is expressed in SI base units.
+     *
+     * @return bool True if this derived unit is expressed in SI base units only.
+     */
+    public function isSiBase(): bool
+    {
+        return !$this->isDimensionless() &&
+            array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isSiBase());
+    }
+
+    /**
+     * Check if this derived unit is expandable.
+     *
+     * @return bool True if the derived unit is expandable.
+     */
+    public function isExpandable(): bool
+    {
+        return !$this->isDimensionless() &&
+            array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isExpandable());
     }
 
     /**
@@ -353,16 +390,6 @@ class DerivedUnit implements UnitInterface
     public function hasPrefixes(): bool
     {
         return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->prefix !== null);
-    }
-
-    /**
-     * Check if any unit term in this derived unit has an expansion.
-     *
-     * @return bool True if at least one unit term has an expansion, false otherwise.
-     */
-    public function hasExpansion(): bool
-    {
-        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->unit->expansionUnit !== null);
     }
 
     /**
@@ -407,13 +434,14 @@ class DerivedUnit implements UnitInterface
             return false;
         }
 
-        // Must have same number of unit terms.
+        // Must have the same number of unit terms.
         if (count($this->unitTerms) !== count($other->unitTerms)) {
             return false;
         }
 
         // Each unit term must be equal.
-        // This doesn't check that the order of the unit terms matches, but that doesn't matter.
+        // This doesn't check that the order of the unit terms matches, but they should, since unit terms are maintained
+        // in a canonical order. It doesn't matter anyway.
         return array_all(
             $this->unitTerms,
             static fn ($unitTerm, $symbol) => isset($other->unitTerms[$symbol]) && $unitTerm->equal(
@@ -510,18 +538,20 @@ class DerivedUnit implements UnitInterface
     }
 
     /**
-     * Convert the DerivedUnit to its SI equivalent.
+     * Convert the DerivedUnit to its equivalent in SI base units.
+     *
+     * NB: This includes the special units we're designating as SI base for the purpose of this system: rad, B, and XAU.
      *
      * @return self The new DerivedUnit.
      * @throws DomainException If any of the dimension codes are invalid.
      * @throws LogicException If any of the dimension codes do not have an SI base unit defined.
      */
-    public function toSi(): self
+    public function toSiBase(): self
     {
         $unitTerms = [];
         $dimTerms = Dimensions::decompose($this->dimension);
         foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = Dimensions::getSiUnitTerm($code)->pow($exp);
+            $unitTerms[] = Dimensions::getSiBaseUnitTerm($code)->pow($exp);
         }
         return new self($unitTerms);
     }
@@ -615,7 +645,7 @@ class DerivedUnit implements UnitInterface
         }
 
         // Unit terms are equal; shouldn't happen since dimensions differ.
-        return 0;
+        return 0; // @codeCoverageIgnore
     }
 
     /**
@@ -633,10 +663,6 @@ class DerivedUnit implements UnitInterface
 
             // Accumulate the exponents for each letter in the dimension code.
             foreach ($dims as $dimCode => $exp) {
-                if ($exp === 0) {
-                    continue;
-                }
-
                 if (isset($dimCodes[$dimCode])) {
                     $exp += $dimCodes[$dimCode];
                     if ($exp === 0) {

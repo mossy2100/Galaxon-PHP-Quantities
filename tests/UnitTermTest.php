@@ -504,6 +504,29 @@ final class UnitTermTest extends TestCase
     }
 
     /**
+     * Test parse with empty string returns dimensionless scalar unit.
+     */
+    public function testParseEmptyStringReturnsDimensionlessUnit(): void
+    {
+        $term = UnitTerm::parse('');
+
+        $this->assertSame('scalar', $term->unit->name);
+        $this->assertNull($term->prefix);
+        $this->assertSame(1, $term->exponent);
+    }
+
+    /**
+     * Test parse throws for ASCII minus with superscript digit.
+     */
+    public function testParseThrowsForAsciiMinusWithSuperscriptDigit(): void
+    {
+        $this->expectException(FormatException::class);
+
+        // ASCII minus with superscript digit is not valid.
+        UnitTerm::parse('m-²');
+    }
+
+    /**
      * Test parse throws for exponent of zero.
      */
     public function testParseThrowsForExponentZero(): void
@@ -714,6 +737,18 @@ final class UnitTermTest extends TestCase
 
         $this->assertNull($newTerm->prefix);
         $this->assertSame(2, $newTerm->exponent);
+    }
+
+    /**
+     * Test removePrefix returns same instance when no prefix exists.
+     */
+    public function testRemovePrefixReturnsSameInstanceWhenNoPrefix(): void
+    {
+        $term = new UnitTerm('m', null, 2);
+
+        $newTerm = $term->removePrefix();
+
+        $this->assertSame($term, $newTerm);
     }
 
     // endregion
@@ -1125,6 +1160,191 @@ final class UnitTermTest extends TestCase
         $term = new UnitTerm('ft');
 
         $this->assertFalse($term->isSi());
+    }
+
+    // endregion
+
+    // region isBase() tests
+
+    /**
+     * Test isBase returns true for base unit.
+     */
+    public function testIsBaseReturnsTrueForBaseUnit(): void
+    {
+        $term = new UnitTerm('m');
+
+        $this->assertTrue($term->isBase());
+    }
+
+    /**
+     * Test isBase returns true for base unit with exponent.
+     */
+    public function testIsBaseReturnsTrueForBaseUnitWithExponent(): void
+    {
+        $term = new UnitTerm('m', null, 2);
+
+        $this->assertTrue($term->isBase());
+    }
+
+    /**
+     * Test isBase returns false for derived unit.
+     */
+    public function testIsBaseReturnsFalseForDerivedUnit(): void
+    {
+        // Newton has multiple dimension terms.
+        $term = new UnitTerm('N');
+
+        $this->assertFalse($term->isBase());
+    }
+
+    // endregion
+
+    // region isSiBase() tests
+
+    /**
+     * Test isSiBase returns true for metre.
+     */
+    public function testIsSiBaseReturnsTrueForMetre(): void
+    {
+        $term = new UnitTerm('m');
+
+        $this->assertTrue($term->isSiBase());
+    }
+
+    /**
+     * Test isSiBase returns true for kilogram (the SI base mass unit has prefix).
+     */
+    public function testIsSiBaseReturnsTrueForKilogram(): void
+    {
+        $term = new UnitTerm('g', 'k');
+
+        $this->assertTrue($term->isSiBase());
+    }
+
+    /**
+     * Test isSiBase returns true for second.
+     */
+    public function testIsSiBaseReturnsTrueForSecond(): void
+    {
+        $term = new UnitTerm('s');
+
+        $this->assertTrue($term->isSiBase());
+    }
+
+    /**
+     * Test isSiBase returns false for prefixed non-kg unit.
+     */
+    public function testIsSiBaseReturnsFalseForPrefixedUnit(): void
+    {
+        // km is not an SI base unit; m is.
+        $term = new UnitTerm('m', 'k');
+
+        $this->assertFalse($term->isSiBase());
+    }
+
+    /**
+     * Test isSiBase returns true for SI base unit with exponent.
+     */
+    public function testIsSiBaseReturnsTrueForUnitWithExponent(): void
+    {
+        $term = new UnitTerm('m', null, 2);
+
+        $this->assertTrue($term->isSiBase());
+    }
+
+    /**
+     * Test isSiBase returns false for non-SI unit.
+     */
+    public function testIsSiBaseReturnsFalseForNonSiUnit(): void
+    {
+        $term = new UnitTerm('ft');
+
+        $this->assertFalse($term->isSiBase());
+    }
+
+    /**
+     * Test isSiBase returns false for named derived SI unit.
+     */
+    public function testIsSiBaseReturnsFalseForNamedDerivedUnit(): void
+    {
+        $term = new UnitTerm('N');
+
+        $this->assertFalse($term->isSiBase());
+    }
+
+    /**
+     * Test isSiBase returns false for gram without prefix.
+     */
+    public function testIsSiBaseReturnsFalseForGramWithoutPrefix(): void
+    {
+        // The SI base for mass is kg, not g.
+        $term = new UnitTerm('g');
+
+        $this->assertFalse($term->isSiBase());
+    }
+
+    // endregion
+
+    // region isExpandable() tests
+
+    /**
+     * Test isExpandable returns true for Newton.
+     */
+    public function testIsExpandableReturnsTrueForNewton(): void
+    {
+        $term = new UnitTerm('N');
+
+        $this->assertTrue($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns true for prefixed expandable unit.
+     */
+    public function testIsExpandableReturnsTrueForPrefixedExpandableUnit(): void
+    {
+        $term = new UnitTerm('N', 'k');
+
+        $this->assertTrue($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns true for Hertz.
+     */
+    public function testIsExpandableReturnsTrueForHertz(): void
+    {
+        $term = new UnitTerm('Hz');
+
+        $this->assertTrue($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns false for base SI unit.
+     */
+    public function testIsExpandableReturnsFalseForBaseSiUnit(): void
+    {
+        $term = new UnitTerm('m');
+
+        $this->assertFalse($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns false for non-SI base unit.
+     */
+    public function testIsExpandableReturnsFalseForNonSiBaseUnit(): void
+    {
+        $term = new UnitTerm('ft');
+
+        $this->assertFalse($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable is independent of exponent.
+     */
+    public function testIsExpandableIsIndependentOfExponent(): void
+    {
+        $term = new UnitTerm('N', null, 3);
+
+        $this->assertTrue($term->isExpandable());
     }
 
     // endregion

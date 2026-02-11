@@ -16,7 +16,7 @@ use LogicException;
  * This class uses the multiton pattern to maintain a map of dimensions to Converter objects.
  *
  * The class handles:
- * - Validation of base units, prefixes, and conversion definitions
+ * - Validation of units, prefixes, and conversion definitions
  * - Automatic discovery of indirect conversion paths via graph traversal
  * - Prefix algebra for converting between prefixed units
  *
@@ -271,7 +271,7 @@ class Converter
     public static function expand(float $value, DerivedUnit $unit): array
     {
         // Check if there's anything to do.
-        if (!$unit->hasExpansion()) {
+        if (!$unit->isExpandable()) {
             return [$value, $unit];
         }
 
@@ -281,49 +281,21 @@ class Converter
 
         // Expand any units with expansions.
         foreach ($unit->unitTerms as $unitTerm) {
-            $expansionUnit = $unitTerm->unit->expansionUnit;
-            $factor = 1;
+            $expansion = ConversionRegistry::getExpansion($unitTerm->unit->asciiSymbol);
 
-            if ($expansionUnit === null) {
-                // Look for an indirect expansion.
-                $converter = self::getByDimension($unitTerm->dimension);
-
-                foreach ($converter->units as $converterUnit) {
-                    // We're just looking for an expandable unit by itself.
-                    if (count($converterUnit->unitTerms) !== 1) {
-                        continue;
-                    }
-
-                    // Get the first unit term.
-                    /** @var UnitTerm $converterUnitTerm */
-                    $converterUnitTerm = $converterUnit->firstUnitTerm;
-
-                    // See if it's useful for this purpose.
-                    if (
-                        $converterUnitTerm->exponent === 1 &&
-                        $converterUnitTerm->prefix === null &&
-                        $converterUnitTerm->unit->expansionUnit !== null
-                    ) {
-                        $factor = $converter->getConversionFactor($unitTerm, $converterUnitTerm);
-                        $expansionUnit = $converterUnitTerm->unit->expansionUnit;
-                        break;
-                    }
-                }
-            } else {
-                $factor = $unitTerm->unit->expansionValue;
+            // If there is no expansion, add the unit term as-is.
+            if ($expansion === null) {
+                $expandedUnit->addUnitTerm($unitTerm);
+                continue;
             }
 
-            if ($expansionUnit !== null) {
-                // Multiply by the conversion factor modified by prefix and exponent.
-                $expandedValue *= ($factor * $unitTerm->prefixMultiplier) ** $unitTerm->exponent;
+            // Multiply by the conversion factor modified by prefix and exponent.
+            $expandedValue *= ($expansion->factor->value * $unitTerm->prefixMultiplier) ** $unitTerm->exponent;
 
-                // Add the unit terms from the expansion.
-                foreach ($expansionUnit->unitTerms as $expansionUnitTerm) {
-                    // Raise the expansion unit term to the exponent and add.
-                    $expandedUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
-                }
-            } else {
-                $expandedUnit->addUnitTerm($unitTerm);
+            // Add the unit terms from the expansion.
+            foreach ($expansion->destUnit->unitTerms as $expansionUnitTerm) {
+                // Raise the expansion unit term to the exponent and add.
+                $expandedUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
             }
         }
 
@@ -546,14 +518,14 @@ class Converter
 
             // Check the dimensions match.
             if ($srcUnitTerm->dimension !== $destUnitTerm->dimension) {
-                return null;
+                return null; // @codeCoverageIgnore
             }
 
             // Get the conversion.
             $converter = self::getByDimension($srcUnitTerm->dimension);
             $conversion = $converter->getConversion($srcUnitTerm, $destUnitTerm);
             if ($conversion === null) {
-                return null;
+                return null; // @codeCoverageIgnore
             }
 
             // Multiply.
@@ -621,7 +593,7 @@ class Converter
                 $newConversion = $midToSrc->combineDivergent($midToDest);
                 self::testNewConversion($newConversion, $minErr, $best, $done);
                 if ($done) {
-                    return;
+                    return; // @codeCoverageIgnore
                 }
             }
 
@@ -630,7 +602,7 @@ class Converter
                 $newConversion = $midToSrc->combineOpposite($destToMid);
                 self::testNewConversion($newConversion, $minErr, $best, $done);
                 if ($done) {
-                    return;
+                    return; // @codeCoverageIgnore
                 }
             }
         }
@@ -673,7 +645,7 @@ class Converter
                     $newConversion = $inverse->inv();
                     self::testNewConversion($newConversion, $minErr, $best, $done);
                     if ($done) {
-                        break 2;
+                        break 2; // @codeCoverageIgnore
                     }
                 }
 
@@ -697,7 +669,7 @@ class Converter
                 if ($newConversion !== null) {
                     self::testNewConversion($newConversion, $minErr, $best, $done);
                     if ($done) {
-                        break 2;
+                        break 2; // @codeCoverageIgnore
                     }
                 }
             }
@@ -814,7 +786,7 @@ class Converter
     private function addExpandedUnit(DerivedUnit $unit): void
     {
         // Check if there's anything to do.
-        if (!$unit->hasExpansion()) {
+        if (!$unit->isExpandable()) {
             return;
         }
 

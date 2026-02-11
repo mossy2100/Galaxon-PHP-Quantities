@@ -26,9 +26,7 @@ class Frequency extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -36,17 +34,30 @@ class Frequency extends Quantity
     {
         return [
             'hertz'     => [
-                'asciiSymbol'         => 'Hz',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'expansionUnitSymbol' => 's-1',
-                'systems'             => [System::Si],
+                'asciiSymbol' => 'Hz',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
             'becquerel' => [
-                'asciiSymbol'         => 'Bq',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'expansionUnitSymbol' => 's-1',
-                'systems'             => [System::Si],
+                'asciiSymbol' => 'Bq',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
+        ];
+    }
+
+    /**
+     * Conversion definitions for frequency, including expansions.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            // Expansions.
+            ['Hz', 's-1', 1.0],
+            ['Bq', 's-1', 1.0],
         ];
     }
 
