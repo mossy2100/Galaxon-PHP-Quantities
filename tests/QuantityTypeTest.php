@@ -27,11 +27,10 @@ final class QuantityTypeTest extends TestCase
      */
     public function testConstructorWithAllParameters(): void
     {
-        $qtyType = new QuantityType('length', 'L', 'm', Length::class);
+        $qtyType = new QuantityType('length', 'L', Length::class);
 
         $this->assertSame('length', $qtyType->name);
         $this->assertSame('L', $qtyType->dimension);
-        $this->assertSame('m', $qtyType->siUnitSymbol);
         $this->assertSame(Length::class, $qtyType->class);
     }
 
@@ -40,11 +39,10 @@ final class QuantityTypeTest extends TestCase
      */
     public function testConstructorWithNullClass(): void
     {
-        $qtyType = new QuantityType('custom', 'L9', 'x', null);
+        $qtyType = new QuantityType('custom', 'L9', null);
 
         $this->assertSame('custom', $qtyType->name);
         $this->assertSame('L9', $qtyType->dimension);
-        $this->assertSame('x', $qtyType->siUnitSymbol);
         $this->assertNull($qtyType->class);
     }
 
@@ -54,7 +52,7 @@ final class QuantityTypeTest extends TestCase
     public function testConstructorNormalizesDimension(): void
     {
         // TLM should be normalized to MLT (canonical order)
-        $qtyType = new QuantityType('test', 'TLM', 'x', null);
+        $qtyType = new QuantityType('test', 'TLM', null);
 
         $this->assertSame('MLT', $qtyType->dimension);
     }
@@ -64,7 +62,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testConstructorWithCompoundDimension(): void
     {
-        $qtyType = new QuantityType('force', 'MLT-2', 'N', null);
+        $qtyType = new QuantityType('force', 'MLT-2', null);
 
         $this->assertSame('MLT-2', $qtyType->dimension);
     }
@@ -74,10 +72,9 @@ final class QuantityTypeTest extends TestCase
      */
     public function testConstructorWithDimensionless(): void
     {
-        $qtyType = new QuantityType('ratio', '1', '', null);
+        $qtyType = new QuantityType('ratio', '1', null);
 
         $this->assertSame('1', $qtyType->dimension);
-        $this->assertSame('', $qtyType->siUnitSymbol);
     }
 
     /**
@@ -85,14 +82,12 @@ final class QuantityTypeTest extends TestCase
      */
     public function testConstructorWithDifferentQuantityTypes(): void
     {
-        $mass = new QuantityType('mass', 'M', 'kg', Mass::class);
+        $mass = new QuantityType('mass', 'M', Mass::class);
         $this->assertSame('M', $mass->dimension);
-        $this->assertSame('kg', $mass->siUnitSymbol);
         $this->assertSame(Mass::class, $mass->class);
 
-        $time = new QuantityType('time', 'T', 's', Time::class);
+        $time = new QuantityType('time', 'T', Time::class);
         $this->assertSame('T', $time->dimension);
-        $this->assertSame('s', $time->siUnitSymbol);
         $this->assertSame(Time::class, $time->class);
     }
 
@@ -105,7 +100,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testClassPropertyAcceptsValidSubclass(): void
     {
-        $qtyType = new QuantityType('length', 'L', 'm', null);
+        $qtyType = new QuantityType('length', 'L', null);
 
         // Set class after construction
         $qtyType->class = Length::class;
@@ -118,7 +113,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testClassPropertyAcceptsNull(): void
     {
-        $qtyType = new QuantityType('length', 'L', 'm', Length::class);
+        $qtyType = new QuantityType('length', 'L', Length::class);
 
         // Set to null
         $qtyType->class = null;
@@ -131,7 +126,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testClassPropertyThrowsForNonQuantityClass(): void
     {
-        $qtyType = new QuantityType('test', 'L9', 'x', null);
+        $qtyType = new QuantityType('test', 'L9', null);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be a subclass of');
@@ -145,7 +140,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testClassPropertyThrowsForBaseQuantityClass(): void
     {
-        $qtyType = new QuantityType('test', 'L9', 'x', null);
+        $qtyType = new QuantityType('test', 'L9', null);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be a subclass of');
@@ -158,7 +153,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testClassPropertyThrowsForNonExistentClass(): void
     {
-        $qtyType = new QuantityType('test', 'L9', 'x', null);
+        $qtyType = new QuantityType('test', 'L9', null);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be a subclass of');
@@ -176,7 +171,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectExceptionMessage('must be a subclass of');
 
         // @phpstan-ignore argument.type
-        new QuantityType('test', 'L9', 'x', stdClass::class);
+        new QuantityType('test', 'L9', stdClass::class);
     }
 
     // endregion
@@ -188,7 +183,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testNamePropertyIsReadonly(): void
     {
-        $qtyType = new QuantityType('length', 'L', 'm', null);
+        $qtyType = new QuantityType('length', 'L', null);
 
         // Verify we can read the property
         $this->assertSame('length', $qtyType->name);
@@ -203,19 +198,9 @@ final class QuantityTypeTest extends TestCase
      */
     public function testDimensionPropertyIsReadonly(): void
     {
-        $qtyType = new QuantityType('length', 'L', 'm', null);
+        $qtyType = new QuantityType('length', 'L', null);
 
         $this->assertSame('L', $qtyType->dimension);
-    }
-
-    /**
-     * Test siUnitSymbol property is readonly.
-     */
-    public function testSiUnitSymbolPropertyIsReadonly(): void
-    {
-        $qtyType = new QuantityType('length', 'L', 'm', null);
-
-        $this->assertSame('m', $qtyType->siUnitSymbol);
     }
 
     // endregion
@@ -227,19 +212,9 @@ final class QuantityTypeTest extends TestCase
      */
     public function testEmptyNameIsAllowed(): void
     {
-        $qtyType = new QuantityType('', 'L', 'm', null);
+        $qtyType = new QuantityType('', 'L', null);
 
         $this->assertSame('', $qtyType->name);
-    }
-
-    /**
-     * Test empty SI unit symbol is allowed.
-     */
-    public function testEmptySiUnitSymbolIsAllowed(): void
-    {
-        $qtyType = new QuantityType('dimensionless', '1', '', null);
-
-        $this->assertSame('', $qtyType->siUnitSymbol);
     }
 
     /**
@@ -247,7 +222,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testDimensionWithExponentOneIsNormalized(): void
     {
-        $qtyType = new QuantityType('length', 'L1', 'm', null);
+        $qtyType = new QuantityType('length', 'L1', null);
 
         // L1 should be normalized to L
         $this->assertSame('L', $qtyType->dimension);
@@ -258,7 +233,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testClassCanBeChangedAfterConstruction(): void
     {
-        $qtyType = new QuantityType('test', 'L8', 'x', Length::class);
+        $qtyType = new QuantityType('test', 'L8', Length::class);
 
         $this->assertSame(Length::class, $qtyType->class);
 

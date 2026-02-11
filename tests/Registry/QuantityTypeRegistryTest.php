@@ -264,13 +264,12 @@ final class QuantityTypeRegistryTest extends TestCase
         }
 
         // Add it
-        QuantityTypeRegistry::add('hypervolume', $dimension, 'm4', null);
+        QuantityTypeRegistry::add('hypervolume', $dimension, null);
 
         // Verify it exists
         $result = QuantityTypeRegistry::getByDimension($dimension);
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('hypervolume', $result->name);
-        $this->assertSame('m4', $result->siUnitSymbol);
         $this->assertNull($result->class);
     }
 
@@ -282,7 +281,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the name 'length'");
 
-        QuantityTypeRegistry::add('length', 'L9', 'x', null);
+        QuantityTypeRegistry::add('length', 'L9', null);
     }
 
     /**
@@ -293,7 +292,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the dimension 'L'");
 
-        QuantityTypeRegistry::add('another length', 'L', 'm', null);
+        QuantityTypeRegistry::add('another length', 'L', null);
     }
 
     /**
@@ -304,7 +303,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Cannot add another quantity type with the class');
 
-        QuantityTypeRegistry::add('another', 'L8', 'x', Length::class);
+        QuantityTypeRegistry::add('another', 'L8', Length::class);
     }
 
     // endregion
@@ -323,7 +322,7 @@ final class QuantityTypeRegistryTest extends TestCase
             $this->markTestSkipped("Dimension '$dimension' already exists");
         }
 
-        QuantityTypeRegistry::add('pentavolume', $dimension, 'm5', null);
+        QuantityTypeRegistry::add('pentavolume', $dimension, null);
 
         // Verify it has no class.
         $result = QuantityTypeRegistry::getByDimension($dimension);
@@ -433,7 +432,7 @@ final class QuantityTypeRegistryTest extends TestCase
         QuantityTypeRegistry::clear();
 
         // Add a single custom type.
-        QuantityTypeRegistry::add('custom', 'L6', 'm6', null);
+        QuantityTypeRegistry::add('custom', 'L6', null);
 
         // Verify only the custom type exists (defaults were not re-loaded).
         $all = QuantityTypeRegistry::getAll();
@@ -461,37 +460,22 @@ final class QuantityTypeRegistryTest extends TestCase
     }
 
     /**
-     * Test all quantity types have SI unit terms.
-     */
-    public function testAllQuantityTypesHaveSiUnitTerms(): void
-    {
-        $all = QuantityTypeRegistry::getAll();
-
-        foreach ($all as $qtyType) {
-            $this->assertNotNull($qtyType->siUnitSymbol, "Quantity type {$qtyType->dimension} has no SI unit term");
-        }
-    }
-
-    /**
      * Test SI base dimensions have expected properties.
      */
     public function testSiBaseDimensionsProperties(): void
     {
         $siBase = [
             'L' => [
-                'name'   => 'length',
-                'siUnit' => 'm',
-                'class'  => Length::class,
+                'name'  => 'length',
+                'class' => Length::class,
             ],
             'M' => [
-                'name'   => 'mass',
-                'siUnit' => 'kg',
-                'class'  => Mass::class,
+                'name'  => 'mass',
+                'class' => Mass::class,
             ],
             'T' => [
-                'name'   => 'time',
-                'siUnit' => 's',
-                'class'  => Time::class,
+                'name'  => 'time',
+                'class' => Time::class,
             ],
         ];
 
@@ -500,7 +484,6 @@ final class QuantityTypeRegistryTest extends TestCase
 
             $this->assertNotNull($qtyType, "SI base dimension '$dimension' not found");
             $this->assertSame($expected['name'], $qtyType->name);
-            $this->assertSame($expected['siUnit'], $qtyType->siUnitSymbol);
             $this->assertSame($expected['class'], $qtyType->class);
         }
     }

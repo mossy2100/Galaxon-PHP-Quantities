@@ -13,17 +13,29 @@ class QuantityType
 {
     // region Properties
 
+    /**
+     * The human-readable name of the quantity type (e.g. 'length', 'force').
+     */
     public readonly string $name;
 
+    /**
+     * The normalized dimension code (e.g. 'L', 'M', 'T-2LM').
+     *
+     * @see Dimensions
+     */
     public readonly string $dimension;
-
-    public readonly string $siUnitSymbol;
 
     // endregion
 
     // region Property hooks
 
-    /** @var ?class-string<Quantity> */
+    /**
+     * The fully-qualified Quantity subclass for this type, or null if none is registered.
+     *
+     * The setter validates that the value is a subclass of Quantity.
+     *
+     * @var ?class-string<Quantity>
+     */
     public ?string $class {
         set {
             // Validate the class.
@@ -43,14 +55,12 @@ class QuantityType
     /**
      * @param string $name
      * @param string $dimension
-     * @param string $siUnitSymbol
      * @param ?class-string<Quantity> $class
      */
-    public function __construct(string $name, string $dimension, string $siUnitSymbol, ?string $class = null)
+    public function __construct(string $name, string $dimension, ?string $class = null)
     {
         $this->name = $name;
         $this->dimension = Dimensions::normalize($dimension);
-        $this->siUnitSymbol = $siUnitSymbol;
         $this->class = $class;
     }
 

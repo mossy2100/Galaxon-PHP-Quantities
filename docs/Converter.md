@@ -7,7 +7,7 @@ Manages unit conversions for a measurement dimension.
 The `Converter` class is responsible for finding and computing conversions between units of the same physical dimension. It uses the multiton pattern to maintain one instance per dimension (e.g., one for length, one for mass, etc.).
 
 The conversion system works by:
-1. Storing direct conversions provided in unit definitions
+1. Storing direct conversions from the ConversionRegistry
 2. Automatically discovering indirect conversion paths via graph traversal
 3. Applying prefix adjustments when converting between prefixed units
 4. Tracking numerical precision to prefer shorter, more accurate paths
@@ -19,8 +19,8 @@ All conversions use the linear transformation formula: `destValue = srcValue * f
 - Automatic path discovery through conversion graph
 - Precision-aware path selection via error tracking
 - Prefix algebra for prefixed unit conversions
-- Unit expansion (e.g., N -> kg*m*s-2)
-- Unit merging (e.g., m*ft -> m2)
+- Unit expansion (e.g., N → kg\*m\*s⁻²)
+- Unit merging (e.g., m\*ft → m²)
 
 ## Properties
 
@@ -65,13 +65,13 @@ $lengthConverter = Converter::getByDimension('L');
 $forceConverter = Converter::getByDimension('MLT-2');
 ```
 
-### reset()
+### clear()
 
 ```php
-public static function reset(): void
+public static function clear(): void
 ```
 
-Reset all Converter instances. Clears the multiton cache, primarily for test isolation.
+Clear all Converter instances. Resets the multiton cache, forcing new instances to be created on next access. Primarily intended for test isolation.
 
 ## Conversion Methods
 
@@ -180,9 +180,10 @@ Expand named units to their base unit components.
 - `array{float, DerivedUnit}` - The adjusted value and expanded unit
 
 **Behavior:**
-- Converts units like N -> kg*m*s-2
+- Converts units like N → kg\*m\*s⁻²
 - Adjusts the value by the expansion factor
 - Recursively expands nested units
+- Merges compatible units after expansion
 
 **Examples:**
 ```php
@@ -207,7 +208,7 @@ Merge unit terms that share the same dimension.
 - `array{float, DerivedUnit}` - The adjusted value and merged unit
 
 **Behavior:**
-- Converts mixed units like m*ft to m2
+- Converts mixed units like m\*ft → m²
 - Adjusts the value by the conversion factor
 - First unit of each dimension is kept
 
@@ -218,6 +219,19 @@ $unit = DerivedUnit::parse('m*ft');
 echo $merged->asciiSymbol; // 'm2'
 echo $value; // 0.3048
 ```
+
+## Modification Methods
+
+### addUnit()
+
+```php
+public function addUnit(DerivedUnit $derivedUnit): void
+```
+
+Add a unit to this converter. Strips prefixes, and also adds merged and expanded variants if applicable.
+
+**Parameters:**
+- `$derivedUnit` (DerivedUnit) - The unit to add
 
 ## Validation Methods
 
@@ -283,13 +297,13 @@ UnitRegistry::loadSystem(System::Imperial);
 
 // Now convert
 $volume = Converter::getByDimension('L3');
-$litres = $volume->convert(1, 'gal', 'L');
+$litres = $volume->convert(1, 'imp gal', 'L');
 echo "$litres L"; // ~4.546 L (Imperial gallon)
 ```
 
 ## See Also
 
 - **[Conversion](Conversion.md)** - Represents a single unit conversion
-- **[ConversionRegistry](Registry/ConversionRegistry.md)** - Stores discovered conversions
+- **[ConversionRegistry](Registry/ConversionRegistry.md)** - Stores registered conversions
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit representation
 - **[Quantity](Quantity.md)** - Uses Converter for unit conversion

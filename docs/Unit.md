@@ -6,16 +6,17 @@ Represents a unit of measurement.
 
 The `Unit` class represents a single unit of measurement such as metre, gram, or hertz. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
 
-Units can be "expandable", meaning they can be decomposed into more fundamental units. For example, the newton (N) expands to kg*m/s2.
+Units can be "expandable", meaning they can be decomposed into more fundamental units. For example, the newton (N) expands to kg\*m/s2. Expansion information is looked up from the `ConversionRegistry`.
 
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality comparisons.
 
 ### Key Features
 
 - Dual symbol support (ASCII and Unicode)
+- Optional alternate symbol for parser compatibility
 - Configurable prefix acceptance via group codes
 - Measurement system classification
-- Expansion support for derived SI units
+- Expansion support for derived SI units (via ConversionRegistry)
 - Validation of symbol formats
 
 ## Properties
@@ -42,7 +43,7 @@ The ASCII unit symbol (e.g., 'm', 'g', 'Hz'). Used for parsing and code compatib
 private(set) string $unicodeSymbol
 ```
 
-The Unicode symbol (e.g., 'ohm' for ohm, 'deg' for degree). Used for display purposes.
+The Unicode symbol (e.g., 'Ω' for ohm, '°' for degree). Used for display purposes. Defaults to the ASCII symbol if not provided.
 
 ### alternateSymbol
 
@@ -66,7 +67,7 @@ The quantity type name (e.g., 'length', 'mass').
 private(set) string $dimension
 ```
 
-The dimension code (e.g., 'L', 'M', 'T-1').
+The dimension code (e.g., 'L', 'M', 'T-1'). See [Dimensions](Dimensions.md).
 
 ### prefixGroup
 
@@ -76,22 +77,6 @@ private(set) int $prefixGroup
 
 Bitwise flags indicating which prefixes are allowed (0 if none).
 
-### expansionUnitSymbol
-
-```php
-private(set) ?string $expansionUnitSymbol
-```
-
-For expandable units, the expansion unit symbol (e.g., 'kg*m/s2' for newton).
-
-### expansionValue
-
-```php
-private(set) ?float $expansionValue
-```
-
-For expandable units with non-1:1 expansion, the multiplier.
-
 ### systems
 
 ```php
@@ -100,13 +85,17 @@ private(set) array $systems
 
 The measurement systems this unit belongs to (list of System enum values).
 
-### expansionUnit
+## Property Hooks
+
+### expansion
 
 ```php
-public ?DerivedUnit $expansionUnit { get; }
+public ?Conversion $expansion { get; }
 ```
 
-The expansion unit as a DerivedUnit object. Lazily parsed from `expansionUnitSymbol`.
+The expansion conversion for this unit, if any. Looked up from `ConversionRegistry::getExpansion()`. Returns `null` for base units and non-expandable units.
+
+For example, for newton this returns a `Conversion` from `N` to `kg*m/s2`.
 
 ### allowedPrefixes
 
@@ -114,7 +103,7 @@ The expansion unit as a DerivedUnit object. Lazily parsed from `expansionUnitSym
 public array $allowedPrefixes { get; }
 ```
 
-List of Prefix objects allowed for this unit.
+List of Prefix objects allowed for this unit, based on the `prefixGroup` flags.
 
 ### symbols
 
@@ -122,7 +111,7 @@ List of Prefix objects allowed for this unit.
 public array $symbols { get; }
 ```
 
-All symbol variants for the unit, including prefixed versions.
+All symbol variants for the unit, including ASCII, Unicode, alternate, and all prefixed versions.
 
 ## Constructor
 
@@ -137,8 +126,6 @@ public function __construct(
     string $dimension,
     int $prefixGroup = 0,
     ?string $alternateSymbol = null,
-    ?string $expansionUnitSymbol = null,
-    ?float $expansionValue = null,
     array $systems = []
 )
 ```
@@ -153,8 +140,6 @@ Create a new Unit instance.
 - `$dimension` (string) - The dimension code (e.g., 'L')
 - `$prefixGroup` (int) - Bitwise flags for allowed prefixes (default: 0)
 - `$alternateSymbol` (?string) - Additional accepted symbol (default: null)
-- `$expansionUnitSymbol` (?string) - Expansion unit symbol (default: null)
-- `$expansionValue` (?float) - Expansion multiplier (default: null)
 - `$systems` (array) - List of System enum values (default: [])
 
 **Throws:**
@@ -164,7 +149,7 @@ Create a new Unit instance.
 **Examples:**
 ```php
 use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\Prefix;
+use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 
 // Basic SI unit
@@ -174,19 +159,7 @@ $metre = new Unit(
     unicodeSymbol: null,
     quantityType: 'length',
     dimension: 'L',
-    prefixGroup: Prefix::GROUP_CODE_METRIC,
-    systems: [System::Si]
-);
-
-// Derived unit with expansion
-$newton = new Unit(
-    name: 'newton',
-    asciiSymbol: 'N',
-    unicodeSymbol: null,
-    quantityType: 'force',
-    dimension: 'MLT-2',
-    prefixGroup: Prefix::GROUP_CODE_METRIC,
-    expansionUnitSymbol: 'kg*m/s2',
+    prefixGroup: PrefixRegistry::GROUP_METRIC,
     systems: [System::Si]
 );
 ```
@@ -217,6 +190,28 @@ Check if this unit belongs to the SI system.
 
 **Returns:**
 - `bool` - True if the unit is an SI unit
+
+### isBase()
+
+```php
+public function isBase(): bool
+```
+
+Check if this unit is a base unit. A base unit has a single-character dimension code (e.g., 'L', 'M', 'T').
+
+**Returns:**
+- `bool` - True if the unit is a base unit
+
+### isExpandable()
+
+```php
+public function isExpandable(): bool
+```
+
+Check if this unit can be expanded into base units (e.g., newton expands to kg\*m/s2).
+
+**Returns:**
+- `bool` - True if the unit has an expansion defined in the ConversionRegistry
 
 ## Prefix Methods
 
@@ -345,7 +340,7 @@ Check if a string is a single non-letter, non-digit symbol.
 - `$symbol` (string) - The string to check
 
 **Returns:**
-- `bool` - True if it's a valid non-letter symbol (like deg, %, ")
+- `bool` - True if it's a valid non-letter symbol (like %, ", ')
 
 ### isValidAsciiSymbol()
 
@@ -353,7 +348,7 @@ Check if a string is a single non-letter, non-digit symbol.
 public static function isValidAsciiSymbol(string $symbol): bool
 ```
 
-Check if a string contains only ASCII letters.
+Check if a string is a valid ASCII unit symbol (letters only, up to three words separated by spaces, or a single non-letter symbol).
 
 **Parameters:**
 - `$symbol` (string) - The string to check
@@ -390,8 +385,8 @@ echo $unit->dimension;  // 'MLT-2'
 echo $unit->isSi();     // true
 
 // Check expansion
-if ($unit->expansionUnit !== null) {
-    echo $unit->expansionUnitSymbol; // 'kg*m/s2'
+if ($unit->expansion !== null) {
+    echo $unit->expansion->destUnit->asciiSymbol; // 'kg*m/s2'
 }
 ```
 

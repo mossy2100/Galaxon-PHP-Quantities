@@ -8,25 +8,25 @@ The `PhysicalConstant` class provides a convenient way to access well-known phys
 
 The class includes:
 - All seven SI defining constants
-- Universal constants (gravitational constant, reduced Planck constant)
+- Gravitational constants (standard gravity, gravitational constant)
 - Electromagnetic constants (vacuum permittivity and permeability)
 - Atomic and nuclear constants (electron mass, proton mass, etc.)
-- Thermodynamic constants (gas constant, Stefan-Boltzmann constant)
-- Other commonly used constants (standard gravity, standard atmosphere)
+- Thermodynamic constants (molar gas constant, Stefan-Boltzmann constant)
+- Derived constants (reduced Planck constant)
 
 ### Key Features
 
 - Type-safe access to physical constants
 - Lazy instantiation with caching
-- Lookup by symbol or name
-- Computed derived constants (e.g., reduced Planck constant)
+- Lookup by symbol via `get()`
+- Computed derived constants (e.g., reduced Planck constant = h / 2pi)
 
-## Static Methods for SI Defining Constants
+## SI Defining Constants
 
-### hyperfineTransition()
+### caesiumFrequency()
 
 ```php
-public static function hyperfineTransition(): Quantity
+public static function caesiumFrequency(): Quantity
 ```
 
 The caesium-133 hyperfine transition frequency (deltaNuCs). Defines the second.
@@ -54,7 +54,7 @@ public static function planck(): Quantity
 The Planck constant (h). Defines the kilogram.
 
 **Returns:**
-- `Quantity` - 6.62607015e-34 J*s (exact)
+- `Quantity` - 6.62607015e-34 J\*s (exact)
 
 ### elementaryCharge()
 
@@ -87,7 +87,7 @@ public static function avogadro(): Quantity
 The Avogadro constant (NA). Defines the mole.
 
 **Returns:**
-- `Quantity` - 6.02214076e23 mol-1 (exact)
+- `Quantity` - 6.02214076e23 mol⁻¹ (exact)
 
 ### luminousEfficacy()
 
@@ -100,18 +100,18 @@ The luminous efficacy of 540 THz radiation (Kcd). Defines the candela.
 **Returns:**
 - `Quantity` - 683 lm/W (exact)
 
-## Static Methods for Derived Constants
+## Gravitational Constants
 
-### reducedPlanck()
+### earthGravity()
 
 ```php
-public static function reducedPlanck(): Quantity
+public static function earthGravity(): Quantity
 ```
 
-The reduced Planck constant (hbar = h / 2*pi).
+Standard acceleration of gravity at the surface of Earth (g).
 
 **Returns:**
-- `Quantity` - Computed from Planck constant with full precision
+- `Quantity` - 9.80665 m/s² (exact by definition)
 
 ### gravitational()
 
@@ -122,7 +122,9 @@ public static function gravitational(): Quantity
 The Newtonian constant of gravitation (G).
 
 **Returns:**
-- `Quantity` - 6.67430e-11 m3/(kg*s2)
+- `Quantity` - 6.67430e-11 m³/(kg\*s²)
+
+## Electromagnetic Constants
 
 ### vacuumPermittivity()
 
@@ -144,7 +146,9 @@ public static function vacuumPermeability(): Quantity
 The vacuum magnetic permeability (mu0).
 
 **Returns:**
-- `Quantity` - 1.25663706212e-6 N/A2
+- `Quantity` - 1.25663706212e-6 H/m
+
+## Atomic and Nuclear Constants
 
 ### electronMass()
 
@@ -199,7 +203,7 @@ public static function rydberg(): Quantity
 The Rydberg constant (Rinf).
 
 **Returns:**
-- `Quantity` - 10,973,731.568160 m-1
+- `Quantity` - 10,973,731.568160 m⁻¹
 
 ### bohrRadius()
 
@@ -212,16 +216,18 @@ The Bohr radius (a0).
 **Returns:**
 - `Quantity` - 5.29177210903e-11 m
 
-### gasConstant()
+## Thermodynamic Constants
+
+### molarGas()
 
 ```php
-public static function gasConstant(): Quantity
+public static function molarGas(): Quantity
 ```
 
-The molar gas constant (R = NA * k).
+The molar gas constant (R = NA \* k).
 
 **Returns:**
-- `Quantity` - 8.314462618 J/(mol*K)
+- `Quantity` - 8.314462618 J/(mol\*K)
 
 ### stefanBoltzmann()
 
@@ -232,36 +238,27 @@ public static function stefanBoltzmann(): Quantity
 The Stefan-Boltzmann constant (sigma).
 
 **Returns:**
-- `Quantity` - 5.670374419e-8 W/(m2*K4)
+- `Quantity` - 5.670374419e-8 W/(m²\*K⁴)
 
-### standardGravity()
+## Derived Constants
 
-```php
-public static function standardGravity(): Quantity
-```
-
-Standard acceleration of gravity (g).
-
-**Returns:**
-- `Quantity` - 9.80665 m/s2 (exact by definition)
-
-### standardAtmosphere()
+### reducedPlanck()
 
 ```php
-public static function standardAtmosphere(): Quantity
+public static function reducedPlanck(): Quantity
 ```
 
-Standard atmospheric pressure (atm).
+The reduced Planck constant (hbar = h / 2pi).
 
 **Returns:**
-- `Quantity` - 101,325 Pa (exact by definition)
+- `Quantity` - Computed from Planck constant with full precision
 
 ## Lookup Methods
 
 ### get()
 
 ```php
-public static function get(string $symbol): ?Quantity
+public static function get(string $symbol): Quantity
 ```
 
 Get a constant by its symbol.
@@ -270,45 +267,19 @@ Get a constant by its symbol.
 - `$symbol` (string) - The constant's symbol (case-sensitive)
 
 **Returns:**
-- `?Quantity` - The constant, or null if not found
+- `Quantity` - The constant as a Quantity object
+
+**Throws:**
+- `DomainException` - If the symbol is unknown
 
 **Examples:**
 ```php
-$c = PhysicalConstant::get('c');      // Speed of light
-$h = PhysicalConstant::get('h');      // Planck constant
-$hbar = PhysicalConstant::get('hbar'); // Reduced Planck constant
+$c = PhysicalConstant::get('c');         // Speed of light
+$h = PhysicalConstant::get('h');         // Planck constant
+$hbar = PhysicalConstant::get('hbar');   // Reduced Planck constant
+$g = PhysicalConstant::get('g');         // Earth gravity
+$R = PhysicalConstant::get('R');         // Molar gas constant
 ```
-
-### getByName()
-
-```php
-public static function getByName(string $name): ?Quantity
-```
-
-Get a constant by its name.
-
-**Parameters:**
-- `$name` (string) - The constant's name (case-insensitive, partial match)
-
-**Returns:**
-- `?Quantity` - The constant, or null if not found
-
-**Examples:**
-```php
-$c = PhysicalConstant::getByName('speed of light');
-$G = PhysicalConstant::getByName('gravitational');
-```
-
-### getAll()
-
-```php
-public static function getAll(): array
-```
-
-Get all available physical constants.
-
-**Returns:**
-- `array<string, Quantity>` - All constants keyed by symbol
 
 ## Usage Examples
 
@@ -327,27 +298,18 @@ $energy = $h->mul($frequency);
 echo $energy->toSi(); // Energy in joules
 
 // Calculate de Broglie wavelength: lambda = h / p
-$momentum = new Quantity(1e-24, 'kg*m/s');
+$momentum = Quantity::create(1e-24, 'kg*m/s');
 $wavelength = $h->div($momentum);
 ```
 
-### Looking Up Constants
+### Looking Up Constants by Symbol
 
 ```php
 use Galaxon\Quantities\PhysicalConstant;
 
-// By symbol
 $c = PhysicalConstant::get('c');
 $NA = PhysicalConstant::get('NA');
-
-// By name
-$g = PhysicalConstant::getByName('standard gravity');
-
-// Get all constants
-$all = PhysicalConstant::getAll();
-foreach ($all as $symbol => $constant) {
-    echo "$symbol: $constant\n";
-}
+$G = PhysicalConstant::get('G');
 ```
 
 ## See Also

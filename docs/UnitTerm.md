@@ -64,7 +64,7 @@ The full unit symbol with prefix and exponent in ASCII format (e.g., 'km2', 'ms-
 public string $unicodeSymbol { get; }
 ```
 
-The full unit symbol with superscript exponent in Unicode format (e.g., 'km2', 'ms-1').
+The full unit symbol with superscript exponent in Unicode format (e.g., 'km²', 'ms⁻¹').
 
 ### unprefixedAsciiSymbol
 
@@ -148,24 +148,27 @@ $perSecond = new UnitTerm('s', null, -1);
 ### getBySymbol()
 
 ```php
-public static function getBySymbol(string $symbol): array
+public static function getBySymbol(string $symbol): ?self
 ```
 
-Look up unit terms by symbol (with or without prefix).
+Look up a unit or prefixed unit by its symbol. Symbol uniqueness is enforced by `UnitRegistry`, so at most one match is possible.
 
 **Parameters:**
 - `$symbol` (string) - The prefixed unit symbol to search for
 
 **Returns:**
-- `array` - List of matching UnitTerm objects
+- `?self` - The matching UnitTerm, or null if not found
 
 **Examples:**
 ```php
-$matches = UnitTerm::getBySymbol('km');
-// Returns [UnitTerm(metre, kilo)]
+$km = UnitTerm::getBySymbol('km');
+// UnitTerm(metre, kilo)
 
-$matches = UnitTerm::getBySymbol('m');
-// Returns [UnitTerm(metre)]
+$m = UnitTerm::getBySymbol('m');
+// UnitTerm(metre)
+
+$unknown = UnitTerm::getBySymbol('xyz');
+// null
 ```
 
 ### toUnitTerm()
@@ -228,6 +231,39 @@ Check if this unit term's base unit belongs to the SI system.
 
 **Returns:**
 - `bool` - True if the base unit is an SI unit
+
+### isBase()
+
+```php
+public function isBase(): bool
+```
+
+Check if this unit term's unit is a base unit (single-dimension, not expandable).
+
+**Returns:**
+- `bool` - True if the unit is a base unit
+
+### isSiBase()
+
+```php
+public function isSiBase(): bool
+```
+
+Check if this unit term is an SI base unit (with or without exponent). Returns true for kg, m, s, A, K, cd, mol, rad, B, XAU and any of these with exponents (e.g., m2, s-1). Returns false for prefixed units like km or g.
+
+**Returns:**
+- `bool` - True if the unit is an SI base unit
+
+### isExpandable()
+
+```php
+public function isExpandable(): bool
+```
+
+Check if this unit term's unit is expandable into base units (e.g., N, J, Pa).
+
+**Returns:**
+- `bool` - True if the unit term is expandable
 
 ## Transformation Methods
 
@@ -348,7 +384,7 @@ Format the unit term as a string.
 ```php
 $term = new UnitTerm('m', 'k', 2);
 $term->format(true);  // 'km2'
-$term->format(false); // 'km2'
+$term->format(false); // 'km²'
 ```
 
 ### __toString()

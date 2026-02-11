@@ -10,7 +10,6 @@ use Galaxon\Core\Integers;
 use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
-use LogicException;
 use Override;
 
 /**
@@ -164,13 +163,13 @@ class UnitTerm implements UnitInterface
     /**
      * Look up a unit or prefixed unit by its symbol.
      *
+     * Symbol uniqueness is enforced by UnitRegistry, so at most one match is possible.
+     *
      * @param string $symbol The prefixed unit symbol to search for. Empty string matches the scalar unit.
-     * @return list<self> Array of matching unit terms.
+     * @return ?self The matching unit term, or null if not found.
      */
-    public static function getBySymbol(string $symbol): array
+    public static function getBySymbol(string $symbol): ?self
     {
-        $matches = [];
-
         // Look for any matching units.
         foreach (UnitRegistry::getAll() as $unit) {
             // See if the unprefixed unit matches.
@@ -179,7 +178,7 @@ class UnitTerm implements UnitInterface
                 $unit->unicodeSymbol === $symbol ||
                 $unit->alternateSymbol === $symbol
             ) {
-                $matches[] = new self($unit);
+                return new self($unit);
             }
 
             // Loop through the prefixed units and see if any match.
@@ -191,12 +190,12 @@ class UnitTerm implements UnitInterface
                     $prefix->unicodeSymbol . $unit->asciiSymbol === $symbol ||
                     $prefix->unicodeSymbol . $unit->unicodeSymbol === $symbol
                 ) {
-                    $matches[] = new self($unit, $prefix);
+                    return new self($unit, $prefix);
                 }
             }
         }
 
-        return $matches;
+        return null;
     }
 
     /**
@@ -258,7 +257,7 @@ class UnitTerm implements UnitInterface
             return new self();
         }
 
-        // Validate the unit string.
+        // Validate the format.
         $unitValid = preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);
         if (!$unitValid) {
             throw new FormatException(
@@ -278,26 +277,21 @@ class UnitTerm implements UnitInterface
 
         // Make sure the exponent isn't 0.
         if ($exp === 0) {
-            throw new DomainException('Invalid exponent 0. A unit must have a non-zero exponent.');
+            throw new DomainException(
+                'Invalid exponent 0. A unit must have a no exponent or a non-zero exponent.'
+            );
         }
 
         // Search for a matching unit symbol.
-        $matchingUnits = self::getBySymbol($prefixedSymbol);
+        $match = self::getBySymbol($prefixedSymbol);
 
         // Check we found a match.
-        if (empty($matchingUnits)) {
+        if ($match === null) {
             throw new DomainException("Unknown or unsupported unit '$prefixedSymbol'.");
         }
 
-        // Check we only found one match. Should never happen as we ensure symbol uniqueness in UnitRegistry.
-        if (count($matchingUnits) > 1) {
-            // @codeCoverageIgnoreStart
-            throw new LogicException("Multiple matching units found for '$prefixedSymbol'.");
-            // @codeCoverageIgnoreEnd
-        }
-
         // Create the new object.
-        return $matchingUnits[0]->pow($exp);
+        return $match->pow($exp);
     }
 
     /**

@@ -12,7 +12,7 @@ Quantity types are registered with the `QuantityTypeRegistry` and are used to:
 - Link dimension codes to strongly-typed Quantity subclasses
 - Provide validation for unit-dimension compatibility
 
-The class uses PHP 8.4 property hooks for computed properties that derive values from other registered data.
+The class uses a PHP 8.4 property hook on `$class` to validate that only valid `Quantity` subclasses can be assigned.
 
 ## Properties
 
@@ -22,7 +22,7 @@ The class uses PHP 8.4 property hooks for computed properties that derive values
 public readonly string $name
 ```
 
-The human-readable name of the quantity type (e.g., 'Length', 'Mass', 'Force'). This name is used in error messages and for display purposes.
+The human-readable name of the quantity type (e.g., 'length', 'mass', 'force'). This name is used in error messages and for display purposes.
 
 ### dimension
 
@@ -30,40 +30,30 @@ The human-readable name of the quantity type (e.g., 'Length', 'Mass', 'Force'). 
 public readonly string $dimension
 ```
 
-The dimensional code for this quantity type. Uses standard dimension letters: L (length), M (mass), T (time), I (electric current), Θ (temperature), N (amount of substance), J (luminous intensity).
+The dimensional code for this quantity type. Uses standard dimension letters: L (length), M (mass), T (time), I (electric current), H (temperature), N (amount of substance), J (luminous intensity), A (angle), D (data), C (currency).
 
 Examples:
 - 'L' for length
 - 'M' for mass
 - 'L2' for area
-- 'MLT-2' for force
-- 'ML2T-2' for energy
+- 'T-2LM' for force
+- 'T-2L2M' for energy
 
-### siUnitSymbol
-
-```php
-public readonly string $siUnitSymbol
-```
-
-The symbol of the SI unit for this quantity type (e.g., 'm' for length, 'kg' for mass, 'N' for force).
+See [Dimensions](Dimensions.md).
 
 ### class
 
 ```php
+/** @var ?class-string<Quantity> */
 public ?string $class
 ```
 
 The fully-qualified class name of the Quantity subclass for this type, or null if no specific class is registered. When set, `Quantity::create()` will instantiate this class for quantities with matching dimensions.
 
-This property uses a hook to retrieve the value from the registry.
+This property has a setter hook that validates the value is a subclass of `Quantity`.
 
-### siUnit
-
-```php
-public ?Unit $siUnit { get; }
-```
-
-The SI unit object for this quantity type. Retrieved from the UnitRegistry using the `siUnitSymbol`. Returns null if the unit is not yet registered.
+**Throws (on set):**
+- `DomainException` - If the value is not null and not a subclass of `Quantity`
 
 ## Constructor
 
@@ -73,27 +63,24 @@ The SI unit object for this quantity type. Retrieved from the UnitRegistry using
 public function __construct(
     string $name,
     string $dimension,
-    string $siUnitSymbol
+    ?string $class = null
 )
 ```
 
 Create a new QuantityType instance.
 
 **Parameters:**
-- `$name` (string) - The human-readable name (e.g., 'Length')
-- `$dimension` (string) - The dimensional code (e.g., 'L')
-- `$siUnitSymbol` (string) - The SI unit symbol (e.g., 'm')
-
-**Throws:**
-- `FormatException` - If the dimension code format is invalid
+- `$name` (string) - The human-readable name (e.g., 'length')
+- `$dimension` (string) - The dimensional code (e.g., 'L'). Normalized via `Dimensions::normalize()`.
+- `$class` (?string) - The fully-qualified Quantity subclass name, or null (default: null)
 
 **Examples:**
 ```php
 // Create a quantity type for length
-$length = new QuantityType('Length', 'L', 'm');
+$length = new QuantityType('length', 'L', 'm', Length::class);
 
-// Create a quantity type for force
-$force = new QuantityType('Force', 'MLT-2', 'N');
+// Create a quantity type for force (without a class)
+$force = new QuantityType('force', 'MLT-2', 'N');
 ```
 
 ## Usage Examples
@@ -101,15 +88,19 @@ $force = new QuantityType('Force', 'MLT-2', 'N');
 ### Registering Quantity Types
 
 ```php
-use Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\QuantityType\DynamicViscosity;
 
 // Register a custom quantity type
-$viscosity = new QuantityType('Dynamic Viscosity', 'ML-1T-1', 'Pa*s');
-QuantityTypeRegistry::add($viscosity);
+QuantityTypeRegistry::add(
+    'dynamic viscosity',
+    'ML-1T-1',
+    'Pa*s',
+    DynamicViscosity::class
+);
 
-// Associate a class with an existing quantity type
-QuantityTypeRegistry::setClass('L', Length::class);
+// Set or update the class for an existing quantity type
+QuantityTypeRegistry::setClass('currency', MyCurrencyClass::class);
 ```
 
 ### Looking Up Quantity Types
@@ -119,16 +110,21 @@ use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 
 // Get quantity type by dimension
 $lengthType = QuantityTypeRegistry::getByDimension('L');
-echo $lengthType->name; // 'Length'
+echo $lengthType->name; // 'length'
+
+// Get quantity type by name
+$massType = QuantityTypeRegistry::getByName('mass');
+echo $massType->dimension; // 'M'
 
 // Get quantity type by class
-$massType = QuantityTypeRegistry::getByClass(Mass::class);
-echo $massType->siUnitSymbol; // 'kg'
+$forceType = QuantityTypeRegistry::getByClass(Force::class);
+echo $forceType->dimension; // 'T-2LM'
 ```
 
 ### Using Quantity Types in Validation
 
 ```php
+use Galaxon\Quantities\Unit;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 
 // Check if a unit matches a quantity type

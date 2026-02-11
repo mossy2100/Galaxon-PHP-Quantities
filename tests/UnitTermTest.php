@@ -831,23 +831,12 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolFindsUnprefixedUnit(): void
     {
-        $matches = UnitTerm::getBySymbol('m');
+        $match = UnitTerm::getBySymbol('m');
 
-        $this->assertNotEmpty($matches);
-        $this->assertContainsOnlyInstancesOf(UnitTerm::class, $matches);
-
-        // Find the metre match (should be unprefixed).
-        $metreMatch = null;
-        foreach ($matches as $match) {
-            if ($match->unit->name === 'metre' && $match->prefix === null) {
-                $metreMatch = $match;
-                break;
-            }
-        }
-
-        $this->assertInstanceOf(UnitTerm::class, $metreMatch);
-        $this->assertSame('metre', $metreMatch->unit->name);
-        $this->assertNull($metreMatch->prefix);
+        $this->assertInstanceOf(UnitTerm::class, $match);
+        $this->assertSame('metre', $match->unit->name);
+        $this->assertNull($match->prefix);
+        $this->assertSame(1, $match->exponent);
     }
 
     /**
@@ -855,20 +844,11 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolFindsPrefixedUnit(): void
     {
-        $matches = UnitTerm::getBySymbol('km');
+        $match = UnitTerm::getBySymbol('km');
 
-        $this->assertNotEmpty($matches);
-
-        // Should find kilometre.
-        $found = false;
-        foreach ($matches as $match) {
-            if ($match->unit->name === 'metre' && $match->prefix?->asciiSymbol === 'k') {
-                $found = true;
-                break;
-            }
-        }
-
-        $this->assertTrue($found, 'Should find kilometre (km)');
+        $this->assertInstanceOf(UnitTerm::class, $match);
+        $this->assertSame('metre', $match->unit->name);
+        $this->assertSame('k', $match->prefix?->asciiSymbol);
     }
 
     /**
@@ -876,20 +856,10 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolFindsByUnicodeSymbol(): void
     {
-        $matches = UnitTerm::getBySymbol('Ω');
+        $match = UnitTerm::getBySymbol('Ω');
 
-        $this->assertNotEmpty($matches);
-
-        // Should find ohm.
-        $found = false;
-        foreach ($matches as $match) {
-            if ($match->unit->name === 'ohm') {
-                $found = true;
-                break;
-            }
-        }
-
-        $this->assertTrue($found, 'Should find ohm by Unicode symbol Ω');
+        $this->assertInstanceOf(UnitTerm::class, $match);
+        $this->assertSame('ohm', $match->unit->name);
     }
 
     /**
@@ -897,49 +867,58 @@ final class UnitTermTest extends TestCase
      */
     public function testGetBySymbolFindsPrefixedByUnicodeSymbol(): void
     {
-        $matches = UnitTerm::getBySymbol('kΩ');
+        $match = UnitTerm::getBySymbol('kΩ');
 
-        $this->assertNotEmpty($matches);
-
-        // Should find kilo-ohm.
-        $found = false;
-        foreach ($matches as $match) {
-            if ($match->unit->name === 'ohm' && $match->prefix?->asciiSymbol === 'k') {
-                $found = true;
-                break;
-            }
-        }
-
-        $this->assertTrue($found, 'Should find kilo-ohm by Unicode symbol kΩ');
+        $this->assertInstanceOf(UnitTerm::class, $match);
+        $this->assertSame('ohm', $match->unit->name);
+        $this->assertSame('k', $match->prefix?->asciiSymbol);
     }
 
     /**
-     * Test getBySymbol returns empty array for unknown symbol.
+     * Test getBySymbol returns null for unknown symbol.
      */
-    public function testGetBySymbolReturnsEmptyForUnknown(): void
+    public function testGetBySymbolReturnsNullForUnknown(): void
     {
-        $matches = UnitTerm::getBySymbol('xyz');
+        $match = UnitTerm::getBySymbol('xyz');
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($matches);
-        $this->assertEmpty($matches);
+        $this->assertNull($match);
     }
 
     /**
-     * Test getBySymbol returns array of UnitTerm objects.
+     * Test getBySymbol returns UnitTerm with exponent 1.
      */
-    public function testGetBySymbolReturnsUnitTermArray(): void
+    public function testGetBySymbolReturnsUnitTermWithExponentOne(): void
     {
-        $matches = UnitTerm::getBySymbol('s');
+        $match = UnitTerm::getBySymbol('s');
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($matches);
-        $this->assertNotEmpty($matches);
+        $this->assertInstanceOf(UnitTerm::class, $match);
+        $this->assertSame('second', $match->unit->name);
+        $this->assertSame(1, $match->exponent);
+    }
 
-        foreach ($matches as $match) {
-            $this->assertInstanceOf(UnitTerm::class, $match);
-            $this->assertSame(1, $match->exponent);
-        }
+    /**
+     * Test getBySymbol finds scalar unit with empty string.
+     */
+    public function testGetBySymbolFindsScalarWithEmptyString(): void
+    {
+        $match = UnitTerm::getBySymbol('');
+
+        $this->assertInstanceOf(UnitTerm::class, $match);
+        $this->assertSame('scalar', $match->unit->name);
+    }
+
+    /**
+     * Test getBySymbol finds unit by alternate symbol.
+     */
+    public function testGetBySymbolFindsByAlternateSymbol(): void
+    {
+        // 'u' is the alternate symbol for 'micro' prefix on some units.
+        // 'um' should match micrometre.
+        $match = UnitTerm::getBySymbol('um');
+
+        $this->assertInstanceOf(UnitTerm::class, $match);
+        $this->assertSame('metre', $match->unit->name);
+        $this->assertSame('u', $match->prefix?->asciiSymbol);
     }
 
     // endregion
@@ -1080,54 +1059,6 @@ final class UnitTermTest extends TestCase
         $term = new UnitTerm('ohm', 'k', -1);
 
         $this->assertSame('kΩ⁻¹', $term->unicodeSymbol);
-    }
-
-    // endregion
-
-    // region getBySymbol edge cases
-
-    /**
-     * Test getBySymbol finds scalar unit with empty string.
-     */
-    public function testGetBySymbolFindsScalarWithEmptyString(): void
-    {
-        $matches = UnitTerm::getBySymbol('');
-
-        $this->assertNotEmpty($matches);
-
-        // Should find the scalar unit.
-        $found = false;
-        foreach ($matches as $match) {
-            if ($match->unit->name === 'scalar') {
-                $found = true;
-                break;
-            }
-        }
-
-        $this->assertTrue($found, 'Should find scalar unit with empty string symbol');
-    }
-
-    /**
-     * Test getBySymbol finds unit by alternate symbol.
-     */
-    public function testGetBySymbolFindsByAlternateSymbol(): void
-    {
-        // 'u' is the alternate symbol for 'micro' prefix on some units.
-        // Let's try 'um' which should match micrometre.
-        $matches = UnitTerm::getBySymbol('um');
-
-        $this->assertNotEmpty($matches);
-
-        // Should find micrometre.
-        $found = false;
-        foreach ($matches as $match) {
-            if ($match->unit->name === 'metre' && $match->prefix?->asciiSymbol === 'u') {
-                $found = true;
-                break;
-            }
-        }
-
-        $this->assertTrue($found, 'Should find micrometre by alternate prefix symbol um');
     }
 
     // endregion

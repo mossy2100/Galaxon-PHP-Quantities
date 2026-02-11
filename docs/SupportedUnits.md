@@ -17,51 +17,80 @@ The Quantities package includes units across multiple measurement systems:
 - **Typographical** - Units for typography and printing
 
 The Prefixes column indicates which metric prefixes are supported:
-- **all** - All metric prefixes (Y, Z, E, P, T, G, M, k, h, da, d, c, m, μ, n, p, f, a, z, y)
-- **large** - Large engineering prefixes (k, M, G, T, P, E)
-- **small** - Small engineering prefixes (m, μ, n, p, f, a)
-- **metric + binary** - Large metric (k, M, G, T) and binary (Ki, Mi, Gi, Ti) prefixes
+- **all metric** - All metric prefixes (q, r, y, z, a, f, p, n, μ, m, c, d, da, h, k, M, G, T, P, E, Z, Y, R, Q)
+- **large metric** - Large engineering prefixes (k, M, G, T, P, E, Z, Y, R, Q)
+- **small metric** - Small engineering prefixes (q, r, y, z, a, f, p, n, μ, m)
+- **large metric and binary** - Large engineering and binary prefixes, (k-Q and Ki, Mi, Gi, Ti, Pi, Ei, Zi, Yi, Ri, Qi) 
 
-An "engineering prefix" is one that represents a multiple of 1000 or 1/1000; or in other words, the power of 10 is a
-multiple of 3. That's all of them except for c, d, da, and h.
+An "engineering prefix" is one that represents a multiple of 1000 or 1/1000; or in other words, the multiplier expressed
+as power of 10 will have an exponent that is a multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Length
+## SI Base Units
 
-| Name              | ASCII Symbol | Unicode Symbol | Prefixes | Systems                     |
-|-------------------|--------------|----------------|----------|-----------------------------|
-| metre             | `m`          |                | all      | SI                          |
-| astronomical unit | `au`         |                |          | SI Accepted, Astronomical   |
-| light year        | `ly`         |                |          | Astronomical                |
-| parsec            | `pc`         |                | large    | Astronomical                |
-| pixel             | `px`         |                |          | Typographical               |
-| point             | `p`          |                |          | Typographical               |
-| pica              | `P`          |                |          | Typographical               |
-| inch              | `in`         |                |          | Imperial, US Customary      |
-| foot              | `ft`         |                |          | Imperial, US Customary      |
-| yard              | `yd`         |                |          | Imperial, US Customary      |
-| mile              | `mi`         |                |          | Imperial, US Customary      |
-| fathom            | `ftm`        |                |          | Nautical                    |
-| nautical mile     | `nmi`        |                |          | Nautical                    |
+The system uses 10 base dimensions, each with a corresponding SI base unit. Seven of these are the standard SI base
+units. Three additional "bonus" base dimensions are included to make the system work for angles, data, and currency.
+
+| Dimension Code | Dimension Name       | SI Base Unit | Symbol |
+|:--------------:|----------------------|--------------|--------|
+| M              | Mass                 | kilogram     | `kg`   |
+| L              | Length               | metre        | `m`    |
+| T              | Time                 | second       | `s`    |
+| I              | Electric current     | ampere       | `A`    |
+| H              | Temperature          | kelvin       | `K`    |
+| N              | Amount of substance  | mole         | `mol`  |
+| J              | Luminous intensity   | candela      | `cd`   |
+| A              | Angle *              | radian       | `rad`  |
+| D              | Data *               | byte         | `B`    |
+| C              | Currency *           | gold (XAU) * | `XAU`  |
+
+\* Bonus dimensions not part of the official ISQ. Angle is treated as dimensionless in SI (a ratio of lengths), but is
+given its own dimension here for practical unit handling. Currency uses gold troy ounces (XAU) as the base unit, being
+the least biased and most widely accepted measure of value.
+
+**Note:** The ISQ uses 'Θ' (Greek capital theta) for temperature. 'H' is used here because it's similar in appearance,
+ASCII characters are easier to type, and 'H' suggests heat.
+
+---
+
+## Quantity Types
+
+### Length
+
+| Name              | ASCII Symbol | Unicode Symbol | Prefixes     | Systems                     |
+|-------------------|--------------|----------------|--------------|-----------------------------|
+| metre             | `m`          |                | all metric   | SI                          |
+| astronomical unit | `au`         |                |              | SI Accepted, Astronomical   |
+| light year        | `ly`         |                |              | Astronomical                |
+| parsec            | `pc`         |                | large metric | Astronomical                |
+| pixel             | `px`         |                |              | Typographical               |
+| point             | `p`          |                |              | Typographical               |
+| pica              | `P`          |                |              | Typographical               |
+| inch              | `in`         |                |              | Imperial, US Customary      |
+| foot              | `ft`         |                |              | Imperial, US Customary      |
+| yard              | `yd`         |                |              | Imperial, US Customary      |
+| mile              | `mi`         |                |              | Imperial, US Customary      |
+| fathom            | `ftm`        |                |              | Nautical                    |
+| nautical mile     | `nmi`        |                |              | Nautical                    |
 
 **See:** [Length class documentation](QuantityType/Length.md)
 
 ---
 
-## Mass
+### Mass
 
-| Name      | ASCII Symbol | Unicode Symbol | Prefixes | Systems                |
-|-----------|--------------|----------------|----------|------------------------|
-| gram      | `g`          |                | all      | SI                     |
-| tonne     | `t`          |                |          | SI Accepted            |
-| dalton    | `Da`         |                |          | SI Accepted            |
-| grain     | `gr`         |                |          | Imperial, US Customary |
-| ounce     | `oz`         |                |          | Imperial, US Customary |
-| pound     | `lb`         |                |          | Imperial, US Customary |
-| stone     | `st`         |                |          | Imperial               |
-| short ton | `tn`         |                |          | US Customary           |
-| long ton  | `LT`         |                |          | Imperial               |
+| Name      | ASCII Symbol | Unicode Symbol | Prefixes   | Systems                |
+|-----------|--------------|----------------|------------|------------------------|
+| gram      | `g`          |                | all metric | SI                     |
+| tonne     | `t`          |                |            | SI Accepted            |
+| dalton    | `Da`         |                |            | SI Accepted            |
+| grain     | `gr`         |                |            | Imperial, US Customary |
+| ounce     | `oz`         |                |            | Imperial, US Customary |
+| pound     | `lb`         |                |            | Imperial, US Customary |
+| stone     | `st`         |                |            | Imperial               |
+| short ton | `tn`         |                |            | US Customary           |
+| long ton  | `LT`         |                |            | Imperial               |
 
 **Note:** The SI base unit for mass is the kilogram (kg), not the gram.
 
@@ -69,30 +98,30 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Time
+### Time
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems     |
-|----------|--------------|----------------|----------|-------------|
-| second   | `s`          |                | all      | SI          |
-| minute   | `min`        |                |          | SI Accepted |
-| hour     | `h`          |                |          | SI Accepted |
-| day      | `d`          |                |          | SI Accepted |
-| week     | `w`          |                |          | Common      |
-| month    | `mo`         |                |          | Common      |
-| year     | `y`          |                |          | Common      |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes   | Systems     |
+|----------|--------------|----------------|------------|-------------|
+| second   | `s`          |                | all metric | SI          |
+| minute   | `min`        |                |            | SI Accepted |
+| hour     | `h`          |                |            | SI Accepted |
+| day      | `d`          |                |            | SI Accepted |
+| week     | `w`          |                |            | Common      |
+| month    | `mo`         |                |            | Common      |
+| year     | `y`          |                |            | Common      |
 
 **See:** [Time class documentation](QuantityType/Time.md)
 
 ---
 
-## Temperature
+### Temperature
 
-| Name       | ASCII Symbol | Unicode Symbol | Prefixes | Systems                |
-|------------|--------------|----------------|----------|------------------------|
-| kelvin     | `K`          |                | all      | SI                     |
-| celsius    | `degC`       | `°C `          |          | SI                     |
-| fahrenheit | `degF`       | `°F`           |          | Imperial, US Customary |
-| rankine    | `degR`       | `°R`           |          | Imperial, US Customary |
+| Name       | ASCII Symbol | Unicode Symbol | Prefixes    | Systems                |
+|------------|--------------|----------------|-------------|------------------------|
+| kelvin     | `K`          |                | all metric  | SI                     |
+| celsius    | `degC`       | `°C `          |             | SI                     |
+| fahrenheit | `degF`       | `°F`           |             | Imperial, US Customary |
+| rankine    | `degR`       | `°R`           |             | Imperial, US Customary |
 
 **Note:** Temperature conversions between Celsius/Fahrenheit and Kelvin/Rankine include offsets and are handled specially.
 
@@ -100,16 +129,16 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Angle
+### Angle
 
-| Name      | ASCII Symbol | Unicode Symbol | Prefixes | Systems                |
-|-----------|--------------|----------------|----------|------------------------|
-| radian    | `rad`        |                | all      | SI                     |
-| degree    | `deg`        | `°`            |          | SI Accepted            |
-| arcminute | `arcmin`     | `′`            |          | SI Accepted            |
-| arcsecond | `arcsec`     | `″`            | small    | SI Accepted            |
-| gradian   | `grad`       |                |          | Common                 |
-| turn      | `turn`       |                |          | Common                 |
+| Name      | ASCII Symbol | Unicode Symbol | Prefixes     | Systems     |
+|-----------|--------------|----------------|--------------|-------------|
+| radian    | `rad`        |                | all metric   | SI          |
+| degree    | `deg`        | `°`            |              | SI Accepted |
+| arcminute | `arcmin`     | `′`            |              | SI Accepted |
+| arcsecond | `arcsec`     | `″`            | small metric | SI Accepted |
+| gradian   | `grad`       |                |              | Common      |
+| turn      | `turn`       |                |              | Common      |
 
 **Alternate symbols:** arcminute also accepts `'`; arcsecond also accepts `"`
 
@@ -117,17 +146,17 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Solid Angle
+### Solid Angle
 
-| Name       | ASCII Symbol | Unicode Symbol | Prefixes | Systems                |
-|------------|--------------|----------------|----------|------------------------|
-| steradian  | `sr`         |                | small    | SI                     |
+| Name       | ASCII Symbol | Unicode Symbol | Prefixes     | Systems |
+|------------|--------------|----------------|--------------|---------|
+| steradian  | `sr`         |                | small metric | SI      |
 
 **See:** [SolidAngle class documentation](QuantityType/SolidAngle.md)
 
 ---
 
-## Area
+### Area
 
 | Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems                |
 |----------|--------------|----------------|----------|------------------------|
@@ -140,19 +169,19 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Volume
+### Volume
 
-| Name                 | ASCII Symbol | Unicode Symbol | Prefixes | Systems       |
-|----------------------|--------------|----------------|----------|---------------|
-| litre                | `L`          |                | all      | SI Accepted   |
-| US fluid ounce       | `US fl oz`   |                |          | US Customary  |
-| US pint              | `US pt`      |                |          | US Customary  |
-| US quart             | `US qt`      |                |          | US Customary  |
-| US gallon            | `US gal`     |                |          | US Customary  |
-| imperial fluid ounce | `imp fl oz`  |                |          | Imperial      |
-| imperial pint        | `imp pt`     |                |          | Imperial      |
-| imperial quart       | `imp qt`     |                |          | Imperial      |
-| imperial gallon      | `imp gal`    |                |          | Imperial      |
+| Name                 | ASCII Symbol | Unicode Symbol | Prefixes   | Systems       |
+|----------------------|--------------|----------------|------------|---------------|
+| litre                | `L`          |                | all metric | SI Accepted   |
+| US fluid ounce       | `US fl oz`   |                |            | US Customary  |
+| US pint              | `US pt`      |                |            | US Customary  |
+| US quart             | `US qt`      |                |            | US Customary  |
+| US gallon            | `US gal`     |                |            | US Customary  |
+| imperial fluid ounce | `imp fl oz`  |                |            | Imperial      |
+| imperial pint        | `imp pt`     |                |            | Imperial      |
+| imperial quart       | `imp qt`     |                |            | Imperial      |
+| imperial gallon      | `imp gal`    |                |            | Imperial      |
 
 **Note:** Cubic units like m³, cm³, ft³, etc. are automatically supported through unit arithmetic.
 
@@ -160,11 +189,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Velocity
+### Velocity
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems     |
-|----------|--------------|----------------|----------|-------------|
-| knot     | `kn`         |                |          | Nautical    |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems  |
+|----------|--------------|----------------|----------|----------|
+| knot     | `kn`         |                |          | Nautical |
 
 **Note:** Compound velocity units like m/s, km/h, mi/h, etc. are automatically supported through unit arithmetic.
 
@@ -172,12 +201,12 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Frequency
+### Frequency
 
-| Name      | ASCII Symbol | Unicode Symbol | Prefixes | Systems     |
-|-----------|--------------|----------------|----------|-------------|
-| hertz     | `Hz`         |                | all      | SI          |
-| becquerel | `Bq`         |                | all      | SI          |
+| Name      | ASCII Symbol | Unicode Symbol | Prefixes    | Systems  |
+|-----------|--------------|----------------|-------------|----------|
+| hertz     | `Hz`         |                | all metric  | SI       |
+| becquerel | `Bq`         |                | all metric  | SI       |
 
 **Note:** Hertz measures frequency; becquerel measures radioactivity. Both have dimension T⁻¹.
 
@@ -185,12 +214,12 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Force
+### Force
 
-| Name        | ASCII Symbol | Unicode Symbol | Prefixes | Systems                |
-|-------------|--------------|----------------|----------|------------------------|
-| newton      | `N`          |                | all      | SI                     |
-| pound force | `lbf`        |                |          | Imperial, US Customary |
+| Name        | ASCII Symbol | Unicode Symbol | Prefixes    | Systems                |
+|-------------|--------------|----------------|-------------|------------------------|
+| newton      | `N`          |                | all metric  | SI                     |
+| pound force | `lbf`        |                |             | Imperial, US Customary |
 
 **Expansion:** newton = kg·m·s⁻²; pound force = lb·ft·s⁻² × g₀
 
@@ -198,14 +227,14 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Pressure
+### Pressure
 
-| Name         | ASCII Symbol | Unicode Symbol | Prefixes | Systems                |
-|--------------|--------------|----------------|----------|------------------------|
-| pascal       | `Pa`         |                | all      | SI                     |
-| atmosphere   | `atm`        |                |          | Scientific             |
-| mmHg         | `mmHg`       |                |          | Scientific             |
-| inHg         | `inHg`       |                |          | US Customary           |
+| Name         | ASCII Symbol | Unicode Symbol | Prefixes    | Systems      |
+|--------------|--------------|----------------|-------------|--------------|
+| pascal       | `Pa`         |                | all metric  | SI           |
+| atmosphere   | `atm`        |                |             | Scientific   |
+| mmHg         | `mmHg`       |                |             | Scientific   |
+| inHg         | `inHg`       |                |             | US Customary |
 
 **Expansion:** pascal = kg·m⁻¹·s⁻²
 
@@ -213,14 +242,14 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Energy
+### Energy
 
-| Name                 | ASCII Symbol | Unicode Symbol | Prefixes | Systems                |
-|----------------------|--------------|----------------|----------|------------------------|
-| joule                | `J`          |                | all      | SI                     |
-| electronvolt         | `eV`         |                | all      | SI Accepted            |
-| calorie              | `cal`        |                | large    | Common                 |
-| British thermal unit | `Btu`        |                |          | US Customary           |
+| Name                 | ASCII Symbol | Unicode Symbol | Prefixes     | Systems      |
+|----------------------|--------------|----------------|--------------|--------------|
+| joule                | `J`          |                | all metric   | SI           |
+| electronvolt         | `eV`         |                | all metric   | SI Accepted  |
+| calorie              | `cal`        |                | large metric | Common       |
+| British thermal unit | `Btu`        |                |              | US Customary |
 
 **Expansion:** joule = kg·m²·s⁻²
 
@@ -228,11 +257,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Power
+### Power
 
-| Name  | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|-------|--------------|----------------|----------|---------|
-| watt  | `W`          |                | all      | SI      |
+| Name  | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|-------|--------------|----------------|-------------|---------|
+| watt  | `W`          |                | all metric  | SI      |
 
 **Expansion:** watt = kg·m²·s⁻³
 
@@ -240,21 +269,21 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Electric Current
+### Electric Current
 
-| Name    | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|---------|--------------|----------------|----------|---------|
-| ampere  | `A`          |                | all      | SI      |
+| Name    | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|---------|--------------|----------------|-------------|---------|
+| ampere  | `A`          |                | all metric  | SI      |
 
 **See:** [ElectricCurrent class documentation](QuantityType/ElectricCurrent.md)
 
 ---
 
-## Electric Charge
+### Electric Charge
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|----------|--------------|----------------|----------|---------|
-| coulomb  | `C`          |                | all      | SI      |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|----------|--------------|----------------|-------------|---------|
+| coulomb  | `C`          |                | all metric  | SI      |
 
 **Expansion:** coulomb = A·s
 
@@ -262,11 +291,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Voltage
+### Voltage
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|----------|--------------|----------------|----------|---------|
-| volt     | `V`          |                | all      | SI      |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|----------|--------------|----------------|-------------|---------|
+| volt     | `V`          |                | all metric  | SI      |
 
 **Expansion:** volt = kg·m²·s⁻³·A⁻¹
 
@@ -274,11 +303,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Resistance
+### Resistance
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|----------|--------------|----------------|----------|---------|
-| ohm      | `ohm`        | `Ω`            | all      | SI      |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|----------|--------------|----------------|-------------|---------|
+| ohm      | `ohm`        | `Ω`            | all metric  | SI      |
 
 **Expansion:** ohm = kg·m²·s⁻³·A⁻²
 
@@ -286,11 +315,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Conductance
+### Conductance
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|----------|--------------|----------------|----------|---------|
-| siemens  | `S`          |                | all      | SI      |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|----------|--------------|----------------|-------------|---------|
+| siemens  | `S`          |                | all metric  | SI      |
 
 **Expansion:** siemens = s³·A²·kg⁻¹·m⁻²
 
@@ -298,11 +327,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Capacitance
+### Capacitance
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|----------|--------------|----------------|----------|---------|
-| farad    | `F`          |                | all      | SI      |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|----------|--------------|----------------|-------------|---------|
+| farad    | `F`          |                | all metric  | SI      |
 
 **Expansion:** farad = s⁴·A²·kg⁻¹·m⁻²
 
@@ -310,11 +339,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Inductance
+### Inductance
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|----------|--------------|----------------|----------|---------|
-| henry    | `H`          |                | all      | SI      |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|----------|--------------|----------------|-------------|---------|
+| henry    | `H`          |                | all metric  | SI      |
 
 **Expansion:** henry = kg·m²·s⁻²·A⁻²
 
@@ -322,11 +351,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Magnetic Flux
+### Magnetic Flux
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|----------|--------------|----------------|----------|---------|
-| weber    | `Wb`         |                | all      | SI      |
+| Name     | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|----------|--------------|----------------|-------------|---------|
+| weber    | `Wb`         |                | all metric  | SI      |
 
 **Expansion:** weber = kg·m²·s⁻²·A⁻¹
 
@@ -334,11 +363,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Magnetic Flux Density
+### Magnetic Flux Density
 
-| Name   | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|--------|--------------|----------------|----------|---------|
-| tesla  | `T`          |                | all      | SI      |
+| Name   | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|--------|--------------|----------------|-------------|---------|
+| tesla  | `T`          |                | all metric  | SI      |
 
 **Expansion:** tesla = kg·s⁻²·A⁻¹
 
@@ -346,21 +375,21 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Luminous Intensity
+### Luminous Intensity
 
-| Name      | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|-----------|--------------|----------------|----------|---------|
-| candela   | `cd`         |                | all      | SI      |
+| Name      | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|-----------|--------------|----------------|-------------|---------|
+| candela   | `cd`         |                | all metric  | SI      |
 
 **See:** [LuminousIntensity class documentation](QuantityType/LuminousIntensity.md)
 
 ---
 
-## Luminous Flux
+### Luminous Flux
 
-| Name    | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|---------|--------------|----------------|----------|---------|
-| lumen   | `lm`         |                | all      | SI      |
+| Name    | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|---------|--------------|----------------|-------------|---------|
+| lumen   | `lm`         |                | all metric  | SI      |
 
 **Expansion:** lumen = cd·sr
 
@@ -368,11 +397,11 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Illuminance
+### Illuminance
 
-| Name  | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|-------|--------------|----------------|----------|---------|
-| lux   | `lx`         |                | all      | SI      |
+| Name  | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|-------|--------------|----------------|-------------|---------|
+| lux   | `lx`         |                | all metric  | SI      |
 
 **Expansion:** lux = cd·sr·m⁻²
 
@@ -380,21 +409,21 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Amount of Substance
+### Amount of Substance
 
-| Name  | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|-------|--------------|----------------|----------|---------|
-| mole  | `mol`        |                | all      | SI      |
+| Name  | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|-------|--------------|----------------|-------------|---------|
+| mole  | `mol`        |                | all metric  | SI      |
 
 **See:** [AmountOfSubstance class documentation](QuantityType/AmountOfSubstance.md)
 
 ---
 
-## Catalytic Activity
+### Catalytic Activity
 
-| Name    | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|---------|--------------|----------------|----------|---------|
-| katal   | `kat`        |                | all      | SI      |
+| Name    | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|---------|--------------|----------------|-------------|---------|
+| katal   | `kat`        |                | all metric  | SI      |
 
 **Expansion:** katal = mol·s⁻¹
 
@@ -402,12 +431,12 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Radiation Dose
+### Radiation Dose
 
-| Name    | ASCII Symbol | Unicode Symbol | Prefixes | Systems |
-|---------|--------------|----------------|----------|---------|
-| gray    | `Gy`         |                | all      | SI      |
-| sievert | `Sv`         |                | all      | SI      |
+| Name    | ASCII Symbol | Unicode Symbol | Prefixes    | Systems |
+|---------|--------------|----------------|-------------|---------|
+| gray    | `Gy`         |                | all metric  | SI      |
+| sievert | `Sv`         |                | all metric  | SI      |
 
 **Note:** Gray measures absorbed dose; sievert measures equivalent dose. Both have dimension L²·T⁻².
 
@@ -417,26 +446,26 @@ multiple of 3. That's all of them except for c, d, da, and h.
 
 ---
 
-## Data
+### Data
 
-| Name    | ASCII Symbol | Unicode Symbol | Prefixes        | Systems                |
-|---------|--------------|----------------|-----------------|------------------------|
-| bit     | `b`          |                | metric + binary | Common                 |
-| byte    | `B`          |                | metric + binary | Common                 |
+| Name    | ASCII Symbol | Unicode Symbol | Prefixes                | Systems |
+|---------|--------------|----------------|-------------------------|---------|
+| bit     | `b`          |                | large metric and binary | Common  |
+| byte    | `B`          |                | large metric and binary | Common  |
 
 **See:** [Data class documentation](QuantityType/Data.md)
 
 ---
 
-## Dimensionless
+### Dimensionless
 
-| Name               | ASCII Symbol | Unicode Symbol | Prefixes        | Systems                |
-|--------------------|--------------|----------------|-----------------|------------------------|
-| scalar             | *(empty)*    |                |                 | Common                 |
-| percentage         | `%`          |                |                 | Common                 |
-| parts per thousand | `ppt`        | `‰`            |                 | Common                 |
-| parts per million  | `ppm`        |                |                 | Common                 |
-| parts per billion  | `ppb`        |                |                 | Common                 |
+| Name               | ASCII Symbol | Unicode Symbol | Prefixes  | Systems  |
+|--------------------|--------------|----------------|-----------|----------|
+| scalar             | *(empty)*    |                |           | Common   |
+| percentage         | `%`          |                |           | Common   |
+| parts per thousand | `ppt`        | `‰`            |           | Common   |
+| parts per million  | `ppm`        |                |           | Common   |
+| parts per billion  | `ppb`        |                |           | Common   |
 
 **See:** [Dimensionless class documentation](QuantityType/Dimensionless.md)
 

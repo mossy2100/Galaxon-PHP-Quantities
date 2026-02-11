@@ -131,10 +131,10 @@ These methods combine two conversions to create a new conversion path. The four 
 public function combineSequential(self $other): self
 ```
 
-Combine two conversions in sequence: A->B and B->C to get A->C.
+Combine two conversions in sequence: A→B and B→C to get A→C.
 
 **Parameters:**
-- `$other` (self) - The second conversion (B->C)
+- `$other` (self) - The second conversion (B→C)
 
 **Returns:**
 - `self` - A new Conversion from this source to other's destination
@@ -156,10 +156,10 @@ echo $ftToCm->factor->value; // 30.48
 public function combineConvergent(self $other): self
 ```
 
-Combine two conversions that share a destination: A->C and B->C to get A->B.
+Combine two conversions that share a destination: A→C and B→C to get A→B.
 
 **Parameters:**
-- `$other` (self) - The second conversion (B->C)
+- `$other` (self) - The second conversion (B→C)
 
 **Returns:**
 - `self` - A new Conversion from this source to other's source
@@ -181,10 +181,10 @@ echo $ftToYd->factor->value; // 0.333...
 public function combineDivergent(self $other): self
 ```
 
-Combine two conversions that share a source: C->A and C->B to get A->B.
+Combine two conversions that share a source: C→A and C→B to get A→B.
 
 **Parameters:**
-- `$other` (self) - The second conversion (C->B)
+- `$other` (self) - The second conversion (C→B)
 
 **Returns:**
 - `self` - A new Conversion from this destination to other's destination
@@ -206,10 +206,10 @@ echo $ftToYd->factor->value; // 0.333...
 public function combineOpposite(self $other): self
 ```
 
-Combine two conversions in opposite directions: C->A and B->C to get A->B.
+Combine two conversions in opposite directions: C→A and B→C to get A→B.
 
 **Parameters:**
-- `$other` (self) - The second conversion (B->C)
+- `$other` (self) - The second conversion (B→C)
 
 **Returns:**
 - `self` - A new Conversion from this destination to other's source

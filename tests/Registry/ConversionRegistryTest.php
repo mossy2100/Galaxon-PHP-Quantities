@@ -571,7 +571,7 @@ final class ConversionRegistryTest extends TestCase
     public function testLoadConversionsSkipsUnknownSrcUnit(): void
     {
         // Register a fixture quantity type whose conversions reference an unknown src unit.
-        QuantityTypeRegistry::add(name: 'badsrc', dimension: 'L9', siUnitSymbol: 'm', class: UnknownSrcQuantity::class);
+        QuantityTypeRegistry::add(name: 'badsrc', dimension: 'L9', class: UnknownSrcQuantity::class);
 
         // Clear conversion registry and reload.
         ConversionRegistry::clearByDimension('L9');
@@ -594,7 +594,6 @@ final class ConversionRegistryTest extends TestCase
         QuantityTypeRegistry::add(
             name: 'baddest',
             dimension: 'L8',
-            siUnitSymbol: 'm',
             class: UnknownDestQuantity::class
         );
 

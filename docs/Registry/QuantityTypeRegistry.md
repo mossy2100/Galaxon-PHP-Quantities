@@ -12,7 +12,6 @@ The `QuantityTypeRegistry` provides mapping between:
 
 - Dimension codes (e.g., 'L', 'M', 'T-2L2M')
 - Quantity names (e.g., 'length', 'mass', 'energy')
-- SI unit symbols (e.g., 'm', 'kg', 'J')
 - PHP classes (e.g., `Length::class`, `Mass::class`, `Energy::class`)
 
 This allows `Quantity::create()` to instantiate the appropriate subclass based on dimensional analysis.
@@ -23,25 +22,25 @@ This allows `Quantity::create()` to instantiate the appropriate subclass based o
 
 The registry includes all standard physical quantities:
 
-| Name | Dimension | SI Unit | Class |
-|------|-----------|---------|-------|
-| dimensionless | 1 | *(empty)* | `Dimensionless` |
-| length | L | m | `Length` |
-| mass | M | kg | `Mass` |
-| time | T | s | `Time` |
-| electric current | I | A | `ElectricCurrent` |
-| temperature | H | K | `Temperature` |
-| amount of substance | N | mol | `AmountOfSubstance` |
-| luminous intensity | J | cd | `LuminousIntensity` |
-| angle | A | rad | `Angle` |
-| area | L² | m² | `Area` |
-| volume | L³ | m³ | `Volume` |
-| velocity | T⁻¹L | m/s | `Velocity` |
-| frequency | T⁻¹ | Hz | `Frequency` |
-| force | T⁻²LM | N | `Force` |
-| energy | T⁻²L²M | J | `Energy` |
-| power | T⁻³L²M | W | `Power` |
-| *...and more* | | | |
+| Name | Dimension | Class |
+|------|-----------|-------|
+| dimensionless | 1 | `Dimensionless` |
+| length | L | `Length` |
+| mass | M | `Mass` |
+| time | T | `Time` |
+| electric current | I | `ElectricCurrent` |
+| temperature | H | `Temperature` |
+| amount of substance | N | `AmountOfSubstance` |
+| luminous intensity | J | `LuminousIntensity` |
+| angle | A | `Angle` |
+| area | L² | `Area` |
+| volume | L³ | `Volume` |
+| velocity | T⁻¹L | `Velocity` |
+| frequency | T⁻¹ | `Frequency` |
+| force | T⁻²LM | `Force` |
+| energy | T⁻²L²M | `Energy` |
+| power | T⁻³L²M | `Power` |
+| *...and more* | | |
 
 ---
 
@@ -55,9 +54,9 @@ Get a quantity type by its dimension code.
 
 ```php
 $qtyType = QuantityTypeRegistry::getByDimension('L');
-echo $qtyType->name;         // 'length'
-echo $qtyType->siUnitSymbol; // 'm'
-echo $qtyType->class;        // 'Galaxon\Quantities\QuantityType\Length'
+echo $qtyType->name;      // 'length'
+echo $qtyType->dimension; // 'L'
+echo $qtyType->class;     // 'Galaxon\Quantities\QuantityType\Length'
 ```
 
 #### `static getByName(string $name): ?QuantityType`
@@ -66,8 +65,8 @@ Get a quantity type by its name (case-insensitive).
 
 ```php
 $qtyType = QuantityTypeRegistry::getByName('energy');
-echo $qtyType->dimension;    // 'T-2L2M'
-echo $qtyType->siUnitSymbol; // 'J'
+echo $qtyType->dimension; // 'T-2L2M'
+echo $qtyType->class;     // 'Galaxon\Quantities\QuantityType\Energy'
 ```
 
 #### `static getByClass(string $class): ?QuantityType`
@@ -102,7 +101,7 @@ $classes = QuantityTypeRegistry::getClasses();
 
 ### Modification Methods
 
-#### `static add(string $name, string $dimension, string $siUnitSymbol, ?string $class): void`
+#### `static add(string $name, string $dimension, ?string $class): void`
 
 Register a new quantity type.
 
@@ -110,7 +109,6 @@ Register a new quantity type.
 QuantityTypeRegistry::add(
     'jerk',
     'T-3L',
-    'm/s3',
     Jerk::class
 );
 ```
@@ -165,7 +163,7 @@ class Jerk extends Quantity
 }
 
 // Register it
-QuantityTypeRegistry::add('jerk', 'T-3L', 'm/s3', Jerk::class);
+QuantityTypeRegistry::add('jerk', 'T-3L', Jerk::class);
 
 // Now Quantity::create() will return Jerk for dimension T-3L
 $jerk = Quantity::create(1, 'm/s3');

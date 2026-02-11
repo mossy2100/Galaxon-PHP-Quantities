@@ -4,10 +4,10 @@ Represents a compound unit composed of one or more unit terms.
 
 ## Overview
 
-The `DerivedUnit` class represents compound units like 'kg*m/s2' (newton) or 'J/(mol*K)' (molar heat capacity). It maintains a collection of `UnitTerm` objects, each representing a unit with its prefix and exponent.
+The `DerivedUnit` class represents compound units like 'kg\*m/s²' (newton) or 'J/(mol\*K)' (molar heat capacity). It maintains a collection of `UnitTerm` objects, each representing a unit with its prefix and exponent.
 
 Key behaviors:
-- Unit terms with the same base unit are automatically combined (e.g., km3 * km-1 = km2)
+- Unit terms with the same base unit are automatically combined (e.g., km³ * km⁻¹ = km²)
 - Supports parsing from strings in various formats
 - Provides both ASCII and Unicode symbol representations
 - Implements `UnitInterface` for consistent handling
@@ -17,7 +17,7 @@ Key behaviors:
 - Automatic term combination for like units
 - Multiple parsing formats (multiplication, division, parentheses)
 - Dimension code calculation from component terms
-- Immutable transformations (inv, pow, toSi)
+- Immutable transformations (inv, pow, toSiBase)
 - Equatable via the `Equatable` trait
 
 ## Properties
@@ -52,7 +52,7 @@ The ASCII representation of the unit (e.g., 'kg*m/s2'). Uses asterisk for multip
 public string $unicodeSymbol { get; }
 ```
 
-The Unicode representation of the unit (e.g., 'kg*m*s-2'). Uses middle dot for multiplication and superscript exponents.
+The Unicode representation of the unit (e.g., 'kg⋅m⋅s⁻²'). Uses dot operator (⋅) for multiplication and superscript exponents.
 
 ### multiplier
 
@@ -60,7 +60,7 @@ The Unicode representation of the unit (e.g., 'kg*m*s-2'). Uses middle dot for m
 public float $multiplier { get; }
 ```
 
-The combined multiplier from all unit term prefixes, accounting for exponents. For example, km2*ms-1 would have multiplier 10002 * 0.001-1 = 1e6 * 1000 = 1e9.
+The combined multiplier from all unit term prefixes, accounting for exponents. For example, km²⋅ms⁻¹ would have multiplier 1000² × 0.001⁻¹ = 1e6 × 1000 = 1e9.
 
 ### firstUnitTerm
 
@@ -137,7 +137,7 @@ public static function parse(string $symbol): self
 Parse a string into a DerivedUnit.
 
 **Parameters:**
-- `$symbol` (string) - The unit symbol (e.g., 'm', 'kg*m/s2', 'J/(mol*K)')
+- `$symbol` (string) - The unit symbol (e.g., 'm', 'kg\*m/s2', 'J/(mol\*K)')
 
 **Returns:**
 - `self` - The parsed DerivedUnit
@@ -184,32 +184,43 @@ Check if all unit terms belong to the SI system.
 **Returns:**
 - `bool` - True if all units are SI units
 
-### hasPrefixes()
+### isBase()
 
 ```php
-public function hasPrefixes(): bool
+public function isBase(): bool
 ```
 
-Check if any unit term has a prefix.
+Check if all unit terms are base units (single-dimension units, not expandable).
 
 **Returns:**
-- `bool` - True if at least one term has a prefix
+- `bool` - True if all units are base units. False if dimensionless.
 
-### hasExpansion()
+### isSiBase()
 
 ```php
-public function hasExpansion(): bool
+public function isSiBase(): bool
 ```
 
-Check if any unit term has an expansion (is a named derived unit like N, J, Pa).
+Check if all unit terms are SI base units (e.g., m, kg, s, A, K, cd, mol, rad, B, XAU).
+
+**Returns:**
+- `bool` - True if all units are SI base units. False if dimensionless.
+
+### isExpandable()
+
+```php
+public function isExpandable(): bool
+```
+
+Check if any unit term is expandable (is a named derived unit like N, J, Pa).
 
 **Returns:**
 - `bool` - True if at least one term is expandable
 
-### hasMergeableUnits()
+### isMergeable()
 
 ```php
-public function hasMergeableUnits(): bool
+public function isMergeable(): bool
 ```
 
 Check if any two unit terms share the same dimension and could be merged.
@@ -220,11 +231,22 @@ Check if any two unit terms share the same dimension and could be merged.
 **Examples:**
 ```php
 $mixed = DerivedUnit::parse('m*ft');
-$mixed->hasMergeableUnits(); // true (both are length)
+$mixed->isMergeable(); // true (both are length)
 
 $velocity = DerivedUnit::parse('m/s');
-$velocity->hasMergeableUnits(); // false (different dimensions)
+$velocity->isMergeable(); // false (different dimensions)
 ```
+
+### hasPrefixes()
+
+```php
+public function hasPrefixes(): bool
+```
+
+Check if any unit term has a prefix.
+
+**Returns:**
+- `bool` - True if at least one term has a prefix
 
 ## Transformation Methods
 
@@ -266,13 +288,13 @@ $area = $length->pow(2);  // m2
 $volume = $length->pow(3); // m3
 ```
 
-### toSi()
+### toSiBase()
 
 ```php
-public function toSi(): self
+public function toSiBase(): self
 ```
 
-Convert the DerivedUnit to its SI equivalent.
+Convert the DerivedUnit to its SI base unit equivalent. This includes the special units designated as SI base for this system: rad, B, and XAU.
 
 **Returns:**
 - `self` - A new DerivedUnit with SI base units
@@ -283,8 +305,8 @@ Convert the DerivedUnit to its SI equivalent.
 
 **Examples:**
 ```php
-$imperial = DerivedUnit::parse('ft');
-$si = $imperial->toSi(); // m
+$force = DerivedUnit::parse('N');
+$base = $force->toSiBase(); // kg⋅m⋅s⁻²
 ```
 
 ### removePrefixes()
@@ -333,6 +355,14 @@ Remove a unit term.
 **Parameters:**
 - `$unitTermToRemove` (UnitTerm) - The unit term to remove
 
+### sortUnitTerms()
+
+```php
+public function sortUnitTerms(): void
+```
+
+Sort the unit terms into canonical order. Called automatically by `addUnitTerm()`.
+
 ## Comparison Methods
 
 ### equal()
@@ -367,7 +397,7 @@ Format the derived unit as a string.
 
 **Behavior:**
 - ASCII uses '*' for multiplication and digit exponents
-- Unicode uses dot for multiplication and superscript exponents
+- Unicode uses dot operator (⋅) for multiplication and superscript exponents
 - Negative exponents in denominator are shown as positive after '/'
 - Multiple denominator terms use parentheses: `J/(mol*K)`
 
@@ -398,8 +428,8 @@ $newton = new DerivedUnit([
 ]);
 
 echo $newton->asciiSymbol;   // 'kg*m/s2'
-echo $newton->unicodeSymbol; // 'kg*m*s-2'
-echo $newton->dimension;     // 'MLT-2'
+echo $newton->unicodeSymbol; // 'kg⋅m⋅s⁻²'
+echo $newton->dimension;     // 'T-2LM'
 ```
 
 ### Parsing and Validation
@@ -417,7 +447,7 @@ if ($unit1->isSi()) {
     echo "Unit is SI compatible";
 }
 
-if ($unit2->hasExpansion()) {
+if ($unit2->isExpandable()) {
     echo "Unit can be expanded to base units";
 }
 ```
