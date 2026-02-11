@@ -920,7 +920,8 @@ final class UnitTermTest extends TestCase
     {
         $matches = UnitTerm::getBySymbol('xyz');
 
-        $this->assertIsArray($matches); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($matches);
         $this->assertEmpty($matches);
     }
 
@@ -931,7 +932,8 @@ final class UnitTermTest extends TestCase
     {
         $matches = UnitTerm::getBySymbol('s');
 
-        $this->assertIsArray($matches); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($matches);
         $this->assertNotEmpty($matches);
 
         foreach ($matches as $match) {

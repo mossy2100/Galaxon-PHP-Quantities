@@ -136,6 +136,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
+        // @phpstan-ignore assign.propertyType
         $qtyType->class = stdClass::class;
     }
 
@@ -162,6 +163,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
+        // @phpstan-ignore assign.propertyType
         $qtyType->class = 'NonExistent\\FakeClass';
     }
 
@@ -173,6 +175,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
+        // @phpstan-ignore argument.type
         new QuantityType('test', 'L9', 'x', stdClass::class);
     }
 

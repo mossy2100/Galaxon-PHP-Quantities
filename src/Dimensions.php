@@ -47,7 +47,7 @@ class Dimensions
      * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
      * @see https://en.wikipedia.org/wiki/Dimensional_analysis
      *
-     * @var array<string, array{name: string, siUnitSymbol: string}>
+     * @var array<string, array{name: string, siBaseUnitSymbol: string}>
      */
     public const array DIMENSION_CODES = [
         'M' => [

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Registry;
 
+use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Conversion;
 use Galaxon\Quantities\Registry\ConversionRegistry;
@@ -42,7 +43,8 @@ final class ConversionRegistryTest extends TestCase
     {
         $result = ConversionRegistry::getByDimension('L');
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
     }
 
     /**
@@ -450,6 +452,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Re-initialize by accessing the registry.
         $result = ConversionRegistry::getByDimension('L');
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($result);
     }
 
@@ -553,7 +556,7 @@ final class ConversionRegistryTest extends TestCase
      */
     public function testGetExpansionThrowsForUnknownSymbol(): void
     {
-        $this->expectException(\DomainException::class);
+        $this->expectException(DomainException::class);
 
         ConversionRegistry::getExpansion('xyz');
     }
@@ -568,12 +571,7 @@ final class ConversionRegistryTest extends TestCase
     public function testLoadConversionsSkipsUnknownSrcUnit(): void
     {
         // Register a fixture quantity type whose conversions reference an unknown src unit.
-        QuantityTypeRegistry::add(
-            name: 'badsrc',
-            dimension: 'L9',
-            siUnitSymbol: 'm',
-            class: UnknownSrcQuantity::class,
-        );
+        QuantityTypeRegistry::add(name: 'badsrc', dimension: 'L9', siUnitSymbol: 'm', class: UnknownSrcQuantity::class);
 
         // Clear conversion registry and reload.
         ConversionRegistry::clearByDimension('L9');
@@ -597,7 +595,7 @@ final class ConversionRegistryTest extends TestCase
             name: 'baddest',
             dimension: 'L8',
             siUnitSymbol: 'm',
-            class: UnknownDestQuantity::class,
+            class: UnknownDestQuantity::class
         );
 
         // Clear conversion registry and reload.
@@ -650,6 +648,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Re-initialize by accessing the registry.
         $result = ConversionRegistry::getByDimension('L');
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($result);
     }
 

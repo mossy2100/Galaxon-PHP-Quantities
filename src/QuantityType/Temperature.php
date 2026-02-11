@@ -11,6 +11,7 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 use Galaxon\Quantities\UnitInterface;
+use Galaxon\Quantities\UnitTerm;
 use Override;
 
 /**
@@ -222,6 +223,7 @@ class Temperature extends Quantity
      */
     private static function isPrefixedKelvin(DerivedUnit $unit): bool
     {
+        /** @var UnitTerm $unitTerm */
         $unitTerm = $unit->firstUnitTerm;
         return $unitTerm->unit->asciiSymbol === 'K' && $unitTerm->prefix !== null;
     }

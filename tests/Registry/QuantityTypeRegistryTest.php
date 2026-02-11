@@ -32,7 +32,8 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         $result = QuantityTypeRegistry::getAll();
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
     }
 
     /**
@@ -334,7 +335,7 @@ final class QuantityTypeRegistryTest extends TestCase
 
         // Verify the class was set.
         $result = QuantityTypeRegistry::getByDimension($dimension);
-        $this->assertSame(TestQuantity::class, $result->class);
+        $this->assertSame(TestQuantity::class, $result?->class);
     }
 
     /**
@@ -359,7 +360,8 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         $classes = QuantityTypeRegistry::getClasses();
 
-        $this->assertIsArray($classes); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($classes);
         $this->assertNotEmpty($classes);
 
         // Verify all elements are class strings.

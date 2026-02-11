@@ -27,7 +27,8 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getAll();
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
     }
 
     /**
@@ -135,7 +136,8 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getByDimension('L');
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
         $this->assertNotEmpty($result);
 
         foreach ($result as $unit) {
@@ -160,7 +162,8 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getByDimension('X9');
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
 
@@ -175,7 +178,8 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getAllSymbols();
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
 
         foreach ($result as $symbol) {
             $this->assertIsString($symbol);

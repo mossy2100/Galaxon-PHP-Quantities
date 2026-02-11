@@ -90,7 +90,8 @@ final class PrefixRegistryTest extends TestCase
     {
         $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_METRIC);
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
         $this->assertNotEmpty($result);
         $this->assertContainsOnlyInstancesOf(Prefix::class, $result);
     }

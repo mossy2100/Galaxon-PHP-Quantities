@@ -412,7 +412,8 @@ final class UnitTest extends TestCase
 
         $prefixes = $unit->allowedPrefixes;
 
-        $this->assertIsArray($prefixes); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($prefixes);
         $this->assertNotEmpty($prefixes);
     }
 
@@ -826,7 +827,8 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
-        $this->assertIsArray($symbols); // @phpstan-ignore method.alreadyNarrowedType
+        // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($symbols);
         $this->assertContains('m', $symbols);
     }
 
