@@ -59,12 +59,12 @@ Remove a conversion from the registry.
 ConversionRegistry::remove($conversion);
 ```
 
-#### `static loadConversions(System $system): void`
+#### `static loadSystem(System $system): void`
 
 Load conversions for a measurement system. Iterates through all conversion definitions and adds any where at least one unit belongs to the specified system. Also loads expansion conversions for expandable units in the system.
 
 ```php
-ConversionRegistry::loadConversions(System::Imperial);
+ConversionRegistry::loadSystem(System::Imperial);
 ```
 
 #### `static reset(): void`
@@ -100,16 +100,6 @@ Check if a conversion exists.
 ```php
 if (ConversionRegistry::has('L', 'm', 'ft')) {
     // Direct conversion available
-}
-```
-
-#### `static hasConversion(Conversion $conversion): bool`
-
-Check if a Conversion object exists in the registry.
-
-```php
-if (ConversionRegistry::hasConversion($conversion)) {
-    // Conversion is registered
 }
 ```
 

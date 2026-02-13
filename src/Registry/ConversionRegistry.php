@@ -16,7 +16,7 @@ use Galaxon\Quantities\System;
  * Registry for unit conversions.
  *
  * Stores and retrieves conversions between units, organized by dimension.
- * Conversions are loaded per-system via loadConversions().
+ * Conversions are loaded per-system via loadSystem().
  */
 class ConversionRegistry
 {
@@ -94,9 +94,9 @@ class ConversionRegistry
     }
 
     /**
-     * Load conversions for a specific measurement system.
+     * Load all conversions for a specific measurement system.
      *
-     * Iterates through all conversion definitions and adds anywhere at least one unit belongs to the specified system.
+     * Iterates through all conversion definitions and adds any where at least one unit belongs to the specified system.
      * Both units must be known (in the registry).
      *
      * @param System $system The measurement system to load conversions for.
@@ -104,9 +104,9 @@ class ConversionRegistry
      * @throws DomainException If the dimensions of the units in a conversion definition don't match or the factor is
      * not positive.
      */
-    public static function loadConversions(System $system): void
+    public static function loadSystem(System $system): void
     {
-        foreach (self::getAllConversionDefinitions() as [$srcSymbol, $destSymbol, $factor]) {
+        foreach (self::getAllDefinitions() as [$srcSymbol, $destSymbol, $factor]) {
             // Try to get the source unit.
             try {
                 $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
@@ -221,20 +221,6 @@ class ConversionRegistry
         return isset(self::$conversions[$dimension][$srcUnitSymbol][$destUnitSymbol]);
     }
 
-    /**
-     * Check if a conversion exists.
-     *
-     * @param Conversion $conversion The conversion to check.
-     * @return bool If the conversion exists in the registry.
-     */
-    public static function hasConversion(Conversion $conversion): bool
-    {
-        self::init();
-        assert(self::$conversions !== null);
-
-        return self::has($conversion->dimension, $conversion->srcUnit->asciiSymbol, $conversion->destUnit->asciiSymbol);
-    }
-
     // endregion
 
     // region Private static helper methods
@@ -255,7 +241,7 @@ class ConversionRegistry
             // Get the loaded systems of units.
             $systems = UnitRegistry::getLoadedSystems();
             foreach ($systems as $system) {
-                self::loadConversions($system);
+                self::loadSystem($system);
             }
         }
     }
@@ -265,7 +251,7 @@ class ConversionRegistry
      *
      * @return list<array{string, string, float}> Array of [srcSymbol, destSymbol, factor] tuples.
      */
-    private static function getAllConversionDefinitions(): array
+    private static function getAllDefinitions(): array
     {
         $definitions = [];
 

@@ -108,7 +108,7 @@ class UnitRegistry
 
         // Loop through the units, adding all its valid symbols.
         foreach (self::$units as $unit) {
-            $allSymbols = array_merge($allSymbols, $unit->symbols);
+            $allSymbols = array_merge($allSymbols, array_keys($unit->symbols));
         }
 
         return $allSymbols;
@@ -173,7 +173,7 @@ class UnitRegistry
         $existingSymbols = self::getAllSymbols();
 
         // Check if the new unit's symbols conflict with existing ones.
-        foreach ($unit->symbols as $symbol) {
+        foreach ($unit->symbols as $symbol => $details) {
             if (in_array($symbol, $existingSymbols, true)) {
                 throw new DomainException("The symbol '$symbol' for $name is already being used by another unit.");
             }
@@ -237,46 +237,33 @@ class UnitRegistry
             return;
         }
 
-        // Loop through all QuantityType classes and add any units belonging to the specified system.
-        foreach (QuantityTypeRegistry::getAll() as $qtyType) {
-            $qtyTypeClass = $qtyType->class;
-            assert($qtyTypeClass === null || is_subclass_of($qtyTypeClass, Quantity::class));
-
-            // Skip quantity types without a class.
-            if ($qtyTypeClass === null) {
+        // Loop through all unit definitions and add any belonging to the specified system.
+        foreach (self::getAllDefinitions() as $name => $definition) {
+            // Only load units for the specified system.
+            $unitSystems = $definition['systems'] ?? [];
+            if (!in_array($system, $unitSystems, true)) {
                 continue;
             }
 
-            // Get units from the class.
-            $units = $qtyTypeClass::getUnitDefinitions();
-
-            foreach ($units as $name => $definition) {
-                // Only load units for the specified system.
-                $unitSystems = $definition['systems'] ?? [];
-                if (!in_array($system, $unitSystems, true)) {
-                    continue;
-                }
-
-                // Add the unit. If it's already in there, ignore it.
-                self::add(
-                    $name,
-                    $definition['asciiSymbol'],
-                    $definition['unicodeSymbol'] ?? null,
-                    $qtyType->dimension,
-                    $definition['prefixGroup'] ?? 0,
-                    $definition['alternateSymbol'] ?? null,
-                    $unitSystems,
-                    $definition['expansionUnitSymbol'] ?? null,
-                    $definition['expansionValue'] ?? null
-                );
-            }
+            // Add the unit. If it's already in there, ignore it.
+            self::add(
+                $name,
+                $definition['asciiSymbol'],
+                $definition['unicodeSymbol'] ?? null,
+                $definition['dimension'],
+                $definition['prefixGroup'] ?? 0,
+                $definition['alternateSymbol'] ?? null,
+                $unitSystems,
+                $definition['expansionUnitSymbol'] ?? null,
+                $definition['expansionValue'] ?? null
+            );
         }
 
         // Keep track of which systems have been loaded.
         self::$loadedSystems[] = $system;
 
         // Load any conversions involving these units.
-        ConversionRegistry::loadConversions($system);
+        ConversionRegistry::loadSystem($system);
     }
 
     // endregion
@@ -314,6 +301,36 @@ class UnitRegistry
             self::loadSystem(System::SiAccepted);
             self::loadSystem(System::Common);
         }
+    }
+
+    /**
+     * Gather all unit definitions from all QuantityType classes.
+     *
+     * Each definition is augmented with the dimension from its QuantityType.
+     *
+     * @return array<string, array{asciiSymbol: string, dimension: string, ...}>
+     */
+    private static function getAllDefinitions(): array
+    {
+        $definitions = [];
+
+        foreach (QuantityTypeRegistry::getAll() as $qtyType) {
+            $qtyTypeClass = $qtyType->class;
+            assert($qtyTypeClass === null || is_subclass_of($qtyTypeClass, Quantity::class));
+
+            // Skip quantity types without a class.
+            if ($qtyTypeClass === null) {
+                continue;
+            }
+
+            // Collect unit definitions, injecting the dimension.
+            foreach ($qtyTypeClass::getUnitDefinitions() as $name => $definition) {
+                $definition['dimension'] = $qtyType->dimension;
+                $definitions[$name] = $definition;
+            }
+        }
+
+        return $definitions;
     }
 
     // endregion

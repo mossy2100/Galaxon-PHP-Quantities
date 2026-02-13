@@ -19,7 +19,7 @@ The class includes:
 - Type-safe access to physical constants
 - Lazy instantiation with caching
 - Lookup by symbol via `get()`
-- Computed derived constants (e.g., reduced Planck constant = h / 2pi)
+- Computed derived constants (e.g., reduced Planck constant = h / 2π)
 
 ## SI Defining Constants
 
@@ -235,7 +235,7 @@ The molar gas constant (R = NA \* k).
 public static function stefanBoltzmann(): Quantity
 ```
 
-The Stefan-Boltzmann constant (sigma).
+The Stefan-Boltzmann constant (σ).
 
 **Returns:**
 - `Quantity` - 5.670374419e-8 W/(m²\*K⁴)
@@ -248,7 +248,7 @@ The Stefan-Boltzmann constant (sigma).
 public static function reducedPlanck(): Quantity
 ```
 
-The reduced Planck constant (hbar = h / 2pi).
+The reduced Planck constant (hbar = h / 2π).
 
 **Returns:**
 - `Quantity` - Computed from Planck constant with full precision

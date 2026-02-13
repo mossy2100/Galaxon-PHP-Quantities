@@ -126,41 +126,59 @@ class Unit implements UnitInterface
     /**
      * Symbol variants for this unit, including prefixed versions.
      *
-     * @var list<string> All symbol variants.
+     * Keyed by the full symbol string (e.g. 'km', 'μm', '°C'). Each value is a tuple of
+     * [unitSymbol, prefixSymbol] where prefixSymbol is null for unprefixed variants.
+     *
+     * Cached on first access.
+     *
+     * @var ?array<string, array{string, ?string}>
      */
-    public array $symbols {
+    public ?array $symbols = null {
         get {
+            // Return cached result if available.
+            if ($this->symbols !== null) {
+                return $this->symbols;
+            }
+
+            // Initialize result array.
+            $symbols = [];
+
             // Add ASCII symbol.
-            $symbols = [$this->asciiSymbol];
+            self::addSymbol($symbols, $this->asciiSymbol);
 
             // Add the Unicode symbol, if different.
             if ($this->unicodeSymbol !== $this->asciiSymbol) {
-                $symbols[] = $this->unicodeSymbol;
+                self::addSymbol($symbols, $this->unicodeSymbol);
             }
 
             // Add alternate symbol, if set and different.
-            if ($this->alternateSymbol !== null && $this->alternateSymbol !== $this->asciiSymbol) {
-                $symbols[] = $this->alternateSymbol;
+            if (
+                $this->alternateSymbol !== null &&
+                $this->alternateSymbol !== $this->asciiSymbol &&
+                $this->alternateSymbol !== $this->unicodeSymbol
+            ) {
+                self::addSymbol($symbols, $this->alternateSymbol);
             }
 
             // Add prefixed symbols.
             $prefixes = $this->allowedPrefixes;
             foreach ($prefixes as $prefix) {
                 // Add prefixed ASCII symbols.
-                $symbols[] = $prefix->asciiSymbol . $this->asciiSymbol;
+                self::addSymbol($symbols, $this->asciiSymbol, $prefix->asciiSymbol);
                 if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
-                    $symbols[] = $prefix->unicodeSymbol . $this->asciiSymbol;
+                    self::addSymbol($symbols, $this->asciiSymbol, $prefix->unicodeSymbol);
                 }
 
                 // Add prefixed Unicode symbols, if different.
                 if ($this->unicodeSymbol !== $this->asciiSymbol) {
-                    $symbols[] = $prefix->asciiSymbol . $this->unicodeSymbol;
+                    self::addSymbol($symbols, $this->unicodeSymbol, $prefix->asciiSymbol);
                     if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
-                        $symbols[] = $prefix->unicodeSymbol . $this->unicodeSymbol;
+                        self::addSymbol($symbols, $this->unicodeSymbol, $prefix->unicodeSymbol);
                     }
                 }
             }
 
+            $this->symbols = $symbols;
             return $symbols;
         }
     }
@@ -243,12 +261,6 @@ class Unit implements UnitInterface
         $this->expansionUnitSymbol = $expansionUnitSymbol;
         $this->expansionValue = $expansionValue ?? ($expansionUnitSymbol !== null ? 1.0 : null);
     }
-
-    // endregion
-
-    // region Accessors
-
-
 
     // endregion
 
@@ -445,6 +457,18 @@ class Unit implements UnitInterface
     public static function isValidUnicodeSymbol(string $symbol): bool
     {
         return (bool)preg_match('/^(' . self::RX_UNICODE_SYMBOL . ')$/iu', $symbol);
+    }
+
+
+    /**
+     * Helper method to add a symbol to the unit's symbol list.
+     *
+     * @param array &$symbols The array to add the symbol to.
+     * @param string $symbol The symbol to add.
+     * @param string|null $prefix The prefix for the symbol, if any.
+     */
+    private static function addSymbol(array &$symbols, string $symbol, ?string $prefix = null): void {
+        $symbols[$prefix . $symbol] = [$symbol, $prefix];
     }
 
     // endregion

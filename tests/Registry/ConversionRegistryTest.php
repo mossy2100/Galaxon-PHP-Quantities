@@ -457,43 +457,10 @@ final class ConversionRegistryTest extends TestCase
 
     // endregion
 
-    // region hasConversion() tests
+    // region loadSystem() tests
 
     /**
-     * Test hasConversion() returns true for existing conversion.
-     */
-    public function testHasConversionReturnsTrueForExisting(): void
-    {
-        $conversion = new Conversion('m', 'mm', 1000.0);
-        ConversionRegistry::add($conversion);
-
-        $result = ConversionRegistry::hasConversion($conversion);
-
-        $this->assertTrue($result);
-    }
-
-    /**
-     * Test hasConversion() returns false for non-existing conversion.
-     */
-    public function testHasConversionReturnsFalseForNonExisting(): void
-    {
-        // Use valid units but a conversion that doesn't exist.
-        $conversion = new Conversion('ft', 'km', 0.0003048);
-
-        // Remove it if it exists to ensure clean state.
-        ConversionRegistry::remove($conversion);
-
-        $result = ConversionRegistry::hasConversion($conversion);
-
-        $this->assertFalse($result);
-    }
-
-    // endregion
-
-    // region loadConversions() tests
-
-    /**
-     * Test loadConversions() skips entries where the source unit is unknown.
+     * Test loadSystem() skips entries where the source unit is unknown.
      */
     public function testLoadConversionsSkipsUnknownSrcUnit(): void
     {
@@ -502,7 +469,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Clear conversion registry and reload.
         ConversionRegistry::clearByDimension('L9');
-        ConversionRegistry::loadConversions(System::Si);
+        ConversionRegistry::loadSystem(System::Si);
 
         // The conversion from 'zzzsrc' (unknown) to 'm' should have been skipped.
         $this->assertFalse(ConversionRegistry::has('L9', 'zzzsrc', 'm'));
@@ -513,7 +480,7 @@ final class ConversionRegistryTest extends TestCase
     }
 
     /**
-     * Test loadConversions() skips entries where the destination unit is unknown.
+     * Test loadSystem() skips entries where the destination unit is unknown.
      */
     public function testLoadConversionsSkipsUnknownDestUnit(): void
     {
@@ -522,7 +489,7 @@ final class ConversionRegistryTest extends TestCase
 
         // Clear conversion registry and reload.
         ConversionRegistry::clearByDimension('L8');
-        ConversionRegistry::loadConversions(System::Si);
+        ConversionRegistry::loadSystem(System::Si);
 
         // The conversion from 'm' to 'zzzdest' (unknown) should have been skipped.
         $this->assertFalse(ConversionRegistry::has('L8', 'm', 'zzzdest'));

@@ -789,7 +789,7 @@ final class UnitTest extends TestCase
 
         // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($symbols);
-        $this->assertContains('m', $symbols);
+        $this->assertArrayHasKey('m', $symbols);
     }
 
     /**
@@ -807,8 +807,8 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
-        $this->assertContains('ohm', $symbols);
-        $this->assertContains('Ω', $symbols);
+        $this->assertArrayHasKey('ohm', $symbols);
+        $this->assertArrayHasKey('Ω', $symbols);
     }
 
     /**
@@ -827,8 +827,8 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
-        $this->assertContains('L', $symbols);
-        $this->assertContains('l', $symbols);
+        $this->assertArrayHasKey('L', $symbols);
+        $this->assertArrayHasKey('l', $symbols);
     }
 
     /**
@@ -847,10 +847,10 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
-        $this->assertContains('m', $symbols);
-        $this->assertContains('km', $symbols);
-        $this->assertContains('cm', $symbols);
-        $this->assertContains('mm', $symbols);
+        $this->assertArrayHasKey('m', $symbols);
+        $this->assertArrayHasKey('km', $symbols);
+        $this->assertArrayHasKey('cm', $symbols);
+        $this->assertArrayHasKey('mm', $symbols);
     }
 
     /**
@@ -870,12 +870,12 @@ final class UnitTest extends TestCase
         $symbols = $unit->symbols;
 
         // ASCII prefixed.
-        $this->assertContains('kohm', $symbols);
-        $this->assertContains('Mohm', $symbols);
+        $this->assertArrayHasKey('kohm', $symbols);
+        $this->assertArrayHasKey('Mohm', $symbols);
 
         // Unicode symbol prefixed.
-        $this->assertContains('kΩ', $symbols);
-        $this->assertContains('MΩ', $symbols);
+        $this->assertArrayHasKey('kΩ', $symbols);
+        $this->assertArrayHasKey('MΩ', $symbols);
     }
 
     // endregion

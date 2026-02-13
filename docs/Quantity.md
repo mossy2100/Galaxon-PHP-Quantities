@@ -4,9 +4,11 @@ Abstract base class for physical measurements with units.
 
 ## Overview
 
-The `Quantity` class provides a framework for creating strongly typed measurement classes (Length, Mass, Time, etc.) with automatic unit conversion, arithmetic operations, and comparison capabilities.
+The `Quantity` class provides a framework for creating strongly typed measurement classes (Length, Mass, Time, etc.) 
+with automatic unit conversion, arithmetic operations, and comparison capabilities.
 
-Quantities are immutable value objects combining a numeric value with a unit. All arithmetic and transformation operations return new instances.
+Quantities are immutable value objects combining a numeric value with a unit. All arithmetic and transformation 
+operations return new instances.
 
 ### Key Features
 

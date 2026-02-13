@@ -131,9 +131,13 @@ class UnitTerm implements UnitInterface
 
         // Allow for the prefix to be provided as a symbol.
         if (is_string($prefix)) {
-            $prefix = PrefixRegistry::getBySymbol($prefix);
-            if ($prefix === null) {
-                throw new DomainException("Prefix '$prefix' is unknown.");
+            if ($prefix === '') {
+                $prefix = null;
+            } else {
+                $prefix = PrefixRegistry::getBySymbol($prefix);
+                if ($prefix === null) {
+                    throw new DomainException("Prefix '$prefix' is unknown.");
+                }
             }
         }
 
@@ -172,26 +176,9 @@ class UnitTerm implements UnitInterface
     {
         // Look for any matching units.
         foreach (UnitRegistry::getAll() as $unit) {
-            // See if the unprefixed unit matches.
-            if (
-                $unit->asciiSymbol === $symbol ||
-                $unit->unicodeSymbol === $symbol ||
-                $unit->alternateSymbol === $symbol
-            ) {
-                return new self($unit);
-            }
-
-            // Loop through the prefixed units and see if any match.
-            // Alternate symbols aren't checked because they can't have prefixes.
-            foreach ($unit->allowedPrefixes as $prefix) {
-                if (
-                    $prefix->asciiSymbol . $unit->asciiSymbol === $symbol ||
-                    $prefix->asciiSymbol . $unit->unicodeSymbol === $symbol ||
-                    $prefix->unicodeSymbol . $unit->asciiSymbol === $symbol ||
-                    $prefix->unicodeSymbol . $unit->unicodeSymbol === $symbol
-                ) {
-                    return new self($unit, $prefix);
-                }
+            if (array_key_exists($symbol, $unit->symbols)) {
+                [$unitSymbol, $prefixSymbol] = $unit->symbols[$symbol];
+                return new self($unitSymbol, $prefixSymbol);
             }
         }
 

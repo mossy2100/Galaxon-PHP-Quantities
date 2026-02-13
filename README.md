@@ -2,7 +2,7 @@
 
 Physical measurement types with automatic unit conversion and prefix support.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](docs/SupportedUnits.md)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](docs/SupportedUnits.md)** | **[Examples](docs/Examples.md)**
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
@@ -304,7 +304,7 @@ be a stylistic choice (e.g. 'L').
 12. Use `cm3` for cubic centimetres, not `cc`.
 13. Use `km/h` for kilometres per hour, not `kph`.
 14. Use `mi/h` for miles per hour, not `mph`. 
-15. Use `u` as an ASCII alternative for `µ`, meaning 'micro', and not `mc`. e.g. Use `ug` as the ASCII alternative to `µg`, not `mcg`. 
+15. Use `u` as an ASCII alternative for `µ`, meaning 'micro', and not `mc`. e.g. use `ug` as the ASCII alternative to `µg`, not `mcg`. 
 
 All units have a "primary" symbol, which uses ASCII characters only, so they are easy to type.
 Therefore, you can use the following:
@@ -333,39 +333,39 @@ All quantity type classes extend `Quantity` and define their specific units and 
 
 | Class | Dimension | SI Unit | Description |
 |-------|-----------|---------|-------------|
-| [Acceleration](docs/QuantityType/Acceleration.md) | T⁻²L | m/s² | Rate of change of velocity. |
+| [Acceleration](docs/QuantityType/Acceleration.md) | T-2L | m/s² | Rate of change of velocity. |
 | [AmountOfSubstance](docs/QuantityType/AmountOfSubstance.md) | N | mol | SI base quantity for counting entities. |
 | [Angle](docs/QuantityType/Angle.md) | A | rad | Angular measurements with trig functions. |
-| [Area](docs/QuantityType/Area.md) | L² | m² | Two-dimensional extent. |
-| [Capacitance](docs/QuantityType/Capacitance.md) | T⁴I²L⁻²M⁻¹ | F | Ability to store electric charge. |
-| [CatalyticActivity](docs/QuantityType/CatalyticActivity.md) | T⁻¹N | kat | Rate of catalysis. |
-| [Conductance](docs/QuantityType/Conductance.md) | T³I²L⁻²M⁻¹ | S | Electrical conductance. |
+| [Area](docs/QuantityType/Area.md) | L2 | m² | Two-dimensional extent. |
+| [Capacitance](docs/QuantityType/Capacitance.md) | T4I2L-2M-1 | F | Ability to store electric charge. |
+| [CatalyticActivity](docs/QuantityType/CatalyticActivity.md) | T-1N | kat | Rate of catalysis. |
+| [Conductance](docs/QuantityType/Conductance.md) | T3I2L-2M-1 | S | Electrical conductance. |
 | [Data](docs/QuantityType/Data.md) | D | B | Digital storage with metric and binary prefixes. |
-| [Density](docs/QuantityType/Density.md) | L⁻³M | kg/m³ | Mass per unit volume. |
+| [Density](docs/QuantityType/Density.md) | L-3M | kg/m³ | Mass per unit volume. |
 | [Dimensionless](docs/QuantityType/Dimensionless.md) | 1 | — | Ratios, percentages, and pure numbers. |
 | [ElectricCharge](docs/QuantityType/ElectricCharge.md) | TI | C | Quantity of electricity. |
 | [ElectricCurrent](docs/QuantityType/ElectricCurrent.md) | I | A | SI base quantity for electric current. |
-| [Energy](docs/QuantityType/Energy.md) | T⁻²L²M | J | Capacity to do work. |
-| [Force](docs/QuantityType/Force.md) | T⁻²LM | N | Interaction causing acceleration. |
-| [Frequency](docs/QuantityType/Frequency.md) | T⁻¹ | Hz | Cycles per unit time. |
-| [Illuminance](docs/QuantityType/Illuminance.md) | L⁻²J | lx | Luminous flux per area. |
-| [Inductance](docs/QuantityType/Inductance.md) | T⁻²L²MI⁻² | H | Property opposing current change. |
+| [Energy](docs/QuantityType/Energy.md) | T-2L2M | J | Capacity to do work. |
+| [Force](docs/QuantityType/Force.md) | T-2LM | N | Interaction causing acceleration. |
+| [Frequency](docs/QuantityType/Frequency.md) | T-1 | Hz | Cycles per unit time. |
+| [Illuminance](docs/QuantityType/Illuminance.md) | L-2J | lx | Luminous flux per area. |
+| [Inductance](docs/QuantityType/Inductance.md) | T-2L2MI-2 | H | Property opposing current change. |
 | [Length](docs/QuantityType/Length.md) | L | m | SI base quantity for distance. |
 | [LuminousFlux](docs/QuantityType/LuminousFlux.md) | AJ | lm | Perceived light power. |
 | [LuminousIntensity](docs/QuantityType/LuminousIntensity.md) | J | cd | SI base quantity for luminous intensity. |
-| [MagneticFlux](docs/QuantityType/MagneticFlux.md) | T⁻²L²MI⁻¹ | Wb | Total magnetic field through surface. |
-| [MagneticFluxDensity](docs/QuantityType/MagneticFluxDensity.md) | T⁻²MI⁻¹ | T | Magnetic field strength. |
+| [MagneticFlux](docs/QuantityType/MagneticFlux.md) | T-2L2MI-1 | Wb | Total magnetic field through surface. |
+| [MagneticFluxDensity](docs/QuantityType/MagneticFluxDensity.md) | T-2MI-1 | T | Magnetic field strength. |
 | [Mass](docs/QuantityType/Mass.md) | M | kg | SI base quantity for mass. |
-| [Power](docs/QuantityType/Power.md) | T⁻³L²M | W | Rate of energy transfer. |
-| [Pressure](docs/QuantityType/Pressure.md) | T⁻²L⁻¹M | Pa | Force per unit area. |
-| [RadiationDose](docs/QuantityType/RadiationDose.md) | T⁻²L² | Gy, Sv | Absorbed and equivalent radiation dose. |
-| [Resistance](docs/QuantityType/Resistance.md) | T⁻³L²MI⁻² | Ω | Opposition to electric current. |
-| [SolidAngle](docs/QuantityType/SolidAngle.md) | A² | sr | Three-dimensional angular extent. |
+| [Power](docs/QuantityType/Power.md) | T-3L2M | W | Rate of energy transfer. |
+| [Pressure](docs/QuantityType/Pressure.md) | T-2L-1M | Pa | Force per unit area. |
+| [RadiationDose](docs/QuantityType/RadiationDose.md) | T-2L2 | Gy, Sv | Absorbed and equivalent radiation dose. |
+| [Resistance](docs/QuantityType/Resistance.md) | T-3L2MI-2 | Ω | Opposition to electric current. |
+| [SolidAngle](docs/QuantityType/SolidAngle.md) | A2 | sr | Three-dimensional angular extent. |
 | [Temperature](docs/QuantityType/Temperature.md) | H | K | SI base quantity with affine conversions. |
 | [Time](docs/QuantityType/Time.md) | T | s | SI base quantity for duration. |
-| [Velocity](docs/QuantityType/Velocity.md) | T⁻¹L | m/s | Rate of change of position. |
-| [Voltage](docs/QuantityType/Voltage.md) | T⁻³L²MI⁻¹ | V | Electric potential difference. |
-| [Volume](docs/QuantityType/Volume.md) | L³ | m³ | Three-dimensional extent. |
+| [Velocity](docs/QuantityType/Velocity.md) | T-1L | m/s | Rate of change of position. |
+| [Voltage](docs/QuantityType/Voltage.md) | T-3L2MI-1 | V | Electric potential difference. |
+| [Volume](docs/QuantityType/Volume.md) | L3 | m³ | Three-dimensional extent. |
 
 ### Registry Classes
 
@@ -425,7 +425,7 @@ For questions or suggestions, please [open an issue](https://github.com/mossy210
 
 - **Issues**: https://github.com/mossy2100/PHP-Quantities/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
-- **Examples**: See test files for comprehensive usage examples
+- **Examples**: See [Examples](docs/Examples.md) for real-world physics and engineering calculations
 
 ## Changelog
 
