@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
@@ -276,34 +276,35 @@ class Converter
         }
 
         // Initialize result components.
-        $expandedValue = $value;
-        $expandedUnit = new DerivedUnit();
+        $resultValue = $value;
+        $resultUnit = new DerivedUnit();
 
-        // Expand any units with expansions.
+        // Expand any unit terms with expansions.
         foreach ($unit->unitTerms as $unitTerm) {
-            $expansion = ConversionRegistry::getExpansion($unitTerm->unit->asciiSymbol);
+            // Get the expansion unit, if any.
+            $expansionUnit = $unitTerm->unit->expansionUnit;
 
             // If there is no expansion, add the unit term as-is.
-            if ($expansion === null) {
-                $expandedUnit->addUnitTerm($unitTerm);
+            if ($expansionUnit === null) {
+                $resultUnit->addUnitTerm($unitTerm);
                 continue;
             }
 
             // Multiply by the conversion factor modified by prefix and exponent.
-            $expandedValue *= ($expansion->factor->value * $unitTerm->prefixMultiplier) ** $unitTerm->exponent;
+            $resultValue *= ($unitTerm->unit->expansionValue * $unitTerm->prefixMultiplier) ** $unitTerm->exponent;
 
             // Add the unit terms from the expansion.
-            foreach ($expansion->destUnit->unitTerms as $expansionUnitTerm) {
+            foreach ($expansionUnit->unitTerms as $expansionUnitTerm) {
                 // Raise the expansion unit term to the exponent and add.
-                $expandedUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
+                $resultUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
             }
         }
 
         // Since a unit expansion can add different and new unit terms, we can end up with unmerged compatible units.
         // Merge compatible units if necessary.
-        [$expandedValue, $expandedUnit] = self::merge($expandedValue, $expandedUnit);
+        [$resultValue, $resultUnit] = self::merge($resultValue, $resultUnit);
 
-        return [$expandedValue, $expandedUnit];
+        return [$resultValue, $resultUnit];
     }
 
     /**
@@ -318,24 +319,24 @@ class Converter
     public static function merge(float $value, DerivedUnit $unit): array
     {
         // Check if there's anything to do.
-        if (!$unit->hasMergeableUnits()) {
+        if (!$unit->isMergeable()) {
             return [$value, $unit];
         }
 
         // Initialize result components.
-        $mergedValue = $value;
-        $mergedUnit = new DerivedUnit();
+        $resultValue = $value;
+        $resultUnit = new DerivedUnit();
 
         foreach ($unit->unitTerms as $thisUnitTerm) {
             // See if there is already a unit term with a unit with this dimension.
             $newUnitTerm1 = array_find(
-                $mergedUnit->unitTerms,
+                $resultUnit->unitTerms,
                 static fn (UnitTerm $ut) => $ut->unit->dimension === $thisUnitTerm->unit->dimension
             );
 
             // If no unit exists with this dimension, copy the existing one to the result.
             if ($newUnitTerm1 === null) {
-                $mergedUnit->addUnitTerm($thisUnitTerm);
+                $resultUnit->addUnitTerm($thisUnitTerm);
             } else {
                 // If the unexponentiated units are different, convert one to the other.
                 $unexponentiatedThisUnitTerm = $thisUnitTerm->removeExponent();
@@ -349,7 +350,7 @@ class Converter
                     );
 
                     // Multiply by the conversion factor raised to the exponent of the second unit term.
-                    $mergedValue *= $factor ** $thisUnitTerm->exponent;
+                    $resultValue *= $factor ** $thisUnitTerm->exponent;
                 }
 
                 // Create a second term with the same unit as the first, but the exponent of the second term.
@@ -357,12 +358,12 @@ class Converter
 
                 // Adding the second unit term will combine it with the first because they have the same
                 // unexponentiated symbol.
-                $mergedUnit->addUnitTerm($newUnitTerm2);
+                $resultUnit->addUnitTerm($newUnitTerm2);
             }
         }
 
         // Return the merged value and unit.
-        return [$mergedValue, $mergedUnit];
+        return [$resultValue, $resultUnit];
     }
 
     // endregion
@@ -462,11 +463,13 @@ class Converter
             return null;
         }
 
-        // Check they have the same exponent, and it's not equal to 1.
-        /** @var UnitTerm $srcUnitTerm */
         $srcUnitTerm = $srcUnit->firstUnitTerm;
-        /** @var UnitTerm $destUnitTerm */
+        assert($srcUnitTerm instanceof UnitTerm);
+
         $destUnitTerm = $destUnit->firstUnitTerm;
+        assert($destUnitTerm instanceof UnitTerm);
+
+        // Check they have the same exponent, and it's not equal to 1.
         if (
             $srcUnitTerm->exponent === 1 ||
             $destUnitTerm->exponent === 1 ||
@@ -729,8 +732,8 @@ class Converter
                         if (
                             $srcToMid !== null &&
                             $midToDest !== null &&
-                            $srcToMid->factor->isInteger() &&
-                            $midToDest->factor->isInteger()
+                            $srcToMid->factor->isExactInt() &&
+                            $midToDest->factor->isExactInt()
                         ) {
                             $newConversion = $srcToMid->combineSequential($midToDest);
                             ConversionRegistry::add($newConversion);
@@ -759,12 +762,19 @@ class Converter
     private function addMergedUnit(DerivedUnit $unit): void
     {
         // Check if there's anything to do.
-        if (!$unit->hasMergeableUnits()) {
+        if (!$unit->isMergeable()) {
             return;
         }
 
         // Calculate the merged value and unit.
         [$mergedValue, $mergedUnit] = self::merge(1, $unit);
+
+        // Double-check that the merged unit is different from the original unit.
+        if ($mergedUnit->equal($unit)) {
+            // @codeCoverageIgnoreStart
+            throw new LogicException("The merged unit '$mergedUnit' should be different from the original unit.");
+            // @codeCoverageIgnoreEnd
+        }
 
         // Add the merged unit to the Converter.
         $this->addUnit($mergedUnit);
@@ -792,6 +802,13 @@ class Converter
 
         // Calculate the expanded value and unit.
         [$expandedValue, $expandedUnit] = self::expand(1, $unit);
+
+        // Double-check that the expanded unit is different from the original unit.
+        if ($expandedUnit->equal($unit)) {
+            // @codeCoverageIgnoreStart
+            throw new LogicException("The expanded unit '$expandedUnit' should be different from the original unit.");
+            // @codeCoverageIgnoreEnd
+        }
 
         // Add the expanded unit to the Converter.
         $this->addUnit($expandedUnit);

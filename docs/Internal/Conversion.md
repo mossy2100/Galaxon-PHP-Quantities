@@ -230,7 +230,7 @@ echo $ftToYd->factor->value; // 0.333...
 ### Building a Conversion Chain
 
 ```php
-use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\Internal\Conversion;
 
 // Miles to kilometres via multiple steps
 $miToFt = new Conversion('mi', 'ft', 5280);
@@ -251,7 +251,7 @@ echo $miToKm->factor->value; // 1.609344
 ### Area Conversion
 
 ```php
-use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\Internal\Conversion;
 
 // Convert acres to square metres
 $acreToFt2 = new Conversion('acre', 'ft2', 43560);
@@ -266,4 +266,4 @@ echo $acreToM2->factor->value; // 4046.86...
 
 - **[Converter](Converter.md)** - Manages conversion paths between units
 - **[FloatWithError](FloatWithError.md)** - Tracks precision through operations
-- **[ConversionRegistry](Registry/ConversionRegistry.md)** - Stores registered conversions
+- **[ConversionRegistry](../Registry/ConversionRegistry.md)** - Stores registered conversions

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Registry;
 
-use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -491,78 +490,6 @@ final class ConversionRegistryTest extends TestCase
 
     // endregion
 
-    // region getExpansion() tests
-
-    /**
-     * Test getExpansion() returns a Conversion for an expandable unit.
-     */
-    public function testGetExpansionReturnsConversionForExpandableUnit(): void
-    {
-        $result = ConversionRegistry::getExpansion('N');
-
-        $this->assertInstanceOf(Conversion::class, $result);
-        $this->assertSame('N', $result->srcUnit->asciiSymbol);
-        // Destination should be base units (kg*m/s2).
-        $this->assertTrue($result->destUnit->isBase());
-    }
-
-    /**
-     * Test getExpansion() returns a Conversion for Hertz.
-     */
-    public function testGetExpansionReturnsConversionForHertz(): void
-    {
-        $result = ConversionRegistry::getExpansion('Hz');
-
-        $this->assertInstanceOf(Conversion::class, $result);
-        $this->assertSame('Hz', $result->srcUnit->asciiSymbol);
-        $this->assertTrue($result->destUnit->isBase());
-    }
-
-    /**
-     * Test getExpansion() returns null for a base SI unit.
-     */
-    public function testGetExpansionReturnsNullForBaseUnit(): void
-    {
-        $result = ConversionRegistry::getExpansion('m');
-
-        $this->assertNull($result);
-    }
-
-    /**
-     * Test getExpansion() returns null for a non-SI base unit.
-     */
-    public function testGetExpansionReturnsNullForNonSiBaseUnit(): void
-    {
-        $result = ConversionRegistry::getExpansion('ft');
-
-        $this->assertNull($result);
-    }
-
-    /**
-     * Test getExpansion() accepts a Unit object.
-     */
-    public function testGetExpansionAcceptsUnitObject(): void
-    {
-        $unit = UnitRegistry::getBySymbol('N');
-        $this->assertNotNull($unit);
-
-        $result = ConversionRegistry::getExpansion($unit);
-
-        $this->assertInstanceOf(Conversion::class, $result);
-    }
-
-    /**
-     * Test getExpansion() throws for unknown unit symbol.
-     */
-    public function testGetExpansionThrowsForUnknownSymbol(): void
-    {
-        $this->expectException(DomainException::class);
-
-        ConversionRegistry::getExpansion('xyz');
-    }
-
-    // endregion
-
     // region loadConversions() tests
 
     /**
@@ -571,7 +498,7 @@ final class ConversionRegistryTest extends TestCase
     public function testLoadConversionsSkipsUnknownSrcUnit(): void
     {
         // Register a fixture quantity type whose conversions reference an unknown src unit.
-        QuantityTypeRegistry::add(name: 'badsrc', dimension: 'L9', class: UnknownSrcQuantity::class);
+        QuantityTypeRegistry::add('badsrc', 'L9', UnknownSrcQuantity::class);
 
         // Clear conversion registry and reload.
         ConversionRegistry::clearByDimension('L9');
@@ -591,11 +518,7 @@ final class ConversionRegistryTest extends TestCase
     public function testLoadConversionsSkipsUnknownDestUnit(): void
     {
         // Register a fixture quantity type whose conversions reference an unknown dest unit.
-        QuantityTypeRegistry::add(
-            name: 'baddest',
-            dimension: 'L8',
-            class: UnknownDestQuantity::class
-        );
+        QuantityTypeRegistry::add('baddest', 'L8', UnknownDestQuantity::class);
 
         // Clear conversion registry and reload.
         ConversionRegistry::clearByDimension('L8');

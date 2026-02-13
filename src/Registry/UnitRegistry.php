@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Registry;
 
 use DomainException;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Unit;
 
 /**
  * Registry of known units.
@@ -49,6 +49,7 @@ class UnitRegistry
      * Get the Unit object matching the given symbol, or null if not found.
      *
      * Supports both the ASCII symbol and the Unicode symbol.
+     * Since unit symbols are required to be unique, this method can only match zero or one units.
      *
      * @param string $symbol The unit symbol to search for.
      * @return ?Unit The matching unit, or null if not found.
@@ -67,17 +68,17 @@ class UnitRegistry
     }
 
     /**
-     * Get all units matching the given dimension.
+     * Get all units belonging to the given system of units.
      *
-     * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
-     * @return array<string, Unit> Units keyed by name.
+     * @param System $system The system of units to match.
+     * @return list<Unit> Units belonging to the given system.
      */
-    public static function getByDimension(string $dimension): array
+    public static function getBySystem(System $system): array
     {
         self::init();
         assert(self::$units !== null);
 
-        return array_filter(self::$units, static fn ($unit) => $unit->dimension === $dimension);
+        return array_values(array_filter(self::$units, static fn (Unit $unit) => $unit->belongsToSystem($system)));
     }
 
     /**
@@ -123,11 +124,12 @@ class UnitRegistry
      * @param string $name The unit name (e.g. 'metre', 'gram').
      * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
      * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if same as ASCII.
-     * @param string $quantityType The quantity type (e.g. 'length', 'mass').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
      * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
      * @param list<System> $systems The measurement systems this unit belongs to.
+     * @param ?string $expansionUnitSymbol The unit symbol this unit expands to, or null if not expandable.
+     * @param ?float $expansionValue The conversion factor for the expansion, or null if not expandable.
      * @return Unit The newly created Unit object.
      * @throws DomainException If the name or symbol already exists.
      */
@@ -135,11 +137,12 @@ class UnitRegistry
         string $name,
         string $asciiSymbol,
         ?string $unicodeSymbol,
-        string $quantityType,
         string $dimension,
         int $prefixGroup = 0,
         ?string $alternateSymbol = null,
-        array $systems = []
+        array $systems = [],
+        ?string $expansionUnitSymbol = null,
+        ?float $expansionValue = null
     ): Unit {
         // Ensure the registry is initialized (unless we're in the middle of init).
         if (self::$units === null) {
@@ -158,11 +161,12 @@ class UnitRegistry
             $name,
             $asciiSymbol,
             $unicodeSymbol,
-            $quantityType,
             $dimension,
             $prefixGroup,
             $alternateSymbol,
-            $systems
+            $systems,
+            $expansionUnitSymbol,
+            $expansionValue
         );
 
         // Get all existing symbols.
@@ -235,8 +239,8 @@ class UnitRegistry
 
         // Loop through all QuantityType classes and add any units belonging to the specified system.
         foreach (QuantityTypeRegistry::getAll() as $qtyType) {
-            /** @var ?class-string<Quantity> $qtyTypeClass */
             $qtyTypeClass = $qtyType->class;
+            assert($qtyTypeClass === null || is_subclass_of($qtyTypeClass, Quantity::class));
 
             // Skip quantity types without a class.
             if ($qtyTypeClass === null) {
@@ -258,11 +262,12 @@ class UnitRegistry
                     $name,
                     $definition['asciiSymbol'],
                     $definition['unicodeSymbol'] ?? null,
-                    $qtyType->name,
                     $qtyType->dimension,
                     $definition['prefixGroup'] ?? 0,
                     $definition['alternateSymbol'] ?? null,
-                    $unitSystems
+                    $unitSystems,
+                    $definition['expansionUnitSymbol'] ?? null,
+                    $definition['expansionValue'] ?? null
                 );
             }
         }

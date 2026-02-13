@@ -23,7 +23,10 @@ class CatalyticActivity extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     #[Override]
@@ -31,24 +34,11 @@ class CatalyticActivity extends Quantity
     {
         return [
             'katal' => [
-                'asciiSymbol' => 'kat',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'asciiSymbol'         => 'kat',
+                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
+                'systems'             => [System::Si],
+                'expansionUnitSymbol' => 'mol*s-1',
             ],
-        ];
-    }
-
-    /**
-     * Conversion factors for catalytic activity units.
-     *
-     * @return list<array{string, string, float}>
-     */
-    #[Override]
-    public static function getConversionDefinitions(): array
-    {
-        return [
-            // Expansion.
-            ['kat', 'mol*s-1', 1.0],
         ];
     }
 

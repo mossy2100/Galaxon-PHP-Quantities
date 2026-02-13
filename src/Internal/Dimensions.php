@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;

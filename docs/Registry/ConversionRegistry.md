@@ -16,15 +16,6 @@ The `ConversionRegistry` stores and retrieves conversions between units. Convers
 
 ---
 
-## Constants
-
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `ON_MISSING_UNIT_IGNORE` | 1 | Skip conversions with unknown units silently |
-| `ON_MISSING_UNIT_THROW` | 2 | Throw exception for unknown units |
-
----
-
 ## Methods
 
 ### Lookup Methods
@@ -49,46 +40,28 @@ $lengthConversions = ConversionRegistry::getByDimension('L');
 // Returns nested array: [$srcSymbol][$destSymbol] => Conversion
 ```
 
-#### `static getAllConversionDefinitions(): array`
-
-Get all conversion definitions from all QuantityType classes.
-
-```php
-$definitions = ConversionRegistry::getAllConversionDefinitions();
-// Returns: [['m', 'ft', 0.3048], ['kg', 'lb', 0.45359237], ...]
-```
-
 ### Modification Methods
 
-#### `static add(string|UnitInterface $srcUnit, string|UnitInterface $destUnit, float $factor, int $onMissingUnit = ON_MISSING_UNIT_THROW): void`
+#### `static add(Conversion $conversion): void`
 
-Add a conversion between two units.
-
-```php
-// Add a custom conversion
-ConversionRegistry::add('fur', 'yd', 220);  // 1 furlong = 220 yards
-```
-
-#### `static addConversion(Conversion $conversion): void`
-
-Add a Conversion object directly.
+Add a Conversion object to the registry. If either unit has prefixes, the unprefixed conversion is also added automatically.
 
 ```php
 $conversion = new Conversion($srcUnit, $destUnit, $factor);
-ConversionRegistry::addConversion($conversion);
+ConversionRegistry::add($conversion);
 ```
 
-#### `static removeConversion(Conversion $conversion): void`
+#### `static remove(Conversion $conversion): void`
 
 Remove a conversion from the registry.
 
 ```php
-ConversionRegistry::removeConversion($conversion);
+ConversionRegistry::remove($conversion);
 ```
 
 #### `static loadConversions(System $system): void`
 
-Load conversions for a measurement system.
+Load conversions for a measurement system. Iterates through all conversion definitions and adds any where at least one unit belongs to the specified system. Also loads expansion conversions for expandable units in the system.
 
 ```php
 ConversionRegistry::loadConversions(System::Imperial);
@@ -96,18 +69,26 @@ ConversionRegistry::loadConversions(System::Imperial);
 
 #### `static reset(): void`
 
-Reset all conversions.
+Reset the registry to its default initial state. Triggers re-initialization on next access.
 
 ```php
 ConversionRegistry::reset();
 ```
 
-#### `static resetByDimension(string $dimension): void`
+#### `static clear(): void`
 
-Reset conversions for a specific dimension.
+Remove all conversions. Does not trigger re-initialization on next access.
 
 ```php
-ConversionRegistry::resetByDimension('L');
+ConversionRegistry::clear();
+```
+
+#### `static clearByDimension(string $dimension): void`
+
+Remove all conversions for a specific dimension.
+
+```php
+ConversionRegistry::clearByDimension('L');
 ```
 
 ### Inspection Methods
@@ -163,7 +144,6 @@ ConversionRegistry::add('km', 'mi', 0.621371);
 
 ```php
 use Galaxon\Quantities\Registry\ConversionRegistry;
-use Galaxon\Quantities\System;
 
 // Check for a direct conversion
 if (ConversionRegistry::has('L', 'm', 'in')) {
@@ -180,14 +160,14 @@ foreach ($lengthConv as $src => $destinations) {
 }
 
 // Add custom conversion
-ConversionRegistry::add('league', 'mi', 3);
+ConversionRegistry::add(new Conversion('league', 'mi', 3));
 ```
 
 ---
 
 ## See Also
 
-- **[Conversion](../Conversion.md)** - Conversion class documentation
-- **[Converter](../Converter.md)** - Converter class that uses this registry
+- **[Conversion](../Internal/Conversion.md)** - Conversion class documentation
+- **[Converter](../Internal/Converter.md)** - Converter class that uses this registry
 - **[UnitRegistry](UnitRegistry.md)** - Unit registry
 - **[System](../System.md)** - Measurement system enum

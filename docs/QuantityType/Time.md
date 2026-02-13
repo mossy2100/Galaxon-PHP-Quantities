@@ -91,14 +91,15 @@ $parts = $time->toParts('h', 's');
 
 The following conversions are defined:
 
-| From | To | Factor |
-|------|-----|--------|
-| minute | second | 60 |
-| hour | minute | 60 |
-| day | hour | 24 |
-| week | day | 7 |
-| year | month | 12 |
-| year | day | 365.2425 |
+| From      | To     | Factor   |
+|-----------|--------|----------|
+| minute    | second | 60       |
+| hour      | minute | 60       |
+| day       | hour   | 24       |
+| week      | day    | 7        |
+| year      | month  | 12       |
+| year      | day    | 365.2425 |
+| century   | year   | 100      |
 
 **Note:** Month and year conversions use average values. For calendar-accurate calculations, use PHP's DateTime/DateInterval classes directly.
 

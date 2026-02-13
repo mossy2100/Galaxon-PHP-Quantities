@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
-use Galaxon\Quantities\Conversion;
-use Galaxon\Quantities\DerivedUnit;
-use Galaxon\Quantities\FloatWithError;
+use Galaxon\Quantities\Internal\Conversion;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\FloatWithError;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use PHPUnit\Framework\Attributes\CoversClass;

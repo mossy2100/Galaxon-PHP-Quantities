@@ -257,7 +257,7 @@ Validate that a unit is valid for this converter's dimension.
 ### Basic Conversion
 
 ```php
-use Galaxon\Quantities\Converter;
+use Galaxon\Quantities\Internal\Converter;
 
 // Convert length
 $length = Converter::getByDimension('L');
@@ -272,8 +272,7 @@ echo "$km km"; // 1 km
 ### Working with Compound Units
 
 ```php
-use Galaxon\Quantities\Converter;
-use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Internal\Converter;use Galaxon\Quantities\Internal\DerivedUnit;
 
 // Force conversion
 $force = Converter::getByDimension('MLT-2');
@@ -288,9 +287,7 @@ $unit = DerivedUnit::parse('N');
 ### Cross-System Conversions
 
 ```php
-use Galaxon\Quantities\Converter;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Internal\Converter;use Galaxon\Quantities\Registry\UnitRegistry;use Galaxon\Quantities\System;
 
 // Load Imperial units first
 UnitRegistry::loadSystem(System::Imperial);
@@ -304,6 +301,6 @@ echo "$litres L"; // ~4.546 L (Imperial gallon)
 ## See Also
 
 - **[Conversion](Conversion.md)** - Represents a single unit conversion
-- **[ConversionRegistry](Registry/ConversionRegistry.md)** - Stores registered conversions
+- **[ConversionRegistry](../Registry/ConversionRegistry.md)** - Stores registered conversions
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit representation
-- **[Quantity](Quantity.md)** - Uses Converter for unit conversion
+- **[Quantity](../Quantity.md)** - Uses Converter for unit conversion

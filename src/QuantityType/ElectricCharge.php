@@ -23,7 +23,10 @@ class ElectricCharge extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     #[Override]
@@ -31,24 +34,11 @@ class ElectricCharge extends Quantity
     {
         return [
             'coulomb' => [
-                'asciiSymbol' => 'C',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'asciiSymbol'         => 'C',
+                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
+                'systems'             => [System::Si],
+                'expansionUnitSymbol' => 's*A',
             ],
-        ];
-    }
-
-    /**
-     * Conversion factors for electric charge units.
-     *
-     * @return list<array{string, string, float}>
-     */
-    #[Override]
-    public static function getConversionDefinitions(): array
-    {
-        return [
-            // Expansion.
-            ['C', 's*A', 1.0],
         ];
     }
 

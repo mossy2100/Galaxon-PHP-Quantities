@@ -34,11 +34,14 @@ class Angle extends Quantity
      * Unit definitions for angle.
      *
      * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     systems: list<System>,
-     * }>
+     *      asciiSymbol: string,
+     *      unicodeSymbol?: string,
+     *      prefixGroup?: int,
+     *      alternateSymbol?: string,
+     *      systems: list<System>,
+     *      expansionUnitSymbol?: string,
+     *      expansionValue?: float
+     *  }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -64,7 +67,7 @@ class Angle extends Quantity
                 'asciiSymbol'     => 'arcsec',
                 'unicodeSymbol'   => '″',
                 'alternateSymbol' => '"',
-                'prefixGroup'     => PrefixRegistry::GROUP_SMALL_ENG_METRIC,
+                'prefixGroup'     => PrefixRegistry::GROUP_SMALL_METRIC,
                 'systems'         => [System::SiAccepted],
             ],
             'gradian'   => [
@@ -126,11 +129,11 @@ class Angle extends Quantity
      * If valid, the angle is returned; otherwise, an exception is thrown.
      *
      * @param string $value The string to parse.
-     * @return parent A new Angle equivalent to the provided string.
+     * @return Quantity A new Angle equivalent to the provided string.
      * @throws FormatException If the string has an invalid format.
      * @throws DomainException If any of the values are non-finite or negative.
      */
-    public static function parse(string $value): parent
+    public static function parse(string $value): Quantity
     {
         try {
             // Try to parse the angle using Quantity::parse().
@@ -249,13 +252,13 @@ class Angle extends Quantity
      * For degrees, this is [0, 360)
      *
      * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
-     * @return parent A new angle with the wrapped value.
+     * @return Quantity A new angle with the wrapped value.
      *
      * @example
      * $alpha = new Angle(270, 'deg');
      * $wrapped = $alpha->wrap(); // now $wrapped->value == -90
      */
-    public function wrap(bool $signed = true): parent
+    public function wrap(bool $signed = true): Quantity
     {
         // Get the units per turn for the current unit.
         $unitsPerTurn = self::convert(1, 'turn', $this->derivedUnit);

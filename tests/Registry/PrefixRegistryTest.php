@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
-use Galaxon\Quantities\Prefix;
+use Galaxon\Quantities\Internal\Prefix;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -23,11 +23,10 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testBaseGroupConstantValues(): void
     {
-        $this->assertSame(1, PrefixRegistry::GROUP_SMALL_ENG_METRIC);
-        $this->assertSame(2, PrefixRegistry::GROUP_SMALL_NON_ENG_METRIC);
-        $this->assertSame(4, PrefixRegistry::GROUP_LARGE_NON_ENG_METRIC);
-        $this->assertSame(8, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
-        $this->assertSame(16, PrefixRegistry::GROUP_BINARY);
+        $this->assertSame(1, PrefixRegistry::GROUP_SMALL_METRIC);
+        $this->assertSame(2, PrefixRegistry::GROUP_MEDIUM_METRIC);
+        $this->assertSame(4, PrefixRegistry::GROUP_LARGE_METRIC);
+        $this->assertSame(8, PrefixRegistry::GROUP_BINARY);
     }
 
     /**
@@ -35,33 +34,22 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testCombinedGroupConstantValues(): void
     {
-        // Small metric = small engineering + small non-engineering.
+        // Metric = small metric + medium metric + large metric.
         $this->assertSame(
-            PrefixRegistry::GROUP_SMALL_ENG_METRIC | PrefixRegistry::GROUP_SMALL_NON_ENG_METRIC,
-            PrefixRegistry::GROUP_SMALL_METRIC
+            PrefixRegistry::GROUP_SMALL_METRIC | PrefixRegistry::GROUP_MEDIUM_METRIC |
+            PrefixRegistry::GROUP_LARGE_METRIC,
+            PrefixRegistry::GROUP_METRIC
         );
 
-        // Large metric = large non-engineering + large engineering.
-        $this->assertSame(
-            PrefixRegistry::GROUP_LARGE_NON_ENG_METRIC | PrefixRegistry::GROUP_LARGE_ENG_METRIC,
-            PrefixRegistry::GROUP_LARGE_METRIC
-        );
-
-        // Engineering metric = small engineering + large engineering.
-        $this->assertSame(
-            PrefixRegistry::GROUP_SMALL_ENG_METRIC | PrefixRegistry::GROUP_LARGE_ENG_METRIC,
-            PrefixRegistry::GROUP_ENG_METRIC
-        );
-
-        // Metric = small metric + large metric.
+        // Engineering = small metric + large metric.
         $this->assertSame(
             PrefixRegistry::GROUP_SMALL_METRIC | PrefixRegistry::GROUP_LARGE_METRIC,
-            PrefixRegistry::GROUP_METRIC
+            PrefixRegistry::GROUP_ENGINEERING
         );
 
         // Large = large engineering metric + binary.
         $this->assertSame(
-            PrefixRegistry::GROUP_LARGE_ENG_METRIC | PrefixRegistry::GROUP_BINARY,
+            PrefixRegistry::GROUP_LARGE_METRIC | PrefixRegistry::GROUP_BINARY,
             PrefixRegistry::GROUP_LARGE
         );
 
@@ -97,11 +85,11 @@ final class PrefixRegistryTest extends TestCase
     }
 
     /**
-     * Test getPrefixes() with small engineering metric group.
+     * Test getPrefixes() with small metric group.
      */
-    public function testGetPrefixesSmallEngineeringMetric(): void
+    public function testGetPrefixesSmallMetric(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_SMALL_ENG_METRIC);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_SMALL_METRIC);
 
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
@@ -115,25 +103,25 @@ final class PrefixRegistryTest extends TestCase
     }
 
     /**
-     * Test getPrefixes() with small non-engineering metric group.
+     * Test getPrefixes() with medium metric group.
      */
-    public function testGetPrefixesSmallNonEngineeringMetric(): void
+    public function testGetPrefixesMediumMetric(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_SMALL_NON_ENG_METRIC);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_MEDIUM_METRIC);
 
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         $this->assertContains('c', $symbols);  // centi
-        $this->assertContains('d', $symbols);  // deci
+        $this->assertContains('h', $symbols);  // hecto
         $this->assertNotContains('m', $symbols);  // milli (engineering)
     }
 
     /**
-     * Test getPrefixes() with large engineering metric group.
+     * Test getPrefixes() with large metric group.
      */
-    public function testGetPrefixesLargeEngineeringMetric(): void
+    public function testGetPrefixesLargeMetric(): void
     {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_LARGE_METRIC);
 
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
@@ -144,20 +132,6 @@ final class PrefixRegistryTest extends TestCase
         $this->assertContains('Q', $symbols);   // quetta
         $this->assertNotContains('h', $symbols);  // hecto (non-engineering)
         $this->assertNotContains('m', $symbols);  // milli (small)
-    }
-
-    /**
-     * Test getPrefixes() with large non-engineering metric group.
-     */
-    public function testGetPrefixesLargeNonEngineeringMetric(): void
-    {
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_LARGE_NON_ENG_METRIC);
-
-        $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
-
-        $this->assertContains('da', $symbols);  // deca
-        $this->assertContains('h', $symbols);   // hecto
-        $this->assertNotContains('k', $symbols);  // kilo (engineering)
     }
 
     /**
@@ -508,10 +482,9 @@ final class PrefixRegistryTest extends TestCase
      */
     public function testIsValidGroupCodeReturnsTrueForBaseGroups(): void
     {
-        $this->assertTrue(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_SMALL_ENG_METRIC));
-        $this->assertTrue(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_SMALL_NON_ENG_METRIC));
-        $this->assertTrue(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_LARGE_NON_ENG_METRIC));
-        $this->assertTrue(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_LARGE_ENG_METRIC));
+        $this->assertTrue(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_SMALL_METRIC));
+        $this->assertTrue(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_MEDIUM_METRIC));
+        $this->assertTrue(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_LARGE_METRIC));
         $this->assertTrue(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_BINARY));
     }
 
@@ -521,9 +494,8 @@ final class PrefixRegistryTest extends TestCase
     public function testIsValidGroupCodeReturnsFalseForCombinedGroups(): void
     {
         // Combined codes are not "valid" base codes.
-        $this->assertFalse(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_SMALL_METRIC));
-        $this->assertFalse(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_LARGE_METRIC));
         $this->assertFalse(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_METRIC));
+        $this->assertFalse(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_LARGE));
         $this->assertFalse(PrefixRegistry::isValidGroupCode(PrefixRegistry::GROUP_ALL));
     }
 
@@ -549,19 +521,15 @@ final class PrefixRegistryTest extends TestCase
     {
         $kilo = PrefixRegistry::getBySymbol('k');
         $this->assertInstanceOf(Prefix::class, $kilo);
-        $this->assertSame(PrefixRegistry::GROUP_LARGE_ENG_METRIC, $kilo->groupCode);
+        $this->assertSame(PrefixRegistry::GROUP_LARGE_METRIC, $kilo->groupCode);
 
         $milli = PrefixRegistry::getBySymbol('m');
         $this->assertInstanceOf(Prefix::class, $milli);
-        $this->assertSame(PrefixRegistry::GROUP_SMALL_ENG_METRIC, $milli->groupCode);
+        $this->assertSame(PrefixRegistry::GROUP_SMALL_METRIC, $milli->groupCode);
 
         $centi = PrefixRegistry::getBySymbol('c');
         $this->assertInstanceOf(Prefix::class, $centi);
-        $this->assertSame(PrefixRegistry::GROUP_SMALL_NON_ENG_METRIC, $centi->groupCode);
-
-        $hecto = PrefixRegistry::getBySymbol('h');
-        $this->assertInstanceOf(Prefix::class, $hecto);
-        $this->assertSame(PrefixRegistry::GROUP_LARGE_NON_ENG_METRIC, $hecto->groupCode);
+        $this->assertSame(PrefixRegistry::GROUP_MEDIUM_METRIC, $centi->groupCode);
 
         $kibi = PrefixRegistry::getBySymbol('Ki');
         $this->assertInstanceOf(Prefix::class, $kibi);
@@ -604,7 +572,7 @@ final class PrefixRegistryTest extends TestCase
     public function testSmallEngineeringMetricPrefixesDefined(): void
     {
         $expected = ['q', 'r', 'y', 'z', 'a', 'f', 'p', 'n', 'u', 'm'];
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_SMALL_ENG_METRIC);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_SMALL_METRIC);
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         foreach ($expected as $symbol) {
@@ -618,7 +586,7 @@ final class PrefixRegistryTest extends TestCase
     public function testLargeEngineeringMetricPrefixesDefined(): void
     {
         $expected = ['k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q'];
-        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $result = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_LARGE_METRIC);
         $symbols = array_map(static fn (Prefix $p) => $p->asciiSymbol, $result);
 
         foreach ($expected as $symbol) {

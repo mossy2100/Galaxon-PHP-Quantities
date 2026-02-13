@@ -45,17 +45,17 @@ use Galaxon\Quantities\QuantityType\Angle;
 
 // Create measurements
 $distance = new Length(5, 'km');
-$temp = new Temperature(25, 'C');
+$temp = new Temperature(25, 'degC');
 $angle = new Angle(90, 'deg');
 
 // Convert between units
 $miles = $distance->to('mi');     // 3.10686... miles
-$fahrenheit = $temp->to('F');     // 77°F
+$fahrenheit = $temp->to('degF');     // 77°F
 $radians = $angle->to('rad');     // 1.5707... rad
 
 // Arithmetic operations
 $total = $distance->add(new Length(500, 'm'));  // 5.5 km
-$doubled = $distance->mul(2);     // 10 km
+$doubled = $distance->mul(2.0);                // 10 km
 
 // Parse from strings
 $length = Length::parse('123.45 km');
@@ -64,7 +64,8 @@ $angle = Angle::parse("45° 30' 15\"");
 
 // Format as parts
 $angle = new Angle(45.5042, 'deg');
-echo $angle->formatParts('arcsec', 1);  // "45° 30′ 15.1″"
+echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
+// "45° 30′ 15.1″"
 ```
 
 ## Features
@@ -112,12 +113,12 @@ Temperature uses affine transformations (y = mx + k) to handle non-proportional 
 ```php
 use Galaxon\Quantities\QuantityType\Temperature;
 
-$celsius = new Temperature(0, 'C');
-echo $celsius->to('F');  // 32°F
-echo $celsius->to('K');  // 273.15K
+$celsius = new Temperature(0, 'degC');
+echo $celsius->to('degF');  // 32°F
+echo $celsius->to('K');     // 273.15K
 
-$fahrenheit = new Temperature(212, 'F');
-echo $fahrenheit->to('C');  // 100°C
+$fahrenheit = new Temperature(212, 'degF');
+echo $fahrenheit->to('degC');  // 100°C
 ```
 
 ### Arithmetic Operations
@@ -128,17 +129,44 @@ Quantities support addition, subtraction, multiplication, and division:
 $a = new Length(100, 'm');
 $b = new Length(50, 'm');
 
-$sum = $a->add($b);     // 150 m
-$diff = $a->sub($b);     // 50 m
-$scaled = $a->mul(2);     // 200 m
-$halved = $a->div(2);     // 50 m
-$abs = $diff->neg()->abs();   // 50 m
+$sum = $a->add($b);        // 150 m
+$diff = $a->sub($b);       // 50 m
+$scaled = $a->mul(2.0);    // 200 m
+$halved = $a->div(2.0);    // 50 m
+$abs = $diff->neg()->abs();  // 50 m
 
 // Add with different units (auto-converted)
 $total = $a->add(new Length(1, 'km'));  // 1100 m
 
 // Convenience syntax
 $total = $a->add(500, 'cm');  // 105 m
+```
+
+### Derived Quantity Arithmetic
+
+Multiplying or dividing quantities of different types produces the correct derived quantity:
+
+```php
+use Galaxon\Quantities\QuantityType\Acceleration;
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Mass;
+use Galaxon\Quantities\QuantityType\Time;
+use Galaxon\Quantities\QuantityType\Velocity;
+
+// Force = Mass × Acceleration (F = m·a)
+$mass = new Mass(10, 'kg');
+$accel = new Acceleration(9.8, 'm/s2');
+$force = $mass->mul($accel);  // 98 N (Force)
+
+// Velocity = Length / Time (v = d/t)
+$distance = new Length(100, 'km');
+$time = new Time(2, 'h');
+$speed = $distance->div($time);  // 50 km/h (Velocity)
+
+// Length = Velocity × Time (d = v·t)
+$speed = new Velocity(60, 'km/h');
+$time = new Time(1.5, 'h');
+$distance = $speed->mul($time);  // 90 km (Length)
 ```
 
 ### Comparison and Approximate Equality
@@ -173,17 +201,19 @@ use Galaxon\Quantities\QuantityType\Time;
 
 // Angle to degrees, arcminutes, arcseconds
 $angle = new Angle(45.5042, 'deg');
-$parts = $angle->toParts('arcsec', 2);
+$parts = $angle->toParts(smallestUnitSymbol: 'arcsec', precision: 2);
 // ['sign' => 1, 'deg' => 45, 'arcmin' => 30, 'arcsec' => 15.12]
 
-echo $angle->formatParts('arcsec', 1);  // "45° 30′ 15.1″"
+echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
+// "45° 30′ 15.1″"
 
 // Create from parts
-$angle = Angle::fromParts(45, 30, 15.12);
+$angle = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'arcsec' => 15.12]);
 
 // Time to years, months, days, hours, minutes, seconds
 $duration = new Time(90061, 's');
-echo $duration->formatParts('s', 0);  // "1d 1h 1min 1s"
+echo $duration->formatParts(smallestUnitSymbol: 's', precision: 0);
+// "1d 1h 1min 1s"
 
 // Convert to DateInterval
 $interval = $duration->toDateInterval();
@@ -220,20 +250,20 @@ Access fundamental physical constants as Quantity objects:
 use Galaxon\Quantities\PhysicalConstant;
 
 // Speed of light
-$c = PhysicalConstant::get('c');
+$c = PhysicalConstant::speedOfLight();
 echo $c->to('km/s');  // 299792.458 km/s
 
 // Planck constant
-$h = PhysicalConstant::get('h');
+$h = PhysicalConstant::planckConstant();
 
 // Gravitational constant
-$G = PhysicalConstant::get('G');
+$G = PhysicalConstant::gravitationalConstant();
 
 // Elementary charge
-$e = PhysicalConstant::get('e');
+$e = PhysicalConstant::elementaryCharge();
 
-// Get by name (case-insensitive)
-$avogadro = PhysicalConstant::getByName('Avogadro constant');
+// Get by symbol
+$c = PhysicalConstant::get('c');
 ```
 
 See **[PhysicalConstant](docs/PhysicalConstant.md)** for the complete list of available constants.
@@ -289,19 +319,11 @@ Therefore, you can use the following:
 
 ## Classes
 
-### Core Classes
+### Public API
 
 | Class | Description |
 |-------|-------------|
 | [Quantity](docs/Quantity.md) | Abstract base class for all measurement types. Provides unit conversion, arithmetic operations, comparison, formatting, and part decomposition. |
-| [QuantityType](docs/QuantityType.md) | Data class representing a quantity type with its dimension, SI unit, and PHP class. |
-| [Unit](docs/Unit.md) | Represents a single-symbol measurement unit with optional prefix support. |
-| [UnitTerm](docs/UnitTerm.md) | A unit with optional prefix and exponent (e.g., km², ms⁻¹). |
-| [DerivedUnit](docs/DerivedUnit.md) | Compound unit expression combining unit terms via multiplication/division. |
-| [Prefix](docs/Prefix.md) | SI metric and binary prefixes (kilo, mega, kibi, etc.). |
-| [Conversion](docs/Conversion.md) | Represents a unit conversion with factor and error tracking. |
-| [Converter](docs/Converter.md) | Graph-based algorithm for finding conversion paths between units. |
-| [FloatWithError](docs/FloatWithError.md) | Floating-point numbers with tracked error bounds for precision monitoring. |
 | [PhysicalConstant](docs/PhysicalConstant.md) | Access to physical constants (speed of light, Planck constant, etc.) as Quantity objects. |
 | [System](docs/System.md) | Enum for measurement systems (SI, Imperial, US Customary, etc.). |
 
@@ -352,13 +374,21 @@ All quantity type classes extend `Quantity` and define their specific units and 
 | [UnitRegistry](docs/Registry/UnitRegistry.md) | Registry of known units organized by measurement system. Provides lazy loading and lookup methods. |
 | [ConversionRegistry](docs/Registry/ConversionRegistry.md) | Registry of unit conversions organized by dimension. |
 | [QuantityTypeRegistry](docs/Registry/QuantityTypeRegistry.md) | Registry mapping dimension codes to quantity type classes. |
+| [PrefixRegistry](docs/Registry/PrefixRegistry.md) | Registry for SI and binary prefixes (lookup, filtering by group). |
 
-### Utility Classes
+### Internal Classes
 
 | Class | Description |
 |-------|-------------|
-| [Dimensions](docs/Utility/Dimensions.md) | Utilities for working with physical dimension codes (validation, composition, transformation). |
-| [PrefixRegistry](docs/Utility/PrefixRegistry.md) | Utilities for working with SI and binary prefixes (lookup, filtering by group). |
+| [Unit](docs/Internal/Unit.md) | Represents a single-symbol measurement unit with optional prefix support. |
+| [UnitTerm](docs/Internal/UnitTerm.md) | A unit with optional prefix and exponent (e.g., km², ms⁻¹). |
+| [DerivedUnit](docs/Internal/DerivedUnit.md) | Compound unit expression combining unit terms via multiplication/division. |
+| [Prefix](docs/Internal/Prefix.md) | SI metric and binary prefixes (kilo, mega, kibi, etc.). |
+| [Conversion](docs/Internal/Conversion.md) | Represents a unit conversion with factor and error tracking. |
+| [Converter](docs/Internal/Converter.md) | Graph-based algorithm for finding conversion paths between units. |
+| [Dimensions](docs/Internal/Dimensions.md) | Utilities for working with physical dimension codes (validation, composition, transformation). |
+| [FloatWithError](docs/Internal/FloatWithError.md) | Floating-point numbers with tracked error bounds for precision monitoring. |
+| [QuantityType](docs/Internal/QuantityType.md) | Data class representing a quantity type with its dimension, SI unit, and PHP class. |
 
 ## Testing
 

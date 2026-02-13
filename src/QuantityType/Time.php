@@ -27,40 +27,47 @@ class Time extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
-            'second' => [
+            'second'  => [
                 'asciiSymbol' => 's',
                 'prefixGroup' => PrefixRegistry::GROUP_METRIC,
                 'systems'     => [System::Si],
             ],
-            'minute' => [
+            'minute'  => [
                 'asciiSymbol' => 'min',
                 'systems'     => [System::SiAccepted],
             ],
-            'hour'   => [
+            'hour'    => [
                 'asciiSymbol' => 'h',
                 'systems'     => [System::SiAccepted],
             ],
-            'day'    => [
+            'day'     => [
                 'asciiSymbol' => 'd',
                 'systems'     => [System::SiAccepted],
             ],
-            'week'   => [
+            'week'    => [
                 'asciiSymbol' => 'w',
                 'systems'     => [System::Common],
             ],
-            'month'  => [
+            'month'   => [
                 'asciiSymbol' => 'mo',
                 'systems'     => [System::Common],
             ],
-            'year'   => [
+            'year'    => [
                 'asciiSymbol' => 'y',
+                'systems'     => [System::Common],
+            ],
+            'century' => [
+                'asciiSymbol' => 'c',
                 'systems'     => [System::Common],
             ],
         ];
@@ -81,6 +88,7 @@ class Time extends Quantity
             ['w', 'd', 7],
             ['y', 'mo', 12],
             ['y', 'd', 365.2425],
+            ['c', 'y', 100],
         ];
     }
 
@@ -112,7 +120,6 @@ class Time extends Quantity
      *
      * @param DateInterval $interval The DateInterval to convert.
      * @return self A new Time instance.
-     *
      */
     public static function fromDateInterval(DateInterval $interval): self
     {
@@ -129,8 +136,9 @@ class Time extends Quantity
             $seconds = -$seconds;
         }
 
-        /** @var Time */
-        return self::create($seconds, 's');
+        $result = self::create($seconds, 's');
+        assert($result instanceof self);
+        return $result;
     }
 
     // endregion

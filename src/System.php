@@ -9,8 +9,6 @@ namespace Galaxon\Quantities;
  */
 enum System
 {
-    case Base;
-
     case Si;
 
     case SiAccepted;

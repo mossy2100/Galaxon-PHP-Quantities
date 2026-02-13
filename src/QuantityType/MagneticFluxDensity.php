@@ -23,7 +23,10 @@ class MagneticFluxDensity extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     #[Override]
@@ -31,24 +34,11 @@ class MagneticFluxDensity extends Quantity
     {
         return [
             'tesla' => [
-                'asciiSymbol' => 'T',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'asciiSymbol'         => 'T',
+                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
+                'systems'             => [System::Si],
+                'expansionUnitSymbol' => 'kg*s-2*A-1',
             ],
-        ];
-    }
-
-    /**
-     * Conversion factors for magnetic flux density units.
-     *
-     * @return list<array{string, string, float}>
-     */
-    #[Override]
-    public static function getConversionDefinitions(): array
-    {
-        return [
-            // Expansion.
-            ['T', 'kg*s-2*A-1', 1.0],
         ];
     }
 

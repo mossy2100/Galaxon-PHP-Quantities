@@ -23,7 +23,10 @@ class SolidAngle extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     #[Override]
@@ -31,24 +34,11 @@ class SolidAngle extends Quantity
     {
         return [
             'steradian' => [
-                'asciiSymbol' => 'sr',
-                'prefixGroup' => PrefixRegistry::GROUP_SMALL_ENG_METRIC,
-                'systems'     => [System::Si],
+                'asciiSymbol'         => 'sr',
+                'prefixGroup'         => PrefixRegistry::GROUP_SMALL_METRIC,
+                'systems'             => [System::Si],
+                'expansionUnitSymbol' => 'rad2',
             ],
-        ];
-    }
-
-    /**
-     * Conversion factors for solid angle units.
-     *
-     * @return list<array{string, string, float}>
-     */
-    #[Override]
-    public static function getConversionDefinitions(): array
-    {
-        return [
-            // Expansion.
-            ['sr', 'rad2', 1.0],
         ];
     }
 

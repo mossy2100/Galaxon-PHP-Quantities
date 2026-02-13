@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
+use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
@@ -264,7 +264,7 @@ final class QuantityTypeRegistryTest extends TestCase
         }
 
         // Add it
-        QuantityTypeRegistry::add('hypervolume', $dimension, null);
+        QuantityTypeRegistry::add('hypervolume', $dimension);
 
         // Verify it exists
         $result = QuantityTypeRegistry::getByDimension($dimension);
@@ -281,7 +281,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the name 'length'");
 
-        QuantityTypeRegistry::add('length', 'L9', null);
+        QuantityTypeRegistry::add('length', 'L9');
     }
 
     /**
@@ -292,7 +292,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the dimension 'L'");
 
-        QuantityTypeRegistry::add('another length', 'L', null);
+        QuantityTypeRegistry::add('another length', 'L');
     }
 
     /**
@@ -322,7 +322,7 @@ final class QuantityTypeRegistryTest extends TestCase
             $this->markTestSkipped("Dimension '$dimension' already exists");
         }
 
-        QuantityTypeRegistry::add('pentavolume', $dimension, null);
+        QuantityTypeRegistry::add('pentavolume', $dimension);
 
         // Verify it has no class.
         $result = QuantityTypeRegistry::getByDimension($dimension);
@@ -432,7 +432,7 @@ final class QuantityTypeRegistryTest extends TestCase
         QuantityTypeRegistry::clear();
 
         // Add a single custom type.
-        QuantityTypeRegistry::add('custom', 'L6', null);
+        QuantityTypeRegistry::add('custom', 'L6');
 
         // Verify only the custom type exists (defaults were not re-loaded).
         $all = QuantityTypeRegistry::getAll();

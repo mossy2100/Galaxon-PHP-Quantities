@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
-use Galaxon\Quantities\Conversion;
-use Galaxon\Quantities\Converter;
-use Galaxon\Quantities\DerivedUnit;
-use Galaxon\Quantities\FloatWithError;
+use Galaxon\Quantities\Internal\Conversion;
+use Galaxon\Quantities\Internal\Converter;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\FloatWithError;
 use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -218,7 +218,6 @@ class ConverterTest extends TestCase
             name: 'isolated-length',
             asciiSymbol: 'Xu',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -292,7 +291,6 @@ class ConverterTest extends TestCase
             name: 'isolated-length2',
             asciiSymbol: 'Yu',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -381,7 +379,6 @@ class ConverterTest extends TestCase
             name: 'custom-unit',
             asciiSymbol: 'Zu',
             unicodeSymbol: null,
-            quantityType: 'hypervolume',
             dimension: 'L4',
             systems: [System::Si]
         );
@@ -507,7 +504,6 @@ class ConverterTest extends TestCase
             name: 'isolated-length3',
             asciiSymbol: 'Wu',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -962,9 +958,9 @@ class ConverterTest extends TestCase
     public function testDivergentCombinationPath(): void
     {
         // Register custom units.
-        UnitRegistry::add('test-x', 'Tx', null, 'length', 'L', systems: [System::Si]);
-        UnitRegistry::add('test-y', 'Ty', null, 'length', 'L', systems: [System::Si]);
-        UnitRegistry::add('test-z', 'Tz', null, 'length', 'L', systems: [System::Si]);
+        UnitRegistry::add('test-x', 'Tx', null, 'L', systems: [System::Si]);
+        UnitRegistry::add('test-y', 'Ty', null, 'L', systems: [System::Si]);
+        UnitRegistry::add('test-z', 'Tz', null, 'L', systems: [System::Si]);
 
         // Add conversions that enable divergent path: Y→X and Y→Z.
         ConversionRegistry::add(new Conversion('Ty', 'Tx', 2.0));
@@ -1000,12 +996,12 @@ class ConverterTest extends TestCase
     {
         // Use a custom isolated dimension so only our units exist.
         $dimension = 'L7';
-        QuantityTypeRegistry::add('hypertest', $dimension, 'm7', null);
+        QuantityTypeRegistry::add('hypertest', $dimension);
 
         // Register exactly three units in this dimension.
-        UnitRegistry::add('opp-a', 'Oa', null, 'hypertest', $dimension, systems: [System::Si]);
-        UnitRegistry::add('opp-b', 'Ob', null, 'hypertest', $dimension, systems: [System::Si]);
-        UnitRegistry::add('opp-c', 'Oc', null, 'hypertest', $dimension, systems: [System::Si]);
+        UnitRegistry::add('opp-a', 'Oa', null, $dimension, systems: [System::Si]);
+        UnitRegistry::add('opp-b', 'Ob', null, $dimension, systems: [System::Si]);
+        UnitRegistry::add('opp-c', 'Oc', null, $dimension, systems: [System::Si]);
 
         // Add conversions that enable opposite path: B→A and C→B.
         // Use explicit zero error for 0.5 so that 1/(2*0.5) = 1.0 has zero error.

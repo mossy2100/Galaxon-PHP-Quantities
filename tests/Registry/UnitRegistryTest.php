@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Registry;
 
 use DomainException;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -127,48 +127,6 @@ final class UnitRegistryTest extends TestCase
 
     // endregion
 
-    // region getByDimension() tests
-
-    /**
-     * Test getByDimension() returns units for valid dimension.
-     */
-    public function testGetByDimensionReturnsUnits(): void
-    {
-        $result = UnitRegistry::getByDimension('L');
-
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($result);
-        $this->assertNotEmpty($result);
-
-        foreach ($result as $unit) {
-            $this->assertSame('L', $unit->dimension);
-        }
-    }
-
-    /**
-     * Test getByDimension() includes expected length units.
-     */
-    public function testGetByDimensionIncludesExpectedUnits(): void
-    {
-        $result = UnitRegistry::getByDimension('L');
-
-        $this->assertArrayHasKey('metre', $result);
-    }
-
-    /**
-     * Test getByDimension() returns empty array for unknown dimension.
-     */
-    public function testGetByDimensionReturnsEmptyForUnknown(): void
-    {
-        $result = UnitRegistry::getByDimension('X9');
-
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($result);
-        $this->assertEmpty($result);
-    }
-
-    // endregion
-
     // region getAllValidSymbols() tests
 
     /**
@@ -241,14 +199,12 @@ final class UnitRegistryTest extends TestCase
             name: $name,
             asciiSymbol: $symbol,
             unicodeSymbol: 'τυα',  // Greek letters (valid Unicode word)
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
         );
 
         $all = UnitRegistry::getAll();
         $this->assertArrayHasKey($name, $all);
-        $this->assertSame('length', $all[$name]->quantityType);
         $this->assertSame('L', $all[$name]->dimension);
 
         // Clean up
@@ -267,7 +223,6 @@ final class UnitRegistryTest extends TestCase
             name: 'newunitohm',
             asciiSymbol: 'nuo',
             unicodeSymbol: 'Ω',  // Conflicts with ohm's Unicode symbol
-            quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             systems: [System::Common]
         );
@@ -285,7 +240,6 @@ final class UnitRegistryTest extends TestCase
             name: $name,
             asciiSymbol: $symbol,
             unicodeSymbol: 'φυπ',  // Greek letters (valid Unicode word)
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Common]
@@ -311,7 +265,6 @@ final class UnitRegistryTest extends TestCase
             name: $name,
             asciiSymbol: $symbol,
             unicodeSymbol: 'φυπ',  // Greek letters (valid Unicode word)
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Common]
@@ -336,7 +289,6 @@ final class UnitRegistryTest extends TestCase
             name: $name,
             asciiSymbol: $symbol,
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
         );
@@ -361,7 +313,6 @@ final class UnitRegistryTest extends TestCase
             name: $name,
             asciiSymbol: 'rpt',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
         );
@@ -372,7 +323,6 @@ final class UnitRegistryTest extends TestCase
             name: $name,
             asciiSymbol: 'rpx',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
         );
@@ -400,7 +350,6 @@ final class UnitRegistryTest extends TestCase
             name: $name,
             asciiSymbol: $symbol,
             unicodeSymbol: 'ρμτ',  // Greek letters (valid Unicode word)
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Common]
         );

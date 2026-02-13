@@ -31,8 +31,7 @@ On first access, the registry automatically loads:
 ### Loading Additional Systems
 
 ```php
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Registry\UnitRegistry;use Galaxon\Quantities\System;
 
 // Load Imperial and US Customary units
 UnitRegistry::loadSystem(System::Imperial);
@@ -59,13 +58,19 @@ $ohm = UnitRegistry::getBySymbol('Ω');  // Unicode
 $ohm = UnitRegistry::getBySymbol('ohm');  // ASCII
 ```
 
-#### `static getByDimension(string $dimension): array`
+#### `static getBySystem(System $system): array`
 
-Get all units matching a dimension code.
+Get all units belonging to a given measurement system.
 
 ```php
-$lengthUnits = UnitRegistry::getByDimension('L');
-// Returns: ['metre' => Unit, 'inch' => Unit, ...]
+use Galaxon\Quantities\System;
+
+$siUnits = UnitRegistry::getBySystem(System::Si);
+// Returns all SI units (metre, kilogram, second, etc.)
+
+UnitRegistry::loadSystem(System::Imperial);
+$imperialUnits = UnitRegistry::getBySystem(System::Imperial);
+// Returns all Imperial units (foot, pound, etc.)
 ```
 
 #### `static getAll(): array`
@@ -74,15 +79,6 @@ Get all registered units.
 
 ```php
 $allUnits = UnitRegistry::getAll();
-```
-
-#### `static getExpandable(): array`
-
-Get all units that have an expansion (derived SI units).
-
-```php
-$expandable = UnitRegistry::getExpandable();
-// Returns units like newton, joule, pascal, etc.
 ```
 
 #### `static getAllSymbols(): array`
@@ -105,12 +101,7 @@ $unit = UnitRegistry::add(
     name: 'furlong',
     asciiSymbol: 'fur',
     unicodeSymbol: null,
-    quantityType: 'length',
     dimension: 'L',
-    prefixGroup: 0,
-    alternateSymbol: null,
-    expansionUnitSymbol: null,
-    expansionValue: null,
     systems: [System::Imperial]
 );
 ```
@@ -180,8 +171,7 @@ $feet = Length::convert(1, 'm', 'ft');
 ## Usage Examples
 
 ```php
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Registry\UnitRegistry;use Galaxon\Quantities\System;
 
 // Check what's loaded by default
 $systems = UnitRegistry::getLoadedSystems();
@@ -194,16 +184,12 @@ UnitRegistry::loadSystem(System::Imperial);
 $foot = UnitRegistry::getBySymbol('ft');
 echo $foot->name;  // 'foot'
 
-// Get all length units
-$lengths = UnitRegistry::getByDimension('L');
-
 // Custom unit (not recommended - use QuantityType classes instead)
 UnitRegistry::add(
-    'cubit',
-    'cbt',
-    null,
-    'length',
-    'L',
+    name: 'cubit',
+    asciiSymbol: 'cbt',
+    unicodeSymbol: null,
+    dimension: 'L',
     systems: [System::Common]
 );
 ```
@@ -212,7 +198,7 @@ UnitRegistry::add(
 
 ## See Also
 
-- **[Unit](../Unit.md)** - Unit class documentation
+- **[Unit](../Internal/Unit.md)** - Unit class documentation
 - **[ConversionRegistry](ConversionRegistry.md)** - Conversion registry
 - **[QuantityTypeRegistry](QuantityTypeRegistry.md)** - Quantity type registry
 - **[System](../System.md)** - Measurement system enum

@@ -48,14 +48,11 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test getConversionDefinitions() returns valid conversion definitions.
+     * Test getConversionDefinitions() returns an empty array.
      */
-    public function testGetConversionDefinitionsReturnsValidArray(): void
+    public function testGetConversionDefinitionsReturnsEmptyArray(): void
     {
-        $conversions = Velocity::getConversionDefinitions();
-
-        $this->assertValidConversionDefinitionsShape($conversions);
-        $this->assertCount(1, $conversions);
+        $this->assertEmpty(Velocity::getConversionDefinitions());
     }
 
     // endregion

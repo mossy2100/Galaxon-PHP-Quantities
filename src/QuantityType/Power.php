@@ -23,7 +23,10 @@ class Power extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     #[Override]
@@ -31,24 +34,11 @@ class Power extends Quantity
     {
         return [
             'watt' => [
-                'asciiSymbol' => 'W',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'asciiSymbol'         => 'W',
+                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
+                'systems'             => [System::Si],
+                'expansionUnitSymbol' => 'kg*m2*s-3',
             ],
-        ];
-    }
-
-    /**
-     * Conversion factors for power units.
-     *
-     * @return list<array{string, string, float}>
-     */
-    #[Override]
-    public static function getConversionDefinitions(): array
-    {
-        return [
-            // Expansion.
-            ['W', 'kg*m2*s-3', 1.0],
         ];
     }
 

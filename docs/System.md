@@ -120,8 +120,7 @@ $description = match ($system) {
 ### Checking Unit Systems
 
 ```php
-use Galaxon\Quantities\System;
-use Galaxon\Quantities\Unit;
+use Galaxon\Quantities\Internal\Unit;use Galaxon\Quantities\System;
 
 // Check if a unit belongs to a specific system
 $unit = Unit::parse('m');
@@ -133,8 +132,7 @@ if ($unit->belongsToSystem(System::Si)) {
 ### Loading Units by System
 
 ```php
-use Galaxon\Quantities\System;
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;use Galaxon\Quantities\System;
 
 // Load Imperial and US Customary units
 UnitRegistry::loadSystem(System::Imperial);
@@ -153,5 +151,5 @@ $cases = System::cases();
 
 ## See Also
 
-- **[Unit](Unit.md)** - Units can belong to one or more systems
+- **[Unit](Internal/Unit.md)** - Units can belong to one or more systems
 - **[UnitRegistry](Registry/UnitRegistry.md)** - Load units by measurement system

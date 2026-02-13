@@ -419,8 +419,7 @@ Check if this UnitTerm equals another.
 ### Building Compound Units
 
 ```php
-use Galaxon\Quantities\UnitTerm;
-use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Internal\DerivedUnit;use Galaxon\Quantities\Internal\UnitTerm;
 
 // Build velocity: m/s
 $metre = new UnitTerm('m');
@@ -438,7 +437,7 @@ echo $acceleration->asciiSymbol; // 'm/s2'
 ### Working with Prefixes
 
 ```php
-use Galaxon\Quantities\UnitTerm;
+use Galaxon\Quantities\Internal\UnitTerm;
 
 $km2 = new UnitTerm('m', 'k', 2);
 
@@ -455,7 +454,7 @@ echo $m2->asciiSymbol; // 'm2'
 ### Parsing and Validation
 
 ```php
-use Galaxon\Quantities\UnitTerm;
+use Galaxon\Quantities\Internal\UnitTerm;
 
 // Parse with various formats
 $term1 = UnitTerm::parse('km2');

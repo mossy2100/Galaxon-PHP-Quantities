@@ -193,7 +193,7 @@ public function isBase(): bool
 Check if all unit terms are base units (single-dimension units, not expandable).
 
 **Returns:**
-- `bool` - True if all units are base units. False if dimensionless.
+- `bool` - True if all units are base units. Also true if dimensionless (empty unit terms).
 
 ### isSiBase()
 
@@ -201,10 +201,10 @@ Check if all unit terms are base units (single-dimension units, not expandable).
 public function isSiBase(): bool
 ```
 
-Check if all unit terms are SI base units (e.g., m, kg, s, A, K, cd, mol, rad, B, XAU).
+Check if this derived unit is equivalent to its SI base form. Compares the unit with the result of `toSiBase()`.
 
 **Returns:**
-- `bool` - True if all units are SI base units. False if dimensionless.
+- `bool` - True if the unit equals its SI base equivalent. Also true if dimensionless.
 
 ### isExpandable()
 
@@ -417,8 +417,7 @@ Convert to string using Unicode format.
 ### Building Compound Units
 
 ```php
-use Galaxon\Quantities\DerivedUnit;
-use Galaxon\Quantities\UnitTerm;
+use Galaxon\Quantities\Internal\DerivedUnit;use Galaxon\Quantities\Internal\UnitTerm;
 
 // Build Newton: kg*m/s2
 $newton = new DerivedUnit([
@@ -435,7 +434,7 @@ echo $newton->dimension;     // 'T-2LM'
 ### Parsing and Validation
 
 ```php
-use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Internal\DerivedUnit;
 
 // Parse various formats
 $unit1 = DerivedUnit::parse('kg*m/s2');
@@ -455,7 +454,7 @@ if ($unit2->isExpandable()) {
 ### Arithmetic with Units
 
 ```php
-use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Internal\DerivedUnit;
 
 $length = DerivedUnit::parse('m');
 $time = DerivedUnit::parse('s');
@@ -475,4 +474,4 @@ echo $velocity->asciiSymbol; // 'm/s'
 - **[Unit](Unit.md)** - Simple unit representation
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent
 - **[UnitInterface](UnitInterface.md)** - Interface implemented by all unit types
-- **[Quantity](Quantity.md)** - Uses DerivedUnit for unit representation
+- **[Quantity](../Quantity.md)** - Uses DerivedUnit for unit representation

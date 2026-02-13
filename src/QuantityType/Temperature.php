@@ -6,12 +6,12 @@ namespace Galaxon\Quantities\QuantityType;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\UnitInterface;
+use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\UnitInterface;
-use Galaxon\Quantities\UnitTerm;
 use Override;
 
 /**
@@ -47,7 +47,10 @@ class Temperature extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     #[Override]
@@ -60,14 +63,16 @@ class Temperature extends Quantity
                 'systems'     => [System::Si],
             ],
             'celsius'    => [
-                'asciiSymbol'   => 'degC',
-                'unicodeSymbol' => '°C',
-                'systems'       => [System::Si],
+                'asciiSymbol'         => 'degC',
+                'unicodeSymbol'       => '°C',
+                'systems'             => [System::Si],
+                'expansionUnitSymbol' => 'K',
             ],
             'fahrenheit' => [
-                'asciiSymbol'   => 'degF',
-                'unicodeSymbol' => '°F',
-                'systems'       => [System::Imperial, System::UsCustomary],
+                'asciiSymbol'         => 'degF',
+                'unicodeSymbol'       => '°F',
+                'systems'             => [System::Imperial, System::UsCustomary],
+                'expansionUnitSymbol' => 'degR',
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',
@@ -89,10 +94,6 @@ class Temperature extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
-            // Expansions.
-            ['degC', 'K', 1.0],
-            ['degF', 'degR', 1.0],
-            // Conversions.
             ['K', 'degR', self::RANKINE_PER_KELVIN],
         ];
     }
@@ -223,8 +224,8 @@ class Temperature extends Quantity
      */
     private static function isPrefixedKelvin(DerivedUnit $unit): bool
     {
-        /** @var UnitTerm $unitTerm */
         $unitTerm = $unit->firstUnitTerm;
+        assert($unitTerm instanceof UnitTerm);
         return $unitTerm->unit->asciiSymbol === 'K' && $unitTerm->prefix !== null;
     }
 

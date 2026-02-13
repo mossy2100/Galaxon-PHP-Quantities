@@ -20,11 +20,14 @@ class AmountOfSubstance extends Quantity
      * Unit definitions for amount of substance.
      *
      * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     systems: list<System>,
-     * }>
+     *      asciiSymbol: string,
+     *      unicodeSymbol?: string,
+     *      prefixGroup?: int,
+     *      alternateSymbol?: string,
+     *      systems: list<System>,
+     *      expansionUnitSymbol?: string,
+     *      expansionValue?: float
+     *  }>
      */
     #[Override]
     public static function getUnitDefinitions(): array

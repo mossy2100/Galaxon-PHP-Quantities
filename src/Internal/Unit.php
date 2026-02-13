@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\System;
 use Override;
 
 /**
@@ -84,11 +84,6 @@ class Unit implements UnitInterface
     private(set) ?string $alternateSymbol = null;
 
     /**
-     * The quantity type, e.g. 'length'.
-     */
-    private(set) string $quantityType;
-
-    /**
      * The dimension code (e.g. 'L', 'M', 'T-1').
      */
     private(set) string $dimension;
@@ -104,6 +99,16 @@ class Unit implements UnitInterface
      * @var list<System>
      */
     private(set) array $systems;
+
+    /**
+     * The unit symbol this unit expands to (e.g. 'kg*m/s2' for newton).
+     */
+    private(set) ?string $expansionUnitSymbol;
+
+    /**
+     * The conversion factor for the expansion (e.g. 1.0 for newton → kg*m/s2).
+     */
+    private(set) ?float $expansionValue;
 
     // endregion
 
@@ -161,13 +166,16 @@ class Unit implements UnitInterface
     }
 
     /**
-     * Expansion conversion for this unit, if any.
+     * Expansion unit, if any.
      *
-     * @var ?Conversion
+     * @var ?DerivedUnit
      */
-    public ?Conversion $expansion {
+    public ?DerivedUnit $expansionUnit {
         get {
-            return ConversionRegistry::getExpansion($this);
+            if ($this->expansionUnitSymbol === null) {
+                return null;
+            }
+            return $this->expansionUnit ??= DerivedUnit::parse($this->expansionUnitSymbol);
         }
     }
 
@@ -181,11 +189,12 @@ class Unit implements UnitInterface
      * @param string $name The unit name (e.g. 'metre', 'gram').
      * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
      * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if it's the same as ASCII.
-     * @param string $quantityType The quantity type (e.g. 'length', 'mass').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
      * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
      * @param list<System> $systems The measurement systems this unit belongs to.
+     * @param ?string $expansionUnitSymbol The unit symbol this unit expands to, or null if not expandable.
+     * @param ?float $expansionValue The conversion factor for the expansion, or null if not expandable.
      * @throws FormatException If the unit symbols contain invalid characters.
      * @throws DomainException If the dimension code is invalid.
      */
@@ -193,11 +202,12 @@ class Unit implements UnitInterface
         string $name,
         string $asciiSymbol,
         ?string $unicodeSymbol,
-        string $quantityType,
         string $dimension,
         int $prefixGroup = 0,
         ?string $alternateSymbol = null,
-        array $systems = []
+        array $systems = [],
+        ?string $expansionUnitSymbol = null,
+        ?float $expansionValue = null
     ) {
         // Check ASCII symbol contains ASCII letters only.
         if ($asciiSymbol !== '' && !self::isValidAsciiSymbol($asciiSymbol)) {
@@ -226,11 +236,12 @@ class Unit implements UnitInterface
         $this->name = $name;
         $this->asciiSymbol = $asciiSymbol;
         $this->unicodeSymbol = $unicodeSymbol ?? $asciiSymbol;
-        $this->quantityType = $quantityType;
         $this->dimension = Dimensions::normalize($dimension);
         $this->prefixGroup = $prefixGroup;
         $this->alternateSymbol = $alternateSymbol;
         $this->systems = $systems;
+        $this->expansionUnitSymbol = $expansionUnitSymbol;
+        $this->expansionValue = $expansionValue ?? ($expansionUnitSymbol !== null ? 1.0 : null);
     }
 
     // endregion
@@ -264,6 +275,11 @@ class Unit implements UnitInterface
         return $this->belongsToSystem(System::Si);
     }
 
+    /**
+     * Check if this unit is a base unit.
+     *
+     * @return bool True if the unit is a base unit.
+     */
     public function isBase(): bool
     {
         return strlen($this->dimension) === 1;
@@ -276,7 +292,7 @@ class Unit implements UnitInterface
      */
     public function isExpandable(): bool
     {
-        return $this->expansion !== null;
+        return $this->expansionUnitSymbol !== null;
     }
 
     // endregion

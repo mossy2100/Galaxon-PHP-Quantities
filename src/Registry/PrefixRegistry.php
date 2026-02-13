@@ -6,7 +6,7 @@ namespace Galaxon\Quantities\Registry;
 
 use DomainException;
 use Galaxon\Core\Floats;
-use Galaxon\Quantities\Prefix;
+use Galaxon\Quantities\Internal\Prefix;
 
 /**
  * Utility class for working with SI and binary prefixes.
@@ -18,16 +18,14 @@ class PrefixRegistry
 {
     // region Constants
 
-    public const int GROUP_SMALL_ENG_METRIC = 1;
-    public const int GROUP_SMALL_NON_ENG_METRIC = 2;
-    public const int GROUP_LARGE_NON_ENG_METRIC = 4;
-    public const int GROUP_LARGE_ENG_METRIC = 8;
-    public const int GROUP_BINARY = 16;
-    public const int GROUP_SMALL_METRIC = self::GROUP_SMALL_ENG_METRIC | self::GROUP_SMALL_NON_ENG_METRIC;
-    public const int GROUP_LARGE_METRIC = self::GROUP_LARGE_NON_ENG_METRIC | self::GROUP_LARGE_ENG_METRIC;
-    public const int GROUP_ENG_METRIC = self::GROUP_SMALL_ENG_METRIC | self::GROUP_LARGE_ENG_METRIC;
-    public const int GROUP_METRIC = self::GROUP_SMALL_METRIC | self::GROUP_LARGE_METRIC;
-    public const int GROUP_LARGE = self::GROUP_LARGE_ENG_METRIC | self::GROUP_BINARY;
+    public const int GROUP_SMALL_METRIC = 1;
+    public const int GROUP_MEDIUM_METRIC = 2;
+    public const int GROUP_LARGE_METRIC = 4;
+    public const int GROUP_BINARY = 8;
+
+    public const int GROUP_METRIC = self::GROUP_SMALL_METRIC | self::GROUP_MEDIUM_METRIC | self::GROUP_LARGE_METRIC;
+    public const int GROUP_ENGINEERING = self::GROUP_SMALL_METRIC | self::GROUP_LARGE_METRIC;
+    public const int GROUP_LARGE = self::GROUP_LARGE_METRIC | self::GROUP_BINARY;
     public const int GROUP_ALL = self::GROUP_METRIC | self::GROUP_BINARY;
 
     /**
@@ -36,7 +34,7 @@ class PrefixRegistry
      * @var array<int, array<string, array{0: string, 1: float, 2?: string}>>
      */
     private const array PREFIX_DEFINITIONS = [
-        self::GROUP_SMALL_ENG_METRIC     => [
+        self::GROUP_SMALL_METRIC  => [
             'quecto' => ['q', 1e-30],
             'ronto'  => ['r', 1e-27],
             'yocto'  => ['y', 1e-24],
@@ -48,15 +46,13 @@ class PrefixRegistry
             'micro'  => ['u', 1e-6, 'μ'],
             'milli'  => ['m', 1e-3],
         ],
-        self::GROUP_SMALL_NON_ENG_METRIC => [
+        self::GROUP_MEDIUM_METRIC => [
             'centi' => ['c', 1e-2],
             'deci'  => ['d', 1e-1],
-        ],
-        self::GROUP_LARGE_NON_ENG_METRIC => [
             'deca'  => ['da', 1e1],
             'hecto' => ['h', 1e2],
         ],
-        self::GROUP_LARGE_ENG_METRIC     => [
+        self::GROUP_LARGE_METRIC  => [
             'kilo'   => ['k', 1e3],
             'mega'   => ['M', 1e6],
             'giga'   => ['G', 1e9],
@@ -68,7 +64,7 @@ class PrefixRegistry
             'ronna'  => ['R', 1e27],
             'quetta' => ['Q', 1e30],
         ],
-        self::GROUP_BINARY               => [
+        self::GROUP_BINARY        => [
             'kibi'  => ['Ki', 2 ** 10],
             'mebi'  => ['Mi', 2 ** 20],
             'gibi'  => ['Gi', 2 ** 30],
@@ -242,13 +238,7 @@ class PrefixRegistry
      */
     private static function getValidGroupCodes(): array
     {
-        return [
-            self::GROUP_SMALL_ENG_METRIC,
-            self::GROUP_SMALL_NON_ENG_METRIC,
-            self::GROUP_LARGE_NON_ENG_METRIC,
-            self::GROUP_LARGE_ENG_METRIC,
-            self::GROUP_BINARY
-        ];
+        return [self::GROUP_SMALL_METRIC, self::GROUP_MEDIUM_METRIC, self::GROUP_LARGE_METRIC, self::GROUP_BINARY];
     }
 
     // endregion

@@ -30,14 +30,11 @@ final class RadiationDoseTest extends TestCase
     }
 
     /**
-     * Test getConversionDefinitions() returns valid conversion definitions.
+     * Test getConversionDefinitions() returns an empty array.
      */
-    public function testGetConversionDefinitionsReturnsValidArray(): void
+    public function testGetConversionDefinitionsReturnsEmptyArray(): void
     {
-        $conversions = RadiationDose::getConversionDefinitions();
-
-        $this->assertValidConversionDefinitionsShape($conversions);
-        $this->assertCount(2, $conversions);
+        $this->assertEmpty(RadiationDose::getConversionDefinitions());
     }
 
     // endregion

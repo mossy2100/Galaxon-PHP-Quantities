@@ -4,10 +4,12 @@ Represents an SI or binary prefix for units.
 
 ## Overview
 
-The `Prefix` class represents metric (SI) and binary prefixes that can be applied to units of measurement. Prefixes allow expressing very large or very small quantities more conveniently, such as kilometre (km), microsecond (us), or gibibyte (GiB).
+The `Prefix` class represents metric (SI) and binary prefixes that can be applied to units of measurement. 
+Prefixes allow expressing very large or very small quantities more conveniently, such as kilometre (km), 
+microsecond (µs), or gibibyte (GiB).
 
 Prefixes are organised into groups for flexible assignment to units:
-- **Metric prefixes**: Standard SI prefixes from yocto (10^-24) to yotta (10^24)
+- **Metric prefixes**: Standard SI prefixes from yocto (10⁻²⁴) to yotta (10²⁴)
 - **Binary prefixes**: IEC binary prefixes (kibi, mebi, gibi, etc.) for computing
 - **Small metric**: Only the smaller metric prefixes (milli, micro, nano, etc.)
 
@@ -37,7 +39,7 @@ The ASCII symbol for the prefix (e.g., 'k' for kilo, 'u' for micro). Used for pa
 public readonly string $unicodeSymbol
 ```
 
-The Unicode symbol for the prefix (e.g., 'μ' for micro, 'Ω' for ohm). Used for display purposes.
+The Unicode symbol for the prefix (e.g., 'μ' for micro). Used for display purposes.
 
 ### multiplier
 
@@ -46,9 +48,9 @@ public readonly float $multiplier
 ```
 
 The numeric multiplier the prefix represents. For example:
-- kilo: 1000 (10^3)
-- milli: 0.001 (10^-3)
-- kibi: 1024 (2^10)
+- kilo: 1000 (10³)
+- milli: 0.001 (10⁻³)
+- kibi: 1024 (2¹⁰)
 
 ### groupCode
 
@@ -84,10 +86,10 @@ Create a new Prefix instance.
 **Examples:**
 ```php
 // Create the kilo prefix
-$kilo = new Prefix('kilo', 'k', null, 1000, Prefix::GROUP_CODE_METRIC);
+$kilo = new Prefix('kilo', 'k', null, 1000, PrefixRegistry::GROUP_LARGE_METRIC);
 
 // Create the micro prefix with different ASCII/Unicode symbols
-$micro = new Prefix('micro', 'u', 'μ', 1e-6, Prefix::GROUP_CODE_METRIC);
+$micro = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_METRIC);
 ```
 
 ## Inspection Methods
@@ -171,41 +173,27 @@ Convert the prefix to a string using the Unicode symbol.
 **Returns:**
 - `string` - The Unicode symbol
 
-## Constants
-
-The class defines group code constants for prefix categorisation:
-
-| Constant | Value | Description |
-|----------|-------|-------------|
-| `GROUP_CODE_METRIC` | 1 | Full range of metric (SI) prefixes |
-| `GROUP_CODE_BINARY` | 2 | Binary (IEC) prefixes for computing |
-| `GROUP_CODE_SMALL_METRIC` | 4 | Only small metric prefixes (milli, micro, etc.) |
-
 ## Usage Examples
 
 ### Working with Prefix Groups
 
 ```php
-use Galaxon\Quantities\Prefix;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 
 // Get all metric prefixes
-$metricPrefixes = PrefixRegistry::getPrefixes(Prefix::GROUP_CODE_METRIC);
+$metricPrefixes = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_METRIC);
 
-// Get prefixes that work for both metric and binary
-$bothGroups = Prefix::GROUP_CODE_METRIC | Prefix::GROUP_CODE_BINARY;
-$allPrefixes = PrefixRegistry::getPrefixes($bothGroups);
+// Get all prefixes (metric + binary)
+$allPrefixes = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_ALL);
 ```
 
 ### Creating Prefixed Units
 
 ```php
-use Galaxon\Quantities\UnitTerm;
-use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Internal\UnitTerm;
 
 // Create a kilometre
-$kilo = PrefixRegistry::getBySymbol('k');
-$km = new UnitTerm('m', $kilo);
+$km = new UnitTerm('m', 'k');
 
 // The multiplier accounts for the prefix
 echo $km->multiplier; // 1000
@@ -215,4 +203,4 @@ echo $km->multiplier; // 1000
 
 - **[UnitTerm](UnitTerm.md)** - Uses prefixes when representing prefixed units
 - **[Unit](Unit.md)** - Defines which prefixes a unit accepts
-- **[PrefixRegistry](Registry/PrefixRegistry.md)** - Helper functions for working with prefixes
+- **[PrefixRegistry](../Registry/PrefixRegistry.md)** - Helper functions for working with prefixes

@@ -6,7 +6,7 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
-use Galaxon\Quantities\Conversion;
+use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\Registry\ConversionRegistry;
@@ -596,7 +596,6 @@ final class TemperatureTest extends TestCase
             name: 'dummy-temp',
             asciiSymbol: 'degX',
             unicodeSymbol: null,
-            quantityType: 'temperature',
             dimension: 'H',
             systems: [System::Si]
         );

@@ -16,24 +16,21 @@ The `PrefixRegistry` provides access to metric prefixes (milli, kilo, mega, etc.
 
 Prefixes are organized into groups using bitwise flags:
 
-| Constant                          | Value  | Description                                     |
-|-----------------------------------|--------|-------------------------------------------------|
-| `GROUP_CODE_SMALL_ENG_METRIC`     | 1      | Small engineering: m, μ, n, p, f, a, z, y, r, q |
-| `GROUP_CODE_SMALL_NON_ENG_METRIC` | 2      | Small non-engineering: c, d                     |
-| `GROUP_CODE_LARGE_NON_ENG_METRIC` | 4      | Large non-engineering: da, h                    |
-| `GROUP_CODE_LARGE_ENG_METRIC`     | 8      | Large engineering: k, M, G, T, P, E, Z, Y, R, Q |
-| `GROUP_CODE_BINARY`               | 16     | Binary: Ki, Mi, Gi, Ti, Pi, Ei, Zi, Yi, Ri, Qi  |
+| Constant              | Value | Description                                      |
+|-----------------------|-------|--------------------------------------------------|
+| `GROUP_SMALL_METRIC`  | 1     | Small metric: m, μ, n, p, f, a, z, y, r, q      |
+| `GROUP_MEDIUM_METRIC` | 2     | Medium metric: c, d, da, h                       |
+| `GROUP_LARGE_METRIC`  | 4     | Large metric: k, M, G, T, P, E, Z, Y, R, Q      |
+| `GROUP_BINARY`        | 8     | Binary: Ki, Mi, Gi, Ti, Pi, Ei, Zi, Yi, Ri, Qi   |
 
 ### Combined Group Codes
 
-| Constant | Components | Description |
-|----------|------------|-------------|
-| `GROUP_CODE_SMALL_METRIC` | 1 \| 2 | All small metric prefixes |
-| `GROUP_CODE_LARGE_METRIC` | 4 \| 8 | All large metric prefixes |
-| `GROUP_CODE_ENG_METRIC` | 1 \| 8 | Engineering metric (powers of 1000) |
-| `GROUP_CODE_METRIC` | 1 \| 2 \| 4 \| 8 | All metric prefixes |
-| `GROUP_CODE_LARGE` | 8 \| 16 | Large metric + binary |
-| `GROUP_CODE_ALL` | all | All prefixes |
+| Constant         | Components  | Description                       |
+|------------------|-------------|-----------------------------------|
+| `GROUP_METRIC`      | 1 \| 2 \| 4 | All metric prefixes               |
+| `GROUP_ENGINEERING` | 1 \| 4       | Engineering metric (powers of 1000) |
+| `GROUP_LARGE`       | 4 \| 8       | Large metric + binary             |
+| `GROUP_ALL`         | 1 \| 2 \| 4 \| 8 | All prefixes                      |
 
 ---
 
@@ -43,30 +40,30 @@ Prefixes are organized into groups using bitwise flags:
 
 | Name | Symbol | Multiplier | Group |
 |------|--------|------------|-------|
-| quecto | q | 10⁻³⁰ | small eng |
-| ronto | r | 10⁻²⁷ | small eng |
-| yocto | y | 10⁻²⁴ | small eng |
-| zepto | z | 10⁻²¹ | small eng |
-| atto | a | 10⁻¹⁸ | small eng |
-| femto | f | 10⁻¹⁵ | small eng |
-| pico | p | 10⁻¹² | small eng |
-| nano | n | 10⁻⁹ | small eng |
-| micro | μ, u | 10⁻⁶ | small eng |
-| milli | m | 10⁻³ | small eng |
-| centi | c | 10⁻² | small non-eng |
-| deci | d | 10⁻¹ | small non-eng |
-| deca | da | 10¹ | large non-eng |
-| hecto | h | 10² | large non-eng |
-| kilo | k | 10³ | large eng |
-| mega | M | 10⁶ | large eng |
-| giga | G | 10⁹ | large eng |
-| tera | T | 10¹² | large eng |
-| peta | P | 10¹⁵ | large eng |
-| exa | E | 10¹⁸ | large eng |
-| zetta | Z | 10²¹ | large eng |
-| yotta | Y | 10²⁴ | large eng |
-| ronna | R | 10²⁷ | large eng |
-| quetta | Q | 10³⁰ | large eng |
+| quecto | q | 10⁻³⁰ | small |
+| ronto | r | 10⁻²⁷ | small |
+| yocto | y | 10⁻²⁴ | small |
+| zepto | z | 10⁻²¹ | small |
+| atto | a | 10⁻¹⁸ | small |
+| femto | f | 10⁻¹⁵ | small |
+| pico | p | 10⁻¹² | small |
+| nano | n | 10⁻⁹ | small |
+| micro | μ, u | 10⁻⁶ | small |
+| milli | m | 10⁻³ | small |
+| centi | c | 10⁻² | medium |
+| deci | d | 10⁻¹ | medium |
+| deca | da | 10¹ | medium |
+| hecto | h | 10² | medium |
+| kilo | k | 10³ | large |
+| mega | M | 10⁶ | large |
+| giga | G | 10⁹ | large |
+| tera | T | 10¹² | large |
+| peta | P | 10¹⁵ | large |
+| exa | E | 10¹⁸ | large |
+| zetta | Z | 10²¹ | large |
+| yotta | Y | 10²⁴ | large |
+| ronna | R | 10²⁷ | large |
+| quetta | Q | 10³⁰ | large |
 
 ### Binary Prefixes
 
@@ -87,7 +84,7 @@ Prefixes are organized into groups using bitwise flags:
 
 ## Methods
 
-#### `static getPrefixes(int $prefixGroup = GROUP_CODE_ALL): array`
+#### `static getPrefixes(int $prefixGroup = GROUP_ALL): array`
 
 Get prefixes matching a group code.
 
@@ -96,16 +93,16 @@ Get prefixes matching a group code.
 $all = PrefixRegistry::getPrefixes();
 
 // Only metric prefixes
-$metric = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_METRIC);
+$metric = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_METRIC);
 
 // Only engineering prefixes (powers of 1000)
-$eng = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_ENG_METRIC);
+$eng = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_ENGINEERING);
 
 // Binary prefixes only
-$binary = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_BINARY);
+$binary = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_BINARY);
 
 // Large metric + binary (for data units)
-$large = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_LARGE);
+$large = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_LARGE);
 ```
 
 #### `static getBySymbol(string $symbol): ?Prefix`
@@ -136,9 +133,9 @@ $micro = PrefixRegistry::invert($mega);      // 10⁻⁶
 Check if a group code is one of the base codes.
 
 ```php
-$valid = PrefixRegistry::isValidGroupCode(1);   // true (SMALL_ENG_METRIC)
+$valid = PrefixRegistry::isValidGroupCode(1);   // true (SMALL_METRIC)
 $valid = PrefixRegistry::isValidGroupCode(3);   // false (combined code)
-$valid = PrefixRegistry::isValidGroupCode(16);  // true (BINARY)
+$valid = PrefixRegistry::isValidGroupCode(8);   // true (BINARY)
 ```
 
 ---
@@ -149,7 +146,7 @@ $valid = PrefixRegistry::isValidGroupCode(16);  // true (BINARY)
 use Galaxon\Quantities\Registry\PrefixRegistry;
 
 // Get all engineering prefixes for a scientific application
-$engPrefixes = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_CODE_ENG_METRIC);
+$engPrefixes = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_ENGINEERING);
 foreach ($engPrefixes as $prefix) {
     echo "{$prefix->name}: {$prefix->asciiSymbol} = {$prefix->multiplier}\n";
 }
@@ -171,6 +168,6 @@ $inverse = PrefixRegistry::invert($source);    // micro (10⁻⁶)
 
 ## See Also
 
-- **[Prefix](../Prefix.md)** - Prefix class documentation
-- **[Unit](../Unit.md)** - Unit class using prefix groups
+- **[Prefix](../Internal/Prefix.md)** - Prefix class documentation
+- **[Unit](../Internal/Unit.md)** - Unit class using prefix groups
 - **[SupportedUnits](../SupportedUnits.md)** - Units with their prefix support

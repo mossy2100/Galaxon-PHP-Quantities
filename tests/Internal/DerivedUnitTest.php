@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -1106,13 +1106,13 @@ class DerivedUnitTest extends TestCase
     }
 
     /**
-     * Test isBase returns false for dimensionless unit.
+     * Test isBase returns true for dimensionless unit.
      */
-    public function testIsBaseReturnsFalseForDimensionless(): void
+    public function testIsBaseReturnsTrueForDimensionless(): void
     {
         $du = new DerivedUnit();
 
-        $this->assertFalse($du->isBase());
+        $this->assertTrue($du->isBase());
     }
 
     // endregion
@@ -1287,14 +1287,14 @@ class DerivedUnitTest extends TestCase
     }
 
     /**
-     * Test isSiBase returns false for dimensionless unit.
+     * Test isSiBase returns true for dimensionless unit.
      */
-    public function testIsSiBaseReturnsFalseForDimensionlessUnit(): void
+    public function testIsSiBaseReturnsTrueForDimensionlessUnit(): void
     {
         $du = new DerivedUnit();
 
         // Dimensionless toSiBase() returns empty, which equals empty.
-        $this->assertFalse($du->isSiBase());
+        $this->assertTrue($du->isSiBase());
     }
 
     // endregion
@@ -1432,50 +1432,50 @@ class DerivedUnitTest extends TestCase
 
     // endregion
 
-    // region hasMergeableUnits() tests
+    // region isMergeable() tests
 
     /**
-     * Test hasMergeableUnits returns true when two terms share the same dimension.
+     * Test isMergeable returns true when two terms share the same dimension.
      */
-    public function testHasMergeableUnitsReturnsTrueForSameDimensionTerms(): void
+    public function testIsMergeableReturnsTrueForSameDimensionTerms(): void
     {
         // m and ft are both length (dimension 'L').
         $m = new UnitTerm('m');
         $ft = new UnitTerm('ft');
         $du = new DerivedUnit([$m, $ft]);
 
-        $this->assertTrue($du->hasMergeableUnits());
+        $this->assertTrue($du->isMergeable());
     }
 
     /**
-     * Test hasMergeableUnits returns false when all terms have different dimensions.
+     * Test isMergeable returns false when all terms have different dimensions.
      */
-    public function testHasMergeableUnitsReturnsFalseForDifferentDimensions(): void
+    public function testIsMergeableReturnsFalseForDifferentDimensions(): void
     {
         // kg*m/s2 - mass, length, and time are all different dimensions.
         $du = DerivedUnit::parse('kg*m/s2');
 
-        $this->assertFalse($du->hasMergeableUnits());
+        $this->assertFalse($du->isMergeable());
     }
 
     /**
-     * Test hasMergeableUnits returns false for a single unit term.
+     * Test isMergeable returns false for a single unit term.
      */
-    public function testHasMergeableUnitsReturnsFalseForSingleTerm(): void
+    public function testIsMergeableReturnsFalseForSingleTerm(): void
     {
         $du = DerivedUnit::parse('m');
 
-        $this->assertFalse($du->hasMergeableUnits());
+        $this->assertFalse($du->isMergeable());
     }
 
     /**
-     * Test hasMergeableUnits returns false for empty (dimensionless) unit.
+     * Test isMergeable returns false for empty (dimensionless) unit.
      */
-    public function testHasMergeableUnitsReturnsFalseForDimensionless(): void
+    public function testIsMergeableReturnsFalseForDimensionless(): void
     {
         $du = new DerivedUnit();
 
-        $this->assertFalse($du->hasMergeableUnits());
+        $this->assertFalse($du->isMergeable());
     }
 
     // endregion

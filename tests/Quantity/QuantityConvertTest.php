@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Quantity;
 
 use DomainException;
-use Galaxon\Quantities\DerivedUnit;
+use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Quantity;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;

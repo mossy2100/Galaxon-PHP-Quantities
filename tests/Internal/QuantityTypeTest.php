@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
+use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;

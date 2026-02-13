@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Internal;
 
 use DomainException;
+use Galaxon\Quantities\Quantity;
 
 /**
  * Represents a quantity type.
@@ -43,7 +44,7 @@ class QuantityType
                 throw new DomainException("$value must be a subclass of " . Quantity::class . '.');
             }
 
-            /** @var class-string<Quantity> $value */
+            /** @var ?class-string<Quantity> $value */
             $this->class = $value;
         }
     }

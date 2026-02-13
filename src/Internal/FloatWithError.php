@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Internal;
 
 use DivisionByZeroError;
 use Galaxon\Core\Floats;
@@ -91,7 +91,7 @@ class FloatWithError implements Stringable
      *
      * @return bool
      */
-    public function isInteger(): bool
+    public function isExactInt(): bool
     {
         return Floats::isExactInt($this->value) && $this->absoluteError === 0.0;
     }

@@ -20,35 +20,25 @@ class Capacitance extends Quantity
      * Unit definitions for capacitance.
      *
      * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     systems: list<System>
-     * }>
+     *      asciiSymbol: string,
+     *      unicodeSymbol?: string,
+     *      prefixGroup?: int,
+     *      alternateSymbol?: string,
+     *      systems: list<System>,
+     *      expansionUnitSymbol?: string,
+     *      expansionValue?: float
+     *  }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
     {
         return [
             'farad' => [
-                'asciiSymbol' => 'F',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'asciiSymbol'         => 'F',
+                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
+                'systems'             => [System::Si],
+                'expansionUnitSymbol' => 'kg-1*m-2*s4*A2',
             ],
-        ];
-    }
-
-    /**
-     * Conversion factors for capacitance units.
-     *
-     * @return list<array{string, string, float}>
-     */
-    #[Override]
-    public static function getConversionDefinitions(): array
-    {
-        return [
-            // Expansion.
-            ['F', 'kg-1*m-2*s4*A2', 1.0],
         ];
     }
 

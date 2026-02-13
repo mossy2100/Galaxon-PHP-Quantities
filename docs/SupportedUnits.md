@@ -476,8 +476,7 @@ ASCII characters are easier to type, and 'H' suggests heat.
 By default, only SI, SI Accepted, and Common units are loaded. To use Imperial, US Customary, or other system units, load them first:
 
 ```php
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Registry\UnitRegistry;use Galaxon\Quantities\System;
 
 // Load Imperial and US Customary units
 UnitRegistry::loadSystem(System::Imperial);
@@ -491,6 +490,6 @@ $length = new Length(100, 'ft');
 
 - **[QuantityType/](QuantityType/)** - Documentation for all quantity type classes
 - **[System](System.md)** - Measurement system classification
-- **[Prefix](Prefix.md)** - SI and binary prefixes
-- **[Unit](Unit.md)** - Unit class documentation
+- **[Prefix](Internal/Prefix.md)** - SI and binary prefixes
+- **[Unit](Internal/Unit.md)** - Unit class documentation
 - **[Quantity](Quantity.md)** - Working with quantities

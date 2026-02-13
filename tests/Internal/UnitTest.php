@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Prefix;
+use Galaxon\Quantities\Internal\Prefix;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Unit;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -42,7 +42,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -51,7 +50,6 @@ final class UnitTest extends TestCase
         $this->assertSame('metre', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
         $this->assertSame('m', $unit->unicodeSymbol);
-        $this->assertSame('length', $unit->quantityType);
         $this->assertSame('L', $unit->dimension);
         $this->assertContains(System::Si, $unit->systems);
         $this->assertSame(PrefixRegistry::GROUP_METRIC, $unit->prefixGroup);
@@ -66,7 +64,6 @@ final class UnitTest extends TestCase
             name: 'hertz',
             asciiSymbol: 'Hz',
             unicodeSymbol: null,
-            quantityType: 'frequency',
             dimension: 'T-1',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -75,7 +72,6 @@ final class UnitTest extends TestCase
         $this->assertSame('hertz', $unit->name);
         $this->assertSame('Hz', $unit->asciiSymbol);
         $this->assertSame('Hz', $unit->unicodeSymbol);
-        $this->assertSame('frequency', $unit->quantityType);
         $this->assertSame('T-1', $unit->dimension);
     }
 
@@ -88,7 +84,6 @@ final class UnitTest extends TestCase
             name: 'ohm',
             asciiSymbol: 'ohm',
             unicodeSymbol: 'Ω',
-            quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -107,7 +102,6 @@ final class UnitTest extends TestCase
             name: 'hectare',
             asciiSymbol: 'ha',
             unicodeSymbol: null,
-            quantityType: 'area',
             dimension: 'L2',
             systems: [System::SiAccepted]
         );
@@ -124,7 +118,6 @@ final class UnitTest extends TestCase
             name: 'newton',
             asciiSymbol: 'N',
             unicodeSymbol: null,
-            quantityType: 'force',
             dimension: 'MLT-2',
             systems: [System::Si]
         );
@@ -145,7 +138,6 @@ final class UnitTest extends TestCase
             name: 'test',
             asciiSymbol: 'm²',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -163,7 +155,6 @@ final class UnitTest extends TestCase
             name: 'test',
             asciiSymbol: 'm',
             unicodeSymbol: '123',
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -182,7 +173,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -199,7 +189,6 @@ final class UnitTest extends TestCase
             name: 'ohm',
             asciiSymbol: 'ohm',
             unicodeSymbol: 'Ω',
-            quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             systems: [System::Si]
         );
@@ -216,7 +205,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -233,7 +221,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -254,7 +241,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -272,7 +258,6 @@ final class UnitTest extends TestCase
             name: 'hectare',
             asciiSymbol: 'ha',
             unicodeSymbol: null,
-            quantityType: 'area',
             dimension: 'L2',
             systems: [System::SiAccepted]
         );
@@ -289,7 +274,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -309,7 +293,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -331,7 +314,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -349,7 +331,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -368,7 +349,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -387,7 +367,6 @@ final class UnitTest extends TestCase
             name: 'hectare',
             asciiSymbol: 'ha',
             unicodeSymbol: null,
-            quantityType: 'area',
             dimension: 'L2',
             systems: [System::SiAccepted]
         );
@@ -404,7 +383,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -426,7 +404,6 @@ final class UnitTest extends TestCase
             name: 'hectare',
             asciiSymbol: 'ha',
             unicodeSymbol: null,
-            quantityType: 'area',
             dimension: 'L2',
             systems: [System::SiAccepted]
         );
@@ -449,7 +426,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -466,7 +442,6 @@ final class UnitTest extends TestCase
             name: 'ohm',
             asciiSymbol: 'ohm',
             unicodeSymbol: 'Ω',
-            quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             systems: [System::Si]
         );
@@ -483,7 +458,6 @@ final class UnitTest extends TestCase
             name: 'ohm',
             asciiSymbol: 'ohm',
             unicodeSymbol: 'Ω',
-            quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             systems: [System::Si]
         );
@@ -501,7 +475,6 @@ final class UnitTest extends TestCase
             name: 'ohm',
             asciiSymbol: 'ohm',
             unicodeSymbol: 'Ω',
-            quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             systems: [System::Si]
         );
@@ -518,7 +491,6 @@ final class UnitTest extends TestCase
             name: 'degree',
             asciiSymbol: 'deg',
             unicodeSymbol: '°',
-            quantityType: 'angle',
             dimension: 'A',
             systems: [System::SiAccepted]
         );
@@ -541,7 +513,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -558,7 +529,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -566,7 +536,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -583,7 +552,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -591,7 +559,6 @@ final class UnitTest extends TestCase
             name: 'foot',
             asciiSymbol: 'ft',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Imperial]
         );
@@ -608,7 +575,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -633,7 +599,6 @@ final class UnitTest extends TestCase
         $this->assertInstanceOf(Unit::class, $unit);
         $this->assertSame('metre', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
-        $this->assertSame('length', $unit->quantityType);
         $this->assertSame('L', $unit->dimension);
         $this->assertTrue($unit->acceptsPrefixes());
     }
@@ -663,7 +628,6 @@ final class UnitTest extends TestCase
         $this->assertInstanceOf(Unit::class, $unit);
         $this->assertSame('byte', $unit->name);
         $this->assertSame('B', $unit->asciiSymbol);
-        $this->assertSame('data', $unit->quantityType);
 
         // Should accept both binary and large metric prefixes.
         $this->assertTrue($unit->acceptsPrefix('Ki'));
@@ -762,7 +726,6 @@ final class UnitTest extends TestCase
             name: 'litre',
             asciiSymbol: 'L',
             unicodeSymbol: null,
-            quantityType: 'volume',
             dimension: 'L3',
             alternateSymbol: 'l',
             systems: [System::SiAccepted]
@@ -783,7 +746,6 @@ final class UnitTest extends TestCase
             name: 'litre',
             asciiSymbol: 'L',
             unicodeSymbol: null,
-            quantityType: 'volume',
             dimension: 'L3',
             alternateSymbol: 'ℓ',
             systems: [System::SiAccepted]
@@ -799,7 +761,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -820,7 +781,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -841,7 +801,6 @@ final class UnitTest extends TestCase
             name: 'ohm',
             asciiSymbol: 'ohm',
             unicodeSymbol: 'Ω',
-            quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             systems: [System::Si]
         );
@@ -861,7 +820,6 @@ final class UnitTest extends TestCase
             name: 'litre',
             asciiSymbol: 'L',
             unicodeSymbol: null,
-            quantityType: 'volume',
             dimension: 'L3',
             alternateSymbol: 'l',
             systems: [System::SiAccepted]
@@ -882,7 +840,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -905,7 +862,6 @@ final class UnitTest extends TestCase
             name: 'ohm',
             asciiSymbol: 'ohm',
             unicodeSymbol: 'Ω',
-            quantityType: 'resistance',
             dimension: 'T-3L2MI-2',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -935,7 +891,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -952,7 +907,6 @@ final class UnitTest extends TestCase
             name: 'metre',
             asciiSymbol: 'm',
             unicodeSymbol: null,
-            quantityType: 'length',
             dimension: 'L',
             systems: [System::Si]
         );
@@ -969,7 +923,6 @@ final class UnitTest extends TestCase
             name: 'second',
             asciiSymbol: 's',
             unicodeSymbol: null,
-            quantityType: 'time',
             dimension: 'T',
             systems: [System::Si, System::Imperial]
         );

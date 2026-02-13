@@ -34,14 +34,11 @@ final class FrequencyTest extends TestCase
     }
 
     /**
-     * Test getConversionDefinitions() returns valid conversion definitions.
+     * Test getConversionDefinitions() returns an empty array.
      */
-    public function testGetConversionDefinitionsReturnsValidArray(): void
+    public function testGetConversionDefinitionsReturnsEmptyArray(): void
     {
-        $conversions = Frequency::getConversionDefinitions();
-
-        $this->assertValidConversionDefinitionsShape($conversions);
-        $this->assertCount(2, $conversions);
+        $this->assertEmpty(Frequency::getConversionDefinitions());
     }
 
     // endregion
@@ -558,9 +555,8 @@ final class FrequencyTest extends TestCase
     {
         // T = 1/f
         // Period of 50 Hz = 1/50 = 0.02 s = 20 ms
-        $one = new Dimensionless(1);
         $freq = new Frequency(50, 'Hz');
-        $period = $one->div($freq);
+        $period = $freq->inv();
 
         $this->assertInstanceOf(Time::class, $period);
         $this->assertSame(0.02, $period->value);

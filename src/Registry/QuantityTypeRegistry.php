@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Registry;
 
 use DomainException;
-use Galaxon\Quantities\Dimensions;
+use Galaxon\Quantities\Internal\Dimensions;
+use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\QuantityType\Acceleration;
 use Galaxon\Quantities\QuantityType\AmountOfSubstance;
 use Galaxon\Quantities\QuantityType\Angle;
@@ -341,7 +341,7 @@ class QuantityTypeRegistry
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2', 'LT-1').
      * @param ?class-string<Quantity> $class The Quantity subclass to use for this dimension.
      */
-    public static function add(string $name, string $dimension, ?string $class): void
+    public static function add(string $name, string $dimension, ?string $class = null): void
     {
         self::init();
 

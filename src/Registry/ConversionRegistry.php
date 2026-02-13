@@ -6,12 +6,11 @@ namespace Galaxon\Quantities\Registry;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Conversion;
-use Galaxon\Quantities\DerivedUnit;
-use Galaxon\Quantities\Dimensions;
+use Galaxon\Quantities\Internal\Conversion;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\Dimensions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Unit;
 
 /**
  * Registry for unit conversions.
@@ -21,13 +20,6 @@ use Galaxon\Quantities\Unit;
  */
 class ConversionRegistry
 {
-    // region Constants
-
-    public const int ON_MISSING_UNIT_IGNORE = 1;
-    public const int ON_MISSING_UNIT_THROW = 2;
-
-    // endregion
-
     // region Static properties
 
     /**
@@ -74,40 +66,6 @@ class ConversionRegistry
         // This will throw if the dimension is invalid.
         $dimension = Dimensions::normalize($dimension);
         return self::$conversions[$dimension] ?? [];
-    }
-
-    /**
-     * Get the expansion conversion for a unit.
-     *
-     * An expansion converts a derived unit (like N) to its base unit equivalent (like kg*m/s2).
-     * Returns the first conversion found where the destination unit is a non-expandable unit.
-     *
-     * @param string|Unit $unit The unit to find an expansion for.
-     * @return ?Conversion The expansion conversion, or null if not found or unit is already base.
-     * @throws DomainException If the unit symbol is unknown.
-     */
-    public static function getExpansion(string|Unit $unit): ?Conversion
-    {
-        self::init();
-        assert(self::$conversions !== null);
-
-        // If the unit is provided as a string, convert it to a Unit object.
-        if (is_string($unit)) {
-            $unitSymbol = $unit;
-            $unit = UnitRegistry::getBySymbol($unitSymbol);
-            if ($unit === null) {
-                throw new DomainException("Unknown unit symbol: '$unitSymbol'.");
-            }
-        }
-
-        // Check if the unit could potentially have an expansion.
-        if ($unit->isBase()) {
-            return null;
-        }
-
-        // Look for a conversion from this unit to a base unit.
-        $conversionsFromUnit = self::$conversions[$unit->dimension][$unit->asciiSymbol] ?? [];
-        return array_find($conversionsFromUnit, static fn (Conversion $conversion) => $conversion->destUnit->isBase());
     }
 
     // endregion
@@ -174,6 +132,16 @@ class ConversionRegistry
 
             // Add the conversion (replacing any existing).
             self::add(new Conversion($srcUnit, $destUnit, $factor));
+        }
+
+        // Load any expansions for units in this system as well.
+        $units = UnitRegistry::getBySystem($system);
+        foreach ($units as $unit) {
+            if ($unit->isExpandable()) {
+                assert($unit->expansionUnit instanceof DerivedUnit);
+                assert(is_float($unit->expansionValue));
+                self::add(new Conversion($unit, $unit->expansionUnit, $unit->expansionValue));
+            }
         }
     }
 
@@ -302,8 +270,8 @@ class ConversionRegistry
         $definitions = [];
 
         foreach (QuantityTypeRegistry::getAll() as $qtyType) {
-            /** @var ?class-string<Quantity> $qtyTypeClass */
             $qtyTypeClass = $qtyType->class;
+            assert($qtyTypeClass === null || is_subclass_of($qtyTypeClass, Quantity::class));
 
             // Skip quantity types without a class.
             if ($qtyTypeClass === null) {

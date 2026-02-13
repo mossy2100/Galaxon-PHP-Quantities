@@ -605,7 +605,7 @@ usort($lengths, fn($x, $y) => $x->compare($y));
 
 ## See Also
 
-- **[DerivedUnit](DerivedUnit.md)** - Unit representation used by Quantity
-- **[Converter](Converter.md)** - Handles unit conversions
-- **[QuantityType](QuantityType.md)** - Quantity type metadata
+- **[DerivedUnit](Internal/DerivedUnit.md)** - Unit representation used by Quantity
+- **[Converter](Internal/Converter.md)** - Handles unit conversions
+- **[QuantityType](Internal/QuantityType.md)** - Quantity type metadata
 - **[PhysicalConstant](PhysicalConstant.md)** - Physical constants as Quantities

@@ -47,14 +47,11 @@ final class ForceTest extends TestCase
     }
 
     /**
-     * Test getConversionDefinitions() returns valid conversion definitions.
+     * Test getConversionDefinitions() returns an empty array.
      */
-    public function testGetConversionDefinitionsReturnsValidArray(): void
+    public function testGetConversionDefinitionsReturnsEmptyArray(): void
     {
-        $conversions = Force::getConversionDefinitions();
-
-        $this->assertValidConversionDefinitionsShape($conversions);
-        $this->assertCount(2, $conversions);
+        $this->assertEmpty(Force::getConversionDefinitions());
     }
 
     // endregion
@@ -450,7 +447,7 @@ final class ForceTest extends TestCase
 
         // lbf expands to lb·ft·s⁻² with factor g₀/0.3048 ≈ 32.174
         // 1 lbf = 32.174... lb·ft·s⁻²
-        $this->assertApproxEqual(9.80665 / 0.3048, $expanded->value);
+        $this->assertApproxEqual(32.17404855643044, $expanded->value);
         $this->assertSame('lb*ft/s2', $expanded->derivedUnit->asciiSymbol);
     }
 

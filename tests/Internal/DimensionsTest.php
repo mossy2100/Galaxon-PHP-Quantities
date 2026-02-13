@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
-use Galaxon\Quantities\Dimensions;
-use Galaxon\Quantities\UnitTerm;
+use Galaxon\Quantities\Internal\Dimensions;
+use Galaxon\Quantities\Internal\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

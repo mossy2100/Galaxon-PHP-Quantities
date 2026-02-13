@@ -23,7 +23,10 @@ class Length extends Quantity
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     #[Override]
@@ -47,7 +50,7 @@ class Length extends Quantity
             ],
             'parsec'            => [
                 'asciiSymbol' => 'pc',
-                'prefixGroup' => PrefixRegistry::GROUP_LARGE_ENG_METRIC,
+                'prefixGroup' => PrefixRegistry::GROUP_LARGE_METRIC,
                 'systems'     => [System::Astronomical],
             ],
             // Typography/CSS

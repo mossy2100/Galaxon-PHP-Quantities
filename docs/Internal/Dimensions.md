@@ -23,18 +23,18 @@ This class provides methods for validating, decomposing, composing, and transfor
 
 Based on the International System of Quantities (ISQ) with some additions:
 
-| Code | Name | SI Unit |
-|------|------|---------|
-| M | mass | kg |
-| L | length | m |
-| A | angle | rad |
-| D | data | B |
-| C | currency | XAU |
-| T | time | s |
-| I | electric current | A |
-| N | amount of substance | mol |
-| H | temperature | K |
-| J | luminous intensity | cd |
+| Code | Name                | SI Base Unit  |
+|------|---------------------|---------------|
+| M    | mass                | kg            |
+| L    | length              | m             |
+| A    | angle               | rad           |
+| D    | data                | B             |
+| C    | currency            | XAU           |
+| T    | time                | s             |
+| I    | electric current    | A             |
+| N    | amount of substance | mol           |
+| H    | temperature         | K             |
+| J    | luminous intensity  | cd            |
 
 **Notes:**
 - `A` (angle) is not in ISQ but needed for this system
@@ -175,7 +175,7 @@ $dim = Dimensions::normalize('TLM');
 ## Usage Examples
 
 ```php
-use Galaxon\Quantities\Dimensions;
+use Galaxon\Quantities\Internal\Dimensions;
 
 // Validate user input
 if (Dimensions::isValid($userDimension)) {
@@ -200,6 +200,6 @@ $result = Dimensions::compose($terms1);
 
 ## See Also
 
-- **[QuantityTypeRegistry](Registry/QuantityTypeRegistry.md)** - Registry using dimension codes
+- **[QuantityTypeRegistry](../Registry/QuantityTypeRegistry.md)** - Registry using dimension codes
 - **[DerivedUnit](DerivedUnit.md)** - Uses dimension codes
 - **[UnitTerm](UnitTerm.md)** - Individual unit terms

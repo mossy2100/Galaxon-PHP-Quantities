@@ -174,7 +174,7 @@ $jerk = Quantity::create(1, 'm/s3');
 
 ## See Also
 
-- **[QuantityType](../QuantityType.md)** - QuantityType class documentation
+- **[QuantityType](../Internal/QuantityType.md)** - QuantityType class documentation
 - **[Quantity](../Quantity.md)** - Base quantity class
-- **[Dimensions](../Dimensions.md)** - Dimension code utilities
+- **[Dimensions](../Internal/Dimensions.md)** - Dimension code utilities
 - **[UnitRegistry](UnitRegistry.md)** - Unit registry

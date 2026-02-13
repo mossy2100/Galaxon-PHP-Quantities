@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DivisionByZeroError;
 use Galaxon\Core\Floats;
-use Galaxon\Quantities\FloatWithError;
+use Galaxon\Quantities\Internal\FloatWithError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -522,102 +522,102 @@ class FloatWithErrorTest extends TestCase
 
     // endregion
 
-    // region isInteger() tests
+    // region isExactInt() tests
 
     /**
-     * Test isInteger returns true for exact integer value with zero error.
+     * Test isExactInt returns true for exact integer value with zero error.
      */
-    public function testIsIntegerReturnsTrueForExactInteger(): void
+    public function testIsExactIntReturnsTrueForExactInteger(): void
     {
         $num = new FloatWithError(42);
 
-        $this->assertTrue($num->isInteger());
+        $this->assertTrue($num->isExactInt());
     }
 
     /**
-     * Test isInteger returns true for zero.
+     * Test isExactInt returns true for zero.
      */
-    public function testIsIntegerReturnsTrueForZero(): void
+    public function testIsExactIntReturnsTrueForZero(): void
     {
         $num = new FloatWithError(0.0);
 
-        $this->assertTrue($num->isInteger());
+        $this->assertTrue($num->isExactInt());
     }
 
     /**
-     * Test isInteger returns true for negative exact integer.
+     * Test isExactInt returns true for negative exact integer.
      */
-    public function testIsIntegerReturnsTrueForNegativeExactInteger(): void
+    public function testIsExactIntReturnsTrueForNegativeExactInteger(): void
     {
         $num = new FloatWithError(-7);
 
-        $this->assertTrue($num->isInteger());
+        $this->assertTrue($num->isExactInt());
     }
 
     /**
-     * Test isInteger returns false for non-integer float value.
+     * Test isExactInt returns false for non-integer float value.
      */
-    public function testIsIntegerReturnsFalseForNonIntegerFloat(): void
+    public function testIsExactIntReturnsFalseForNonIntegerFloat(): void
     {
         $num = new FloatWithError(3.14);
 
-        $this->assertFalse($num->isInteger());
+        $this->assertFalse($num->isExactInt());
     }
 
     /**
-     * Test isInteger returns false for integer value with non-zero error.
+     * Test isExactInt returns false for integer value with non-zero error.
      */
-    public function testIsIntegerReturnsFalseForIntegerWithError(): void
+    public function testIsExactIntReturnsFalseForIntegerWithError(): void
     {
         $num = new FloatWithError(42.0, 0.1);
 
-        $this->assertFalse($num->isInteger());
+        $this->assertFalse($num->isExactInt());
     }
 
     /**
-     * Test isInteger returns false for non-integer value with error.
+     * Test isExactInt returns false for non-integer value with error.
      */
-    public function testIsIntegerReturnsFalseForNonIntegerWithError(): void
+    public function testIsExactIntReturnsFalseForNonIntegerWithError(): void
     {
         $num = new FloatWithError(3.14, 0.01);
 
-        $this->assertFalse($num->isInteger());
+        $this->assertFalse($num->isExactInt());
     }
 
     /**
-     * Test isInteger returns true for large exact integer.
+     * Test isExactInt returns true for large exact integer.
      */
-    public function testIsIntegerReturnsTrueForLargeExactInteger(): void
+    public function testIsExactIntReturnsTrueForLargeExactInteger(): void
     {
         $num = new FloatWithError(1_000_000);
 
-        $this->assertTrue($num->isInteger());
+        $this->assertTrue($num->isExactInt());
     }
 
     /**
-     * Test isInteger returns true for result of exact integer arithmetic.
+     * Test isExactInt returns true for result of exact integer arithmetic.
      */
-    public function testIsIntegerReturnsTrueAfterExactArithmetic(): void
+    public function testIsExactIntReturnsTrueAfterExactArithmetic(): void
     {
         $a = new FloatWithError(6);
         $b = new FloatWithError(7);
 
         $result = $a->mul($b);
 
-        $this->assertTrue($result->isInteger());
+        $this->assertTrue($result->isExactInt());
     }
 
     /**
-     * Test isInteger returns false after arithmetic that introduces error.
+     * Test isExactInt returns false after arithmetic that introduces error.
      */
-    public function testIsIntegerReturnsFalseAfterErrorIntroducingArithmetic(): void
+    public function testIsExactIntReturnsFalseAfterErrorIntroducingArithmetic(): void
     {
         $a = new FloatWithError(10.0, 0.1);
         $b = new FloatWithError(2);
 
         $result = $a->mul($b);
 
-        $this->assertFalse($result->isInteger());
+        $this->assertFalse($result->isExactInt());
     }
 
     // endregion

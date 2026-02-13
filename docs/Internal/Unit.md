@@ -6,7 +6,7 @@ Represents a unit of measurement.
 
 The `Unit` class represents a single unit of measurement such as metre, gram, or hertz. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
 
-Units can be "expandable", meaning they can be decomposed into more fundamental units. For example, the newton (N) expands to kg\*m/s2. Expansion information is looked up from the `ConversionRegistry`.
+Units can be "expandable", meaning they can be decomposed into more fundamental units. For example, the newton (N) expands to kg\*m/s2. Expansion information is stored directly on the Unit via the `expansionUnitSymbol` and `expansionValue` properties.
 
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality comparisons.
 
@@ -16,7 +16,7 @@ The class implements `UnitInterface` and uses the `Equatable` trait for value-ba
 - Optional alternate symbol for parser compatibility
 - Configurable prefix acceptance via group codes
 - Measurement system classification
-- Expansion support for derived SI units (via ConversionRegistry)
+- Expansion support for derived SI units
 - Validation of symbol formats
 
 ## Properties
@@ -53,14 +53,6 @@ private(set) ?string $alternateSymbol
 
 An additional symbol accepted by the parser. Cannot accept prefixes.
 
-### quantityType
-
-```php
-private(set) string $quantityType
-```
-
-The quantity type name (e.g., 'length', 'mass').
-
 ### dimension
 
 ```php
@@ -85,17 +77,33 @@ private(set) array $systems
 
 The measurement systems this unit belongs to (list of System enum values).
 
-## Property Hooks
-
-### expansion
+### expansionUnitSymbol
 
 ```php
-public ?Conversion $expansion { get; }
+private(set) ?string $expansionUnitSymbol
 ```
 
-The expansion conversion for this unit, if any. Looked up from `ConversionRegistry::getExpansion()`. Returns `null` for base units and non-expandable units.
+The unit symbol this unit expands to (e.g., 'kg\*m/s2' for newton). Null for non-expandable units.
 
-For example, for newton this returns a `Conversion` from `N` to `kg*m/s2`.
+### expansionValue
+
+```php
+private(set) ?float $expansionValue
+```
+
+The conversion factor for the expansion (e.g., 1.0 for newton to kg\*m/s2). Defaults to 1.0 when `expansionUnitSymbol` is set. Null for non-expandable units.
+
+## Property Hooks
+
+### expansionUnit
+
+```php
+public ?DerivedUnit $expansionUnit { get; }
+```
+
+The derived unit for the expansion, lazily parsed from `expansionUnitSymbol`. Returns `null` for non-expandable units.
+
+For example, for newton this returns a DerivedUnit object representing `kg*m/s2`.
 
 ### allowedPrefixes
 
@@ -122,11 +130,12 @@ public function __construct(
     string $name,
     string $asciiSymbol,
     ?string $unicodeSymbol,
-    string $quantityType,
     string $dimension,
     int $prefixGroup = 0,
     ?string $alternateSymbol = null,
-    array $systems = []
+    array $systems = [],
+    ?string $expansionUnitSymbol = null,
+    ?float $expansionValue = null
 )
 ```
 
@@ -136,31 +145,41 @@ Create a new Unit instance.
 - `$name` (string) - The unit name (e.g., 'metre')
 - `$asciiSymbol` (string) - The ASCII symbol (e.g., 'm')
 - `$unicodeSymbol` (?string) - The Unicode symbol, or null if same as ASCII
-- `$quantityType` (string) - The quantity type (e.g., 'length')
 - `$dimension` (string) - The dimension code (e.g., 'L')
 - `$prefixGroup` (int) - Bitwise flags for allowed prefixes (default: 0)
 - `$alternateSymbol` (?string) - Additional accepted symbol (default: null)
 - `$systems` (array) - List of System enum values (default: [])
+- `$expansionUnitSymbol` (?string) - The unit symbol this unit expands to (default: null)
+- `$expansionValue` (?float) - The expansion conversion factor, defaults to 1.0 when expansionUnitSymbol is set (default: null)
 
 **Throws:**
 - `FormatException` - If unit symbols contain invalid characters
 - `DomainException` - If the dimension code is invalid
 
 **Examples:**
+
 ```php
-use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Internal\Unit;use Galaxon\Quantities\Registry\PrefixRegistry;use Galaxon\Quantities\System;
 
 // Basic SI unit
 $metre = new Unit(
     name: 'metre',
     asciiSymbol: 'm',
     unicodeSymbol: null,
-    quantityType: 'length',
     dimension: 'L',
     prefixGroup: PrefixRegistry::GROUP_METRIC,
     systems: [System::Si]
+);
+
+// Expandable derived unit
+$newton = new Unit(
+    name: 'newton',
+    asciiSymbol: 'N',
+    unicodeSymbol: null,
+    dimension: 'MLT-2',
+    prefixGroup: PrefixRegistry::GROUP_METRIC,
+    systems: [System::Si],
+    expansionUnitSymbol: 'kg*m/s2'
 );
 ```
 
@@ -211,7 +230,7 @@ public function isExpandable(): bool
 Check if this unit can be expanded into base units (e.g., newton expands to kg\*m/s2).
 
 **Returns:**
-- `bool` - True if the unit has an expansion defined in the ConversionRegistry
+- `bool` - True if the unit has an expansion unit symbol defined
 
 ## Prefix Methods
 
@@ -375,7 +394,6 @@ Check if a string is a valid Unicode unit symbol.
 ### Accessing Unit Properties
 
 ```php
-use Galaxon\Quantities\Unit;
 use Galaxon\Quantities\Registry\UnitRegistry;
 
 $unit = UnitRegistry::getBySymbol('N');
@@ -385,15 +403,14 @@ echo $unit->dimension;  // 'MLT-2'
 echo $unit->isSi();     // true
 
 // Check expansion
-if ($unit->expansion !== null) {
-    echo $unit->expansion->destUnit->asciiSymbol; // 'kg*m/s2'
+if ($unit->isExpandable()) {
+    echo $unit->expansionUnit->asciiSymbol; // 'kg*m/s2'
 }
 ```
 
 ### Working with Prefixes
 
 ```php
-use Galaxon\Quantities\Unit;
 use Galaxon\Quantities\Registry\UnitRegistry;
 
 $metre = UnitRegistry::getBySymbol('m');
@@ -415,5 +432,5 @@ $symbols = $metre->symbols;
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit representation
 - **[UnitInterface](UnitInterface.md)** - Interface for all unit types
-- **[UnitRegistry](Registry/UnitRegistry.md)** - Registry for looking up units
-- **[System](System.md)** - Measurement system classification
+- **[UnitRegistry](../Registry/UnitRegistry.md)** - Registry for looking up units
+- **[System](../System.md)** - Measurement system classification

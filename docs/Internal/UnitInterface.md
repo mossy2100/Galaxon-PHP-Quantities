@@ -98,7 +98,7 @@ Format the unit as a string.
 ## Example Implementation
 
 ```php
-use Galaxon\Quantities\UnitInterface;
+use Galaxon\Quantities\Internal\UnitInterface;
 
 class SimpleUnit implements UnitInterface
 {

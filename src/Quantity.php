@@ -11,6 +11,12 @@ use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
+use Galaxon\Quantities\Internal\Converter;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\QuantityType;
+use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Internal\UnitInterface;
+use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -182,7 +188,10 @@ class Quantity implements Stringable
      *     asciiSymbol: string,
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
-     *     systems: list<System>
+     *     alternateSymbol?: string,
+     *     systems: list<System>,
+     *     expansionUnitSymbol?: string,
+     *     expansionValue?: float
      * }>
      */
     public static function getUnitDefinitions(): array
@@ -260,18 +269,11 @@ class Quantity implements Stringable
      * @param bool $simplify If true, base units will be replaced by expandable units where possible.
      * @param bool $autoPrefix If true, the result will be converted to the best SI prefix.
      * @return self A new Quantity with the value converted to SI units.
-     * @throws DomainException If any dimension codes are invalid or conversion fails.
-     * @throws LogicException If any dimension codes do not have an SI base unit defined.
      */
     public function toSi(bool $simplify = true, bool $autoPrefix = true): self
     {
-        // Expand and merge to get the base units.
-        $result = $this->expand()->merge();
-
-        // If it's not already SI, start by converting to SI base units.
-        if (!$result->derivedUnit->isSi()) {
-            $result = $this->toSiBase();
-        }
+        // Convert to SI base units.
+        $result = $this->toSiBase();
 
         // Simplify if requested.
         if ($simplify) {
@@ -339,7 +341,7 @@ class Quantity implements Stringable
     public function merge(): self
     {
         // Check if there's anything to do.
-        if (!$this->derivedUnit->hasMergeableUnits()) {
+        if (!$this->derivedUnit->isMergeable()) {
             return $this;
         }
 
@@ -370,8 +372,8 @@ class Quantity implements Stringable
         $newDerivedUnit = $this->derivedUnit->removePrefixes();
 
         // Get the new first unit term.
-        /** @var UnitTerm $firstUnitTerm */
         $firstUnitTerm = $newDerivedUnit->firstUnitTerm;
+        assert($firstUnitTerm instanceof UnitTerm);
 
         // Choose the prefix that produces the smallest value greater than or equal to 1.
         // Start with the current situation, which is no prefix.
@@ -383,8 +385,8 @@ class Quantity implements Stringable
         // Try each allowed prefix to see if it's better. We want the prefix that produces the smallest value greater
         // than or equal to 1.
         foreach ($firstUnitTerm->unit->allowedPrefixes as $prefix) {
-            // We only want to consider engineering prefixes for this. The others (c, d, da, h) are rarely used for most
-            // units. We also don't want binary prefixes (e.g. 'kB' is usually preferred to 'KiB').
+            // We only want to consider engineering prefixes for this. The middle metric prefixes (c, d, da, h) are
+            // rarely used for most units. We also don't want binary prefixes (e.g. 'kB' is usually preferred to 'KiB').
             if (!$prefix->isEngineering()) {
                 continue;
             }
@@ -457,13 +459,12 @@ class Quantity implements Stringable
 
         // Loop through the units and try to find an expandable unit that matches the quantity.
         foreach (UnitRegistry::getAll() as $unit) {
-            // Get the expansion for this unit if there is one.
-            $expansion = $unit->expansion;
-            if ($expansion === null) {
+            // Get the expansion unit, if any.
+            $expansionUnit = $unit->expansionUnit;
+
+            if ($expansionUnit === null) {
                 continue;
             }
-
-            $expansionUnit = $expansion->destUnit;
 
             // Skip 'Hz' or 'Bq'; these are the only expandable units with one unit term in their expansion.
             if (count($expansionUnit->unitTerms) === 1) {
@@ -1328,7 +1329,6 @@ class Quantity implements Stringable
         }
 
         // Get the other Quantity in the same unit as this one.
-        /** @var Quantity $other */
         return $this->derivedUnit->equal($other->derivedUnit) ? $other->value : $other->to($this->derivedUnit)->value;
     }
 

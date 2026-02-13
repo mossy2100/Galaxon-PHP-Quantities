@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
-use Galaxon\Quantities\Unit;
-use Galaxon\Quantities\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
@@ -277,9 +277,7 @@ class UnitTerm implements UnitInterface
 
         // Make sure the exponent isn't 0.
         if ($exp === 0) {
-            throw new DomainException(
-                'Invalid exponent 0. A unit must have a no exponent or a non-zero exponent.'
-            );
+            throw new DomainException('Invalid exponent 0. A unit must have a no exponent or a non-zero exponent.');
         }
 
         // Search for a matching unit symbol.

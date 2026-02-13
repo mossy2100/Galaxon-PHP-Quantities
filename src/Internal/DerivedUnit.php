@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
@@ -145,7 +145,7 @@ class DerivedUnit implements UnitInterface
         }
 
         // Otherwise, construct a new DerivedUnit.
-        /** @var null|Unit|UnitTerm $value */
+        assert($value === null || $value instanceof Unit || $value instanceof UnitTerm);
         return new self($value);
     }
 
@@ -348,16 +348,13 @@ class DerivedUnit implements UnitInterface
     /**
      * Check if this derived unit is expressed in base units.
      *
-     * "Base units" are those with only 1 dimension term, i.e. not expandable units.
-     *
-     * Dimensionless units (with no terms) are not considered base.
+     * "Base units" are those with only 0 or 1 dimension term, i.e. not expandable units.
      *
      * @return bool True if this derived unit is expressed in base units only.
      */
     public function isBase(): bool
     {
-        return !$this->isDimensionless() &&
-            array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isBase());
+        return array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isBase());
     }
 
     /**
@@ -367,8 +364,7 @@ class DerivedUnit implements UnitInterface
      */
     public function isSiBase(): bool
     {
-        return !$this->isDimensionless() &&
-            array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isSiBase());
+        return $this->equal($this->toSiBase());
     }
 
     /**
@@ -378,18 +374,7 @@ class DerivedUnit implements UnitInterface
      */
     public function isExpandable(): bool
     {
-        return !$this->isDimensionless() &&
-            array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isExpandable());
-    }
-
-    /**
-     * Check if any unit term in this derived unit has a prefix.
-     *
-     * @return bool True if at least one unit term has a prefix, false otherwise.
-     */
-    public function hasPrefixes(): bool
-    {
-        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->prefix !== null);
+        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isExpandable());
     }
 
     /**
@@ -400,7 +385,7 @@ class DerivedUnit implements UnitInterface
      *
      * @return bool True if at least two unit terms share the same unit dimension.
      */
-    public function hasMergeableUnits(): bool
+    public function isMergeable(): bool
     {
         $seenDimensions = [];
 
@@ -413,6 +398,16 @@ class DerivedUnit implements UnitInterface
         }
 
         return false;
+    }
+
+    /**
+     * Check if any unit term in this derived unit has a prefix.
+     *
+     * @return bool True if at least one unit term has a prefix, false otherwise.
+     */
+    public function hasPrefixes(): bool
+    {
+        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->prefix !== null);
     }
 
     // endregion
@@ -532,8 +527,8 @@ class DerivedUnit implements UnitInterface
      */
     public function inv(): self
     {
+        $unitTerms = array_values(array_map(static fn (UnitTerm $unitTerm) => $unitTerm->inv(), $this->unitTerms));
         /** @var list<UnitTerm> $unitTerms */
-        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->inv(), $this->unitTerms);
         return new self($unitTerms);
     }
 
@@ -563,8 +558,10 @@ class DerivedUnit implements UnitInterface
      */
     public function removePrefixes(): self
     {
+        $unitTerms = array_values(
+            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(), $this->unitTerms)
+        );
         /** @var list<UnitTerm> $unitTerms */
-        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(), $this->unitTerms);
         return new self($unitTerms);
     }
 
@@ -579,10 +576,10 @@ class DerivedUnit implements UnitInterface
     public function pow(int $exponent): self
     {
         // Get the unit terms raised to the given power.
+        $unitTerms = array_values(
+            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->pow($exponent), $this->unitTerms)
+        );
         /** @var list<UnitTerm> $unitTerms */
-        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->pow($exponent), $this->unitTerms);
-
-        // Construct the new DerivedUnit object.
         return new self($unitTerms);
     }
 

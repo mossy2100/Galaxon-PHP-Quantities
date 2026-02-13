@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests;
+namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Prefix;
+use Galaxon\Quantities\Internal\Prefix;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -24,13 +24,13 @@ final class PrefixTest extends TestCase
      */
     public function testConstructorWithValidParameters(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
 
         $this->assertSame('kilo', $prefix->name);
         $this->assertSame('k', $prefix->asciiSymbol);
         $this->assertSame('k', $prefix->unicodeSymbol);  // Falls back to ASCII
         $this->assertSame(1000.0, $prefix->multiplier);
-        $this->assertSame(PrefixRegistry::GROUP_LARGE_ENG_METRIC, $prefix->groupCode);
+        $this->assertSame(PrefixRegistry::GROUP_LARGE_METRIC, $prefix->groupCode);
     }
 
     /**
@@ -38,7 +38,7 @@ final class PrefixTest extends TestCase
      */
     public function testConstructorWithUnicodeSymbol(): void
     {
-        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_ENG_METRIC);
+        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_METRIC);
 
         $this->assertSame('u', $prefix->asciiSymbol);
         $this->assertSame('μ', $prefix->unicodeSymbol);
@@ -49,7 +49,7 @@ final class PrefixTest extends TestCase
      */
     public function testConstructorWithTwoLetterAsciiSymbol(): void
     {
-        $prefix = new Prefix('deca', 'da', null, 10.0, PrefixRegistry::GROUP_LARGE_NON_ENG_METRIC);
+        $prefix = new Prefix('deca', 'da', null, 10.0, PrefixRegistry::GROUP_MEDIUM_METRIC);
 
         $this->assertSame('da', $prefix->asciiSymbol);
     }
@@ -77,7 +77,7 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid ASCII symbol');
 
-        new Prefix('test', '', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', '', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -88,7 +88,7 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid ASCII symbol');
 
-        new Prefix('test', 'k2', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', 'k2', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -99,7 +99,7 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid ASCII symbol');
 
-        new Prefix('test', 'abc', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', 'abc', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -110,7 +110,7 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid ASCII symbol');
 
-        new Prefix('test', 'k!', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', 'k!', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -121,7 +121,7 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid Unicode symbol');
 
-        new Prefix('test', 'k', '123', 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', 'k', '123', 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -132,7 +132,7 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid Unicode symbol');
 
-        new Prefix('test', 'k', 'abc', 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', 'k', 'abc', 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -143,7 +143,7 @@ final class PrefixTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Multiplier must be positive');
 
-        new Prefix('test', 'k', null, 0.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', 'k', null, 0.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -154,7 +154,7 @@ final class PrefixTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Multiplier must be positive');
 
-        new Prefix('test', 'k', null, -1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', 'k', null, -1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -165,7 +165,7 @@ final class PrefixTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Multiplier must not be equal to 1');
 
-        new Prefix('test', 'k', null, 1.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        new Prefix('test', 'k', null, 1.0, PrefixRegistry::GROUP_LARGE_METRIC);
     }
 
     /**
@@ -200,8 +200,8 @@ final class PrefixTest extends TestCase
      */
     public function testEqualReturnsTrueForSameAsciiSymbol(): void
     {
-        $prefix1 = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
-        $prefix2 = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $prefix1 = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
+        $prefix2 = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
 
         $this->assertTrue($prefix1->equal($prefix2));
     }
@@ -211,8 +211,8 @@ final class PrefixTest extends TestCase
      */
     public function testEqualReturnsFalseForDifferentAsciiSymbol(): void
     {
-        $prefix1 = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
-        $prefix2 = new Prefix('mega', 'M', null, 1e6, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $prefix1 = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
+        $prefix2 = new Prefix('mega', 'M', null, 1e6, PrefixRegistry::GROUP_LARGE_METRIC);
 
         $this->assertFalse($prefix1->equal($prefix2));
     }
@@ -222,7 +222,7 @@ final class PrefixTest extends TestCase
      */
     public function testEqualReturnsFalseForNonPrefixObject(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
 
         $this->assertFalse($prefix->equal('k'));
         $this->assertFalse($prefix->equal(1000));
@@ -238,7 +238,7 @@ final class PrefixTest extends TestCase
      */
     public function testIsEngineeringReturnsTrueForSmallEngineering(): void
     {
-        $prefix = new Prefix('milli', 'm', null, 0.001, PrefixRegistry::GROUP_SMALL_ENG_METRIC);
+        $prefix = new Prefix('milli', 'm', null, 0.001, PrefixRegistry::GROUP_SMALL_METRIC);
 
         $this->assertTrue($prefix->isEngineering());
     }
@@ -248,27 +248,17 @@ final class PrefixTest extends TestCase
      */
     public function testIsEngineeringReturnsTrueForLargeEngineering(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
 
         $this->assertTrue($prefix->isEngineering());
     }
 
     /**
-     * Test isEngineering() returns false for small non-engineering prefix.
+     * Test isEngineering() returns false for medium metric prefix.
      */
-    public function testIsEngineeringReturnsFalseForSmallNonEngineering(): void
+    public function testIsEngineeringReturnsFalseForMediumMetric(): void
     {
-        $prefix = new Prefix('centi', 'c', null, 0.01, PrefixRegistry::GROUP_SMALL_NON_ENG_METRIC);
-
-        $this->assertFalse($prefix->isEngineering());
-    }
-
-    /**
-     * Test isEngineering() returns false for large non-engineering prefix.
-     */
-    public function testIsEngineeringReturnsFalseForLargeNonEngineering(): void
-    {
-        $prefix = new Prefix('hecto', 'h', null, 100.0, PrefixRegistry::GROUP_LARGE_NON_ENG_METRIC);
+        $prefix = new Prefix('centi', 'c', null, 0.01, PrefixRegistry::GROUP_MEDIUM_METRIC);
 
         $this->assertFalse($prefix->isEngineering());
     }
@@ -292,7 +282,7 @@ final class PrefixTest extends TestCase
      */
     public function testFormatReturnsUnicodeByDefault(): void
     {
-        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_ENG_METRIC);
+        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_METRIC);
 
         $this->assertSame('μ', $prefix->format());
     }
@@ -302,7 +292,7 @@ final class PrefixTest extends TestCase
      */
     public function testFormatReturnsAsciiWhenRequested(): void
     {
-        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_ENG_METRIC);
+        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_METRIC);
 
         $this->assertSame('u', $prefix->format(true));
     }
@@ -312,7 +302,7 @@ final class PrefixTest extends TestCase
      */
     public function testFormatReturnsSameWhenNoUnicode(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
 
         $this->assertSame('k', $prefix->format());
         $this->assertSame('k', $prefix->format(true));
@@ -327,7 +317,7 @@ final class PrefixTest extends TestCase
      */
     public function testToStringReturnsUnicodeSymbol(): void
     {
-        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_ENG_METRIC);
+        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_METRIC);
 
         $this->assertSame('μ', (string)$prefix);
     }
@@ -337,7 +327,7 @@ final class PrefixTest extends TestCase
      */
     public function testToStringForPrefixWithoutUnicode(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
 
         $this->assertSame('k', (string)$prefix);
     }
@@ -352,7 +342,7 @@ final class PrefixTest extends TestCase
     public function testEqualWithPrefixUtilityPrefixes(): void
     {
         $utilityKilo = PrefixRegistry::getBySymbol('k');
-        $manualKilo = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_ENG_METRIC);
+        $manualKilo = new Prefix('kilo', 'k', null, 1000.0, PrefixRegistry::GROUP_LARGE_METRIC);
 
         $this->assertNotNull($utilityKilo);
         $this->assertTrue($utilityKilo->equal($manualKilo));

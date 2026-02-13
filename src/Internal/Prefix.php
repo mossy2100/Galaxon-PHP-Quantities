@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
@@ -42,8 +42,7 @@ class Prefix
 
     /**
      * The group code for the prefix (see PrefixRegistry::GROUP_* constants).
-     * This will only be one of the base groups and will therefore be a power of 2 (i.e. 1, 2, 4, 8, or 16).
-     * @see PrefixRegistry::GROUP_SMALL_ENG_METRIC
+     * This will only be one of the base groups and will therefore be a power of 2 (i.e. 1, 2, 4, or 8).
      */
     private(set) int $groupCode;
 
@@ -128,7 +127,7 @@ class Prefix
      */
     public function isEngineering(): bool
     {
-        return (bool)($this->groupCode & PrefixRegistry::GROUP_ENG_METRIC);
+        return (bool)($this->groupCode & PrefixRegistry::GROUP_ENGINEERING);
     }
 
     // endregion
