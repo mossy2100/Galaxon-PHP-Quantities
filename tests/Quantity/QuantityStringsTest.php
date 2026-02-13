@@ -232,7 +232,7 @@ final class QuantityStringsTest extends TestCase
     {
         $length = new Length(5.0, 'm');
 
-        $this->assertSame('5.00 m', $length->format('f', 2, false));
+        $this->assertSame('5.00 m', $length->format('f', 2));
     }
 
     /**
@@ -246,13 +246,13 @@ final class QuantityStringsTest extends TestCase
     }
 
     /**
-     * Test formatting with trim zeros enabled.
+     * Test formatting with null precision trims trailing zeros.
      */
-    public function testFormatWithTrimZeros(): void
+    public function testFormatNullPrecisionTrimsZeros(): void
     {
         $length = new Length(5.0, 'm');
 
-        $this->assertSame('5 m', $length->format('f', 2, true));
+        $this->assertSame('5 m', $length->format());
     }
 
     // endregion
@@ -265,7 +265,7 @@ final class QuantityStringsTest extends TestCase
     public function testFormatScientificNotation(): void
     {
         $length = new Length(1500.0, 'm');
-        $result = $length->format('e', 2, false);
+        $result = $length->format('e', 2, ascii: true);
 
         $this->assertSame('1.50e+3 m', $result);
     }
@@ -276,9 +276,64 @@ final class QuantityStringsTest extends TestCase
     public function testFormatScientificNotationUppercase(): void
     {
         $length = new Length(1500.0, 'm');
-        $result = $length->format('E', 2, false);
+        $result = $length->format('E', 2, ascii: true);
 
         $this->assertSame('1.50E+3 m', $result);
+    }
+
+    /**
+     * Test scientific notation uses ×10 with superscript exponent by default (ascii=false).
+     */
+    public function testFormatScientificNotationUnicode(): void
+    {
+        $length = new Length(1500.0, 'm');
+        $result = $length->format('e', 2);
+
+        $this->assertSame("1.50×10³ m", $result);
+    }
+
+    /**
+     * Test uppercase scientific notation also uses ×10 with superscript when ascii=false.
+     */
+    public function testFormatScientificNotationUppercaseUnicode(): void
+    {
+        $length = new Length(1500.0, 'm');
+        $result = $length->format('E', 2);
+
+        $this->assertSame("1.50×10³ m", $result);
+    }
+
+    /**
+     * Test scientific notation with negative exponent uses ×10 with superscript by default.
+     */
+    public function testFormatScientificNotationUnicodeNegativeExponent(): void
+    {
+        $length = new Length(0.0025, 'm');
+        $result = $length->format('e', 2);
+
+        $this->assertSame("2.50×10⁻³ m", $result);
+    }
+
+    /**
+     * Test scientific notation with null precision trims zeros and uses ×10.
+     */
+    public function testFormatScientificNotationUnicodeTrimZeros(): void
+    {
+        $length = new Length(3000.0, 'm');
+        $result = $length->format('e');
+
+        $this->assertSame("3×10³ m", $result);
+    }
+
+    /**
+     * Test scientific notation with explicit precision preserves trailing zeros.
+     */
+    public function testFormatScientificNotationPreservesZerosWithPrecision(): void
+    {
+        $length = new Length(3000.0, 'm');
+        $result = $length->format('e', 4);
+
+        $this->assertSame("3.0000×10³ m", $result);
     }
 
     // endregion
@@ -327,7 +382,7 @@ final class QuantityStringsTest extends TestCase
     {
         $angle = new Angle(45, 'deg');
 
-        $this->assertSame('45 °', $angle->format('f', null, true, true));
+        $this->assertSame('45 °', $angle->format('f', null, true));
     }
 
     /**
@@ -337,7 +392,7 @@ final class QuantityStringsTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->assertSame('100m', $length->format('f', null, true, false));
+        $this->assertSame('100m', $length->format('f', null, false));
     }
 
     // endregion
@@ -395,7 +450,7 @@ final class QuantityStringsTest extends TestCase
     {
         $original = '123.45 km';
         $parsed = Length::parse($original);
-        $formatted = $parsed->format('f', 2, false, true, true);
+        $formatted = $parsed->format('f', 2, null, true);
 
         $this->assertSame($original, $formatted);
     }
@@ -410,7 +465,7 @@ final class QuantityStringsTest extends TestCase
     public function testFormatInvalidSpecifierThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("The specifier must be 'e', 'E', 'f', 'F', 'g', or 'G'.");
+        $this->expectExceptionMessage("The specifier must be 'e', 'E', 'f', 'F', 'g', 'G', 'h', or 'H'.");
 
         $length = new Length(10, 'm');
         $length->format('x');

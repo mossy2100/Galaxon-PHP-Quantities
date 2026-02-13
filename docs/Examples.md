@@ -66,16 +66,16 @@ $d = $g->mul($t->pow(2))->div(2);
 
 ### Kinetic energy: E = 1/2 mv²
 
-A 1000 kg car travelling at 30 m/s (~108 km/h).
+A one tonne car travelling at 100 km/h.
 
 ```php
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Velocity;
 
-$m = new Mass(1000, 'kg');
-$v = new Velocity(30, 'm/s');
-$energy = $m->mul($v->pow(2))->div(2);
-// 450,000 J = 450 kJ (Energy)
+$m = new Mass(1, 't');
+$v = new Velocity(100, 'km/h');
+$energy = $m->mul($v->pow(2))->div(2)->toSi();
+// 385.8 kJ (Energy)
 ```
 
 ---
@@ -123,7 +123,8 @@ $moonMass = new Mass(7.342e22, 'kg');
 $distance = new Length(3.844e8, 'm');
 
 $force = $G->mul($earthMass)->mul($moonMass)->div($distance->pow(2));
-// 1.98 x 10²⁰ N (Force)
+echo $force->simplify(false)->format('e', 2);
+// 1.98×10²⁰ N
 ```
 
 ### Work: W = Fd

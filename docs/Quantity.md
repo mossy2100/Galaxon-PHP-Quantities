@@ -458,7 +458,6 @@ $time = Time::parse("1.5e3 ms");
 public function format(
     string $specifier = 'f',
     ?int $precision = null,
-    bool $trimZeros = true,
     ?bool $includeSpace = null,
     bool $ascii = false
 ): string
@@ -466,21 +465,29 @@ public function format(
 
 Format the measurement as a string.
 
+When `$precision` is null, trailing zeros are automatically trimmed. When an explicit precision is given, all digits are preserved (e.g. `format('f', 2)` on 5.0 gives `"5.00 m"`).
+
+When `$ascii` is false (default) and scientific notation is used, the exponent is rendered as `×10` with superscript digits (e.g. `1.50×10³`) instead of `e+3`.
+
 **Parameters:**
-- `$specifier` (string) - Format type: 'f' (fixed), 'e' (scientific), 'g' (shortest)
-- `$precision` (?int) - Number of digits
-- `$trimZeros` (bool) - Remove trailing zeros
-- `$includeSpace` (?bool) - Space between value and unit (null = auto)
-- `$ascii` (bool) - Use ASCII symbols only
+- `$specifier` (string) - Format type: `'f'`/`'F'` (fixed), `'e'`/`'E'` (scientific), `'g'`/`'G'` (shortest), `'h'`/`'H'` (shortest, non-locale-aware). Uppercase variants use uppercase `E` in scientific notation. `'F'`, `'h'`, and `'H'` are non-locale-aware (always use `.` as decimal separator). See [sprintf()](https://www.php.net/manual/en/function.sprintf.php) for details.
+- `$precision` (?int) - Number of decimal digits. Null uses sprintf default and trims trailing zeros.
+- `$includeSpace` (?bool) - Space between value and unit. Null = auto (no space for symbol-only units like °).
+- `$ascii` (bool) - If true, use ASCII symbols and `e` notation. If false (default), use Unicode symbols and `×10` superscript notation.
 
 **Returns:**
-- `string` - The formatted string
+- `string` - The formatted string.
 
 **Examples:**
 ```php
+$length = new Length(1500.0, 'm');
+$length->format('f', 2);              // "1500.00 m"
+$length->format('e', 2);              // "1.50×10³ m"
+$length->format('e', 2, ascii: true); // "1.50e+3 m"
+
 $angle = new Angle(90, 'deg');
-$angle->format('f', 2);           // "90.00 deg"
-$angle->format('f', 2, true, false); // "90deg"
+$angle->format();                     // "90°"
+$angle->format('f', 2, false);        // "90.00°"
 ```
 
 ### __toString()

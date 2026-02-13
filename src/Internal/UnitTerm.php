@@ -131,13 +131,9 @@ class UnitTerm implements UnitInterface
 
         // Allow for the prefix to be provided as a symbol.
         if (is_string($prefix)) {
-            if ($prefix === '') {
-                $prefix = null;
-            } else {
-                $prefix = PrefixRegistry::getBySymbol($prefix);
-                if ($prefix === null) {
-                    throw new DomainException("Prefix '$prefix' is unknown.");
-                }
+            $prefix = PrefixRegistry::getBySymbol($prefix);
+            if ($prefix === null) {
+                throw new DomainException("Prefix '$prefix' is unknown.");
             }
         }
 
