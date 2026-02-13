@@ -232,19 +232,6 @@ Check if this unit can be expanded into base units (e.g., newton expands to kg\*
 **Returns:**
 - `bool` - True if the unit has an expansion unit symbol defined
 
-## Prefix Methods
-
-### acceptsPrefixes()
-
-```php
-public function acceptsPrefixes(): bool
-```
-
-Check if this unit accepts any prefixes.
-
-**Returns:**
-- `bool` - True if prefixes are allowed
-
 ### acceptsPrefix()
 
 ```php

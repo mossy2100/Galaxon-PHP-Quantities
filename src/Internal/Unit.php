@@ -307,20 +307,6 @@ class Unit implements UnitInterface
         return $this->expansionUnitSymbol !== null;
     }
 
-    // endregion
-
-    // region Prefix methods
-
-    /**
-     * Check if this unit accepts prefixes.
-     *
-     * @return bool True if prefixes are allowed.
-     */
-    public function acceptsPrefixes(): bool
-    {
-        return $this->prefixGroup > 0;
-    }
-
     /**
      * Check if a specific prefix is allowed for this unit.
      *
@@ -458,7 +444,6 @@ class Unit implements UnitInterface
     {
         return (bool)preg_match('/^(' . self::RX_UNICODE_SYMBOL . ')$/iu', $symbol);
     }
-
 
     /**
      * Helper method to add a symbol to the unit's symbol list.

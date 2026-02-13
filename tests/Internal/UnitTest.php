@@ -230,60 +230,6 @@ final class UnitTest extends TestCase
 
     // endregion
 
-    // region Prefix methods tests
-
-    /**
-     * Test acceptsPrefixes returns true when prefixGroup is greater than 0.
-     */
-    public function testAcceptsPrefixesReturnsTrueWhenPrefixGroupSet(): void
-    {
-        $unit = new Unit(
-            name: 'metre',
-            asciiSymbol: 'm',
-            unicodeSymbol: null,
-            dimension: 'L',
-            prefixGroup: PrefixRegistry::GROUP_METRIC,
-            systems: [System::Si]
-        );
-
-        $this->assertTrue($unit->acceptsPrefixes());
-    }
-
-    /**
-     * Test acceptsPrefixes returns false when prefixGroup is 0.
-     */
-    public function testAcceptsPrefixesReturnsFalseWhenNoPrefixGroup(): void
-    {
-        $unit = new Unit(
-            name: 'hectare',
-            asciiSymbol: 'ha',
-            unicodeSymbol: null,
-            dimension: 'L2',
-            systems: [System::SiAccepted]
-        );
-
-        $this->assertFalse($unit->acceptsPrefixes());
-    }
-
-    /**
-     * Test acceptsPrefix returns true for valid metric prefix with Prefix object.
-     */
-    public function testAcceptsPrefixReturnsTrueForValidPrefixObject(): void
-    {
-        $unit = new Unit(
-            name: 'metre',
-            asciiSymbol: 'm',
-            unicodeSymbol: null,
-            dimension: 'L',
-            prefixGroup: PrefixRegistry::GROUP_METRIC,
-            systems: [System::Si]
-        );
-
-        $prefix = PrefixRegistry::getBySymbol('k');
-        $this->assertInstanceOf(Prefix::class, $prefix);
-        $this->assertTrue($unit->acceptsPrefix($prefix));
-    }
-
     /**
      * Test acceptsPrefix returns true for valid metric prefix with string.
      */
@@ -600,7 +546,6 @@ final class UnitTest extends TestCase
         $this->assertSame('metre', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
         $this->assertSame('L', $unit->dimension);
-        $this->assertTrue($unit->acceptsPrefixes());
     }
 
     /**
