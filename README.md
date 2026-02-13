@@ -331,7 +331,7 @@ Therefore, you can use the following:
 
 ### Quantity Types
 
-All quantity type classes extend `Quantity` and define their specific units and conversions. See **[SupportedUnits](docs/SupportedUnits.md)** for a complete reference of all units organized by quantity type.
+All quantity type classes extend `Quantity` and define their specific units and conversions. See **[Supported Units](docs/SupportedUnits.md)** for a complete reference of all units organized by quantity type.
 
 | Class | Dimension | SI Unit | Description |
 |-------|-----------|---------|-------------|
