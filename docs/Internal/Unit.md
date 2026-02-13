@@ -159,7 +159,9 @@ Create a new Unit instance.
 **Examples:**
 
 ```php
-use Galaxon\Quantities\Internal\Unit;use Galaxon\Quantities\Registry\PrefixRegistry;use Galaxon\Quantities\System;
+use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\System;
 
 // Basic SI unit
 $metre = new Unit(
