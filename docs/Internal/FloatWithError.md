@@ -172,7 +172,7 @@ Multiply this value by another, accumulating errors.
 **Examples:**
 ```php
 $a = new FloatWithError(100.0);
-$b = new FloatWithError(0.3048);  // feet to metres
+$b = new FloatWithError(0.3048);  // feet to meters
 
 $result = $a->mul($b);
 echo $result->value; // 30.48
@@ -258,7 +258,7 @@ echo $squared->value; // 1000000.0
 
 ## String Methods
 
-### __toString()
+### \_\_toString()
 
 ```php
 public function __toString(): string
@@ -277,7 +277,7 @@ Convert to a string representation showing value and absolute error.
 use Galaxon\Quantities\Internal\FloatWithError;
 
 // Direct conversion factor (high precision)
-$direct = new FloatWithError(0.3048);  // feet to metres
+$direct = new FloatWithError(0.3048);  // feet to meters
 
 // Indirect via inches (lower precision)
 $ftToIn = new FloatWithError(12);
@@ -297,9 +297,9 @@ if ($direct->relativeError < $indirect->relativeError) {
 ```php
 use Galaxon\Quantities\Internal\FloatWithError;
 
-// Conversion from yards to metres
+// Conversion from yards to meters
 $ydToFt = new FloatWithError(3);      // 3 feet per yard (exact)
-$ftToM = new FloatWithError(0.3048);  // feet to metres
+$ftToM = new FloatWithError(0.3048);  // feet to meters
 
 $ydToM = $ydToFt->mul($ftToM);
 echo $ydToM->value; // 0.9144

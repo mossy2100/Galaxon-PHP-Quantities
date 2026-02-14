@@ -60,9 +60,9 @@ final class AreaTest extends TestCase
     // region Metric conversion tests
 
     /**
-     * Test converting square metres to square kilometres.
+     * Test converting square meters to square kilometers.
      */
-    public function testConvertSquareMetresToSquareKilometres(): void
+    public function testConvertSquareMetersToSquareKilometers(): void
     {
         $area = new Area(1000000, 'm2');
         $km2 = $area->to('km2');
@@ -73,9 +73,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test converting square kilometres to square metres.
+     * Test converting square kilometers to square meters.
      */
-    public function testConvertSquareKilometresToSquareMetres(): void
+    public function testConvertSquareKilometersToSquareMeters(): void
     {
         $area = new Area(1, 'km2');
         $m2 = $area->to('m2');
@@ -84,9 +84,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test converting square metres to square centimetres.
+     * Test converting square meters to square centimeters.
      */
-    public function testConvertSquareMetresToSquareCentimetres(): void
+    public function testConvertSquareMetersToSquareCentimeters(): void
     {
         $area = new Area(1, 'm2');
         $cm2 = $area->to('cm2');
@@ -95,9 +95,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test converting square centimetres to square millimetres.
+     * Test converting square centimeters to square millimeters.
      */
-    public function testConvertSquareCentimetresToSquareMillimetres(): void
+    public function testConvertSquareCentimetersToSquareMillimeters(): void
     {
         $area = new Area(1, 'cm2');
         $mm2 = $area->to('mm2');
@@ -106,9 +106,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test converting hectares to square metres.
+     * Test converting hectares to square meters.
      */
-    public function testConvertHectaresToSquareMetres(): void
+    public function testConvertHectaresToSquareMeters(): void
     {
         $area = new Area(1, 'ha');
         $m2 = $area->to('m2');
@@ -117,9 +117,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test converting square metres to hectares.
+     * Test converting square meters to hectares.
      */
-    public function testConvertSquareMetresToHectares(): void
+    public function testConvertSquareMetersToHectares(): void
     {
         $area = new Area(10000, 'm2');
         $ha = $area->to('ha');
@@ -128,9 +128,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test converting square kilometres to hectares.
+     * Test converting square kilometers to hectares.
      */
-    public function testConvertSquareKilometresToHectares(): void
+    public function testConvertSquareKilometersToHectares(): void
     {
         $area = new Area(1, 'km2');
         $ha = $area->to('ha');
@@ -202,9 +202,9 @@ final class AreaTest extends TestCase
     // region Cross-system conversion tests
 
     /**
-     * Test converting square metres to square feet.
+     * Test converting square meters to square feet.
      */
-    public function testConvertSquareMetresToSquareFeet(): void
+    public function testConvertSquareMetersToSquareFeet(): void
     {
         $area = new Area(1, 'm2');
         $ft2 = $area->to('ft2');
@@ -214,9 +214,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test converting square feet to square metres.
+     * Test converting square feet to square meters.
      */
-    public function testConvertSquareFeetToSquareMetres(): void
+    public function testConvertSquareFeetToSquareMeters(): void
     {
         $area = new Area(1, 'ft2');
         $m2 = $area->to('m2');
@@ -226,9 +226,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test converting acres to square metres.
+     * Test converting acres to square meters.
      */
-    public function testConvertAcresToSquareMetres(): void
+    public function testConvertAcresToSquareMeters(): void
     {
         $area = new Area(1, 'ac');
         $m2 = $area->to('m2');
@@ -315,9 +315,9 @@ final class AreaTest extends TestCase
     // region Parse tests
 
     /**
-     * Test parsing square metres.
+     * Test parsing square meters.
      */
-    public function testParseSquareMetres(): void
+    public function testParseSquareMeters(): void
     {
         $area = Area::parse('100 m2');
 
@@ -388,9 +388,9 @@ final class AreaTest extends TestCase
     // region Multiplication tests (Length × Length = Area)
 
     /**
-     * Test multiplying metres by metres.
+     * Test multiplying meters by meters.
      */
-    public function testMulMetresByMetres(): void
+    public function testMulMetersByMeters(): void
     {
         $a = new Length(5, 'm');
         $b = new Length(4, 'm');
@@ -403,9 +403,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test multiplying kilometres by kilometres.
+     * Test multiplying kilometers by kilometers.
      */
-    public function testMulKilometresByKilometres(): void
+    public function testMulKilometersByKilometers(): void
     {
         $a = new Length(3, 'km');
         $b = new Length(2, 'km');
@@ -433,9 +433,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test multiplying metres by kilometres (mixed metric).
+     * Test multiplying meters by kilometers (mixed metric).
      */
-    public function testMulMetresByKilometres(): void
+    public function testMulMetersByKilometers(): void
     {
         $a = new Length(1000, 'm');
         $b = new Length(2, 'km');
@@ -465,9 +465,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test multiplying metres by feet (cross-system).
+     * Test multiplying meters by feet (cross-system).
      */
-    public function testMulMetresByFeet(): void
+    public function testMulMetersByFeet(): void
     {
         $a = new Length(10, 'm');
         $b = new Length(1, 'ft');
@@ -481,9 +481,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test multiplying centimetres by centimetres.
+     * Test multiplying centimeters by centimeters.
      */
-    public function testMulCentimetresByCentimetres(): void
+    public function testMulCentimetersByCentimeters(): void
     {
         $a = new Length(100, 'cm');
         $b = new Length(100, 'cm');
@@ -519,9 +519,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test adding hectares to square kilometres.
+     * Test adding hectares to square kilometers.
      */
-    public function testAddHectaresToSquareKilometres(): void
+    public function testAddHectaresToSquareKilometers(): void
     {
         $a = new Area(1, 'km2');
         $b = new Area(50, 'ha');
@@ -579,9 +579,9 @@ final class AreaTest extends TestCase
     }
 
     /**
-     * Test adding square miles to square kilometres (cross-system).
+     * Test adding square miles to square kilometers (cross-system).
      */
-    public function testAddSquareMilesToSquareKilometres(): void
+    public function testAddSquareMilesToSquareKilometers(): void
     {
         $a = new Area(1, 'km2');
         $b = new Area(1, 'mi2');

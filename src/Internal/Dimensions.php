@@ -257,15 +257,20 @@ class Dimensions
      * Convert a dimension code letter into an int [0..9].
      *
      * @param string $letter The dimension letter code.
-     * @return int|null The int value, or null if not found.
+     * @return int The int value.
+     * @throws DomainException If the letter is invalid.
      */
-    public static function letterToInt(string $letter): ?int
+    public static function letterToInt(string $letter): int
     {
         // Convert the letter to a position in the array.
         $x = array_search($letter, self::getLetterCodes(), true);
 
-        // If the letter isn't a valid dimension code, return null.
-        return $x === false ? null : $x;
+        // If not found, throw an exception.
+        if ($x === false) {
+            throw new DomainException("Invalid dimension code letter '$letter'.");
+        }
+
+        return $x;
     }
 
     /**

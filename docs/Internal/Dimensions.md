@@ -21,7 +21,7 @@ This class provides methods for validating, decomposing, composing, and transfor
 
 ## Dimension Codes
 
-Based on the International System of Quantities (ISQ) with some additions:
+Based on the [International System of Quantities](https://en.wikipedia.org/wiki/International_System_of_Quantities) (ISQ) with one variation and several additions:
 
 | Code | Name                | SI Base Unit  |
 |------|---------------------|---------------|
@@ -123,14 +123,16 @@ $dim = Dimensions::applyExponent('MLT-2', 2);
 
 ### Utility Methods
 
-#### `static letterToInt(string $letter): ?int`
+#### `static letterToInt(string $letter): int`
 
 Convert a dimension letter to its position index.
+
+**Throws:** `DomainException` if the letter is not a valid dimension code.
 
 ```php
 $idx = Dimensions::letterToInt('M');  // 0
 $idx = Dimensions::letterToInt('L');  // 1
-$idx = Dimensions::letterToInt('X');  // null (invalid)
+Dimensions::letterToInt('X');         // throws DomainException
 ```
 
 #### `static getSiUnitTermSymbol(string $code): ?string`
@@ -156,7 +158,7 @@ $term = Dimensions::getSiUnitTerm('M');
 
 ## Canonical Ordering
 
-Dimension codes are sorted in a specific order for consistency:
+Dimension codes are sorted in a specific order to match common usage:
 
 ```
 M, L, A, D, C, T, I, N, H, J

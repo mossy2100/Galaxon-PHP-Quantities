@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-02-14
+
+### Added
+- `RegexHelper` class centralising all regex constants, pattern builders, and validation methods used across the package.
+- `UnitRegistry::ON_DUPLICATE_THROW`, `ON_DUPLICATE_SKIP`, and `ON_DUPLICATE_REPLACE` constants for controlling duplicate unit behaviour.
+- `System::Custom` enum case for user-defined units.
+- Unit constructor now validates name format, prefix group range, expansion unit symbol, expansion value, and system values.
+- `Dimensions::letterToInt()` now throws `DomainException` instead of returning `null` for invalid codes.
+- Documentation for `RegexHelper` class.
+
+### Changed
+- `UnitRegistry::add()` now accepts a `Unit` object instead of individual parameters, with an `$onDuplicateAction` parameter.
+- `Unit` constructor parameter order changed: `$dimension` and `$systems` moved before `$prefixGroup`.
+- `Unit` constructor defaults: `$systems` defaults to `[System::Custom]` instead of `[]`.
+- Moved all regex constants and validation methods from `Unit`, `UnitTerm`, `DerivedUnit`, and `Prefix` into `RegexHelper`.
+- Replaced inline regex in `Prefix` constructor with `RegexHelper::isValidAsciiPrefix()` and `isValidUnicodePrefix()`.
+- Replaced inline regex in `Angle::parse()` with `RegexHelper::isValidDmsAngle()`.
+- Replaced `DerivedUnit::regex()` and `DerivedUnit::parse()` inline patterns with `RegexHelper` methods.
+- Replaced `UnitTerm::regex()` with `RegexHelper::unitTermRegex()` and `isValidUnitTerm()`.
+- Replaced `Quantity::parse()` inline regex with `RegexHelper::isValidQuantity()`.
+- Renamed `Unit::isValidNonLetterSymbol()` to `RegexHelper::isValidUnicodeSpecialChar()`.
+- Renamed `System::Astronomical` to `System::Scientific`.
+- Renamed `metre` to `meter`, `litre` to `liter` in unit definitions.
+- `Unit::$symbols` property hook now uses empty array `[]` instead of `null` for uninitialised state.
+- Updated documentation for `Unit`, `UnitTerm`, `Dimensions`, and `UnitRegistry`.
+
+### Removed
+- `Unit::regex()`, `Unit::isValidAsciiSymbol()`, `Unit::isValidUnicodeSymbol()`, `Unit::isValidNonLetterSymbol()` (moved to `RegexHelper`).
+- `Unit::RX_MUL_OPS_ONLY` and `Unit::RX_MUL_OPS_PLUS_DIV` public constants (replaced by `RegexHelper::RX_CLASS_MUL_DIV_OPS`).
+- `UnitTerm::regex()` (moved to `RegexHelper::unitTermRegex()`).
+- `DerivedUnit::regex()` (moved to `RegexHelper::derivedUnitRegex()`).
+- `Unit::acceptsPrefixes()` method.
+
 ## [0.1.0] - 2026-02-13
 
 Initial release.
@@ -22,7 +55,7 @@ Initial release.
 - `ConversionRegistry` — static registry of conversion factors between units, organised by dimension.
 - `PrefixRegistry` — SI and binary prefix definitions.
 - `QuantityTypeRegistry` — registry of all quantity type metadata.
-- Support for 7 measurement systems: SI, SI Accepted, Common, Imperial, US Customary, Nautical, and Astronomical.
+- Support for several systems of units: SI, SI Accepted, Common, Imperial, US Customary, Scientific, Nautical, and Typographical.
 - Parsing from strings via `Quantity::parse()` and subclass `parse()` methods.
 - Formatting with `format()` supporting fixed, scientific, and general notation with Unicode ×10 superscript exponents.
 - Derived unit representation via `DerivedUnit` (compound units like kg·m/s²).

@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Registry\PrefixRegistry;
@@ -40,7 +41,7 @@ final class UnitTermTest extends TestCase
     {
         $term = new UnitTerm('m');
 
-        $this->assertSame('metre', $term->unit->name);
+        $this->assertSame('meter', $term->unit->name);
         $this->assertNull($term->prefix);
         $this->assertSame(1, $term->exponent);
     }
@@ -147,8 +148,8 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithVariousSymbols(): void
     {
-        $metre = new UnitTerm('m');
-        $this->assertSame('metre', $metre->unit->name);
+        $meter = new UnitTerm('m');
+        $this->assertSame('meter', $meter->unit->name);
 
         $second = new UnitTerm('s');
         $this->assertSame('second', $second->unit->name);
@@ -356,7 +357,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesSimpleUnit(): void
     {
-        $pattern = '/^' . UnitTerm::regex() . '$/u';
+        $pattern = '/^' . RegexHelper::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm'));
         $this->assertSame(1, preg_match($pattern, 'km'));
@@ -368,7 +369,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithAsciiExponent(): void
     {
-        $pattern = '/^' . UnitTerm::regex() . '$/u';
+        $pattern = '/^' . RegexHelper::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm2'));
         $this->assertSame(1, preg_match($pattern, 's-2'));
@@ -380,7 +381,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithSuperscriptExponent(): void
     {
-        $pattern = '/^' . UnitTerm::regex() . '$/u';
+        $pattern = '/^' . RegexHelper::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm²'));
         $this->assertSame(1, preg_match($pattern, 's⁻²'));
@@ -392,7 +393,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexDoesNotMatchInvalidFormats(): void
     {
-        $pattern = '/^' . UnitTerm::regex() . '$/u';
+        $pattern = '/^' . RegexHelper::unitTermRegex() . '$/iu';
 
         $this->assertSame(0, preg_match($pattern, '123'));
     }
@@ -408,7 +409,7 @@ final class UnitTermTest extends TestCase
     {
         $term = UnitTerm::parse('m');
 
-        $this->assertSame('metre', $term->unit->name);
+        $this->assertSame('meter', $term->unit->name);
         $this->assertNull($term->prefix);
         $this->assertSame(1, $term->exponent);
     }
@@ -420,7 +421,7 @@ final class UnitTermTest extends TestCase
     {
         $term = UnitTerm::parse('km');
 
-        $this->assertSame('metre', $term->unit->name);
+        $this->assertSame('meter', $term->unit->name);
         $this->assertSame('k', $term->prefix?->asciiSymbol);
         $this->assertSame(1, $term->exponent);
     }
@@ -432,7 +433,7 @@ final class UnitTermTest extends TestCase
     {
         $term = UnitTerm::parse('m2');
 
-        $this->assertSame('metre', $term->unit->name);
+        $this->assertSame('meter', $term->unit->name);
         $this->assertSame(2, $term->exponent);
     }
 
@@ -454,7 +455,7 @@ final class UnitTermTest extends TestCase
     {
         $term = UnitTerm::parse('m²');
 
-        $this->assertSame('metre', $term->unit->name);
+        $this->assertSame('meter', $term->unit->name);
         $this->assertSame(2, $term->exponent);
     }
 
@@ -476,7 +477,7 @@ final class UnitTermTest extends TestCase
     {
         $term = UnitTerm::parse('km2');
 
-        $this->assertSame('metre', $term->unit->name);
+        $this->assertSame('meter', $term->unit->name);
         $this->assertSame('k', $term->prefix?->asciiSymbol);
         $this->assertSame(2, $term->exponent);
     }
@@ -834,7 +835,7 @@ final class UnitTermTest extends TestCase
         $match = UnitTerm::getBySymbol('m');
 
         $this->assertInstanceOf(UnitTerm::class, $match);
-        $this->assertSame('metre', $match->unit->name);
+        $this->assertSame('meter', $match->unit->name);
         $this->assertNull($match->prefix);
         $this->assertSame(1, $match->exponent);
     }
@@ -847,7 +848,7 @@ final class UnitTermTest extends TestCase
         $match = UnitTerm::getBySymbol('km');
 
         $this->assertInstanceOf(UnitTerm::class, $match);
-        $this->assertSame('metre', $match->unit->name);
+        $this->assertSame('meter', $match->unit->name);
         $this->assertSame('k', $match->prefix?->asciiSymbol);
     }
 
@@ -913,11 +914,11 @@ final class UnitTermTest extends TestCase
     public function testGetBySymbolFindsByAlternateSymbol(): void
     {
         // 'u' is the alternate symbol for 'micro' prefix on some units.
-        // 'um' should match micrometre.
+        // 'um' should match micrometer.
         $match = UnitTerm::getBySymbol('um');
 
         $this->assertInstanceOf(UnitTerm::class, $match);
-        $this->assertSame('metre', $match->unit->name);
+        $this->assertSame('meter', $match->unit->name);
         $this->assertSame('u', $match->prefix?->asciiSymbol);
     }
 
@@ -944,7 +945,7 @@ final class UnitTermTest extends TestCase
         $result = UnitTerm::toUnitTerm('km2');
 
         $this->assertInstanceOf(UnitTerm::class, $result);
-        $this->assertSame('metre', $result->unit->name);
+        $this->assertSame('meter', $result->unit->name);
         $this->assertSame('k', $result->prefix?->asciiSymbol);
         $this->assertSame(2, $result->exponent);
     }
@@ -960,7 +961,7 @@ final class UnitTermTest extends TestCase
         $result = UnitTerm::toUnitTerm($unit);
 
         $this->assertInstanceOf(UnitTerm::class, $result);
-        $this->assertSame('metre', $result->unit->name);
+        $this->assertSame('meter', $result->unit->name);
         $this->assertNull($result->prefix);
         $this->assertSame(1, $result->exponent);
     }
@@ -1135,9 +1136,9 @@ final class UnitTermTest extends TestCase
     // region isSiBase() tests
 
     /**
-     * Test isSiBase returns true for metre.
+     * Test isSiBase returns true for meter.
      */
-    public function testIsSiBaseReturnsTrueForMetre(): void
+    public function testIsSiBaseReturnsTrueForMeter(): void
     {
         $term = new UnitTerm('m');
 

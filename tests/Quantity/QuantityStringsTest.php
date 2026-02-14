@@ -289,7 +289,7 @@ final class QuantityStringsTest extends TestCase
         $length = new Length(1500.0, 'm');
         $result = $length->format('e', 2);
 
-        $this->assertSame("1.50×10³ m", $result);
+        $this->assertSame('1.50×10³ m', $result);
     }
 
     /**
@@ -300,7 +300,7 @@ final class QuantityStringsTest extends TestCase
         $length = new Length(1500.0, 'm');
         $result = $length->format('E', 2);
 
-        $this->assertSame("1.50×10³ m", $result);
+        $this->assertSame('1.50×10³ m', $result);
     }
 
     /**
@@ -311,7 +311,7 @@ final class QuantityStringsTest extends TestCase
         $length = new Length(0.0025, 'm');
         $result = $length->format('e', 2);
 
-        $this->assertSame("2.50×10⁻³ m", $result);
+        $this->assertSame('2.50×10⁻³ m', $result);
     }
 
     /**
@@ -322,7 +322,7 @@ final class QuantityStringsTest extends TestCase
         $length = new Length(3000.0, 'm');
         $result = $length->format('e');
 
-        $this->assertSame("3×10³ m", $result);
+        $this->assertSame('3×10³ m', $result);
     }
 
     /**
@@ -333,7 +333,7 @@ final class QuantityStringsTest extends TestCase
         $length = new Length(3000.0, 'm');
         $result = $length->format('e', 4);
 
-        $this->assertSame("3.0000×10³ m", $result);
+        $this->assertSame('3.0000×10³ m', $result);
     }
 
     // endregion

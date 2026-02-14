@@ -61,9 +61,9 @@ final class VolumeTest extends TestCase
     // region Metric conversion tests
 
     /**
-     * Test converting cubic metres to litres.
+     * Test converting cubic meters to liters.
      */
-    public function testConvertCubicMetresToLitres(): void
+    public function testConvertCubicMetersToLitres(): void
     {
         $vol = new Volume(1, 'm3');
         $l = $vol->to('L');
@@ -74,9 +74,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test converting litres to cubic metres.
+     * Test converting liters to cubic meters.
      */
-    public function testConvertLitresToCubicMetres(): void
+    public function testConvertLitresToCubicMeters(): void
     {
         $vol = new Volume(1000, 'L');
         $m3 = $vol->to('m3');
@@ -85,9 +85,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test converting litres to millilitres.
+     * Test converting liters to milliliters.
      */
-    public function testConvertLitresToMillilitres(): void
+    public function testConvertLitresToMilliliters(): void
     {
         $vol = new Volume(1, 'L');
         $ml = $vol->to('mL');
@@ -96,9 +96,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test converting millilitres to litres.
+     * Test converting milliliters to liters.
      */
-    public function testConvertMillilitresToLitres(): void
+    public function testConvertMillilitersToLitres(): void
     {
         $vol = new Volume(500, 'mL');
         $l = $vol->to('L');
@@ -107,9 +107,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test converting cubic centimetres to millilitres.
+     * Test converting cubic centimeters to milliliters.
      */
-    public function testConvertCubicCentimetresToMillilitres(): void
+    public function testConvertCubicCentimetersToMilliliters(): void
     {
         $vol = new Volume(1, 'cm3');
         $ml = $vol->to('mL');
@@ -119,9 +119,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test converting litres to cubic centimetres.
+     * Test converting liters to cubic centimeters.
      */
-    public function testConvertLitresToCubicCentimetres(): void
+    public function testConvertLitresToCubicCentimeters(): void
     {
         $vol = new Volume(1, 'L');
         $cm3 = $vol->to('cm3');
@@ -243,7 +243,7 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test converting imperial gallons to litres.
+     * Test converting imperial gallons to liters.
      */
     public function testConvertImperialGallonsToLitres(): void
     {
@@ -258,7 +258,7 @@ final class VolumeTest extends TestCase
     // region Cross-system conversion tests
 
     /**
-     * Test converting litres to US gallons.
+     * Test converting liters to US gallons.
      */
     public function testConvertLitresToUSGallons(): void
     {
@@ -272,7 +272,7 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test converting US gallons to litres.
+     * Test converting US gallons to liters.
      */
     public function testConvertUSGallonsToLitres(): void
     {
@@ -330,9 +330,9 @@ final class VolumeTest extends TestCase
     // region Multiplication tests (Area × Length = Volume)
 
     /**
-     * Test multiplying square metres by metres.
+     * Test multiplying square meters by meters.
      */
-    public function testMulSquareMetresByMetres(): void
+    public function testMulSquareMetersByMeters(): void
     {
         $area = new Area(10, 'm2');
         $length = new Length(5, 'm');
@@ -360,9 +360,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test multiplying square centimetres by centimetres.
+     * Test multiplying square centimeters by centimeters.
      */
-    public function testMulSquareCentimetresByCentimetres(): void
+    public function testMulSquareCentimetersByCentimeters(): void
     {
         $area = new Area(100, 'cm2');
         $length = new Length(10, 'cm');
@@ -373,15 +373,15 @@ final class VolumeTest extends TestCase
         $this->assertSame(1000.0, $result->value);
         $this->assertSame('cm³', $result->derivedUnit->unicodeSymbol);
 
-        // Verify conversion to litres
+        // Verify conversion to liters
         $l = $result->to('L');
         $this->assertApproxEqual(1.0, $l->value);
     }
 
     /**
-     * Test multiplying square metres by kilometres (mixed metric).
+     * Test multiplying square meters by kilometers (mixed metric).
      */
-    public function testMulSquareMetresByKilometres(): void
+    public function testMulSquareMetersByKilometers(): void
     {
         $area = new Area(1000000, 'm2');
         $length = new Length(1, 'km');
@@ -414,7 +414,7 @@ final class VolumeTest extends TestCase
     // region Addition tests
 
     /**
-     * Test adding litres to litres.
+     * Test adding liters to liters.
      */
     public function testAddLitresToLitres(): void
     {
@@ -428,9 +428,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test adding millilitres to litres.
+     * Test adding milliliters to liters.
      */
-    public function testAddMillilitresToLitres(): void
+    public function testAddMillilitersToLitres(): void
     {
         $a = new Volume(1, 'L');
         $b = new Volume(500, 'mL');
@@ -472,7 +472,7 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test adding litres to US gallons (cross-system).
+     * Test adding liters to US gallons (cross-system).
      */
     public function testAddLitresToUSGallons(): void
     {
@@ -506,7 +506,7 @@ final class VolumeTest extends TestCase
     // region Parse tests
 
     /**
-     * Test parsing litres.
+     * Test parsing liters.
      */
     public function testParseLitres(): void
     {
@@ -518,9 +518,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test parsing millilitres.
+     * Test parsing milliliters.
      */
-    public function testParseMillilitres(): void
+    public function testParseMilliliters(): void
     {
         $vol = Volume::parse('500 mL');
 
@@ -529,9 +529,9 @@ final class VolumeTest extends TestCase
     }
 
     /**
-     * Test parsing cubic metres.
+     * Test parsing cubic meters.
      */
-    public function testParseCubicMetres(): void
+    public function testParseCubicMeters(): void
     {
         $vol = Volume::parse('10 m3');
 

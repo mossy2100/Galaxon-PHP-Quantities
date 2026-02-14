@@ -47,7 +47,7 @@ class FluidMechanicsTest extends TestCase
     /**
      * Hydrostatic pressure: P = ρgh.
      *
-     * Pressure at 10 metres depth in fresh water (ρ = 1000 kg/m³).
+     * Pressure at 10 meters depth in fresh water (ρ = 1000 kg/m³).
      */
     public function testHydrostaticPressure(): void
     {
@@ -64,7 +64,7 @@ class FluidMechanicsTest extends TestCase
     /**
      * Buoyancy force (Archimedes' principle): F = ρVg.
      *
-     * A 10 litre (0.01 m³) object submerged in fresh water.
+     * A 10 liter (0.01 m³) object submerged in fresh water.
      */
     public function testBuoyancyForce(): void
     {

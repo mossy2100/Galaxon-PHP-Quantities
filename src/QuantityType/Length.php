@@ -34,24 +34,24 @@ class Length extends Quantity
     {
         return [
             // SI
-            'metre'             => [
+            'meter'             => [
                 'asciiSymbol' => 'm',
                 'prefixGroup' => PrefixRegistry::GROUP_METRIC,
                 'systems'     => [System::Si],
             ],
-            // Astronomical
+            // Scientific
             'astronomical unit' => [
                 'asciiSymbol' => 'au',
-                'systems'     => [System::SiAccepted, System::Astronomical],
+                'systems'     => [System::SiAccepted, System::Scientific],
             ],
             'light year'        => [
                 'asciiSymbol' => 'ly',
-                'systems'     => [System::Astronomical],
+                'systems'     => [System::Scientific],
             ],
             'parsec'            => [
                 'asciiSymbol' => 'pc',
                 'prefixGroup' => PrefixRegistry::GROUP_LARGE_METRIC,
-                'systems'     => [System::Astronomical],
+                'systems'     => [System::Scientific],
             ],
             // Typography/CSS
             'pixel'             => [

@@ -4,8 +4,7 @@ Represents a type of physical quantity with its associated metadata.
 
 ## Overview
 
-The `QuantityType` class defines the metadata for a category of physical quantities, such as Length, Mass, Time, or 
-Force. Each quantity type has a unique name, a dimensional code, and an optional associated PHP class.
+The `QuantityType` class defines the metadata for a category of physical quantities, such as Length, Mass, Time, or Force. Each quantity type has a unique name, a dimensional code, and an optional associated PHP class.
 
 Quantity types are registered with the `QuantityTypeRegistry` and are used to:
 - Map dimension codes to human-readable names
@@ -30,9 +29,7 @@ The human-readable name of the quantity type (e.g., 'length', 'mass', 'force'). 
 public readonly string $dimension
 ```
 
-The dimensional code for this quantity type. Uses dimension letters: L (length), M (mass), T (time), 
-I (electric current), H (temperature), N (amount of substance), J (luminous intensity), A (angle), D (data), 
-C (currency).
+The dimensional code for this quantity type. Uses dimension letters: L (length), M (mass), T (time), I (electric current), H (temperature), N (amount of substance), J (luminous intensity), A (angle), D (data), C (money).
 
 Examples:
 - 'L' for length
@@ -50,8 +47,7 @@ See [Dimensions](Dimensions.md).
 public ?string $class
 ```
 
-The fully-qualified class name of the Quantity subclass for this type, or null if no specific class is registered. 
-When set, `Quantity::create()` will instantiate this class for quantities with matching dimensions.
+The fully-qualified class name of the Quantity subclass for this type, or null if no specific class is registered. When set, `Quantity::create()` will instantiate this class for quantities with matching dimensions.
 
 This property has a setter hook that validates the value is a subclass of `Quantity`.
 

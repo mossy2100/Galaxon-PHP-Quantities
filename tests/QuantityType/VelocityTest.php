@@ -60,9 +60,9 @@ final class VelocityTest extends TestCase
     // region Metric conversion tests
 
     /**
-     * Test converting metres per second to kilometres per hour.
+     * Test converting meters per second to kilometers per hour.
      */
-    public function testConvertMetresPerSecondToKilometresPerHour(): void
+    public function testConvertMetersPerSecondToKilometersPerHour(): void
     {
         $vel = new Velocity(1, 'm/s');
         $kmh = $vel->to('km/h');
@@ -73,9 +73,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test converting kilometres per hour to metres per second.
+     * Test converting kilometers per hour to meters per second.
      */
-    public function testConvertKilometresPerHourToMetresPerSecond(): void
+    public function testConvertKilometersPerHourToMetersPerSecond(): void
     {
         $vel = new Velocity(36, 'km/h');
         $ms = $vel->to('m/s');
@@ -129,9 +129,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test converting knots to metres per second.
+     * Test converting knots to meters per second.
      */
-    public function testConvertKnotsToMetresPerSecond(): void
+    public function testConvertKnotsToMetersPerSecond(): void
     {
         $vel = new Velocity(1, 'kn');
         $ms = $vel->to('m/s');
@@ -141,9 +141,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test converting metres per second to knots.
+     * Test converting meters per second to knots.
      */
-    public function testConvertMetresPerSecondToKnots(): void
+    public function testConvertMetersPerSecondToKnots(): void
     {
         $vel = new Velocity(1, 'm/s');
         $kn = $vel->to('kn');
@@ -153,9 +153,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test converting knots to kilometres per hour.
+     * Test converting knots to kilometers per hour.
      */
-    public function testConvertKnotsToKilometresPerHour(): void
+    public function testConvertKnotsToKilometersPerHour(): void
     {
         $vel = new Velocity(1, 'kn');
         $kmh = $vel->to('km/h');
@@ -169,9 +169,9 @@ final class VelocityTest extends TestCase
     // region Cross-system conversion tests
 
     /**
-     * Test converting kilometres per hour to miles per hour.
+     * Test converting kilometers per hour to miles per hour.
      */
-    public function testConvertKilometresPerHourToMilesPerHour(): void
+    public function testConvertKilometersPerHourToMilesPerHour(): void
     {
         $vel = new Velocity(100, 'km/h');
         $mph = $vel->to('mi/h');
@@ -182,9 +182,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test converting miles per hour to kilometres per hour.
+     * Test converting miles per hour to kilometers per hour.
      */
-    public function testConvertMilesPerHourToKilometresPerHour(): void
+    public function testConvertMilesPerHourToKilometersPerHour(): void
     {
         $vel = new Velocity(88, 'mi/h');
         $kmh = $vel->to('km/h');
@@ -221,9 +221,9 @@ final class VelocityTest extends TestCase
     // region Division tests (Length / Time = Velocity)
 
     /**
-     * Test dividing metres by seconds.
+     * Test dividing meters by seconds.
      */
-    public function testDivMetresBySeconds(): void
+    public function testDivMetersBySeconds(): void
     {
         $length = new Length(100, 'm');
         $time = new Time(10, 's');
@@ -236,9 +236,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test dividing kilometres by hours.
+     * Test dividing kilometers by hours.
      */
-    public function testDivKilometresByHours(): void
+    public function testDivKilometersByHours(): void
     {
         $length = new Length(120, 'km');
         $time = new Time(2, 'h');
@@ -288,9 +288,9 @@ final class VelocityTest extends TestCase
     // region Multiplication tests (Velocity × Time = Length)
 
     /**
-     * Test multiplying metres per second by seconds.
+     * Test multiplying meters per second by seconds.
      */
-    public function testMulMetresPerSecondBySeconds(): void
+    public function testMulMetersPerSecondBySeconds(): void
     {
         $vel = new Velocity(10, 'm/s');
         $time = new Time(5, 's');
@@ -303,9 +303,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test multiplying kilometres per hour by hours.
+     * Test multiplying kilometers per hour by hours.
      */
-    public function testMulKilometresPerHourByHours(): void
+    public function testMulKilometersPerHourByHours(): void
     {
         $vel = new Velocity(60, 'km/h');
         $time = new Time(2.5, 'h');
@@ -354,9 +354,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test adding metres per second to kilometres per hour.
+     * Test adding meters per second to kilometers per hour.
      */
-    public function testAddMetresPerSecondToKilometresPerHour(): void
+    public function testAddMetersPerSecondToKilometersPerHour(): void
     {
         $a = new Velocity(100, 'km/h');
         $b = new Velocity(10, 'm/s');
@@ -388,9 +388,9 @@ final class VelocityTest extends TestCase
     // region Parse tests
 
     /**
-     * Test parsing metres per second.
+     * Test parsing meters per second.
      */
-    public function testParseMetresPerSecond(): void
+    public function testParseMetersPerSecond(): void
     {
         $vel = Velocity::parse('25 m/s');
 
@@ -400,9 +400,9 @@ final class VelocityTest extends TestCase
     }
 
     /**
-     * Test parsing kilometres per hour.
+     * Test parsing kilometers per hour.
      */
-    public function testParseKilometresPerHour(): void
+    public function testParseKilometersPerHour(): void
     {
         $vel = Velocity::parse('120 km/h');
 

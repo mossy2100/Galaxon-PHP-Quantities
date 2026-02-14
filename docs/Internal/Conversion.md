@@ -72,7 +72,7 @@ Create a new Conversion instance.
 
 **Examples:**
 ```php
-// Create a conversion from feet to metres
+// Create a conversion from feet to meters
 $ftToM = new Conversion('ft', 'm', 0.3048);
 
 // Create a conversion with explicit error tracking
@@ -117,7 +117,7 @@ Raise the conversion to a power for area, volume, etc.
 **Examples:**
 ```php
 $ftToM = new Conversion('ft', 'm', 0.3048);
-$ft2ToM2 = $ftToM->pow(2);  // Square feet to square metres
+$ft2ToM2 = $ftToM->pow(2);  // Square feet to square meters
 echo $ft2ToM2->factor->value; // 0.09290304
 ```
 
@@ -232,7 +232,7 @@ echo $ftToYd->factor->value; // 0.333...
 ```php
 use Galaxon\Quantities\Internal\Conversion;
 
-// Miles to kilometres via multiple steps
+// Miles to kilometers via multiple steps
 $miToFt = new Conversion('mi', 'ft', 5280);
 $ftToIn = new Conversion('ft', 'in', 12);
 $inToCm = new Conversion('in', 'cm', 2.54);
@@ -253,7 +253,7 @@ echo $miToKm->factor->value; // 1.609344
 ```php
 use Galaxon\Quantities\Internal\Conversion;
 
-// Convert acres to square metres
+// Convert acres to square meters
 $acreToFt2 = new Conversion('acre', 'ft2', 43560);
 $ftToM = new Conversion('ft', 'm', 0.3048);
 $ft2ToM2 = $ftToM->pow(2);

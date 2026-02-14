@@ -40,7 +40,7 @@ The caesium-133 hyperfine transition frequency (deltaNuCs). Defines the second.
 public static function speedOfLight(): Quantity
 ```
 
-The speed of light in vacuum (c). Defines the metre.
+The speed of light in vacuum (c). Defines the meter.
 
 **Returns:**
 - `Quantity` - 299,792,458 m/s (exact)

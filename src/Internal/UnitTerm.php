@@ -209,23 +209,6 @@ class UnitTerm implements UnitInterface
     // region String methods
 
     /**
-     * Get the regex pattern for matching a unit term.
-     *
-     * Matches one or more letters (the unit symbol) optionally followed by an exponent
-     * in either ASCII digits or Unicode superscript characters.
-     *
-     * @return string The regex pattern (without delimiters or anchors).
-     */
-    public static function regex(): string
-    {
-        $superscriptChars = Integers::SUPERSCRIPT_CHARACTERS;
-        $superscriptMinus = $superscriptChars['-'];
-        unset($superscriptChars['-']);
-        $superscriptDigits = implode('', $superscriptChars);
-        return Unit::regex() . "((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
-    }
-
-    /**
      * Parses the given symbol to extract the unit, prefix, and exponent.
      *
      * @param string $symbol The unit symbol with an optional prefix and/or exponent (e.g. 'm2', 's-1').
@@ -241,8 +224,7 @@ class UnitTerm implements UnitInterface
         }
 
         // Validate the format.
-        $unitValid = preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);
-        if (!$unitValid) {
+        if (!RegexHelper::isValidUnitTerm($symbol, $matches)) {
             throw new FormatException(
                 "Invalid unit '$symbol'. A unit must comprise one or more letters optionally followed by an exponent."
             );

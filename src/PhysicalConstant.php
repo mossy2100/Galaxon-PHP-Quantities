@@ -120,7 +120,7 @@ class PhysicalConstant
     /**
      * Speed of light in vacuum (c).
      *
-     * Defines the metre: exactly 299,792,458 m/s.
+     * Defines the meter: exactly 299,792,458 m/s.
      */
     public static function speedOfLight(): Quantity
     {

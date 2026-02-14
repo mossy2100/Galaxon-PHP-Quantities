@@ -31,11 +31,11 @@ Square length units are automatically supported through unit arithmetic:
 ```php
 use Galaxon\Quantities\Quantity;
 
-// Square metres
+// Square meters
 $room = new Quantity(25, 'm2');
 $inSqFt = $room->to('ft2');  // 269.098 ft²
 
-// Square kilometres
+// Square kilometers
 $country = new Quantity(7692024, 'km2');  // Australia
 
 // Square inches

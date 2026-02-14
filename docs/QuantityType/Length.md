@@ -9,7 +9,8 @@ Represents length/distance quantities.
 
 ## Overview
 
-The `Length` class handles distance measurements across multiple systems including SI, Imperial, US Customary, Astronomical, Nautical, and Typographical units.
+The `Length` class handles distance measurements across multiple systems including SI, Imperial, US Customary,
+Scientific, Nautical, and Typographical units.
 
 For the complete list of length units, see [Supported Units: Length](../SupportedUnits.md#length).
 
@@ -36,17 +37,18 @@ $length = Length::fromParts([
 
 ## Key Conversions
 
-| From | To | Factor |
-|------|-----|--------|
-| yard | metre | 0.9144 (exact) |
-| foot | metre | 0.3048 (exact) |
-| inch | millimetre | 25.4 (exact) |
-| mile | yard | 1760 |
-| nautical mile | metre | 1852 |
-| astronomical unit | metre | 149,597,870,700 |
-| light year | metre | 9,460,730,472,580,800 |
+| From              | To         | Factor                |
+|-------------------|------------|-----------------------|
+| yard              | meter      | 0.9144 (exact)        |
+| foot              | meter      | 0.3048 (exact)        |
+| inch              | millimeter | 25.4 (exact)          |
+| mile              | yard       | 1760                  |
+| nautical mile     | meter      | 1852                  |
+| astronomical unit | meter      | 149,597,870,700       |
+| light year        | meter      | 9,460,730,472,580,800 |
 
-The International Yard and Pound Agreement (1959) defines the exact metric equivalents for US Customary and Imperial length units.
+The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines
+the exact metric equivalents for US Customary and Imperial length units.
 
 ---
 
@@ -56,13 +58,13 @@ The International Yard and Pound Agreement (1959) defines the exact metric equiv
 use Galaxon\Quantities\QuantityType\Length;
 
 // Create lengths in different units
-$metres = new Length(100, 'm');
+$meters = new Length(100, 'm');
 $feet = new Length(6, 'ft');
 $miles = new Length(26.2, 'mi');
 
 // Convert between systems
-$inFeet = $metres->to('ft');     // 328.084 ft
-$inMetres = $feet->to('m');      // 1.8288 m
+$inFeet = $meters->to('ft');     // 328.084 ft
+$inMeters = $feet->to('m');      // 1.8288 m
 
 // Metric prefixes
 $km = new Length(5, 'km');

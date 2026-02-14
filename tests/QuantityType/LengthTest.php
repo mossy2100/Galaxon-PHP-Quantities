@@ -28,7 +28,7 @@ final class LengthTest extends TestCase
         // Load additional unit systems.
         UnitRegistry::loadSystem(System::Imperial);
         UnitRegistry::loadSystem(System::UsCustomary);
-        UnitRegistry::loadSystem(System::Astronomical);
+        UnitRegistry::loadSystem(System::Scientific);
         UnitRegistry::loadSystem(System::Typographical);
         UnitRegistry::loadSystem(System::Nautical);
     }
@@ -62,9 +62,9 @@ final class LengthTest extends TestCase
     // region Metric conversion tests
 
     /**
-     * Test converting metres to kilometres.
+     * Test converting meters to kilometers.
      */
-    public function testConvertMetresToKilometres(): void
+    public function testConvertMetersToKilometers(): void
     {
         $length = new Length(1000, 'm');
         $km = $length->to('km');
@@ -75,9 +75,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting kilometres to metres.
+     * Test converting kilometers to meters.
      */
-    public function testConvertKilometresToMetres(): void
+    public function testConvertKilometersToMeters(): void
     {
         $length = new Length(1, 'km');
         $m = $length->to('m');
@@ -86,9 +86,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting metres to centimetres.
+     * Test converting meters to centimeters.
      */
-    public function testConvertMetresToCentimetres(): void
+    public function testConvertMetersToCentimeters(): void
     {
         $length = new Length(1, 'm');
         $cm = $length->to('cm');
@@ -97,9 +97,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting centimetres to millimetres.
+     * Test converting centimeters to millimeters.
      */
-    public function testConvertCentimetresToMillimetres(): void
+    public function testConvertCentimetersToMillimeters(): void
     {
         $length = new Length(1, 'cm');
         $mm = $length->to('mm');
@@ -108,9 +108,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting metres to micrometres.
+     * Test converting meters to micrometers.
      */
-    public function testConvertMetresToMicrometres(): void
+    public function testConvertMetersToMicrometers(): void
     {
         $length = new Length(1, 'm');
         $um = $length->to('μm');
@@ -119,9 +119,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting metres to nanometres.
+     * Test converting meters to nanometers.
      */
-    public function testConvertMetresToNanometres(): void
+    public function testConvertMetersToNanometers(): void
     {
         $length = new Length(1, 'm');
         $nm = $length->to('nm');
@@ -171,33 +171,33 @@ final class LengthTest extends TestCase
     // region Cross-system conversion tests (metric to imperial)
 
     /**
-     * Test converting metres to feet.
+     * Test converting meters to feet.
      */
-    public function testConvertMetresToFeet(): void
+    public function testConvertMetersToFeet(): void
     {
         $length = new Length(1, 'm');
         $ft = $length->to('ft');
 
-        // 1 metre = 1/0.3048 feet
+        // 1 meter = 1/0.3048 feet
         $this->assertApproxEqual(1 / 0.3048, $ft->value);
     }
 
     /**
-     * Test converting feet to metres.
+     * Test converting feet to meters.
      */
-    public function testConvertFeetToMetres(): void
+    public function testConvertFeetToMeters(): void
     {
         $length = new Length(1, 'ft');
         $m = $length->to('m');
 
-        // 1 foot = 0.3048 metres (exactly)
+        // 1 foot = 0.3048 meters (exactly)
         $this->assertSame(0.3048, $m->value);
     }
 
     /**
-     * Test converting inches to centimetres.
+     * Test converting inches to centimeters.
      */
-    public function testConvertInchesToCentimetres(): void
+    public function testConvertInchesToCentimeters(): void
     {
         $length = new Length(1, 'in');
         $cm = $length->to('cm');
@@ -207,9 +207,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting centimetres to inches.
+     * Test converting centimeters to inches.
      */
-    public function testConvertCentimetresToInches(): void
+    public function testConvertCentimetersToInches(): void
     {
         $length = new Length(2.54, 'cm');
         $in = $length->to('in');
@@ -218,9 +218,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting miles to kilometres.
+     * Test converting miles to kilometers.
      */
-    public function testConvertMilesToKilometres(): void
+    public function testConvertMilesToKilometers(): void
     {
         $length = new Length(1, 'mi');
         $km = $length->to('km');
@@ -230,9 +230,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting kilometres to miles.
+     * Test converting kilometers to miles.
      */
-    public function testConvertKilometresToMiles(): void
+    public function testConvertKilometersToMiles(): void
     {
         $length = new Length(1.609344, 'km');
         $mi = $length->to('mi');
@@ -241,25 +241,25 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting yards to metres.
+     * Test converting yards to meters.
      */
-    public function testConvertYardsToMetres(): void
+    public function testConvertYardsToMeters(): void
     {
         $length = new Length(1, 'yd');
         $m = $length->to('m');
 
-        // 1 yard = 0.9144 metres (exactly)
+        // 1 yard = 0.9144 meters (exactly)
         $this->assertSame(0.9144, $m->value);
     }
 
     // endregion
 
-    // region Astronomical unit tests
+    // region Scientific unit tests
 
     /**
-     * Test converting astronomical units to metres.
+     * Test converting astronomical units to meters.
      */
-    public function testConvertAuToMetres(): void
+    public function testConvertAuToMeters(): void
     {
         $length = new Length(1, 'au');
         $m = $length->to('m');
@@ -268,9 +268,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test converting light years to metres.
+     * Test converting light years to meters.
      */
-    public function testConvertLightYearsToMetres(): void
+    public function testConvertLightYearsToMeters(): void
     {
         $length = new Length(1, 'ly');
         $m = $length->to('m');
@@ -409,9 +409,9 @@ final class LengthTest extends TestCase
     // region Nautical unit tests
 
     /**
-     * Test converting nautical miles to metres.
+     * Test converting nautical miles to meters.
      */
-    public function testConvertNauticalMilesToMetres(): void
+    public function testConvertNauticalMilesToMeters(): void
     {
         $length = new Length(1, 'nmi');
         $m = $length->to('m');
@@ -470,9 +470,9 @@ final class LengthTest extends TestCase
     // region Parse tests
 
     /**
-     * Test parsing metres.
+     * Test parsing meters.
      */
-    public function testParseMetres(): void
+    public function testParseMeters(): void
     {
         $length = Length::parse('100 m');
 
@@ -482,9 +482,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test parsing kilometres.
+     * Test parsing kilometers.
      */
-    public function testParseKilometres(): void
+    public function testParseKilometers(): void
     {
         $length = Length::parse('5.5 km');
 
@@ -807,9 +807,9 @@ final class LengthTest extends TestCase
     // region Arithmetic (add) tests
 
     /**
-     * Test adding SI units (metres + kilometres).
+     * Test adding SI units (meters + kilometers).
      */
-    public function testAddMetresAndKilometres(): void
+    public function testAddMetersAndKilometers(): void
     {
         $a = new Length(500, 'm');
         $b = new Length(1, 'km');
@@ -821,9 +821,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test adding SI units (kilometres + metres).
+     * Test adding SI units (kilometers + meters).
      */
-    public function testAddKilometresAndMetres(): void
+    public function testAddKilometersAndMeters(): void
     {
         $a = new Length(1, 'km');
         $b = new Length(500, 'm');
@@ -834,9 +834,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test adding SI units (centimetres + metres).
+     * Test adding SI units (centimeters + meters).
      */
-    public function testAddCentimetresAndMetres(): void
+    public function testAddCentimetersAndMeters(): void
     {
         $a = new Length(50, 'cm');
         $b = new Length(1, 'm');
@@ -886,9 +886,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test adding mixed units (metres + feet).
+     * Test adding mixed units (meters + feet).
      */
-    public function testAddMetresAndFeet(): void
+    public function testAddMetersAndFeet(): void
     {
         $a = new Length(1, 'm');
         $b = new Length(1, 'ft');
@@ -900,9 +900,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test adding mixed units (feet + metres).
+     * Test adding mixed units (feet + meters).
      */
-    public function testAddFeetAndMetres(): void
+    public function testAddFeetAndMeters(): void
     {
         $a = new Length(1, 'ft');
         $b = new Length(1, 'm');
@@ -914,9 +914,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test adding mixed units (kilometres + miles).
+     * Test adding mixed units (kilometers + miles).
      */
-    public function testAddKilometresAndMiles(): void
+    public function testAddKilometersAndMiles(): void
     {
         $a = new Length(1, 'km');
         $b = new Length(1, 'mi');
@@ -928,9 +928,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test adding mixed units (inches + centimetres).
+     * Test adding mixed units (inches + centimeters).
      */
-    public function testAddInchesAndCentimetres(): void
+    public function testAddInchesAndCentimeters(): void
     {
         $a = new Length(1, 'in');
         $b = new Length(2.54, 'cm');
@@ -946,9 +946,9 @@ final class LengthTest extends TestCase
     // region Arithmetic (mul) tests
 
     /**
-     * Test multiplying metres by a scalar.
+     * Test multiplying meters by a scalar.
      */
-    public function testMulMetresByScalar(): void
+    public function testMulMetersByScalar(): void
     {
         $length = new Length(5, 'm');
         $result = $length->mul(3);
@@ -959,9 +959,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test multiplying kilometres by a scalar.
+     * Test multiplying kilometers by a scalar.
      */
-    public function testMulKilometresByScalar(): void
+    public function testMulKilometersByScalar(): void
     {
         $length = new Length(2.5, 'km');
         $result = $length->mul(4);
@@ -1020,9 +1020,9 @@ final class LengthTest extends TestCase
     // region Arithmetic (div) tests
 
     /**
-     * Test dividing metres by a scalar.
+     * Test dividing meters by a scalar.
      */
-    public function testDivMetresByScalar(): void
+    public function testDivMetersByScalar(): void
     {
         $length = new Length(15, 'm');
         $result = $length->div(3);
@@ -1033,9 +1033,9 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test dividing kilometres by a scalar.
+     * Test dividing kilometers by a scalar.
      */
-    public function testDivKilometresByScalar(): void
+    public function testDivKilometersByScalar(): void
     {
         $length = new Length(10, 'km');
         $result = $length->div(4);

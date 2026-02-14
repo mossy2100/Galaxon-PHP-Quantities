@@ -154,20 +154,6 @@ class DerivedUnit implements UnitInterface
     // region String methods
 
     /**
-     * Get the regex pattern for matching a derived unit.
-     *
-     * @return string The regex pattern (without delimiters or anchors).
-     */
-    public static function regex(): string
-    {
-        $rxUnitTerm = UnitTerm::regex();
-        $form1 = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_PLUS_DIV . "$rxUnitTerm)*";
-        $mulTerms = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_ONLY . "$rxUnitTerm)*";
-        $form2 = "(?:$mulTerms)\/\\((?:$mulTerms)\\)";
-        return "(?:$form1)|(?:$form2)";
-    }
-
-    /**
      * Parse a string into a new DerivedUnit.
      *
      * @param string $symbol The unit symbol, which can be simple or complex (e.g. 'm', 'kg*m/s2', etc.).
@@ -183,19 +169,14 @@ class DerivedUnit implements UnitInterface
             return new self();
         }
 
-        $rxUnitTerm = UnitTerm::regex();
-
         // Check for a series of unit terms separated by multiplication and/or division operators.
-        $form1 = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_PLUS_DIV . "$rxUnitTerm)*";
-        if (preg_match("/^$form1$/iu", $symbol, $matches) === 1) {
+        if (RegexHelper::isValidDerivedUnitForm1($symbol)) {
             return self::parseHelper($symbol);
         }
 
         // Check for parentheses. The only permitted use of parentheses is "<terms>/(<terms>)", where <terms> is a
         // sequence of one or more multiplied unit terms. Examples: 'J/(mol*K)', 'W/(m2*K4)'.
-        $mulTerms = "$rxUnitTerm(?:" . Unit::RX_MUL_OPS_ONLY . "$rxUnitTerm)*";
-        $form2 = "(?<num>$mulTerms)\/\((?<den>$mulTerms)\)";
-        if (preg_match("/^$form2$/iu", $symbol, $matches) === 1) {
+        if (RegexHelper::isValidDerivedUnitForm2($symbol, $matches)) {
             $numerator = $matches['num'];
             $denominator = $matches['den'];
             $numUnit = self::parseHelper($numerator);
@@ -224,7 +205,7 @@ class DerivedUnit implements UnitInterface
         $new = new self();
 
         // Get the parts of the compound unit.
-        $parts = preg_split('/(' . Unit::RX_MUL_OPS_PLUS_DIV . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split('/(' . RegexHelper::RX_CLASS_MUL_DIV_OPS . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         // Check for error.
         if ($parts === false) {

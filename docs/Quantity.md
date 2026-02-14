@@ -139,9 +139,9 @@ Convert this Quantity to a different unit.
 
 **Examples:**
 ```php
-$metres = new Length(1000, 'm');
-$km = $metres->to('km');        // 1 km
-$feet = $metres->to('ft');      // 3280.84 ft
+$meters = new Length(1000, 'm');
+$km = $meters->to('km');        // 1 km
+$feet = $meters->to('ft');      // 3280.84 ft
 ```
 
 ### toSi()
@@ -490,7 +490,7 @@ $angle->format();                     // "90°"
 $angle->format('f', 2, false);        // "90.00°"
 ```
 
-### __toString()
+### \_\_toString()
 
 ```php
 public function __toString(): string

@@ -38,7 +38,7 @@ UnitRegistry::loadSystem(System::Imperial);
 UnitRegistry::loadSystem(System::UsCustomary);
 
 // Load other systems as needed
-UnitRegistry::loadSystem(System::Astronomical);
+UnitRegistry::loadSystem(System::Scientific);
 UnitRegistry::loadSystem(System::Nautical);
 ```
 
@@ -53,7 +53,7 @@ UnitRegistry::loadSystem(System::Nautical);
 Find a unit by its symbol (ASCII, Unicode, or alternate).
 
 ```php
-$metre = UnitRegistry::getBySymbol('m');
+$meter = UnitRegistry::getBySymbol('m');
 $ohm = UnitRegistry::getBySymbol('Ω');  // Unicode
 $ohm = UnitRegistry::getBySymbol('ohm');  // ASCII
 ```
@@ -66,7 +66,7 @@ Get all units belonging to a given measurement system.
 use Galaxon\Quantities\System;
 
 $siUnits = UnitRegistry::getBySystem(System::Si);
-// Returns all SI units (metre, kilogram, second, etc.)
+// Returns all SI units (meter, kilogram, second, etc.)
 
 UnitRegistry::loadSystem(System::Imperial);
 $imperialUnits = UnitRegistry::getBySystem(System::Imperial);
@@ -138,7 +138,7 @@ UnitRegistry::reset();
 Check if a unit exists in the registry.
 
 ```php
-if (UnitRegistry::has('metre')) {
+if (UnitRegistry::has('meter')) {
     // Unit exists
 }
 ```
@@ -184,14 +184,8 @@ UnitRegistry::loadSystem(System::Imperial);
 $foot = UnitRegistry::getBySymbol('ft');
 echo $foot->name;  // 'foot'
 
-// Custom unit (not recommended - use QuantityType classes instead)
-UnitRegistry::add(
-    name: 'cubit',
-    asciiSymbol: 'cbt',
-    unicodeSymbol: null,
-    dimension: 'L',
-    systems: [System::Common]
-);
+// Custom unit
+UnitRegistry::add(new Unit('cubit', 'cbt', 'L', [System::Common]));
 ```
 
 ---

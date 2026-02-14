@@ -9,7 +9,7 @@ Represents volume quantities.
 
 ## Overview
 
-The `Volume` class handles volume measurements including litres and Imperial/US Customary liquid measures.
+The `Volume` class handles volume measurements including liters and Imperial/US Customary liquid measures.
 
 For the complete list of volume units, see [Supported Units: Volume](../SupportedUnits.md#volume).
 
@@ -59,11 +59,11 @@ $impGal->to('L');  // 4.54609 L
 Cubic length units are automatically supported through unit arithmetic:
 
 ```php
-// Cubic metres
+// Cubic meters
 $tank = new Volume(1000, 'L');
-$inCubicMetres = $tank->to('m3');  // 1 m³
+$inCubicMeters = $tank->to('m3');  // 1 m³
 
-// Cubic centimetres (same as mL)
+// Cubic centimeters (same as mL)
 $cc = new Quantity(500, 'cm3');
 $inMl = $cc->to('mL');  // 500 mL
 
@@ -80,7 +80,7 @@ $inLitres = $engine->to('L');  // 5.735 L
 use Galaxon\Quantities\QuantityType\Volume;
 
 // Metric volumes
-$litres = new Volume(2, 'L');
+$liters = new Volume(2, 'L');
 $ml = new Volume(500, 'mL');
 
 // US volumes

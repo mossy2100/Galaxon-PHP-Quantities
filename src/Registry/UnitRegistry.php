@@ -14,6 +14,14 @@ use Galaxon\Quantities\System;
  */
 class UnitRegistry
 {
+    // region Constants
+
+    public const int ON_DUPLICATE_THROW = 0;
+    public const int ON_DUPLICATE_SKIP = 1;
+    public const int ON_DUPLICATE_REPLACE = 2;
+
+    // endregion
+
     // region Static properties
 
     /**
@@ -111,6 +119,7 @@ class UnitRegistry
             $allSymbols = array_merge($allSymbols, array_keys($unit->symbols));
         }
 
+        /** @var list<string> $allSymbols */
         return $allSymbols;
     }
 
@@ -121,53 +130,35 @@ class UnitRegistry
     /**
      * Add a unit to the system.
      *
-     * @param string $name The unit name (e.g. 'metre', 'gram').
-     * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
-     * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if same as ASCII.
-     * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
-     * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
-     * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
-     * @param list<System> $systems The measurement systems this unit belongs to.
-     * @param ?string $expansionUnitSymbol The unit symbol this unit expands to, or null if not expandable.
-     * @param ?float $expansionValue The conversion factor for the expansion, or null if not expandable.
-     * @return Unit The newly created Unit object.
-     * @throws DomainException If the name or symbol already exists.
+     * @param Unit $unit The unit to add.
+     * @param int $onDuplicateAction Action to take if the unit already exists in the registry. Defaults to throwing an
+     * exception.
+     * @throws DomainException If a unit with the same name already exists in the registry, and $onDuplicateAction is
+     * set to ON_DUPLICATE_THROW; or if any of the new unit's possible symbols conflict with existing ones.
      */
-    public static function add(
-        string $name,
-        string $asciiSymbol,
-        ?string $unicodeSymbol,
-        string $dimension,
-        int $prefixGroup = 0,
-        ?string $alternateSymbol = null,
-        array $systems = [],
-        ?string $expansionUnitSymbol = null,
-        ?float $expansionValue = null
-    ): Unit {
+    public static function add(Unit $unit, int $onDuplicateAction = self::ON_DUPLICATE_THROW): void
+    {
         // Ensure the registry is initialized (unless we're in the middle of init).
         if (self::$units === null) {
             self::init();
         }
 
         // Check if we already have a unit with this name.
-        if (isset(self::$units[$name])) {
-            // Remove the existing unit first, so the call to getAllValidSymbols() doesn't include the symbols from this
-            // unit.
-            self::remove($name);
-        }
+        if (isset(self::$units[$unit->name])) {
+            // Throw if requested.
+            if ($onDuplicateAction === self::ON_DUPLICATE_THROW) {
+                throw new DomainException("Unit '$unit->name' already exists in the registry.");
+            }
 
-        // Create the new unit.
-        $unit = new Unit(
-            $name,
-            $asciiSymbol,
-            $unicodeSymbol,
-            $dimension,
-            $prefixGroup,
-            $alternateSymbol,
-            $systems,
-            $expansionUnitSymbol,
-            $expansionValue
-        );
+            // Skip if requested.
+            if ($onDuplicateAction === self::ON_DUPLICATE_SKIP) {
+                return;
+            }
+
+            // Replace the existing unit. Remove it first, so the call to getAllSymbols() doesn't include the
+            // symbols from this unit.
+            self::remove($unit->name);
+        }
 
         // Get all existing symbols.
         $existingSymbols = self::getAllSymbols();
@@ -175,15 +166,14 @@ class UnitRegistry
         // Check if the new unit's symbols conflict with existing ones.
         foreach ($unit->symbols as $symbol => $details) {
             if (in_array($symbol, $existingSymbols, true)) {
-                throw new DomainException("The symbol '$symbol' for $name is already being used by another unit.");
+                throw new DomainException(
+                    "The symbol '$symbol' for $unit->name is already being used by another unit."
+                );
             }
         }
 
         // All good, add the unit to the registry.
-        self::$units[$name] = $unit;
-
-        // Return the newly created unit.
-        return $unit;
+        self::$units[$unit->name] = $unit;
     }
 
     /**
@@ -245,18 +235,18 @@ class UnitRegistry
                 continue;
             }
 
-            // Add the unit. If it's already in there, ignore it.
-            self::add(
+            // Add the unit. If it's already in there, skip it.
+            self::add(new Unit(
                 $name,
                 $definition['asciiSymbol'],
-                $definition['unicodeSymbol'] ?? null,
                 $definition['dimension'],
-                $definition['prefixGroup'] ?? 0,
-                $definition['alternateSymbol'] ?? null,
                 $unitSystems,
+                $definition['prefixGroup'] ?? 0,
+                $definition['unicodeSymbol'] ?? null,
+                $definition['alternateSymbol'] ?? null,
                 $definition['expansionUnitSymbol'] ?? null,
                 $definition['expansionValue'] ?? null
-            );
+            ), self::ON_DUPLICATE_SKIP);
         }
 
         // Keep track of which systems have been loaded.

@@ -423,39 +423,47 @@ final class DimensionsTest extends TestCase
     }
 
     /**
-     * Test letterToInt() returns null for invalid code.
+     * Test letterToInt() throws for invalid code.
      */
-    public function testLetterToIntInvalidCode(): void
+    public function testLetterToIntThrowsForInvalidCode(): void
     {
-        $this->assertNull(Dimensions::letterToInt('X'));
-        $this->assertNull(Dimensions::letterToInt('Z'));
-        $this->assertNull(Dimensions::letterToInt('B'));
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("Invalid dimension code letter 'X'");
+
+        Dimensions::letterToInt('X');
     }
 
     /**
-     * Test letterToInt() returns null for lowercase.
+     * Test letterToInt() throws for lowercase.
      */
-    public function testLetterToIntLowercase(): void
+    public function testLetterToIntThrowsForLowercase(): void
     {
-        $this->assertNull(Dimensions::letterToInt('l'));
-        $this->assertNull(Dimensions::letterToInt('m'));
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("Invalid dimension code letter 'l'");
+
+        Dimensions::letterToInt('l');
     }
 
     /**
-     * Test letterToInt() returns null for empty string.
+     * Test letterToInt() throws for empty string.
      */
-    public function testLetterToIntEmptyString(): void
+    public function testLetterToIntThrowsForEmptyString(): void
     {
-        $this->assertNull(Dimensions::letterToInt(''));
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("Invalid dimension code letter ''");
+
+        Dimensions::letterToInt('');
     }
 
     /**
-     * Test letterToInt() returns null for multi-character string.
+     * Test letterToInt() throws for multi-character string.
      */
-    public function testLetterToIntMultiCharacter(): void
+    public function testLetterToIntThrowsForMultiCharacter(): void
     {
-        $this->assertNull(Dimensions::letterToInt('ML'));
-        $this->assertNull(Dimensions::letterToInt('L2'));
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("Invalid dimension code letter 'ML'");
+
+        Dimensions::letterToInt('ML');
     }
 
     // endregion
@@ -552,7 +560,7 @@ final class DimensionsTest extends TestCase
     {
         $lengthUnit = Dimensions::getSiBaseUnitTerm('L');
 
-        $this->assertSame('metre', $lengthUnit->unit->name);
+        $this->assertSame('meter', $lengthUnit->unit->name);
         $this->assertSame('L', $lengthUnit->unit->dimension);
     }
 

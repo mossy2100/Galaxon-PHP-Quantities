@@ -32,10 +32,10 @@ Velocity units are automatically supported through unit arithmetic:
 ```php
 use Galaxon\Quantities\Quantity;
 
-// Metres per second
+// Meters per second
 $speed = new Quantity(10, 'm/s');
 
-// Kilometres per hour
+// Kilometers per hour
 $car = new Quantity(100, 'km/h');
 $inMs = $car->to('m/s');  // 27.778 m/s
 

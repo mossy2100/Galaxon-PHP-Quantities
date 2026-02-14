@@ -4,16 +4,14 @@ Represents an SI or binary prefix for units.
 
 ## Overview
 
-The `Prefix` class represents metric (SI) and binary prefixes that can be applied to units of measurement. 
-Prefixes allow expressing very large or very small quantities more conveniently, such as kilometre (km), 
-microsecond (µs), or gibibyte (GiB).
+The `Prefix` class represents metric (SI) and binary prefixes that can be applied to units of measurement. Prefixes allow expressing very large or very small quantities more conveniently, such as kilometer (km), microsecond (µs), or gibibyte (GiB).
 
 Prefixes are organised into groups for flexible assignment to units:
 - **Metric prefixes**: Standard SI prefixes from yocto (10⁻²⁴) to yotta (10²⁴)
 - **Binary prefixes**: IEC binary prefixes (kibi, mebi, gibi, etc.) for computing
 - **Small metric**: Only the smaller metric prefixes (milli, micro, nano, etc.)
 
-Each prefix has both ASCII and Unicode symbol representations. For example, the micro prefix has ASCII symbol 'u' and Unicode symbol 'μ'.
+As with units, prefixes have both ASCII and Unicode symbol representations. These are usually the same, the notable exception being the micro prefix having ASCII symbol 'u' and Unicode symbol 'μ'.
 
 ## Properties
 
@@ -58,7 +56,7 @@ The numeric multiplier the prefix represents. For example:
 public readonly int $groupCode
 ```
 
-Bitwise flag indicating which prefix group(s) this prefix belongs to. Used for determining which prefixes a unit accepts.
+Bitwise flag indicating which prefix group(s) this prefix belongs to. Used for determining which prefixes a unit accepts. See [Prefix Group Constants](../Registry/PrefixRegistry.md).
 
 ## Constructor
 
@@ -100,9 +98,9 @@ $micro = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_METRIC
 public function isEngineering(): bool
 ```
 
-Check if this prefix is an "engineering" prefix (powers of 1000).
+Check if this prefix is an "engineering" prefix, meaning its multiplier is a power of 1000.
 
-Engineering prefixes are those commonly used in engineering notation: kilo, mega, giga, etc., and milli, micro, nano, etc. Non-engineering prefixes like centi, deci, deca, and hecto return false.
+Engineering prefixes are those commonly used in engineering notation: kilo, mega, giga, etc., and milli, micro, nano, etc. Non-engineering prefixes like centi, deci, deca, and hecto, and binary prefixes like kibi and mibi return false.
 
 **Returns:**
 - `bool` - True if the prefix represents a power of 1000 (or 1/1000)
@@ -162,7 +160,7 @@ $micro->format();      // 'μ'
 $micro->format(true);  // 'u'
 ```
 
-### __toString()
+### \_\_toString()
 
 ```php
 public function __toString(): string
@@ -192,7 +190,7 @@ $allPrefixes = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_ALL);
 ```php
 use Galaxon\Quantities\Internal\UnitTerm;
 
-// Create a kilometre
+// Create a kilometer
 $km = new UnitTerm('m', 'k');
 
 // The multiplier accounts for the prefix

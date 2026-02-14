@@ -586,7 +586,7 @@ final class PressureTest extends TestCase
      */
     public function testScubaDivingPressure(): void
     {
-        // At 10 metres depth, pressure increases by ~1 atm
+        // At 10 meters depth, pressure increases by ~1 atm
         // Total pressure at 10m ≈ 2 atm
         $pressure = new Pressure(2, 'atm');
         $kpa = $pressure->to('kPa');

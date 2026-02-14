@@ -51,7 +51,7 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getAll();
 
-        $this->assertArrayHasKey('metre', $result);
+        $this->assertArrayHasKey('meter', $result);
         $this->assertArrayHasKey('gram', $result);  // SI uses kilogram, but gram is the base unit
         $this->assertArrayHasKey('second', $result);
         $this->assertArrayHasKey('ampere', $result);
@@ -67,7 +67,7 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getAll();
 
-        $this->assertSame('m', $result['metre']->asciiSymbol);
+        $this->assertSame('m', $result['meter']->asciiSymbol);
         $this->assertSame('g', $result['gram']->asciiSymbol);
         $this->assertSame('s', $result['second']->asciiSymbol);
     }
@@ -84,7 +84,7 @@ final class UnitRegistryTest extends TestCase
         $result = UnitRegistry::getBySymbol('m');
 
         $this->assertInstanceOf(Unit::class, $result);
-        $this->assertSame('metre', $result->name);
+        $this->assertSame('meter', $result->name);
         $this->assertSame('m', $result->asciiSymbol);
     }
 
@@ -115,10 +115,10 @@ final class UnitRegistryTest extends TestCase
      */
     public function testGetBySymbolIsCaseSensitive(): void
     {
-        // 'm' is metre, 'M' is mega prefix (not a unit by itself)
-        $metre = UnitRegistry::getBySymbol('m');
-        $this->assertInstanceOf(Unit::class, $metre);
-        $this->assertSame('metre', $metre->name);
+        // 'm' is meter, 'M' is mega prefix (not a unit by itself)
+        $meter = UnitRegistry::getBySymbol('m');
+        $this->assertInstanceOf(Unit::class, $meter);
+        $this->assertSame('meter', $meter->name);
 
         // 'M' alone is not a unit
         $upper = UnitRegistry::getBySymbol('M');
@@ -163,7 +163,7 @@ final class UnitRegistryTest extends TestCase
     {
         $result = UnitRegistry::getAllSymbols();
 
-        // Metre should have metric prefixes
+        // Meter should have metric prefixes
         $this->assertContains('km', $result);   // kilo
         $this->assertContains('cm', $result);   // centi
         $this->assertContains('mm', $result);   // milli
@@ -195,13 +195,13 @@ final class UnitRegistryTest extends TestCase
         $name = 'testunitadd';
         $symbol = 'tua';
 
-        UnitRegistry::add(
+        UnitRegistry::add(new Unit(
             name: $name,
             asciiSymbol: $symbol,
-            unicodeSymbol: 'τυα',  // Greek letters (valid Unicode word)
+            unicodeSymbol: 'τ',  // Greek letter (valid Unicode character)
             dimension: 'L',
             systems: [System::Common]
-        );
+        ));
 
         $all = UnitRegistry::getAll();
         $this->assertArrayHasKey($name, $all);
@@ -219,13 +219,13 @@ final class UnitRegistryTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("The symbol 'Ω' for newunitohm is already being used by another unit");
 
-        UnitRegistry::add(
+        UnitRegistry::add(new Unit(
             name: 'newunitohm',
             asciiSymbol: 'nuo',
             unicodeSymbol: 'Ω',  // Conflicts with ohm's Unicode symbol
             dimension: 'T-3L2MI-2',
             systems: [System::Common]
-        );
+        ));
     }
 
     /**
@@ -236,14 +236,14 @@ final class UnitRegistryTest extends TestCase
         $name = 'fullunitparams';
         $symbol = 'fup';
 
-        UnitRegistry::add(
+        UnitRegistry::add(new Unit(
             name: $name,
             asciiSymbol: $symbol,
-            unicodeSymbol: 'φυπ',  // Greek letters (valid Unicode word)
+            unicodeSymbol: 'φ',  // Greek letter (valid Unicode letter)
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Common]
-        );
+        ));
 
         $unit = UnitRegistry::getAll()[$name];
         $this->assertSame($symbol, $unit->asciiSymbol);
@@ -261,14 +261,14 @@ final class UnitRegistryTest extends TestCase
         $name = 'fullunitparams';
         $symbol = 'fup';
 
-        UnitRegistry::add(
+        UnitRegistry::add(new Unit(
             name: $name,
             asciiSymbol: $symbol,
-            unicodeSymbol: 'φυπ',  // Greek letters (valid Unicode word)
+            unicodeSymbol: 'φ',
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Common]
-        );
+        ));
 
         $units = UnitRegistry::getAll();
         $this->assertEquals(1, count($units));
@@ -285,20 +285,54 @@ final class UnitRegistryTest extends TestCase
         $name = 'autoinitunit';
         $symbol = 'aiu';
 
-        UnitRegistry::add(
+        UnitRegistry::add(new Unit(
             name: $name,
             asciiSymbol: $symbol,
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Common]
-        );
+        ));
 
         // The registry should have been initialized with default units plus our new one.
-        $this->assertTrue(UnitRegistry::has('metre'));
+        $this->assertTrue(UnitRegistry::has('meter'));
         $this->assertTrue(UnitRegistry::has($name));
 
         // Clean up.
         UnitRegistry::remove($name);
+    }
+
+    /**
+     * Test add() throws an existing unit with the same name.
+     */
+    public function testAddThrowsExistingUnitWithSameName(): void
+    {
+        $name = 'replacetest';
+
+        // Add a unit.
+        UnitRegistry::add(new Unit(
+            name: $name,
+            asciiSymbol: 'rpt',
+            dimension: 'L',
+            systems: [System::Common]
+        ));
+        $this->assertSame('rpt', UnitRegistry::getAll()[$name]->asciiSymbol);
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("Unit '$name' already exists in the registry");
+
+        try {
+            // Add again with the same name but different symbol.
+            // Specify to throw an exception if a unit with the same name already exists.
+            UnitRegistry::add(new Unit(
+                name: $name,
+                asciiSymbol: 'rpx',
+                dimension: 'L',
+                systems: [System::Common]
+            ), UnitRegistry::ON_DUPLICATE_THROW);
+        }
+        finally {
+            // Clean up.
+            UnitRegistry::remove($name);
+        }
     }
 
     /**
@@ -309,26 +343,57 @@ final class UnitRegistryTest extends TestCase
         $name = 'replacetest';
 
         // Add a unit.
-        UnitRegistry::add(
+        UnitRegistry::add(new Unit(
             name: $name,
             asciiSymbol: 'rpt',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Common]
-        );
+        ));
         $this->assertSame('rpt', UnitRegistry::getAll()[$name]->asciiSymbol);
 
         // Add again with the same name but different symbol.
-        UnitRegistry::add(
+        // Specify to replace any existing unit with the same name.
+        UnitRegistry::add(new Unit(
             name: $name,
             asciiSymbol: 'rpx',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Common]
-        );
+        ), UnitRegistry::ON_DUPLICATE_REPLACE);
 
         // Should have the new symbol.
         $this->assertSame('rpx', UnitRegistry::getAll()[$name]->asciiSymbol);
+
+        // Clean up.
+        UnitRegistry::remove($name);
+    }
+
+    /**
+     * Test add() skips an existing unit with the same name.
+     */
+    public function testAddSkipsExistingUnitWithSameName(): void
+    {
+        $name = 'replacetest';
+
+        // Add a unit.
+        UnitRegistry::add(new Unit(
+            name: $name,
+            asciiSymbol: 'rpt',
+            dimension: 'L',
+            systems: [System::Common]
+        ));
+        $this->assertSame('rpt', UnitRegistry::getAll()[$name]->asciiSymbol);
+
+        // Add again with the same name but different symbol.
+        // Specify to skip the operation if an existing unit is found with the same name.
+        UnitRegistry::add(new Unit(
+            name: $name,
+            asciiSymbol: 'rpx',
+            dimension: 'L',
+            systems: [System::Common]
+        ), UnitRegistry::ON_DUPLICATE_SKIP);
+
+        // Should have the old symbol.
+        $this->assertSame('rpt', UnitRegistry::getAll()[$name]->asciiSymbol);
 
         // Clean up.
         UnitRegistry::remove($name);
@@ -346,13 +411,13 @@ final class UnitRegistryTest extends TestCase
         // First add a unit
         $name = 'removetest';
         $symbol = 'rmt';
-        UnitRegistry::add(
+        UnitRegistry::add(new Unit(
             name: $name,
             asciiSymbol: $symbol,
-            unicodeSymbol: 'ρμτ',  // Greek letters (valid Unicode word)
+            unicodeSymbol: 'ρ',  // Greek letter
             dimension: 'L',
             systems: [System::Common]
-        );
+        ));
 
         // Verify it exists
         $this->assertArrayHasKey($name, UnitRegistry::getAll());
@@ -386,7 +451,7 @@ final class UnitRegistryTest extends TestCase
         UnitRegistry::reset();
 
         // This should not throw, just return early.
-        UnitRegistry::remove('metre');
+        UnitRegistry::remove('meter');
 
         // Re-initialize by accessing the registry.
         $result = UnitRegistry::getBySymbol('m');
@@ -402,7 +467,7 @@ final class UnitRegistryTest extends TestCase
      */
     public function testHasReturnsTrueForExistingUnit(): void
     {
-        $result = UnitRegistry::has('metre');
+        $result = UnitRegistry::has('meter');
 
         $this->assertTrue($result);
     }
@@ -433,10 +498,10 @@ final class UnitRegistryTest extends TestCase
      */
     public function testHasIsCaseSensitive(): void
     {
-        // 'metre' exists, 'Metre' and 'METRE' should not
-        $this->assertTrue(UnitRegistry::has('metre'));
-        $this->assertFalse(UnitRegistry::has('Metre'));
-        $this->assertFalse(UnitRegistry::has('METRE'));
+        // 'meter' exists, 'Meter' and 'METER' should not
+        $this->assertTrue(UnitRegistry::has('meter'));
+        $this->assertFalse(UnitRegistry::has('Meter'));
+        $this->assertFalse(UnitRegistry::has('METER'));
     }
 
     // endregion
@@ -524,7 +589,7 @@ final class UnitRegistryTest extends TestCase
     public function testSiBaseUnitsHaveCorrectDimensions(): void
     {
         $expected = [
-            'metre'   => 'L',
+            'meter'   => 'L',
             'gram'    => 'M',    // SI uses kilogram, but gram is the base unit in registry
             'second'  => 'T',
             'ampere'  => 'I',

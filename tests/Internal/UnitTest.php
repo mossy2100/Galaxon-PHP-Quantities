@@ -6,7 +6,6 @@ namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Internal\Prefix;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -34,20 +33,19 @@ final class UnitTest extends TestCase
     // region Constructor tests
 
     /**
-     * Test constructor with SI base unit data (metre).
+     * Test constructor with SI base unit data (meter).
      */
     public function testConstructorWithSiBaseUnit(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
         );
 
-        $this->assertSame('metre', $unit->name);
+        $this->assertSame('meter', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
         $this->assertSame('m', $unit->unicodeSymbol);
         $this->assertSame('L', $unit->dimension);
@@ -63,7 +61,6 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'hertz',
             asciiSymbol: 'Hz',
-            unicodeSymbol: null,
             dimension: 'T-1',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -101,7 +98,6 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'hectare',
             asciiSymbol: 'ha',
-            unicodeSymbol: null,
             dimension: 'L2',
             systems: [System::SiAccepted]
         );
@@ -117,7 +113,6 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'newton',
             asciiSymbol: 'N',
-            unicodeSymbol: null,
             dimension: 'MLT-2',
             systems: [System::Si]
         );
@@ -137,7 +132,6 @@ final class UnitTest extends TestCase
         new Unit(
             name: 'test',
             asciiSymbol: 'm²',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -149,7 +143,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForInvalidUnicodeSymbol(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('must only contain letters');
+        $this->expectExceptionMessage('must only contain Unicode letters');
 
         new Unit(
             name: 'test',
@@ -158,6 +152,172 @@ final class UnitTest extends TestCase
             dimension: 'L',
             systems: [System::Si]
         );
+    }
+
+    /**
+     * Test constructor defaults systems to [System::Custom] when not specified.
+     */
+    public function testConstructorDefaultsSystemToCustom(): void
+    {
+        $unit = new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L');
+
+        $this->assertCount(1, $unit->systems);
+        $this->assertContains(System::Custom, $unit->systems);
+    }
+
+    /**
+     * Test constructor throws for empty name.
+     */
+    public function testConstructorThrowsForEmptyName(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Unit name must');
+
+        new Unit(name: '', asciiSymbol: 'tst', dimension: 'L');
+    }
+
+    /**
+     * Test constructor throws for name containing digits.
+     */
+    public function testConstructorThrowsForNameWithDigits(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Unit name must');
+
+        new Unit(name: 'unit123', asciiSymbol: 'tst', dimension: 'L');
+    }
+
+    /**
+     * Test constructor throws for name with too many words.
+     */
+    public function testConstructorThrowsForNameWithTooManyWords(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Unit name must');
+
+        new Unit(name: 'one two three four', asciiSymbol: 'tst', dimension: 'L');
+    }
+
+    /**
+     * Test constructor accepts name with up to three words.
+     */
+    public function testConstructorAcceptsThreeWordName(): void
+    {
+        $unit = new Unit(name: 'US fluid ounce', asciiSymbol: 'floz', dimension: 'L3');
+
+        $this->assertSame('US fluid ounce', $unit->name);
+    }
+
+    /**
+     * Test constructor throws for empty systems array.
+     */
+    public function testConstructorThrowsForEmptySystems(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('at least one measurement system');
+
+        new Unit(
+            name: 'test',
+            asciiSymbol: 'tst',
+            dimension: 'L',
+            systems: []
+        );
+    }
+
+    /**
+     * Test constructor throws for non-System values in systems array.
+     */
+    public function testConstructorThrowsForNonSystemValues(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('must be specified as System enum values');
+
+        new Unit(
+            name: 'test',
+            asciiSymbol: 'tst',
+            dimension: 'L',
+            systems: ['SI', 'Imperial'] // @phpstan-ignore argument.type
+        );
+    }
+
+    /**
+     * Test constructor deduplicates systems.
+     */
+    public function testConstructorDeduplicatesSystems(): void
+    {
+        $unit = new Unit(
+            name: 'test',
+            asciiSymbol: 'tst',
+            dimension: 'L',
+            systems: [System::Si, System::Si, System::Imperial]
+        );
+
+        $this->assertCount(2, $unit->systems);
+    }
+
+    /**
+     * Test constructor throws for prefix group below range.
+     */
+    public function testConstructorThrowsForNegativePrefixGroup(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Prefix group must be in the range');
+
+        new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', prefixGroup: -1);
+    }
+
+    /**
+     * Test constructor throws for prefix group above range.
+     */
+    public function testConstructorThrowsForPrefixGroupAboveRange(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Prefix group must be in the range');
+
+        new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', prefixGroup: 16);
+    }
+
+    /**
+     * Test constructor throws for invalid expansion unit symbol.
+     */
+    public function testConstructorThrowsForInvalidExpansionUnitSymbol(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid expansion unit symbol');
+
+        new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', expansionUnitSymbol: '<invalid>');
+    }
+
+    /**
+     * Test constructor throws for zero expansion value.
+     */
+    public function testConstructorThrowsForZeroExpansionValue(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Must be positive');
+
+        new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', expansionUnitSymbol: 'm', expansionValue: 0.0);
+    }
+
+    /**
+     * Test constructor throws for negative expansion value.
+     */
+    public function testConstructorThrowsForNegativeExpansionValue(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Must be positive');
+
+        new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', expansionUnitSymbol: 'm', expansionValue: -1.0);
+    }
+
+    /**
+     * Test constructor defaults expansion value to 1.0 when expansion unit symbol is set.
+     */
+    public function testConstructorDefaultsExpansionValueToOne(): void
+    {
+        $unit = new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', expansionUnitSymbol: 'm');
+
+        $this->assertSame(1.0, $unit->expansionValue);
     }
 
     // endregion
@@ -170,9 +330,8 @@ final class UnitTest extends TestCase
     public function testAsciiSymbolPropertyIsReadable(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -202,9 +361,8 @@ final class UnitTest extends TestCase
     public function testUnicodeSymbolDefaultsToAsciiSymbol(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -218,9 +376,8 @@ final class UnitTest extends TestCase
     public function testDimensionPropertyIsReadable(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -236,9 +393,8 @@ final class UnitTest extends TestCase
     public function testAcceptsPrefixReturnsTrueForValidPrefixString(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -257,9 +413,8 @@ final class UnitTest extends TestCase
     public function testAcceptsPrefixReturnsTrueForUnicodePrefixString(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -274,9 +429,8 @@ final class UnitTest extends TestCase
     public function testAcceptsPrefixReturnsFalseForInvalidPrefix(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -292,9 +446,8 @@ final class UnitTest extends TestCase
     public function testAcceptsPrefixReturnsFalseForUnknownPrefixString(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -312,7 +465,6 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'hectare',
             asciiSymbol: 'ha',
-            unicodeSymbol: null,
             dimension: 'L2',
             systems: [System::SiAccepted]
         );
@@ -326,9 +478,8 @@ final class UnitTest extends TestCase
     public function testAllowedPrefixesPropertyReturnsArray(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -349,7 +500,6 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'hectare',
             asciiSymbol: 'ha',
-            unicodeSymbol: null,
             dimension: 'L2',
             systems: [System::SiAccepted]
         );
@@ -369,9 +519,8 @@ final class UnitTest extends TestCase
     public function testToStringReturnsUnicodeSymbol(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -456,9 +605,8 @@ final class UnitTest extends TestCase
     public function testEqualReturnsTrueForSameInstance(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -472,16 +620,14 @@ final class UnitTest extends TestCase
     public function testEqualReturnsTrueForSameName(): void
     {
         $unit1 = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
         $unit2 = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -494,22 +640,20 @@ final class UnitTest extends TestCase
      */
     public function testEqualReturnsFalseForDifferentNames(): void
     {
-        $metre = new Unit(
-            name: 'metre',
+        $meter = new Unit(
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
         $foot = new Unit(
             name: 'foot',
             asciiSymbol: 'ft',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Imperial]
         );
 
-        $this->assertFalse($metre->equal($foot));
+        $this->assertFalse($meter->equal($foot));
     }
 
     /**
@@ -518,9 +662,8 @@ final class UnitTest extends TestCase
     public function testEqualReturnsFalseForDifferentTypes(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -536,14 +679,14 @@ final class UnitTest extends TestCase
     // region Integration tests with UnitRegistry
 
     /**
-     * Test getting metre from UnitRegistry.
+     * Test getting meter from UnitRegistry.
      */
-    public function testGetMetreFromRegistry(): void
+    public function testGetMeterFromRegistry(): void
     {
         $unit = UnitRegistry::getBySymbol('m');
 
         $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertSame('metre', $unit->name);
+        $this->assertSame('meter', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
         $this->assertSame('L', $unit->dimension);
     }
@@ -587,79 +730,6 @@ final class UnitTest extends TestCase
 
     // endregion
 
-    // region Symbol validation tests
-
-    /**
-     * Test isValidAsciiSymbol returns true for valid symbols.
-     */
-    public function testIsValidAsciiSymbolReturnsTrueForValid(): void
-    {
-        $this->assertTrue(Unit::isValidAsciiSymbol('m'));
-        $this->assertTrue(Unit::isValidAsciiSymbol('km'));
-        $this->assertTrue(Unit::isValidAsciiSymbol('Hz'));
-        $this->assertTrue(Unit::isValidAsciiSymbol('ohm'));
-    }
-
-    /**
-     * Test isValidAsciiSymbol returns false for invalid symbols.
-     */
-    public function testIsValidAsciiSymbolReturnsFalseForInvalid(): void
-    {
-        $this->assertFalse(Unit::isValidAsciiSymbol('m²'));
-        $this->assertFalse(Unit::isValidAsciiSymbol('123'));
-        $this->assertFalse(Unit::isValidAsciiSymbol('Ω'));
-    }
-
-    /**
-     * Test isValidUnicodeSymbol returns true for valid symbols.
-     */
-    public function testIsValidUnicodeSymbolReturnsTrueForValid(): void
-    {
-        $this->assertTrue(Unit::isValidUnicodeSymbol('m'));
-        $this->assertTrue(Unit::isValidUnicodeSymbol('Ω'));
-        $this->assertTrue(Unit::isValidUnicodeSymbol('°'));
-        $this->assertTrue(Unit::isValidUnicodeSymbol('μ'));
-    }
-
-    /**
-     * Test isValidUnicodeSymbol returns false for invalid symbols.
-     */
-    public function testIsValidUnicodeSymbolReturnsFalseForInvalid(): void
-    {
-        $this->assertFalse(Unit::isValidUnicodeSymbol('123'));
-    }
-
-    // endregion
-
-    // region regex() tests
-
-    /**
-     * Test regex matches valid unit symbols.
-     */
-    public function testRegexMatchesValidSymbols(): void
-    {
-        $pattern = '/^' . Unit::regex() . '$/u';
-
-        $this->assertSame(1, preg_match($pattern, 'm'));
-        $this->assertSame(1, preg_match($pattern, 'km'));
-        $this->assertSame(1, preg_match($pattern, 'Hz'));
-        $this->assertSame(1, preg_match($pattern, 'ohm'));
-        $this->assertSame(1, preg_match($pattern, 'Ω'));
-    }
-
-    /**
-     * Test regex does not match invalid symbols.
-     */
-    public function testRegexDoesNotMatchInvalidSymbols(): void
-    {
-        $pattern = '/^' . Unit::regex() . '$/u';
-
-        $this->assertSame(0, preg_match($pattern, '123'));
-        $this->assertSame(0, preg_match($pattern, 'm²'));
-    }
-
-    // endregion
-
     // region alternateSymbol tests
 
     /**
@@ -668,15 +738,14 @@ final class UnitTest extends TestCase
     public function testAlternateSymbolPropertyIsSet(): void
     {
         $unit = new Unit(
-            name: 'litre',
+            name: 'liter',
             asciiSymbol: 'L',
-            unicodeSymbol: null,
             dimension: 'L3',
-            alternateSymbol: 'l',
+            alternateSymbol: '#',
             systems: [System::SiAccepted]
         );
 
-        $this->assertSame('l', $unit->alternateSymbol);
+        $this->assertSame('#', $unit->alternateSymbol);
     }
 
     /**
@@ -688,13 +757,28 @@ final class UnitTest extends TestCase
         $this->expectExceptionMessage('may only contain');
 
         new Unit(
-            name: 'litre',
+            name: 'liter',
             asciiSymbol: 'L',
-            unicodeSymbol: null,
             dimension: 'L3',
             alternateSymbol: 'ℓ',
             systems: [System::SiAccepted]
         );
+    }
+
+    /**
+     * Test alternateSymbol accepts a single letter.
+     */
+    public function testAlternateSymbolAcceptsSingleLetter(): void
+    {
+        $unit = new Unit(
+            name: 'liter',
+            asciiSymbol: 'L',
+            dimension: 'L3',
+            alternateSymbol: 'l',
+            systems: [System::SiAccepted]
+        );
+
+        $this->assertSame('l', $unit->alternateSymbol);
     }
 
     /**
@@ -703,9 +787,8 @@ final class UnitTest extends TestCase
     public function testAlternateSymbolPropertyIsNullByDefault(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -723,9 +806,8 @@ final class UnitTest extends TestCase
     public function testSymbolsPropertyIncludesAsciiSymbol(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -762,18 +844,17 @@ final class UnitTest extends TestCase
     public function testSymbolsPropertyIncludesAlternateSymbol(): void
     {
         $unit = new Unit(
-            name: 'litre',
+            name: 'liter',
             asciiSymbol: 'L',
-            unicodeSymbol: null,
             dimension: 'L3',
-            alternateSymbol: 'l',
+            alternateSymbol: '#',
             systems: [System::SiAccepted]
         );
 
         $symbols = $unit->symbols;
 
         $this->assertArrayHasKey('L', $symbols);
-        $this->assertArrayHasKey('l', $symbols);
+        $this->assertArrayHasKey('#', $symbols);
     }
 
     /**
@@ -782,9 +863,8 @@ final class UnitTest extends TestCase
     public function testSymbolsPropertyIncludesPrefixedSymbols(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             prefixGroup: PrefixRegistry::GROUP_METRIC,
             systems: [System::Si]
@@ -833,9 +913,8 @@ final class UnitTest extends TestCase
     public function testBelongsToSystemReturnsTrueForMatchingSystem(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -849,9 +928,8 @@ final class UnitTest extends TestCase
     public function testBelongsToSystemReturnsFalseForNonMatchingSystem(): void
     {
         $unit = new Unit(
-            name: 'metre',
+            name: 'meter',
             asciiSymbol: 'm',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
         );
@@ -867,7 +945,6 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'second',
             asciiSymbol: 's',
-            unicodeSymbol: null,
             dimension: 'T',
             systems: [System::Si, System::Imperial]
         );
@@ -952,7 +1029,7 @@ final class UnitTest extends TestCase
         $unit = Unit::parse('m');
 
         $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertSame('metre', $unit->name);
+        $this->assertSame('meter', $unit->name);
         $this->assertSame('m', $unit->asciiSymbol);
     }
 
@@ -1016,9 +1093,9 @@ final class UnitTest extends TestCase
     }
 
     /**
-     * Test isExpandable returns false for metre (SI base unit).
+     * Test isExpandable returns false for meter (SI base unit).
      */
-    public function testIsExpandableReturnsFalseForMetre(): void
+    public function testIsExpandableReturnsFalseForMeter(): void
     {
         $unit = UnitRegistry::getBySymbol('m');
 
@@ -1046,50 +1123,6 @@ final class UnitTest extends TestCase
 
         $this->assertInstanceOf(Unit::class, $unit);
         $this->assertFalse($unit->isExpandable());
-    }
-
-    // endregion
-
-    // region isValidNonLetterSymbol tests
-
-    /**
-     * Test isValidNonLetterSymbol returns true for valid symbols.
-     */
-    public function testIsValidNonLetterSymbolReturnsTrueForValid(): void
-    {
-        $this->assertTrue(Unit::isValidNonLetterSymbol('°'));
-        $this->assertTrue(Unit::isValidNonLetterSymbol('%'));
-        $this->assertTrue(Unit::isValidNonLetterSymbol('$'));
-        $this->assertTrue(Unit::isValidNonLetterSymbol('€'));
-        $this->assertTrue(Unit::isValidNonLetterSymbol('′'));
-        $this->assertTrue(Unit::isValidNonLetterSymbol('″'));
-    }
-
-    /**
-     * Test isValidNonLetterSymbol returns false for letters.
-     */
-    public function testIsValidNonLetterSymbolReturnsFalseForLetters(): void
-    {
-        $this->assertFalse(Unit::isValidNonLetterSymbol('m'));
-        $this->assertFalse(Unit::isValidNonLetterSymbol('abc'));
-    }
-
-    /**
-     * Test isValidNonLetterSymbol returns false for digits.
-     */
-    public function testIsValidNonLetterSymbolReturnsFalseForDigits(): void
-    {
-        $this->assertFalse(Unit::isValidNonLetterSymbol('1'));
-        $this->assertFalse(Unit::isValidNonLetterSymbol('123'));
-    }
-
-    /**
-     * Test isValidNonLetterSymbol returns false for multiple symbols.
-     */
-    public function testIsValidNonLetterSymbolReturnsFalseForMultipleSymbols(): void
-    {
-        $this->assertFalse(Unit::isValidNonLetterSymbol('°C'));
-        $this->assertFalse(Unit::isValidNonLetterSymbol('%%'));
     }
 
     // endregion

@@ -21,9 +21,9 @@ enum System
 
     case Scientific;
 
-    case Astronomical;
-
     case Nautical;
 
     case Typographical;
+
+    case Custom;
 }

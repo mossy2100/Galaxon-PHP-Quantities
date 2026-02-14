@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
+use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
@@ -140,12 +141,7 @@ class Angle extends Quantity
             return parent::parse($value);
         } catch (FormatException $e) {
             // Check for a format containing symbols for degrees, arcminutes, and arcseconds.
-            $rxNum = '\d+(?:\.\d+)?(?:[eE][+-]?\d+)?';
-            $pattern = '/^(?:(?<sign>[-+]?)\s*)?'
-                       . "(?:(?<deg>$rxNum)°\s*)?"
-                       . "(?:(?<min>$rxNum)[′']\s*)?"
-                       . "(?:(?<sec>$rxNum)[″\"])?$/u";
-            if (preg_match($pattern, $value, $matches)) {
+            if (RegexHelper::isValidDmsAngle($value, $matches)) {
                 // Require at least one component (deg/min/sec).
                 if (empty($matches['deg']) && empty($matches['min']) && empty($matches['sec'])) {
                     throw $e;

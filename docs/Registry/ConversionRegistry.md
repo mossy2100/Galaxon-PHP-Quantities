@@ -27,7 +27,7 @@ Get a specific conversion between two units.
 ```php
 $conversion = ConversionRegistry::get('L', 'm', 'ft');
 if ($conversion !== null) {
-    $feet = 10 * $conversion->factor->value;  // Convert 10 metres to feet
+    $feet = 10 * $conversion->factor->value;  // Convert 10 meters to feet
 }
 ```
 
@@ -114,7 +114,7 @@ $conversions[$dimension][$srcSymbol][$destSymbol] = Conversion
 ```
 
 For example:
-- `$conversions['L']['m']['ft']` = conversion from metres to feet
+- `$conversions['L']['m']['ft']` = conversion from meters to feet
 - `$conversions['M']['kg']['lb']` = conversion from kilograms to pounds
 
 ---

@@ -5,7 +5,7 @@ Represents a decomposed unit symbol with prefix and exponent.
 ## Overview
 
 The `UnitTerm` class represents a unit symbol like 'km2' decomposed into its components:
-- **unit**: The base Unit object (e.g., metre)
+- **unit**: The base Unit object (e.g., meter)
 - **prefix**: The SI/binary prefix (e.g., kilo)
 - **exponent**: The power (e.g., 2)
 
@@ -96,7 +96,7 @@ The prefix multiplier (e.g., 1000 for kilo). Returns 1.0 if no prefix.
 public float $multiplier { get; }
 ```
 
-The prefix multiplier raised to the exponent (e.g., 10002 = 1e6 for km2).
+The prefix multiplier raised to the exponent (e.g., 1000² = 1e6 for km²).
 
 ### dimension
 
@@ -104,7 +104,7 @@ The prefix multiplier raised to the exponent (e.g., 10002 = 1e6 for km2).
 public string $dimension { get; }
 ```
 
-The dimension code with exponent applied (e.g., 'L2' for m2).
+The dimension code with exponent applied (e.g., 'L2' for m²).
 
 ## Constructor
 
@@ -131,13 +131,13 @@ Create a new UnitTerm instance.
 **Examples:**
 ```php
 // Simple unit
-$metre = new UnitTerm('m');
+$meter = new UnitTerm('m');
 
 // Prefixed unit
-$kilometre = new UnitTerm('m', 'k');
+$kilometer = new UnitTerm('m', 'k');
 
 // With exponent
-$squareKilometre = new UnitTerm('m', 'k', 2);
+$squareKilometer = new UnitTerm('m', 'k', 2);
 
 // Inverse
 $perSecond = new UnitTerm('s', null, -1);
@@ -162,10 +162,10 @@ Look up a unit or prefixed unit by its symbol. Symbol uniqueness is enforced by 
 **Examples:**
 ```php
 $km = UnitTerm::getBySymbol('km');
-// UnitTerm(metre, kilo)
+// UnitTerm(meter, kilo)
 
 $m = UnitTerm::getBySymbol('m');
-// UnitTerm(metre)
+// UnitTerm(meter)
 
 $unknown = UnitTerm::getBySymbol('xyz');
 // null
@@ -355,17 +355,6 @@ echo $m->asciiSymbol; // 'm'
 
 ## String Methods
 
-### regex()
-
-```php
-public static function regex(): string
-```
-
-Get the regex pattern for matching a unit term.
-
-**Returns:**
-- `string` - The regex pattern (without delimiters or anchors)
-
 ### format()
 
 ```php
@@ -387,7 +376,7 @@ $term->format(true);  // 'km2'
 $term->format(false); // 'km²'
 ```
 
-### __toString()
+### \_\_toString()
 
 ```php
 public function __toString(): string
@@ -422,15 +411,15 @@ Check if this UnitTerm equals another.
 use Galaxon\Quantities\Internal\DerivedUnit;use Galaxon\Quantities\Internal\UnitTerm;
 
 // Build velocity: m/s
-$metre = new UnitTerm('m');
+$meter = new UnitTerm('m');
 $perSecond = new UnitTerm('s', null, -1);
 
-$velocity = new DerivedUnit([$metre, $perSecond]);
+$velocity = new DerivedUnit([$meter, $perSecond]);
 echo $velocity->asciiSymbol; // 'm/s'
 
 // Build acceleration: m/s2
 $perSecondSquared = new UnitTerm('s', null, -2);
-$acceleration = new DerivedUnit([$metre, $perSecondSquared]);
+$acceleration = new DerivedUnit([$meter, $perSecondSquared]);
 echo $acceleration->asciiSymbol; // 'm/s2'
 ```
 
@@ -472,3 +461,4 @@ echo $term2->dimension; // 'T-1'
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit using UnitTerms
 - **[Prefix](Prefix.md)** - SI and binary prefixes
 - **[UnitInterface](UnitInterface.md)** - Interface for all unit types
+- **[RegexHelper](RegexHelper.md)** - Centralised regex patterns and validation

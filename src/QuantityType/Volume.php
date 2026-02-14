@@ -34,7 +34,7 @@ class Volume extends Quantity
     {
         return [
             // Metric volume units
-            'litre'                => [
+            'liter'                => [
                 'asciiSymbol' => 'L',
                 'prefixGroup' => PrefixRegistry::GROUP_METRIC,
                 'systems'     => [System::SiAccepted],

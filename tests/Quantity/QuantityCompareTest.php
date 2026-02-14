@@ -83,9 +83,9 @@ final class QuantityCompareTest extends TestCase
     }
 
     /**
-     * Test compare() with metres and feet.
+     * Test compare() with meters and feet.
      */
-    public function testCompareMetresAndFeet(): void
+    public function testCompareMetersAndFeet(): void
     {
         $m = new Length(1, 'm');
         $ft = new Length(3, 'ft');

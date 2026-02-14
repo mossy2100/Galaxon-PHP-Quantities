@@ -129,7 +129,7 @@ echo $force->simplify(false)->format('e', 2);
 
 ### Work: W = Fd
 
-Pushing a box with 100 N of force over 5 metres.
+Pushing a box with 100 N of force over 5 meters.
 
 ```php
 use Galaxon\Quantities\QuantityType\Force;
@@ -497,7 +497,7 @@ $pressure = $force->div($area);
 
 ### Hydrostatic pressure: P = ρgh
 
-Pressure at 10 metres depth in fresh water (ρ = 1000 kg/m³).
+Pressure at 10 meters depth in fresh water (ρ = 1000 kg/m³).
 
 ```php
 use Galaxon\Quantities\PhysicalConstant;
@@ -513,7 +513,7 @@ $pressure = $rho->mul($g)->mul($h);
 
 ### Buoyancy force (Archimedes' principle): F = ρVg
 
-A 10 litre (0.01 m³) object submerged in fresh water.
+A 10 liter (0.01 m³) object submerged in fresh water.
 
 ```php
 use Galaxon\Quantities\QuantityType\Density;

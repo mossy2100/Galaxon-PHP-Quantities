@@ -6,7 +6,7 @@ Measurement system classification for units.
 
 The `System` enum categorizes units of measurement according to the measurement system they belong to. This classification allows filtering and grouping units by their origin and typical use context.
 
-Units can belong to multiple systems simultaneously. For example, the foot belongs to both Imperial and US Customary systems, while the metre belongs to SI.
+Units can belong to multiple systems simultaneously. For example, the foot belongs to both Imperial and US Customary systems, while the meter belongs to SI.
 
 This is an unbacked enum (no string or int values).
 
@@ -18,7 +18,7 @@ This is an unbacked enum (no string or int values).
 case Si;
 ```
 
-The International System of Units (SI). The modern form of the metric system and the world's most widely used system of measurement. Includes the seven SI base units (metre, kilogram, second, ampere, kelvin, mole, candela) and derived units with special names (newton, pascal, joule, etc.).
+The International System of Units (SI). The modern form of the metric system and the world's most widely used system of measurement. Includes the seven SI base units (meter, kilogram, second, ampere, kelvin, mole, candela) and derived units with special names (newton, pascal, joule, etc.).
 
 ### SiAccepted
 
@@ -26,7 +26,7 @@ The International System of Units (SI). The modern form of the metric system and
 case SiAccepted;
 ```
 
-Units officially accepted for use with SI. These are non-SI units that are commonly used alongside SI units and are accepted by the BIPM. Examples include minute, hour, day, degree (angle), litre, and tonne.
+Units officially accepted for use with SI. These are non-SI units that are commonly used alongside SI units and are accepted by the BIPM. Examples include minute, hour, day, degree (angle), liter, and tonne.
 
 ### Common
 
@@ -60,14 +60,6 @@ case Scientific;
 
 Units primarily used in scientific contexts. Includes specialised units like the electron volt, atomic mass unit, and astronomical unit.
 
-### Astronomical
-
-```php
-case Astronomical;
-```
-
-Units used in astronomy and astrophysics. Includes the astronomical unit (AU), parsec, and light-year for measuring vast cosmic distances.
-
 ### Nautical
 
 ```php
@@ -86,17 +78,16 @@ Units used in typography and printing. Includes the point and pica for measuring
 
 ## Cases Summary
 
-| Case | Description |
-|------|-------------|
-| `Si` | International System of Units (metric base and derived units) |
-| `SiAccepted` | Non-SI units officially accepted for use with SI |
-| `Common` | Widely used units without formal system classification |
-| `Imperial` | British Imperial system of measurement |
-| `UsCustomary` | United States customary units |
-| `Scientific` | Units for scientific applications |
-| `Astronomical` | Units for astronomical distances |
-| `Nautical` | Units for maritime and aviation |
-| `Typographical` | Units for typography and printing |
+| Case            | Description                                                   |
+|-----------------|---------------------------------------------------------------|
+| `Si`            | International System of Units (metric base and derived units) |
+| `SiAccepted`    | Non-SI units officially accepted for use with SI              |
+| `Common`        | Widely used units without formal system classification        |
+| `Imperial`      | British Imperial system of measurement                        |
+| `UsCustomary`   | United States customary units                                 |
+| `Scientific`    | Units for scientific applications                             |
+| `Nautical`      | Units for maritime and aviation                               |
+| `Typographical` | Units for typography and printing                             |
 
 ## Usage Examples
 

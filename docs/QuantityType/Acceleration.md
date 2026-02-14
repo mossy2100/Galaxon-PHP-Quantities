@@ -20,13 +20,13 @@ Acceleration units are automatically supported through unit arithmetic:
 ```php
 use Galaxon\Quantities\Quantity;
 
-// Metres per second squared
+// Meters per second squared
 $gravity = new Quantity(9.80665, 'm/s2');
 
 // Feet per second squared
 $inFtS2 = $gravity->to('ft/s2');  // 32.174 ft/s²
 
-// Kilometres per hour per second
+// Kilometers per hour per second
 $car = new Quantity(3.6, 'km/(h*s)');  // Equivalent to 1 m/s²
 ```
 

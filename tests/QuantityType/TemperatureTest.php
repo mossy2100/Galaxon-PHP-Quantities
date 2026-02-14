@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\Internal\Conversion;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\Registry\ConversionRegistry;
@@ -592,13 +593,12 @@ final class TemperatureTest extends TestCase
     public function testConvertFallsBackToParentForUnknownUnit(): void
     {
         // Register a dummy temperature unit with dimension H.
-        UnitRegistry::add(
-            name: 'dummy-temp',
+        UnitRegistry::add(new Unit(
+            name: 'dummy temp',
             asciiSymbol: 'degX',
-            unicodeSymbol: null,
             dimension: 'H',
             systems: [System::Si]
-        );
+        ));
 
         // Add a conversion from degX to degR (1 degX = 42 degR).
         $conversion = new Conversion('degX', 'degR', 42.0);

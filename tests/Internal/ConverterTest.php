@@ -9,6 +9,7 @@ use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\FloatWithError;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -214,13 +215,12 @@ class ConverterTest extends TestCase
     public function testGetConversionReturnsNullWhenNoPathExists(): void
     {
         // Register a custom unit with no conversions defined.
-        UnitRegistry::add(
-            name: 'isolated-length',
+        UnitRegistry::add(new Unit(
+            name: 'isolated length',
             asciiSymbol: 'Xu',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
-        );
+        ));
 
         try {
             // Clear cached converters to pick up the new unit.
@@ -228,7 +228,7 @@ class ConverterTest extends TestCase
 
             $converter = Converter::getByDimension('L');
 
-            // Try to convert between the isolated unit and metre - no path exists.
+            // Try to convert between the isolated unit and meter - no path exists.
             $conversion = $converter->getConversion('Xu', 'm');
 
             $this->assertNull($conversion);
@@ -287,13 +287,12 @@ class ConverterTest extends TestCase
     public function testGetConversionFactorReturnsNullWhenNoPathExists(): void
     {
         // Register a custom unit with no conversions defined.
-        UnitRegistry::add(
-            name: 'isolated-length2',
+        UnitRegistry::add(new Unit(
+            name: 'isolated length two',
             asciiSymbol: 'Yu',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
-        );
+        ));
 
         try {
             // Clear cached converters to pick up the new unit.
@@ -301,7 +300,7 @@ class ConverterTest extends TestCase
 
             $converter = Converter::getByDimension('L');
 
-            // Try to get factor between the isolated unit and metre - no path exists.
+            // Try to get factor between the isolated unit and meter - no path exists.
             $factor = $converter->getConversionFactor('Yu', 'm');
 
             $this->assertNull($factor);
@@ -375,13 +374,12 @@ class ConverterTest extends TestCase
     public function testValidateUnitThrowsGenericMessageForUnknownDimension(): void
     {
         // Register a custom unit with a dimension not in QuantityTypeRegistry.
-        UnitRegistry::add(
-            name: 'custom-unit',
+        UnitRegistry::add(new Unit(
+            name: 'custom unit',
             asciiSymbol: 'Zu',
-            unicodeSymbol: null,
             dimension: 'L4',
             systems: [System::Si]
-        );
+        ));
 
         // Also register a conversion so the converter has something to load.
         $conversion = new Conversion('Zu', 'Zu', 1.0);
@@ -500,13 +498,12 @@ class ConverterTest extends TestCase
     public function testConvertThrowsLogicExceptionWhenNoPathExists(): void
     {
         // Register a custom unit with no conversions defined.
-        UnitRegistry::add(
-            name: 'isolated-length3',
+        UnitRegistry::add(new Unit(
+            name: 'isolated length three',
             asciiSymbol: 'Wu',
-            unicodeSymbol: null,
             dimension: 'L',
             systems: [System::Si]
-        );
+        ));
 
         try {
             // Clear cached converters to pick up the new unit.
@@ -748,7 +745,7 @@ class ConverterTest extends TestCase
      */
     public function testExpandReturnsUnchangedWhenNoExpansion(): void
     {
-        // Metre has no expansion - it's a base SI unit.
+        // Meter has no expansion - it's a base SI unit.
         $unit = DerivedUnit::parse('m');
 
         [$value, $resultUnit] = Converter::expand(5.0, $unit);
@@ -958,9 +955,9 @@ class ConverterTest extends TestCase
     public function testDivergentCombinationPath(): void
     {
         // Register custom units.
-        UnitRegistry::add('test-x', 'Tx', null, 'L', systems: [System::Si]);
-        UnitRegistry::add('test-y', 'Ty', null, 'L', systems: [System::Si]);
-        UnitRegistry::add('test-z', 'Tz', null, 'L', systems: [System::Si]);
+        UnitRegistry::add(new Unit('test x', 'Tx', 'L', systems: [System::Si]));
+        UnitRegistry::add(new Unit('test y', 'Ty', 'L', systems: [System::Si]));
+        UnitRegistry::add(new Unit('test z', 'Tz', 'L', systems: [System::Si]));
 
         // Add conversions that enable divergent path: Y→X and Y→Z.
         ConversionRegistry::add(new Conversion('Ty', 'Tx', 2.0));
@@ -999,9 +996,9 @@ class ConverterTest extends TestCase
         QuantityTypeRegistry::add('hypertest', $dimension);
 
         // Register exactly three units in this dimension.
-        UnitRegistry::add('opp-a', 'Oa', null, $dimension, systems: [System::Si]);
-        UnitRegistry::add('opp-b', 'Ob', null, $dimension, systems: [System::Si]);
-        UnitRegistry::add('opp-c', 'Oc', null, $dimension, systems: [System::Si]);
+        UnitRegistry::add(new Unit('opp a', 'Oa', $dimension, systems: [System::Si]));
+        UnitRegistry::add(new Unit('opp b', 'Ob', $dimension, systems: [System::Si]));
+        UnitRegistry::add(new Unit('opp c', 'Oc', $dimension, systems: [System::Si]));
 
         // Add conversions that enable opposite path: B→A and C→B.
         // Use explicit zero error for 0.5 so that 1/(2*0.5) = 1.0 has zero error.

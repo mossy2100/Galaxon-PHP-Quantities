@@ -159,7 +159,7 @@ Convert a numeric value from one unit to another.
 **Examples:**
 ```php
 $converter = Converter::getByDimension('L');
-$metres = $converter->convert(100, 'ft', 'm'); // 30.48
+$meters = $converter->convert(100, 'ft', 'm'); // 30.48
 ```
 
 ## Static Conversion Methods
@@ -261,8 +261,8 @@ use Galaxon\Quantities\Internal\Converter;
 
 // Convert length
 $length = Converter::getByDimension('L');
-$metres = $length->convert(5280, 'ft', 'm');
-echo "$metres m"; // 1609.344 m
+$meters = $length->convert(5280, 'ft', 'm');
+echo "$meters m"; // 1609.344 m
 
 // Convert with prefixes
 $km = $length->convert(1000, 'm', 'km');
@@ -294,8 +294,8 @@ UnitRegistry::loadSystem(System::Imperial);
 
 // Now convert
 $volume = Converter::getByDimension('L3');
-$litres = $volume->convert(1, 'imp gal', 'L');
-echo "$litres L"; // ~4.546 L (Imperial gallon)
+$liters = $volume->convert(1, 'imp gal', 'L');
+echo "$liters L"; // ~4.546 L (Imperial gallon)
 ```
 
 ## See Also

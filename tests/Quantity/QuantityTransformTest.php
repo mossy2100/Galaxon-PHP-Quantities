@@ -38,7 +38,7 @@ final class QuantityTransformTest extends TestCase
     // region toSi() tests
 
     /**
-     * Test toSi() on a length in metres (already SI).
+     * Test toSi() on a length in meters (already SI).
      */
     public function testToSiAlreadySi(): void
     {
@@ -50,9 +50,9 @@ final class QuantityTransformTest extends TestCase
     }
 
     /**
-     * Test toSi() on a length in kilometres (autoPrefix keeps it as km).
+     * Test toSi() on a length in kilometers (autoPrefix keeps it as km).
      */
-    public function testToSiKilometres(): void
+    public function testToSiKilometers(): void
     {
         $length = new Length(1, 'km');
         $si = $length->toSi();

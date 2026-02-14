@@ -69,12 +69,12 @@ class Prefix
         int $groupCode
     ) {
         // Validate the ASCII symbol. Max two ASCII letters.
-        if (!preg_match('/^[a-z]{1,2}$/i', $asciiSymbol)) {
+        if (!RegexHelper::isValidAsciiPrefix($asciiSymbol)) {
             throw new FormatException("Invalid ASCII symbol: $asciiSymbol");
         }
 
-        // Validate the Unicode symbol. Max two Unicode letters.
-        if ($unicodeSymbol !== null && !preg_match('/^\p{L}{1,2}$/u', $unicodeSymbol)) {
+        // Validate the Unicode symbol. Max one Unicode letter.
+        if ($unicodeSymbol !== null && !RegexHelper::isValidUnicodePrefix($unicodeSymbol)) {
             throw new FormatException("Invalid Unicode symbol: $unicodeSymbol");
         }
 

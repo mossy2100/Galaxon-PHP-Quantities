@@ -44,7 +44,7 @@ The dimension code of the derived unit. Calculated from the component unit terms
 public string $asciiSymbol { get; }
 ```
 
-The ASCII representation of the unit (e.g., 'kg*m/s2'). Uses asterisk for multiplication and digit exponents.
+The ASCII representation of the unit (e.g., 'kg\*m/s2'). Uses asterisk for multiplication and digit exponents.
 
 ### unicodeSymbol
 
@@ -92,7 +92,7 @@ Construct a new DerivedUnit instance.
 $dimensionless = new DerivedUnit();
 
 // From a single unit term
-$metres = new DerivedUnit(new UnitTerm('m'));
+$meters = new DerivedUnit(new UnitTerm('m'));
 
 // From an array of unit terms
 $velocity = new DerivedUnit([
@@ -401,7 +401,7 @@ Format the derived unit as a string.
 - Negative exponents in denominator are shown as positive after '/'
 - Multiple denominator terms use parentheses: `J/(mol*K)`
 
-### __toString()
+### \_\_toString()
 
 ```php
 public function __toString(): string

@@ -15,6 +15,7 @@ use Galaxon\Core\Traits\ApproxComparable;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\QuantityType;
+use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -707,7 +708,7 @@ class Quantity implements Stringable
      * Multiply this measurement by a scalar factor or another Quantity.
      *
      * Note, this operation merges compatible units.
-     * If you multiply a quantity in metres by one in feet, you will get a quantity in m2, not m*ft.
+     * If you multiply a quantity in meters by one in feet, you will get a quantity in m2, not m*ft.
      *
      * @param self|float $otherOrValue Another Quantity or a numeric value.
      * @param null|string|UnitInterface $otherUnit The other quantity's unit, if a numeric value was provided.
@@ -827,9 +828,7 @@ class Quantity implements Stringable
 
         // Look for <num><unit>. Whitespace between the number and unit is permitted. The unit is optional, for a
         // dimensionless quantity.
-        $rxNum = Numbers::REGEX;
-        $rxDerivedUnit = DerivedUnit::regex();
-        if (preg_match("/^($rxNum)\s*($rxDerivedUnit)?$/iu", $value, $m)) {
+        if (RegexHelper::isValidQuantity($value, $m)) {
             return self::create((float)$m[1], $m[2] ?? null);
         }
 
@@ -952,7 +951,7 @@ class Quantity implements Stringable
         // If $includeSpace is not specified, do not insert a space between the value and unit if the unit is a single
         // non-letter unit symbol (e.g. °, %, "). Otherwise, insert one space.
         if ($includeSpace === null) {
-            $includeSpace = !Unit::isValidNonLetterSymbol($unitSymbol);
+            $includeSpace = !RegexHelper::isValidUnicodeSpecialChar($unitSymbol);
         }
 
         // Return the formatted string.

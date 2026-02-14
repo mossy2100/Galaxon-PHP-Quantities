@@ -23,7 +23,7 @@ The lux is defined as:
 lx = cd·sr·m⁻² = lm/m²
 ```
 
-One lux equals one lumen per square metre.
+One lux equals one lumen per square meter.
 
 ---
 

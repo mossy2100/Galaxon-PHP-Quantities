@@ -459,9 +459,9 @@ final class QuantityArithmeticTest extends TestCase
     // region Cross-system arithmetic tests
 
     /**
-     * Test adding metres and feet.
+     * Test adding meters and feet.
      */
-    public function testAddMetresAndFeet(): void
+    public function testAddMetersAndFeet(): void
     {
         $m = new Length(1, 'm');
         $ft = new Length(1, 'ft');

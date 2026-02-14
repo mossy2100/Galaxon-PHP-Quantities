@@ -12,7 +12,6 @@ The Quantities package includes units across multiple measurement systems:
 - **Imperial** - British Imperial system
 - **US Customary** - United States customary units
 - **Scientific** - Units for scientific applications
-- **Astronomical** - Units for astronomical distances
 - **Nautical** - Units for maritime and aviation
 - **Typographical** - Units for typography and printing
 
@@ -27,6 +26,15 @@ as power of 10 will have an exponent that is a multiple of 3. That's all of them
 
 ---
 
+## Spelling
+
+US spelling is used for the units 'meter' and 'liter', rather than the British English spellings of 'metre' and 'litre',
+respectively. This is because US spelling is more commonly used in programming languages and open source code, and the
+majority of the user base is likely to be more familiar with US spelling. It doesn't matter; users of the package only
+need to know the symbols 'm' and 'L'.
+
+---
+
 ## SI Base Units
 
 The system uses 10 base dimensions, each with a corresponding SI base unit. Seven of these are the standard SI base
@@ -35,7 +43,7 @@ units. Three additional "bonus" base dimensions are included to make the system 
 | Dimension Code | Dimension Name       | SI Base Unit | Symbol |
 |:--------------:|----------------------|--------------|--------|
 | M              | Mass                 | kilogram     | `kg`   |
-| L              | Length               | metre        | `m`    |
+| L              | Length               | meter        | `m`    |
 | T              | Time                 | second       | `s`    |
 | I              | Electric current     | ampere       | `A`    |
 | H              | Temperature          | kelvin       | `K`    |
@@ -58,21 +66,21 @@ ASCII characters are easier to type, and 'H' suggests heat.
 
 ### Length
 
-| Name              | ASCII Symbol | Unicode Symbol | Prefixes     | Systems                     |
-|-------------------|--------------|----------------|--------------|-----------------------------|
-| metre             | `m`          |                | all metric   | SI                          |
-| astronomical unit | `au`         |                |              | SI Accepted, Astronomical   |
-| light year        | `ly`         |                |              | Astronomical                |
-| parsec            | `pc`         |                | large metric | Astronomical                |
-| pixel             | `px`         |                |              | Typographical               |
-| point             | `p`          |                |              | Typographical               |
-| pica              | `P`          |                |              | Typographical               |
-| inch              | `in`         |                |              | Imperial, US Customary      |
-| foot              | `ft`         |                |              | Imperial, US Customary      |
-| yard              | `yd`         |                |              | Imperial, US Customary      |
-| mile              | `mi`         |                |              | Imperial, US Customary      |
-| fathom            | `ftm`        |                |              | Nautical                    |
-| nautical mile     | `nmi`        |                |              | Nautical                    |
+| Name              | ASCII Symbol | Unicode Symbol | Prefixes     | Systems                 |
+|-------------------|--------------|----------------|--------------|-------------------------|
+| meter             | `m`          |                | all metric   | SI                      |
+| astronomical unit | `au`         |                |              | SI Accepted, Scientific |
+| light year        | `ly`         |                |              | Scientific              |
+| parsec            | `pc`         |                | large metric | Scientific              |
+| pixel             | `px`         |                |              | Typographical           |
+| point             | `p`          |                |              | Typographical           |
+| pica              | `P`          |                |              | Typographical           |
+| inch              | `in`         |                |              | Imperial, US Customary  |
+| foot              | `ft`         |                |              | Imperial, US Customary  |
+| yard              | `yd`         |                |              | Imperial, US Customary  |
+| mile              | `mi`         |                |              | Imperial, US Customary  |
+| fathom            | `ftm`        |                |              | Nautical                |
+| nautical mile     | `nmi`        |                |              | Nautical                |
 
 **See:** [Length class documentation](QuantityType/Length.md)
 
@@ -100,15 +108,16 @@ ASCII characters are easier to type, and 'H' suggests heat.
 
 ### Time
 
-| Name     | ASCII Symbol | Unicode Symbol | Prefixes   | Systems     |
-|----------|--------------|----------------|------------|-------------|
-| second   | `s`          |                | all metric | SI          |
-| minute   | `min`        |                |            | SI Accepted |
-| hour     | `h`          |                |            | SI Accepted |
-| day      | `d`          |                |            | SI Accepted |
-| week     | `w`          |                |            | Common      |
-| month    | `mo`         |                |            | Common      |
-| year     | `y`          |                |            | Common      |
+| Name    | ASCII Symbol | Unicode Symbol | Prefixes   | Systems     |
+|---------|--------------|----------------|------------|-------------|
+| second  | `s`          |                | all metric | SI          |
+| minute  | `min`        |                |            | SI Accepted |
+| hour    | `h`          |                |            | SI Accepted |
+| day     | `d`          |                |            | SI Accepted |
+| week    | `w`          |                |            | Common      |
+| month   | `mo`         |                |            | Common      |
+| year    | `y`          |                |            | Common      |
+| century | `c`          |                |            | Common      |
 
 **See:** [Time class documentation](QuantityType/Time.md)
 
@@ -173,7 +182,7 @@ ASCII characters are easier to type, and 'H' suggests heat.
 
 | Name                 | ASCII Symbol | Unicode Symbol | Prefixes   | Systems       |
 |----------------------|--------------|----------------|------------|---------------|
-| litre                | `L`          |                | all metric | SI Accepted   |
+| liter                | `L`          |                | all metric | SI Accepted   |
 | US fluid ounce       | `US fl oz`   |                |            | US Customary  |
 | US pint              | `US pt`      |                |            | US Customary  |
 | US quart             | `US qt`      |                |            | US Customary  |
@@ -471,12 +480,50 @@ ASCII characters are easier to type, and 'H' suggests heat.
 
 ---
 
+## Notes on Symbols
+
+In some cases a conventional unit symbol may not be supported. The main reason is because the package relies on unit
+symbols being unique. It could also be necessary for prefixes to work properly (e.g. 'kcal'); or it could be a stylistic
+choice (e.g. 'L').
+
+1. Use `p` (lower-case) for points (1/72 in), not `pt`, which means pint.
+2. Use `P` (upper-case) for picas (12 points or 1/6 in), not `pc`, which means parsec.
+3. Use `arcsec` for arcsecond, not `as`, which means attosecond.
+4. Use `ft` for feet, not `′` (the prime symbol), which means arcminutes.
+5. Use `in` for inches, not `″` (the double prime symbol), which means arcseconds.
+6. Use `°C` or `degC` (see below) for degrees Celsius, not `C`, which means coulomb, the unit for electric charge.
+7. Use `°F` or `degF` for degrees Fahrenheit, not `F`, which means farad, the unit for electric capacitance.
+8. Use `°R` or `degR` for degrees Rankine, not `R`. This is just for consistency; `R` is not currently used for any other unit.
+9. Use `kcal` for kilocalorie (a.k.a. 'large' or 'food' calorie), not `Cal`. Use `cal` for calorie, i.e. 'small' calorie. 
+10. Use `L` for liter, not `l`, following modern style guides, as `l` is deemed too similar to the digit `1`.
+11. Use `lbf/in2` for pounds force per square inch, not `psi`.
+12. Use `cm3` for cubic centimeters, not `cc`.
+13. Use `km/h` for kilometers per hour, not `kph`.
+14. Use `mi/h` for miles per hour, not `mph`. 
+15. Use `u` or `µ` for the 'micro' prefix, not `mc`. e.g. use `ug` or `µg` for microgram, not `mcg`. 
+
+All units have a "primary" symbol, which uses ASCII characters only, so they are easy to type.
+Therefore, you can use the following:
+
+1. `deg` in place of `°`
+2. `arcmin` in place of `′`
+3. `arcsec` in place of `″`
+2. `degC` in place of `°C`
+2. `degF` in place of `°F`
+3. `degR` in place of `°R`
+4. `ohm` in place of `Ω`
+5. `ppt` in place of `‰`
+
+---
+
 ## Loading Additional Systems
 
-By default, only SI, SI Accepted, and Common units are loaded. To use Imperial, US Customary, or other system units, load them first:
+By default, only SI, SI Accepted, and Common units are loaded. To use Imperial, US Customary, or other system units,
+load them first:
 
 ```php
-use Galaxon\Quantities\Registry\UnitRegistry;use Galaxon\Quantities\System;
+use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\System;
 
 // Load Imperial and US Customary units
 UnitRegistry::loadSystem(System::Imperial);

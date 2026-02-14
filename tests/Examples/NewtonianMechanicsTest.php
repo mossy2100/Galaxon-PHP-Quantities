@@ -75,7 +75,7 @@ class NewtonianMechanicsTest extends TestCase
     /**
      * Work done by a force: W = Fd.
      *
-     * Pushing a box with 100 N of force over 5 metres.
+     * Pushing a box with 100 N of force over 5 meters.
      */
     public function testWorkDoneByForce(): void
     {
@@ -105,7 +105,7 @@ class NewtonianMechanicsTest extends TestCase
     /**
      * Work with prefixed force units: W = Fd.
      *
-     * A 1 kN force applied over 100 metres.
+     * A 1 kN force applied over 100 meters.
      */
     public function testWorkWithPrefixedForce(): void
     {

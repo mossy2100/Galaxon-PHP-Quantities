@@ -4,7 +4,7 @@ Represents a unit of measurement.
 
 ## Overview
 
-The `Unit` class represents a single unit of measurement such as metre, gram, or hertz. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
+The `Unit` class represents a single unit of measurement such as meter, gram, or hertz. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
 
 Units can be "expandable", meaning they can be decomposed into more fundamental units. For example, the newton (N) expands to kg\*m/s2. Expansion information is stored directly on the Unit via the `expansionUnitSymbol` and `expansionValue` properties.
 
@@ -27,7 +27,7 @@ The class implements `UnitInterface` and uses the `Equatable` trait for value-ba
 private(set) string $name
 ```
 
-The unit name (e.g., 'metre', 'gram', 'hertz').
+The unit name (e.g., 'meter', 'gram', 'hertz').
 
 ### asciiSymbol
 
@@ -51,7 +51,7 @@ The Unicode symbol (e.g., 'Ω' for ohm, '°' for degree). Used for display purpo
 private(set) ?string $alternateSymbol
 ```
 
-An additional symbol accepted by the parser. Cannot accept prefixes.
+An additional symbol accepted by the parser. This can only be a single ASCII letter or special character, and cannot accept prefixes. Examples are ' for arcminutes (alternate to the prime symbol ′) and " for arcseconds (alternate to the double-prime symbol ″). Not used for output.
 
 ### dimension
 
@@ -142,7 +142,7 @@ public function __construct(
 Create a new Unit instance.
 
 **Parameters:**
-- `$name` (string) - The unit name (e.g., 'metre')
+- `$name` (string) - The unit name (e.g., 'meter')
 - `$asciiSymbol` (string) - The ASCII symbol (e.g., 'm')
 - `$unicodeSymbol` (?string) - The Unicode symbol, or null if same as ASCII
 - `$dimension` (string) - The dimension code (e.g., 'L')
@@ -164,8 +164,8 @@ use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\System;
 
 // Basic SI unit
-$metre = new Unit(
-    name: 'metre',
+$meter = new Unit(
+    name: 'meter',
     asciiSymbol: 'm',
     unicodeSymbol: null,
     dimension: 'L',
@@ -250,23 +250,12 @@ Check if a specific prefix is allowed for this unit.
 
 **Examples:**
 ```php
-$metre = Unit::parse('m');
-$metre->acceptsPrefix('k'); // true (kilo)
-$metre->acceptsPrefix('c'); // true (centi)
+$meter = Unit::parse('m');
+$meter->acceptsPrefix('k'); // true (kilo)
+$meter->acceptsPrefix('c'); // true (centi)
 ```
 
 ## String Methods
-
-### regex()
-
-```php
-public static function regex(): string
-```
-
-Get the regular expression pattern for matching a unit symbol.
-
-**Returns:**
-- `string` - The regex pattern (without delimiters or anchors)
 
 ### parse()
 
@@ -288,7 +277,7 @@ Parse a unit symbol and return the matching Unit.
 
 **Examples:**
 ```php
-$metre = Unit::parse('m');
+$meter = Unit::parse('m');
 $newton = Unit::parse('N');
 $degree = Unit::parse('deg');
 ```
@@ -307,7 +296,7 @@ Format the unit as a string.
 **Returns:**
 - `string` - The formatted unit symbol
 
-### __toString()
+### \_\_toString()
 
 ```php
 public function __toString(): string
@@ -334,50 +323,6 @@ Check if this unit equals another.
 **Returns:**
 - `bool` - True if both units have the same ASCII symbol
 
-## Static Helper Methods
-
-### isValidNonLetterSymbol()
-
-```php
-public static function isValidNonLetterSymbol(string $symbol): bool
-```
-
-Check if a string is a single non-letter, non-digit symbol.
-
-**Parameters:**
-- `$symbol` (string) - The string to check
-
-**Returns:**
-- `bool` - True if it's a valid non-letter symbol (like %, ", ')
-
-### isValidAsciiSymbol()
-
-```php
-public static function isValidAsciiSymbol(string $symbol): bool
-```
-
-Check if a string is a valid ASCII unit symbol (letters only, up to three words separated by spaces, or a single non-letter symbol).
-
-**Parameters:**
-- `$symbol` (string) - The string to check
-
-**Returns:**
-- `bool` - True if it's a valid ASCII symbol
-
-### isValidUnicodeSymbol()
-
-```php
-public static function isValidUnicodeSymbol(string $symbol): bool
-```
-
-Check if a string is a valid Unicode unit symbol.
-
-**Parameters:**
-- `$symbol` (string) - The string to check
-
-**Returns:**
-- `bool` - True if it's a valid Unicode symbol
-
 ## Usage Examples
 
 ### Accessing Unit Properties
@@ -402,17 +347,17 @@ if ($unit->isExpandable()) {
 ```php
 use Galaxon\Quantities\Registry\UnitRegistry;
 
-$metre = UnitRegistry::getBySymbol('m');
+$meter = UnitRegistry::getBySymbol('m');
 
 // Get all allowed prefixes
-$prefixes = $metre->allowedPrefixes;
+$prefixes = $meter->allowedPrefixes;
 foreach ($prefixes as $prefix) {
-    echo $prefix->asciiSymbol . $metre->asciiSymbol . "\n";
+    echo $prefix->asciiSymbol . $meter->asciiSymbol . "\n";
     // km, mm, um, nm, etc.
 }
 
 // Get all symbol variants
-$symbols = $metre->symbols;
+$symbols = $meter->symbols;
 // ['m', 'km', 'mm', 'um', 'nm', ...]
 ```
 
@@ -421,5 +366,6 @@ $symbols = $metre->symbols;
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit representation
 - **[UnitInterface](UnitInterface.md)** - Interface for all unit types
+- **[RegexHelper](RegexHelper.md)** - Centralised regex patterns and validation
 - **[UnitRegistry](../Registry/UnitRegistry.md)** - Registry for looking up units
 - **[System](../System.md)** - Measurement system classification
