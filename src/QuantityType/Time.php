@@ -18,6 +18,24 @@ use Override;
  */
 class Time extends Quantity
 {
+    // region Static properties
+
+    /**
+     * Default part unit symbols for output methods.
+     *
+     * @var list<string>
+     */
+    protected static array $defaultPartUnitSymbols = ['y', 'mo', 'w', 'd', 'h', 'min', 's'];
+
+    /**
+     * Default part unit symbols for input methods.
+     *
+     * @var string
+     */
+    protected static string $defaultResultUnitSymbol = 's';
+
+    // endregion
+
     // region Overridden methods
 
     /**
@@ -92,30 +110,15 @@ class Time extends Quantity
         ];
     }
 
-    /**
-     * Configuration for parts-related methods.
-     *
-     * @return array{from: ?string, to: list<string>}
-     */
-    #[Override]
-    public static function getPartsConfig(): array
-    {
-        return [
-            'from' => 's',
-            'to'   => ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
-        ];
-    }
-
     // endregion
 
-    // region Factory methods
+    // region DateInterval-related methods
 
     /**
      * Create a Time from a PHP DateInterval object.
      *
      * Uses naive conversion based on average values:
-     * - 1 year = 365.2425 days
-     * - 1 month = 30.436875 days (365.2425 / 12)
+     * - 1 year = 12 months = 365.2425 days
      * - 1 week = 7 days
      *
      * @param DateInterval $interval The DateInterval to convert.
@@ -123,60 +126,51 @@ class Time extends Quantity
      */
     public static function fromDateInterval(DateInterval $interval): self
     {
-        // Convert all the parts of the DateInterval to seconds and sum.
-        $seconds = self::convert($interval->y, 'y', 's') +
-                   self::convert($interval->m, 'mo', 's') +
-                   self::convert($interval->d, 'd', 's') +
-                   self::convert($interval->h, 'h', 's') +
-                   self::convert($interval->i, 'min', 's') +
-                   $interval->s + $interval->f;
+        // Add all the parts of the DateInterval, starting with seconds.
+        $result = new self($interval->s + $interval->f, 's')
+            ->add($interval->y, 'y')
+            ->add($interval->m, 'mo')
+            ->add($interval->d, 'd')
+            ->add($interval->h, 'h')
+            ->add($interval->i, 'min');
 
-        // Handle negative intervals.
+        // Handle negative interval.
         if ($interval->invert === 1) {
-            $seconds = -$seconds;
+            $result = $result->neg();
         }
 
-        $result = self::create($seconds, 's');
         assert($result instanceof self);
         return $result;
     }
 
-    // endregion
-
-    // region Conversion methods
-
     /**
      * Convert time to a DateInterval specification string.
      *
+     * The string will represent the absolute value of the time, rounded off to the nearest second.
+     *
      * Format: P[y]Y[m]M[w]W[d]DT[h]H[i]M[s]S
      *
-     * @param string $largestUnitSymbol The largest unit to include (default 'y').
-     * @param string $smallestUnitSymbol The smallest unit to include (default 's').
      * @return string A DateInterval specification string.
-     * @throws DomainException If the largest or smallest unit argument is invalid.
+     * @see https://www.php.net/manual/en/dateinterval.construct.php
      */
-    public function toDateIntervalSpecifier(string $largestUnitSymbol = 'y', string $smallestUnitSymbol = 's'): string
+    public function toDateIntervalSpecifier(): string
     {
-        // Validate the part unit symbols.
-        $partUnitSymbols = static::getPartsConfig()['to'];
-        static::validatePartUnitSymbols($partUnitSymbols);
-
-        // Get the default or validate the largest and smallest unit symbols.
-        [$largestUnitSymbol, $largestUnitIndex, $smallestUnitSymbol, $smallestUnitIndex] =
-            static::validateLargestAndSmallest($partUnitSymbols, $largestUnitSymbol, $smallestUnitSymbol);
-
         // Get the time parts. Set precision to 0 because DateInterval requires integer parts.
-        $parts = $this->toParts($largestUnitSymbol, $smallestUnitSymbol, 0);
+        // All the unit parts will be non-negative.
+        // If the value is negative, there will be a sign key with value -1, which will be ignored for this method.
+        // Note, however, the sign is included by the toDateInterval() method.
+        $parts = $this->toParts(precision: 0);
 
         // Prep
-        $partUnitSymbols = static::getPartsConfig()['to'];
         $spec = 'P';
         $timeSeparatorAdded = false;
 
         // Build the specification string.
-        for ($i = $largestUnitIndex; $i <= $smallestUnitIndex; $i++) {
-            $symbol = $partUnitSymbols[$i];
-            $value = $parts[$symbol] ?? 0;
+        foreach ($parts as $symbol => $value) {
+            // Skip sign and 0 values.
+            if ($symbol === 'sign' || Numbers::equal($value, 0)) {
+                continue;
+            }
 
             // Add the time separator 'T' before any time parts.
             if (in_array($symbol, ['h', 'min', 's'], true) && !$timeSeparatorAdded) {
@@ -184,10 +178,7 @@ class Time extends Quantity
                 $timeSeparatorAdded = true;
             }
 
-            // Add the specifier part if it isn't 0.
-            if (!Numbers::equal($parts[$symbol], 0.0)) {
-                $spec .= (int)$value . strtoupper($symbol[0]);
-            }
+            $spec .= (int)$value . strtoupper($symbol[0]);
         }
 
         // If nothing was added, return P0D.
@@ -201,16 +192,13 @@ class Time extends Quantity
     /**
      * Convert time to a PHP DateInterval object.
      *
-     * @param string $largestUnitSymbol The largest unit to include (default 'y').
-     * @param string $smallestUnitSymbol The smallest unit to include (default 's').
      * @return DateInterval A new DateInterval object.
-     * @throws DomainException If the largest or smallest unit argument is invalid.
      * @throws DateMalformedIntervalStringException If the DateInterval specification string is invalid.
      */
-    public function toDateInterval(string $largestUnitSymbol = 'y', string $smallestUnitSymbol = 's'): DateInterval
+    public function toDateInterval(): DateInterval
     {
         // Get the specifier string.
-        $spec = $this->toDateIntervalSpecifier($largestUnitSymbol, $smallestUnitSymbol);
+        $spec = $this->toDateIntervalSpecifier();
 
         // Construct the DateInterval.
         $dateInterval = new DateInterval($spec);

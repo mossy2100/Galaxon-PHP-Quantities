@@ -514,12 +514,11 @@ final class MassTest extends TestCase
     // region fromParts tests
 
     /**
-     * Test fromParts works without getPartsConfig() when result unit is provided.
+     * Test fromParts works without default result units set when result unit is provided.
      */
     public function testFromPartsWithoutPartsConfig(): void
     {
-        // Mass doesn't implement getPartsConfig(), but fromParts() should still work
-        // when we provide a result unit symbol.
+        // Mass doesn't specify default units, but fromParts() should still work when we provide a result unit symbol.
         $mass = Mass::fromParts([
             'kg' => 1,
             'g'  => 200,
@@ -564,6 +563,290 @@ final class MassTest extends TestCase
 
         $this->assertInstanceOf(Mass::class, $mass);
         $this->assertSame(-1500.0, $mass->value);
+    }
+
+    // endregion
+
+    // region setImperialParts() / setUsCustomaryParts() tests
+
+    /**
+     * Test setImperialParts() sets the expected default part unit symbols.
+     */
+    public function testSetImperialPartsSetsPartUnitSymbols(): void
+    {
+        $original = Mass::getDefaultPartUnitSymbols();
+        try {
+            Mass::setImperialParts();
+            $this->assertSame(['LT', 'st', 'lb', 'oz'], Mass::getDefaultPartUnitSymbols());
+        } finally {
+            if (!empty($original)) {
+                Mass::setDefaultPartUnitSymbols($original);
+            }
+        }
+    }
+
+    /**
+     * Test setImperialParts() sets the expected default result unit symbol.
+     */
+    public function testSetImperialPartsSetsResultUnitSymbol(): void
+    {
+        $original = Mass::getDefaultResultUnitSymbol();
+        try {
+            Mass::setImperialParts();
+            $this->assertSame('lb', Mass::getDefaultResultUnitSymbol());
+        } finally {
+            if (!empty($original)) {
+                Mass::setDefaultResultUnitSymbol($original);
+            }
+        }
+    }
+
+    /**
+     * Test setUsCustomaryParts() sets the expected default part unit symbols.
+     */
+    public function testSetUsCustomaryPartsSetsPartUnitSymbols(): void
+    {
+        $original = Mass::getDefaultPartUnitSymbols();
+        try {
+            Mass::setUsCustomaryParts();
+            $this->assertSame(['tn', 'lb', 'oz', 'gr'], Mass::getDefaultPartUnitSymbols());
+        } finally {
+            if (!empty($original)) {
+                Mass::setDefaultPartUnitSymbols($original);
+            }
+        }
+    }
+
+    /**
+     * Test setUsCustomaryParts() sets the expected default result unit symbol.
+     */
+    public function testSetUsCustomaryPartsSetsResultUnitSymbol(): void
+    {
+        $original = Mass::getDefaultResultUnitSymbol();
+        try {
+            Mass::setUsCustomaryParts();
+            $this->assertSame('lb', Mass::getDefaultResultUnitSymbol());
+        } finally {
+            if (!empty($original)) {
+                Mass::setDefaultResultUnitSymbol($original);
+            }
+        }
+    }
+
+    // endregion
+
+    // region Imperial parts tests
+
+    /**
+     * Test toParts() with imperial units.
+     */
+    public function testToPartsImperial(): void
+    {
+        Mass::setImperialParts();
+        try {
+            // 11 stone 3 lb = 11 * 14 + 3 = 157 lb
+            $mass = new Mass(157, 'lb');
+            $parts = $mass->toParts();
+
+            $this->assertSame(1, $parts['sign']);
+            $this->assertSame(0, $parts['LT']);
+            $this->assertSame(11, $parts['st']);
+            $this->assertSame(3, $parts['lb']);
+            $this->assertSame(0.0, $parts['oz']);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
+        }
+    }
+
+    /**
+     * Test toParts() with imperial units and fractional ounces.
+     */
+    public function testToPartsImperialWithOunces(): void
+    {
+        Mass::setImperialParts();
+        try {
+            // 2 lb 8 oz = 2.5 lb = 40 oz
+            $mass = new Mass(40, 'oz');
+            $parts = $mass->toParts();
+
+            $this->assertSame(0, $parts['LT']);
+            $this->assertSame(0, $parts['st']);
+            $this->assertSame(2, $parts['lb']);
+            $this->assertSame(8.0, $parts['oz']);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
+        }
+    }
+
+    /**
+     * Test fromParts() with imperial units using defaults.
+     */
+    public function testFromPartsImperial(): void
+    {
+        Mass::setImperialParts();
+        try {
+            $mass = Mass::fromParts([
+                'st' => 11,
+                'lb' => 3,
+            ]);
+
+            $this->assertInstanceOf(Mass::class, $mass);
+            $this->assertSame('lb', $mass->derivedUnit->asciiSymbol);
+            // 11 st 3 lb = 11 * 14 + 3 = 157 lb
+            $this->assertSame(157.0, $mass->value);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
+        }
+    }
+
+    /**
+     * Test formatParts() with imperial units.
+     */
+    public function testFormatPartsImperial(): void
+    {
+        Mass::setImperialParts();
+        try {
+            // 157 lb = 11 st 3 lb
+            $mass = new Mass(157, 'lb');
+            $result = $mass->formatParts();
+
+            $this->assertSame('11st 3lb', $result);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
+        }
+    }
+
+    /**
+     * Test parseParts() with imperial units.
+     */
+    public function testParsePartsImperial(): void
+    {
+        Mass::setImperialParts();
+        try {
+            $mass = Mass::parseParts('11st 3lb');
+
+            $this->assertInstanceOf(Mass::class, $mass);
+            $this->assertSame('lb', $mass->derivedUnit->asciiSymbol);
+            $this->assertSame(157.0, $mass->value);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
+        }
+    }
+
+    // endregion
+
+    // region US customary parts tests
+
+    /**
+     * Test toParts() with US customary units.
+     */
+    public function testToPartsUsCustomary(): void
+    {
+        Mass::setUsCustomaryParts();
+        try {
+            // 3 lb 4 oz = 52 oz
+            $mass = new Mass(52, 'oz');
+            $parts = $mass->toParts();
+
+            $this->assertSame(1, $parts['sign']);
+            $this->assertSame(0, $parts['tn']);
+            $this->assertSame(3, $parts['lb']);
+            $this->assertSame(4, $parts['oz']);
+            $this->assertSame(0.0, $parts['gr']);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
+        }
+    }
+
+    /**
+     * Test toParts() with US customary units including grains.
+     */
+    public function testToPartsUsCustomaryWithGrains(): void
+    {
+        Mass::setUsCustomaryParts();
+        try {
+            // 1 lb = 7000 gr, so 1 lb 1 oz = 7000 + 437.5 = 7437.5 gr
+            $mass = new Mass(7437.5, 'gr');
+            $parts = $mass->toParts();
+
+            $this->assertSame(0, $parts['tn']);
+            $this->assertSame(1, $parts['lb']);
+            $this->assertSame(1, $parts['oz']);
+            $this->assertSame(0.0, $parts['gr']);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
+        }
+    }
+
+    /**
+     * Test fromParts() with US customary units using defaults.
+     */
+    public function testFromPartsUsCustomary(): void
+    {
+        Mass::setUsCustomaryParts();
+        try {
+            $mass = Mass::fromParts([
+                'lb' => 3,
+                'oz' => 4,
+            ]);
+
+            $this->assertInstanceOf(Mass::class, $mass);
+            $this->assertSame('lb', $mass->derivedUnit->asciiSymbol);
+            // 3 lb 4 oz = 3.25 lb
+            $this->assertSame(3.25, $mass->value);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
+        }
+    }
+
+    /**
+     * Test formatParts() with US customary units.
+     */
+    public function testFormatPartsUsCustomary(): void
+    {
+        Mass::setUsCustomaryParts();
+        try {
+            // 3.25 lb = 3 lb 4 oz
+            $mass = new Mass(3.25, 'lb');
+            $result = $mass->formatParts();
+
+            $this->assertSame('3lb 4oz', $result);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
+        }
+    }
+
+    /**
+     * Test parseParts() with US customary units.
+     */
+    public function testParsePartsUsCustomary(): void
+    {
+        Mass::setUsCustomaryParts();
+        try {
+            $mass = Mass::parseParts('3lb 4oz');
+
+            $this->assertInstanceOf(Mass::class, $mass);
+            $this->assertSame('lb', $mass->derivedUnit->asciiSymbol);
+            $this->assertSame(3.25, $mass->value);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
+        }
+    }
+
+    /**
+     * Test parseParts() with negative US customary parts.
+     */
+    public function testParsePartsUsCustomaryNegative(): void
+    {
+        Mass::setUsCustomaryParts();
+        try {
+            $mass = Mass::parseParts('-3lb 4oz');
+
+            $this->assertInstanceOf(Mass::class, $mass);
+            $this->assertSame(-3.25, $mass->value);
+        } finally {
+            Mass::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
+        }
     }
 
     // endregion

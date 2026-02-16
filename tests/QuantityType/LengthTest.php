@@ -29,7 +29,7 @@ final class LengthTest extends TestCase
         UnitRegistry::loadSystem(System::Imperial);
         UnitRegistry::loadSystem(System::UsCustomary);
         UnitRegistry::loadSystem(System::Scientific);
-        UnitRegistry::loadSystem(System::Typographical);
+        UnitRegistry::loadSystem(System::Css);
         UnitRegistry::loadSystem(System::Nautical);
     }
 
@@ -358,7 +358,7 @@ final class LengthTest extends TestCase
 
     // endregion
 
-    // region Typography unit tests
+    // region CSS unit tests
 
     /**
      * Test converting inches to pixels.
@@ -561,19 +561,6 @@ final class LengthTest extends TestCase
     // region Parts methods tests
 
     /**
-     * Test getPartsConfig returns correct structure.
-     */
-    public function testGetPartsConfig(): void
-    {
-        $config = Length::getPartsConfig();
-
-        $this->assertArrayHasKey('from', $config);
-        $this->assertArrayHasKey('to', $config);
-        $this->assertSame('ft', $config['from']);
-        $this->assertSame(['mi', 'yd', 'ft', 'in'], $config['to']);
-    }
-
-    /**
      * Test fromParts with feet and inches.
      */
     public function testFromPartsFeetInches(): void
@@ -664,7 +651,7 @@ final class LengthTest extends TestCase
     {
         // 5.5 feet = 1 yard + 2 feet + 6 inches (since 3 ft = 1 yd)
         $length = new Length(5.5, 'ft');
-        $parts = $length->toParts(null, 'in', 0);
+        $parts = $length->toParts(precision: 0);
 
         $this->assertSame(1, $parts['sign']);
         $this->assertSame(0, $parts['mi']);
@@ -680,7 +667,7 @@ final class LengthTest extends TestCase
     {
         // -5.5 feet = -(1 yard + 2 feet + 6 inches)
         $length = new Length(-5.5, 'ft');
-        $parts = $length->toParts(null, 'in', 0);
+        $parts = $length->toParts(precision: 0);
 
         $this->assertSame(-1, $parts['sign']);
         $this->assertSame(1, $parts['yd']);
@@ -694,7 +681,7 @@ final class LengthTest extends TestCase
     public function testToPartsCarry(): void
     {
         $length = new Length(2.99999999, 'ft');  // Just under 3 feet = 1 yard
-        $parts = $length->toParts(null, 'ft', 0);
+        $parts = $length->toParts(['yd', 'ft'], 0);
 
         // Should round to 3 feet and carry to 1 yard
         $this->assertSame(1, $parts['yd']);
@@ -708,7 +695,7 @@ final class LengthTest extends TestCase
     {
         // 5.5 feet = 1 yard 2 feet 6 inches
         $length = new Length(5.5, 'ft');
-        $result = $length->formatParts(null, 'in', 0);
+        $result = $length->formatParts();
 
         $this->assertSame('1yd 2ft 6in', $result);
     }
@@ -720,7 +707,7 @@ final class LengthTest extends TestCase
     {
         // 4.5 feet = 1 yard 1 foot 6 inches
         $length = new Length(4.5, 'ft');
-        $result = $length->formatParts(null, 'in', 0);
+        $result = $length->formatParts();
 
         $this->assertSame('1yd 1ft 6in', $result);
     }
@@ -732,7 +719,7 @@ final class LengthTest extends TestCase
     {
         // 5.541666... feet = 1 yard 2 feet 6.5 inches
         $length = new Length(5.541666666666667, 'ft');
-        $result = $length->formatParts(null, 'in', 1);
+        $result = $length->formatParts(precision: 1);
 
         $this->assertSame('1yd 2ft 6.5in', $result);
     }
@@ -744,7 +731,7 @@ final class LengthTest extends TestCase
     {
         // -5.5 feet = -(1 yard 2 feet 6 inches)
         $length = new Length(-5.5, 'ft');
-        $result = $length->formatParts(null, 'in', 0);
+        $result = $length->formatParts();
 
         $this->assertSame('-1yd 2ft 6in', $result);
     }
@@ -755,7 +742,7 @@ final class LengthTest extends TestCase
     public function testFormatPartsShowZeros(): void
     {
         $length = new Length(5280, 'ft');  // 1 mile
-        $result = $length->formatParts(null, 'ft', 0, true);
+        $result = $length->formatParts(['mi', 'yd', 'ft'], showZeros: true);
 
         // Shows all parts including zeros
         $this->assertSame('1mi 0yd 0ft', $result);
@@ -771,7 +758,7 @@ final class LengthTest extends TestCase
             'ft' => 2,
             'in' => 6,
         ]);
-        $formatted = $length->formatParts(null, 'in', 0);
+        $formatted = $length->formatParts();
 
         $this->assertSame('1yd 2ft 6in', $formatted);
     }

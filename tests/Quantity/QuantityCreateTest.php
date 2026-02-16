@@ -371,18 +371,5 @@ final class QuantityCreateTest extends TestCase
         $this->assertSame([], $result);
     }
 
-    /**
-     * Test getPartsConfig() returns default config.
-     */
-    public function testGetPartsConfigReturnsDefaultConfig(): void
-    {
-        $result = Quantity::getPartsConfig();
-
-        $this->assertSame([
-            'from' => null,
-            'to'   => [],
-        ], $result);
-    }
-
     // endregion
 }

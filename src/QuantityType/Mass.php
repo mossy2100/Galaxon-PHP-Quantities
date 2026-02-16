@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
 use Override;
 
@@ -33,19 +34,22 @@ class Mass extends Quantity
     public static function getUnitDefinitions(): array
     {
         return [
+            // SI
             'gram'      => [
                 'asciiSymbol' => 'g',
                 'prefixGroup' => PrefixRegistry::GROUP_METRIC,
                 'systems'     => [System::Si],
             ],
+            // SI accepted
             'tonne'     => [
                 'asciiSymbol' => 't',
                 'systems'     => [System::SiAccepted],
             ],
             'dalton'    => [
                 'asciiSymbol' => 'Da',
-                'systems'     => [System::SiAccepted],
+                'systems'     => [System::SiAccepted, System::Scientific],
             ],
+            // Imperial and US customary
             'grain'     => [
                 'asciiSymbol' => 'gr',
                 'systems'     => [System::Imperial, System::UsCustomary],
@@ -83,18 +87,44 @@ class Mass extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
-             // SI accepted
+            // SI accepted
             ['t', 'kg', 1000],
             ['Da', 'kg', 1.66053906892e-27],
             // Metric-Imperial/US bridge
             ['lb', 'kg', 0.453_592_37],
-            ['gr', 'mg', 64.79891],
             // Imperial and US customary
+            ['lb', 'gr', 7000],
             ['lb', 'oz', 16],
             ['st', 'lb', 14],
             ['tn', 'lb', 2000],
             ['LT', 'lb', 2240],
         ];
+    }
+
+    // endregion
+
+    // region Part-related methods
+
+    /**
+     * Set the default part units for imperial mass quantities.
+     */
+    public static function setImperialParts(): void
+    {
+        UnitRegistry::loadSystem(System::Imperial);
+        // The long ton and stone are in use, but the grain is not.
+        self::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
+        self::setDefaultResultUnitSymbol('lb');
+    }
+
+    /**
+     * Set the default part units for US customary mass quantities.
+     */
+    public static function setUsCustomaryParts(): void
+    {
+        UnitRegistry::loadSystem(System::UsCustomary);
+        // The short ton and grain are in use, but the stone is not.
+        self::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
+        self::setDefaultResultUnitSymbol('lb');
     }
 
     // endregion

@@ -14,6 +14,24 @@ use Override;
  */
 class Length extends Quantity
 {
+    // region Static properties
+
+    /**
+     * Default part unit symbols for output methods.
+     *
+     * @var list<string>
+     */
+    protected static array $defaultPartUnitSymbols = ['mi', 'yd', 'ft', 'in'];
+
+    /**
+     * Default part unit symbols for input methods.
+     *
+     * @var string
+     */
+    protected static string $defaultResultUnitSymbol = 'ft';
+
+    // endregion
+
     // region Overridden methods
 
     /**
@@ -53,18 +71,18 @@ class Length extends Quantity
                 'prefixGroup' => PrefixRegistry::GROUP_LARGE_METRIC,
                 'systems'     => [System::Scientific],
             ],
-            // Typography/CSS
+            // CSS
             'pixel'             => [
                 'asciiSymbol' => 'px',
-                'systems'     => [System::Typographical],
+                'systems'     => [System::Css],
             ],
             'point'             => [
                 'asciiSymbol' => 'p',
-                'systems'     => [System::Typographical],
+                'systems'     => [System::Css],
             ],
             'pica'              => [
                 'asciiSymbol' => 'P',
-                'systems'     => [System::Typographical],
+                'systems'     => [System::Css],
             ],
             // Imperial/US
             'inch'              => [
@@ -123,20 +141,6 @@ class Length extends Quantity
             // Nautical
             ['ftm', 'yd', 2],
             ['nmi', 'm', 1852],
-        ];
-    }
-
-    /**
-     * Configuration for parts-related methods.
-     *
-     * @return array{from: ?string, to: list<string>}
-     */
-    #[Override]
-    public static function getPartsConfig(): array
-    {
-        return [
-            'from' => 'ft',
-            'to'   => ['mi', 'yd', 'ft', 'in'],
         ];
     }
 

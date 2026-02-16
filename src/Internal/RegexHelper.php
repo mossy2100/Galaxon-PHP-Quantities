@@ -77,10 +77,10 @@ final class RegexHelper
      * Allowed multiplication operators.
      *     * = Asterisk
      *     . = Period (full stop) character.
-     *     · = Middle dot (U+00B7) - used in typography, Catalan, etc.
      *     ⋅ = Dot operator (U+22C5) - mathematical multiplication symbol.
+     *     · = Middle dot (U+00B7) - used in typography, Catalan, etc.
      */
-    private const string RX_MUL_OPS = '*.\x{00B7}\x{22C5}';
+    private const string RX_MUL_OPS = '*.\x{22C5}\x{00B7}';
 
     /**
      * Regular expression character class with multiplication operators only.

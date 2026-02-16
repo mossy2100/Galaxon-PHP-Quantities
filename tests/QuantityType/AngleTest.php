@@ -625,19 +625,6 @@ final class AngleTest extends TestCase
     // region Parts methods tests
 
     /**
-     * Test getPartsConfig returns correct structure.
-     */
-    public function testGetPartsConfig(): void
-    {
-        $config = Angle::getPartsConfig();
-
-        $this->assertArrayHasKey('from', $config);
-        $this->assertArrayHasKey('to', $config);
-        $this->assertSame('deg', $config['from']);
-        $this->assertSame(['deg', 'arcmin', 'arcsec'], $config['to']);
-    }
-
-    /**
      * Test fromParts with degrees, minutes, and seconds.
      */
     public function testFromParts(): void
@@ -727,7 +714,7 @@ final class AngleTest extends TestCase
     public function testToParts(): void
     {
         $angle = new Angle(45.504166666666666, 'deg');
-        $parts = $angle->toParts(null, 'arcsec', 0);
+        $parts = $angle->toParts(precision: 0);
 
         $this->assertSame(1, $parts['sign']);
         $this->assertSame(45, $parts['deg']);
@@ -741,11 +728,11 @@ final class AngleTest extends TestCase
     public function testToPartsNegative(): void
     {
         $angle = new Angle(-45.5, 'deg');
-        $parts = $angle->toParts(null, 'arcmin', 0);
+        $parts = $angle->toParts();
 
         $this->assertSame(-1, $parts['sign']);
         $this->assertSame(45, $parts['deg']);
-        $this->assertSame(30.0, $parts['arcmin']);
+        $this->assertSame(30, $parts['arcmin']);
     }
 
     /**
@@ -754,7 +741,7 @@ final class AngleTest extends TestCase
     public function testToPartsCarry(): void
     {
         $angle = new Angle(44.99999999, 'deg');  // Just under 45 degrees
-        $parts = $angle->toParts(null, 'arcsec', 0);
+        $parts = $angle->toParts(precision: 0);
 
         // Should round and carry to 45 degrees
         $this->assertSame(45, $parts['deg']);
@@ -768,7 +755,7 @@ final class AngleTest extends TestCase
     public function testFormatPartsDefault(): void
     {
         $angle = new Angle(45.504166666666666, 'deg');
-        $result = $angle->formatParts(null, 'arcsec', 0);
+        $result = $angle->formatParts(precision: 0);
 
         $this->assertSame('45° 30′ 15″', $result);
     }
@@ -779,7 +766,7 @@ final class AngleTest extends TestCase
     public function testFormatPartsToArcminutes(): void
     {
         $angle = new Angle(45.5, 'deg');
-        $result = $angle->formatParts(null, 'arcmin', 0);
+        $result = $angle->formatParts(['deg', 'arcmin'], 0);
 
         $this->assertSame('45° 30′', $result);
     }
@@ -790,7 +777,7 @@ final class AngleTest extends TestCase
     public function testFormatPartsWithPrecision(): void
     {
         $angle = new Angle(45.504305555555556, 'deg');
-        $result = $angle->formatParts(null, 'arcsec', 1);
+        $result = $angle->formatParts(precision: 1);
 
         $this->assertSame('45° 30′ 15.5″', $result);
     }
@@ -801,7 +788,7 @@ final class AngleTest extends TestCase
     public function testFormatPartsNegative(): void
     {
         $angle = new Angle(-45.5, 'deg');
-        $result = $angle->formatParts(null, 'arcmin', 0);
+        $result = $angle->formatParts(['deg', 'arcmin'], 0);
 
         $this->assertSame('-45° 30′', $result);
     }
@@ -816,7 +803,7 @@ final class AngleTest extends TestCase
             'arcmin' => 30,
             'arcsec' => 15,
         ]);
-        $formatted = $angle->formatParts(null, 'arcsec', 0);
+        $formatted = $angle->formatParts(precision: 0);
 
         $this->assertSame('45° 30′ 15″', $formatted);
     }

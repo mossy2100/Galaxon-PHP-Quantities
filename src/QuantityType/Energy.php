@@ -42,7 +42,7 @@ class Energy extends Quantity
             'electronvolt'         => [
                 'asciiSymbol' => 'eV',
                 'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::SiAccepted],
+                'systems'     => [System::SiAccepted, System::Scientific],
             ],
             'calorie'              => [
                 'asciiSymbol' => 'cal',

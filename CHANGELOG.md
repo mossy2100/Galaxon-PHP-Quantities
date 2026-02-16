@@ -55,7 +55,7 @@ Initial release.
 - `ConversionRegistry` — static registry of conversion factors between units, organised by dimension.
 - `PrefixRegistry` — SI and binary prefix definitions.
 - `QuantityTypeRegistry` — registry of all quantity type metadata.
-- Support for several systems of units: SI, SI Accepted, Common, Imperial, US Customary, Scientific, Nautical, and Typographical.
+- Support for several systems of units: SI, SI Accepted, Common, Imperial, US Customary, Scientific, Nautical, and Css.
 - Parsing from strings via `Quantity::parse()` and subclass `parse()` methods.
 - Formatting with `format()` supporting fixed, scientific, and general notation with Unicode ×10 superscript exponents.
 - Derived unit representation via `DerivedUnit` (compound units like kg·m/s²).

@@ -23,7 +23,7 @@ enum System
 
     case Nautical;
 
-    case Typographical;
+    case Css;
 
     case Custom;
 }

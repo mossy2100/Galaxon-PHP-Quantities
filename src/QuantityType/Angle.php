@@ -11,8 +11,11 @@ use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use InvalidArgumentException;
 use Override;
+use TypeError;
 
 /**
  * Represents angle quantities.
@@ -26,6 +29,24 @@ class Angle extends Quantity
      */
     public const float RAD_EPSILON = 1e-9;
     public const float TRIG_EPSILON = 1e-15;
+
+    // endregion
+
+    // region Static properties
+
+    /**
+     * Default part unit symbols for output methods.
+     *
+     * @var list<string>
+     */
+    protected static array $defaultPartUnitSymbols = ['deg', 'arcmin', 'arcsec'];
+
+    /**
+     * Default result unit symbol for input methods.
+     *
+     * @var string
+     */
+    protected static string $defaultResultUnitSymbol = 'deg';
 
     // endregion
 
@@ -99,76 +120,6 @@ class Angle extends Quantity
         ];
     }
 
-    /**
-     * Configuration for parts-related methods.
-     *
-     * @return array{from: ?string, to: list<string>}
-     */
-    #[Override]
-    public static function getPartsConfig(): array
-    {
-        return [
-            'from' => 'deg',
-            'to'   => ['deg', 'arcmin', 'arcsec'],
-        ];
-    }
-
-    // endregion
-
-    // region String methods
-
-    /**
-     * Checks that the input string, which is meant to indicate an angle, is valid.
-     *
-     * Different units (deg, rad, grad, turn) are supported, as used in CSS.
-     * There can be zero or more spaces between the number and the unit.
-     * @see https://developer.mozilla.org/en-US/docs/Web/CSS/angle
-     *
-     * Symbols for degrees, arcminutes, and arcseconds are also supported.
-     * There cannot be any space between a number and its symbol, but it's ok to have spaces between parts.
-     *
-     * If valid, the angle is returned; otherwise, an exception is thrown.
-     *
-     * @param string $value The string to parse.
-     * @return Quantity A new Angle equivalent to the provided string.
-     * @throws FormatException If the string has an invalid format.
-     * @throws DomainException If any of the values are non-finite or negative.
-     */
-    public static function parse(string $value): Quantity
-    {
-        try {
-            // Try to parse the angle using Quantity::parse().
-            return parent::parse($value);
-        } catch (FormatException $e) {
-            // Check for a format containing symbols for degrees, arcminutes, and arcseconds.
-            if (RegexHelper::isValidDmsAngle($value, $matches)) {
-                // Require at least one component (deg/min/sec).
-                if (empty($matches['deg']) && empty($matches['min']) && empty($matches['sec'])) {
-                    throw $e;
-                }
-
-                // Get the sign.
-                $sign = isset($matches['sign']) && $matches['sign'] === '-' ? -1 : 1;
-
-                // Extract the parts (non-negative).
-                $d = isset($matches['deg']) ? (float)$matches['deg'] : 0.0;
-                $m = isset($matches['min']) ? (float)$matches['min'] : 0.0;
-                $s = isset($matches['sec']) ? (float)$matches['sec'] : 0.0;
-
-                // Convert to Angle.
-                return static::fromParts([
-                    'deg'    => $d,
-                    'arcmin' => $m,
-                    'arcsec' => $s,
-                    'sign'   => $sign,
-                ]);
-            }
-
-            // Invalid format.
-            throw $e;
-        }
-    }
-
     // endregion
 
     // region Inspection methods
@@ -181,24 +132,6 @@ class Angle extends Quantity
     public function isRadians(): bool
     {
         return (string)$this->derivedUnit === 'rad';
-    }
-
-    // endregion
-
-    // region Extraction methods
-
-    /**
-     * Get the size of the angle in radians.
-     *
-     * @return float
-     */
-    public function toRadians(): float
-    {
-        if ($this->isRadians()) {
-            return $this->value;
-        }
-
-        return $this->to('rad')->value;
     }
 
     // endregion
@@ -231,6 +164,20 @@ class Angle extends Quantity
     // endregion
 
     // region Transformation methods
+
+    /**
+     * Get the size of the angle in radians.
+     *
+     * @return float
+     */
+    public function toRadians(): float
+    {
+        if ($this->isRadians()) {
+            return $this->value;
+        }
+
+        return $this->to('rad')->value;
+    }
 
     /**
      * Normalize an angle to a standard range.
