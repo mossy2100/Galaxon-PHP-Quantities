@@ -24,9 +24,7 @@ class LuminousFlux extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -34,11 +32,23 @@ class LuminousFlux extends Quantity
     {
         return [
             'lumen' => [
-                'asciiSymbol'         => 'lm',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'cd*rad2',
+                'asciiSymbol' => 'lm',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for luminous flux units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            ['lm', 'cd*rad2', 1],
         ];
     }
 

@@ -24,9 +24,7 @@ class Energy extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -34,10 +32,9 @@ class Energy extends Quantity
     {
         return [
             'joule'                => [
-                'asciiSymbol'         => 'J',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'kg*m2*s-2',
+                'asciiSymbol' => 'J',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
             'electronvolt'         => [
                 'asciiSymbol' => 'eV',
@@ -65,6 +62,7 @@ class Energy extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
+            ['J', 'kg*m2*s-2', 1],
             ['eV', 'J', 1.602_176_634e-19],
             ['cal', 'J', 4.184],
             ['Btu', 'J', 1055.05585262],

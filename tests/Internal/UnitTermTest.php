@@ -1133,6 +1133,61 @@ final class UnitTermTest extends TestCase
 
     // endregion
 
+    // region isExpandable() tests
+
+    /**
+     * Test isExpandable returns true for a named derived unit.
+     */
+    public function testIsExpandableReturnsTrueForNamedDerivedUnit(): void
+    {
+        // Newton has an expansion to kg*m/s2.
+        $term = new UnitTerm('N');
+
+        $this->assertTrue($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns true for a prefixed named derived unit.
+     */
+    public function testIsExpandableReturnsTrueForPrefixedNamedDerivedUnit(): void
+    {
+        $term = new UnitTerm('N', 'k');
+
+        $this->assertTrue($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns false for a base unit.
+     */
+    public function testIsExpandableReturnsFalseForBaseUnit(): void
+    {
+        $term = new UnitTerm('m');
+
+        $this->assertFalse($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns false for a base unit with exponent.
+     */
+    public function testIsExpandableReturnsFalseForBaseUnitWithExponent(): void
+    {
+        $term = new UnitTerm('m', null, 2);
+
+        $this->assertFalse($term->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns false for a non-base unit without an expansion.
+     */
+    public function testIsExpandableReturnsFalseForNonBaseUnitWithoutExpansion(): void
+    {
+        $term = new UnitTerm('eV');
+
+        $this->assertFalse($term->isExpandable());
+    }
+
+    // endregion
+
     // region isSiBase() tests
 
     /**
@@ -1215,70 +1270,6 @@ final class UnitTermTest extends TestCase
         $term = new UnitTerm('g');
 
         $this->assertFalse($term->isSiBase());
-    }
-
-    // endregion
-
-    // region isExpandable() tests
-
-    /**
-     * Test isExpandable returns true for Newton.
-     */
-    public function testIsExpandableReturnsTrueForNewton(): void
-    {
-        $term = new UnitTerm('N');
-
-        $this->assertTrue($term->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns true for prefixed expandable unit.
-     */
-    public function testIsExpandableReturnsTrueForPrefixedExpandableUnit(): void
-    {
-        $term = new UnitTerm('N', 'k');
-
-        $this->assertTrue($term->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns true for Hertz.
-     */
-    public function testIsExpandableReturnsTrueForHertz(): void
-    {
-        $term = new UnitTerm('Hz');
-
-        $this->assertTrue($term->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for base SI unit.
-     */
-    public function testIsExpandableReturnsFalseForBaseSiUnit(): void
-    {
-        $term = new UnitTerm('m');
-
-        $this->assertFalse($term->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for non-SI base unit.
-     */
-    public function testIsExpandableReturnsFalseForNonSiBaseUnit(): void
-    {
-        $term = new UnitTerm('ft');
-
-        $this->assertFalse($term->isExpandable());
-    }
-
-    /**
-     * Test isExpandable is independent of exponent.
-     */
-    public function testIsExpandableIsIndependentOfExponent(): void
-    {
-        $term = new UnitTerm('N', null, 3);
-
-        $this->assertTrue($term->isExpandable());
     }
 
     // endregion

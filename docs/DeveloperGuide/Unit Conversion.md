@@ -1,10 +1,3 @@
-CLAUDE TODO: Need a lot more examples here, including:
-1. SI to imperial/US
-2. Expansion of named units. Can use force units, e.g. newtons, lbf. Show Quantity::expand() method.
-3. Contraction of named units, show examples of Quantity::simplify() method.
-4. Auto-prefixing, show calculation that produces metres, then use auto-prefixing to get km.
-
-
 # Unit Conversion
 
 The conversion system automatically finds paths between units using a graph-based algorithm. You only need to define a minimum number of conversions; others will be discovered automatically. Many common conversions are built-in.
@@ -18,6 +11,78 @@ $feet = $meters->to('ft');  // 3280.84 ft
 $miles = $meters->to('mi'); // 0.621371 mi
 ```
 
+### SI to Imperial/US
+
+```php
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Mass;
+use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\System;
+
+// Load Imperial/US units (SI units are loaded by default)
+UnitRegistry::loadSystem(System::Imperial);
+UnitRegistry::loadSystem(System::UsCustomary);
+
+// Length
+$height = new Length(1.83, 'm');
+echo $height->to('ft');   // 6.003937... ft
+echo $height->to('in');   // 72.047244... in
+
+// Mass
+$weight = new Mass(70, 'kg');
+echo $weight->to('lb');   // 154.32358... lb
+echo $weight->to('st');   // 11.023113... st
+```
+
+### Expansion and Simplification
+
+Named (expandable) units like newtons, joules, and watts are shorthand for combinations of base SI units. You can expand them to see the underlying base units, or simplify base units back into named units.
+
+```php
+use Galaxon\Quantities\QuantityType\Force;
+
+// Expand: named unit -> base units
+$force = new Force(100, 'N');
+echo $force->expand();  // 100 kg*m/s2
+
+// Simplify: base units -> named unit
+$base = Quantity::create(100, 'kg*m/s2');
+echo $base->simplify();  // 100 N
+
+// Works with imperial units too
+$lbf = new Force(1, 'lbf');
+echo $lbf->expand();  // 32.174049... lb*ft/s2
+```
+
+### Auto-Prefixing
+
+The `autoPrefix()` method selects the best engineering SI prefix (kilo, mega, milli, etc.) to keep the numeric value readable:
+
+```php
+use Galaxon\Quantities\QuantityType\Length;
+
+// Large value -> auto-prefix picks km
+$distance = new Length(42195, 'm');
+echo $distance->autoPrefix();  // 42.195 km
+
+// Small value -> auto-prefix picks mm
+$thickness = new Length(0.0025, 'm');
+echo $thickness->autoPrefix();  // 2.5 mm
+
+// Very small value -> auto-prefix picks µm
+$wavelength = new Length(0.00000055, 'm');
+echo $wavelength->autoPrefix();  // 550 nm
+```
+
+The `toSi()` method combines conversion to SI base units, simplification, and auto-prefixing in one call:
+
+```php
+use Galaxon\Quantities\QuantityType\Energy;
+
+$energy = new Energy(1, 'Btu');
+echo $energy->toSi();  // 1.05506 kJ
+```
+
 ### Temperature Conversions
 
 Most conversions involve a simple multiplication. The built-in `Temperature` class uses affine transformations (y = mx + k) to handle offset scales:
@@ -26,10 +91,9 @@ Most conversions involve a simple multiplication. The built-in `Temperature` cla
 use Galaxon\Quantities\QuantityType\Temperature;
 
 $celsius = new Temperature(0, 'degC');
-echo $celsius->to('degF');  // 32°F
-echo $celsius->to('K');     // 273.15K
+echo $celsius->to('degF');  // 32 degF
+echo $celsius->to('K');     // 273.15 K
 
 $fahrenheit = new Temperature(212, 'degF');
-echo $fahrenheit->to('degC');  // 100°C
+echo $fahrenheit->to('degC');  // 100 degC
 ```
-

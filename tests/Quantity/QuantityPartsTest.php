@@ -8,11 +8,9 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Tests\Fixtures\BadUnitPartsQuantity;
-use Galaxon\Quantities\Tests\Fixtures\WrongDimensionPartsQuantity;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -167,7 +165,7 @@ final class QuantityPartsTest extends TestCase
     public function testFromPartsIncompatibleResultUnitThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("incompatible with time quantities");
+        $this->expectExceptionMessage('incompatible with time quantities');
 
         // 'm' is a length unit, not a time unit.
         Time::fromParts([
@@ -355,7 +353,7 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must contain only strings');
 
-        Time::setDefaultPartUnitSymbols(['h', 42]);
+        Time::setDefaultPartUnitSymbols(['h', 42]); // @phpstan-ignore argument.type
     }
 
     /**

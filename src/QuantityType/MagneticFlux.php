@@ -24,9 +24,7 @@ class MagneticFlux extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -34,11 +32,23 @@ class MagneticFlux extends Quantity
     {
         return [
             'weber' => [
-                'asciiSymbol'         => 'Wb',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'kg*m2*s-2*A-1',
+                'asciiSymbol' => 'Wb',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for magnetic flux units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            ['Wb', 'kg*m2*s-2*A-1', 1],
         ];
     }
 

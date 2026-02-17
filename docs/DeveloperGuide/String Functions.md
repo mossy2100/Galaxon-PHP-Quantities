@@ -1,14 +1,134 @@
-CLAUDE TODO:
-1. Show examples of Quantity::parse().
-2. Show examples of Angle::parse().
-3. Show examples of Quantity::format() and explain the params.
-4. Show examples of (string)Quantity (i.e. \_\_toString()) using `echo`
+# String Functions
 
-I want to see ASCII and Unicode examples for each element of a quantity:
-1. ASCII prefix `u` vs. Unicode prefix `µ`
-2. ASCII unit symbol e.g. `ohm` vs Unicode unit symbol
-3. ASCII derived unit notation with `*` vs. Unicode derived unit notation with dot operator
-4. ASCII `e` for power of 10 vs. Unicode `x10` format with superscript exponent.
+### Parsing Strings
 
-No need to show string functions for Unit, UnitTerm, or DerivedUnit here as this won't be relevant to normal use.
+Use `parse()` to create a Quantity from a string. Whitespace between the value and unit is optional:
 
+```php
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Angle;
+use Galaxon\Quantities\QuantityType\Time;
+use Galaxon\Quantities\QuantityType\Mass;
+
+// Simple quantities
+$length = Length::parse('42.195 km');   // Length(42.195, 'km')
+$mass = Mass::parse('70kg');           // Mass(70, 'kg')
+
+// Scientific notation
+$wavelength = Length::parse('5.5e-7 m');  // Length(5.5e-7, 'm')
+
+// Angles — single value or parts notation
+$angle = Angle::parse('45.5 deg');               // Angle(45.5, 'deg')
+$angle = Angle::parse('45deg 30arcmin 0arcsec');  // Angle(45.5, 'deg')
+
+// Time — single value or parts notation
+$time = Time::parse('3661 s');              // Time(3661, 's')
+$time = Time::parse('1h 1min 1s');          // Time(3661, 's')
+$time = Time::parse('-1h 30min 45s');       // Time(-5445, 's')
+```
+
+When `parse()` encounters a multi-part string (e.g. `"1h 30min 45s"`), it automatically delegates to `parseParts()`, which reconstructs the quantity from its component parts.
+
+### Formatting Output
+
+#### Default Formatting with `echo`
+
+Using a Quantity in a string context calls `__toString()`, which uses default formatting:
+
+```php
+$length = new Length(1500, 'm');
+echo $length;  // 1500 m
+
+$angle = new Angle(45.5, 'deg');
+echo $angle;  // 45.5°
+
+$resistance = Quantity::create(4700, 'ohm');
+echo $resistance;  // 4700 Ω
+```
+
+#### The `format()` Method
+
+For more control, use `format()` with a specifier, precision, and ASCII mode:
+
+```php
+$length = new Length(1234.5678, 'm');
+
+// Fixed-point notation (default)
+echo $length->format('f');        // 1234.5678 m
+echo $length->format('f', 2);    // 1234.57 m
+
+// Scientific notation
+echo $length->format('e', 3);    // 1.235×10³ m
+
+// Significant figures
+echo $length->format('g', 4);    // 1235 m
+```
+
+**Specifiers:**
+
+| Specifier | Description | Precision means |
+|-----------|-------------|-----------------|
+| `f` / `F` | Fixed-point | Decimal places |
+| `e` / `E` | Scientific | Decimal places in mantissa |
+| `g` / `G` / `h` / `H` | Shortest | Significant figures |
+
+When `$precision` is `null` (the default), trailing zeros are automatically trimmed.
+
+### ASCII vs. Unicode
+
+By default, quantities are formatted with Unicode symbols. Pass `ascii: true` for plain ASCII output. The differences appear in four areas:
+
+**1. Prefix symbols** — e.g. micro:
+
+```php
+$capacitance = Quantity::create(4.7, 'uF');
+echo $capacitance->format();               // 4.7 μF
+echo $capacitance->format(ascii: true);    // 4.7 uF
+```
+
+**2. Unit symbols** — e.g. ohm, degree:
+
+```php
+$resistance = Quantity::create(100, 'ohm');
+echo $resistance->format();               // 100 Ω
+echo $resistance->format(ascii: true);    // 100 ohm
+
+$angle = new Angle(90, 'deg');
+echo $angle->format();               // 90°
+echo $angle->format(ascii: true);    // 90deg
+```
+
+**3. Derived unit notation** — multiplication dot vs. asterisk:
+
+```php
+$energy = Quantity::create(100, 'kg*m2/s2');
+echo $energy->format();               // 100 kg·m²/s²
+echo $energy->format(ascii: true);    // 100 kg*m2/s2
+```
+
+**4. Scientific notation** — Unicode superscripts vs. `e` notation:
+
+```php
+$distance = new Length(1.496e11, 'm');
+echo $distance->format('e', 3);               // 1.496×10¹¹ m
+echo $distance->format('e', 3, ascii: true);  // 1.496e+11 m
+```
+
+### Space Between Value and Unit
+
+By default, `format()` automatically determines whether to place a space between the value and unit. Single non-letter symbols (like `°`, `%`, `″`) have no space; all other units get a space:
+
+```php
+$angle = new Angle(45, 'deg');
+echo $angle;  // 45°  (no space)
+
+$length = new Length(100, 'm');
+echo $length;  // 100 m  (space)
+```
+
+You can override this with the `$includeSpace` parameter:
+
+```php
+echo $angle->format(includeSpace: true);   // 45 °
+echo $length->format(includeSpace: false); // 100m
+```

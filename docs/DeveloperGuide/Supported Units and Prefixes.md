@@ -4,25 +4,13 @@ Complete list of units included with the Quantities package by default.
 
 ## Overview
 
-The Quantities package includes units across multiple measurement systems:
-
-- **SI** - International System of Units (base and derived units)
-- **SI Accepted** - Non-SI units officially accepted for use with SI
-- **Common** - Widely used units without formal system classification
-- **Imperial** - British Imperial system
-- **US Customary** - United States customary units
-- **Scientific** - Units for scientific applications
-- **Nautical** - Units for maritime and aviation
-- **Css** - Units for typography and screen layouts
-
 The Prefixes column indicates which metric prefixes are supported:
 - **all metric** - All metric prefixes (q, r, y, z, a, f, p, n, μ, m, c, d, da, h, k, M, G, T, P, E, Z, Y, R, Q)
 - **large metric** - Large engineering prefixes (k, M, G, T, P, E, Z, Y, R, Q)
 - **small metric** - Small engineering prefixes (q, r, y, z, a, f, p, n, μ, m)
 - **large metric and binary** - Large engineering and binary prefixes, (k-Q and Ki, Mi, Gi, Ti, Pi, Ei, Zi, Yi, Ri, Qi) 
 
-An "engineering prefix" is one that represents a multiple of 1000 or 1/1000; or in other words, the multiplier expressed
-as power of 10 will have an exponent that is a multiple of 3. That's all of them except for c, d, da, and h.
+An "engineering prefix" is one that represents a multiple of 1000 or 1/1000; or in other words, the multiplier expressed as power of 10 will have an exponent that is a multiple of 3. That's all of them except for *c*, *d*, *da*, and *h*.
 
 ---
 
@@ -537,23 +525,6 @@ All units have an ASCII symbol, so they are easy to type. Therefore, you can use
 5. `ppt` in place of `‰`
 
 ---
-
-## Loading Additional Systems
-
-By default, only SI, SI Accepted, and Common units are loaded. To use Imperial, US Customary, or other system units,
-load them first:
-
-```php
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
-
-// Load Imperial and US Customary units
-UnitRegistry::loadSystem(System::Imperial);
-UnitRegistry::loadSystem(System::UsCustomary);
-
-// Now you can use feet, pounds, gallons, etc.
-$length = new Length(100, 'ft');
-```
 
 ## See Also
 

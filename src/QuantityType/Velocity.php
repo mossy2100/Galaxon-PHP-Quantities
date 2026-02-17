@@ -23,9 +23,7 @@ class Velocity extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -33,10 +31,22 @@ class Velocity extends Quantity
     {
         return [
             'knot' => [
-                'asciiSymbol'         => 'kn',
-                'systems'             => [System::Nautical],
-                'expansionUnitSymbol' => 'nmi*h-1',
+                'asciiSymbol' => 'kn',
+                'systems'     => [System::Nautical],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for velocity units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            ['kn', 'nmi*h-1', 1],
         ];
     }
 

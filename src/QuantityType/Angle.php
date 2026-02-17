@@ -4,18 +4,12 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
-use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
-use InvalidArgumentException;
 use Override;
-use TypeError;
 
 /**
  * Represents angle quantities.
@@ -60,9 +54,7 @@ class Angle extends Quantity
      *      unicodeSymbol?: string,
      *      prefixGroup?: int,
      *      alternateSymbol?: string,
-     *      systems: list<System>,
-     *      expansionUnitSymbol?: string,
-     *      expansionValue?: float
+     *      systems: list<System>
      *  }>
      */
     #[Override]

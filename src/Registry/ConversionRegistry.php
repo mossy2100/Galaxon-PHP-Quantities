@@ -9,6 +9,7 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\Dimensions;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\System;
 
@@ -25,6 +26,8 @@ class ConversionRegistry
     /**
      * Conversion matrix storing known conversions between units.
      *
+     * NB: The source and destination units symbols are the ASCII versions in canonical form.
+     *
      * Structure: $conversions[$dimension][$srcSymbol][$destSymbol] = Conversion
      *
      * @var ?array<string, array<string, array<string, Conversion>>>
@@ -39,8 +42,8 @@ class ConversionRegistry
      * Get a conversion between two units.
      *
      * @param string $dimension The conversion dimension.
-     * @param string $srcUnitSymbol The source unit symbol.
-     * @param string $destUnitSymbol The destination unit symbol.
+     * @param string $srcUnitSymbol The source unit ASCII symbol.
+     * @param string $destUnitSymbol The destination unit ASCII symbol.
      * @return ?Conversion The conversion, or null if not found.
      */
     public static function get(string $dimension, string $srcUnitSymbol, string $destUnitSymbol): ?Conversion
@@ -66,6 +69,66 @@ class ConversionRegistry
         // This will throw if the dimension is invalid.
         $dimension = Dimensions::normalize($dimension);
         return self::$conversions[$dimension] ?? [];
+    }
+
+    /**
+     * Get all conversions from a given source unit to some other unit.
+     *
+     * @param Unit $unit The source unit.
+     * @return array<string, Conversion> An array of conversions, keyed by destination unit ASCII symbol.
+     */
+    public static function getBySourceUnit(Unit $unit): array
+    {
+        self::init();
+        assert(self::$conversions !== null);
+
+        return self::$conversions[$unit->dimension][$unit->asciiSymbol] ?? [];
+    }
+
+    /**
+     * Look for an expansion conversion for this unit.
+     *
+     * That means a conversion from a non-base unit to a base unit.
+     * If the provided unit is a base unit, or if no expansion conversion is found, return null.
+     *
+     * A conversion with a factor of 1 is a direct expansion and is returned first.
+     * If not found, the conversion with the least relative error will be returned.
+     *
+     * @param Unit $unit The unit to look for an expansion for.
+     * @return ?Conversion The expansion conversion, or null if none was found.
+     */
+    public static function getExpansion(Unit $unit): ?Conversion
+    {
+        // Base units cannot be expanded.
+        if ($unit->isBase()) {
+            return null;
+        }
+
+        // Scan the registry looking for a suitable expansion conversion.
+        $conversions = self::getBySourceUnit($unit);
+        $bestConversion = null;
+        $minErr = INF;
+        foreach ($conversions as $conversion) {
+            // Skip non-base destination units.
+            if (!$conversion->destUnit->isBase()) {
+                continue;
+            }
+
+            // Check for a direct expansion.
+            if ($conversion->factor->value === 1.0) {
+                // This is the best match, no need to keep looking.
+                $bestConversion = $conversion;
+                break;
+            }
+
+            // See if this is an improvement.
+            if ($conversion->factor->relativeError < $minErr) {
+                $minErr = $conversion->factor->relativeError;
+                $bestConversion = $conversion;
+            }
+        }
+
+        return $bestConversion;
     }
 
     // endregion
@@ -132,16 +195,6 @@ class ConversionRegistry
 
             // Add the conversion (replacing any existing).
             self::add(new Conversion($srcUnit, $destUnit, $factor));
-        }
-
-        // Load any expansions for units in this system as well.
-        $units = UnitRegistry::getBySystem($system);
-        foreach ($units as $unit) {
-            if ($unit->isExpandable()) {
-                assert($unit->expansionUnit instanceof DerivedUnit);
-                assert(is_float($unit->expansionValue));
-                self::add(new Conversion($unit, $unit->expansionUnit, $unit->expansionValue));
-            }
         }
     }
 
@@ -257,12 +310,7 @@ class ConversionRegistry
 
         foreach (QuantityTypeRegistry::getAll() as $qtyType) {
             $qtyTypeClass = $qtyType->class;
-            assert($qtyTypeClass === null || is_subclass_of($qtyTypeClass, Quantity::class));
-
-            // Skip quantity types without a class.
-            if ($qtyTypeClass === null) {
-                continue;
-            }
+            assert(is_subclass_of($qtyTypeClass, Quantity::class));
 
             // Collect conversion definitions.
             foreach ($qtyTypeClass::getConversionDefinitions() as $definition) {

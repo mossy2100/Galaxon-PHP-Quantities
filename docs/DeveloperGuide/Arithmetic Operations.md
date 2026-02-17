@@ -44,3 +44,10 @@ $c = PhysicalConstant::speedOfLight();
 $f = new Frequency(5.4545e14, 'Hz');
 $wavelength = $c->div($f);  // ~550 nm (Length)
 ```
+
+The result type is determined automatically by dimensional analysis. For example, `Length × Length` produces `Area` (L²), and `Mass × Acceleration` produces `Force` (T⁻²LM). Some common relationships:
+
+- **Power × Time = Energy**: 1 kW × 1 h = 1 kWh
+- **Force × Distance = Energy**: 1 N × 1 m = 1 J
+- **Length × Length = Area**: 10 m × 5 m = 50 m²
+- **Area × Length = Volume**: 50 m² × 2 m = 100 m³

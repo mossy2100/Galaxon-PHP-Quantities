@@ -277,49 +277,6 @@ final class UnitTest extends TestCase
         new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', prefixGroup: 16);
     }
 
-    /**
-     * Test constructor throws for invalid expansion unit symbol.
-     */
-    public function testConstructorThrowsForInvalidExpansionUnitSymbol(): void
-    {
-        $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid expansion unit symbol');
-
-        new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', expansionUnitSymbol: '<invalid>');
-    }
-
-    /**
-     * Test constructor throws for zero expansion value.
-     */
-    public function testConstructorThrowsForZeroExpansionValue(): void
-    {
-        $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Must be positive');
-
-        new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', expansionUnitSymbol: 'm', expansionValue: 0.0);
-    }
-
-    /**
-     * Test constructor throws for negative expansion value.
-     */
-    public function testConstructorThrowsForNegativeExpansionValue(): void
-    {
-        $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Must be positive');
-
-        new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', expansionUnitSymbol: 'm', expansionValue: -1.0);
-    }
-
-    /**
-     * Test constructor defaults expansion value to 1.0 when expansion unit symbol is set.
-     */
-    public function testConstructorDefaultsExpansionValueToOne(): void
-    {
-        $unit = new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', expansionUnitSymbol: 'm');
-
-        $this->assertSame(1.0, $unit->expansionValue);
-    }
-
     // endregion
 
     // region Property tests
@@ -1019,6 +976,69 @@ final class UnitTest extends TestCase
 
     // endregion
 
+    // region isExpandable() tests
+
+    /**
+     * Test isExpandable returns true for a named SI unit with an expansion.
+     */
+    public function testIsExpandableReturnsTrueForNamedSiUnit(): void
+    {
+        // Newton has an expansion to kg*m/s2.
+        $unit = UnitRegistry::getBySymbol('N');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertTrue($unit->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns false for a base unit.
+     */
+    public function testIsExpandableReturnsFalseForBaseUnit(): void
+    {
+        // Meter is a base unit with no expansion.
+        $unit = UnitRegistry::getBySymbol('m');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertFalse($unit->isExpandable());
+    }
+
+    /**
+     * Test isExpandable returns false for a non-base unit without an expansion.
+     */
+    public function testIsExpandableReturnsFalseForNonBaseUnitWithoutExpansion(): void
+    {
+        // eV is a non-base unit, but has no direct expansion to base units.
+        $unit = UnitRegistry::getBySymbol('eV');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertFalse($unit->isBase());
+        $this->assertFalse($unit->isExpandable());
+    }
+
+    /**
+     * Test expansion property returns a Conversion for an expandable unit.
+     */
+    public function testExpansionPropertyReturnsConversionForExpandableUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('N');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertNotNull($unit->expansion);
+    }
+
+    /**
+     * Test expansion property returns null for a base unit.
+     */
+    public function testExpansionPropertyReturnsNullForBaseUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('m');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertNull($unit->expansion);
+    }
+
+    // endregion
+
     // region parse() tests
 
     /**
@@ -1064,65 +1084,6 @@ final class UnitTest extends TestCase
         $this->expectExceptionMessage("Unknown unit symbol 'xyz'");
 
         Unit::parse('xyz');
-    }
-
-    // endregion
-
-    // region isExpandable() tests
-
-    /**
-     * Test isExpandable returns true for Newton (has expansion to kg*m/s2).
-     */
-    public function testIsExpandableReturnsTrueForNewton(): void
-    {
-        $unit = UnitRegistry::getBySymbol('N');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertTrue($unit->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns true for Hertz (has expansion to s-1).
-     */
-    public function testIsExpandableReturnsTrueForHertz(): void
-    {
-        $unit = UnitRegistry::getBySymbol('Hz');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertTrue($unit->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for meter (SI base unit).
-     */
-    public function testIsExpandableReturnsFalseForMeter(): void
-    {
-        $unit = UnitRegistry::getBySymbol('m');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertFalse($unit->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for second (SI base unit).
-     */
-    public function testIsExpandableReturnsFalseForSecond(): void
-    {
-        $unit = UnitRegistry::getBySymbol('s');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertFalse($unit->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for foot (non-SI base unit).
-     */
-    public function testIsExpandableReturnsFalseForFoot(): void
-    {
-        $unit = UnitRegistry::getBySymbol('ft');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertFalse($unit->isExpandable());
     }
 
     // endregion

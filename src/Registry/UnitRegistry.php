@@ -243,9 +243,7 @@ class UnitRegistry
                 $unitSystems,
                 $definition['prefixGroup'] ?? 0,
                 $definition['unicodeSymbol'] ?? null,
-                $definition['alternateSymbol'] ?? null,
-                $definition['expansionUnitSymbol'] ?? null,
-                $definition['expansionValue'] ?? null
+                $definition['alternateSymbol'] ?? null
             ), self::ON_DUPLICATE_SKIP);
         }
 
@@ -306,12 +304,7 @@ class UnitRegistry
 
         foreach (QuantityTypeRegistry::getAll() as $qtyType) {
             $qtyTypeClass = $qtyType->class;
-            assert($qtyTypeClass === null || is_subclass_of($qtyTypeClass, Quantity::class));
-
-            // Skip quantity types without a class.
-            if ($qtyTypeClass === null) {
-                continue;
-            }
+            assert(is_subclass_of($qtyTypeClass, Quantity::class));
 
             // Collect unit definitions, injecting the dimension.
             foreach ($qtyTypeClass::getUnitDefinitions() as $name => $definition) {

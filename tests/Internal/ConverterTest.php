@@ -14,6 +14,7 @@ use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
+use Galaxon\Quantities\Tests\Fixtures\UnregisteredQuantity;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -993,7 +994,7 @@ class ConverterTest extends TestCase
     {
         // Use a custom isolated dimension so only our units exist.
         $dimension = 'L7';
-        QuantityTypeRegistry::add('hypertest', $dimension);
+        QuantityTypeRegistry::add('hypertest', $dimension, UnregisteredQuantity::class);
 
         // Register exactly three units in this dimension.
         UnitRegistry::add(new Unit('opp a', 'Oa', $dimension, systems: [System::Si]));

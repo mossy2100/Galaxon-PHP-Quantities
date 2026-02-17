@@ -48,9 +48,7 @@ class Temperature extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -63,16 +61,14 @@ class Temperature extends Quantity
                 'systems'     => [System::Si],
             ],
             'celsius'    => [
-                'asciiSymbol'         => 'degC',
-                'unicodeSymbol'       => '°C',
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'K',
+                'asciiSymbol'   => 'degC',
+                'unicodeSymbol' => '°C',
+                'systems'       => [System::Si],
             ],
             'fahrenheit' => [
-                'asciiSymbol'         => 'degF',
-                'unicodeSymbol'       => '°F',
-                'systems'             => [System::Imperial, System::UsCustomary],
-                'expansionUnitSymbol' => 'degR',
+                'asciiSymbol'   => 'degF',
+                'unicodeSymbol' => '°F',
+                'systems'       => [System::Imperial, System::UsCustomary],
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',
@@ -94,6 +90,8 @@ class Temperature extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
+            ['degC', 'K', 1],
+            ['degF', 'degR', 1],
             ['K', 'degR', self::RANKINE_PER_KELVIN],
         ];
     }

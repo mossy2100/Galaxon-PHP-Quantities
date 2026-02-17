@@ -24,9 +24,7 @@ class Force extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -34,18 +32,29 @@ class Force extends Quantity
     {
         return [
             'newton'      => [
-                'asciiSymbol'         => 'N',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'kg*m/s2',
+                'asciiSymbol' => 'N',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
             'pound force' => [
-                'asciiSymbol'         => 'lbf',
-                'systems'             => [System::Imperial, System::UsCustomary],
-                'expansionUnitSymbol' => 'lb*ft/s2',
-                // g₀ (standard gravity) = 9.80665 m/s² exactly. Convert to ft/s².
-                'expansionValue'      => 9.80665 / 0.3048,
+                'asciiSymbol' => 'lbf',
+                'systems'     => [System::Imperial, System::UsCustomary],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for force units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            ['N', 'kg*m/s2', 1],
+            // g₀ (standard gravity) = (9.80665 m/s²) / (0.3048 m/ft).
+            ['lbf', 'lb*ft/s2', 9.80665 / 0.3048],
         ];
     }
 

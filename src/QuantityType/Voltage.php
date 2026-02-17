@@ -24,9 +24,7 @@ class Voltage extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -34,11 +32,23 @@ class Voltage extends Quantity
     {
         return [
             'volt' => [
-                'asciiSymbol'         => 'V',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'kg*m2*s-3*A-1',
+                'asciiSymbol' => 'V',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for voltage units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            ['V', 'kg*m2*s-3*A-1', 1],
         ];
     }
 

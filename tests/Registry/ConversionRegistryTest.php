@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\Registry;
 
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\Conversion;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -260,6 +261,238 @@ final class ConversionRegistryTest extends TestCase
         $reverse = ConversionRegistry::get('L', 'mi', 'm');
         // Note: reverse might exist if initialization added it, but the point
         // is that get() respects direction
+    }
+
+    // endregion
+
+    // region getBySourceUnit() tests
+
+    /**
+     * Test getBySourceUnit() returns conversions for a unit that has them.
+     */
+    public function testGetBySourceUnitReturnsConversionsForKnownUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('ft');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getBySourceUnit($unit);
+
+        $this->assertNotEmpty($result);
+    }
+
+    /**
+     * Test getBySourceUnit() returns array of Conversion objects.
+     */
+    public function testGetBySourceUnitReturnsConversionObjects(): void
+    {
+        $unit = UnitRegistry::getBySymbol('ft');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getBySourceUnit($unit);
+
+        foreach ($result as $conversion) {
+            $this->assertInstanceOf(Conversion::class, $conversion);
+        }
+    }
+
+    /**
+     * Test getBySourceUnit() returns conversions with matching source unit.
+     */
+    public function testGetBySourceUnitReturnsMatchingSourceUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('ft');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getBySourceUnit($unit);
+
+        foreach ($result as $conversion) {
+            $this->assertSame('ft', $conversion->srcUnit->asciiSymbol);
+        }
+    }
+
+    /**
+     * Test getBySourceUnit() returns an empty array for a unit with no conversions.
+     */
+    public function testGetBySourceUnitReturnsEmptyForUnitWithNoConversions(): void
+    {
+        // Create a unit in a dimension that has no registered conversions.
+        $unit = new Unit(name: 'testunit', asciiSymbol: 'tstu', dimension: 'L5');
+
+        $result = ConversionRegistry::getBySourceUnit($unit);
+
+        $this->assertEmpty($result);
+    }
+
+    /**
+     * Test getBySourceUnit() returns conversions with matching dimension.
+     */
+    public function testGetBySourceUnitReturnsMatchingDimension(): void
+    {
+        $unit = UnitRegistry::getBySymbol('N');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getBySourceUnit($unit);
+
+        foreach ($result as $conversion) {
+            $this->assertSame($unit->dimension, $conversion->dimension);
+        }
+    }
+
+    // endregion
+
+    // region getExpansion() tests
+
+    /**
+     * Test getExpansion() returns null for a base unit.
+     */
+    public function testGetExpansionReturnsNullForBaseUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('m');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertTrue($unit->isBase());
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test getExpansion() returns a Conversion for an expandable named SI unit.
+     */
+    public function testGetExpansionReturnsConversionForExpandableUnit(): void
+    {
+        // Newton expands to kg*m/s2.
+        $unit = UnitRegistry::getBySymbol('N');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertInstanceOf(Conversion::class, $result);
+    }
+
+    /**
+     * Test getExpansion() returns a conversion where the destination unit is a base unit.
+     */
+    public function testGetExpansionDestinationIsBaseUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('N');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertTrue(
+            $result->destUnit->isBase(),
+            "Expansion destination '{$result->destUnit->asciiSymbol}' should be a base unit."
+        );
+    }
+
+    /**
+     * Test getExpansion() returns a conversion with the correct source unit.
+     */
+    public function testGetExpansionHasCorrectSourceUnit(): void
+    {
+        $unit = UnitRegistry::getBySymbol('Hz');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertSame('Hz', $result->srcUnit->asciiSymbol);
+    }
+
+    /**
+     * Test getExpansion() prefers factor=1 expansions (direct expansion).
+     */
+    public function testGetExpansionPrefersFactor1(): void
+    {
+        // Newton has a direct expansion (factor 1) to kg*m/s2.
+        $unit = UnitRegistry::getBySymbol('N');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertSame(1.0, $result->factor->value);
+    }
+
+    /**
+     * Test getExpansion() returns null for a non-base unit without an expansion.
+     */
+    public function testGetExpansionReturnsNullForNonBaseNonExpandableUnit(): void
+    {
+        // Reset so that conversions added by earlier tests are cleared.
+        // Added this because earlier tests can generate a conversion from eV → kg*m2/s2 via N, which causes the
+        // call to ConversionRegistry::getExpansion() to return a non-null result.
+        ConversionRegistry::reset();
+
+        // eV is non-base but has no expansion to base units.
+        $unit = UnitRegistry::getBySymbol('eV');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+        $this->assertFalse($unit->isBase());
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test getExpansion() works for hertz (expands to s-1).
+     */
+    public function testGetExpansionWorksForHertz(): void
+    {
+        $unit = UnitRegistry::getBySymbol('Hz');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertSame('s-1', $result->destUnit->asciiSymbol);
+        $this->assertSame(1.0, $result->factor->value);
+    }
+
+    /**
+     * Test getExpansion() works for pascal (expands to kg/m/s2).
+     */
+    public function testGetExpansionWorksForPascal(): void
+    {
+        $unit = UnitRegistry::getBySymbol('Pa');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertTrue($result->destUnit->isBase());
+    }
+
+    /**
+     * Test getExpansion() works for pound-force (expands to lb*ft/s2 with non-unity factor).
+     */
+    public function testGetExpansionWorksForPoundForce(): void
+    {
+        $unit = UnitRegistry::getBySymbol('lbf');
+
+        $this->assertInstanceOf(Unit::class, $unit);
+
+        $result = ConversionRegistry::getExpansion($unit);
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertSame('lbf', $result->srcUnit->asciiSymbol);
+        $this->assertSame('lb*ft/s2', $result->destUnit->asciiSymbol);
+        $this->assertTrue($result->destUnit->isBase());
+        $this->assertNotSame(1.0, $result->factor->value);
     }
 
     // endregion

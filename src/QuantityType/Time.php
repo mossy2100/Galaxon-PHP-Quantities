@@ -6,7 +6,6 @@ namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
 use DateMalformedIntervalStringException;
-use DomainException;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Registry\PrefixRegistry;
@@ -46,9 +45,7 @@ class Time extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]

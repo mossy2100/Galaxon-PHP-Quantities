@@ -126,7 +126,8 @@ final class RegexHelper
         $superscriptMinus = $superscriptChars['-'];
         unset($superscriptChars['-']);
         $superscriptDigits = implode('', $superscriptChars);
-        return '((?:' . self::RX_PREFIX . ')?(?:' . self::RX_UNIT . "))((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
+        return '((?:' . self::RX_PREFIX . ')?(?:' . self::RX_UNIT .
+            "))((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
     }
 
     /**
@@ -328,9 +329,9 @@ final class RegexHelper
     public static function isValidDmsAngle(string $value, ?array &$matches): bool
     {
         $pattern = '/^(?:(?<sign>[-+]?)\s*)?'
-                   . "(?:(?<deg>" . self::RX_NUM . ")°\s*)?"
-                   . "(?:(?<min>" . self::RX_NUM . ")[′']\s*)?"
-                   . "(?:(?<sec>" . self::RX_NUM . ")[″\"])?$/u";
+                   . '(?:(?<deg>' . self::RX_NUM . ')°\s*)?'
+                   . '(?:(?<min>' . self::RX_NUM . ")[′']\s*)?"
+                   . '(?:(?<sec>' . self::RX_NUM . ')[″"])?$/u';
         return (bool)preg_match($pattern, $value, $matches);
     }
 

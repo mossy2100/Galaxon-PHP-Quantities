@@ -127,6 +127,124 @@ final class UnitRegistryTest extends TestCase
 
     // endregion
 
+    // region getBySystem() tests
+
+    /**
+     * Test getBySystem() returns an array of Unit objects.
+     */
+    public function testGetBySystemReturnsUnitObjects(): void
+    {
+        $result = UnitRegistry::getBySystem(System::Si);
+
+        $this->assertNotEmpty($result);
+        foreach ($result as $unit) {
+            $this->assertInstanceOf(Unit::class, $unit);
+        }
+    }
+
+    /**
+     * Test getBySystem() returns only units belonging to the specified system.
+     */
+    public function testGetBySystemReturnsOnlyMatchingUnits(): void
+    {
+        $result = UnitRegistry::getBySystem(System::Si);
+
+        foreach ($result as $unit) {
+            $this->assertTrue(
+                $unit->belongsToSystem(System::Si),
+                "Unit '{$unit->name}' does not belong to SI system."
+            );
+        }
+    }
+
+    /**
+     * Test getBySystem() includes SI base units for SI system.
+     */
+    public function testGetBySystemIncludesSiBaseUnits(): void
+    {
+        $result = UnitRegistry::getBySystem(System::Si);
+        $symbols = array_map(static fn (Unit $u) => $u->asciiSymbol, $result);
+
+        $this->assertContains('m', $symbols);
+        $this->assertContains('g', $symbols);
+        $this->assertContains('s', $symbols);
+        $this->assertContains('A', $symbols);
+        $this->assertContains('K', $symbols);
+        $this->assertContains('mol', $symbols);
+        $this->assertContains('cd', $symbols);
+    }
+
+    /**
+     * Test getBySystem() includes named derived SI units.
+     */
+    public function testGetBySystemIncludesNamedDerivedSiUnits(): void
+    {
+        $result = UnitRegistry::getBySystem(System::Si);
+        $symbols = array_map(static fn (Unit $u) => $u->asciiSymbol, $result);
+
+        $this->assertContains('N', $symbols);
+        $this->assertContains('J', $symbols);
+        $this->assertContains('W', $symbols);
+        $this->assertContains('Pa', $symbols);
+        $this->assertContains('Hz', $symbols);
+    }
+
+    /**
+     * Test getBySystem() does not include Imperial units in SI results.
+     */
+    public function testGetBySystemExcludesOtherSystems(): void
+    {
+        $result = UnitRegistry::getBySystem(System::Si);
+        $symbols = array_map(static fn (Unit $u) => $u->asciiSymbol, $result);
+
+        $this->assertNotContains('ft', $symbols);
+        $this->assertNotContains('lb', $symbols);
+        $this->assertNotContains('mi', $symbols);
+    }
+
+    /**
+     * Test getBySystem() returns Imperial units when requested.
+     */
+    public function testGetBySystemReturnsImperialUnits(): void
+    {
+        // Ensure Imperial is loaded.
+        UnitRegistry::loadSystem(System::Imperial);
+
+        $result = UnitRegistry::getBySystem(System::Imperial);
+        $symbols = array_map(static fn (Unit $u) => $u->asciiSymbol, $result);
+
+        $this->assertContains('ft', $symbols);
+        $this->assertContains('lb', $symbols);
+        $this->assertContains('mi', $symbols);
+    }
+
+    /**
+     * Test getBySystem() returns different results for different systems.
+     */
+    public function testGetBySystemReturnsDifferentResultsPerSystem(): void
+    {
+        $si = UnitRegistry::getBySystem(System::Si);
+        $imperial = UnitRegistry::getBySystem(System::Imperial);
+
+        $siSymbols = array_map(static fn (Unit $u) => $u->asciiSymbol, $si);
+        $imperialSymbols = array_map(static fn (Unit $u) => $u->asciiSymbol, $imperial);
+
+        // The two systems should not be identical.
+        $this->assertNotEquals($siSymbols, $imperialSymbols);
+    }
+
+    /**
+     * Test getBySystem() returns a sequential list (not associative).
+     */
+    public function testGetBySystemReturnsSequentialList(): void
+    {
+        $result = UnitRegistry::getBySystem(System::Si);
+
+        $this->assertSame(array_values($result), $result);
+    }
+
+    // endregion
+
     // region getAllValidSymbols() tests
 
     /**
@@ -328,8 +446,7 @@ final class UnitRegistryTest extends TestCase
                 dimension: 'L',
                 systems: [System::Common]
             ), UnitRegistry::ON_DUPLICATE_THROW);
-        }
-        finally {
+        } finally {
             // Clean up.
             UnitRegistry::remove($name);
         }

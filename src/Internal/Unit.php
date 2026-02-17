@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
+use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
 use Galaxon\Quantities\System;
@@ -59,16 +60,6 @@ class Unit implements UnitInterface
      * @var list<System>
      */
     private(set) array $systems;
-
-    /**
-     * The unit symbol this unit expands to (e.g. 'kg*m/s2' for newton).
-     */
-    private(set) ?string $expansionUnitSymbol;
-
-    /**
-     * The conversion factor for the expansion (e.g. 1.0 for newton → kg*m/s2).
-     */
-    private(set) ?float $expansionValue;
 
     // endregion
 
@@ -144,17 +135,12 @@ class Unit implements UnitInterface
     }
 
     /**
-     * Expansion unit, if any.
+     * Look for an expansion conversion for this unit.
      *
-     * @var ?DerivedUnit
+     * @var ?Conversion
      */
-    public ?DerivedUnit $expansionUnit {
-        get {
-            if ($this->expansionUnitSymbol === null) {
-                return null;
-            }
-            return $this->expansionUnit ??= DerivedUnit::parse($this->expansionUnitSymbol);
-        }
+    public ?Conversion $expansion {
+        get => ConversionRegistry::getExpansion($this);
     }
 
     // endregion
@@ -167,12 +153,10 @@ class Unit implements UnitInterface
      * @param string $name The unit name (e.g. 'meter', 'gram').
      * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
-     * @param list<System> $systems The measurement systems this unit belongs to.
+     * @param System|list<System> $systems The measurement systems this unit belongs to.
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
      * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if it's the same as ASCII.
      * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
-     * @param ?string $expansionUnitSymbol The unit symbol this unit expands to, or null if not expandable.
-     * @param ?float $expansionValue The conversion factor for the expansion, or null if not expandable.
      * @throws FormatException If the unit symbols contain invalid characters.
      * @throws DomainException If the dimension code or systems are invalid.
      */
@@ -180,12 +164,10 @@ class Unit implements UnitInterface
         string $name,
         string $asciiSymbol,
         string $dimension,
-        array $systems = [System::Custom],
+        System|array $systems = System::Custom,
         int $prefixGroup = 0,
         ?string $unicodeSymbol = null,
-        ?string $alternateSymbol = null,
-        ?string $expansionUnitSymbol = null,
-        ?float $expansionValue = null
+        ?string $alternateSymbol = null
     ) {
         // Check the name is non-empty, ASCII, and up to 3 words.
         if (!RegexHelper::isValidUnitName($name)) {
@@ -200,6 +182,10 @@ class Unit implements UnitInterface
             );
         }
 
+        // Convert a single System value to an array.
+        if ($systems instanceof System) {
+            $systems = [$systems];
+        }
         // Make sure the $systems array is a non-empty array of System values.
         if (empty($systems)) {
             throw new DomainException('Unit must belong to at least one measurement system.');
@@ -230,18 +216,6 @@ class Unit implements UnitInterface
             );
         }
 
-        // Check the expansion unit symbol is valid.
-        if (isset($expansionUnitSymbol) && !RegexHelper::isValidDerivedUnit($expansionUnitSymbol)) {
-            throw new FormatException(
-                "Invalid expansion unit symbol: '$expansionUnitSymbol'. Must be a valid derived unit symbol."
-            );
-        }
-
-        // Check the expansion value is valid.
-        if (isset($expansionValue) && $expansionValue <= 0) {
-            throw new FormatException("Invalid expansion value: '$expansionValue'. Must be positive.");
-        }
-
         // Set the properties.
         $this->name = $name;
         $this->asciiSymbol = $asciiSymbol;
@@ -250,8 +224,6 @@ class Unit implements UnitInterface
         $this->prefixGroup = $prefixGroup;
         $this->unicodeSymbol = $unicodeSymbol ?? $asciiSymbol;
         $this->alternateSymbol = $alternateSymbol;
-        $this->expansionUnitSymbol = $expansionUnitSymbol;
-        $this->expansionValue = $expansionValue ?? ($expansionUnitSymbol !== null ? 1.0 : null);
     }
 
     // endregion
@@ -286,18 +258,21 @@ class Unit implements UnitInterface
      */
     public function isBase(): bool
     {
-        // Check if the dimension is a single letter or '1'.
+        // Check if the dimension is a single letter (e.g. 'L') or '1' (dimensionless).
         return strlen($this->dimension) === 1;
     }
 
     /**
-     * Check if this unit is expandable.
+     * Check if this unit is expandable into base units.
      *
-     * @return bool True if the unit is expandable into base units.
+     * NB: Expandable and base are not opposites. Some units can be non-base units (like eV) but don't have a defined
+     * expansion, although they will be convertable to units that are expandable (e.g. J).
+     *
+     * @return bool
      */
     public function isExpandable(): bool
     {
-        return $this->expansionUnitSymbol !== null;
+        return $this->expansion !== null;
     }
 
     /**

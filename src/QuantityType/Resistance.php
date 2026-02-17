@@ -24,9 +24,7 @@ class Resistance extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -34,12 +32,24 @@ class Resistance extends Quantity
     {
         return [
             'ohm' => [
-                'asciiSymbol'         => 'ohm',
-                'unicodeSymbol'       => 'Ω',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'kg*m2*s-3*A-2',
+                'asciiSymbol'   => 'ohm',
+                'unicodeSymbol' => 'Ω',
+                'prefixGroup'   => PrefixRegistry::GROUP_METRIC,
+                'systems'       => [System::Si],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for electrical resistance units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            ['ohm', 'kg*m2*s-3*A-2', 1],
         ];
     }
 

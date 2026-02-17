@@ -28,9 +28,7 @@ class RadiationDose extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     #[Override]
@@ -38,17 +36,29 @@ class RadiationDose extends Quantity
     {
         return [
             'gray'    => [
-                'asciiSymbol'         => 'Gy',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'm2*s-2',
+                'asciiSymbol' => 'Gy',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
             'sievert' => [
-                'asciiSymbol'         => 'Sv',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
-                'expansionUnitSymbol' => 'm2*s-2',
+                'asciiSymbol' => 'Sv',
+                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
+                'systems'     => [System::Si],
             ],
+        ];
+    }
+
+    /**
+     * Conversion factors for radiation dose units.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            ['Gy', 'm2*s-2', 1],
+            ['Sv', 'm2*s-2', 1],
         ];
     }
 

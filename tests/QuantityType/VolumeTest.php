@@ -327,6 +327,37 @@ final class VolumeTest extends TestCase
 
     // endregion
 
+    // region Compound unit conversion tests
+
+    /**
+     * Test converting acre-feet to cubic meters.
+     */
+    public function testConvertAcreFeetToCubicMeters(): void
+    {
+        $vol = new Volume(1, 'ac*ft');
+        $m3 = $vol->to('m3');
+
+        // 1 acre = 4840 yd² = 43560 ft²
+        // 1 ac·ft = 43560 ft³
+        // 1 ft = 0.3048 m, so 1 ft³ = 0.3048³ m³ = 0.028316846592 m³
+        // 1 ac·ft = 43560 × 0.028316846592 m³ = 1233.48183754752 m³
+        $this->assertApproxEqual(1233.48183754752, $m3->value);
+    }
+
+    /**
+     * Test converting cubic meters to acre-feet.
+     */
+    public function testConvertCubicMetersToAcreFeet(): void
+    {
+        $expected = 43560 * (0.3048 ** 3);
+        $vol = new Volume($expected, 'm3');
+        $acreFeet = $vol->to('ac*ft');
+
+        $this->assertApproxEqual(1.0, $acreFeet->value);
+    }
+
+    // endregion
+
     // region Multiplication tests (Area × Length = Volume)
 
     /**

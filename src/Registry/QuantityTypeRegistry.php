@@ -205,9 +205,6 @@ class QuantityTypeRegistry
             'dimension' => 'D',
             'class'     => Data::class,
         ],
-        'currency'              => [
-            'dimension' => 'C',
-        ],
     ];
 
     // endregion
@@ -339,9 +336,9 @@ class QuantityTypeRegistry
      *
      * @param string $name The name of the physical quantity (e.g. 'length', 'velocity').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2', 'LT-1').
-     * @param ?class-string<Quantity> $class The Quantity subclass to use for this dimension.
+     * @param class-string<Quantity> $class The Quantity subclass to use for this dimension.
      */
-    public static function add(string $name, string $dimension, ?string $class = null): void
+    public static function add(string $name, string $dimension, string $class): void
     {
         self::init();
 
@@ -362,15 +359,28 @@ class QuantityTypeRegistry
         }
 
         // Check class is unique.
-        if ($class !== null) {
-            $qt = self::getByClass($class);
-            if ($qt !== null) {
-                throw new LogicException("Cannot add another quantity type with the class '$class'.");
-            }
+        $qt = self::getByClass($class);
+        if ($qt !== null) {
+            throw new LogicException("Cannot add another quantity type with the class '$class'.");
         }
 
         // Add the new quantity type.
         self::$quantityTypes[$name] = new QuantityType($name, $dimension, $class);
+    }
+
+    /**
+     * Remove a quantity type from the registry.
+     *
+     * @param string $name The quantity type name.
+     */
+    public static function remove(string $name): void
+    {
+        // If the registry is not initialized yet, do nothing.
+        if (self::$quantityTypes === null) {
+            return;
+        }
+
+        unset(self::$quantityTypes[$name]);
     }
 
     /**
@@ -416,9 +426,7 @@ class QuantityTypeRegistry
 
             // Convert info in constant into an array of objects.
             foreach (self::QUANTITY_TYPES as $name => $info) {
-                $dimension = Dimensions::normalize($info['dimension']);
-                self::$quantityTypes[$name] =
-                    new QuantityType($name, $dimension, $info['class'] ?? null);
+                self::$quantityTypes[$name] = new QuantityType($name, $info['dimension'], $info['class']);
             }
         }
     }

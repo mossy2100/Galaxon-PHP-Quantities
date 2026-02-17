@@ -95,57 +95,6 @@ The default system for user-defined units.
 | `Css`         | Units for typography and display layouts                      |
 | `Custom`      | User-defined units                                            |
 
-## Usage Examples
-
-### Basic Usage
-
-```php
-use Galaxon\Quantities\System;
-
-// Get a specific case
-$system = System::Si;
-
-// Matching on cases
-$description = match ($system) {
-    System::Si => 'International System of Units',
-    System::Imperial => 'British Imperial',
-    System::UsCustomary => 'US Customary',
-    default => 'Other system',
-};
-```
-
-### Checking Unit Systems
-
-```php
-use Galaxon\Quantities\Internal\Unit;use Galaxon\Quantities\System;
-
-// Check if a unit belongs to a specific system
-$unit = Unit::parse('m');
-if ($unit->belongsToSystem(System::Si)) {
-    echo "This is an SI unit";
-}
-```
-
-### Loading Units by System
-
-```php
-use Galaxon\Quantities\Registry\UnitRegistry;use Galaxon\Quantities\System;
-
-// Load Imperial and US Customary units
-UnitRegistry::loadSystem(System::Imperial);
-UnitRegistry::loadSystem(System::UsCustomary);
-```
-
-## Working with Cases
-
-### Getting All Cases
-
-```php
-// Get all cases as an array
-$cases = System::cases();
-// Returns array of all 9 System cases
-```
-
 ## See Also
 
 - **[Unit](Internal/Unit.md)** - Units can belong to one or more systems

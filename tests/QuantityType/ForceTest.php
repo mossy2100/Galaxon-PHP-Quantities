@@ -42,7 +42,6 @@ final class ForceTest extends TestCase
     public function testGetUnitDefinitionsReturnsValidArray(): void
     {
         $units = Force::getUnitDefinitions();
-
         $this->assertValidUnitDefinitionsShape($units);
     }
 
@@ -51,7 +50,8 @@ final class ForceTest extends TestCase
      */
     public function testGetConversionDefinitionsReturnsEmptyArray(): void
     {
-        $this->assertEmpty(Force::getConversionDefinitions());
+        $conversions = Force::getConversionDefinitions();
+        $this->assertValidConversionDefinitionsShape($conversions);
     }
 
     // endregion

@@ -527,29 +527,23 @@ $duration = Duration::fromParts(['h' => 2, 'min' => 30, 's' => 45]);
 ### toParts()
 
 ```php
-public function toParts(
-    ?string $largestUnitSymbol = null,
-    ?string $smallestUnitSymbol = null,
-    ?int $precision = null
-): array
+public function toParts(?array $partUnitSymbols = null, ?int $precision = null): array
 ```
 
 Convert to component parts.
 
 **Parameters:**
-- `$largestUnitSymbol` (?string) - Largest unit to include
-- `$smallestUnitSymbol` (?string) - Smallest unit to include
-- `$precision` (?int) - Decimal places for smallest unit
+- `$partUnitSymbols` (?array) - Array of unit symbols from largest to smallest, or null for class default
+- `$precision` (?int) - Decimal places for smallest unit, or null for no rounding
 
 **Returns:**
-- `array` - Array with 'sign' and unit symbol => value pairs
+- `array` - Array with 'sign' key and unit symbol => value pairs
 
 ### formatParts()
 
 ```php
 public function formatParts(
-    ?string $largestUnitSymbol = null,
-    ?string $smallestUnitSymbol = null,
+    ?array $partUnitSymbols = null,
     ?int $precision = null,
     bool $showZeros = false,
     bool $ascii = false
@@ -559,58 +553,13 @@ public function formatParts(
 Format as component parts.
 
 **Parameters:**
-- `$largestUnitSymbol` (?string) - Largest unit to include
-- `$smallestUnitSymbol` (?string) - Smallest unit to include
-- `$precision` (?int) - Decimal places for smallest unit
+- `$partUnitSymbols` (?array) - Array of unit symbols from largest to smallest, or null for class default
+- `$precision` (?int) - Decimal places for smallest unit, or null for no rounding
 - `$showZeros` (bool) - Include zero-value components
 - `$ascii` (bool) - Use ASCII symbols only
 
 **Returns:**
 - `string` - Formatted string like "5h 30min 45s"
-
-## Usage Examples
-
-### Unit Conversion
-
-```php
-use Galaxon\Quantities\QuantityType\Length;
-
-$marathon = new Length(42.195, 'km');
-echo $marathon->to('mi');  // ~26.2 miles
-echo $marathon->to('m');   // 42195 m
-```
-
-### Arithmetic
-
-```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Time;
-
-$distance = new Length(100, 'm');
-$time = new Time(10, 's');
-
-$speed = $distance->div($time);
-echo $speed->toSi();  // 10 m/s
-
-$area = $distance->mul($distance);
-echo $area;  // 10000 m2
-```
-
-### Comparison
-
-```php
-use Galaxon\Quantities\QuantityType\Length;
-
-$a = new Length(1, 'km');
-$b = new Length(1000, 'm');
-
-if ($a->approxEqual($b)) {
-    echo "Equal!";
-}
-
-$lengths = [$a, new Length(500, 'm'), $b];
-usort($lengths, fn($x, $y) => $x->compare($y));
-```
 
 ## See Also
 

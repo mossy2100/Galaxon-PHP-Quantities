@@ -19,6 +19,7 @@ use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitTerm;
+use Galaxon\Quantities\Registry\ConversionRegistry;
 use Galaxon\Quantities\Registry\PrefixRegistry;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
 use Galaxon\Quantities\Registry\UnitRegistry;
@@ -27,6 +28,7 @@ use LogicException;
 use Override;
 use Stringable;
 use TypeError;
+use UnexpectedValueException;
 
 /**
  * Abstract base class for physical measurements with units.
@@ -144,8 +146,7 @@ class Quantity implements Stringable
         $qtyClass = self::class;
         $callingClass = static::class;
         $qtyType = QuantityTypeRegistry::getByDimension($derivedUnit->dimension);
-        $qtyTypeClass = $qtyType?->class;
-        if ($qtyTypeClass !== null && $callingClass !== $qtyTypeClass) {
+        if ($qtyType !== null && $callingClass !== $qtyType->class) {
             throw new LogicException(
                 "Cannot instantiate a $qtyType->name quantity by calling `new $callingClass()`. Instead, " .
                 " call `new $qtyType->class()`. Otherwise, call `$qtyClass::create()`, which will automatically " .
@@ -182,6 +183,7 @@ class Quantity implements Stringable
     public static function setDefaultPartUnitSymbols(array $symbols): void
     {
         self::validatePartUnitSymbols($symbols);
+        assert(is_array($symbols));
         static::$defaultPartUnitSymbols = $symbols;
     }
 
@@ -208,7 +210,7 @@ class Quantity implements Stringable
         if ($unit === null) {
             throw new DomainException(
                 "Unknown unit symbol: '$symbol'. Ensure you have loaded the necessary system of units using " .
-                "`UnitRegistry::loadSystem()`."
+                '`UnitRegistry::loadSystem()`.'
             );
         }
 
@@ -241,7 +243,7 @@ class Quantity implements Stringable
 
         // If there's a registered subclass for this dimension code, create an object of that class.
         $qtyType = QuantityTypeRegistry::getByDimension($unit->dimension);
-        if ($qtyType?->class !== null) {
+        if ($qtyType !== null) {
             return new ($qtyType->class)($value, $unit);
         }
 
@@ -263,9 +265,7 @@ class Quantity implements Stringable
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>,
-     *     expansionUnitSymbol?: string,
-     *     expansionValue?: float
+     *     systems: list<System>
      * }>
      */
     public static function getUnitDefinitions(): array
@@ -533,12 +533,14 @@ class Quantity implements Stringable
 
         // Loop through the units and try to find an expandable unit that matches the quantity.
         foreach (UnitRegistry::getAll() as $unit) {
-            // Get the expansion unit, if any.
-            $expansionUnit = $unit->expansionUnit;
+            // Get the expansion conversion, if any.
+            $expansion = ConversionRegistry::getExpansion($unit);
 
-            if ($expansionUnit === null) {
+            if ($expansion === null) {
                 continue;
             }
+
+            $expansionUnit = $expansion->destUnit;
 
             // Skip 'Hz' or 'Bq'; these are the only expandable units with one unit term in their expansion.
             if (count($expansionUnit->unitTerms) === 1) {
@@ -901,6 +903,7 @@ class Quantity implements Stringable
         // Look for <num><unit>. Whitespace between the number and unit is permitted. The unit is optional, as for a
         // dimensionless quantity.
         if (RegexHelper::isValidQuantity($input, $m)) {
+            assert(isset($m[1]));
             return self::create((float)$m[1], $m[2] ?? null);
         }
 
@@ -1075,7 +1078,7 @@ class Quantity implements Stringable
     {
         // Ensure we have some part units.
         if (empty($symbols)) {
-            throw new DomainException("The array of part unit symbols must not be empty.");
+            throw new DomainException('The array of part unit symbols must not be empty.');
         }
 
         // Ignore keys and duplicates.
@@ -1088,7 +1091,7 @@ class Quantity implements Stringable
         foreach ($symbols as $partUnitSymbol) {
             // Check the type.
             if (!is_string($partUnitSymbol)) {
-                throw new InvalidArgumentException("The array of part unit symbols must contain only strings.");
+                throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
             }
 
             // Get the unit.
@@ -1096,7 +1099,7 @@ class Quantity implements Stringable
             if ($partUnit === null) {
                 throw new DomainException(
                     "Unknown unit symbol: '$partUnitSymbol'. Ensure you have loaded the necessary system " .
-                    "of units using `UnitRegistry::loadSystem()`."
+                    'of units using `UnitRegistry::loadSystem()`.'
                 );
             }
 
@@ -1136,13 +1139,13 @@ class Quantity implements Stringable
 
         // Validate the result unit.
         if (empty($resultUnitSymbol)) {
-            throw new DomainException("No result unit symbol provided and no default set.");
+            throw new DomainException('No result unit symbol provided and no default set.');
         }
         $resultUnit = UnitRegistry::getBySymbol($resultUnitSymbol);
         if ($resultUnit === null) {
             throw new DomainException(
                 "Unknown result unit '$resultUnitSymbol'. Ensure you have loaded the necessary system of " .
-                "units using `UnitRegistry::loadSystem()`."
+                'units using `UnitRegistry::loadSystem()`.'
             );
         }
 
@@ -1152,7 +1155,7 @@ class Quantity implements Stringable
         $qtyType = QuantityTypeRegistry::getByClass(static::class);
         if ($qtyType !== null && $qtyType->dimension !== $resultUnit->dimension) {
             throw new DomainException(
-                "Result unit '$resultUnitSymbol' is incompatible with " . $qtyType->name . " quantities."
+                "Result unit '$resultUnitSymbol' is incompatible with " . $qtyType->name . ' quantities.'
             );
         }
 
@@ -1185,6 +1188,7 @@ class Quantity implements Stringable
             $qty = $qty->neg();
         }
 
+        assert($qty instanceof static);
         return $qty;
     }
 
@@ -1200,7 +1204,8 @@ class Quantity implements Stringable
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws DomainException If any arguments are invalid.
      */
-    public function toParts(?array $partUnitSymbols = null, ?int $precision = null): array {
+    public function toParts(?array $partUnitSymbols = null, ?int $precision = null): array
+    {
         // Get the default part unit symbols if not provided.
         if ($partUnitSymbols === null) {
             $partUnitSymbols = static::$defaultPartUnitSymbols;
@@ -1216,6 +1221,7 @@ class Quantity implements Stringable
         ];
 
         // Initialize the remainder to the source value converted to the smallest unit.
+        assert(is_array($partUnitSymbols));
         $nUnits = count($partUnitSymbols);
         $smallestUnitSymbol = $partUnitSymbols[$nUnits - 1];
         $rem = abs($this->to($smallestUnitSymbol)->value);
@@ -1264,12 +1270,14 @@ class Quantity implements Stringable
      * @param ?string $resultUnitSymbol The unit to use for the resulting quantity, or null for default.
      * @return static A new Quantity representing the sum of the parts.
      * @throws FormatException If the input string is invalid.
+     * @throws UnexpectedValueException If there is an unexpected error during parsing.
      */
-    public static function parseParts(string $input, ?string $resultUnitSymbol = null): static {
+    public static function parseParts(string $input, ?string $resultUnitSymbol = null): static
+    {
         // Ensure the input string is not empty.
         $input = trim($input);
         if ($input === '') {
-            throw new FormatException("The input string is empty.");
+            throw new FormatException('The input string is empty.');
         }
 
         // Get the default result unit symbol if not provided.
@@ -1279,7 +1287,7 @@ class Quantity implements Stringable
 
         // Validate the result unit.
         if (empty($resultUnitSymbol)) {
-            throw new DomainException("No result unit symbol provided and no default set.");
+            throw new DomainException('No result unit symbol provided and no default set.');
         }
 
         // Prepare an error message with the original value.
@@ -1291,6 +1299,11 @@ class Quantity implements Stringable
         // In this format there can be no spaces between values and units.
         $parts = [];
         $stringParts = preg_split('/\s+/', $input);
+        if ($stringParts === false) {
+            // @codeCoverageIgnoreStart
+            throw new UnexpectedValueException('Error splitting string into parts.');
+            // @codeCoverageIgnoreEnd
+        }
 
         // Collect the parts.
         $sign = 1;
@@ -1308,7 +1321,7 @@ class Quantity implements Stringable
                     $sign = -1;
                 } else {
                     throw new FormatException(
-                        "In a string with multiple quantity parts, only the first may be negative."
+                        'In a string with multiple quantity parts, only the first may be negative.'
                     );
                 }
             }
@@ -1370,11 +1383,14 @@ class Quantity implements Stringable
         for ($i = 0; $i < $nUnits - 1; $i++) {
             $symbol = $partUnitSymbols[$i];
             $unit = UnitRegistry::getBySymbol($symbol);
+            assert($unit instanceof Unit);
             $value = $parts[$symbol] ?? 0;
+
             // Skip zeros if requested.
             if (Numbers::equal($value, 0) && !$showZeros) {
                 continue;
             }
+
             // Format the part with no space between the value and unit.
             $result[] = $value . $unit->format($ascii);
         }
@@ -1382,8 +1398,10 @@ class Quantity implements Stringable
         // Add the smallest unit.
         $symbol = $partUnitSymbols[$nUnits - 1];
         $unit = UnitRegistry::getBySymbol($symbol);
+        assert($unit instanceof Unit);
         $value = $parts[$symbol] ?? 0;
         $roundedValue = $precision === null ? $value : round($value, $precision);
+
         // Skip unless we're showing zeros or the value is non-zero.
         if ($showZeros || $roundedValue !== 0.0 || empty($result)) {
             $result[] = self::formatValue($value, 'f', $precision, $ascii) . $unit->format($ascii);

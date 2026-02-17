@@ -30,11 +30,13 @@ final class MagneticFluxTest extends TestCase
     }
 
     /**
-     * Test getConversionDefinitions() returns an empty array.
+     * Test getConversionDefinitions() returns valid conversion definitions.
      */
-    public function testGetConversionDefinitionsReturnsEmptyArray(): void
+    public function testGetConversionDefinitionsReturnsValidArray(): void
     {
-        $this->assertEmpty(MagneticFlux::getConversionDefinitions());
+        $conversions = MagneticFlux::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
     }
 
     // endregion

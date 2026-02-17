@@ -287,12 +287,12 @@ final class TimeTest extends TestCase
     }
 
     /**
-     * Test toDateIntervalSpecifier with smallest unit.
+     * Test toDateIntervalSpecifier with zero smallest unit.
      */
     public function testToDateIntervalSpecifierSmallestUnit(): void
     {
         $time = new Time(5400, 's');  // 1h 30min
-        $spec = $time->toDateIntervalSpecifier('y', 'min');
+        $spec = $time->toDateIntervalSpecifier();
 
         $this->assertSame('PT1H30M', $spec);
     }

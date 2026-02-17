@@ -281,20 +281,20 @@ class Converter
 
         // Expand any unit terms with expansions.
         foreach ($unit->unitTerms as $unitTerm) {
-            // Get the expansion unit, if any.
-            $expansionUnit = $unitTerm->unit->expansionUnit;
+            // Get the expansion, if any.
+            $expansion = ConversionRegistry::getExpansion($unitTerm->unit);
 
             // If there is no expansion, add the unit term as-is.
-            if ($expansionUnit === null) {
+            if ($expansion === null) {
                 $resultUnit->addUnitTerm($unitTerm);
                 continue;
             }
 
             // Multiply by the conversion factor modified by prefix and exponent.
-            $resultValue *= ($unitTerm->unit->expansionValue * $unitTerm->prefixMultiplier) ** $unitTerm->exponent;
+            $resultValue *= ($expansion->factor->value * $unitTerm->prefixMultiplier) ** $unitTerm->exponent;
 
             // Add the unit terms from the expansion.
-            foreach ($expansionUnit->unitTerms as $expansionUnitTerm) {
+            foreach ($expansion->destUnit->unitTerms as $expansionUnitTerm) {
                 // Raise the expansion unit term to the exponent and add.
                 $resultUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
             }

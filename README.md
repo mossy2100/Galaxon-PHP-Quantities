@@ -2,10 +2,11 @@
 
 Physical measurement types with automatic unit conversion and prefix support.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units and Prefixes](Supported%20Units%20and%20Prefixes.md)** | **[Calculation Examples](Calculation%20Examples.md)** | **[Custom Types](Custom%20Quantity%20Types%20and%20Units.md)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](docs/DeveloperGuide/Supported%20Units%20and%20Prefixes.md)** | **[Examples](docs/DeveloperGuide/Calculation%20Examples.md)** | **[Custom Types](docs/DeveloperGuide/Custom%20Quantity%20Types%20and%20Units.md)**
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
+---
 ## Description
 
 This package provides strongly-typed classes for physical quantities (length, mass, time, temperature, etc.) with comprehensive unit conversion capabilities. The system automatically find conversion factors between compatible units, supports metric and binary prefixes, and handles affine transformations for temperature scales.
@@ -19,23 +20,27 @@ Key capabilities include:
 - **Flexible parsing**: Parse strings like "123.45 km", "90deg", or "25°C" into Quantity objects.
 - **Part decomposition**: Break measurements into components (e.g. 12° 34′ 56″ or 1y 3mo 2d)
 
+---
 ## Development and Quality Assurance / AI Disclosure
 
 [Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach resulted in a high-quality, thoroughly-tested, and well-documented package delivered in significantly less time than traditional development methods.
 
 ![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
+---
 ## Requirements
 
 - PHP ^8.4
 - galaxon/core
 
+---
 ## Installation
 
 ```bash
 composer require galaxon/quantities
 ```
 
+---
 ## Quick Start
 
 ```php
@@ -53,9 +58,27 @@ $miles = $distance->to('mi');     // 3.10686... miles
 $fahrenheit = $temp->to('degF');     // 77°F
 $radians = $angle->to('rad');     // 1.5707... rad
 
+// Convert to SI units
+$force = new Force(28000, 'lbf');
+$force = $force->toSi(); // 124... kN
+$force = $force->toSiBase(); // 124550... kg⋅m/s²
+
 // Arithmetic operations
 $total = $distance->add(new Length(500, 'm'));  // 5.5 km
 $doubled = $distance->mul(2.0);                // 10 km
+$period = new Frequency(2.4, 'GHz')->inv()->toSi(); // 416.7... ps
+
+// Physical constants
+$h = PhysicalConstant::planck();
+$c = PhysicalConstant::speedOfLight();
+
+// Scientific and engineering calculations
+$G = PhysicalConstant::gravitational();  
+$earthMass = new Mass(5.972e24, 'kg');  
+$moonMass = new Mass(7.342e22, 'kg');  
+$distance = new Length(3.844e8, 'm');  
+$force = $G->mul($earthMass)->mul($moonMass)->div($distance->pow(2));
+echo $force->to('N')->format('e', 2), "\n"; // 1.98×10²⁰ N
 
 // Parse from strings
 $length = Length::parse('123.45 km');
@@ -68,17 +91,23 @@ echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
 // "45° 30′ 15.1″"
 ```
 
-
+---
 ## Developer Guide
 
+1. **[1. Terminology](1.%20Terminology.md)** — Key terms and definitions used throughout the library.
+2. **[2. Creating Quantities](2.%20Creating%20Quantities.md)** — Get started creating Quantity objects via the base Quantity class and dedicated subclasses.
+3. Quantity Types and Dimensions - A deeper dive into quantity types and dimensions.
+4. **[Unit Conversion](docs/DeveloperGuide/Unit%20Conversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
+5. **[Supported Units and Prefixes](docs/DeveloperGuide/Supported%20Units%20and%20Prefixes.md)** — Complete reference of all built-in units by quantity type.
+6. **[Arithmetic Operations](docs/DeveloperGuide/Arithmetic%20Operations.md)** — Add, subtract, multiply, and divide quantities.
+7. **[Physical Constants](docs/DeveloperGuide/Physical%20Constants.md)** — Using fundamental constants in calculations.
+8. **[Calculation Examples](docs/DeveloperGuide/Calculation%20Examples.md)** — Real-world physics and engineering calculations.
+9. **[Comparison Functions](docs/DeveloperGuide/Comparison%20Functions.md)** — Exact and approximate equality, ordering, and tolerances.
+10. **[String Functions](docs/DeveloperGuide/String%20Functions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
+11. **[Custom Quantity Types and Units](docs/DeveloperGuide/Custom%20Quantity%20Types%20and%20Units.md)** — How to add your own quantity types and units.
+12. **[Part Decomposition](docs/DeveloperGuide/Part%20Decomposition.md)** — Breaking quantities into components (e.g. 45° 30′ 15″ or 1h 30min 45s).
 
-**[Calculation Examples](Calculation%20Examples.md)** - Real-world physics and engineering calculations.
-
-**[Custom Quantity Types and Units](Custom%20Quantity%20Types%20and%20Units.md)** - How to add your own quantity types and units.
-
-
-
-
+---
 ## Reference
 
 ### Main Public API
@@ -133,8 +162,7 @@ All quantity type classes extend `Quantity` and define their specific units and 
 
 ### Registry Classes
 
-These classes are predominantly internal, except for loading new systems of units via `UnitRegistry::loadSystem()`,
-adding custom units via `UnitRegistry::add()`, or registering new quantity types via `QuantityTypeRegistry::add()`.
+These classes are predominantly internal, except for loading new systems of units via `UnitRegistry::loadSystem()`, adding custom units via `UnitRegistry::add()`, or registering new quantity types via `QuantityTypeRegistry::add()`.
 
 | Class                                                         | Description                                                                                        |
 |---------------------------------------------------------------|----------------------------------------------------------------------------------------------------|

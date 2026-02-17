@@ -31,20 +31,18 @@ class QuantityType
     // region Property hooks
 
     /**
-     * The fully-qualified Quantity subclass for this type, or null if none is registered.
+     * The fully-qualified class name of the Quantity subclass for this quantity type.
      *
-     * The setter validates that the value is a subclass of Quantity.
-     *
-     * @var ?class-string<Quantity>
+     * @var class-string<Quantity>
      */
-    public ?string $class {
+    public string $class {
         set {
-            // Validate the class.
-            if ($value !== null && !is_subclass_of($value, Quantity::class)) {
+            // Validate that the value is a subclass of Quantity.
+            if (!is_subclass_of($value, Quantity::class)) {
                 throw new DomainException("$value must be a subclass of " . Quantity::class . '.');
             }
 
-            /** @var ?class-string<Quantity> $value */
+            /** @var class-string<Quantity> $value */
             $this->class = $value;
         }
     }
@@ -56,9 +54,9 @@ class QuantityType
     /**
      * @param string $name
      * @param string $dimension
-     * @param ?class-string<Quantity> $class
+     * @param class-string<Quantity> $class
      */
-    public function __construct(string $name, string $dimension, ?string $class = null)
+    public function __construct(string $name, string $dimension, string $class)
     {
         $this->name = $name;
         $this->dimension = Dimensions::normalize($dimension);

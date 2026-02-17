@@ -231,6 +231,7 @@ class UnitTerm implements UnitInterface
         }
 
         // Get the prefixed unit symbol.
+        assert(isset($matches[1]));
         $prefixedSymbol = $matches[1];
 
         // Get the exponent, handling both ASCII and superscript formats.

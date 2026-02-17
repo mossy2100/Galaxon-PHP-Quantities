@@ -30,11 +30,13 @@ final class ConductanceTest extends TestCase
     }
 
     /**
-     * Test getConversionDefinitions() returns an empty array.
+     * Test getConversionDefinitions() returns valid conversion definitions.
      */
-    public function testGetConversionDefinitionsReturnsEmptyArray(): void
+    public function testGetConversionDefinitionsReturnsValidArray(): void
     {
-        $this->assertEmpty(Conductance::getConversionDefinitions());
+        $conversions = Conductance::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
     }
 
     // endregion

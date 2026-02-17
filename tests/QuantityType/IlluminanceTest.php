@@ -30,11 +30,13 @@ final class IlluminanceTest extends TestCase
     }
 
     /**
-     * Test getConversionDefinitions() returns an empty array.
+     * Test getConversionDefinitions() returns valid conversion definitions.
      */
-    public function testGetConversionDefinitionsReturnsEmptyArray(): void
+    public function testGetConversionDefinitionsReturnsValidArray(): void
     {
-        $this->assertEmpty(Illuminance::getConversionDefinitions());
+        $conversions = Illuminance::getConversionDefinitions();
+
+        $this->assertValidConversionDefinitionsShape($conversions);
     }
 
     // endregion

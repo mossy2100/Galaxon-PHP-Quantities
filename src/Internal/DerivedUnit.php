@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
 use LogicException;
+use UnexpectedValueException;
 
 /**
  * Represents a compound unit composed of one or more unit terms.
@@ -177,6 +178,7 @@ class DerivedUnit implements UnitInterface
         // Check for parentheses. The only permitted use of parentheses is "<terms>/(<terms>)", where <terms> is a
         // sequence of one or more multiplied unit terms. Examples: 'J/(mol*K)', 'W/(m2*K4)'.
         if (RegexHelper::isValidDerivedUnitForm2($symbol, $matches)) {
+            assert(isset($matches['num']) && isset($matches['den']));
             $numerator = $matches['num'];
             $denominator = $matches['den'];
             $numUnit = self::parseHelper($numerator);
@@ -198,6 +200,7 @@ class DerivedUnit implements UnitInterface
      * @throws DomainException If any units are unknown.
      * @throws FormatException If the symbol format is invalid.
      * @throws LogicException If there was an error extracting unit terms from the symbol.
+     * @throws UnexpectedValueException If an unexpected error occurs.
      */
     private static function parseHelper(string $symbol): self
     {
@@ -206,10 +209,10 @@ class DerivedUnit implements UnitInterface
 
         // Get the parts of the compound unit.
         $parts = preg_split('/(' . RegexHelper::RX_CLASS_MUL_DIV_OPS . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-        // Check for error.
         if ($parts === false) {
-            throw new LogicException("Error parsing unit symbol: '$symbol'"); // @codeCoverageIgnore
+            // @codeCoverageIgnoreStart
+            throw new UnexpectedValueException('Error splitting string into parts.');
+            // @codeCoverageIgnoreEnd
         }
 
         // Convert the substrings to unit terms.
@@ -349,9 +352,9 @@ class DerivedUnit implements UnitInterface
     }
 
     /**
-     * Check if this derived unit is expandable.
+     * Check if this derived unit contains any non-base unit terms that could potentially be expanded.
      *
-     * @return bool True if the derived unit is expandable.
+     * @return bool True if the derived unit has non-base unit terms.
      */
     public function isExpandable(): bool
     {

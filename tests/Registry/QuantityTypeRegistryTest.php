@@ -13,9 +13,11 @@ use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
 use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Tests\Fixtures\TestQuantity;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 /**
  * Tests for QuantityTypeRegistry class.
@@ -264,13 +266,16 @@ final class QuantityTypeRegistryTest extends TestCase
         }
 
         // Add it
-        QuantityTypeRegistry::add('hypervolume', $dimension);
+        QuantityTypeRegistry::add('hypervolume', $dimension, TestQuantity::class);
 
         // Verify it exists
         $result = QuantityTypeRegistry::getByDimension($dimension);
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('hypervolume', $result->name);
-        $this->assertNull($result->class);
+        $this->assertSame(TestQuantity::class, $result->class);
+
+        // Tidy up.
+        QuantityTypeRegistry::remove('hypervolume');
     }
 
     /**
@@ -281,7 +286,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the name 'length'");
 
-        QuantityTypeRegistry::add('length', 'L9');
+        QuantityTypeRegistry::add('length', 'L9', TestQuantity::class);
     }
 
     /**
@@ -292,7 +297,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the dimension 'L'");
 
-        QuantityTypeRegistry::add('another length', 'L');
+        QuantityTypeRegistry::add('another length', 'L', TestQuantity::class);
     }
 
     /**
@@ -304,6 +309,67 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectExceptionMessage('Cannot add another quantity type with the class');
 
         QuantityTypeRegistry::add('another', 'L8', Length::class);
+    }
+
+    // endregion
+
+    // region remove() tests
+
+    /**
+     * Test remove() removes quantity type.
+     */
+    public function testRemoveRemovesQuantityType(): void
+    {
+        QuantityTypeRegistry::add('coolness', 'L5', TestQuantity::class);
+
+        $result = QuantityTypeRegistry::getByName('coolness');
+        $this->assertNotNull($result);
+
+        QuantityTypeRegistry::remove('coolness');
+
+        $result = QuantityTypeRegistry::getByName('coolness');
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test remove() does not throw for non-existent quantity type.
+     */
+    public function testRemoveDoesNotThrowForNonExistentQuantityType(): void
+    {
+        // Ensure the registry is initialized.
+        QuantityTypeRegistry::getAll();
+
+        // Get the current count of quantity types.
+        $refClass = new ReflectionClass(QuantityTypeRegistry::class);
+        $qtyTypes = $refClass->getStaticPropertyValue('quantityTypes');
+        assert(is_array($qtyTypes));
+        $n = count($qtyTypes);
+
+        // Attempt to remove a non-existent quantity type.
+        QuantityTypeRegistry::remove('nonexistent');
+
+        // Check count is the same.
+        $qtyTypes = $refClass->getStaticPropertyValue('quantityTypes');
+        assert(is_array($qtyTypes));
+        $n2 = count($qtyTypes);
+        $this->assertEquals($n, $n2);
+    }
+
+    /**
+     * Test remove() does nothing if the registry is not initialized (i.e. quantityTypes is null).
+     */
+    public function testRemoveDoesNothingIfQuantityTypesNotInitialized(): void
+    {
+        // Uninitialize the registry.
+        QuantityTypeRegistry::reset();
+
+        // The relevant property is private, so let's use reflection to access it.
+        $refClass = new ReflectionClass(QuantityTypeRegistry::class);
+        $this->assertNull($refClass->getStaticPropertyValue('quantityTypes'));
+
+        // Call remove() and verify the interna; array is still null, and no exception was thrown.
+        QuantityTypeRegistry::remove('coolness');
+        $this->assertNull($refClass->getStaticPropertyValue('quantityTypes'));
     }
 
     // endregion
@@ -322,12 +388,12 @@ final class QuantityTypeRegistryTest extends TestCase
             $this->markTestSkipped("Dimension '$dimension' already exists");
         }
 
-        QuantityTypeRegistry::add('pentavolume', $dimension);
+        QuantityTypeRegistry::add('pentavolume', $dimension, TestQuantity::class);
 
         // Verify it has no class.
         $result = QuantityTypeRegistry::getByDimension($dimension);
         $this->assertInstanceOf(QuantityType::class, $result);
-        $this->assertNull($result->class);
+        $this->assertSame(TestQuantity::class, $result->class);
 
         // Now set the class using our test fixture.
         QuantityTypeRegistry::setClass('pentavolume', TestQuantity::class);
@@ -335,6 +401,9 @@ final class QuantityTypeRegistryTest extends TestCase
         // Verify the class was set.
         $result = QuantityTypeRegistry::getByDimension($dimension);
         $this->assertSame(TestQuantity::class, $result?->class);
+
+        // Tidy up.
+        QuantityTypeRegistry::remove('pentavolume');
     }
 
     /**
@@ -432,7 +501,7 @@ final class QuantityTypeRegistryTest extends TestCase
         QuantityTypeRegistry::clear();
 
         // Add a single custom type.
-        QuantityTypeRegistry::add('custom', 'L6');
+        QuantityTypeRegistry::add('custom', 'L6', TestQuantity::class);
 
         // Verify only the custom type exists (defaults were not re-loaded).
         $all = QuantityTypeRegistry::getAll();
@@ -489,13 +558,4 @@ final class QuantityTypeRegistryTest extends TestCase
     }
 
     // endregion
-}
-
-/**
- * Test fixture class for testing QuantityTypeRegistry::setClass().
- *
- * This is a minimal Quantity subclass used only for testing purposes.
- */
-class TestQuantity extends Quantity
-{
 }
