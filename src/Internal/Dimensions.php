@@ -325,5 +325,25 @@ class Dimensions
         return UnitTerm::parse($siBase);
     }
 
+    /**
+     * Convert a dimension to a DerivedUnit in SI base units.
+     *
+     * NB: This includes the special units we're designating as SI base for the purpose of this system: rad, B, and XAU.
+     *
+     * @param string $dimension The dimension code (e.g. 'MLT-2').
+     * @return DerivedUnit The new DerivedUnit.
+     * @throws DomainException If any of the dimension codes are invalid.
+     * @throws LogicException If any of the dimension codes do not have an SI base unit defined.
+     */
+    public static function getSiBaseDerivedUnit(string $dimension): DerivedUnit
+    {
+        $unitTerms = [];
+        $dimTerms = self::decompose($dimension);
+        foreach ($dimTerms as $code => $exp) {
+            $unitTerms[] = self::getSiBaseUnitTerm($code)->pow($exp);
+        }
+        return new DerivedUnit($unitTerms);
+    }
+
     // endregion
 }

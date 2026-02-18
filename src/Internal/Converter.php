@@ -281,10 +281,10 @@ class Converter
 
         // Expand any unit terms with expansions.
         foreach ($unit->unitTerms as $unitTerm) {
-            // Get the expansion, if any.
-            $expansion = ConversionRegistry::getExpansion($unitTerm->unit);
+            // Get the expansion for this unit, if there is one.
+            $expansion = $unitTerm->unit->expansion;
 
-            // If there is no expansion, add the unit term as-is.
+            // If there's no expansion, add the unit term as-is.
             if ($expansion === null) {
                 $resultUnit->addUnitTerm($unitTerm);
                 continue;

@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Registry;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\Conversion;
+use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\Dimensions;
 use Galaxon\Quantities\Internal\Unit;
@@ -72,20 +73,6 @@ class ConversionRegistry
     }
 
     /**
-     * Get all conversions from a given source unit to some other unit.
-     *
-     * @param Unit $unit The source unit.
-     * @return array<string, Conversion> An array of conversions, keyed by destination unit ASCII symbol.
-     */
-    public static function getBySourceUnit(Unit $unit): array
-    {
-        self::init();
-        assert(self::$conversions !== null);
-
-        return self::$conversions[$unit->dimension][$unit->asciiSymbol] ?? [];
-    }
-
-    /**
      * Look for an expansion conversion for this unit.
      *
      * That means a conversion from a non-base unit to a base unit.
@@ -93,6 +80,10 @@ class ConversionRegistry
      *
      * A conversion with a factor of 1 is a direct expansion and is returned first.
      * If not found, the conversion with the least relative error will be returned.
+     *
+     * Note, new expansion conversions can be discovered. For example, an expansion of eV is not defined, but there is a
+     * conversion from eV to J, which has an expansion to kg*m2/s2. Therefore, even though the first time this method is
+     * called for a unit there might not be an expansion conversion, the next time there might be.
      *
      * @param Unit $unit The unit to look for an expansion for.
      * @return ?Conversion The expansion conversion, or null if none was found.
@@ -105,29 +96,49 @@ class ConversionRegistry
         }
 
         // Scan the registry looking for a suitable expansion conversion.
-        $conversions = self::getBySourceUnit($unit);
+        $conversionMatrix = self::getByDimension($unit->dimension);
         $bestConversion = null;
         $minErr = INF;
-        foreach ($conversions as $conversion) {
-            // Skip non-base destination units.
-            if (!$conversion->destUnit->isBase()) {
-                continue;
-            }
+        foreach ($conversionMatrix as $src => $conversionList) {
+            foreach ($conversionList as $dest => $conversion) {
+                // We allow for expansions to be defined in either order, e.g. ['N', 'kg*m/s2', 1] or
+                // ['kg*m/s2', 'N', 1].
 
-            // Check for a direct expansion.
-            if ($conversion->factor->value === 1.0) {
-                // This is the best match, no need to keep looking.
-                $bestConversion = $conversion;
-                break;
-            }
+                // Check for compound -> base conversion.
+                if ($conversion->srcUnit->equal($unit) && $conversion->destUnit->isBase()) {
+                    // Check for a unity expansion.
+                    if ($conversion->factor->value === 1.0) {
+                        // This is the best match, no need to keep looking.
+                        return $conversion;
+                    }
 
-            // See if this is an improvement.
-            if ($conversion->factor->relativeError < $minErr) {
-                $minErr = $conversion->factor->relativeError;
-                $bestConversion = $conversion;
+                    // See if this is an improvement.
+                    if ($conversion->factor->relativeError < $minErr) {
+                        $minErr = $conversion->factor->relativeError;
+                        $bestConversion = $conversion;
+                    }
+                }
+                // Check for base -> compound conversion.
+                elseif ($conversion->destUnit->equal($unit) && $conversion->srcUnit->isBase()) {
+                    // Flip it.
+                    $invConversion = $conversion->inv();
+
+                    // Check for a unity expansion.
+                    if ($invConversion->factor->value === 1.0) {
+                        // This is the best match, no need to keep looking.
+                        return $invConversion;
+                    }
+
+                    // See if this is an improvement.
+                    if ($invConversion->factor->relativeError < $minErr) {
+                        $minErr = $invConversion->factor->relativeError;
+                        $bestConversion = $invConversion;
+                    }
+                }
             }
         }
 
+        // Return the best conversion expansion found or null if none were found.
         return $bestConversion;
     }
 

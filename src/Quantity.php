@@ -14,6 +14,7 @@ use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\Dimensions;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Internal\Unit;
@@ -368,7 +369,8 @@ class Quantity implements Stringable
      */
     public function toSiBase(): self
     {
-        return $this->to($this->derivedUnit->toSiBase());
+        $siBaseUnit = Dimensions::getSiBaseDerivedUnit($this->derivedUnit->dimension);
+        return $this->to($siBaseUnit);
     }
 
     /**

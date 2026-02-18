@@ -408,12 +408,15 @@ class DerivedUnit implements UnitInterface
      */
     public function equal(mixed $other): bool
     {
-        // Check for equal types.
-        if (!$other instanceof self) {
+        // Check we have a UnitInterface object.
+        if (!$other instanceof UnitInterface) {
             return false;
         }
 
-        // Must have the same number of unit terms.
+        // Convert it to DerivedUnit if necessary.
+        $other = self::toDerivedUnit($other);
+
+        // Each must have the same number of unit terms.
         if (count($this->unitTerms) !== count($other->unitTerms)) {
             return false;
         }
@@ -527,12 +530,7 @@ class DerivedUnit implements UnitInterface
      */
     public function toSiBase(): self
     {
-        $unitTerms = [];
-        $dimTerms = Dimensions::decompose($this->dimension);
-        foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = Dimensions::getSiBaseUnitTerm($code)->pow($exp);
-        }
-        return new self($unitTerms);
+        return Dimensions::getSiBaseDerivedUnit($this->dimension);
     }
 
     /**

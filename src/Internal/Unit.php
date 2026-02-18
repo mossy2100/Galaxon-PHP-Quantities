@@ -135,12 +135,20 @@ class Unit implements UnitInterface
     }
 
     /**
-     * Look for an expansion conversion for this unit.
+     * Get the expansion conversion for this unit, if one exists in the ConversionRegistry.
      *
      * @var ?Conversion
      */
-    public ?Conversion $expansion {
-        get => ConversionRegistry::getExpansion($this);
+    public ?Conversion $expansion = null {
+        get {
+            // Check if we found one already.
+            if ($this->expansion !== null) {
+                return $this->expansion;
+            }
+            // Check the registry.
+            $this->expansion = ConversionRegistry::getExpansion($this);
+            return $this->expansion;
+        }
     }
 
     // endregion
