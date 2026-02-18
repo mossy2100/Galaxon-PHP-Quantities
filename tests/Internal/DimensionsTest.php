@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
+use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\Dimensions;
 use Galaxon\Quantities\Internal\UnitTerm;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -614,6 +615,82 @@ final class DimensionsTest extends TestCase
         $symbols = Dimensions::getSiBaseUnitSymbols();
 
         $this->assertCount(count(Dimensions::DIMENSION_CODES), $symbols);
+    }
+
+    // endregion
+
+    // region getSiBaseDerivedUnit() tests
+
+    /**
+     * Test getSiBaseDerivedUnit() returns a DerivedUnit for a single dimension.
+     */
+    public function testGetSiBaseDerivedUnitReturnsDerivedUnitForSingleDimension(): void
+    {
+        $result = Dimensions::getSiBaseDerivedUnit('L');
+
+        $this->assertInstanceOf(DerivedUnit::class, $result);
+        $this->assertSame('m', $result->asciiSymbol);
+    }
+
+    /**
+     * Test getSiBaseDerivedUnit() returns correct unit for force dimension (MLT-2).
+     */
+    public function testGetSiBaseDerivedUnitReturnsCorrectUnitForForce(): void
+    {
+        $result = Dimensions::getSiBaseDerivedUnit('MLT-2');
+
+        $this->assertSame('kg*m/s2', $result->asciiSymbol);
+    }
+
+    /**
+     * Test getSiBaseDerivedUnit() returns correct unit for energy dimension (ML2T-2).
+     */
+    public function testGetSiBaseDerivedUnitReturnsCorrectUnitForEnergy(): void
+    {
+        $result = Dimensions::getSiBaseDerivedUnit('ML2T-2');
+
+        $this->assertSame('kg*m2/s2', $result->asciiSymbol);
+    }
+
+    /**
+     * Test getSiBaseDerivedUnit() returns correct unit for velocity dimension (LT-1).
+     */
+    public function testGetSiBaseDerivedUnitReturnsCorrectUnitForVelocity(): void
+    {
+        $result = Dimensions::getSiBaseDerivedUnit('LT-1');
+
+        $this->assertSame('m/s', $result->asciiSymbol);
+    }
+
+    /**
+     * Test getSiBaseDerivedUnit() returns correct unit for area dimension (L2).
+     */
+    public function testGetSiBaseDerivedUnitReturnsCorrectUnitForArea(): void
+    {
+        $result = Dimensions::getSiBaseDerivedUnit('L2');
+
+        $this->assertSame('m2', $result->asciiSymbol);
+    }
+
+    /**
+     * Test getSiBaseDerivedUnit() returns dimensionless DerivedUnit for '1'.
+     */
+    public function testGetSiBaseDerivedUnitReturnsDimensionlessForOne(): void
+    {
+        $result = Dimensions::getSiBaseDerivedUnit('1');
+
+        $this->assertInstanceOf(DerivedUnit::class, $result);
+        $this->assertSame('', $result->asciiSymbol);
+    }
+
+    /**
+     * Test getSiBaseDerivedUnit() throws for invalid dimension code.
+     */
+    public function testGetSiBaseDerivedUnitThrowsForInvalidCode(): void
+    {
+        $this->expectException(DomainException::class);
+
+        Dimensions::getSiBaseDerivedUnit('XYZ');
     }
 
     // endregion
