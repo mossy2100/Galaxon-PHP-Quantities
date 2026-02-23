@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Examples;
 
 use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
 use Galaxon\Quantities\QuantityType\Volume;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -25,12 +26,14 @@ class AviationTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units for cross-system tests.
-        UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::UsCustomary);
-        UnitRegistry::loadSystem(System::Nautical);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Nautical);
     }
 
     // endregion
+
+    // region Tests
 
     /**
      * Ground speed: v = d/t.
@@ -96,7 +99,7 @@ class AviationTest extends TestCase
      */
     public function testFuelBurn(): void
     {
-        $fuelFlow = new Volume(850, 'US gal')->div(new Time(1, 'h'));
+        $fuelFlow = Quantity::create(850, 'US gal/h');
         $flightTime = new Time(3.5, 'h');
         $totalFuel = $fuelFlow->mul($flightTime);
 
@@ -105,4 +108,6 @@ class AviationTest extends TestCase
         $totalFuelSi = $totalFuel->toSi();
         $this->assertApproxEqual(11.26, $totalFuelSi->value, 1e-2);
     }
+
+    // endregion
 }

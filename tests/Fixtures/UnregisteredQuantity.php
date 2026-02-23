@@ -9,7 +9,7 @@ use Galaxon\Quantities\Quantity;
 /**
  * An unregistered Quantity subclass for testing error paths.
  *
- * This class is NOT registered in QuantityTypeRegistry, which allows testing
+ * This class is NOT registered in QuantityTypeService, which allows testing
  * the error path when the calling class has default part unit symbols but is
  * not a registered quantity type.
  *

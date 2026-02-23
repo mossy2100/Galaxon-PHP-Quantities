@@ -6,7 +6,7 @@ Represents a type of physical quantity with its associated metadata.
 
 The `QuantityType` class defines the metadata for a category of physical quantities, such as Length, Mass, Time, or Force. Each quantity type has a unique name, a dimensional code, and an optional associated PHP class.
 
-Quantity types are registered with the `QuantityTypeRegistry` and are used to:
+Quantity types are registered with the `QuantityTypeService` and are used to:
 - Map dimension codes to human-readable names
 - Link dimension codes to strongly-typed Quantity subclasses
 - Provide validation for unit-dimension compatibility
@@ -29,7 +29,7 @@ The human-readable name of the quantity type (e.g., 'length', 'mass', 'force'). 
 public readonly string $dimension
 ```
 
-The dimensional code for this quantity type. Uses dimension letters: L (length), M (mass), T (time), I (electric current), H (temperature), N (amount of substance), J (luminous intensity), A (angle), D (data), C (money).
+The dimensional code for this quantity type. Uses dimension letters: L (length), M (mass), T (time), I (electric current), H (temperature), N (amount of substance), J (luminous intensity), A (angle), D (data), C (currency).
 
 Examples:
 - 'L' for length
@@ -38,7 +38,7 @@ Examples:
 - 'T-2LM' for force
 - 'T-2L2M' for energy
 
-See [Dimensions](Dimensions.md).
+See [DimensionService](DimensionService.md).
 
 ### class
 
@@ -70,7 +70,7 @@ Create a new QuantityType instance.
 
 **Parameters:**
 - `$name` (string) - The human-readable name (e.g., 'length')
-- `$dimension` (string) - The dimensional code (e.g., 'L'). Normalized via `Dimensions::normalize()`.
+- `$dimension` (string) - The dimensional code (e.g., 'L'). Normalized via `DimensionService::normalize()`.
 - `$class` (?string) - The fully-qualified Quantity subclass name, or null (default: null)
 
 **Examples:**
@@ -87,42 +87,43 @@ $force = new QuantityType('force', 'MLT-2', 'N');
 ### Registering Quantity Types
 
 ```php
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\QuantityType\DynamicViscosity;
 
 // Register a custom quantity type
-QuantityTypeRegistry::add('dynamic viscosity', 'ML-1T-1', DynamicViscosity::class);
+QuantityTypeService::add('dynamic viscosity', 'ML-1T-1', DynamicViscosity::class);
 
 // Set or update the class for an existing quantity type
-QuantityTypeRegistry::setClass('currency', MyCurrencyClass::class);
+QuantityTypeService::setClass('currency', MyCurrencyClass::class);
 ```
 
 ### Looking Up Quantity Types
 
 ```php
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Services\QuantityTypeService;
 
 // Get quantity type by dimension
-$lengthType = QuantityTypeRegistry::getByDimension('L');
+$lengthType = QuantityTypeService::getByDimension('L');
 echo $lengthType->name; // 'length'
 
 // Get quantity type by name
-$massType = QuantityTypeRegistry::getByName('mass');
+$massType = QuantityTypeService::getByName('mass');
 echo $massType->dimension; // 'M'
 
 // Get quantity type by class
-$forceType = QuantityTypeRegistry::getByClass(Force::class);
+$forceType = QuantityTypeService::getByClass(Force::class);
 echo $forceType->dimension; // 'T-2LM'
 ```
 
 ### Using Quantity Types in Validation
 
 ```php
-use Galaxon\Quantities\Internal\Unit;use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Services\QuantityTypeService;
 
 // Check if a unit matches a quantity type
 $unit = Unit::parse('km');
-$qtyType = QuantityTypeRegistry::getByDimension($unit->dimension);
+$qtyType = QuantityTypeService::getByDimension($unit->dimension);
 
 if ($qtyType !== null) {
     echo "This is a {$qtyType->name} unit";
@@ -132,5 +133,5 @@ if ($qtyType !== null) {
 ## See Also
 
 - **[Quantity](../Quantity.md)** - Uses quantity types for type-safe instantiation
-- **[QuantityTypeRegistry](../Registry/QuantityTypeRegistry.md)** - Registry for quantity types
-- **[Dimensions](Dimensions.md)** - Utilities for working with dimension codes
+- **[QuantityTypeService](../Services/QuantityTypeService.md)** - Registry for quantity types
+- **[DimensionService](DimensionService.md)** - Utilities for working with dimension codes

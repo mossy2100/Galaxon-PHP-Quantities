@@ -14,16 +14,14 @@ use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
-use Galaxon\Quantities\Internal\Dimensions;
 use Galaxon\Quantities\Internal\QuantityType;
-use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitTerm;
-use Galaxon\Quantities\Registry\ConversionRegistry;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\QuantityTypeService;
+use Galaxon\Quantities\Services\RegexService;
+use Galaxon\Quantities\Services\UnitService;
 use InvalidArgumentException;
 use LogicException;
 use Override;
@@ -58,6 +56,13 @@ class Quantity implements Stringable
     use ApproxComparable;
 
     // region Static properties
+
+    /**
+     * Flag to permit call to new Quantity().
+     *
+     * @var bool
+     */
+    private static bool $allowConstruct = false;
 
     /**
      * Default part unit symbols for output methods.
@@ -110,12 +115,12 @@ class Quantity implements Stringable
      * @var ?QuantityType
      */
     public ?QuantityType $type {
-        get => QuantityTypeRegistry::getByDimension($this->dimension);
+        get => QuantityTypeService::getByDimension($this->dimension);
     }
 
     // endregion
 
-    // region Constructor
+    // region Constructor and factory method
 
     /**
      * Constructor.
@@ -134,6 +139,17 @@ class Quantity implements Stringable
      */
     public function __construct(float $value, null|string|UnitInterface $unit = null)
     {
+        // Check they aren't calling `new Quantity()`. We only want them to use `new Angle()` (for example) or
+        // `Quantity::create()`.
+        $qtyClass = self::class;
+        $callingClass = static::class;
+        if ($qtyClass === $callingClass && !self::$allowConstruct) {
+            throw new LogicException(
+                'The Quantity constructor should not be called directly. Use `Quantity::create()`, ' .
+                '`Quantity::parse()`, or a specific quantity constructor (e.g. `new Angle(...)`.'
+            );
+        }
+
         // Check the value is finite.
         if (!is_finite($value)) {
             throw new DomainException('Quantity value cannot be ±INF or NAN.');
@@ -144,78 +160,21 @@ class Quantity implements Stringable
         $derivedUnit = DerivedUnit::toDerivedUnit($unit);
 
         // Check they are calling the correct constructor.
-        $qtyClass = self::class;
-        $callingClass = static::class;
-        $qtyType = QuantityTypeRegistry::getByDimension($derivedUnit->dimension);
-        if ($qtyType !== null && $callingClass !== $qtyType->class) {
+        $qtyType = QuantityTypeService::getByDimension($derivedUnit->dimension);
+        $correctClass = $qtyType?->class ?? $qtyClass;
+        if ($callingClass !== $correctClass) {
+            $classStr = $qtyType === null
+                ? "quantity with dimension '$derivedUnit->dimension'"
+                : "$qtyType->name quantity";
             throw new LogicException(
-                "Cannot instantiate a $qtyType->name quantity by calling `new $callingClass()`. Instead, " .
-                " call `new $qtyType->class()`. Otherwise, call `$qtyClass::create()`, which will automatically " .
-                'create an object of the correct class.'
+                "A $classStr cannot be instantiated by calling `new $callingClass()`. Instead, " .
+                ' call `Quantity::create()`, which will automatically create an object of the correct class.'
             );
         }
 
         // Set the properties.
         $this->value = Floats::normalizeZero($value);
         $this->derivedUnit = $derivedUnit;
-    }
-
-    // endregion
-
-    // region Static public methods
-
-    /**
-     * Get the default part unit symbols for output methods.
-     *
-     * @return list<string>
-     */
-    public static function getDefaultPartUnitSymbols(): array
-    {
-        return static::$defaultPartUnitSymbols;
-    }
-
-    /**
-     * Set the default part unit symbols for output methods.
-     *
-     * @param list<string> $symbols The unit symbols.
-     * @throw DomainException If the array is empty or contains unknown or invalid unit symbols.
-     * @throw InvalidArgumentException If the array contains non-string items.
-     */
-    public static function setDefaultPartUnitSymbols(array $symbols): void
-    {
-        self::validatePartUnitSymbols($symbols);
-        assert(is_array($symbols));
-        static::$defaultPartUnitSymbols = $symbols;
-    }
-
-    /**
-     * Get the default result unit symbol for input methods.
-     *
-     * @return string
-     */
-    public static function getDefaultResultUnitSymbol(): string
-    {
-        return static::$defaultResultUnitSymbol;
-    }
-
-    /**
-     * Set the default result unit symbol for input methods.
-     *
-     * @param string $symbol The unit symbol.
-     * @throw DomainException If the unit is unknown.
-     */
-    public static function setDefaultResultUnitSymbol(string $symbol): void
-    {
-        // Check the unit is valid.
-        $unit = UnitRegistry::getBySymbol($symbol);
-        if ($unit === null) {
-            throw new DomainException(
-                "Unknown unit symbol: '$symbol'. Ensure you have loaded the necessary system of units using " .
-                '`UnitRegistry::loadSystem()`.'
-            );
-        }
-
-        static::$defaultResultUnitSymbol = $symbol;
     }
 
     /**
@@ -243,13 +202,18 @@ class Quantity implements Stringable
         $unit = DerivedUnit::toDerivedUnit($unit);
 
         // If there's a registered subclass for this dimension code, create an object of that class.
-        $qtyType = QuantityTypeRegistry::getByDimension($unit->dimension);
+        $qtyType = QuantityTypeService::getByDimension($unit->dimension);
         if ($qtyType !== null) {
             return new ($qtyType->class)($value, $unit);
         }
 
-        // Fall back to a generic Quantity object.
-        return new self($value, $unit);
+        // Fall back to a generic Quantity object. Temporarily enable calling `new Quantity()`.
+        self::$allowConstruct = true;
+        try {
+            return new self($value, $unit);
+        } finally {
+            self::$allowConstruct = false;
+        }
     }
 
     // endregion
@@ -266,7 +230,7 @@ class Quantity implements Stringable
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     public static function getUnitDefinitions(): array
@@ -369,8 +333,33 @@ class Quantity implements Stringable
      */
     public function toSiBase(): self
     {
-        $siBaseUnit = Dimensions::getSiBaseDerivedUnit($this->derivedUnit->dimension);
-        return $this->to($siBaseUnit);
+        return $this->to($this->derivedUnit->toSiBase());
+    }
+
+    /**
+     * Convert this Quantity to English base units.
+     *
+     * This method returns purely base units (e.g., lb·ft·s⁻² instead of lbf).
+     *
+     * @return self A new Quantity expressed in English base units.
+     */
+    public function toEnglishBase(): self
+    {
+        return $this->to($this->derivedUnit->toEnglishBase());
+    }
+
+    /**
+     * Convert this Quantity to base units.
+     *
+     * This method will convert the quantity to SI or English units, depending on what's a better fit with the
+     * existing derived unit. For example, units like lbf, mi, ac, US gal, etc. will be converted to lb, ft, and s.
+     * But units like km, mg, N, Hz, etc. will be converted to kg, m and s.
+     *
+     * @return self A new Quantity expressed in SI or English base units.
+     */
+    public function toBase(): self
+    {
+        return $this->derivedUnit->siExpansionPreferred() ? $this->toSiBase() : $this->toEnglishBase();
     }
 
     /**
@@ -395,16 +384,19 @@ class Quantity implements Stringable
      */
     public function expand(): self
     {
-        // Check if there's anything to do.
-        if (!$this->derivedUnit->isExpandable()) {
-            return $this;
+        // Try to expand the derived unit.
+        $expansion = $this->derivedUnit->tryExpand();
+
+        // Return if we found an expansion.
+        if ($expansion !== null) {
+            // Multiply the expansion Quantity by this Quantity's value.
+            return $expansion->mul($this->value);
         }
 
-        // Expand the expandable units.
-        [$expandedValue, $expandedUnit] = Converter::expand($this->value, $this->derivedUnit);
-
-        // Construct the new Quantity.
-        return self::create($expandedValue, $expandedUnit);
+        // If no expansion was found, fall back to SI or English base units, whichever is more suitable.
+        // This process will add a new expansion conversion to the registry, so if this method is called again with the
+        // same derived unit, it will exit earlier, after the call to tryExpand().
+        return $this->toBase();
     }
 
     /**
@@ -416,16 +408,15 @@ class Quantity implements Stringable
      */
     public function merge(): self
     {
-        // Check if there's anything to do.
         if (!$this->derivedUnit->isMergeable()) {
             return $this;
         }
 
-        // Merge the mergeable units.
-        [$mergedValue, $mergedUnit] = Converter::merge($this->value, $this->derivedUnit);
+        // Merge the derived unit.
+        $mergeQty = $this->derivedUnit->merge();
 
-        // Construct the new Quantity.
-        return self::create($mergedValue, $mergedUnit);
+        // Multiply the merged Quantity by this Quantity's value.
+        return $mergeQty->mul($this->value);
     }
 
     /**
@@ -516,7 +507,7 @@ class Quantity implements Stringable
             // Check if we have s-1.
             if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
                 // Create the Hz unit term.
-                $newUnitTerm = new UnitTerm('Hz', PrefixRegistry::invert($unitTerm->prefix));
+                $newUnitTerm = new UnitTerm('Hz', PrefixService::invert($unitTerm->prefix));
                 $result = self::create($qty->value, $newUnitTerm);
 
                 // Auto-prefix if requested.
@@ -534,18 +525,17 @@ class Quantity implements Stringable
         $bestUnitToReplace = null;
 
         // Loop through the units and try to find an expandable unit that matches the quantity.
-        foreach (UnitRegistry::getAll() as $unit) {
-            // Get the expansion conversion, if any.
-            $expansion = ConversionRegistry::getExpansion($unit);
-
-            if ($expansion === null) {
+        foreach (UnitService::getAll() as $unit) {
+            /// Skip any we can't currently expand.
+            if (!$unit->isExpandable()) {
                 continue;
             }
 
-            $expansionUnit = $expansion->destUnit;
+            // Get the expansion unit.
+            $expansionUnit = $unit->expansion->derivedUnit;
 
-            // Skip 'Hz' or 'Bq'; these are the only expandable units with one unit term in their expansion.
-            if (count($expansionUnit->unitTerms) === 1) {
+            // Skip units that expand to s-1 (i.e. 'Hz' or 'Bq').
+            if (count($expansionUnit->unitTerms) === 1 && $expansionUnit->firstUnitTerm->asciiSymbol === 's-1') {
                 continue;
             }
 
@@ -669,7 +659,7 @@ class Quantity implements Stringable
     // region Arithmetic methods
 
     /**
-     * Get the absolute value of this measurement.
+     * Get the absolute value of this Quantity.
      *
      * @return self A new Quantity with a non-negative value and the same unit.
      * @example
@@ -682,9 +672,9 @@ class Quantity implements Stringable
     }
 
     /**
-     * Negate a measurement.
+     * Negate a Quantity.
      *
-     * @return self A new Quantity containing the negative of this measurement's unit.
+     * @return self A new Quantity containing the negative of this Quantity's unit.
      * @example
      *   $length = new Length(10, 'm');
      *   $negated = $length->neg();  // Length(-10, 'm')
@@ -695,7 +685,7 @@ class Quantity implements Stringable
     }
 
     /**
-     * Add another measurement to this one.
+     * Add another Quantity to this one. Units must be compatible, i.e. have the same dimension.
      *
      * Supports two call styles:
      * - add($otherQuantity)
@@ -716,7 +706,7 @@ class Quantity implements Stringable
      */
     public function add(self|float $otherOrValue, null|string|UnitInterface $otherUnit = null): self
     {
-        // Get the other quantity as an object.
+        // Get the other Quantity as an object.
         $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
 
         // Get the other Quantity in the same unit as this one.
@@ -729,7 +719,7 @@ class Quantity implements Stringable
     }
 
     /**
-     * Subtract another measurement from this one.
+     * Subtract another Quantity from this one. Units must be compatible, i.e. have the same dimension.
      *
      * Supports two call styles:
      * - sub($otherQuantity)
@@ -749,7 +739,7 @@ class Quantity implements Stringable
      */
     public function sub(self|float $otherOrValue, null|string|UnitInterface $otherUnit = null): self
     {
-        // Get the other quantity as an object.
+        // Get the other Quantity as an object.
         $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
 
         // Get the other Quantity in the same unit as this one.
@@ -762,26 +752,28 @@ class Quantity implements Stringable
     }
 
     /**
-     * Invert this quantity (1/x).
+     * Invert this Quantity (1/x) or divide a scalar by this Quantity (n/x).
      *
+     * @param float $dividend The dividend of the division (1 by default).
      * @return self A new Quantity with the value and unit inverted.
      * @throws DivisionByZeroError If the value is zero.
      * @example
      *   $length = new Length(10, 'm');
      *   $inv = $length->inv();  // Length(0.1, 'm^-1')
      */
-    public function inv(): self
+    public function inv(float $dividend = 1.0): self
     {
         // Guards.
         if ($this->value === 0.0) {
             throw new DivisionByZeroError('Cannot invert a quantity with a value of 0.');
         }
 
-        return self::create(1.0 / $this->value, $this->derivedUnit->inv());
+        // Invert the value and unit.
+        return self::create($dividend / $this->value, $this->derivedUnit->inv());
     }
 
     /**
-     * Multiply this measurement by a scalar factor or another Quantity.
+     * Multiply this Quantity by a scalar factor or another Quantity.
      *
      * Note, this operation merges compatible units.
      * If you multiply a quantity in meters by one in feet, you will get a quantity in m2, not m*ft.
@@ -820,7 +812,7 @@ class Quantity implements Stringable
     }
 
     /**
-     * Divide this measurement by a scalar factor.
+     * Divide this Quantity by a scalar factor or another Quantity.
      *
      * @param float|self $otherOrValue The scalar or Quantity to divide by.
      * @param null|string|UnitInterface $otherUnit The other quantity's unit, if a numeric value was provided.
@@ -850,7 +842,7 @@ class Quantity implements Stringable
      *
      * @param int $exponent The exponent to raise to.
      * @return self A new Quantity representing the result of the exponentiation.
-     * @throws DomainException If the exponent is negative.
+     * @throws DomainException If the exponent is 0.
      * @example
      *   $length = new Length(10, 'm');
      *   $squared = $length->pow(2);  // Length(100, 'm^2')
@@ -892,7 +884,7 @@ class Quantity implements Stringable
     public static function parse(string $input): self
     {
         // Prepare an error message with the original value.
-        $qtyType = QuantityTypeRegistry::getByClass(static::class);
+        $qtyType = QuantityTypeService::getByClass(static::class);
         $name = $qtyType === null ? '' : (' ' . $qtyType->name);
         $err = "The provided string '$input' does not represent a valid$name quantity.";
 
@@ -904,7 +896,7 @@ class Quantity implements Stringable
 
         // Look for <num><unit>. Whitespace between the number and unit is permitted. The unit is optional, as for a
         // dimensionless quantity.
-        if (RegexHelper::isValidQuantity($input, $m)) {
+        if (RegexService::isValidQuantity($input, $m)) {
             assert(isset($m[1]));
             return self::create((float)$m[1], $m[2] ?? null);
         }
@@ -1009,7 +1001,7 @@ class Quantity implements Stringable
      * @throws DomainException If the specifier or precision is invalid.
      */
     public function format(
-        string $specifier = 'f',
+        string $specifier = 'g',
         ?int $precision = null,
         ?bool $includeSpace = null,
         bool $ascii = false
@@ -1028,7 +1020,7 @@ class Quantity implements Stringable
         // If $includeSpace is not specified, do not insert a space between the value and unit if the unit is a single
         // non-letter unit symbol (e.g. °, %, "). Otherwise, insert one space.
         if ($includeSpace === null) {
-            $includeSpace = !RegexHelper::isValidUnicodeSpecialChar($unitSymbol);
+            $includeSpace = !RegexService::isValidUnicodeSpecialChar($unitSymbol);
         }
 
         // Return the formatted string.
@@ -1051,6 +1043,60 @@ class Quantity implements Stringable
     // endregion
 
     // region Part-related methods
+
+    /**
+     * Get the default part unit symbols for output methods.
+     *
+     * @return list<string>
+     */
+    public static function getDefaultPartUnitSymbols(): array
+    {
+        return static::$defaultPartUnitSymbols;
+    }
+
+    /**
+     * Set the default part unit symbols for output methods.
+     *
+     * @param list<string> $symbols The unit symbols.
+     * @throw DomainException If the array is empty or contains unknown or invalid unit symbols.
+     * @throw InvalidArgumentException If the array contains non-string items.
+     */
+    public static function setDefaultPartUnitSymbols(array $symbols): void
+    {
+        self::validatePartUnitSymbols($symbols);
+        assert(is_array($symbols));
+        static::$defaultPartUnitSymbols = $symbols;
+    }
+
+    /**
+     * Get the default result unit symbol for input methods.
+     *
+     * @return string
+     */
+    public static function getDefaultResultUnitSymbol(): string
+    {
+        return static::$defaultResultUnitSymbol;
+    }
+
+    /**
+     * Set the default result unit symbol for input methods.
+     *
+     * @param string $symbol The unit symbol.
+     * @throw DomainException If the unit is unknown.
+     */
+    public static function setDefaultResultUnitSymbol(string $symbol): void
+    {
+        // Check the unit is valid.
+        $unit = UnitService::getBySymbol($symbol);
+        if ($unit === null) {
+            throw new DomainException(
+                "Unknown unit symbol: '$symbol'. Ensure you have loaded the necessary system of units using " .
+                '`UnitService::loadSystem()`.'
+            );
+        }
+
+        static::$defaultResultUnitSymbol = $symbol;
+    }
 
     /**
      * Check precision argument is valid.
@@ -1097,11 +1143,11 @@ class Quantity implements Stringable
             }
 
             // Get the unit.
-            $partUnit = UnitRegistry::getBySymbol($partUnitSymbol);
+            $partUnit = UnitService::getBySymbol($partUnitSymbol);
             if ($partUnit === null) {
                 throw new DomainException(
                     "Unknown unit symbol: '$partUnitSymbol'. Ensure you have loaded the necessary system " .
-                    'of units using `UnitRegistry::loadSystem()`.'
+                    'of units using `UnitService::loadSystem()`.'
                 );
             }
 
@@ -1143,18 +1189,18 @@ class Quantity implements Stringable
         if (empty($resultUnitSymbol)) {
             throw new DomainException('No result unit symbol provided and no default set.');
         }
-        $resultUnit = UnitRegistry::getBySymbol($resultUnitSymbol);
+        $resultUnit = UnitService::getBySymbol($resultUnitSymbol);
         if ($resultUnit === null) {
             throw new DomainException(
                 "Unknown result unit '$resultUnitSymbol'. Ensure you have loaded the necessary system of " .
-                'units using `UnitRegistry::loadSystem()`.'
+                'units using `UnitService::loadSystem()`.'
             );
         }
 
         // Check the result unit dimension if possible. We can only do this if the calling class is registered as a
         // quantity type, which isn't a strict requirement for calling this method.
         // If the input units are incompatible with the result unit, the call to add() will throw an exception anyway.
-        $qtyType = QuantityTypeRegistry::getByClass(static::class);
+        $qtyType = QuantityTypeService::getByClass(static::class);
         if ($qtyType !== null && $qtyType->dimension !== $resultUnit->dimension) {
             throw new DomainException(
                 "Result unit '$resultUnitSymbol' is incompatible with " . $qtyType->name . ' quantities.'
@@ -1293,7 +1339,7 @@ class Quantity implements Stringable
         }
 
         // Prepare an error message with the original value.
-        $qtyType = QuantityTypeRegistry::getByClass(static::class);
+        $qtyType = QuantityTypeService::getByClass(static::class);
         $name = $qtyType === null ? '' : (' ' . $qtyType->name);
         $err = "The provided string '$input' does not represent a valid$name quantity.";
 
@@ -1312,7 +1358,7 @@ class Quantity implements Stringable
         $firstPartSeen = false;
         foreach ($stringParts as $stringPart) {
             // Check the part looks like a quantity.
-            if (!RegexHelper::isValidQuantity($stringPart, $m) || empty($m[2])) {
+            if (!RegexService::isValidQuantity($stringPart, $m) || empty($m[2])) {
                 throw new FormatException($err);
             }
 
@@ -1384,7 +1430,7 @@ class Quantity implements Stringable
         $nUnits = count($partUnitSymbols);
         for ($i = 0; $i < $nUnits - 1; $i++) {
             $symbol = $partUnitSymbols[$i];
-            $unit = UnitRegistry::getBySymbol($symbol);
+            $unit = UnitService::getBySymbol($symbol);
             assert($unit instanceof Unit);
             $value = $parts[$symbol] ?? 0;
 
@@ -1399,7 +1445,7 @@ class Quantity implements Stringable
 
         // Add the smallest unit.
         $symbol = $partUnitSymbols[$nUnits - 1];
-        $unit = UnitRegistry::getBySymbol($symbol);
+        $unit = UnitService::getBySymbol($symbol);
         assert($unit instanceof Unit);
         $value = $parts[$symbol] ?? 0;
         $roundedValue = $precision === null ? $value : round($value, $precision);

@@ -53,11 +53,11 @@ The dimension codes used by the package are based on the [International System o
 Check if a dimension code string is valid.
 
 ```php
-Dimensions::isValid('L');       // true
-Dimensions::isValid('MLT-2');   // true
-Dimensions::isValid('1');       // true (dimensionless)
-Dimensions::isValid('X');       // false (invalid letter)
-Dimensions::isValid('L2M-1');   // true
+DimensionService::isValid('L');       // true
+DimensionService::isValid('MLT-2');   // true
+DimensionService::isValid('');        // true (dimensionless)
+DimensionService::isValid('X');       // false (invalid letter)
+DimensionService::isValid('L2M-1');   // true
 ```
 
 ### Decomposition and Composition
@@ -67,13 +67,13 @@ Dimensions::isValid('L2M-1');   // true
 Decompose a dimension code into an array of codes and exponents. The result array is keyed by dimension letter, with the values equal to the exponent.
 
 ```php
-$terms = Dimensions::decompose('MLT-2');
+$terms = DimensionService::decompose('MLT-2');
 // ['M' => 1, 'L' => 1, 'T' => -2]
 
-$terms = Dimensions::decompose('L2');
+$terms = DimensionService::decompose('L2');
 // ['L' => 2]
 
-$terms = Dimensions::decompose('1');
+$terms = DimensionService::decompose('');
 // [] (empty for dimensionless)
 ```
 
@@ -82,14 +82,14 @@ $terms = Dimensions::decompose('1');
 Compose an array of dimension terms into a normalized dimension code.
 
 ```php
-$dim = Dimensions::compose(['M' => 1, 'L' => 1, 'T' => -2]);
+$dim = DimensionService::compose(['M' => 1, 'L' => 1, 'T' => -2]);
 // 'MLT-2'
 
-$dim = Dimensions::compose(['L' => 2]);
+$dim = DimensionService::compose(['L' => 2]);
 // 'L2'
 
-$dim = Dimensions::compose([]);
-// '1' (dimensionless)
+$dim = DimensionService::compose([]);
+// '' (dimensionless)
 ```
 
 ### Transformation
@@ -99,10 +99,10 @@ $dim = Dimensions::compose([]);
 Normalize a dimension code to canonical form.
 
 ```php
-$norm = Dimensions::normalize('TLM');
+$norm = DimensionService::normalize('TLM');
 // 'MLT' (sorted to canonical order)
 
-$norm = Dimensions::normalize('L1');
+$norm = DimensionService::normalize('L1');
 // 'L' (removes exponent of 1)
 ```
 
@@ -111,13 +111,13 @@ $norm = Dimensions::normalize('L1');
 Apply an exponent to a dimension code.
 
 ```php
-$dim = Dimensions::applyExponent('L', 3);
+$dim = DimensionService::applyExponent('L', 3);
 // 'L3'
 
-$dim = Dimensions::applyExponent('T-1', 2);
+$dim = DimensionService::applyExponent('T-1', 2);
 // 'T-2'
 
-$dim = Dimensions::applyExponent('MLT-2', 2);
+$dim = DimensionService::applyExponent('MLT-2', 2);
 // 'M2L2T-4'
 ```
 
@@ -130,9 +130,9 @@ Convert a dimension letter to its position index.
 **Throws:** `DomainException` if the letter is not a valid dimension code.
 
 ```php
-$idx = Dimensions::letterToInt('M');  // 0
-$idx = Dimensions::letterToInt('L');  // 1
-Dimensions::letterToInt('X');         // throws DomainException
+$idx = DimensionService::letterToInt('M');  // 0
+$idx = DimensionService::letterToInt('L');  // 1
+DimensionService::letterToInt('X');         // throws DomainException
 ```
 
 #### `static getSiUnitTermSymbol(string $code): ?string`
@@ -140,9 +140,9 @@ Dimensions::letterToInt('X');         // throws DomainException
 Get the SI unit symbol for a dimension code letter.
 
 ```php
-$symbol = Dimensions::getSiUnitTermSymbol('M');  // 'kg'
-$symbol = Dimensions::getSiUnitTermSymbol('L');  // 'm'
-$symbol = Dimensions::getSiUnitTermSymbol('T');  // 's'
+$symbol = DimensionService::getSiUnitTermSymbol('M');  // 'kg'
+$symbol = DimensionService::getSiUnitTermSymbol('L');  // 'm'
+$symbol = DimensionService::getSiUnitTermSymbol('T');  // 's'
 ```
 
 #### `static getSiUnitTerm(string $code): UnitTerm`
@@ -150,7 +150,7 @@ $symbol = Dimensions::getSiUnitTermSymbol('T');  // 's'
 Get the SI UnitTerm for a dimension code letter.
 
 ```php
-$term = Dimensions::getSiUnitTerm('M');
+$term = DimensionService::getSiUnitTerm('M');
 // UnitTerm representing 'kg'
 ```
 
@@ -168,7 +168,7 @@ This affects how compound dimensions are formatted:
 
 ```php
 // Input in any order
-$dim = Dimensions::normalize('TLM');
+$dim = DimensionService::normalize('TLM');
 // Output in canonical order: 'MLT'
 ```
 
@@ -177,24 +177,24 @@ $dim = Dimensions::normalize('TLM');
 ## Usage Examples
 
 ```php
-use Galaxon\Quantities\Internal\Dimensions;
+use Galaxon\Quantities\Services\DimensionService;
 
 // Validate user input
-if (Dimensions::isValid($userDimension)) {
-    $normalized = Dimensions::normalize($userDimension);
+if (DimensionService::isValid($userDimension)) {
+    $normalized = DimensionService::normalize($userDimension);
 }
 
 // Calculate result dimension for multiplication
 $dim1 = 'MLT-2';  // Force
 $dim2 = 'L';      // Length
-$terms1 = Dimensions::decompose($dim1);
-$terms2 = Dimensions::decompose($dim2);
+$terms1 = DimensionService::decompose($dim1);
+$terms2 = DimensionService::decompose($dim2);
 
 // Add exponents for multiplication
 foreach ($terms2 as $code => $exp) {
     $terms1[$code] = ($terms1[$code] ?? 0) + $exp;
 }
-$result = Dimensions::compose($terms1);
+$result = DimensionService::compose($terms1);
 // 'ML2T-2' (Energy)
 ```
 
@@ -202,6 +202,6 @@ $result = Dimensions::compose($terms1);
 
 ## See Also
 
-- **[QuantityTypeRegistry](../Registry/QuantityTypeRegistry.md)** - Registry using dimension codes
+- **[QuantityTypeService](../Services/QuantityTypeService.md)** - Registry using dimension codes
 - **[DerivedUnit](DerivedUnit.md)** - Uses dimension codes
 - **[UnitTerm](UnitTerm.md)** - Individual unit terms

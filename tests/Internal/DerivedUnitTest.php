@@ -7,10 +7,10 @@ namespace Galaxon\Quantities\Tests\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\DerivedUnit;
-use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Internal\UnitTerm;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\RegexService;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +25,7 @@ class DerivedUnitTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for cross-system tests.
-        UnitRegistry::loadSystem(System::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion
@@ -47,7 +47,7 @@ class DerivedUnitTest extends TestCase
 
     public function testConstructorWithUnit(): void
     {
-        $meter = UnitRegistry::getBySymbol('m');
+        $meter = UnitService::getBySymbol('m');
         $du = new DerivedUnit($meter);
 
         $this->assertCount(1, $du->unitTerms);
@@ -85,7 +85,7 @@ class DerivedUnitTest extends TestCase
     {
         $du = DerivedUnit::parse('');
         $this->assertEmpty($du->unitTerms);
-        $this->assertSame('1', $du->dimension);
+        $this->assertSame('', $du->dimension);
         $this->assertSame('', $du->format(true));
     }
 
@@ -346,7 +346,7 @@ class DerivedUnitTest extends TestCase
     public function testDimensionEmptyUnit(): void
     {
         $du = new DerivedUnit();
-        $this->assertSame('1', $du->dimension);
+        $this->assertSame('', $du->dimension);
     }
 
     public function testDimensionVelocity(): void
@@ -566,7 +566,7 @@ class DerivedUnitTest extends TestCase
 
     public function testToDerivedUnitFromUnit(): void
     {
-        $meter = UnitRegistry::getBySymbol('m');
+        $meter = UnitService::getBySymbol('m');
         $result = DerivedUnit::toDerivedUnit($meter);
 
         $this->assertInstanceOf(DerivedUnit::class, $result);
@@ -944,7 +944,7 @@ class DerivedUnitTest extends TestCase
         $si = $du->toSiBase();
 
         $this->assertSame('', $si->format(true));
-        $this->assertSame('1', $si->dimension);
+        $this->assertSame('', $si->dimension);
     }
 
     public function testToSiPreservesDimension(): void
@@ -1125,7 +1125,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesSimpleUnit(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'm'));
     }
@@ -1135,7 +1135,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesUnitWithPrefixAndExponent(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'km2'));
     }
@@ -1145,7 +1145,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesCompoundUnitWithAsterisk(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'kg*m'));
     }
@@ -1155,7 +1155,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesCompoundUnitWithDivision(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'm/s'));
     }
@@ -1165,7 +1165,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesComplexCompoundUnit(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'kg*m/s2'));
     }
@@ -1175,7 +1175,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesUnitWithNegativeExponent(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 's-1'));
     }
@@ -1185,7 +1185,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesUnitWithSuperscriptExponent(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'm²'));
     }
@@ -1195,7 +1195,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesParenthesisedDenominatorForm(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'J/(mol*K)'));
     }
@@ -1205,7 +1205,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexMatchesMiddleDotSeparator(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'kg·m'));
     }
@@ -1215,7 +1215,7 @@ class DerivedUnitTest extends TestCase
      */
     public function testRegexDoesNotMatchEmptyString(): void
     {
-        $rx = RegexHelper::derivedUnitRegex();
+        $rx = RegexService::derivedUnitRegex();
 
         $this->assertSame(0, preg_match("/^$rx$/iu", ''));
     }

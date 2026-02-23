@@ -4,8 +4,69 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f1c4c4814a9d5f3fb3e56141dc34568d",
+    "content-hash": "4b38a92743fd926ff06492954bef3da6",
     "packages": [
+        {
+            "name": "galaxon/collections",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mossy2100/Galaxon-PHP-Collections.git",
+                "reference": "9e7950d25b71f9fe94480b067f25fd99735b891e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Collections/zipball/9e7950d25b71f9fe94480b067f25fd99735b891e",
+                "reference": "9e7950d25b71f9fe94480b067f25fd99735b891e",
+                "shasum": ""
+            },
+            "require": {
+                "galaxon/core": "^1.0",
+                "php": "^8.4"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "galaxon/coding-standard": "^1.0",
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^10.0 || ^11.0 || ^12.0",
+                "squizlabs/php_codesniffer": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Galaxon\\Collections\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Shaun Moss",
+                    "email": "shaun@astromultimedia.com"
+                }
+            ],
+            "description": "Type-safe PHP collections: Sequence (ordered list), Dictionary (any-type keys), Set (unique values), with runtime type validation.",
+            "homepage": "https://github.com/mossy2100/Galaxon-PHP-Collections",
+            "keywords": [
+                "array",
+                "collections",
+                "dictionary",
+                "generics",
+                "list",
+                "php",
+                "sequence",
+                "set",
+                "type-safe",
+                "typed"
+            ],
+            "support": {
+                "issues": "https://github.com/mossy2100/Galaxon-PHP-Collections/issues",
+                "source": "https://github.com/mossy2100/Galaxon-PHP-Collections"
+            },
+            "time": "2026-01-05T04:51:59+00:00"
+        },
         {
             "name": "galaxon/core",
             "version": "v1.3.0",
@@ -922,16 +983,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.12",
+            "version": "12.5.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "418e06b3b46b0d54bad749ff4907fc7dfb530199"
+                "reference": "47283cfd98d553edcb1353591f4e255dc1bb61f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/418e06b3b46b0d54bad749ff4907fc7dfb530199",
-                "reference": "418e06b3b46b0d54bad749ff4907fc7dfb530199",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/47283cfd98d553edcb1353591f4e255dc1bb61f0",
+                "reference": "47283cfd98d553edcb1353591f4e255dc1bb61f0",
                 "shasum": ""
             },
             "require": {
@@ -1000,7 +1061,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.12"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.14"
             },
             "funding": [
                 {
@@ -1024,7 +1085,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-16T08:34:36+00:00"
+            "time": "2026-02-18T12:38:40+00:00"
         },
         {
             "name": "sebastian/cli-parser",

@@ -1,7 +1,7 @@
-# System
+# UnitSystem
 ## Overview
 
-The `System` enum categorizes units of measurement according to the measurement system they belong to. This classification allows filtering and grouping units by their origin and typical use context.
+The `UnitSystem` enum categorizes units of measurement according to the measurement system they belong to. This classification allows filtering and grouping units by their origin and typical use context.
 
 Units can belong to multiple systems simultaneously. For example, the foot belongs to both Imperial and US Customary systems, while the meter belongs to SI.
 
@@ -98,4 +98,4 @@ The default system for user-defined units.
 ## See Also
 
 - **[Unit](Internal/Unit.md)** - Units can belong to one or more systems
-- **[UnitRegistry](Registry/UnitRegistry.md)** - Load units by measurement system
+- **[UnitService](Services/UnitService.md)** - Load units by measurement system

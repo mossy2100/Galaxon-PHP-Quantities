@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -24,7 +24,7 @@ class Volume extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -34,42 +34,42 @@ class Volume extends Quantity
             // Metric volume units
             'liter'                => [
                 'asciiSymbol' => 'L',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::SiAccepted],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::SiAccepted],
             ],
             // US customary volume units
             'US fluid ounce'       => [
                 'asciiSymbol' => 'US fl oz',
-                'systems'     => [System::UsCustomary],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             'US pint'              => [
                 'asciiSymbol' => 'US pt',
-                'systems'     => [System::UsCustomary],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             'US quart'             => [
                 'asciiSymbol' => 'US qt',
-                'systems'     => [System::UsCustomary],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             'US gallon'            => [
                 'asciiSymbol' => 'US gal',
-                'systems'     => [System::UsCustomary],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             // Imperial volume units
             'imperial fluid ounce' => [
                 'asciiSymbol' => 'imp fl oz',
-                'systems'     => [System::Imperial],
+                'systems'     => [UnitSystem::Imperial],
             ],
             'imperial pint'        => [
                 'asciiSymbol' => 'imp pt',
-                'systems'     => [System::Imperial],
+                'systems'     => [UnitSystem::Imperial],
             ],
             'imperial quart'       => [
                 'asciiSymbol' => 'imp qt',
-                'systems'     => [System::Imperial],
+                'systems'     => [UnitSystem::Imperial],
             ],
             'imperial gallon'      => [
                 'asciiSymbol' => 'imp gal',
-                'systems'     => [System::Imperial],
+                'systems'     => [UnitSystem::Imperial],
             ],
         ];
     }

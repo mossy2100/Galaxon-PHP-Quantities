@@ -16,12 +16,12 @@ $miles = $meters->to('mi'); // 0.621371 mi
 ```php
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 
 // Load Imperial/US units (SI units are loaded by default)
-UnitRegistry::loadSystem(System::Imperial);
-UnitRegistry::loadSystem(System::UsCustomary);
+UnitService::loadSystem(UnitSystem::Imperial);
+UnitService::loadSystem(UnitSystem::UsCustomary);
 
 // Length
 $height = new Length(1.83, 'm');

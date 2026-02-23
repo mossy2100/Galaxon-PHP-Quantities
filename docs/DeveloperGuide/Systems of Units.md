@@ -19,12 +19,12 @@ By default, only SI, SI Accepted, and Common units are loaded. To use Imperial, 
 load them first:
 
 ```php
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 
 // Load Imperial and US Customary units
-UnitRegistry::loadSystem(System::Imperial);
-UnitRegistry::loadSystem(System::UsCustomary);
+UnitService::loadSystem(UnitSystem::Imperial);
+UnitService::loadSystem(UnitSystem::UsCustomary);
 
 // Now you can use feet, pounds, gallons, etc.
 $length = new Length(100, 'ft');

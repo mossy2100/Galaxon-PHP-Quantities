@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -27,7 +27,7 @@ class Frequency extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -36,13 +36,13 @@ class Frequency extends Quantity
         return [
             'hertz'     => [
                 'asciiSymbol' => 'Hz',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
             ],
             'becquerel' => [
                 'asciiSymbol' => 'Bq',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
             ],
         ];
     }

@@ -266,4 +266,4 @@ echo $acreToM2->factor->value; // 4046.86...
 
 - **[Converter](Converter.md)** - Manages conversion paths between units
 - **[FloatWithError](FloatWithError.md)** - Tracks precision through operations
-- **[ConversionRegistry](../Registry/ConversionRegistry.md)** - Stores registered conversions
+- **[ConversionService](../Services/ConversionService.md)** - Stores registered conversions

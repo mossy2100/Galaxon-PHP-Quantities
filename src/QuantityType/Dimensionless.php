@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -23,7 +23,7 @@ class Dimensionless extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -32,24 +32,24 @@ class Dimensionless extends Quantity
         return [
             'scalar'             => [
                 'asciiSymbol' => '',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
             'percentage'         => [
                 'asciiSymbol' => '%',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
             'parts per thousand' => [
                 'asciiSymbol'   => 'ppt',
                 'unicodeSymbol' => '‰',
-                'systems'       => [System::Common],
+                'systems'       => [UnitSystem::Common],
             ],
             'parts per million'  =>  [
                 'asciiSymbol' => 'ppm',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
             'parts per billion'  => [
                 'asciiSymbol' => 'ppb',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
         ];
     }

@@ -34,7 +34,7 @@ $s2 = Quantity::create(37.5, 'J/K');
 The difference between `new Quantity()` and `Quantity::create()`:
 
 - **`new Quantity()`** always creates a generic `Quantity` object. However, it will throw an exception if a dedicated class is registered for the dimension/quantity type, prompting you to use that class instead.
-- **`Quantity::create()`** checks the `QuantityTypeRegistry` and returns the appropriate subclass if one is registered for the dimension/quantity type. For example, `Quantity::create(10, 'm')` returns a `Length` object, not a generic
+- **`Quantity::create()`** checks the `QuantityTypeService` and returns the appropriate subclass if one is registered for the dimension/quantity type. For example, `Quantity::create(10, 'm')` returns a `Length` object, not a generic
   `Quantity`.
 
 For this example, both produce the same result since no `Entropy` class is registered.
@@ -56,13 +56,13 @@ That's it — some built-in quantity types like `Acceleration` and `Density` are
 
 The class itself needs no methods; it inherits everything from `Quantity`.
 
-To make the package use your class automatically, register it with the `QuantityTypeRegistry`:
+To make the package use your class automatically, register it with the `QuantityTypeService`:
 
 ```php
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Services\QuantityTypeService;
 
 // Register the Entropy class for the entropy dimension (M·L²·T⁻²·K⁻¹).
-QuantityTypeRegistry::add('entropy', 'ML2T-2H-1', Entropy::class);
+QuantityTypeService::add('entropy', 'ML2T-2H-1', Entropy::class);
 ```
 
 If you don't know the dimension code for a quantity type, but you know the units (and they are registered and loaded), try this:
@@ -87,10 +87,10 @@ echo get_class($entropy); // "Entropy"
 
 ## 3. Adding a Custom Unit
 
-You can add custom units to the `UnitRegistry` without creating a custom class. For example, suppose you want a "chaos" unit (`ch`) for entropy, equivalent to J/K:
+You can add custom units to the `UnitService` without creating a custom class. For example, suppose you want a "chaos" unit (`ch`) for entropy, equivalent to J/K:
 
 ```php
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Quantity;
 
 // Add the 'chaos' unit with an expansion to base SI units.
@@ -98,16 +98,16 @@ $chaosUnit = new Unit(
     name: 'chaos',
     asciiSymbol: 'ch',
     dimension: 'ML2T-2H-1',
-    systems: [System::Common],
+    systems: [UnitSystem::Common],
     expansionUnitSymbol: 'kg*m2/(s2*K)'
 );
-UnitRegistry::add($chaosUnit);
+UnitService::add($chaosUnit);
 
 $s = new Quantity(37.5, 'ch');
 echo $s;             // "37.5 ch"
 echo $s->to('J/K');  // "37.5 J/K"
 
-UnitRegistry::loadSystem(System::UsCustomary);
+UnitService::loadSystem(UnitSystem::UsCustomary);
 echo $s->to('Btu/degR');  // "0.019746 Btu/°R"
 ```
 
@@ -116,11 +116,11 @@ The `expansionUnitSymbol` tells the conversion system how this unit relates to b
 ### Unit Constructor Parameters
 
 | Parameter             | Description                                                                                                              |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| --------------------- |--------------------------------------------------------------------------------------------------------------------------|
 | `name`                | The unit name (e.g. `'chaos'`).                                                                                          |
 | `asciiSymbol`         | The ASCII symbol used for parsing and display (e.g. `'ch'`).                                                             |
 | `dimension`           | The dimension code (e.g. `'ML2T-2H-1'`).                                                                                 |
-| `systems`             | `System` value or array of `System` values this unit belongs to.                                                         |
+| `systems`             | Array of `UnitSystem` values this unit belongs to.                                                                       |
 | `prefixGroup`         | Bitwise flags for allowed prefixes. 0 = no prefixes.                                                                     |
 | `unicodeSymbol`       | Optional Unicode symbol for display (e.g. `'Ω'`). Null if same as ASCII.                                                 |
 | `alternateSymbol`     | An additional symbol accepted by the parser. This symbol cannot accept prefixes.                                         |
@@ -134,8 +134,8 @@ quantity types with custom units work (e.g. `Force`, `Pressure`, `Length`):
 
 ```php
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 class Entropy extends Quantity
@@ -146,8 +146,8 @@ class Entropy extends Quantity
         return [
             'chaos' => [
                 'asciiSymbol'         => 'ch',
-                'prefixGroup'         => PrefixRegistry::GROUP_METRIC,
-                'systems'             => [System::Si],
+                'prefixGroup'         => PrefixService::GROUP_METRIC,
+                'systems'             => [UnitSystem::Si],
                 'expansionUnitSymbol' => 'kg*m2*s-2*K-1',
             ],
         ];
@@ -155,10 +155,10 @@ class Entropy extends Quantity
 }
 ```
 
-Then register the class with the `QuantityTypeRegistry`:
+Then register the class with the `QuantityTypeService`:
 
 ```php
-QuantityTypeRegistry::add('entropy', 'ML2T-2H-1', Entropy::class);
+QuantityTypeService::add('entropy', 'ML2T-2H-1', Entropy::class);
 ```
 
 The unit definitions will be picked up automatically when the relevant measurement system is loaded, just like the built-in types. The `chaos` unit will accept metric prefixes (kch, mch, etc.) and participate in the full conversion system.
@@ -166,6 +166,6 @@ The unit definitions will be picked up automatically when the relevant measureme
 ## See Also
 
 - [Quantity](../Reference/Quantity.md) — base class API reference.
-- [UnitRegistry](../Reference/Registry/UnitRegistry.md) — unit registration and lookup.
-- [QuantityTypeRegistry](../Reference/Registry/QuantityTypeRegistry.md) — quantity type registration.
+- [UnitService](../Reference/Services/UnitService.md) — unit registration and lookup.
+- [QuantityTypeService](../Reference/Services/QuantityTypeService.md) — quantity type registration.
 - [Supported Units and Prefixes](Supported%20Units%20and%20Prefixes.md) — complete list of built-in units.

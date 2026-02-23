@@ -61,9 +61,9 @@ final class QuantityTypeTest extends TestCase
      */
     public function testConstructorWithDimensionless(): void
     {
-        $qtyType = new QuantityType('ratio', '1', UnregisteredQuantity::class);
+        $qtyType = new QuantityType('ratio', '', UnregisteredQuantity::class);
 
-        $this->assertSame('1', $qtyType->dimension);
+        $this->assertSame('', $qtyType->dimension);
     }
 
     /**

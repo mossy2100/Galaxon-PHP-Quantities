@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Services\DimensionService;
 
 /**
  * Represents a quantity type.
@@ -22,7 +23,7 @@ class QuantityType
     /**
      * The normalized dimension code (e.g. 'L', 'M', 'T-2LM').
      *
-     * @see Dimensions
+     * @see DimensionService
      */
     public readonly string $dimension;
 
@@ -59,7 +60,7 @@ class QuantityType
     public function __construct(string $name, string $dimension, string $class)
     {
         $this->name = $name;
-        $this->dimension = Dimensions::normalize($dimension);
+        $this->dimension = DimensionService::normalize($dimension);
         $this->class = $class;
     }
 

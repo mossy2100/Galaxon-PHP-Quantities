@@ -7,10 +7,12 @@ namespace Galaxon\Quantities\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Registry\ConversionRegistry;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Services\DimensionService;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\RegexService;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -57,9 +59,16 @@ class Unit implements UnitInterface
     /**
      * The measurement systems this unit belongs to.
      *
-     * @var list<System>
+     * @var list<UnitSystem>
      */
     private(set) array $systems;
+
+    /**
+     * The expansion quantity, if one exists and is known.
+     *
+     * @var ?Quantity
+     */
+    private(set) ?Quantity $expansion = null;
 
     // endregion
 
@@ -71,7 +80,7 @@ class Unit implements UnitInterface
      * @var list<Prefix>
      */
     public array $allowedPrefixes {
-        get => PrefixRegistry::getPrefixes($this->prefixGroup);
+        get => PrefixService::getPrefixes($this->prefixGroup);
     }
 
     /**
@@ -134,23 +143,6 @@ class Unit implements UnitInterface
         }
     }
 
-    /**
-     * Get the expansion conversion for this unit, if one exists in the ConversionRegistry.
-     *
-     * @var ?Conversion
-     */
-    public ?Conversion $expansion = null {
-        get {
-            // Check if we found one already.
-            if ($this->expansion !== null) {
-                return $this->expansion;
-            }
-            // Check the registry.
-            $this->expansion = ConversionRegistry::getExpansion($this);
-            return $this->expansion;
-        }
-    }
-
     // endregion
 
     // region Constructor
@@ -161,7 +153,7 @@ class Unit implements UnitInterface
      * @param string $name The unit name (e.g. 'meter', 'gram').
      * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
-     * @param System|list<System> $systems The measurement systems this unit belongs to.
+     * @param UnitSystem|list<UnitSystem> $systems The measurement systems this unit belongs to.
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
      * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if it's the same as ASCII.
      * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
@@ -172,36 +164,37 @@ class Unit implements UnitInterface
         string $name,
         string $asciiSymbol,
         string $dimension,
-        System|array $systems = System::Custom,
+        UnitSystem|array $systems = UnitSystem::Custom,
         int $prefixGroup = 0,
         ?string $unicodeSymbol = null,
         ?string $alternateSymbol = null
     ) {
         // Check the name is non-empty, ASCII, and up to 3 words.
-        if (!RegexHelper::isValidUnitName($name)) {
-            throw new FormatException('Unit name must given in ASCII words, e.g. "joule", "US fluid ounce".');
+        $name = trim($name);
+        if (!RegexService::isValidUnitName($name)) {
+            throw new FormatException('Unit name must given in Unicode words, e.g. "joule", "US fluid ounce".');
         }
 
         // Check ASCII symbol contains ASCII letters only (empty is allowed for dimensionless/scalar).
-        if ($asciiSymbol !== '' && !RegexHelper::isValidAsciiSymbol($asciiSymbol)) {
+        if ($asciiSymbol !== '' && !RegexService::isValidAsciiSymbol($asciiSymbol)) {
             throw new FormatException(
                 "Unit symbol '$asciiSymbol' must only contain ASCII characters. " .
                 'Up to three words are allowed, separated by single spaces, or a single valid unit symbol (e.g. \'"%).'
             );
         }
 
-        // Convert a single System value to an array.
-        if ($systems instanceof System) {
+        // Convert a single UnitSystem value to an array.
+        if ($systems instanceof UnitSystem) {
             $systems = [$systems];
         }
-        // Make sure the $systems array is a non-empty array of System values.
+        // Make sure the $systems array is a non-empty array of UnitSystem values.
         if (empty($systems)) {
             throw new DomainException('Unit must belong to at least one measurement system.');
         }
         $systems = array_values(array_unique($systems, SORT_REGULAR));
         foreach ($systems as $system) {
-            if (!$system instanceof System) {
-                throw new DomainException('Systems of units must be specified as System enum values.');
+            if (!$system instanceof UnitSystem) {
+                throw new DomainException('Systems of units must be specified as UnitSystem enum values.');
             }
         }
 
@@ -211,14 +204,14 @@ class Unit implements UnitInterface
         }
 
         // Validate Unicode symbol.
-        if (isset($unicodeSymbol) && !RegexHelper::isValidUnicodeSymbol($unicodeSymbol)) {
+        if (isset($unicodeSymbol) && !RegexService::isValidUnicodeSymbol($unicodeSymbol)) {
             throw new FormatException(
                 "Unit symbol '$unicodeSymbol' must only contain Unicode letters and/or symbols (e.g. °′″%)."
             );
         }
 
         // Check if the alternate symbol contains a single ASCII non-letter symbol only.
-        if (isset($alternateSymbol) && !RegexHelper::isValidAlternateSymbol($alternateSymbol)) {
+        if (isset($alternateSymbol) && !RegexService::isValidAlternateSymbol($alternateSymbol)) {
             throw new FormatException(
                 "Unit symbol '$alternateSymbol' may only contain a single ASCII unit symbol (e.g. '\"%)."
             );
@@ -227,7 +220,7 @@ class Unit implements UnitInterface
         // Set the properties.
         $this->name = $name;
         $this->asciiSymbol = $asciiSymbol;
-        $this->dimension = Dimensions::normalize($dimension);
+        $this->dimension = DimensionService::normalize($dimension);
         $this->systems = $systems;
         $this->prefixGroup = $prefixGroup;
         $this->unicodeSymbol = $unicodeSymbol ?? $asciiSymbol;
@@ -241,10 +234,10 @@ class Unit implements UnitInterface
     /**
      * Check if this unit belongs to a specific measurement system.
      *
-     * @param System $system The system to check.
+     * @param UnitSystem $system The system to check.
      * @return bool True if the unit belongs to the system.
      */
-    public function belongsToSystem(System $system): bool
+    public function belongsToSystem(UnitSystem $system): bool
     {
         return in_array($system, $this->systems, true);
     }
@@ -256,7 +249,20 @@ class Unit implements UnitInterface
      */
     public function isSi(): bool
     {
-        return $this->belongsToSystem(System::Si);
+        return $this->belongsToSystem(UnitSystem::Si);
+    }
+
+    /**
+     * Check if this is an Imperial or US customary unit.
+     *
+     * I'm calling these "English" units for want of a better term.
+     *
+     * @return bool
+     */
+    public function isEnglish(): bool
+    {
+        return $this->belongsToSystem(UnitSystem::Imperial) ||
+            $this->belongsToSystem(UnitSystem::UsCustomary);
     }
 
     /**
@@ -266,15 +272,14 @@ class Unit implements UnitInterface
      */
     public function isBase(): bool
     {
-        // Check if the dimension is a single letter (e.g. 'L') or '1' (dimensionless).
-        return strlen($this->dimension) === 1;
+        // Check if the dimension is a single letter (e.g. 'L') or '' (dimensionless).
+        return strlen($this->dimension) <= 1;
     }
 
     /**
-     * Check if this unit is expandable into base units.
+     * Check if an expansion has already been found for this unit.
      *
-     * NB: Expandable and base are not opposites. Some units can be non-base units (like eV) but don't have a defined
-     * expansion, although they will be convertable to units that are expandable (e.g. J).
+     * No attempt is made to find one.
      *
      * @return bool
      */
@@ -293,7 +298,7 @@ class Unit implements UnitInterface
     {
         // Convert the prefix to a Prefix object if needed.
         if (is_string($prefix)) {
-            $prefix = PrefixRegistry::getBySymbol($prefix);
+            $prefix = PrefixService::getBySymbol($prefix);
         }
 
         return array_any($this->allowedPrefixes, static fn (Prefix $allowedPrefix) => $allowedPrefix->equal($prefix));
@@ -315,14 +320,14 @@ class Unit implements UnitInterface
     public static function parse(string $symbol): self
     {
         // Validate the symbol format.
-        if ($symbol !== '' && !RegexHelper::isValidUnitSymbol($symbol)) {
+        if ($symbol !== '' && !RegexService::isValidUnitSymbol($symbol)) {
             throw new FormatException(
                 "Unit symbol '$symbol' can only contain letters and special characters (e.g. °′″'\")."
             );
         }
 
         // Get the unit from the registry.
-        $unit = UnitRegistry::getBySymbol($symbol);
+        $unit = UnitService::getBySymbol($symbol);
 
         // If not found, throw an exception.
         return $unit ?? throw new DomainException("Unknown unit symbol '$symbol'.");
@@ -369,6 +374,78 @@ class Unit implements UnitInterface
     public function equal(mixed $other): bool
     {
         return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
+    }
+
+    // endregion
+
+    // region Transformation methods
+
+
+    /**
+     * Look for an expansion conversion for this unit.
+     *
+     * That means a conversion from a non-base unit to a base unit.
+     * If the provided unit is a base unit, or if no expansion conversion is found, return null.
+     *
+     * A conversion with a factor of 1 is a direct expansion and is returned first.
+     * If not found, the conversion with the least relative error will be returned.
+     *
+     * Note, new expansion conversions can be discovered. For example, an expansion of eV is not defined, but there is a
+     * conversion from eV to J, which has an expansion to kg*m2/s2. Therefore, even though the first time this method is
+     * called for a unit, there might not be an expansion conversion, the next time there might be.
+     *
+     * @var ?Quantity
+     */
+    public function tryExpand(): ?Quantity
+    {
+        // Check if we found the expansion already.
+        if ($this->expansion !== null) {
+            return $this->expansion;
+        }
+
+        // Base units cannot be expanded.
+        if ($this->isBase()) {
+            return null;
+        }
+
+        // See if there is a Converter for this dimension yet.
+        $converter = Converter::getByDimension($this->dimension);
+        if ($converter === null) {
+            return null;
+        }
+
+        // Find all conversions originating from this unit.
+        $conversionList = $converter->conversionMatrix[$this->asciiSymbol] ?? null;
+        if ($conversionList === null) {
+            return null;
+        }
+
+        // Scan the conversions looking for suitable expansion conversions, which means any conversion to a base unit.
+        $bestConversion = null;
+        $minErr = INF;
+        foreach ($conversionList as $conversion) {
+            if ($conversion->destUnit->isBase()) {
+                // Check for a unity expansion.
+                if ($conversion->factor->value === 1.0) {
+                    // This is the best match, no need to keep looking.
+                    $bestConversion = $conversion;
+                    break;
+                }
+
+                // See if this is an improvement.
+                if ($conversion->factor->relativeError < $minErr) {
+                    $minErr = $conversion->factor->relativeError;
+                    $bestConversion = $conversion;
+                }
+            }
+        }
+
+        // If an expansion conversion was found, convert it to a Quantity and remember it.
+        if ($bestConversion !== null) {
+            $this->expansion = Quantity::create($bestConversion->factor->value, $bestConversion->destUnit);
+        }
+
+        return $this->expansion;
     }
 
     // endregion

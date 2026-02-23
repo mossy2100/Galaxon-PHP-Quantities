@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\Registry;
+namespace Galaxon\Quantities\Tests\Services;
 
 use Galaxon\Quantities\QuantityType\Acceleration;
 use Galaxon\Quantities\QuantityType\AmountOfSubstance;

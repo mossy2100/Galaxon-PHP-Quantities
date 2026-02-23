@@ -2,26 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Registry;
+namespace Galaxon\Quantities\Services;
 
 use DomainException;
+use Galaxon\Core\Arrays;
+use Galaxon\Quantities\Internal\Converter;
+use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\UnitSystem;
 
 /**
- * Registry of known units.
+ * Services of known units.
  */
-class UnitRegistry
+class UnitService
 {
-    // region Constants
-
-    public const int ON_DUPLICATE_THROW = 0;
-    public const int ON_DUPLICATE_SKIP = 1;
-    public const int ON_DUPLICATE_REPLACE = 2;
-
-    // endregion
-
     // region Static properties
 
     /**
@@ -34,7 +29,7 @@ class UnitRegistry
     /**
      * The systems of units that have been loaded so far.
      *
-     * @var list<System>
+     * @var list<UnitSystem>
      */
     private static array $loadedSystems = [];
 
@@ -42,7 +37,7 @@ class UnitRegistry
 
     // region Static accessors
 
-    /** @return list<System> */
+    /** @return list<UnitSystem> */
     public static function getLoadedSystems(): array
     {
         self::init();
@@ -78,10 +73,10 @@ class UnitRegistry
     /**
      * Get all units belonging to the given system of units.
      *
-     * @param System $system The system of units to match.
+     * @param UnitSystem $system The system of units to match.
      * @return list<Unit> Units belonging to the given system.
      */
-    public static function getBySystem(System $system): array
+    public static function getBySystem(UnitSystem $system): array
     {
         self::init();
         assert(self::$units !== null);
@@ -131,12 +126,11 @@ class UnitRegistry
      * Add a unit to the system.
      *
      * @param Unit $unit The unit to add.
-     * @param int $onDuplicateAction Action to take if the unit already exists in the registry. Defaults to throwing an
-     * exception.
-     * @throws DomainException If a unit with the same name already exists in the registry, and $onDuplicateAction is
-     * set to ON_DUPLICATE_THROW; or if any of the new unit's possible symbols conflict with existing ones.
+     * @param bool $replaceExisting Determines action to take if a unit with this name already exists in the registry.
+     * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
+     * @throws DomainException If any of the new unit's symbols are equal to any existing unit's symbol.
      */
-    public static function add(Unit $unit, int $onDuplicateAction = self::ON_DUPLICATE_THROW): void
+    public static function add(Unit $unit, bool $replaceExisting = false): void
     {
         // Ensure the registry is initialized (unless we're in the middle of init).
         if (self::$units === null) {
@@ -145,19 +139,14 @@ class UnitRegistry
 
         // Check if we already have a unit with this name.
         if (isset(self::$units[$unit->name])) {
-            // Throw if requested.
-            if ($onDuplicateAction === self::ON_DUPLICATE_THROW) {
-                throw new DomainException("Unit '$unit->name' already exists in the registry.");
-            }
-
             // Skip if requested.
-            if ($onDuplicateAction === self::ON_DUPLICATE_SKIP) {
+            if (!$replaceExisting) {
                 return;
             }
 
             // Replace the existing unit. Remove it first, so the call to getAllSymbols() doesn't include the
             // symbols from this unit.
-            self::remove($unit->name);
+            self::remove($unit);
         }
 
         // Get all existing symbols.
@@ -179,9 +168,9 @@ class UnitRegistry
     /**
      * Remove a unit from the system.
      *
-     * @param string $name The unit name to remove.
+     * @param Unit $unit The unit to remove.
      */
-    public static function remove(string $name): void
+    public static function remove(Unit $unit): void
     {
         // If the registry is not initialized yet, do nothing.
         if (self::$units === null) {
@@ -189,7 +178,30 @@ class UnitRegistry
         }
 
         // Remove the unit from the registry.
-        unset(self::$units[$name]);
+        unset(self::$units[$unit->name]);
+    }
+
+    /**
+     * Add a new unit from a unit definition.
+     *
+     * @param string $name The unit name.
+     * @param array $definition The unit definition.
+     * @param bool $replaceExisting Determines action to take if a unit with this name already exists in the registry.
+     * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
+     * @throws DomainException
+     */
+    public static function addFromDefinition(string $name, array $definition, bool $replaceExisting = false): void
+    {
+        // Add the unit. If it's already in there, skip it.
+        self::add(new Unit(
+            $name,
+            $definition['asciiSymbol'],
+            $definition['dimension'],
+            $definition['systems'] ?? [],
+            $definition['prefixGroup'] ?? 0,
+            $definition['unicodeSymbol'] ?? null,
+            $definition['alternateSymbol'] ?? null
+        ), $replaceExisting);
     }
 
     /**
@@ -216,17 +228,14 @@ class UnitRegistry
     }
 
     /**
-     * Load all units belonging to a specific measurement system.
+     * Load all units belonging to a specific system of units.
      *
-     * @param System $system The measurement system to load units for.
+     * @param UnitSystem $system The system of units to load units for.
+     * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
+     * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
      */
-    public static function loadSystem(System $system): void
+    public static function loadSystem(UnitSystem $system, bool $replaceExisting = false): void
     {
-        // If this system has already been loaded, do nothing.
-        if (in_array($system, self::$loadedSystems, true)) {
-            return;
-        }
-
         // Loop through all unit definitions and add any belonging to the specified system.
         foreach (self::getAllDefinitions() as $name => $definition) {
             // Only load units for the specified system.
@@ -235,23 +244,94 @@ class UnitRegistry
                 continue;
             }
 
-            // Add the unit. If it's already in there, skip it.
-            self::add(new Unit(
-                $name,
-                $definition['asciiSymbol'],
-                $definition['dimension'],
-                $unitSystems,
-                $definition['prefixGroup'] ?? 0,
-                $definition['unicodeSymbol'] ?? null,
-                $definition['alternateSymbol'] ?? null
-            ), self::ON_DUPLICATE_SKIP);
+            // Add the unit if not already there.
+            self::addFromDefinition($name, $definition, $replaceExisting);
         }
 
         // Keep track of which systems have been loaded.
-        self::$loadedSystems[] = $system;
+        if (!in_array($system, self::$loadedSystems, true)) {
+            self::$loadedSystems[] = $system;
+        }
 
-        // Load any conversions involving these units.
-        ConversionRegistry::loadSystem($system);
+        // Update the conversion definitions in the Converters, because now a new unit system is loaded, more
+        // conversion definitions will be valid.
+        $converters = Converter::getInstances();
+        foreach ($converters as $converter) {
+            $converter->loadConversionsFromDefinitions();
+        }
+    }
+
+    /**
+     * Remove all units belonging to a specific system of units.
+     *
+     * Note, this does not remove conversions from Converters that involve these units.
+     * For that, call ConversionService::unloadSystem().
+     *
+     * @param UnitSystem $system The system of units to unload units for.
+     */
+    public static function unloadSystem(UnitSystem $system): void
+    {
+        // Get all the units of this system.
+        $units = self::getBySystem($system);
+
+        // Remove them from the UnitService.
+        foreach ($units as $unit) {
+            self::remove($unit);
+        }
+
+        // Remove the system from the list of loaded systems.
+        self::$loadedSystems = Arrays::removeValue(self::$loadedSystems, $system);
+    }
+
+    /**
+     * Load all units belonging to a specific quantity type.
+     *
+     * @param QuantityType $quantityType The quantity type to load units for.
+     * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
+     * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
+     */
+    public static function loadByQuantityType(QuantityType $quantityType, bool $replaceExisting = false): void
+    {
+        // Get the unit definitions for this quantity type.
+        $unitDefinitions = $quantityType->class::getUnitDefinitions();
+
+        // Loop through all unit definitions and add any that align with the loaded systems.
+        foreach ($unitDefinitions as $name => $definition) {
+            // Only load units for loaded systems.
+            $unitSystems = $definition['systems'] ?? [];
+            $intersection = array_uintersect(
+                self::$loadedSystems,
+                $unitSystems,
+                static fn (UnitSystem $a, UnitSystem $b) => $a <=> $b
+            );
+            if (empty($intersection)) {
+                continue;
+            }
+
+            // Add the unit.
+            $definition['dimension'] = $quantityType->dimension;
+            self::addFromDefinition($name, $definition, $replaceExisting);
+        }
+    }
+
+    /**
+     * Load all units.
+     *
+     * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
+     * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
+     * @return void
+     * @throws DomainException
+     */
+    public static function loadAll(bool $replaceExisting = false): void
+    {
+        // Loop through all unit definitions and add any belonging to the specified system.
+        foreach (self::getAllDefinitions() as $name => $definition) {
+            // Add the unit if not already there.
+            self::addFromDefinition($name, $definition, $replaceExisting);
+        }
+
+        // Note all systems have been loaded.
+        self::$loadedSystems = UnitSystem::cases();
     }
 
     // endregion
@@ -284,10 +364,10 @@ class UnitRegistry
         if (self::$units === null) {
             self::clear();
 
-            // Load the default measurement systems.
-            self::loadSystem(System::Si);
-            self::loadSystem(System::SiAccepted);
-            self::loadSystem(System::Common);
+            // Load the default units.
+            foreach (UnitSystem::DEFAULTS as $system) {
+                self::loadSystem($system);
+            }
         }
     }
 
@@ -302,7 +382,7 @@ class UnitRegistry
     {
         $definitions = [];
 
-        foreach (QuantityTypeRegistry::getAll() as $qtyType) {
+        foreach (QuantityTypeService::getAll() as $qtyType) {
             $qtyTypeClass = $qtyType->class;
             assert(is_subclass_of($qtyTypeClass, Quantity::class));
 

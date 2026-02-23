@@ -71,7 +71,7 @@ Prefixes are organised into groups for flexible assignment to units:
 - **Large metric:**  Only the larger metric prefixes (kilo, mega, giga, etc.)
 - **Binary prefixes**: IEC binary prefixes (kibi, mebi, gibi, etc.) for computing
 
-See [PrefixRegistry](../Reference/Registry/PrefixRegistry.md) for group code constants.
+See [PrefixService](../Reference/Services/PrefixService.md) for group code constants.
 
 ---
 
@@ -529,7 +529,7 @@ All units have an ASCII symbol, so they are easy to type. Therefore, you can use
 ## See Also
 
 - **[QuantityType/](QuantityType/)** - Documentation for all quantity type classes
-- **[System](../Reference/System.md)** - Measurement system classification
+- **[UnitSystem](../Reference/UnitSystem.md)** - Measurement system classification
 - **[Prefix](../Reference/Internal/Prefix.md)** - SI and binary prefixes
 - **[Unit](../Reference/Internal/Unit.md)** - Unit class documentation
 - **[Quantity](../Reference/Quantity.md)** - Working with quantities

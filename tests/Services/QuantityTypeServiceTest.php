@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\Registry;
+namespace Galaxon\Quantities\Tests\Services;
 
 use DomainException;
 use Galaxon\Quantities\Internal\QuantityType;
@@ -12,7 +12,7 @@ use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Tests\Fixtures\TestQuantity;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -20,10 +20,10 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 /**
- * Tests for QuantityTypeRegistry class.
+ * Tests for QuantityTypeService class.
  */
-#[CoversClass(QuantityTypeRegistry::class)]
-final class QuantityTypeRegistryTest extends TestCase
+#[CoversClass(QuantityTypeService::class)]
+final class QuantityTypeServiceTest extends TestCase
 {
     // region getAll() tests
 
@@ -32,7 +32,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetAllReturnsArray(): void
     {
-        $result = QuantityTypeRegistry::getAll();
+        $result = QuantityTypeService::getAll();
 
         // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($result);
@@ -43,7 +43,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetAllReturnsQuantityTypeObjects(): void
     {
-        $result = QuantityTypeRegistry::getAll();
+        $result = QuantityTypeService::getAll();
 
         foreach ($result as $dimension => $qtyType) {
             $this->assertIsString($dimension);
@@ -56,7 +56,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetAllContainsSiBaseDimensions(): void
     {
-        $result = QuantityTypeRegistry::getAll();
+        $result = QuantityTypeService::getAll();
 
         $this->assertArrayHasKey('length', $result);
         $this->assertArrayHasKey('mass', $result);
@@ -72,7 +72,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetAllContainsDerivedDimensions(): void
     {
-        $result = QuantityTypeRegistry::getAll();
+        $result = QuantityTypeService::getAll();
 
         $this->assertArrayHasKey('area', $result);
         $this->assertArrayHasKey('volume', $result);
@@ -89,7 +89,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByDimensionReturnsQuantityType(): void
     {
-        $result = QuantityTypeRegistry::getByDimension('L');
+        $result = QuantityTypeService::getByDimension('L');
 
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('L', $result->dimension);
@@ -102,7 +102,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByDimensionMass(): void
     {
-        $result = QuantityTypeRegistry::getByDimension('M');
+        $result = QuantityTypeService::getByDimension('M');
 
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('M', $result->dimension);
@@ -115,7 +115,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByDimensionDerived(): void
     {
-        $result = QuantityTypeRegistry::getByDimension('L2');
+        $result = QuantityTypeService::getByDimension('L2');
 
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('L2', $result->dimension);
@@ -129,7 +129,7 @@ final class QuantityTypeRegistryTest extends TestCase
     public function testGetByDimensionNormalizesDimension(): void
     {
         // 'LT-1' should be normalized to 'LT-1' (canonical order)
-        $result = QuantityTypeRegistry::getByDimension('LT-1');
+        $result = QuantityTypeService::getByDimension('LT-1');
 
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('LT-1', $result->dimension);
@@ -144,7 +144,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code 'X9Y9Z9'");
 
-        QuantityTypeRegistry::getByDimension('X9Y9Z9');
+        QuantityTypeService::getByDimension('X9Y9Z9');
     }
 
     // endregion
@@ -156,7 +156,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByNameReturnsQuantityType(): void
     {
-        $result = QuantityTypeRegistry::getByName('length');
+        $result = QuantityTypeService::getByName('length');
 
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('length', $result->name);
@@ -168,9 +168,9 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByNameIsCaseInsensitive(): void
     {
-        $lower = QuantityTypeRegistry::getByName('length');
-        $upper = QuantityTypeRegistry::getByName('LENGTH');
-        $mixed = QuantityTypeRegistry::getByName('Length');
+        $lower = QuantityTypeService::getByName('length');
+        $upper = QuantityTypeService::getByName('LENGTH');
+        $mixed = QuantityTypeService::getByName('Length');
 
         $this->assertInstanceOf(QuantityType::class, $lower);
         $this->assertInstanceOf(QuantityType::class, $upper);
@@ -184,7 +184,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByNameMultiWord(): void
     {
-        $result = QuantityTypeRegistry::getByName('electric current');
+        $result = QuantityTypeService::getByName('electric current');
 
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('I', $result->dimension);
@@ -195,7 +195,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByNameReturnsNullForUnknown(): void
     {
-        $result = QuantityTypeRegistry::getByName('nonexistent');
+        $result = QuantityTypeService::getByName('nonexistent');
 
         $this->assertNull($result);
     }
@@ -209,7 +209,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByClassReturnsQuantityType(): void
     {
-        $result = QuantityTypeRegistry::getByClass(Length::class);
+        $result = QuantityTypeService::getByClass(Length::class);
 
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame(Length::class, $result->class);
@@ -221,10 +221,10 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByClassDifferentClasses(): void
     {
-        $this->assertSame('M', QuantityTypeRegistry::getByClass(Mass::class)?->dimension);
-        $this->assertSame('T', QuantityTypeRegistry::getByClass(Time::class)?->dimension);
-        $this->assertSame('L2', QuantityTypeRegistry::getByClass(Area::class)?->dimension);
-        $this->assertSame('LT-1', QuantityTypeRegistry::getByClass(Velocity::class)?->dimension);
+        $this->assertSame('M', QuantityTypeService::getByClass(Mass::class)?->dimension);
+        $this->assertSame('T', QuantityTypeService::getByClass(Time::class)?->dimension);
+        $this->assertSame('L2', QuantityTypeService::getByClass(Area::class)?->dimension);
+        $this->assertSame('LT-1', QuantityTypeService::getByClass(Velocity::class)?->dimension);
     }
 
     /**
@@ -232,7 +232,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByClassReturnsNullForUnregistered(): void
     {
-        $result = QuantityTypeRegistry::getByClass('NonExistent\\Class');
+        $result = QuantityTypeService::getByClass('NonExistent\\Class');
 
         $this->assertNull($result);
     }
@@ -242,7 +242,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetByClassReturnsNullForBaseClass(): void
     {
-        $result = QuantityTypeRegistry::getByClass(Quantity::class);
+        $result = QuantityTypeService::getByClass(Quantity::class);
 
         $this->assertNull($result);
     }
@@ -260,22 +260,22 @@ final class QuantityTypeRegistryTest extends TestCase
         $dimension = 'L4';  // 4th power of length (unlikely to exist)
 
         // Make sure it doesn't exist first
-        $existing = QuantityTypeRegistry::getByDimension($dimension);
+        $existing = QuantityTypeService::getByDimension($dimension);
         if ($existing !== null) {
             $this->markTestSkipped("Dimension '$dimension' already exists");
         }
 
         // Add it
-        QuantityTypeRegistry::add('hypervolume', $dimension, TestQuantity::class);
+        QuantityTypeService::add('hypervolume', $dimension, TestQuantity::class);
 
         // Verify it exists
-        $result = QuantityTypeRegistry::getByDimension($dimension);
+        $result = QuantityTypeService::getByDimension($dimension);
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame('hypervolume', $result->name);
         $this->assertSame(TestQuantity::class, $result->class);
 
         // Tidy up.
-        QuantityTypeRegistry::remove('hypervolume');
+        QuantityTypeService::remove('hypervolume');
     }
 
     /**
@@ -286,7 +286,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the name 'length'");
 
-        QuantityTypeRegistry::add('length', 'L9', TestQuantity::class);
+        QuantityTypeService::add('length', 'L9', TestQuantity::class);
     }
 
     /**
@@ -297,7 +297,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Cannot add another quantity type with the dimension 'L'");
 
-        QuantityTypeRegistry::add('another length', 'L', TestQuantity::class);
+        QuantityTypeService::add('another length', 'L', TestQuantity::class);
     }
 
     /**
@@ -308,7 +308,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Cannot add another quantity type with the class');
 
-        QuantityTypeRegistry::add('another', 'L8', Length::class);
+        QuantityTypeService::add('another', 'L8', Length::class);
     }
 
     // endregion
@@ -320,14 +320,14 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testRemoveRemovesQuantityType(): void
     {
-        QuantityTypeRegistry::add('coolness', 'L5', TestQuantity::class);
+        QuantityTypeService::add('coolness', 'L5', TestQuantity::class);
 
-        $result = QuantityTypeRegistry::getByName('coolness');
+        $result = QuantityTypeService::getByName('coolness');
         $this->assertNotNull($result);
 
-        QuantityTypeRegistry::remove('coolness');
+        QuantityTypeService::remove('coolness');
 
-        $result = QuantityTypeRegistry::getByName('coolness');
+        $result = QuantityTypeService::getByName('coolness');
         $this->assertNull($result);
     }
 
@@ -337,16 +337,16 @@ final class QuantityTypeRegistryTest extends TestCase
     public function testRemoveDoesNotThrowForNonExistentQuantityType(): void
     {
         // Ensure the registry is initialized.
-        QuantityTypeRegistry::getAll();
+        QuantityTypeService::getAll();
 
         // Get the current count of quantity types.
-        $refClass = new ReflectionClass(QuantityTypeRegistry::class);
+        $refClass = new ReflectionClass(QuantityTypeService::class);
         $qtyTypes = $refClass->getStaticPropertyValue('quantityTypes');
         assert(is_array($qtyTypes));
         $n = count($qtyTypes);
 
         // Attempt to remove a non-existent quantity type.
-        QuantityTypeRegistry::remove('nonexistent');
+        QuantityTypeService::remove('nonexistent');
 
         // Check count is the same.
         $qtyTypes = $refClass->getStaticPropertyValue('quantityTypes');
@@ -361,14 +361,14 @@ final class QuantityTypeRegistryTest extends TestCase
     public function testRemoveDoesNothingIfQuantityTypesNotInitialized(): void
     {
         // Uninitialize the registry.
-        QuantityTypeRegistry::reset();
+        QuantityTypeService::reset();
 
         // The relevant property is private, so let's use reflection to access it.
-        $refClass = new ReflectionClass(QuantityTypeRegistry::class);
+        $refClass = new ReflectionClass(QuantityTypeService::class);
         $this->assertNull($refClass->getStaticPropertyValue('quantityTypes'));
 
         // Call remove() and verify the interna; array is still null, and no exception was thrown.
-        QuantityTypeRegistry::remove('coolness');
+        QuantityTypeService::remove('coolness');
         $this->assertNull($refClass->getStaticPropertyValue('quantityTypes'));
     }
 
@@ -383,27 +383,27 @@ final class QuantityTypeRegistryTest extends TestCase
     {
         // First add a quantity type without a class.
         $dimension = 'L5';
-        $existing = QuantityTypeRegistry::getByDimension($dimension);
+        $existing = QuantityTypeService::getByDimension($dimension);
         if ($existing !== null) {
             $this->markTestSkipped("Dimension '$dimension' already exists");
         }
 
-        QuantityTypeRegistry::add('pentavolume', $dimension, TestQuantity::class);
+        QuantityTypeService::add('pentavolume', $dimension, TestQuantity::class);
 
         // Verify it has no class.
-        $result = QuantityTypeRegistry::getByDimension($dimension);
+        $result = QuantityTypeService::getByDimension($dimension);
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame(TestQuantity::class, $result->class);
 
         // Now set the class using our test fixture.
-        QuantityTypeRegistry::setClass('pentavolume', TestQuantity::class);
+        QuantityTypeService::setClass('pentavolume', TestQuantity::class);
 
         // Verify the class was set.
-        $result = QuantityTypeRegistry::getByDimension($dimension);
+        $result = QuantityTypeService::getByDimension($dimension);
         $this->assertSame(TestQuantity::class, $result?->class);
 
         // Tidy up.
-        QuantityTypeRegistry::remove('pentavolume');
+        QuantityTypeService::remove('pentavolume');
     }
 
     /**
@@ -414,7 +414,7 @@ final class QuantityTypeRegistryTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Quantity type 'coolness' not found");
 
-        QuantityTypeRegistry::setClass('coolness', Length::class);
+        QuantityTypeService::setClass('coolness', Length::class);
     }
 
     // endregion
@@ -426,7 +426,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetClassesReturnsArrayOfClasses(): void
     {
-        $classes = QuantityTypeRegistry::getClasses();
+        $classes = QuantityTypeService::getClasses();
 
         // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($classes);
@@ -445,7 +445,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetClassesContainsExpectedClasses(): void
     {
-        $classes = QuantityTypeRegistry::getClasses();
+        $classes = QuantityTypeService::getClasses();
 
         // Verify some expected classes are present.
         $this->assertContains(Length::class, $classes);
@@ -460,7 +460,7 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testGetClassesDoesNotContainNull(): void
     {
-        $classes = QuantityTypeRegistry::getClasses();
+        $classes = QuantityTypeService::getClasses();
 
         // Currency quantity type has no class, so null should not be in the list.
         foreach ($classes as $class) {
@@ -478,18 +478,18 @@ final class QuantityTypeRegistryTest extends TestCase
     public function testClearRemovesAllQuantityTypes(): void
     {
         // Ensure registry is initialized with default types.
-        $before = QuantityTypeRegistry::getAll();
+        $before = QuantityTypeService::getAll();
         $this->assertNotEmpty($before);
 
         // Clear the registry.
-        QuantityTypeRegistry::clear();
+        QuantityTypeService::clear();
 
         // Verify the registry is empty.
-        $after = QuantityTypeRegistry::getAll();
+        $after = QuantityTypeService::getAll();
         $this->assertEmpty($after);
 
         // Reset to restore defaults for other tests.
-        QuantityTypeRegistry::reset();
+        QuantityTypeService::reset();
     }
 
     /**
@@ -498,18 +498,18 @@ final class QuantityTypeRegistryTest extends TestCase
     public function testClearDoesNotReinitialize(): void
     {
         // Clear the registry.
-        QuantityTypeRegistry::clear();
+        QuantityTypeService::clear();
 
         // Add a single custom type.
-        QuantityTypeRegistry::add('custom', 'L6', TestQuantity::class);
+        QuantityTypeService::add('custom', 'L6', TestQuantity::class);
 
         // Verify only the custom type exists (defaults were not re-loaded).
-        $all = QuantityTypeRegistry::getAll();
+        $all = QuantityTypeService::getAll();
         $this->assertCount(1, $all);
         $this->assertArrayHasKey('custom', $all);
 
         // Reset to restore defaults for other tests.
-        QuantityTypeRegistry::reset();
+        QuantityTypeService::reset();
     }
 
     // endregion
@@ -521,10 +521,10 @@ final class QuantityTypeRegistryTest extends TestCase
      */
     public function testAllQuantityTypesHaveNames(): void
     {
-        $all = QuantityTypeRegistry::getAll();
+        $all = QuantityTypeService::getAll();
 
         foreach ($all as $qtyType) {
-            $this->assertNotEmpty($qtyType->name, "Quantity type {$qtyType->dimension} has empty name");
+            $this->assertNotEmpty($qtyType->name, "Quantity type $qtyType->dimension has empty name");
         }
     }
 
@@ -549,7 +549,7 @@ final class QuantityTypeRegistryTest extends TestCase
         ];
 
         foreach ($siBase as $dimension => $expected) {
-            $qtyType = QuantityTypeRegistry::getByDimension($dimension);
+            $qtyType = QuantityTypeService::getByDimension($dimension);
 
             $this->assertNotNull($qtyType, "SI base dimension '$dimension' not found");
             $this->assertSame($expected['name'], $qtyType->name);

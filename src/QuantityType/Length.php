@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -42,7 +42,7 @@ class Length extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -52,61 +52,61 @@ class Length extends Quantity
             // SI
             'meter'             => [
                 'asciiSymbol' => 'm',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
             ],
             // Scientific
             'astronomical unit' => [
                 'asciiSymbol' => 'au',
-                'systems'     => [System::SiAccepted, System::Scientific],
+                'systems'     => [UnitSystem::SiAccepted, UnitSystem::Scientific],
             ],
             'light year'        => [
                 'asciiSymbol' => 'ly',
-                'systems'     => [System::Scientific],
+                'systems'     => [UnitSystem::Scientific],
             ],
             'parsec'            => [
                 'asciiSymbol' => 'pc',
-                'prefixGroup' => PrefixRegistry::GROUP_LARGE_METRIC,
-                'systems'     => [System::Scientific],
+                'prefixGroup' => PrefixService::GROUP_LARGE_METRIC,
+                'systems'     => [UnitSystem::Scientific],
             ],
             // CSS
             'pixel'             => [
                 'asciiSymbol' => 'px',
-                'systems'     => [System::Css],
+                'systems'     => [UnitSystem::Css],
             ],
             'point'             => [
                 'asciiSymbol' => 'p',
-                'systems'     => [System::Css],
+                'systems'     => [UnitSystem::Css],
             ],
             'pica'              => [
                 'asciiSymbol' => 'P',
-                'systems'     => [System::Css],
+                'systems'     => [UnitSystem::Css],
             ],
             // Imperial/US
             'inch'              => [
                 'asciiSymbol' => 'in',
-                'systems'     => [System::Imperial, System::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'foot'              => [
                 'asciiSymbol' => 'ft',
-                'systems'     => [System::Imperial, System::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'yard'              => [
                 'asciiSymbol' => 'yd',
-                'systems'     => [System::Imperial, System::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'mile'              => [
                 'asciiSymbol' => 'mi',
-                'systems'     => [System::Imperial, System::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             // Nautical
             'fathom'            => [
                 'asciiSymbol' => 'ftm',
-                'systems'     => [System::Nautical],
+                'systems'     => [UnitSystem::Nautical],
             ],
             'nautical mile'     => [
                 'asciiSymbol' => 'nmi',
-                'systems'     => [System::Nautical],
+                'systems'     => [UnitSystem::Nautical],
             ],
         ];
     }

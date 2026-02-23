@@ -7,7 +7,7 @@ namespace Galaxon\Quantities\Tests\Fixtures;
 use Galaxon\Quantities\Quantity;
 
 /**
- * Test fixture class for testing QuantityTypeRegistry::setClass().
+ * Test fixture class for testing QuantityTypeService::setClass().
  *
  * This is a minimal Quantity subclass used only for testing purposes.
  */

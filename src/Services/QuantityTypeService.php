@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Registry;
+namespace Galaxon\Quantities\Services;
 
 use DomainException;
-use Galaxon\Quantities\Internal\Dimensions;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Acceleration;
@@ -44,12 +43,12 @@ use Galaxon\Quantities\QuantityType\Volume;
 use LogicException;
 
 /**
- * Registry of quantity types keyed by dimension code.
+ * Services of quantity types keyed by dimension code.
  *
  * Provides mapping between dimension codes (e.g. 'L', 'M', 'L2') and their associated quantity information including
  * name, SI unit, and (optional) PHP class.
  */
-class QuantityTypeRegistry
+class QuantityTypeService
 {
     // region Constants
 
@@ -61,16 +60,16 @@ class QuantityTypeRegistry
      * - 'class': The QuantityType class (if one exists)
      *
      * @var array<string, array{dimension: string, class?: class-string<Quantity>}>
-     * @see Dimensions
+     * @see DimensionService
      */
     private const array QUANTITY_TYPES = [
         // Dimensionless
         'dimensionless'         => [
-            'dimension' => '1',
+            'dimension' => '',
             'class'     => Dimensionless::class,
         ],
 
-        // SI base dimensions
+        // Base dimensions
         'length'                => [
             'dimension' => 'L',
             'class'     => Length::class,
@@ -99,12 +98,16 @@ class QuantityTypeRegistry
             'dimension' => 'J',
             'class'     => LuminousIntensity::class,
         ],
-
-        // SI derived unit dimensions
         'angle'                 => [
             'dimension' => 'A',
             'class'     => Angle::class,
         ],
+        'data'                  => [
+            'dimension' => 'D',
+            'class'     => Data::class,
+        ],
+
+        // Derived unit dimensions
         'solid angle'           => [
             'dimension' => 'A2',
             'class'     => SolidAngle::class,
@@ -129,8 +132,6 @@ class QuantityTypeRegistry
             'dimension' => 'L-3M',
             'class'     => Density::class,
         ],
-
-        // SI named units
         'frequency'             => [
             'dimension' => 'T-1',
             'class'     => Frequency::class,
@@ -199,12 +200,6 @@ class QuantityTypeRegistry
             'dimension' => 'T-1N',
             'class'     => CatalyticActivity::class,
         ],
-
-        // Non-SI dimensions
-        'data'                  => [
-            'dimension' => 'D',
-            'class'     => Data::class,
-        ],
     ];
 
     // endregion
@@ -269,7 +264,7 @@ class QuantityTypeRegistry
         self::init();
         assert(self::$quantityTypes !== null);
 
-        $dimension = Dimensions::normalize($dimension);
+        $dimension = DimensionService::normalize($dimension);
 
         return array_find(
             self::$quantityTypes,
@@ -344,7 +339,7 @@ class QuantityTypeRegistry
 
         // Normalize arguments.
         $name = strtolower($name);
-        $dimension = Dimensions::normalize($dimension);
+        $dimension = DimensionService::normalize($dimension);
 
         // Check name is unique.
         $qt = self::getByName($name);
@@ -365,7 +360,8 @@ class QuantityTypeRegistry
         }
 
         // Add the new quantity type.
-        self::$quantityTypes[$name] = new QuantityType($name, $dimension, $class);
+        $qtyType = new QuantityType($name, $dimension, $class);
+        self::$quantityTypes[$name] = $qtyType;
     }
 
     /**

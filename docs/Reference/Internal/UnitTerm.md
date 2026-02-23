@@ -151,7 +151,7 @@ $perSecond = new UnitTerm('s', null, -1);
 public static function getBySymbol(string $symbol): ?self
 ```
 
-Look up a unit or prefixed unit by its symbol. Symbol uniqueness is enforced by `UnitRegistry`, so at most one match is possible.
+Look up a unit or prefixed unit by its symbol. Symbol uniqueness is enforced by `UnitService`, so at most one match is possible.
 
 **Parameters:**
 - `$symbol` (string) - The prefixed unit symbol to search for
@@ -408,7 +408,8 @@ Check if this UnitTerm equals another.
 ### Building Compound Units
 
 ```php
-use Galaxon\Quantities\Internal\DerivedUnit;use Galaxon\Quantities\Internal\UnitTerm;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\UnitTerm;
 
 // Build velocity: m/s
 $meter = new UnitTerm('m');
@@ -461,4 +462,4 @@ echo $term2->dimension; // 'T-1'
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit using UnitTerms
 - **[Prefix](Prefix.md)** - SI and binary prefixes
 - **[UnitInterface](UnitInterface.md)** - Interface for all unit types
-- **[RegexHelper](RegexHelper.md)** - Centralised regex patterns and validation
+- **[RegexService](RegexService.md)** - Centralised regex patterns and validation

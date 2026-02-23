@@ -1,14 +1,14 @@
-# QuantityTypeRegistry
+# QuantityTypeService
 
 Registry of quantity types keyed by dimension code.
 
-**Namespace:** `Galaxon\Quantities\Registry`
+**Namespace:** `Galaxon\Quantities\Services`
 
 ---
 
 ## Overview
 
-The `QuantityTypeRegistry` provides mapping between:
+The `QuantityTypeService` provides mapping between:
 
 - Dimension codes (e.g., 'L', 'M', 'T-2L2M')
 - Quantity names (e.g., 'length', 'mass', 'energy')
@@ -53,7 +53,7 @@ The registry includes all standard physical quantities:
 Get a quantity type by its dimension code.
 
 ```php
-$qtyType = QuantityTypeRegistry::getByDimension('L');
+$qtyType = QuantityTypeService::getByDimension('L');
 echo $qtyType->name;      // 'length'
 echo $qtyType->dimension; // 'L'
 echo $qtyType->class;     // 'Galaxon\Quantities\QuantityType\Length'
@@ -64,7 +64,7 @@ echo $qtyType->class;     // 'Galaxon\Quantities\QuantityType\Length'
 Get a quantity type by its name (case-insensitive).
 
 ```php
-$qtyType = QuantityTypeRegistry::getByName('energy');
+$qtyType = QuantityTypeService::getByName('energy');
 echo $qtyType->dimension; // 'T-2L2M'
 echo $qtyType->class;     // 'Galaxon\Quantities\QuantityType\Energy'
 ```
@@ -74,7 +74,7 @@ echo $qtyType->class;     // 'Galaxon\Quantities\QuantityType\Energy'
 Get a quantity type by its PHP class.
 
 ```php
-$qtyType = QuantityTypeRegistry::getByClass(Force::class);
+$qtyType = QuantityTypeService::getByClass(Force::class);
 echo $qtyType->name;       // 'force'
 echo $qtyType->dimension;  // 'T-2LM'
 ```
@@ -84,7 +84,7 @@ echo $qtyType->dimension;  // 'T-2LM'
 Get all registered quantity types.
 
 ```php
-$allTypes = QuantityTypeRegistry::getAll();
+$allTypes = QuantityTypeService::getAll();
 foreach ($allTypes as $name => $qtyType) {
     echo "$name: {$qtyType->dimension}\n";
 }
@@ -95,7 +95,7 @@ foreach ($allTypes as $name => $qtyType) {
 Get all registered quantity type classes.
 
 ```php
-$classes = QuantityTypeRegistry::getClasses();
+$classes = QuantityTypeService::getClasses();
 // ['Galaxon\Quantities\QuantityType\Length', ...]
 ```
 
@@ -106,7 +106,7 @@ $classes = QuantityTypeRegistry::getClasses();
 Register a new quantity type.
 
 ```php
-QuantityTypeRegistry::add(
+QuantityTypeService::add(
     'jerk',
     'T-3L',
     Jerk::class
@@ -118,8 +118,8 @@ QuantityTypeRegistry::add(
 Set or update the class for an existing quantity type.
 
 ```php
-// Use a custom Money class for currency
-QuantityTypeRegistry::setClass('currency', Money::class);
+// Use a custom Currency class for currency
+QuantityTypeService::setClass('currency', Currency::class);
 ```
 
 #### `static reset(): void`
@@ -127,7 +127,7 @@ QuantityTypeRegistry::setClass('currency', Money::class);
 Reset the registry to its initial state.
 
 ```php
-QuantityTypeRegistry::reset();
+QuantityTypeService::reset();
 ```
 
 ---
@@ -150,7 +150,7 @@ $area = $length->multiply($width);
 ## Adding Custom Quantity Types
 
 ```php
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Quantity;
 
 // Create a custom quantity class
@@ -163,7 +163,7 @@ class Jerk extends Quantity
 }
 
 // Register it
-QuantityTypeRegistry::add('jerk', 'T-3L', Jerk::class);
+QuantityTypeService::add('jerk', 'T-3L', Jerk::class);
 
 // Now Quantity::create() will return Jerk for dimension T-3L
 $jerk = Quantity::create(1, 'm/s3');
@@ -176,5 +176,5 @@ $jerk = Quantity::create(1, 'm/s3');
 
 - **[QuantityType](../Internal/QuantityType.md)** - QuantityType class documentation
 - **[Quantity](../Quantity.md)** - Base quantity class
-- **[Dimensions](../Internal/Dimensions.md)** - Dimension code utilities
-- **[UnitRegistry](UnitRegistry.md)** - Unit registry
+- **[DimensionService](../Services/DimensionService.md)** - Dimension code utilities
+- **[UnitService](UnitService.md)** - Unit registry

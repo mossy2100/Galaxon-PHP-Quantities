@@ -17,11 +17,11 @@ For the complete list of temperature units, see [Supported Units: Temperature](S
 
 ## Constants
 
-| Constant | Type | Value | Description |
-|----------|------|-------|-------------|
-| `CELSIUS_OFFSET` | float | `273.15` | Offset to convert Celsius to Kelvin |
-| `FAHRENHEIT_OFFSET` | float | `459.67` | Offset to convert Fahrenheit to Rankine |
-| `RANKINE_PER_KELVIN` | float | `1.8` | Factor to convert Kelvin to Rankine |
+| Constant             | Type  | Value    | Description                             |
+|----------------------|-------|----------|-----------------------------------------|
+| `CELSIUS_OFFSET`     | float | `273.15` | Offset to convert Celsius to Kelvin     |
+| `FAHRENHEIT_OFFSET`  | float | `459.67` | Offset to convert Fahrenheit to Rankine |
+| `RANKINE_PER_KELVIN` | float | `1.8`    | Factor to convert Kelvin to Rankine     |
 
 ---
 
@@ -29,12 +29,12 @@ For the complete list of temperature units, see [Supported Units: Temperature](S
 
 The package supports four temperature scales:
 
-| Scale | Symbol | Zero Point | System |
-|-------|--------|------------|--------|
-| Kelvin | K | Absolute zero | SI |
-| Celsius | °C, degC | 273.15 K below Kelvin | SI |
-| Rankine | °R, degR | Absolute zero | Imperial/US |
-| Fahrenheit | °F, degF | 459.67 °R below Rankine | Imperial/US |
+| Scale      | Symbol   | Zero Point             | Unit System |
+|------------|----------|------------------------|-------------|
+| Kelvin     | K        | Absolute zero          | SI          |
+| Celsius    | °C, degC | 273.15 K below Kelvin  | SI          |
+| Rankine    | °R, degR | Absolute zero          | Imperial/US |
+| Fahrenheit | °F, degF | 459.67°R below Rankine | Imperial/US |
 
 **Absolute scales** (Kelvin, Rankine) start at absolute zero.
 **Offset scales** (Celsius, Fahrenheit) have arbitrary zero points.
@@ -113,13 +113,13 @@ $kelvin = Temperature::convert(25, 'degC', 'K');  // 298.15
 
 ## Common Reference Points
 
-| Description | Celsius | Fahrenheit | Kelvin |
-|-------------|---------|------------|--------|
-| Absolute zero | -273.15 | -459.67 | 0 |
-| Water freezes | 0 | 32 | 273.15 |
-| Room temperature | 20-22 | 68-72 | 293-295 |
-| Human body | 37 | 98.6 | 310.15 |
-| Water boils | 100 | 212 | 373.15 |
+| Description      | Celsius  | Fahrenheit | Kelvin  |
+|------------------|----------|------------|---------|
+| Absolute zero    | -273.15  | -459.67    | 0       |
+| Water freezes    | 0        | 32         | 273.15  |
+| Room temperature | 20-22    | 68-72      | 293-295 |
+| Human body       | 37       | 98.6       | 310.15  |
+| Water boils      | 100      | 212        | 373.15  |
 
 ---
 

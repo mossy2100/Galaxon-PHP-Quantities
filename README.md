@@ -114,11 +114,11 @@ echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
 
 Other than the quantity type classes (below), these are the main classes you'll use.
 
-| Class                                        | Description                                                                                                                                     |
-|----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| Class                                                  | Description                                                                                                                                     |
+|--------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Quantity](docs/Reference/Quantity.md)                 | Abstract base class for all measurement types. Provides unit conversion, arithmetic operations, comparison, formatting, and part decomposition. |
 | [PhysicalConstant](docs/Reference/PhysicalConstant.md) | Access to physical constants (speed of light, Planck constant, etc.) as Quantity objects.                                                       |
-| [System](docs/Reference/System.md)                     | Enum for measurement systems (SI, Imperial, US Customary, etc.).                                                                                |
+| [UnitSystem](docs/Reference/UnitSystem.md)             | Enum for systems of units (SI, Imperial, US Customary, etc.).                                                                                   |
 
 ### Quantity Types
 
@@ -160,16 +160,18 @@ All quantity type classes extend `Quantity` and define their specific units and 
 | [Voltage](docs/Reference/QuantityType/Voltage.md)                         | T-3L2MI-1  | V       | Electric potential difference.                   |
 | [Volume](docs/Reference/QuantityType/Volume.md)                           | L3         | m³      | Three-dimensional extent.                        |
 
-### Registry Classes
+### Services
 
-These classes are predominantly internal, except for loading new systems of units via `UnitRegistry::loadSystem()`, adding custom units via `UnitRegistry::add()`, or registering new quantity types via `QuantityTypeRegistry::add()`.
+These classes are predominantly internal, except for loading new systems of units via `UnitService::loadSystem()`, adding custom units via `UnitService::add()`, or registering new quantity types via `QuantityTypeService::add()`.
 
-| Class                                                         | Description                                                                                        |
-|---------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| [UnitRegistry](docs/Reference/Registry/UnitRegistry.md)                 | Registry of known units organized by measurement system. Provides lazy loading and lookup methods. |
-| [ConversionRegistry](docs/Reference/Registry/ConversionRegistry.md)     | Registry of unit conversions organized by dimension.                                               |
-| [QuantityTypeRegistry](docs/Reference/Registry/QuantityTypeRegistry.md) | Registry mapping dimension codes to quantity type classes.                                         |
-| [PrefixRegistry](docs/Reference/Registry/PrefixRegistry.md)             | Registry for SI and binary prefixes (lookup, filtering by group).                                  |
+| Class                                                         | Description                                                               |
+|---------------------------------------------------------------|---------------------------------------------------------------------------|
+| [UnitService](docs/Reference/Services/UnitService.md)                 | Manages units and unit systems. Provides lazy loading and lookup methods. |
+| [ConversionService](docs/Reference/Services/ConversionService.md)     | Manages unit conversions and converters.                                  |
+| [QuantityTypeService](docs/Reference/Services/QuantityTypeService.md) | Manages quantity types with their dimensions and classes.                 |
+| [PrefixService](docs/Reference/Services/PrefixService.md)             | Manages SI and binary prefixes (lookup, filtering by group).              |
+| [DimensionService](docs/Reference/Services/DimensionService.md)         | Utilities for working with physical dimension codes (validation, composition, transformation). |
+| [RegexService](docs/Reference/Services/RegexService.md)       | Centralised regex patterns and validation for unit symbols.                                    |
 
 ### Internal Classes
 
@@ -183,8 +185,6 @@ These classes provide the core functionality of the library and will typically n
 | [Prefix](docs/Reference/Internal/Prefix.md)                 | SI metric and binary prefixes (kilo, mega, kibi, etc.).                                        |
 | [Conversion](docs/Reference/Internal/Conversion.md)         | Represents a unit conversion with factor and error tracking.                                   |
 | [Converter](docs/Reference/Internal/Converter.md)           | Graph-based algorithm for finding conversion paths between units.                              |
-| [Dimensions](docs/Reference/Internal/Dimensions.md)         | Utilities for working with physical dimension codes (validation, composition, transformation). |
-| [RegexHelper](docs/Reference/Internal/RegexHelper.md)       | Centralised regex patterns and validation for unit symbols.                                    |
 | [FloatWithError](docs/Reference/Internal/FloatWithError.md) | Floating-point numbers with tracked error bounds for precision monitoring.                     |
 | [QuantityType](docs/Reference/Internal/QuantityType.md)     | Data class representing a quantity type with its dimension, SI unit, and PHP class.            |
 

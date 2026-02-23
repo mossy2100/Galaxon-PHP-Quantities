@@ -7,7 +7,8 @@ namespace Galaxon\Quantities\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\RegexService;
 
 /**
  * Represents an SI prefix.
@@ -41,7 +42,7 @@ class Prefix
     private(set) float $multiplier;
 
     /**
-     * The group code for the prefix (see PrefixRegistry::GROUP_* constants).
+     * The group code for the prefix (see PrefixService::GROUP_* constants).
      * This will only be one of the base groups and will therefore be a power of 2 (i.e. 1, 2, 4, or 8).
      */
     private(set) int $groupCode;
@@ -57,7 +58,7 @@ class Prefix
      * @param string $asciiSymbol The ASCII symbol.
      * @param ?string $unicodeSymbol The Unicode symbol, or null to use the ASCII symbol.
      * @param float $multiplier The multiplier.
-     * @param int $groupCode The group code (see PrefixRegistry::GROUP_* constants).
+     * @param int $groupCode The group code (see PrefixService::GROUP_* constants).
      * @throws FormatException If the ASCII or Unicode symbols are invalid.
      * @throws DomainException If the multiplier is invalid.
      */
@@ -69,12 +70,12 @@ class Prefix
         int $groupCode
     ) {
         // Validate the ASCII symbol. Max two ASCII letters.
-        if (!RegexHelper::isValidAsciiPrefix($asciiSymbol)) {
+        if (!RegexService::isValidAsciiPrefix($asciiSymbol)) {
             throw new FormatException("Invalid ASCII symbol: $asciiSymbol");
         }
 
         // Validate the Unicode symbol. Max one Unicode letter.
-        if ($unicodeSymbol !== null && !RegexHelper::isValidUnicodePrefix($unicodeSymbol)) {
+        if ($unicodeSymbol !== null && !RegexService::isValidUnicodePrefix($unicodeSymbol)) {
             throw new FormatException("Invalid Unicode symbol: $unicodeSymbol");
         }
 
@@ -87,7 +88,7 @@ class Prefix
         }
 
         // Validate group code.
-        if (!PrefixRegistry::isValidGroupCode($groupCode)) {
+        if (!PrefixService::isValidGroupCode($groupCode)) {
             throw new DomainException("Invalid group code: $groupCode");
         }
 
@@ -127,7 +128,7 @@ class Prefix
      */
     public function isEngineering(): bool
     {
-        return (bool)($this->groupCode & PrefixRegistry::GROUP_ENGINEERING);
+        return (bool)($this->groupCode & PrefixService::GROUP_ENGINEERING);
     }
 
     // endregion

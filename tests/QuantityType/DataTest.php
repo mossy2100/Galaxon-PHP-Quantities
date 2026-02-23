@@ -708,7 +708,7 @@ final class DataTest extends TestCase
     public function testToSiWithAutoPrefixLargeBytes(): void
     {
         $data = new Data(5000000, 'B');
-        $si = $data->toSi(autoPrefix: true);
+        $si = $data->toSi();
 
         $this->assertSame(5.0, $si->value);
         $this->assertSame('MB', $si->derivedUnit->asciiSymbol);
@@ -720,7 +720,7 @@ final class DataTest extends TestCase
     public function testToSiWithAutoPrefixFromGigabytes(): void
     {
         $data = new Data(2.5, 'GB');
-        $si = $data->toSi(autoPrefix: true);
+        $si = $data->toSi();
 
         $this->assertSame(2.5, $si->value);
         $this->assertSame('GB', $si->derivedUnit->asciiSymbol);
@@ -732,7 +732,7 @@ final class DataTest extends TestCase
     public function testToSiWithAutoPrefixFromGibibytes(): void
     {
         $data = new Data(1, 'GiB');
-        $si = $data->toSi(autoPrefix: true);
+        $si = $data->toSi();
 
         // 1 GiB = 1073741824 bytes ≈ 1.074 GB
         $this->assertApproxEqual(1.073741824, $si->value);

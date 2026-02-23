@@ -261,6 +261,17 @@ final class QuantityCreateTest extends TestCase
         new Mass(5, 'm');
     }
 
+    /**
+     * Test that calling `new Quantity()` directly throws an exception.
+     */
+    public function testDirectQuantityConstructorThrowsException(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('The Quantity constructor should not be called directly.');
+
+        new Quantity(5, 'm');
+    }
+
     // endregion
 
     // region Unicode symbol tests

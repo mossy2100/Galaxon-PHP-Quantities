@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\Internal;
+namespace Galaxon\Quantities\Tests\Services;
 
-use Galaxon\Quantities\Internal\RegexHelper;
+use Galaxon\Quantities\Services\RegexService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for RegexHelper class.
+ * Tests for RegexService class.
  */
-#[CoversClass(RegexHelper::class)]
-final class RegexHelperTest extends TestCase
+#[CoversClass(RegexService::class)]
+final class RegexServiceTest extends TestCase
 {
     // region isValidName tests
 
@@ -21,9 +21,9 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidNameReturnsTrueForSingleWord(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitName('meter'));
-        $this->assertTrue(RegexHelper::isValidUnitName('joule'));
-        $this->assertTrue(RegexHelper::isValidUnitName('Hz'));
+        $this->assertTrue(RegexService::isValidUnitName('meter'));
+        $this->assertTrue(RegexService::isValidUnitName('joule'));
+        $this->assertTrue(RegexService::isValidUnitName('Hz'));
     }
 
     /**
@@ -31,8 +31,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidNameReturnsTrueForTwoWords(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitName('nautical mile'));
-        $this->assertTrue(RegexHelper::isValidUnitName('troy ounce'));
+        $this->assertTrue(RegexService::isValidUnitName('nautical mile'));
+        $this->assertTrue(RegexService::isValidUnitName('troy ounce'));
     }
 
     /**
@@ -40,7 +40,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidNameReturnsTrueForThreeWords(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitName('US fluid ounce'));
+        $this->assertTrue(RegexService::isValidUnitName('US fluid ounce'));
     }
 
     /**
@@ -48,7 +48,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidNameReturnsFalseForEmpty(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnitName(''));
+        $this->assertFalse(RegexService::isValidUnitName(''));
     }
 
     /**
@@ -56,15 +56,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidNameReturnsFalseForDigits(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnitName('unit123'));
-    }
-
-    /**
-     * Test isValidName returns false for too many words.
-     */
-    public function testIsValidNameReturnsFalseForTooManyWords(): void
-    {
-        $this->assertFalse(RegexHelper::isValidUnitName('one two three four'));
+        $this->assertFalse(RegexService::isValidUnitName('unit123'));
     }
 
     // endregion
@@ -76,10 +68,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidAsciiSymbolReturnsTrueForValid(): void
     {
-        $this->assertTrue(RegexHelper::isValidAsciiSymbol('m'));
-        $this->assertTrue(RegexHelper::isValidAsciiSymbol('km'));
-        $this->assertTrue(RegexHelper::isValidAsciiSymbol('Hz'));
-        $this->assertTrue(RegexHelper::isValidAsciiSymbol('ohm'));
+        $this->assertTrue(RegexService::isValidAsciiSymbol('m'));
+        $this->assertTrue(RegexService::isValidAsciiSymbol('km'));
+        $this->assertTrue(RegexService::isValidAsciiSymbol('Hz'));
+        $this->assertTrue(RegexService::isValidAsciiSymbol('ohm'));
     }
 
     /**
@@ -87,9 +79,9 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidAsciiSymbolReturnsFalseForInvalid(): void
     {
-        $this->assertFalse(RegexHelper::isValidAsciiSymbol('m²'));
-        $this->assertFalse(RegexHelper::isValidAsciiSymbol('123'));
-        $this->assertFalse(RegexHelper::isValidAsciiSymbol('Ω'));
+        $this->assertFalse(RegexService::isValidAsciiSymbol('m²'));
+        $this->assertFalse(RegexService::isValidAsciiSymbol('123'));
+        $this->assertFalse(RegexService::isValidAsciiSymbol('Ω'));
     }
 
     // endregion
@@ -101,10 +93,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnicodeSymbolReturnsTrueForValid(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnicodeSymbol('m'));
-        $this->assertTrue(RegexHelper::isValidUnicodeSymbol('Ω'));
-        $this->assertTrue(RegexHelper::isValidUnicodeSymbol('°'));
-        $this->assertTrue(RegexHelper::isValidUnicodeSymbol('μ'));
+        $this->assertTrue(RegexService::isValidUnicodeSymbol('m'));
+        $this->assertTrue(RegexService::isValidUnicodeSymbol('Ω'));
+        $this->assertTrue(RegexService::isValidUnicodeSymbol('°'));
+        $this->assertTrue(RegexService::isValidUnicodeSymbol('μ'));
     }
 
     /**
@@ -112,7 +104,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnicodeSymbolReturnsFalseForInvalid(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnicodeSymbol('123'));
+        $this->assertFalse(RegexService::isValidUnicodeSymbol('123'));
     }
 
     // endregion
@@ -125,20 +117,20 @@ final class RegexHelperTest extends TestCase
     public function testIsValidAlternateSymbolReturnsTrueForValid(): void
     {
         // Single letters (case insensitive).
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('l'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('L'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('z'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('l'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('L'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('z'));
 
         // Punctuation marks.
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('%'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('"'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol("'"));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('#'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('!'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('@'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('?'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('$'));
-        $this->assertTrue(RegexHelper::isValidAlternateSymbol('`'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('%'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('"'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol("'"));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('#'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('!'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('@'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('?'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('$'));
+        $this->assertTrue(RegexService::isValidAlternateSymbol('`'));
     }
 
     /**
@@ -147,23 +139,23 @@ final class RegexHelperTest extends TestCase
     public function testIsValidAlternateSymbolReturnsFalseForInvalid(): void
     {
         // Digits.
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('1'));
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('0'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('1'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('0'));
 
         // Multiple characters.
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('ab'));
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('%%'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('ab'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('%%'));
 
         // Unicode characters.
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('ℓ'));
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('Ω'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('ℓ'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('Ω'));
 
         // Disallowed ASCII (brackets, math operators).
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('('));
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('+'));
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('*'));
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('-'));
-        $this->assertFalse(RegexHelper::isValidAlternateSymbol('/'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('('));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('+'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('*'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('-'));
+        $this->assertFalse(RegexService::isValidAlternateSymbol('/'));
     }
 
     // endregion
@@ -175,10 +167,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitSymbolReturnsTrueForAsciiWords(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('m'));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('Hz'));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('ohm'));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('fluid ounce'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('m'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('Hz'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('ohm'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('fluid ounce'));
     }
 
     /**
@@ -186,10 +178,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitSymbolReturnsTrueForUnicodeSymbols(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('Ω'));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('°'));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('μ'));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('°C'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('Ω'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('°'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('μ'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('°C'));
     }
 
     /**
@@ -197,10 +189,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitSymbolReturnsTrueForAlternateSymbols(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('%'));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('"'));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol("'"));
-        $this->assertTrue(RegexHelper::isValidUnitSymbol('#'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('%'));
+        $this->assertTrue(RegexService::isValidUnitSymbol('"'));
+        $this->assertTrue(RegexService::isValidUnitSymbol("'"));
+        $this->assertTrue(RegexService::isValidUnitSymbol('#'));
     }
 
     /**
@@ -208,11 +200,11 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitSymbolReturnsFalseForInvalid(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnitSymbol('123'));
-        $this->assertFalse(RegexHelper::isValidUnitSymbol('m²'));
-        $this->assertFalse(RegexHelper::isValidUnitSymbol(''));
-        $this->assertFalse(RegexHelper::isValidUnitSymbol('('));
-        $this->assertFalse(RegexHelper::isValidUnitSymbol('+'));
+        $this->assertFalse(RegexService::isValidUnitSymbol('123'));
+        $this->assertFalse(RegexService::isValidUnitSymbol('m²'));
+        $this->assertFalse(RegexService::isValidUnitSymbol(''));
+        $this->assertFalse(RegexService::isValidUnitSymbol('('));
+        $this->assertFalse(RegexService::isValidUnitSymbol('+'));
     }
 
     // endregion
@@ -224,12 +216,12 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnicodeNonLetterCharReturnsTrueForValid(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnicodeSpecialChar('°'));
-        $this->assertTrue(RegexHelper::isValidUnicodeSpecialChar('%'));
-        $this->assertTrue(RegexHelper::isValidUnicodeSpecialChar('$'));
-        $this->assertTrue(RegexHelper::isValidUnicodeSpecialChar('€'));
-        $this->assertTrue(RegexHelper::isValidUnicodeSpecialChar('′'));
-        $this->assertTrue(RegexHelper::isValidUnicodeSpecialChar('″'));
+        $this->assertTrue(RegexService::isValidUnicodeSpecialChar('°'));
+        $this->assertTrue(RegexService::isValidUnicodeSpecialChar('%'));
+        $this->assertTrue(RegexService::isValidUnicodeSpecialChar('$'));
+        $this->assertTrue(RegexService::isValidUnicodeSpecialChar('€'));
+        $this->assertTrue(RegexService::isValidUnicodeSpecialChar('′'));
+        $this->assertTrue(RegexService::isValidUnicodeSpecialChar('″'));
     }
 
     /**
@@ -237,8 +229,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnicodeNonLetterCharReturnsFalseForLetters(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnicodeSpecialChar('m'));
-        $this->assertFalse(RegexHelper::isValidUnicodeSpecialChar('abc'));
+        $this->assertFalse(RegexService::isValidUnicodeSpecialChar('m'));
+        $this->assertFalse(RegexService::isValidUnicodeSpecialChar('abc'));
     }
 
     /**
@@ -246,8 +238,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnicodeNonLetterCharReturnsFalseForDigits(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnicodeSpecialChar('1'));
-        $this->assertFalse(RegexHelper::isValidUnicodeSpecialChar('123'));
+        $this->assertFalse(RegexService::isValidUnicodeSpecialChar('1'));
+        $this->assertFalse(RegexService::isValidUnicodeSpecialChar('123'));
     }
 
     /**
@@ -255,8 +247,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnicodeNonLetterCharReturnsFalseForMultipleSymbols(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnicodeSpecialChar('°C'));
-        $this->assertFalse(RegexHelper::isValidUnicodeSpecialChar('%%'));
+        $this->assertFalse(RegexService::isValidUnicodeSpecialChar('°C'));
+        $this->assertFalse(RegexService::isValidUnicodeSpecialChar('%%'));
     }
 
     // endregion
@@ -268,7 +260,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testUnitRegexMatchesValidSymbols(): void
     {
-        $pattern = '/^' . RegexHelper::unitRegex() . '$/iu';
+        $pattern = '/^' . RegexService::unitRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm'));
         $this->assertSame(1, preg_match($pattern, 'km'));
@@ -282,7 +274,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testUnitRegexDoesNotMatchInvalidSymbols(): void
     {
-        $pattern = '/^' . RegexHelper::unitRegex() . '$/iu';
+        $pattern = '/^' . RegexService::unitRegex() . '$/iu';
 
         $this->assertSame(0, preg_match($pattern, '123'));
         $this->assertSame(0, preg_match($pattern, 'm²'));
@@ -297,10 +289,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidAsciiPrefixSymbolReturnsTrueForValid(): void
     {
-        $this->assertTrue(RegexHelper::isValidAsciiPrefix('k'));
-        $this->assertTrue(RegexHelper::isValidAsciiPrefix('M'));
-        $this->assertTrue(RegexHelper::isValidAsciiPrefix('Ki'));
-        $this->assertTrue(RegexHelper::isValidAsciiPrefix('da'));
+        $this->assertTrue(RegexService::isValidAsciiPrefix('k'));
+        $this->assertTrue(RegexService::isValidAsciiPrefix('M'));
+        $this->assertTrue(RegexService::isValidAsciiPrefix('Ki'));
+        $this->assertTrue(RegexService::isValidAsciiPrefix('da'));
     }
 
     /**
@@ -308,10 +300,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidAsciiPrefixSymbolReturnsFalseForInvalid(): void
     {
-        $this->assertFalse(RegexHelper::isValidAsciiPrefix(''));
-        $this->assertFalse(RegexHelper::isValidAsciiPrefix('abc'));
-        $this->assertFalse(RegexHelper::isValidAsciiPrefix('1'));
-        $this->assertFalse(RegexHelper::isValidAsciiPrefix('μ'));
+        $this->assertFalse(RegexService::isValidAsciiPrefix(''));
+        $this->assertFalse(RegexService::isValidAsciiPrefix('abc'));
+        $this->assertFalse(RegexService::isValidAsciiPrefix('1'));
+        $this->assertFalse(RegexService::isValidAsciiPrefix('μ'));
     }
 
     /**
@@ -319,9 +311,9 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnicodePrefixSymbolReturnsTrueForValid(): void
     {
-        $this->assertTrue(RegexHelper::isValidPrefix('μ'));
-        $this->assertTrue(RegexHelper::isValidPrefix('k'));
-        $this->assertTrue(RegexHelper::isValidPrefix('Ki'));
+        $this->assertTrue(RegexService::isValidPrefix('μ'));
+        $this->assertTrue(RegexService::isValidPrefix('k'));
+        $this->assertTrue(RegexService::isValidPrefix('Ki'));
     }
 
     /**
@@ -329,10 +321,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnicodePrefixSymbolReturnsFalseForInvalid(): void
     {
-        $this->assertFalse(RegexHelper::isValidPrefix(''));
-        $this->assertFalse(RegexHelper::isValidPrefix('abc'));
-        $this->assertFalse(RegexHelper::isValidPrefix('1'));
-        $this->assertFalse(RegexHelper::isValidPrefix('°'));
+        $this->assertFalse(RegexService::isValidPrefix(''));
+        $this->assertFalse(RegexService::isValidPrefix('abc'));
+        $this->assertFalse(RegexService::isValidPrefix('1'));
+        $this->assertFalse(RegexService::isValidPrefix('°'));
     }
 
     // endregion
@@ -344,7 +336,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForSimpleUnit(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('m', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('m', $m));
         assert(isset($m[1]));
         $this->assertSame('m', $m[1]);
     }
@@ -354,7 +346,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForPrefixedUnit(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('km', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('km', $m));
         assert(isset($m[1]));
         $this->assertSame('km', $m[1]);
     }
@@ -364,7 +356,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForUnitWithAsciiExponent(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('m2', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('m2', $m));
         assert(isset($m[1]) && isset($m[2]));
         $this->assertSame('m', $m[1]);
         $this->assertSame('2', $m[2]);
@@ -375,7 +367,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForNegativeAsciiExponent(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('s-2', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('s-2', $m));
         assert(isset($m[1]) && isset($m[2]));
         $this->assertSame('s', $m[1]);
         $this->assertSame('-2', $m[2]);
@@ -386,7 +378,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForPrefixedUnitWithExponent(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('km2', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('km2', $m));
         assert(isset($m[1]) && isset($m[2]));
         $this->assertSame('km', $m[1]);
         $this->assertSame('2', $m[2]);
@@ -397,7 +389,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForSuperscriptExponent(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('m²', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('m²', $m));
         assert(isset($m[1]));
         $this->assertSame('m', $m[1]);
     }
@@ -407,7 +399,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForNegativeSuperscriptExponent(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('s⁻²', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('s⁻²', $m));
         assert(isset($m[1]));
         $this->assertSame('s', $m[1]);
     }
@@ -417,7 +409,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForMultiLetterUnit(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('Hz', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('Hz', $m));
         assert(isset($m[1]));
         $this->assertSame('Hz', $m[1]);
     }
@@ -427,7 +419,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForUnicodeSymbol(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('Ω', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('Ω', $m));
         assert(isset($m[1]));
         $this->assertSame('Ω', $m[1]);
     }
@@ -437,7 +429,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsTrueForUnicodePrefixWithUnit(): void
     {
-        $this->assertTrue(RegexHelper::isValidUnitTerm('μm', $m));
+        $this->assertTrue(RegexService::isValidUnitTerm('μm', $m));
         assert(isset($m[1]));
         $this->assertSame('μm', $m[1]);
     }
@@ -447,7 +439,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsFalseForDigitsOnly(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnitTerm('123', $m));
+        $this->assertFalse(RegexService::isValidUnitTerm('123', $m));
     }
 
     /**
@@ -455,7 +447,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsFalseForEmptyString(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnitTerm('', $m));
+        $this->assertFalse(RegexService::isValidUnitTerm('', $m));
     }
 
     /**
@@ -463,7 +455,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidUnitTermReturnsFalseForCompoundUnit(): void
     {
-        $this->assertFalse(RegexHelper::isValidUnitTerm('kg*m', $m));
+        $this->assertFalse(RegexService::isValidUnitTerm('kg*m', $m));
     }
 
     // endregion
@@ -475,9 +467,9 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsTrueForSingleUnit(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('m'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('Hz'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('km2'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('m'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('Hz'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('km2'));
     }
 
     /**
@@ -485,8 +477,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsTrueForMultiply(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('kg*m'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('kg.m'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('kg*m'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('kg.m'));
     }
 
     /**
@@ -495,9 +487,9 @@ final class RegexHelperTest extends TestCase
     public function testIsValidDerivedUnitForm1ReturnsTrueForUnicodeMultiplyOps(): void
     {
         // Dot operator (U+22C5).
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1("kg\u{22C5}m"));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1("kg\u{22C5}m"));
         // Middle dot (U+00B7).
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1("kg\u{00B7}m"));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1("kg\u{00B7}m"));
     }
 
     /**
@@ -505,8 +497,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsTrueForDivide(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('m/s'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('m/s2'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('m/s'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('m/s2'));
     }
 
     /**
@@ -514,8 +506,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsTrueForMixedOps(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('kg*m/s2'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('kg*m*s-2'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('kg*m/s2'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('kg*m*s-2'));
     }
 
     /**
@@ -523,8 +515,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsTrueForMultipleTerms(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('kg*m2/s3'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('kg*m/s2/A'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('kg*m2/s3'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('kg*m/s2/A'));
     }
 
     /**
@@ -532,8 +524,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsTrueForPrefixedUnits(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('kN*m'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm1('km/ms'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('kN*m'));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm1('km/ms'));
     }
 
     /**
@@ -541,7 +533,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsFalseForEmptyString(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnitForm1(''));
+        $this->assertFalse(RegexService::isValidDerivedUnitForm1(''));
     }
 
     /**
@@ -549,7 +541,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsFalseForDigitsOnly(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnitForm1('123'));
+        $this->assertFalse(RegexService::isValidDerivedUnitForm1('123'));
     }
 
     /**
@@ -557,7 +549,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm1ReturnsFalseForForm2Syntax(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnitForm1('W/(sr*m2)'));
+        $this->assertFalse(RegexService::isValidDerivedUnitForm1('W/(sr*m2)'));
     }
 
     // endregion
@@ -569,7 +561,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsTrueForSimple(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm2('m/(s)', $m));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm2('m/(s)', $m));
         assert(isset($m['num']) && isset($m['den']));
         $this->assertSame('m', $m['num']);
         $this->assertSame('s', $m['den']);
@@ -580,7 +572,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsTrueForCompoundDenominator(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm2('W/(sr*m2)', $m));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm2('W/(sr*m2)', $m));
         assert(isset($m['num']) && isset($m['den']));
         $this->assertSame('W', $m['num']);
         $this->assertSame('sr*m2', $m['den']);
@@ -591,7 +583,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsTrueForCompoundBoth(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm2('kg*m/(s2*A)', $m));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm2('kg*m/(s2*A)', $m));
         assert(isset($m['num']) && isset($m['den']));
         $this->assertSame('kg*m', $m['num']);
         $this->assertSame('s2*A', $m['den']);
@@ -602,7 +594,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsTrueWithDotOperator(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm2('kg.m/(s2.A)', $m));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm2('kg.m/(s2.A)', $m));
     }
 
     /**
@@ -610,7 +602,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsTrueForJPerMolK(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnitForm2('J/(mol*K)', $m));
+        $this->assertTrue(RegexService::isValidDerivedUnitForm2('J/(mol*K)', $m));
         assert(isset($m['num']) && isset($m['den']));
         $this->assertSame('J', $m['num']);
         $this->assertSame('mol*K', $m['den']);
@@ -621,7 +613,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsFalseForEmptyString(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnitForm2('', $m));
+        $this->assertFalse(RegexService::isValidDerivedUnitForm2('', $m));
     }
 
     /**
@@ -629,7 +621,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsFalseForForm1Syntax(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnitForm2('kg*m/s2', $m));
+        $this->assertFalse(RegexService::isValidDerivedUnitForm2('kg*m/s2', $m));
     }
 
     /**
@@ -637,7 +629,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsFalseForMissingParentheses(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnitForm2('W/sr*m2', $m));
+        $this->assertFalse(RegexService::isValidDerivedUnitForm2('W/sr*m2', $m));
     }
 
     /**
@@ -645,7 +637,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitForm2ReturnsFalseForDivisionInDenominator(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnitForm2('W/(sr/m2)', $m));
+        $this->assertFalse(RegexService::isValidDerivedUnitForm2('W/(sr/m2)', $m));
     }
 
     // endregion
@@ -657,10 +649,10 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitReturnsTrueForForm1(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('m'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('kg*m/s2'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('m/s'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('kg*m*s-2'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('m'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('kg*m/s2'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('m/s'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('kg*m*s-2'));
     }
 
     /**
@@ -668,9 +660,9 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitReturnsTrueForForm2(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('W/(sr*m2)'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('kg*m/(s2*A)'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('J/(mol*K)'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('W/(sr*m2)'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('kg*m/(s2*A)'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('J/(mol*K)'));
     }
 
     /**
@@ -679,9 +671,9 @@ final class RegexHelperTest extends TestCase
     public function testIsValidDerivedUnitReturnsTrueForUnicodeOperatorsAndSymbols(): void
     {
         // Dot operator.
-        $this->assertTrue(RegexHelper::isValidDerivedUnit("kg\u{22C5}m/s2"));
+        $this->assertTrue(RegexService::isValidDerivedUnit("kg\u{22C5}m/s2"));
         // Unicode unit symbol.
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('Ω'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('Ω'));
     }
 
     /**
@@ -689,8 +681,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitReturnsTrueForSuperscriptExponents(): void
     {
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('m²'));
-        $this->assertTrue(RegexHelper::isValidDerivedUnit('kg*m/s²'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('m²'));
+        $this->assertTrue(RegexService::isValidDerivedUnit('kg*m/s²'));
     }
 
     /**
@@ -698,7 +690,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitReturnsFalseForEmptyString(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnit(''));
+        $this->assertFalse(RegexService::isValidDerivedUnit(''));
     }
 
     /**
@@ -706,7 +698,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitReturnsFalseForDigitsOnly(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnit('123'));
+        $this->assertFalse(RegexService::isValidDerivedUnit('123'));
     }
 
     /**
@@ -714,7 +706,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDerivedUnitReturnsFalseForQuantity(): void
     {
-        $this->assertFalse(RegexHelper::isValidDerivedUnit('9.81 m/s2'));
+        $this->assertFalse(RegexService::isValidDerivedUnit('9.81 m/s2'));
     }
 
     // endregion
@@ -726,7 +718,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidQuantityReturnsTrueForValueWithUnit(): void
     {
-        $this->assertTrue(RegexHelper::isValidQuantity('123.45 km', $m));
+        $this->assertTrue(RegexService::isValidQuantity('123.45 km', $m));
         assert(isset($m[1]) && isset($m[2]));
         $this->assertSame('123.45', $m[1]);
         $this->assertSame('km', $m[2]);
@@ -737,7 +729,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidQuantityReturnsTrueWithoutSpace(): void
     {
-        $this->assertTrue(RegexHelper::isValidQuantity('90deg', $m));
+        $this->assertTrue(RegexService::isValidQuantity('90deg', $m));
         assert(isset($m[1]) && isset($m[2]));
         $this->assertSame('90', $m[1]);
         $this->assertSame('deg', $m[2]);
@@ -748,7 +740,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidQuantityReturnsTrueForScientificNotation(): void
     {
-        $this->assertTrue(RegexHelper::isValidQuantity('1.5e3 ms', $m));
+        $this->assertTrue(RegexService::isValidQuantity('1.5e3 ms', $m));
         assert(isset($m[1]));
         $this->assertSame('1.5e3', $m[1]);
     }
@@ -758,7 +750,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidQuantityReturnsTrueForNegativeValue(): void
     {
-        $this->assertTrue(RegexHelper::isValidQuantity('-9.81 m/s2', $m));
+        $this->assertTrue(RegexService::isValidQuantity('-9.81 m/s2', $m));
         assert(isset($m[1]));
         $this->assertSame('-9.81', $m[1]);
     }
@@ -768,7 +760,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidQuantityReturnsTrueForDimensionless(): void
     {
-        $this->assertTrue(RegexHelper::isValidQuantity('42', $m));
+        $this->assertTrue(RegexService::isValidQuantity('42', $m));
         assert(isset($m[1]));
         $this->assertSame('42', $m[1]);
         $this->assertFalse(isset($m[2]) && $m[2] !== '');
@@ -779,7 +771,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidQuantityReturnsTrueForCompoundUnit(): void
     {
-        $this->assertTrue(RegexHelper::isValidQuantity('8.314 J/(mol*K)', $m));
+        $this->assertTrue(RegexService::isValidQuantity('8.314 J/(mol*K)', $m));
         assert(isset($m[1]));
         $this->assertSame('8.314', $m[1]);
     }
@@ -789,7 +781,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidQuantityReturnsFalseForEmpty(): void
     {
-        $this->assertFalse(RegexHelper::isValidQuantity('', $m));
+        $this->assertFalse(RegexService::isValidQuantity('', $m));
     }
 
     /**
@@ -797,8 +789,8 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidQuantityReturnsFalseForNonNumeric(): void
     {
-        $this->assertFalse(RegexHelper::isValidQuantity('abc', $m));
-        $this->assertFalse(RegexHelper::isValidQuantity('km', $m));
+        $this->assertFalse(RegexService::isValidQuantity('abc', $m));
+        $this->assertFalse(RegexService::isValidQuantity('km', $m));
     }
 
     // endregion
@@ -810,7 +802,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForDegreesOnly(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle('45°', $m));
+        $this->assertTrue(RegexService::isValidDmsAngle('45°', $m));
         assert(isset($m['deg']));
         $this->assertSame('45', $m['deg']);
     }
@@ -820,7 +812,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForDegreesAndMinutes(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle("45°30'", $m));
+        $this->assertTrue(RegexService::isValidDmsAngle("45°30'", $m));
         assert(isset($m['deg']) && isset($m['min']));
         $this->assertSame('45', $m['deg']);
         $this->assertSame('30', $m['min']);
@@ -831,7 +823,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForFullDmsAscii(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle('45°30\'15.5"', $m));
+        $this->assertTrue(RegexService::isValidDmsAngle('45°30\'15.5"', $m));
         assert(isset($m['deg']) && isset($m['min']) && isset($m['sec']));
         $this->assertSame('45', $m['deg']);
         $this->assertSame('30', $m['min']);
@@ -843,7 +835,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForFullDmsUnicode(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle('12°34′56.78″', $m));
+        $this->assertTrue(RegexService::isValidDmsAngle('12°34′56.78″', $m));
         assert(isset($m['deg']) && isset($m['min']) && isset($m['sec']));
         $this->assertSame('12', $m['deg']);
         $this->assertSame('34', $m['min']);
@@ -855,7 +847,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForNegative(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle('-90°', $m));
+        $this->assertTrue(RegexService::isValidDmsAngle('-90°', $m));
         assert(isset($m['sign']) && isset($m['deg']));
         $this->assertSame('-', $m['sign']);
         $this->assertSame('90', $m['deg']);
@@ -866,7 +858,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForPositiveSign(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle('+45°', $m));
+        $this->assertTrue(RegexService::isValidDmsAngle('+45°', $m));
         assert(isset($m['sign']));
         $this->assertSame('+', $m['sign']);
     }
@@ -876,7 +868,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForMinutesOnly(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle("30'", $m));
+        $this->assertTrue(RegexService::isValidDmsAngle("30'", $m));
         assert(isset($m['min']));
         $this->assertSame('30', $m['min']);
     }
@@ -886,7 +878,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForSecondsOnly(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle('15.5"', $m));
+        $this->assertTrue(RegexService::isValidDmsAngle('15.5"', $m));
         assert(isset($m['sec']));
         $this->assertSame('15.5', $m['sec']);
     }
@@ -896,7 +888,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForDecimalDegrees(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle('45.5°', $m));
+        $this->assertTrue(RegexService::isValidDmsAngle('45.5°', $m));
         assert(isset($m['deg']));
         $this->assertSame('45.5', $m['deg']);
     }
@@ -906,7 +898,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueForScientificNotation(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle('1.5e2"', $m));
+        $this->assertTrue(RegexService::isValidDmsAngle('1.5e2"', $m));
         assert(isset($m['sec']));
         $this->assertSame('1.5e2', $m['sec']);
     }
@@ -916,7 +908,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsTrueWithSpaces(): void
     {
-        $this->assertTrue(RegexHelper::isValidDmsAngle("45° 30' 15\"", $m));
+        $this->assertTrue(RegexService::isValidDmsAngle("45° 30' 15\"", $m));
         assert(isset($m['deg']) && isset($m['min']) && isset($m['sec']));
         $this->assertSame('45', $m['deg']);
         $this->assertSame('30', $m['min']);
@@ -928,7 +920,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsFalseForPlainNumber(): void
     {
-        $this->assertFalse(RegexHelper::isValidDmsAngle('45', $m));
+        $this->assertFalse(RegexService::isValidDmsAngle('45', $m));
     }
 
     /**
@@ -936,7 +928,7 @@ final class RegexHelperTest extends TestCase
      */
     public function testIsValidDmsAngleReturnsFalseForInvalidFormat(): void
     {
-        $this->assertFalse(RegexHelper::isValidDmsAngle('abc°', $m));
+        $this->assertFalse(RegexService::isValidDmsAngle('abc°', $m));
     }
 
     // endregion

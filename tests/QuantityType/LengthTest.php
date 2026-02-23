@@ -6,9 +6,9 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -26,11 +26,11 @@ final class LengthTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load additional unit systems.
-        UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::UsCustomary);
-        UnitRegistry::loadSystem(System::Scientific);
-        UnitRegistry::loadSystem(System::Css);
-        UnitRegistry::loadSystem(System::Nautical);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Scientific);
+        UnitService::loadSystem(UnitSystem::Css);
+        UnitService::loadSystem(UnitSystem::Nautical);
     }
 
     // endregion

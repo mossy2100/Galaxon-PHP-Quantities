@@ -7,6 +7,10 @@ namespace Galaxon\Quantities\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
+use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Services\DimensionService;
+use Galaxon\Quantities\Services\RegexService;
+use Galaxon\Quantities\UnitSystem;
 use LogicException;
 use UnexpectedValueException;
 
@@ -35,11 +39,18 @@ class DerivedUnit implements UnitInterface
     /**
      * Get the dimension code of the derived unit.
      *
-     * Defaults to '1' (dimensionless).
+     * Defaults to empty string '' (dimensionless).
      *
      * @return string The dimension code.
      */
-    private(set) string $dimension = '1';
+    private(set) string $dimension = '';
+
+    /**
+     * The expansion quantity, if one exists and is known.
+     *
+     * @var ?Quantity
+     */
+    private(set) ?Quantity $expansion = null;
 
     // endregion
 
@@ -171,13 +182,13 @@ class DerivedUnit implements UnitInterface
         }
 
         // Check for a series of unit terms separated by multiplication and/or division operators.
-        if (RegexHelper::isValidDerivedUnitForm1($symbol)) {
+        if (RegexService::isValidDerivedUnitForm1($symbol)) {
             return self::parseHelper($symbol);
         }
 
         // Check for parentheses. The only permitted use of parentheses is "<terms>/(<terms>)", where <terms> is a
         // sequence of one or more multiplied unit terms. Examples: 'J/(mol*K)', 'W/(m2*K4)'.
-        if (RegexHelper::isValidDerivedUnitForm2($symbol, $matches)) {
+        if (RegexService::isValidDerivedUnitForm2($symbol, $matches)) {
             assert(isset($matches['num']) && isset($matches['den']));
             $numerator = $matches['num'];
             $denominator = $matches['den'];
@@ -208,7 +219,7 @@ class DerivedUnit implements UnitInterface
         $new = new self();
 
         // Get the parts of the compound unit.
-        $parts = preg_split('/(' . RegexHelper::RX_CLASS_MUL_DIV_OPS . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split('/(' . RegexService::RX_CLASS_MUL_DIV_OPS . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
         if ($parts === false) {
             // @codeCoverageIgnoreStart
             throw new UnexpectedValueException('Error splitting string into parts.');
@@ -352,9 +363,9 @@ class DerivedUnit implements UnitInterface
     }
 
     /**
-     * Check if this derived unit contains any non-base unit terms that could potentially be expanded.
+     * Check if this derived unit contains any unit terms that can be expanded.
      *
-     * @return bool True if the derived unit has non-base unit terms.
+     * @return bool
      */
     public function isExpandable(): bool
     {
@@ -385,6 +396,38 @@ class DerivedUnit implements UnitInterface
     }
 
     /**
+     * Determine if a compound unit should ideally be expanded to SI or English base units.
+     *
+     * @return bool True if the derived unit should be expanded to SI base units, false otherwise.
+     */
+    public function siExpansionPreferred(): bool
+    {
+        // These SI units can't be used to determine SI compatibility, as they can be used with English units.
+        $commonBaseUnits = ['s', 'mol', 'A', 'cd', 'rad', 'B', 'XAU'];
+
+        // Count the number of unambiguously SI vs. English units.
+        $nSiUnits = 0;
+        $nEnglishUnits = 0;
+
+        // Check each unit term.
+        foreach ($this->unitTerms as $unitTerm) {
+            // Check if the unit is SI (discounting those can be used with English units).
+            if ($unitTerm->unit->isSi() && !in_array($unitTerm->unit->asciiSymbol, $commonBaseUnits, true)) {
+                $nSiUnits++;
+            }
+
+            // Check if the unit is imperial or US customary.
+            if ($unitTerm->unit->isEnglish()) {
+                $nEnglishUnits++;
+            }
+        }
+
+        // If there are no English units, or if there's at least one unambiguously SI unit, we would prefer to expand to
+        // SI base units.
+        return $nEnglishUnits === 0 || $nSiUnits > 0;
+    }
+
+    /**
      * Check if any unit term in this derived unit has a prefix.
      *
      * @return bool True if at least one unit term has a prefix, false otherwise.
@@ -392,6 +435,16 @@ class DerivedUnit implements UnitInterface
     public function hasPrefixes(): bool
     {
         return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->prefix !== null);
+    }
+
+    public function belongsToSystem(UnitSystem $system): bool
+    {
+        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->belongsToSystem($system));
+    }
+
+    public function involvesUnit(Unit $unit): bool
+    {
+        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->unit->equal($unit));
     }
 
     // endregion
@@ -495,17 +548,7 @@ class DerivedUnit implements UnitInterface
 
     // endregion
 
-    // region Transformation methods
-
-    /**
-     * Clone the DerivedUnit, including deep cloning of unit terms.
-     *
-     * The underlying Unit objects are not cloned as they are fixed/immutable.
-     */
-    public function __clone(): void
-    {
-        $this->unitTerms = array_map(static fn (UnitTerm $unitTerm) => clone $unitTerm, $this->unitTerms);
-    }
+    // region Arithmetic methods
 
     /**
      * Return a new DerivedUnit with all exponents negated.
@@ -515,34 +558,7 @@ class DerivedUnit implements UnitInterface
     public function inv(): self
     {
         $unitTerms = array_values(array_map(static fn (UnitTerm $unitTerm) => $unitTerm->inv(), $this->unitTerms));
-        /** @var list<UnitTerm> $unitTerms */
-        return new self($unitTerms);
-    }
 
-    /**
-     * Convert the DerivedUnit to its equivalent in SI base units.
-     *
-     * NB: This includes the special units we're designating as SI base for the purpose of this system: rad, B, and XAU.
-     *
-     * @return self The new DerivedUnit.
-     * @throws DomainException If any of the dimension codes are invalid.
-     * @throws LogicException If any of the dimension codes do not have an SI base unit defined.
-     */
-    public function toSiBase(): self
-    {
-        return Dimensions::getSiBaseDerivedUnit($this->dimension);
-    }
-
-    /**
-     * Return a new DerivedUnit with all prefixes removed from all unit terms.
-     *
-     * @return self A new instance with no prefixes on any unit term.
-     */
-    public function removePrefixes(): self
-    {
-        $unitTerms = array_values(
-            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(), $this->unitTerms)
-        );
         /** @var list<UnitTerm> $unitTerms */
         return new self($unitTerms);
     }
@@ -561,8 +577,159 @@ class DerivedUnit implements UnitInterface
         $unitTerms = array_values(
             array_map(static fn (UnitTerm $unitTerm) => $unitTerm->pow($exponent), $this->unitTerms)
         );
+
         /** @var list<UnitTerm> $unitTerms */
         return new self($unitTerms);
+    }
+
+    // endregion
+
+    // region Transformation methods
+
+    /**
+     * Clone the DerivedUnit, including deep cloning of unit terms.
+     *
+     * The underlying Unit objects are not cloned as they are fixed/immutable.
+     */
+    public function __clone(): void
+    {
+        $this->unitTerms = array_map(static fn (UnitTerm $unitTerm) => clone $unitTerm, $this->unitTerms);
+    }
+
+    /**
+     * Convert the DerivedUnit to its equivalent in SI base units.
+     *
+     * NB: This includes the special units we're designating as SI base for the purpose of this system: rad, B, and XAU.
+     *
+     * @return self The new DerivedUnit.
+     * @throws DomainException If any of the dimension codes are invalid.
+     * @throws LogicException If any of the dimension codes do not have an SI base unit defined.
+     */
+    public function toSiBase(): self
+    {
+        return DimensionService::getBaseDerivedUnit($this->dimension, true);
+    }
+
+    /**
+     * Convert the DerivedUnit to its equivalent in English base units.
+     *
+     * @return self The new DerivedUnit.
+     * @throws DomainException If any of the dimension codes are invalid.
+     * @throws LogicException If any of the dimension codes do not have an English base unit defined.
+     */
+    public function toEnglishBase(): self
+    {
+        return DimensionService::getBaseDerivedUnit($this->dimension, false);
+    }
+
+    /**
+     * Return a new DerivedUnit with all prefixes removed from all unit terms.
+     *
+     * @return self A new instance with no prefixes on any unit term.
+     */
+    public function removePrefixes(): self
+    {
+        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(), $this->unitTerms);
+        return new self($unitTerms);
+    }
+
+    public function tryExpand(): ?Quantity
+    {
+        // Check if we found the expansion already.
+        if ($this->expansion !== null) {
+            return $this->expansion;
+        }
+
+        // Check if there's anything to do.
+        if ($this->isBase()) {
+            return null;
+        }
+
+        // Initialize result components.
+        $resultValue = 1;
+        $resultUnit = new self();
+
+        // Expand any unit terms with expansions.
+        foreach ($this->unitTerms as $unitTerm) {
+            // Skip base units.
+            if ($unitTerm->isBase()) {
+                $resultUnit->addUnitTerm($unitTerm);
+                continue;
+            }
+
+            // Check if there's a known expansion for this unit.
+            $expansion = $unitTerm->tryExpand();
+
+            // If none found, the expansion doesn't exist for the full derived unit either.
+            if ($expansion === null) {
+                return null;
+            }
+
+            // Multiply by the conversion factor.
+            $resultValue *= $expansion->value;
+
+            // Add the unit terms from the expansion.
+            foreach ($expansion->derivedUnit->unitTerms as $expansionUnitTerm) {
+                // Raise the expansion unit term to the exponent and add.
+                $resultUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
+            }
+        }
+
+        // Since a unit expansion can add different and new unit terms, we can end up with unmerged compatible units.
+        // Merge compatible units if necessary.
+        return Quantity::create($resultValue, $resultUnit)->merge();
+    }
+
+    /**
+     * Merge units that have the same dimension, e.g. 'm' and 'ft', or 's' and 'h', or 'lb' and 'kg'.
+     *
+     * The first unit encountered of a given dimension will be the one any others are converted to.
+     *
+     * @return Quantity A new Quantity with the merged derived unit.
+     */
+    public function merge(): Quantity
+    {
+        // Initialize result components.
+        $resultValue = 1.0;
+        $resultUnit = new self();
+
+        foreach ($this->unitTerms as $unitTerm) {
+            // See if there is already a unit term with a unit with this dimension.
+            $newUnitTerm1 = array_find(
+                $resultUnit->unitTerms,
+                static fn (UnitTerm $ut) => $ut->unit->dimension === $unitTerm->unit->dimension
+            );
+
+            // If no unit exists with this dimension, copy the existing one to the result.
+            if ($newUnitTerm1 === null) {
+                $resultUnit->addUnitTerm($unitTerm);
+            } else {
+                // If the unexponentiated units are different, convert one to the other.
+                $unexponentiatedThisUnitTerm = $unitTerm->removeExponent();
+                $unexponentiatedNewUnitTerm1 = $newUnitTerm1->removeExponent();
+                if (!$unexponentiatedThisUnitTerm->equal($unexponentiatedNewUnitTerm1)) {
+                    // Get the conversion factor from the existing to the new unit term.
+                    $converter = Converter::getByDimension($unexponentiatedThisUnitTerm->dimension);
+                    $factor = $converter->getConversionFactor(
+                        $unexponentiatedThisUnitTerm,
+                        $unexponentiatedNewUnitTerm1
+                    );
+
+                    // Multiply by the conversion factor raised to the exponent of the second unit term.
+                    $resultValue *= $factor ** $unitTerm->exponent;
+                }
+
+                // Create a second term with the same unit as the first, but the exponent of the second term.
+                $newUnitTerm2 = $newUnitTerm1->withExponent($unitTerm->exponent);
+
+                // Adding the second unit term will combine it with the first because they have the same
+                // unexponentiated symbol.
+                $resultUnit->addUnitTerm($newUnitTerm2);
+            }
+        }
+
+        // Construct a new Quantity from the merged value and unit.
+        return Quantity::create($resultValue, $resultUnit);
     }
 
     // endregion
@@ -589,8 +756,8 @@ class DerivedUnit implements UnitInterface
         }
 
         // Parse the dimension into dimension terms.
-        $aDimTerms = Dimensions::decompose($a->dimension);
-        $bDimTerms = Dimensions::decompose($b->dimension);
+        $aDimTerms = DimensionService::decompose($a->dimension);
+        $bDimTerms = DimensionService::decompose($b->dimension);
 
         // Put more complex dimensions (indicating expandable units) first.
         if (count($aDimTerms) > count($bDimTerms)) {
@@ -606,9 +773,9 @@ class DerivedUnit implements UnitInterface
         $aDims = array_keys($aDimTerms);
         $bDims = array_keys($bDimTerms);
 
-        // First loop: compare all letters in the order given by Dimensions::DIMENSION_CODES.
+        // First loop: compare all letters in the order given by DimensionService::DIMENSION_CODES.
         for ($i = 0; $i < $nTerms; $i++) {
-            $cmp = Dimensions::letterToInt($aDims[$i]) <=> Dimensions::letterToInt($bDims[$i]);
+            $cmp = DimensionService::letterToInt($aDims[$i]) <=> DimensionService::letterToInt($bDims[$i]);
             if ($cmp !== 0) {
                 return $cmp;
             }
@@ -638,7 +805,7 @@ class DerivedUnit implements UnitInterface
         $dimCodes = [];
         foreach ($this->unitTerms as $unitTerm) {
             // Get the dimension code terms for this unit term.
-            $dims = Dimensions::decompose($unitTerm->dimension);
+            $dims = DimensionService::decompose($unitTerm->dimension);
 
             // Accumulate the exponents for each letter in the dimension code.
             foreach ($dims as $dimCode => $exp) {
@@ -656,7 +823,7 @@ class DerivedUnit implements UnitInterface
         }
 
         // Generate the full dimension code.
-        $this->dimension = Dimensions::compose($dimCodes);
+        $this->dimension = DimensionService::compose($dimCodes);
     }
 
     // endregion

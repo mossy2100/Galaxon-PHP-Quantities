@@ -44,9 +44,9 @@ public string $dimension { get; }
 
 The dimensional code representing the physical dimension of the unit. Uses standard dimension symbols: L (length), 
 M (mass), T (time), I (electric current), N (amount of substance), J (luminous intensity), and some non-standard ones:
-H (temperature), A (angle), D (data), and C (money).
+H (temperature), A (angle), D (data), and C (currency).
 
-Compound dimensions include exponents (e.g., 'L2' for area, 'MLT-2' for force). Dimensionless units have dimension '1'.
+Compound dimensions include exponents (e.g., 'L2' for area, 'MLT-2' for force). Dimensionless units have an empty string '' for the dimension code.
 
 ## Methods
 

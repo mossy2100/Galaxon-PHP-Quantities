@@ -8,8 +8,8 @@ use DateInterval;
 use DateMalformedIntervalStringException;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -45,7 +45,7 @@ class Time extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -54,36 +54,36 @@ class Time extends Quantity
         return [
             'second'  => [
                 'asciiSymbol' => 's',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
             ],
             'minute'  => [
                 'asciiSymbol' => 'min',
-                'systems'     => [System::SiAccepted],
+                'systems'     => [UnitSystem::SiAccepted],
             ],
             'hour'    => [
                 'asciiSymbol' => 'h',
-                'systems'     => [System::SiAccepted],
+                'systems'     => [UnitSystem::SiAccepted],
             ],
             'day'     => [
                 'asciiSymbol' => 'd',
-                'systems'     => [System::SiAccepted],
+                'systems'     => [UnitSystem::SiAccepted],
             ],
             'week'    => [
                 'asciiSymbol' => 'w',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
             'month'   => [
                 'asciiSymbol' => 'mo',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
             'year'    => [
                 'asciiSymbol' => 'y',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
             'century' => [
                 'asciiSymbol' => 'c',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
         ];
     }

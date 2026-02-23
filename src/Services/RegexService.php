@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace Galaxon\Quantities\Services;
 
 use Galaxon\Core\Integers;
 use Galaxon\Core\Numbers;
@@ -13,7 +13,7 @@ use Galaxon\Core\Numbers;
  * Contains all regex constants, pattern builders, and validation methods used across Unit, UnitTerm,
  * DerivedUnit, and Prefix classes.
  */
-final class RegexHelper
+final class RegexService
 {
     // region Constants
 
@@ -46,6 +46,16 @@ final class RegexHelper
      * Pattern for a single Unicode letter.
      */
     private const string RX_UNICODE_LETTER = '\p{L}';
+
+    /**
+     * Pattern for a single Unicode word (one or more letters).
+     */
+    private const string RX_UNICODE_WORD = self::RX_UNICODE_LETTER . '+';
+
+    /**
+     * Pattern for one to three Unicode words separated by single spaces.
+     */
+    private const string RX_UNICODE_WORDS = self::RX_UNICODE_WORD . '(?: ' . self::RX_UNICODE_WORD . '){0,2}';
 
     /**
      * Pattern for a single Unicode special character valid for use as a unit symbol.
@@ -177,14 +187,14 @@ final class RegexHelper
     // region Validation methods
 
     /**
-     * Check if a string is a valid unit name (non-empty ASCII, up to 3 words, upper and lower-case ok).
+     * Check if a string is a valid unit name (non-empty Unicode, up to 3 words, upper and lower-case ok).
      *
      * @param string $name The string to check.
      * @return bool True if the string is a valid unit name.
      */
     public static function isValidUnitName(string $name): bool
     {
-        return (bool)preg_match('/^' . self::RX_ASCII_WORDS . '$/i', $name);
+        return $name !== '' && preg_match('/^[\p{L}\p{P} ]+$/iu', $name);
     }
 
     /**

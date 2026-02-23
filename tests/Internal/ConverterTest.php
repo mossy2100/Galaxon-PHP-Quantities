@@ -10,11 +10,11 @@ use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\FloatWithError;
 use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Registry\ConversionRegistry;
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\ConversionService;
+use Galaxon\Quantities\Services\QuantityTypeService;
+use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Fixtures\UnregisteredQuantity;
+use Galaxon\Quantities\UnitSystem;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -30,7 +30,7 @@ class ConverterTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for cross-system tests.
-        UnitRegistry::loadSystem(System::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion
@@ -46,7 +46,7 @@ class ConverterTest extends TestCase
         $converter1 = Converter::getByDimension('L');
 
         // Reset the cache.
-        Converter::clear();
+        Converter::clearInstances();
 
         // Get a new instance - should be a different object.
         $converter2 = Converter::getByDimension('L');
@@ -216,16 +216,17 @@ class ConverterTest extends TestCase
     public function testGetConversionReturnsNullWhenNoPathExists(): void
     {
         // Register a custom unit with no conversions defined.
-        UnitRegistry::add(new Unit(
+        $unit = new Unit(
             name: 'isolated length',
             asciiSymbol: 'Xu',
             dimension: 'L',
-            systems: [System::Si]
-        ));
+            systems: [UnitSystem::Si]
+        );
+        UnitService::add($unit);
 
         try {
             // Clear cached converters to pick up the new unit.
-            Converter::clear();
+            Converter::clearInstances();
 
             $converter = Converter::getByDimension('L');
 
@@ -235,8 +236,8 @@ class ConverterTest extends TestCase
             $this->assertNull($conversion);
         } finally {
             // Clean up.
-            UnitRegistry::remove('isolated-length');
-            Converter::clear();
+            UnitService::remove($unit);
+            Converter::clearInstances();
         }
     }
 
@@ -288,16 +289,17 @@ class ConverterTest extends TestCase
     public function testGetConversionFactorReturnsNullWhenNoPathExists(): void
     {
         // Register a custom unit with no conversions defined.
-        UnitRegistry::add(new Unit(
+        $unit = new Unit(
             name: 'isolated length two',
             asciiSymbol: 'Yu',
             dimension: 'L',
-            systems: [System::Si]
-        ));
+            systems: [UnitSystem::Si]
+        );
+        UnitService::add($unit);
 
         try {
             // Clear cached converters to pick up the new unit.
-            Converter::clear();
+            Converter::clearInstances();
 
             $converter = Converter::getByDimension('L');
 
@@ -307,8 +309,8 @@ class ConverterTest extends TestCase
             $this->assertNull($factor);
         } finally {
             // Clean up.
-            UnitRegistry::remove('isolated-length2');
-            Converter::clear();
+            UnitService::remove($unit);
+            Converter::clearInstances();
         }
     }
 
@@ -369,25 +371,26 @@ class ConverterTest extends TestCase
     /**
      * Test validateUnit throws with generic message for unknown dimension.
      *
-     * When the converter's dimension is not in QuantityTypeRegistry, the error message
+     * When the converter's dimension is not in QuantityTypeService, the error message
      * should use the generic format rather than the quantity-name format.
      */
     public function testValidateUnitThrowsGenericMessageForUnknownDimension(): void
     {
-        // Register a custom unit with a dimension not in QuantityTypeRegistry.
-        UnitRegistry::add(new Unit(
+        // Register a custom unit with a dimension not in QuantityTypeService.
+        $unit = new Unit(
             name: 'custom unit',
             asciiSymbol: 'Zu',
             dimension: 'L4',
-            systems: [System::Si]
-        ));
+            systems: [UnitSystem::Si]
+        );
+        UnitService::add($unit);
 
         // Also register a conversion so the converter has something to load.
         $conversion = new Conversion('Zu', 'Zu', 1.0);
-        ConversionRegistry::add($conversion);
+        ConversionService::add($conversion);
 
         try {
-            Converter::clear();
+            Converter::clearInstances();
 
             $converter = Converter::getByDimension('L4');
 
@@ -397,9 +400,9 @@ class ConverterTest extends TestCase
 
             $converter->validateUnit('m'); // L dimension, not L4
         } finally {
-            UnitRegistry::remove('custom-unit');
-            ConversionRegistry::remove($conversion);
-            Converter::clear();
+            UnitService::remove($unit);
+            ConversionService::remove($conversion);
+            Converter::clearInstances();
         }
     }
 
@@ -499,16 +502,17 @@ class ConverterTest extends TestCase
     public function testConvertThrowsLogicExceptionWhenNoPathExists(): void
     {
         // Register a custom unit with no conversions defined.
-        UnitRegistry::add(new Unit(
+        $unit = new Unit(
             name: 'isolated length three',
             asciiSymbol: 'Wu',
             dimension: 'L',
-            systems: [System::Si]
-        ));
+            systems: [UnitSystem::Si]
+        );
+        UnitService::add($unit);
 
         try {
             // Clear cached converters to pick up the new unit.
-            Converter::clear();
+            Converter::clearInstances();
 
             $converter = Converter::getByDimension('L');
 
@@ -518,8 +522,8 @@ class ConverterTest extends TestCase
             $converter->convert(1.0, 'Wu', 'm');
         } finally {
             // Clean up.
-            UnitRegistry::remove('isolated-length3');
-            Converter::clear();
+            UnitService::remove($unit);
+            Converter::clearInstances();
         }
     }
 
@@ -694,24 +698,6 @@ class ConverterTest extends TestCase
     // region Edge cases
 
     /**
-     * Test unitTerms property contains unprefixed terms.
-     */
-    public function testUnitTermsContainsUnprefixedTerms(): void
-    {
-        $converter = Converter::getByDimension('L');
-
-        // Trigger some conversions to populate unitTerms
-        $converter->getConversion('m', 'ft');
-
-        $this->assertNotEmpty($converter->units);
-
-        // All unit terms should be unprefixed
-        foreach ($converter->units as $unit) {
-            $this->assertFalse($unit->hasPrefixes());
-        }
-    }
-
-    /**
      * Test converter handles very small conversion factors.
      */
     public function testHandlesVerySmallConversionFactors(): void
@@ -735,194 +721,6 @@ class ConverterTest extends TestCase
         $factor = $converter->getConversionFactor('km', 'mm');
 
         $this->assertEqualsWithDelta(1e6, $factor, 1e-10);
-    }
-
-    // endregion
-
-    // region expand() tests
-
-    /**
-     * Test expand returns unchanged value and unit when no expansion needed.
-     */
-    public function testExpandReturnsUnchangedWhenNoExpansion(): void
-    {
-        // Meter has no expansion - it's a base SI unit.
-        $unit = DerivedUnit::parse('m');
-
-        [$value, $resultUnit] = Converter::expand(5.0, $unit);
-
-        $this->assertSame(5.0, $value);
-        $this->assertSame('m', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test expand returns unchanged for unit without expansion.
-     */
-    public function testExpandReturnsUnchangedForSecond(): void
-    {
-        // Second has no expansion.
-        $unit = DerivedUnit::parse('s');
-
-        [$value, $resultUnit] = Converter::expand(10.0, $unit);
-
-        $this->assertSame(10.0, $value);
-        $this->assertSame('s', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test expand expands Newton to base SI units.
-     */
-    public function testExpandExpandsNewtonToBaseSi(): void
-    {
-        // Newton (N) expands to kg·m/s².
-        $unit = DerivedUnit::parse('N');
-
-        [$value, $resultUnit] = Converter::expand(1.0, $unit);
-
-        $this->assertSame(1.0, $value);
-        $this->assertSame('MLT-2', $resultUnit->dimension);
-        $this->assertSame('kg*m/s2', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test expand expands Joule to base SI units.
-     */
-    public function testExpandExpandsJouleToBaseSi(): void
-    {
-        // Joule (J) expands to kg·m²/s².
-        $unit = DerivedUnit::parse('J');
-
-        [$value, $resultUnit] = Converter::expand(1.0, $unit);
-
-        $this->assertSame(1.0, $value);
-        $this->assertSame('ML2T-2', $resultUnit->dimension);
-        $this->assertSame('kg*m2/s2', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test expand handles prefixed expandable units.
-     */
-    public function testExpandHandlesPrefixedExpandableUnits(): void
-    {
-        // kN (kilonewton) should expand with the prefix applied.
-        $unit = DerivedUnit::parse('kN');
-
-        [$value, $resultUnit] = Converter::expand(1.0, $unit);
-
-        // 1 kN = 1000 N = 1000 kg·m/s²
-        $this->assertEqualsWithDelta(1000.0, $value, 1e-10);
-        $this->assertSame('MLT-2', $resultUnit->dimension);
-        $this->assertSame('kg*m/s2', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test expand handles exponentiated expandable units.
-     */
-    public function testExpandHandlesExponentiatedExpandableUnits(): void
-    {
-        // N² should expand to (kg·m/s²)².
-        $unit = DerivedUnit::parse('N2');
-
-        [$value, $resultUnit] = Converter::expand(1.0, $unit);
-
-        $this->assertSame(1.0, $value);
-        $this->assertSame('M2L2T-4', $resultUnit->dimension);
-        $this->assertSame('kg2*m2/s4', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test expand handles compound unit where one part expands and another doesn't.
-     *
-     * This covers line 326 in expand() where a unit term has no expansion.
-     */
-    public function testExpandHandlesPartiallyExpandableUnit(): void
-    {
-        // N*s where N expands to kg*m/s² but s doesn't expand.
-        $unit = DerivedUnit::parse('N*s');
-
-        [$value, $resultUnit] = Converter::expand(1.0, $unit);
-
-        // N*s = kg*m/s² * s = kg*m/s (impulse).
-        $this->assertSame(1.0, $value);
-        $this->assertSame('MLT-1', $resultUnit->dimension);
-        $this->assertSame('kg*m/s', $resultUnit->asciiSymbol);
-    }
-
-    // endregion
-
-    // region merge() tests
-
-    /**
-     * Test merge returns unchanged value and unit when no merging needed.
-     */
-    public function testMergeReturnsUnchangedWhenNoMerging(): void
-    {
-        // Simple unit with no mergeable components.
-        $unit = DerivedUnit::parse('m');
-
-        [$value, $resultUnit] = Converter::merge(5.0, $unit);
-
-        $this->assertSame(5.0, $value);
-        $this->assertSame('m', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test merge returns unchanged for compound unit with different dimensions.
-     */
-    public function testMergeReturnsUnchangedForDifferentDimensions(): void
-    {
-        // m/s has different dimensions so nothing to merge.
-        $unit = DerivedUnit::parse('m/s');
-
-        [$value, $resultUnit] = Converter::merge(1.0, $unit);
-
-        $this->assertSame(1.0, $value);
-        $this->assertSame('m/s', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test merge combines compatible length units.
-     */
-    public function testMergeCombinesCompatibleLengthUnits(): void
-    {
-        // m*ft has two length units that should merge.
-        $unit = DerivedUnit::parse('m*ft');
-
-        [$value, $resultUnit] = Converter::merge(1.0, $unit);
-
-        // Result should be in m² (first unit encountered).
-        $this->assertSame('L2', $resultUnit->dimension);
-        // 1 ft ≈ 0.3048 m, so 1 m*ft ≈ 0.3048 m²
-        $this->assertEqualsWithDelta(0.3048, $value, 1e-4);
-    }
-
-    /**
-     * Test merge handles units with same base (combines exponents).
-     */
-    public function testMergeHandlesSameBaseUnits(): void
-    {
-        // m*m should combine to m².
-        $unit = DerivedUnit::parse('m*m');
-
-        [$value, $resultUnit] = Converter::merge(1.0, $unit);
-
-        $this->assertSame(1.0, $value);
-        $this->assertSame('m2', $resultUnit->asciiSymbol);
-    }
-
-    /**
-     * Test merge handles division with compatible units.
-     */
-    public function testMergeHandlesDivisionWithCompatibleUnits(): void
-    {
-        // ft/m should merge to dimensionless.
-        $unit = DerivedUnit::parse('ft/m');
-
-        [$value, $resultUnit] = Converter::merge(1.0, $unit);
-
-        // ft/m → should become dimensionless with value ≈ 0.3048
-        $this->assertSame('1', $resultUnit->dimension);
-        $this->assertEqualsWithDelta(0.3048, $value, 1e-4);
     }
 
     // endregion
@@ -955,17 +753,24 @@ class ConverterTest extends TestCase
      */
     public function testDivergentCombinationPath(): void
     {
+        // Reset converters.
+        Converter::clearInstances();
+
+        // Create custom units.
+        $tx = new Unit('test x', 'Tx', 'L', systems: [UnitSystem::Si]);
+        $ty = new Unit('test y', 'Ty', 'L', systems: [UnitSystem::Si]);
+        $tz = new Unit('test z', 'Tz', 'L', systems: [UnitSystem::Si]);
+
         // Register custom units.
-        UnitRegistry::add(new Unit('test x', 'Tx', 'L', systems: [System::Si]));
-        UnitRegistry::add(new Unit('test y', 'Ty', 'L', systems: [System::Si]));
-        UnitRegistry::add(new Unit('test z', 'Tz', 'L', systems: [System::Si]));
+        UnitService::add($tx);
+        UnitService::add($ty);
+        UnitService::add($tz);
 
         // Add conversions that enable divergent path: Y→X and Y→Z.
-        ConversionRegistry::add(new Conversion('Ty', 'Tx', 2.0));
-        ConversionRegistry::add(new Conversion('Ty', 'Tz', 4.0));
+        ConversionService::add(new Conversion('Ty', 'Tx', 2.0));
+        ConversionService::add(new Conversion('Ty', 'Tz', 4.0));
 
         try {
-            Converter::clear();
             $converter = Converter::getByDimension('L');
 
             // This should find X→Z via divergent combination.
@@ -974,11 +779,10 @@ class ConverterTest extends TestCase
             $this->assertInstanceOf(Conversion::class, $conversion);
             $this->assertEqualsWithDelta(2.0, $conversion->factor->value, 1e-10);
         } finally {
-            UnitRegistry::remove('test-x');
-            UnitRegistry::remove('test-y');
-            UnitRegistry::remove('test-z');
-            ConversionRegistry::reset();
-            Converter::clear();
+            UnitService::remove($tx);
+            UnitService::remove($ty);
+            UnitService::remove($tz);
+            Converter::clearInstances();
         }
     }
 
@@ -992,22 +796,29 @@ class ConverterTest extends TestCase
      */
     public function testOppositeCombinationPathWithZeroError(): void
     {
+        // Reset converters.
+        Converter::clearInstances();
+
         // Use a custom isolated dimension so only our units exist.
         $dimension = 'L7';
-        QuantityTypeRegistry::add('hypertest', $dimension, UnregisteredQuantity::class);
+        QuantityTypeService::add('hypertest', $dimension, UnregisteredQuantity::class);
+
+        // Create custom units.
+        $oppA = new Unit('opp a', 'Oa', $dimension, systems: [UnitSystem::Si]);
+        $oppB = new Unit('opp b', 'Ob', $dimension, systems: [UnitSystem::Si]);
+        $oppC = new Unit('opp c', 'Oc', $dimension, systems: [UnitSystem::Si]);
 
         // Register exactly three units in this dimension.
-        UnitRegistry::add(new Unit('opp a', 'Oa', $dimension, systems: [System::Si]));
-        UnitRegistry::add(new Unit('opp b', 'Ob', $dimension, systems: [System::Si]));
-        UnitRegistry::add(new Unit('opp c', 'Oc', $dimension, systems: [System::Si]));
+        UnitService::add($oppA);
+        UnitService::add($oppB);
+        UnitService::add($oppC);
 
         // Add conversions that enable opposite path: B→A and C→B.
         // Use explicit zero error for 0.5 so that 1/(2*0.5) = 1.0 has zero error.
-        ConversionRegistry::add(new Conversion('Ob', 'Oa', 2.0));
-        ConversionRegistry::add(new Conversion('Oc', 'Ob', new FloatWithError(0.5, 0.0)));
+        ConversionService::add(new Conversion('Ob', 'Oa', 2.0));
+        ConversionService::add(new Conversion('Oc', 'Ob', new FloatWithError(0.5, 0.0)));
 
         try {
-            Converter::clear();
             $converter = Converter::getByDimension($dimension);
 
             // This should find A→C via opposite combination with zero error.
@@ -1017,12 +828,11 @@ class ConverterTest extends TestCase
             $this->assertEqualsWithDelta(1.0, $conversion->factor->value, 1e-10);
             $this->assertSame(0.0, $conversion->factor->relativeError);
         } finally {
-            UnitRegistry::remove('opp-a');
-            UnitRegistry::remove('opp-b');
-            UnitRegistry::remove('opp-c');
-            ConversionRegistry::reset();
-            Converter::clear();
-            QuantityTypeRegistry::reset();
+            UnitService::remove($oppA);
+            UnitService::remove($oppB);
+            UnitService::remove($oppC);
+            Converter::clearInstances();
+            QuantityTypeService::reset();
         }
     }
 

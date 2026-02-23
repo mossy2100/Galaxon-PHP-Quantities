@@ -8,8 +8,8 @@ use DomainException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\FloatWithError;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -24,9 +24,9 @@ class ConversionTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units for cross-system tests.
-        UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::UsCustomary);
-        UnitRegistry::loadSystem(System::Nautical);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Nautical);
     }
 
     // endregion

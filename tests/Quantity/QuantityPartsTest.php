@@ -9,7 +9,7 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Registry\QuantityTypeRegistry;
+use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Tests\Fixtures\BadUnitPartsQuantity;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -263,7 +263,7 @@ final class QuantityPartsTest extends TestCase
     public function testToPartsWithUnknownUnitInDefaultThrowsException(): void
     {
         // Temporarily register the fixture class for time.
-        QuantityTypeRegistry::setClass('time', BadUnitPartsQuantity::class);
+        QuantityTypeService::setClass('time', BadUnitPartsQuantity::class);
 
         try {
             $this->expectException(DomainException::class);
@@ -274,7 +274,7 @@ final class QuantityPartsTest extends TestCase
             $qty->toParts();
         } finally {
             // Restore the original Time class.
-            QuantityTypeRegistry::setClass('time', Time::class);
+            QuantityTypeService::setClass('time', Time::class);
         }
     }
 

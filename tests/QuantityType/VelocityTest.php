@@ -8,9 +8,9 @@ use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Velocity;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -28,9 +28,9 @@ final class VelocityTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US and Nautical units.
-        UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::UsCustomary);
-        UnitRegistry::loadSystem(System::Nautical);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Nautical);
     }
 
     // endregion

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -24,7 +24,7 @@ class Energy extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -33,22 +33,22 @@ class Energy extends Quantity
         return [
             'joule'                => [
                 'asciiSymbol' => 'J',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
             ],
             'electronvolt'         => [
                 'asciiSymbol' => 'eV',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::SiAccepted, System::Scientific],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::SiAccepted, UnitSystem::Scientific],
             ],
             'calorie'              => [
                 'asciiSymbol' => 'cal',
-                'prefixGroup' => PrefixRegistry::GROUP_LARGE_METRIC,
-                'systems'     => [System::Common],
+                'prefixGroup' => PrefixService::GROUP_LARGE_METRIC,
+                'systems'     => [UnitSystem::Common],
             ],
             'British thermal unit' => [
                 'asciiSymbol' => 'Btu',
-                'systems'     => [System::UsCustomary],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
         ];
     }

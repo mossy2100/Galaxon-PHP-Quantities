@@ -1,10 +1,10 @@
-# RegexHelper
+# RegexService
 
 Centralised regex patterns and validation for unit symbols.
 
 ## Overview
 
-The `RegexHelper` class consolidates all regular expression constants, pattern builders, and validation methods used across the Quantities package. It is the single source of truth for how unit symbols, prefix symbols, derived unit expressions, quantity strings, and DMS angle strings are validated and matched.
+The `RegexService` class consolidates all regular expression constants, pattern builders, and validation methods used across the Quantities package. It is the single source of truth for how unit symbols, prefix symbols, derived unit expressions, quantity strings, and DMS angle strings are validated and matched.
 
 The class composes patterns from small, private constants (e.g. `RX_ASCII_WORD`, `RX_UNICODE_LETTER`) into larger patterns via static builder methods. Validation methods wrap these patterns with anchors and return booleans, optionally populating match arrays for downstream parsing.
 
@@ -295,46 +295,46 @@ You shouldn't need to use these methods - they are primarily for internal use by
 ### Validating Unit Symbols
 
 ```php
-use Galaxon\Quantities\Internal\RegexHelper;
+use Galaxon\Quantities\Services\RegexService;
 
-RegexHelper::isValidAsciiSymbol('m');             // true
-RegexHelper::isValidAsciiSymbol('fluid ounce');   // true
-RegexHelper::isValidUnicodeSymbol('Ω');           // true
-RegexHelper::isValidUnicodeSymbol('°C');          // true
-RegexHelper::isValidUnitSymbol('%');              // true
+RegexService::isValidAsciiSymbol('m');             // true
+RegexService::isValidAsciiSymbol('fluid ounce');   // true
+RegexService::isValidUnicodeSymbol('Ω');           // true
+RegexService::isValidUnicodeSymbol('°C');          // true
+RegexService::isValidUnitSymbol('%');              // true
 ```
 
 ### Validating Derived Units
 
 ```php
-use Galaxon\Quantities\Internal\RegexHelper;
+use Galaxon\Quantities\Services\RegexService;
 
-RegexHelper::isValidDerivedUnit('kg*m/s2');       // true
-RegexHelper::isValidDerivedUnit('W/(sr*m2)');     // true
-RegexHelper::isValidDerivedUnitForm1('m/s');      // true
-RegexHelper::isValidDerivedUnitForm2('W/(sr*m2)', $m); // true, $m['num'] = 'W', $m['den'] = 'sr*m2'
+RegexService::isValidDerivedUnit('kg*m/s2');       // true
+RegexService::isValidDerivedUnit('W/(sr*m2)');     // true
+RegexService::isValidDerivedUnitForm1('m/s');      // true
+RegexService::isValidDerivedUnitForm2('W/(sr*m2)', $m); // true, $m['num'] = 'W', $m['den'] = 'sr*m2'
 ```
 
 ### Parsing Quantities
 
 ```php
-use Galaxon\Quantities\Internal\RegexHelper;
+use Galaxon\Quantities\Services\RegexService;
 
-RegexHelper::isValidQuantity('9.81 m/s2', $matches); // true
+RegexService::isValidQuantity('9.81 m/s2', $matches); // true
 // $matches[1] = '9.81', $matches[2] = 'm/s2'
 
-RegexHelper::isValidQuantity('100', $matches);        // true (dimensionless)
+RegexService::isValidQuantity('100', $matches);        // true (dimensionless)
 ```
 
 ### Validating DMS Angles
 
 ```php
-use Galaxon\Quantities\Internal\RegexHelper;
+use Galaxon\Quantities\Services\RegexService;
 
-RegexHelper::isValidDmsAngle('45°30\'15.5"', $matches); // true
+RegexService::isValidDmsAngle('45°30\'15.5"', $matches); // true
 // $matches['deg'] = '45', $matches['min'] = '30', $matches['sec'] = '15.5'
 
-RegexHelper::isValidDmsAngle('-90°', $matches);          // true
+RegexService::isValidDmsAngle('-90°', $matches);          // true
 // $matches['sign'] = '-', $matches['deg'] = '90'
 ```
 

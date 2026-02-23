@@ -6,7 +6,6 @@ namespace Galaxon\Quantities\Tests\Examples;
 
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Capacitance;
-use Galaxon\Quantities\QuantityType\Dimensionless;
 use Galaxon\Quantities\QuantityType\ElectricCharge;
 use Galaxon\Quantities\QuantityType\ElectricCurrent;
 use Galaxon\Quantities\QuantityType\Energy;
@@ -93,8 +92,7 @@ class ElectromagnetismTest extends TestCase
     public function testAcMainsPeriod50Hz(): void
     {
         $mains = new Frequency(50, 'Hz');
-        $one = new Dimensionless(1);
-        $period = $one->div($mains);
+        $period = $mains->inv();
 
         $this->assertInstanceOf(Time::class, $period);
         // 1/50 = 0.02 s = 20 ms
@@ -110,8 +108,7 @@ class ElectromagnetismTest extends TestCase
     public function testAcMainsPeriod60Hz(): void
     {
         $mains = new Frequency(60, 'Hz');
-        $one = new Dimensionless(1);
-        $period = $one->div($mains);
+        $period = $mains->inv();
 
         $this->assertInstanceOf(Time::class, $period);
         // 1/60 ≈ 16.67 ms

@@ -106,7 +106,26 @@ class Conversion implements Stringable
 
     // endregion
 
-    // region Transformation methods
+    // region Inspection methods
+
+    /**
+     * Check if the conversion is exact (no error).
+     *
+     * @return bool
+     */
+    public function isExact(): bool
+    {
+        return $this->factor->absoluteError === 0.0;
+    }
+
+    public function involvesUnit(Unit $unit): bool
+    {
+        return $this->srcUnit->involvesUnit($unit) || $this->destUnit->involvesUnit($unit);
+    }
+
+    // endregion
+
+    // region Arithmetic methods
 
     /**
      * Invert this conversion to go from destination unit back to source unit.
@@ -130,21 +149,25 @@ class Conversion implements Stringable
     /**
      * Create a new conversion by applying an exponent.
      *
-     * @param int $newExponent The new exponent.
+     * @param int $exponent The new exponent.
      * @return self A new conversion with exponentiated units.
      */
-    public function pow(int $newExponent): self
+    public function pow(int $exponent): self
     {
         // Apply the exponent to the units.
-        $newSrcUnitTerm = $this->srcUnit->pow($newExponent);
-        $newDestUnitTerm = $this->destUnit->pow($newExponent);
+        $newSrcUnitTerm = $this->srcUnit->pow($exponent);
+        $newDestUnitTerm = $this->destUnit->pow($exponent);
 
         // Calculate new factor.
-        $newFactor = $this->factor->pow($newExponent);
+        $newFactor = $this->factor->pow($exponent);
 
         // Create and return the new conversion with updated units and multiplier.
         return new self($newSrcUnitTerm, $newDestUnitTerm, $newFactor);
     }
+
+    // endregion
+
+    // region Transformation methods
 
     /**
      * Generate a new conversion from an existing one by removing prefixes from the source and destination unit terms.
@@ -272,7 +295,7 @@ class Conversion implements Stringable
      */
     public function __toString(): string
     {
-        return "1 $this->srcUnit = $this->factor->value $this->destUnit";
+        return "1 $this->srcUnit = {$this->factor->value} $this->destUnit";
     }
 
     // endregion

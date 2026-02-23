@@ -24,7 +24,7 @@ A single new guide page covering the essential workflow for using the package. C
 4. **Comparison** — `compare()`, `approxEqual()`, sorting
 5. **Formatting** — `format()` specifiers, `__toString()`, ASCII vs Unicode
 6. **Parts** — `toParts()`, `fromParts()`, `formatParts()` for decomposed display (e.g. 45° 30' 15")
-7. **Loading Unit Systems** — `UnitRegistry::loadSystem()`, which systems are loaded by default
+7. **Loading Unit Systems** — `UnitService::loadSystem()`, which systems are loaded by default
 8. **See Also** — links to Examples, CustomQuantityTypes, SupportedUnits, and Reference pages
 
 Source content comes primarily from:
@@ -66,7 +66,7 @@ Keep Overview paragraphs in all Reference files — every class needs at least a
 - Remove: **Key Features** list
 - Keep: Overview (factual description of the conversion algorithm)
 
-### `Reference/Internal/Dimensions.md`
+### `Reference/Services/DimensionService.md`
 - Remove: **Usage Examples** section at end
 - Keep: Everything else (Overview, dimension codes table, method signatures)
 
@@ -108,7 +108,7 @@ Replace the current Classes tables in README with a complete docs index:
 | [Custom Quantity Types](docs/Manual/CustomQuantityTypes.md) | Extending the package with your own types and units |
 
 ### Reference
-(keep existing tables for Main Public API, Quantity Types, Registry Classes, Internal Classes)
+(keep existing tables for Main Public API, Quantity Types, Services, Internal Classes)
 ```
 
 ## Cross-References
@@ -130,7 +130,7 @@ After stripping, update See Also sections in Reference files:
 | `docs/Reference/Internal/DerivedUnit.md` | Strip Key Features |
 | `docs/Reference/Internal/Unit.md` | Strip Key Features |
 | `docs/Reference/Internal/Converter.md` | Strip Key Features |
-| `docs/Reference/Internal/Dimensions.md` | Strip Usage Examples |
+| `docs/Reference/Services/DimensionService.md` | Strip Usage Examples |
 | `README.md` | Move Features section to GettingStarted, add Manual docs table, full doc index |
 
 ## Verification

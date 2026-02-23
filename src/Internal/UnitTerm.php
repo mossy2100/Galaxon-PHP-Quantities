@@ -8,8 +8,12 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Traits\Equatable;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Services\DimensionService;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\RegexService;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -47,6 +51,13 @@ class UnitTerm implements UnitInterface
      * The exponent (e.g. 2 for m², -1 for s⁻¹).
      */
     public readonly int $exponent;
+
+    /**
+     * The expansion quantity, if one exists and is known.
+     *
+     * @var ?Quantity
+     */
+    private(set) ?Quantity $expansion = null;
 
     // endregion
 
@@ -103,7 +114,7 @@ class UnitTerm implements UnitInterface
      */
     public string $dimension
     {
-        get => Dimensions::applyExponent($this->unit->dimension, $this->exponent);
+        get => DimensionService::applyExponent($this->unit->dimension, $this->exponent);
     }
 
     // endregion
@@ -123,7 +134,7 @@ class UnitTerm implements UnitInterface
         // Allow for the unit to be provided as a symbol.
         if (is_string($unit)) {
             $symbol = $unit;
-            $unit = UnitRegistry::getBySymbol($symbol);
+            $unit = UnitService::getBySymbol($symbol);
             if ($unit === null) {
                 throw new DomainException("Unit '$symbol' is unknown.");
             }
@@ -131,7 +142,7 @@ class UnitTerm implements UnitInterface
 
         // Allow for the prefix to be provided as a symbol.
         if (is_string($prefix)) {
-            $prefix = PrefixRegistry::getBySymbol($prefix);
+            $prefix = PrefixService::getBySymbol($prefix);
             if ($prefix === null) {
                 throw new DomainException("Prefix '$prefix' is unknown.");
             }
@@ -163,7 +174,7 @@ class UnitTerm implements UnitInterface
     /**
      * Look up a unit or prefixed unit by its symbol.
      *
-     * Symbol uniqueness is enforced by UnitRegistry, so at most one match is possible.
+     * Symbol uniqueness is enforced by UnitService, so at most one match is possible.
      *
      * @param string $symbol The prefixed unit symbol to search for. Empty string matches the scalar unit.
      * @return ?self The matching unit term, or null if not found.
@@ -171,7 +182,7 @@ class UnitTerm implements UnitInterface
     public static function getBySymbol(string $symbol): ?self
     {
         // Look for any matching units.
-        foreach (UnitRegistry::getAll() as $unit) {
+        foreach (UnitService::getAll() as $unit) {
             if (array_key_exists($symbol, $unit->symbols)) {
                 [$unitSymbol, $prefixSymbol] = $unit->symbols[$symbol];
                 return new self($unitSymbol, $prefixSymbol);
@@ -224,7 +235,7 @@ class UnitTerm implements UnitInterface
         }
 
         // Validate the format.
-        if (!RegexHelper::isValidUnitTerm($symbol, $matches)) {
+        if (!RegexService::isValidUnitTerm($symbol, $matches)) {
             throw new FormatException(
                 "Invalid unit '$symbol'. A unit must comprise one or more letters optionally followed by an exponent."
             );
@@ -251,7 +262,7 @@ class UnitTerm implements UnitInterface
 
         // Check we found a match.
         if ($match === null) {
-            throw new DomainException("Unknown or unsupported unit '$prefixedSymbol'.");
+            throw new DomainException("Unknown unit '$prefixedSymbol'.");
         }
 
         // Create the new object.
@@ -337,17 +348,22 @@ class UnitTerm implements UnitInterface
      */
     public function isSiBase(): bool
     {
-        return in_array($this->unexponentiatedAsciiSymbol, Dimensions::getSiBaseUnitSymbols(), true);
+        return in_array($this->unexponentiatedAsciiSymbol, DimensionService::getSiBaseUnitSymbols(), true);
     }
 
     /**
-     * Check if this unit term is expandable.
+     * Check if this unit term can be expanded.
      *
      * @return bool True if the unit term is expandable into base units.
      */
     public function isExpandable(): bool
     {
         return $this->unit->isExpandable();
+    }
+
+    public function belongsToSystem(UnitSystem $system): bool
+    {
+        return $this->unit->belongsToSystem($system);
     }
 
     // endregion
@@ -414,6 +430,33 @@ class UnitTerm implements UnitInterface
         }
 
         return new self($this->unit, null, $this->exponent);
+    }
+
+    public function tryExpand(): ?Quantity
+    {
+        // Check if we found the expansion already.
+        if ($this->expansion !== null) {
+            return $this->expansion;
+        }
+
+        // Check if there's anything to do.
+        if ($this->isBase()) {
+            return null;
+        }
+
+        // Check if there's a known expansion for this unit.
+        $expansion = $this->unit->tryExpand();
+
+        // If none found, the expansion doesn't exist for this unit term.
+        if ($expansion === null) {
+            return null;
+        }
+
+        // Multiply by the conversion factor modified by prefix and exponent.
+        $resultValue = ($expansion->value * $this->prefixMultiplier) ** $this->exponent;
+
+        // Construct the expanded quantity.
+        return Quantity::create($resultValue, $expansion->derivedUnit);
     }
 
     // endregion

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -23,7 +23,7 @@ class Velocity extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -32,7 +32,7 @@ class Velocity extends Quantity
         return [
             'knot' => [
                 'asciiSymbol' => 'kn',
-                'systems'     => [System::Nautical],
+                'systems'     => [UnitSystem::Nautical],
             ],
         ];
     }

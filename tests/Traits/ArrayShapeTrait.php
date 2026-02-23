@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Traits;
 
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\UnitSystem;
 
 /**
  * Trait providing assertions for validating unit and conversion definition array shapes.
@@ -19,10 +19,10 @@ trait ArrayShapeTrait
      *      asciiSymbol: string,
      *      unicodeSymbol?: string,
      *      prefixGroup?: int,
-     *      systems: list<System>,
+     *      systems: list<UnitSystem>,
      *  }>
      *
-     * @param array<mixed> $units The array to validate.
+     * @param array $units The array to validate.
      */
     public function assertValidUnitDefinitionsShape(array $units): void
     {
@@ -49,14 +49,14 @@ trait ArrayShapeTrait
                 $this->assertIsInt($value['prefixGroup'], "Unit '$key' prefixGroup must be an int.");
             }
 
-            // Check systems are provided as an array of System objects.
+            // Check systems are provided as an array of UnitSystem objects.
             $this->assertArrayHasKey('systems', $value, "Unit '$key' must have 'systems'.");
             $this->assertIsArray($value['systems'], "Unit '$key' systems must be an array.");
             foreach ($value['systems'] as $system) {
                 $this->assertInstanceOf(
-                    System::class,
+                    UnitSystem::class,
                     $system,
-                    "Unit '$key' systems must contain only System instances."
+                    "Unit '$key' systems must contain only UnitSystem instances."
                 );
             }
         }
@@ -68,7 +68,7 @@ trait ArrayShapeTrait
      * Expected shape:
      * list<array{string, string, float}>
      *
-     * @param array<mixed> $conversions The array to validate.
+     * @param array $conversions The array to validate.
      */
     public function assertValidConversionDefinitionsShape(array $conversions): void
     {

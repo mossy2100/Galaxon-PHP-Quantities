@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -25,7 +25,7 @@ class Mass extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -35,42 +35,42 @@ class Mass extends Quantity
             // SI
             'gram'      => [
                 'asciiSymbol' => 'g',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
             ],
             // SI accepted
             'tonne'     => [
                 'asciiSymbol' => 't',
-                'systems'     => [System::SiAccepted],
+                'systems'     => [UnitSystem::SiAccepted],
             ],
             'dalton'    => [
                 'asciiSymbol' => 'Da',
-                'systems'     => [System::SiAccepted, System::Scientific],
+                'systems'     => [UnitSystem::SiAccepted, UnitSystem::Scientific],
             ],
             // Imperial and US customary
             'grain'     => [
                 'asciiSymbol' => 'gr',
-                'systems'     => [System::Imperial, System::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'ounce'     => [
                 'asciiSymbol' => 'oz',
-                'systems'     => [System::Imperial, System::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'pound'     => [
                 'asciiSymbol' => 'lb',
-                'systems'     => [System::Imperial, System::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'stone'     => [
                 'asciiSymbol' => 'st',
-                'systems'     => [System::Imperial],
+                'systems'     => [UnitSystem::Imperial],
             ],
             'short ton' => [
                 'asciiSymbol' => 'tn',
-                'systems'     => [System::UsCustomary],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             'long ton'  => [
                 'asciiSymbol' => 'LT',
-                'systems'     => [System::Imperial],
+                'systems'     => [UnitSystem::Imperial],
             ],
         ];
     }
@@ -108,7 +108,8 @@ class Mass extends Quantity
      */
     public static function setImperialParts(): void
     {
-        UnitRegistry::loadSystem(System::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
+
         // The long ton and stone are in use, but the grain is not.
         self::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
         self::setDefaultResultUnitSymbol('lb');
@@ -119,7 +120,8 @@ class Mass extends Quantity
      */
     public static function setUsCustomaryParts(): void
     {
-        UnitRegistry::loadSystem(System::UsCustomary);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
+
         // The short ton and grain are in use, but the stone is not.
         self::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
         self::setDefaultResultUnitSymbol('lb');

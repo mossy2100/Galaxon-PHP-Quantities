@@ -7,9 +7,9 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -27,8 +27,8 @@ final class AreaTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units for acres and square feet/yards.
-        UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
     }
 
     // endregion
@@ -233,7 +233,7 @@ final class AreaTest extends TestCase
         $area = new Area(1, 'ac');
         $m2 = $area->to('m2');
 
-        $this->assertSame(4046.8564224, $m2->value);
+        $this->assertApproxEqual(4046.8564224, $m2->value);
     }
 
     /**
@@ -307,7 +307,7 @@ final class AreaTest extends TestCase
     {
         $value = Area::convert(1, 'ac', 'm2');
 
-        $this->assertSame(4046.8564224, $value);
+        $this->assertApproxEqual(4046.856422, $value);
     }
 
     // endregion

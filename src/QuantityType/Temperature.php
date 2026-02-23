@@ -10,8 +10,8 @@ use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -48,7 +48,7 @@ class Temperature extends Quantity
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<System>
+     *     systems: list<UnitSystem>
      * }>
      */
     #[Override]
@@ -57,23 +57,23 @@ class Temperature extends Quantity
         return [
             'kelvin'     => [
                 'asciiSymbol' => 'K',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
             ],
             'celsius'    => [
                 'asciiSymbol'   => 'degC',
                 'unicodeSymbol' => '°C',
-                'systems'       => [System::Si],
+                'systems'       => [UnitSystem::Si],
             ],
             'fahrenheit' => [
                 'asciiSymbol'   => 'degF',
                 'unicodeSymbol' => '°F',
-                'systems'       => [System::Imperial, System::UsCustomary],
+                'systems'       => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',
                 'unicodeSymbol' => '°R',
-                'systems'       => [System::Imperial, System::UsCustomary],
+                'systems'       => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
         ];
     }

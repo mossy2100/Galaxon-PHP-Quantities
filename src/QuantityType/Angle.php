@@ -7,8 +7,8 @@ namespace Galaxon\Quantities\QuantityType;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -54,7 +54,7 @@ class Angle extends Quantity
      *      unicodeSymbol?: string,
      *      prefixGroup?: int,
      *      alternateSymbol?: string,
-     *      systems: list<System>
+     *      systems: list<UnitSystem>
      *  }>
      */
     #[Override]
@@ -63,34 +63,34 @@ class Angle extends Quantity
         return [
             'radian'    => [
                 'asciiSymbol' => 'rad',
-                'prefixGroup' => PrefixRegistry::GROUP_METRIC,
-                'systems'     => [System::Si],
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
             ],
             'degree'    => [
                 'asciiSymbol'   => 'deg',
                 'unicodeSymbol' => '°',
-                'systems'       => [System::SiAccepted],
+                'systems'       => [UnitSystem::SiAccepted],
             ],
             'arcminute' => [
                 'asciiSymbol'     => 'arcmin',
                 'unicodeSymbol'   => '′',
                 'alternateSymbol' => "'",
-                'systems'         => [System::SiAccepted],
+                'systems'         => [UnitSystem::SiAccepted],
             ],
             'arcsecond' => [
                 'asciiSymbol'     => 'arcsec',
                 'unicodeSymbol'   => '″',
                 'alternateSymbol' => '"',
-                'prefixGroup'     => PrefixRegistry::GROUP_SMALL_METRIC,
-                'systems'         => [System::SiAccepted],
+                'prefixGroup'     => PrefixService::GROUP_SMALL_METRIC,
+                'systems'         => [UnitSystem::SiAccepted],
             ],
             'gradian'   => [
                 'asciiSymbol' => 'grad',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
             'turn'      => [
                 'asciiSymbol' => 'turn',
-                'systems'     => [System::Common],
+                'systems'     => [UnitSystem::Common],
             ],
         ];
     }

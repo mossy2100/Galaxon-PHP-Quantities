@@ -36,7 +36,7 @@ Array of unit terms the DerivedUnit comprises, keyed by the unit symbol without 
 private(set) string $dimension
 ```
 
-The dimension code of the derived unit. Calculated from the component unit terms. Defaults to '1' (dimensionless) for empty units.
+The dimension code of the derived unit. Calculated from the component unit terms. Defaults to '' (empty string) for dimensionless units (i.e. scalars).
 
 ### asciiSymbol
 
@@ -417,7 +417,8 @@ Convert to string using Unicode format.
 ### Building Compound Units
 
 ```php
-use Galaxon\Quantities\Internal\DerivedUnit;use Galaxon\Quantities\Internal\UnitTerm;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\UnitTerm;
 
 // Build Newton: kg*m/s2
 $newton = new DerivedUnit([

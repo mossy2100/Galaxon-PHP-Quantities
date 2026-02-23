@@ -7,7 +7,7 @@ Manages unit conversions for a measurement dimension.
 The `Converter` class is responsible for finding and computing conversions between units of the same physical dimension. It uses the multiton pattern to maintain one instance per dimension (e.g., one for length, one for mass, etc.).
 
 The conversion system works by:
-1. Storing direct conversions from the ConversionRegistry
+1. Storing direct conversions from the ConversionService
 2. Automatically discovering indirect conversion paths via graph traversal
 3. Applying prefix adjustments when converting between prefixed units
 4. Tracking numerical precision to prefer shorter, more accurate paths
@@ -272,25 +272,23 @@ echo "$km km"; // 1 km
 ### Working with Compound Units
 
 ```php
-use Galaxon\Quantities\Internal\Converter;use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\Converter;
+use Galaxon\Quantities\Internal\DerivedUnit;
 
 // Force conversion
 $force = Converter::getByDimension('MLT-2');
 $newtons = $force->convert(1, 'lbf', 'N');
-
-// Expand to base units
-$unit = DerivedUnit::parse('N');
-[$value, $expanded] = Converter::expand(1.0, $unit);
-// $expanded is 'kg*m/s2'
 ```
 
 ### Cross-System Conversions
 
 ```php
-use Galaxon\Quantities\Internal\Converter;use Galaxon\Quantities\Registry\UnitRegistry;use Galaxon\Quantities\System;
+use Galaxon\Quantities\Internal\Converter;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 
 // Load Imperial units first
-UnitRegistry::loadSystem(System::Imperial);
+UnitService::loadSystem(UnitSystem::Imperial);
 
 // Now convert
 $volume = Converter::getByDimension('L3');
@@ -301,6 +299,6 @@ echo "$liters L"; // ~4.546 L (Imperial gallon)
 ## See Also
 
 - **[Conversion](Conversion.md)** - Represents a single unit conversion
-- **[ConversionRegistry](../Registry/ConversionRegistry.md)** - Stores registered conversions
+- **[ConversionService](../Services/ConversionService.md)** - Stores registered conversions
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit representation
 - **[Quantity](../Quantity.md)** - Uses Converter for unit conversion

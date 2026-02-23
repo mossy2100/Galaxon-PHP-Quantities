@@ -11,8 +11,8 @@ use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Frequency;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -29,8 +29,8 @@ final class QuantityTransformTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units for cross-system tests.
-        UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
     }
 
     // endregion
@@ -162,6 +162,17 @@ final class QuantityTransformTest extends TestCase
 
         $this->assertSame(10.0, $expanded->value);
         $this->assertSame('m', $expanded->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test expand() on English unit falls back to English base units.
+     */
+    public function testExpandEnglishUnitFallsBackToEnglishBase(): void
+    {
+        $force = new Force(1, 'lbf');
+        $expanded = $force->expand();
+
+        $this->assertSame('lb*ft/s2', $expanded->derivedUnit->asciiSymbol);
     }
 
     // endregion

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -23,7 +23,7 @@ class Area extends Quantity
      *      unicodeSymbol?: string,
      *      prefixGroup?: int,
      *      alternateSymbol?: string,
-     *      systems: list<System>
+     *      systems: list<UnitSystem>
      *  }>
      */
     #[Override]
@@ -32,11 +32,11 @@ class Area extends Quantity
         return [
             'hectare' => [
                 'asciiSymbol' => 'ha',
-                'systems'     => [System::SiAccepted],
+                'systems'     => [UnitSystem::SiAccepted],
             ],
             'acre'    => [
                 'asciiSymbol' => 'ac',
-                'systems'     => [System::Imperial, System::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
         ];
     }

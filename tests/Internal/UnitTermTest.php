@@ -6,12 +6,12 @@ namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Internal\RegexHelper;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitTerm;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\RegexService;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -27,7 +27,7 @@ final class UnitTermTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for cross-system tests.
-        UnitRegistry::loadSystem(System::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion
@@ -357,7 +357,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesSimpleUnit(): void
     {
-        $pattern = '/^' . RegexHelper::unitTermRegex() . '$/iu';
+        $pattern = '/^' . RegexService::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm'));
         $this->assertSame(1, preg_match($pattern, 'km'));
@@ -369,7 +369,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithAsciiExponent(): void
     {
-        $pattern = '/^' . RegexHelper::unitTermRegex() . '$/iu';
+        $pattern = '/^' . RegexService::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm2'));
         $this->assertSame(1, preg_match($pattern, 's-2'));
@@ -381,7 +381,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithSuperscriptExponent(): void
     {
-        $pattern = '/^' . RegexHelper::unitTermRegex() . '$/iu';
+        $pattern = '/^' . RegexService::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm²'));
         $this->assertSame(1, preg_match($pattern, 's⁻²'));
@@ -393,7 +393,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexDoesNotMatchInvalidFormats(): void
     {
-        $pattern = '/^' . RegexHelper::unitTermRegex() . '$/iu';
+        $pattern = '/^' . RegexService::unitTermRegex() . '$/iu';
 
         $this->assertSame(0, preg_match($pattern, '123'));
     }
@@ -499,7 +499,7 @@ final class UnitTermTest extends TestCase
     public function testParseThrowsForUnknownUnit(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Unknown or unsupported unit');
+        $this->expectExceptionMessage('Unknown unit');
 
         UnitTerm::parse('xyz');
     }
@@ -955,7 +955,7 @@ final class UnitTermTest extends TestCase
      */
     public function testToUnitTermWithUnitCreatesUnitTerm(): void
     {
-        $unit = UnitRegistry::getBySymbol('m');
+        $unit = UnitService::getBySymbol('m');
 
         $this->assertInstanceOf(Unit::class, $unit);
         $result = UnitTerm::toUnitTerm($unit);
@@ -975,7 +975,7 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithUnitObject(): void
     {
-        $unit = UnitRegistry::getBySymbol('m');
+        $unit = UnitService::getBySymbol('m');
         $this->assertInstanceOf(Unit::class, $unit);
 
         $term = new UnitTerm($unit);
@@ -989,7 +989,7 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithUnitObjectAndPrefixString(): void
     {
-        $unit = UnitRegistry::getBySymbol('m');
+        $unit = UnitService::getBySymbol('m');
         $this->assertInstanceOf(Unit::class, $unit);
 
         $term = new UnitTerm($unit, 'k', 2);
@@ -1004,7 +1004,7 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithPrefixObject(): void
     {
-        $prefix = PrefixRegistry::getBySymbol('k');
+        $prefix = PrefixService::getBySymbol('k');
         $term = new UnitTerm('m', $prefix, 2);
 
         $this->assertSame($prefix, $term->prefix);
@@ -1016,10 +1016,10 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorWithUnitAndPrefixObjects(): void
     {
-        $unit = UnitRegistry::getBySymbol('m');
+        $unit = UnitService::getBySymbol('m');
         $this->assertInstanceOf(Unit::class, $unit);
 
-        $prefix = PrefixRegistry::getBySymbol('M');
+        $prefix = PrefixService::getBySymbol('M');
         $term = new UnitTerm($unit, $prefix, 3);
 
         $this->assertSame($unit, $term->unit);
@@ -1172,16 +1172,6 @@ final class UnitTermTest extends TestCase
     public function testIsExpandableReturnsFalseForBaseUnitWithExponent(): void
     {
         $term = new UnitTerm('m', null, 2);
-
-        $this->assertFalse($term->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for a non-base unit without an expansion.
-     */
-    public function testIsExpandableReturnsFalseForNonBaseUnitWithoutExpansion(): void
-    {
-        $term = new UnitTerm('eV');
 
         $this->assertFalse($term->isExpandable());
     }

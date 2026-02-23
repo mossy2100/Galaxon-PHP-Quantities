@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace Galaxon\Quantities\Services;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use LogicException;
+use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\UnitTerm;
 
 /**
  * Utility class for working with physical dimension codes.
@@ -17,7 +18,7 @@ use LogicException;
  * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
  * @see https://en.wikipedia.org/wiki/Dimensional_analysis
  */
-class Dimensions
+class DimensionService
 {
     // region Constants
 
@@ -42,25 +43,28 @@ class Dimensions
      * NB: The SI base units shown here are the 7 actual SI base units, plus 3 bonus ones we need for the system:
      * - rad (angle)
      * - B (data)
-     * - XAU (money)
+     * - XAU (currency)
      *
      * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
      * @see https://en.wikipedia.org/wiki/Dimensional_analysis
      *
-     * @var array<string, array{name: string, siBaseUnitSymbol: string}>
+     * @var array<string, array{name: string, siBaseUnitSymbol: string, englishBaseUnitSymbol?: string}>
      */
     public const array DIMENSION_CODES = [
         'M' => [
-            'name'             => 'mass',
-            'siBaseUnitSymbol' => 'kg',
+            'name'                  => 'mass',
+            'siBaseUnitSymbol'      => 'kg',
+            'englishBaseUnitSymbol' => 'lb',
         ],
         'L' => [
-            'name'             => 'length',
-            'siBaseUnitSymbol' => 'm',
+            'name'                  => 'length',
+            'siBaseUnitSymbol'      => 'm',
+            'englishBaseUnitSymbol' => 'ft',
         ],
         'A' => [
-            'name'             => 'angle',
-            'siBaseUnitSymbol' => 'rad',
+            'name'                  => 'angle',
+            'siBaseUnitSymbol'      => 'rad',
+            'englishBaseUnitSymbol' => 'deg',
         ],
         'D' => [
             'name'             => 'data',
@@ -83,8 +87,9 @@ class Dimensions
             'siBaseUnitSymbol' => 'mol',
         ],
         'H' => [
-            'name'             => 'temperature',
-            'siBaseUnitSymbol' => 'K',
+            'name'                  => 'temperature',
+            'siBaseUnitSymbol'      => 'K',
+            'englishBaseUnitSymbol' => 'degR',
         ],
         'J' => [
             'name'             => 'luminous intensity',
@@ -124,13 +129,8 @@ class Dimensions
      */
     public static function isValid(string $dimension): bool
     {
-        // The string '1' represents dimensionless.
-        if ($dimension === '1') {
-            return true;
-        }
-
         $validCodes = self::getLetterCodesString();
-        return (bool)preg_match("/^([$validCodes](-?\d)?)+$/", $dimension);
+        return (bool)preg_match("/^([$validCodes](-?\d)?)*$/", $dimension);
     }
 
     // endregion
@@ -149,11 +149,6 @@ class Dimensions
         // Check the dimension code is valid.
         if (!self::isValid($dimension)) {
             throw new FormatException("Invalid dimension code '$dimension'.");
-        }
-
-        // Check for dimensionless.
-        if ($dimension === '1') {
-            return [];
         }
 
         // Get the matching terms.
@@ -181,11 +176,6 @@ class Dimensions
      */
     public static function compose(array $dimTerms): string
     {
-        // If there are no terms, return '1' (dimensionless).
-        if (empty($dimTerms)) {
-            return '1';
-        }
-
         // Sort the terms.
         $letters = array_flip(self::getLetterCodes());
         $fn = static fn (string $code1, string $code2) => $letters[$code1] <=> $letters[$code2];
@@ -287,60 +277,62 @@ class Dimensions
     }
 
     /**
-     * Get the base unit term symbol for the given dimension code.
+     * Get the SI or English base unit term symbol for the given dimension letter code.
      *
-     * The unit may be prefixed.
+     * The unit may be prefixed (e.g. 'kg' for 'M').
      *
      * @param string $dimensionLetterCode Single-letter dimension code.
+     * @param bool $si Whether to return the SI base unit symbol (true) or the English base unit symbol (false).
      * @return string The unit term symbol.
      * @throws DomainException If the dimension code is invalid.
      */
-    public static function getSiBaseUnitSymbol(string $dimensionLetterCode): string
+    public static function getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string
     {
         // Validate the code.
         if (strlen($dimensionLetterCode) !== 1 || !array_key_exists($dimensionLetterCode, self::DIMENSION_CODES)) {
-            throw new DomainException("Invalid dimension code: '$dimensionLetterCode'.");
+            throw new DomainException("Invalid dimension code letter: '$dimensionLetterCode'.");
         }
 
-        // Get the SI base unit (which may have a prefix, e.g. 'kg').
+        // If not SI and has an English base unit, return it.
+        if (!$si && isset(self::DIMENSION_CODES[$dimensionLetterCode]['englishBaseUnitSymbol'])) {
+            return self::DIMENSION_CODES[$dimensionLetterCode]['englishBaseUnitSymbol'];
+        }
+
+        // Return the SI base unit (which may have a prefix, e.g. 'kg').
         return self::DIMENSION_CODES[$dimensionLetterCode]['siBaseUnitSymbol'];
     }
 
     /**
-     * Get the SI unit term for a given dimension code letter.
-     *
-     * The unit may be prefixed.
+     * Get the SI or English base unit term for a given dimension code letter.
      *
      * @param string $dimensionLetterCode Single-letter dimension code.
+     * @param bool $si Whether to return the SI base unit term (true) or the English base unit term (false).
      * @return UnitTerm The unit term.
      * @throws DomainException If the dimension code is invalid.
-     * @throws LogicException If no SI base unit is defined for a given dimension code.
      */
-    public static function getSiBaseUnitTerm(string $dimensionLetterCode): UnitTerm
+    public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm
     {
-        // Get the SI base unit symbol (which may have a prefix).
-        $siBase = self::getSiBaseUnitSymbol($dimensionLetterCode);
+        // Get the base unit symbol (e.g. 'kg', 'lb').
+        $baseUnit = self::getBaseUnitSymbol($dimensionLetterCode, $si);
 
         // Construct the UnitTerm.
-        return UnitTerm::parse($siBase);
+        return UnitTerm::parse($baseUnit);
     }
 
     /**
-     * Convert a dimension to a DerivedUnit in SI base units.
-     *
-     * NB: This includes the special units we're designating as SI base for the purpose of this system: rad, B, and XAU.
+     * Convert a dimension to a DerivedUnit in SI or English base units.
      *
      * @param string $dimension The dimension code (e.g. 'MLT-2').
+     * @param bool $si Whether to return the SI derived unit (true) or the English derived unit (false).
      * @return DerivedUnit The new DerivedUnit.
-     * @throws DomainException If any of the dimension codes are invalid.
-     * @throws LogicException If any of the dimension codes do not have an SI base unit defined.
+     * @throws DomainException If the dimension code is invalid.
      */
-    public static function getSiBaseDerivedUnit(string $dimension): DerivedUnit
+    public static function getBaseDerivedUnit(string $dimension, bool $si): DerivedUnit
     {
         $unitTerms = [];
         $dimTerms = self::decompose($dimension);
         foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = self::getSiBaseUnitTerm($code)->pow($exp);
+            $unitTerms[] = self::getBaseUnitTerm($code, $si)->pow($exp);
         }
         return new DerivedUnit($unitTerms);
     }

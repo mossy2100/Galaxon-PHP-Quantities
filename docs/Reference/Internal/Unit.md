@@ -59,7 +59,7 @@ An additional symbol accepted by the parser. This can only be a single ASCII let
 private(set) string $dimension
 ```
 
-The dimension code (e.g., 'L', 'M', 'T-1'). See [Dimensions](Dimensions.md).
+The dimension code (e.g., 'L', 'M', 'T-1'). See [DimensionService](DimensionService.md).
 
 ### prefixGroup
 
@@ -75,7 +75,7 @@ Bitwise flags indicating which prefixes are allowed (0 if none).
 private(set) array $systems
 ```
 
-The measurement systems this unit belongs to (list of System enum values).
+The measurement systems this unit belongs to (list of UnitSystem enum values).
 
 ### expansionUnitSymbol
 
@@ -148,7 +148,7 @@ Create a new Unit instance.
 - `$dimension` (string) - The dimension code (e.g., 'L')
 - `$prefixGroup` (int) - Bitwise flags for allowed prefixes (default: 0)
 - `$alternateSymbol` (?string) - Additional accepted symbol (default: null)
-- `$systems` (array) - List of System enum values (default: [])
+- `$systems` (array) - List of UnitSystem enum values (default: [])
 - `$expansionUnitSymbol` (?string) - The unit symbol this unit expands to (default: null)
 - `$expansionValue` (?float) - The expansion conversion factor, defaults to 1.0 when expansionUnitSymbol is set (default: null)
 
@@ -160,8 +160,8 @@ Create a new Unit instance.
 
 ```php
 use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Registry\PrefixRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\UnitSystem;
 
 // Basic SI unit
 $meter = new Unit(
@@ -169,8 +169,8 @@ $meter = new Unit(
     asciiSymbol: 'm',
     unicodeSymbol: null,
     dimension: 'L',
-    prefixGroup: PrefixRegistry::GROUP_METRIC,
-    systems: [System::Si]
+    prefixGroup: PrefixService::GROUP_METRIC,
+    systems: [UnitSystem::Si]
 );
 
 // Expandable derived unit
@@ -179,8 +179,8 @@ $newton = new Unit(
     asciiSymbol: 'N',
     unicodeSymbol: null,
     dimension: 'MLT-2',
-    prefixGroup: PrefixRegistry::GROUP_METRIC,
-    systems: [System::Si],
+    prefixGroup: PrefixService::GROUP_METRIC,
+    systems: [UnitSystem::Si],
     expansionUnitSymbol: 'kg*m/s2'
 );
 ```
@@ -190,13 +190,13 @@ $newton = new Unit(
 ### belongsToSystem()
 
 ```php
-public function belongsToSystem(System $system): bool
+public function belongsToSystem(UnitSystem $system): bool
 ```
 
 Check if this unit belongs to a specific measurement system.
 
 **Parameters:**
-- `$system` (System) - The system to check
+- `$system` (UnitSystem) - The system to check
 
 **Returns:**
 - `bool` - True if the unit belongs to the system
@@ -328,9 +328,9 @@ Check if this unit equals another.
 ### Accessing Unit Properties
 
 ```php
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Services\UnitService;
 
-$unit = UnitRegistry::getBySymbol('N');
+$unit = UnitService::getBySymbol('N');
 
 echo $unit->name;       // 'newton'
 echo $unit->dimension;  // 'MLT-2'
@@ -345,9 +345,9 @@ if ($unit->isExpandable()) {
 ### Working with Prefixes
 
 ```php
-use Galaxon\Quantities\Registry\UnitRegistry;
+use Galaxon\Quantities\Services\UnitService;
 
-$meter = UnitRegistry::getBySymbol('m');
+$meter = UnitService::getBySymbol('m');
 
 // Get all allowed prefixes
 $prefixes = $meter->allowedPrefixes;
@@ -366,6 +366,6 @@ $symbols = $meter->symbols;
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit representation
 - **[UnitInterface](UnitInterface.md)** - Interface for all unit types
-- **[RegexHelper](RegexHelper.md)** - Centralised regex patterns and validation
-- **[UnitRegistry](../Registry/UnitRegistry.md)** - Registry for looking up units
-- **[System](../System.md)** - Measurement system classification
+- **[RegexService](RegexService.md)** - Centralised regex patterns and validation
+- **[UnitService](../Services/UnitService.md)** - Registry for looking up units
+- **[UnitSystem](../UnitSystem.md)** - Measurement system classification

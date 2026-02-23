@@ -10,10 +10,10 @@ use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\Registry\ConversionRegistry;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\ConversionService;
+use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -31,8 +31,8 @@ final class TemperatureTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units for Fahrenheit and Rankine.
-        UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
     }
 
     // endregion
@@ -593,16 +593,17 @@ final class TemperatureTest extends TestCase
     public function testConvertFallsBackToParentForUnknownUnit(): void
     {
         // Register a dummy temperature unit with dimension H.
-        UnitRegistry::add(new Unit(
+        $unit = new Unit(
             name: 'dummy temp',
             asciiSymbol: 'degX',
             dimension: 'H',
-            systems: [System::Si]
-        ));
+            systems: [UnitSystem::Si]
+        );
+        UnitService::add($unit);
 
         // Add a conversion from degX to degR (1 degX = 42 degR).
         $conversion = new Conversion('degX', 'degR', 42.0);
-        ConversionRegistry::add($conversion);
+        ConversionService::add($conversion);
 
         try {
             // Convert from degX to degR - this triggers the fallback path.
@@ -614,8 +615,8 @@ final class TemperatureTest extends TestCase
             $this->assertSame(42.0, $result);
         } finally {
             // Clean up: remove the dummy unit and conversion.
-            UnitRegistry::remove('dummy-temp');
-            ConversionRegistry::remove($conversion);
+            UnitService::remove($unit);
+            ConversionService::remove($conversion);
         }
     }
 

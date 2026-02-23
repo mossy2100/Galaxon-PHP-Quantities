@@ -51,7 +51,7 @@ The numeric multiplier the prefix represents. For example:
 public readonly int $groupCode
 ```
 
-Bitwise flag indicating which prefix group(s) this prefix belongs to. Used for determining which prefixes a unit accepts. See [Prefix Group Constants](../Registry/PrefixRegistry.md).
+Bitwise flag indicating which prefix group(s) this prefix belongs to. Used for determining which prefixes a unit accepts. See [Prefix Group Constants](../Services/PrefixService.md).
 
 ## Constructor
 
@@ -79,10 +79,10 @@ Create a new Prefix instance.
 **Examples:**
 ```php
 // Create the kilo prefix
-$kilo = new Prefix('kilo', 'k', null, 1000, PrefixRegistry::GROUP_LARGE_METRIC);
+$kilo = new Prefix('kilo', 'k', null, 1000, PrefixService::GROUP_LARGE_METRIC);
 
 // Create the micro prefix with different ASCII/Unicode symbols
-$micro = new Prefix('micro', 'u', 'μ', 1e-6, PrefixRegistry::GROUP_SMALL_METRIC);
+$micro = new Prefix('micro', 'u', 'μ', 1e-6, PrefixService::GROUP_SMALL_METRIC);
 ```
 
 ## Inspection Methods
@@ -102,10 +102,10 @@ Engineering prefixes are those commonly used in engineering notation: kilo, mega
 
 **Examples:**
 ```php
-$kilo = PrefixRegistry::getBySymbol('k');
+$kilo = PrefixService::getBySymbol('k');
 $kilo->isEngineering(); // true
 
-$centi = PrefixRegistry::getBySymbol('c');
+$centi = PrefixService::getBySymbol('c');
 $centi->isEngineering(); // false
 ```
 
@@ -127,8 +127,8 @@ Check if this prefix equals another.
 
 **Examples:**
 ```php
-$kilo1 = PrefixRegistry::getBySymbol('k');
-$kilo2 = PrefixRegistry::getBySymbol('k');
+$kilo1 = PrefixService::getBySymbol('k');
+$kilo2 = PrefixService::getBySymbol('k');
 $kilo1->equal($kilo2); // true
 ```
 
@@ -150,7 +150,7 @@ Format the prefix as a string.
 
 **Examples:**
 ```php
-$micro = PrefixRegistry::getBySymbol('u');
+$micro = PrefixService::getBySymbol('u');
 $micro->format();      // 'μ'
 $micro->format(true);  // 'u'
 ```
@@ -171,13 +171,13 @@ Convert the prefix to a string using the Unicode symbol.
 ### Working with Prefix Groups
 
 ```php
-use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Services\PrefixService;
 
 // Get all metric prefixes
-$metricPrefixes = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_METRIC);
+$metricPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_METRIC);
 
 // Get all prefixes (metric + binary)
-$allPrefixes = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_ALL);
+$allPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_ALL);
 ```
 
 ### Creating Prefixed Units
@@ -196,4 +196,4 @@ echo $km->multiplier; // 1000
 
 - **[UnitTerm](UnitTerm.md)** - Uses prefixes when representing prefixed units
 - **[Unit](Unit.md)** - Defines which prefixes a unit accepts
-- **[PrefixRegistry](../Registry/PrefixRegistry.md)** - Helper functions for working with prefixes
+- **[PrefixService](../Services/PrefixService.md)** - Helper functions for working with prefixes

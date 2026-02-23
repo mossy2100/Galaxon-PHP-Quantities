@@ -1,4 +1,4 @@
-# PrefixRegistry
+# PrefixService
 
 Registry for SI and binary prefixes.
 
@@ -8,7 +8,7 @@ Registry for SI and binary prefixes.
 
 ## Overview
 
-The `PrefixRegistry` provides access to metric prefixes (milli, kilo, mega, etc.) and binary prefixes (kibi, mebi, etc.) organized by group codes for flexible filtering.
+The `PrefixService` provides access to metric prefixes (milli, kilo, mega, etc.) and binary prefixes (kibi, mebi, etc.) organized by group codes for flexible filtering.
 
 ---
 
@@ -90,19 +90,19 @@ Get prefixes matching a group code.
 
 ```php
 // All prefixes
-$all = PrefixRegistry::getPrefixes();
+$all = PrefixService::getPrefixes();
 
 // Only metric prefixes
-$metric = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_METRIC);
+$metric = PrefixService::getPrefixes(PrefixService::GROUP_METRIC);
 
 // Only engineering prefixes (powers of 1000)
-$eng = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_ENGINEERING);
+$eng = PrefixService::getPrefixes(PrefixService::GROUP_ENGINEERING);
 
 // Binary prefixes only
-$binary = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_BINARY);
+$binary = PrefixService::getPrefixes(PrefixService::GROUP_BINARY);
 
 // Large metric + binary (for data units)
-$large = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_LARGE);
+$large = PrefixService::getPrefixes(PrefixService::GROUP_LARGE);
 ```
 
 #### `static getBySymbol(string $symbol): ?Prefix`
@@ -110,10 +110,10 @@ $large = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_LARGE);
 Find a prefix by its symbol (ASCII or Unicode).
 
 ```php
-$kilo = PrefixRegistry::getBySymbol('k');
-$micro = PrefixRegistry::getBySymbol('μ');
-$micro = PrefixRegistry::getBySymbol('u');  // ASCII alternative
-$kibi = PrefixRegistry::getBySymbol('Ki');
+$kilo = PrefixService::getBySymbol('k');
+$micro = PrefixService::getBySymbol('μ');
+$micro = PrefixService::getBySymbol('u');  // ASCII alternative
+$kibi = PrefixService::getBySymbol('Ki');
 ```
 
 #### `static invert(?Prefix $prefix): ?Prefix`
@@ -121,11 +121,11 @@ $kibi = PrefixRegistry::getBySymbol('Ki');
 Get the inverse of a prefix (opposite exponent).
 
 ```php
-$kilo = PrefixRegistry::getBySymbol('k');   // 10³
-$milli = PrefixRegistry::invert($kilo);      // 10⁻³
+$kilo = PrefixService::getBySymbol('k');   // 10³
+$milli = PrefixService::invert($kilo);      // 10⁻³
 
-$mega = PrefixRegistry::getBySymbol('M');   // 10⁶
-$micro = PrefixRegistry::invert($mega);      // 10⁻⁶
+$mega = PrefixService::getBySymbol('M');   // 10⁶
+$micro = PrefixService::invert($mega);      // 10⁻⁶
 ```
 
 #### `static isValidGroupCode(int $groupCode): bool`
@@ -133,9 +133,9 @@ $micro = PrefixRegistry::invert($mega);      // 10⁻⁶
 Check if a group code is one of the base codes.
 
 ```php
-$valid = PrefixRegistry::isValidGroupCode(1);   // true (SMALL_METRIC)
-$valid = PrefixRegistry::isValidGroupCode(3);   // false (combined code)
-$valid = PrefixRegistry::isValidGroupCode(8);   // true (BINARY)
+$valid = PrefixService::isValidGroupCode(1);   // true (SMALL_METRIC)
+$valid = PrefixService::isValidGroupCode(3);   // false (combined code)
+$valid = PrefixService::isValidGroupCode(8);   // true (BINARY)
 ```
 
 ---
@@ -143,25 +143,25 @@ $valid = PrefixRegistry::isValidGroupCode(8);   // true (BINARY)
 ## Usage Examples
 
 ```php
-use Galaxon\Quantities\Registry\PrefixRegistry;
+use Galaxon\Quantities\Services\PrefixService;
 
 // Get all engineering prefixes for a scientific application
-$engPrefixes = PrefixRegistry::getPrefixes(PrefixRegistry::GROUP_ENGINEERING);
+$engPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_ENGINEERING);
 foreach ($engPrefixes as $prefix) {
     echo "{$prefix->name}: {$prefix->asciiSymbol} = {$prefix->multiplier}\n";
 }
 
 // Parse a prefixed symbol
 $symbol = 'km';
-$prefix = PrefixRegistry::getBySymbol('k');
+$prefix = PrefixService::getBySymbol('k');
 if ($prefix !== null) {
     $baseSymbol = substr($symbol, strlen($prefix->asciiSymbol));
     $multiplier = $prefix->multiplier;
 }
 
 // Find inverse for unit conversion
-$source = PrefixRegistry::getBySymbol('M');   // mega (10⁶)
-$inverse = PrefixRegistry::invert($source);    // micro (10⁻⁶)
+$source = PrefixService::getBySymbol('M');   // mega (10⁶)
+$inverse = PrefixService::invert($source);    // micro (10⁻⁶)
 ```
 
 ---

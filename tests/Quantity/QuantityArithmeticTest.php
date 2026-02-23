@@ -13,8 +13,8 @@ use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -31,8 +31,8 @@ final class QuantityArithmeticTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units for cross-system tests.
-        UnitRegistry::loadSystem(System::Imperial);
-        UnitRegistry::loadSystem(System::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
     }
 
     // endregion
@@ -389,6 +389,18 @@ final class QuantityArithmeticTest extends TestCase
     }
 
     /**
+     * Test pow() with exponent 1 returns same value and unit.
+     */
+    public function testPowOne(): void
+    {
+        $length = new Length(5, 'km');
+        $result = $length->pow(1);
+
+        $this->assertSame(5.0, $result->value);
+        $this->assertSame('km', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
      * Test pow() with negative exponent.
      */
     public function testPowNegative(): void
@@ -412,15 +424,27 @@ final class QuantityArithmeticTest extends TestCase
     }
 
     /**
-     * Test pow(2) produces square unit.
+     * Test pow() with a prefixed unit.
      */
-    public function testPowSquare(): void
+    public function testPowWithPrefixedUnit(): void
     {
-        $length = new Length(4, 'm');
+        $length = new Length(3, 'km');
         $area = $length->pow(2);
 
-        $this->assertSame(16.0, $area->value);
-        $this->assertSame('m2', $area->derivedUnit->asciiSymbol);
+        $this->assertSame(9.0, $area->value);
+        $this->assertSame('km2', $area->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test pow() with a compound unit.
+     */
+    public function testPowWithCompoundUnit(): void
+    {
+        $speed = Quantity::create(2, 'm/s');
+        $result = $speed->pow(2);
+
+        $this->assertSame(4.0, $result->value);
+        $this->assertSame('m2/s2', $result->derivedUnit->asciiSymbol);
     }
 
     // endregion

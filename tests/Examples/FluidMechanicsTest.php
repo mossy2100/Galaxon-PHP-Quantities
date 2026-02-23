@@ -12,8 +12,8 @@ use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Pressure;
 use Galaxon\Quantities\QuantityType\Volume;
-use Galaxon\Quantities\Registry\UnitRegistry;
-use Galaxon\Quantities\System;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -26,7 +26,7 @@ class FluidMechanicsTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for lbf and in².
-        UnitRegistry::loadSystem(System::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     /**
