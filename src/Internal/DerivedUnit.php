@@ -633,6 +633,14 @@ class DerivedUnit implements UnitInterface
         return new self($unitTerms);
     }
 
+    /**
+     * Attempt to expand this derived unit into base units.
+     *
+     * Expands each unit term individually and combines the results. All terms must be expandable for the expansion to
+     * succeed.
+     *
+     * @return ?Quantity The expansion as a Quantity with base units, or null if any term cannot be expanded.
+     */
     public function tryExpand(): ?Quantity
     {
         // Check if we found the expansion already.
@@ -670,8 +678,7 @@ class DerivedUnit implements UnitInterface
 
             // Add the unit terms from the expansion.
             foreach ($expansion->derivedUnit->unitTerms as $expansionUnitTerm) {
-                // Raise the expansion unit term to the exponent and add.
-                $resultUnit->addUnitTerm($expansionUnitTerm->pow($unitTerm->exponent));
+                $resultUnit->addUnitTerm($expansionUnitTerm);
             }
         }
 

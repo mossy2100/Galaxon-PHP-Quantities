@@ -380,7 +380,6 @@ class Unit implements UnitInterface
 
     // region Transformation methods
 
-
     /**
      * Look for an expansion conversion for this unit.
      *
@@ -394,7 +393,7 @@ class Unit implements UnitInterface
      * conversion from eV to J, which has an expansion to kg*m2/s2. Therefore, even though the first time this method is
      * called for a unit, there might not be an expansion conversion, the next time there might be.
      *
-     * @var ?Quantity
+     * @return ?Quantity The expansion as a Quantity with base units, or null if none found.
      */
     public function tryExpand(): ?Quantity
     {

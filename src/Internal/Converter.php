@@ -753,11 +753,7 @@ class Converter
     // region Helper methods for adding unit terms
 
     /**
-     * Merges compatible units.
-     *
-     * If this creates a new unit:
-     * - Add it to the Converter.
-     * - Generate a new conversion and adds it to the ConversionService
+     * Attempts to merge compatible unit terms. If successful, adds the new unit and conversion to the Converter.
      *
      * @param DerivedUnit $derivedUnit The unit to check and potentially add a merged variant for.
      * @return void
@@ -773,26 +769,18 @@ class Converter
         $mergedQty = $derivedUnit->merge();
 
         // Add the new conversion to the matrix.
-        $this->addConversion(new Conversion($derivedUnit, $mergedQty->derivedUnit, $mergedQty->value));
+        $newConversion = new Conversion($derivedUnit, $mergedQty->derivedUnit, $mergedQty->value);
+        $this->addConversion($newConversion);
     }
 
     /**
-     * Expands expandable unit.
-     *
-     * If this creates a new unit:
-     * - Add it to the Converter.
-     * - Generate a new conversion and adds it to the ConversionService
+     * Attempts to expand the unit. If successful, adds the new unit and conversion to the Converter.
      *
      * @param DerivedUnit $derivedUnit The unit to check and potentially add an expanded variant for.
      * @return void
      */
     private function addExpanded(DerivedUnit $derivedUnit): void
     {
-        // Check if it's possible to expand this unit.
-        if ($derivedUnit->isBase()) {
-            return;
-        }
-
         // Attempt to compute the expanded quantity.
         $expansion = $derivedUnit->tryExpand();
 
@@ -802,24 +790,42 @@ class Converter
         }
 
         // Add the new conversion to the matrix.
-        $this->addConversion(new Conversion($derivedUnit, $expansion->derivedUnit, $expansion->value));
+        $newConversion = new Conversion($derivedUnit, $expansion->derivedUnit, $expansion->value);
+        $this->addConversion($newConversion);
     }
 
+    /**
+     * Add the unprefixed variant of a unit and an exact conversion between them.
+     *
+     * Directs the conversion so the conversion factor is an integer, avoiding floating-point error from inexact
+     * reciprocals (e.g. 1/1000 for metric prefixes).
+     *
+     * @param DerivedUnit $derivedUnit The potentially prefixed unit.
+     */
     private function addUnprefixed(DerivedUnit $derivedUnit): void
     {
+        // Check if there's anything to do.
         if (!$derivedUnit->hasPrefixes()) {
             return;
         }
 
+        // Get the total prefix multiplier and the unprefixed unit.
         $multiplier = $derivedUnit->multiplier;
         $unprefixedUnit = $derivedUnit->removePrefixes();
 
         // Work out which is the exact conversion, prefixed => unprefixed or vice versa.
         // This depends on whether the multiplier is less than or greater than 1.
         if ($multiplier >= 1) {
-            $newConversion = new Conversion($derivedUnit, $unprefixedUnit, round($multiplier));
+            if (Floats::isApproxInt($multiplier)) {
+                $multiplier = round($multiplier);
+            }
+            $newConversion = new Conversion($derivedUnit, $unprefixedUnit, $multiplier);
         } else {
-            $newConversion = new Conversion($unprefixedUnit, $derivedUnit, round(1.0 / $multiplier));
+            $multiplier = 1.0 / $multiplier;
+            if (Floats::isApproxInt($multiplier)) {
+                $multiplier = round($multiplier);
+            }
+            $newConversion = new Conversion($unprefixedUnit, $derivedUnit, $multiplier);
         }
 
         // Add the new conversion to the matrix.

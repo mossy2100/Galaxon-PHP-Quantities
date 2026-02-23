@@ -432,6 +432,14 @@ class UnitTerm implements UnitInterface
         return new self($this->unit, null, $this->exponent);
     }
 
+    /**
+     * Attempt to expand this unit term into base units.
+     *
+     * Delegates to the underlying Unit's expansion and adjusts the result for this term's prefix multiplier and
+     * exponent.
+     *
+     * @return ?Quantity The expansion as a Quantity with base units, or null if none found.
+     */
     public function tryExpand(): ?Quantity
     {
         // Check if we found the expansion already.
@@ -456,7 +464,7 @@ class UnitTerm implements UnitInterface
         $resultValue = ($expansion->value * $this->prefixMultiplier) ** $this->exponent;
 
         // Construct the expanded quantity.
-        return Quantity::create($resultValue, $expansion->derivedUnit);
+        return Quantity::create($resultValue, $expansion->derivedUnit->pow($this->exponent));
     }
 
     // endregion
