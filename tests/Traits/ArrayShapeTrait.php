@@ -22,7 +22,7 @@ trait ArrayShapeTrait
      *      systems: list<UnitSystem>,
      *  }>
      *
-     * @param array $units The array to validate.
+     * @param array<array-key, mixed> $units The array to validate.
      */
     public function assertValidUnitDefinitionsShape(array $units): void
     {
@@ -68,7 +68,7 @@ trait ArrayShapeTrait
      * Expected shape:
      * list<array{string, string, float}>
      *
-     * @param array $conversions The array to validate.
+     * @param array<array-key, mixed> $conversions The array to validate.
      */
     public function assertValidConversionDefinitionsShape(array $conversions): void
     {

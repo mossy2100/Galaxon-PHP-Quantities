@@ -107,7 +107,7 @@ $s = new Quantity(37.5, 'ch');
 echo $s;             // "37.5 ch"
 echo $s->to('J/K');  // "37.5 J/K"
 
-UnitService::loadSystem(UnitSystem::UsCustomary);
+UnitService::loadBySystem(UnitSystem::UsCustomary);
 echo $s->to('Btu/degR');  // "0.019746 Btu/°R"
 ```
 

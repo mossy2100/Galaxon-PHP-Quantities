@@ -26,7 +26,7 @@ final class DimensionlessTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Common units for dimensionless quantities.
-        UnitService::loadSystem(UnitSystem::Common);
+        UnitService::loadBySystem(UnitSystem::Common);
     }
 
     // endregion

@@ -12,12 +12,12 @@ use Galaxon\Core\Floats;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
-use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitTerm;
+use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\RegexService;
@@ -263,9 +263,8 @@ class Quantity implements Stringable
      */
     public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
     {
-        $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
-        $converter = Converter::getByDimension($srcUnit->dimension);
-        return $converter->convert($value, $srcUnit, $destUnit);
+        // Delegate to the ConversionService.
+        return ConversionService::convert($value, $srcUnit, $destUnit);
     }
 
     // endregion

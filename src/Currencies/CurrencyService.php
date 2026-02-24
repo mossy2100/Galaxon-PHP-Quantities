@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Services;
+namespace Galaxon\Quantities\Currencies;
 
 use DateTime;
 use Galaxon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
-use Galaxon\Quantities\QuantityType\Currency;
+use Galaxon\Quantities\QuantityType\Money;
+use Galaxon\Quantities\Services\ConversionService;
+use Galaxon\Quantities\Services\QuantityTypeService;
+use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use Locale;
 use LogicException;
@@ -84,7 +87,10 @@ class CurrencyService
     /**
      * Load the currency data from the generated PHP file.
      *
-     * @return ?array{whenFetched: string, definitions: array<string, array{asciiSymbol: string, systems: list<UnitSystem>}>}
+     * @return ?array{
+     *     whenFetched: string,
+     *     definitions: array<string, array{asciiSymbol: string, systems: list<UnitSystem>}>
+     * }
      */
     public static function loadUnitData(): ?array
     {
@@ -321,12 +327,12 @@ class CurrencyService
     {
         if (self::refreshCurrencyUnits()) {
             UnitService::unloadSystem(UnitSystem::Financial);
-            UnitService::loadSystem(UnitSystem::Financial);
+            UnitService::loadBySystem(UnitSystem::Financial);
         }
 
         if (self::refreshCurrencyConversions()) {
             ConversionService::unloadSystem(UnitSystem::Financial);
-            ConversionService::loadSystem(UnitSystem::Financial);
+            ConversionService::loadBySystem(UnitSystem::Financial);
         }
     }
 
@@ -373,14 +379,14 @@ class CurrencyService
         // Add the currency quantity type to the QuantityTypeService, if not done already.
         $qtyType = QuantityTypeService::getByName('currency');
         if ($qtyType === null) {
-            QuantityTypeService::add('currency', 'C', Currency::class);
+            QuantityTypeService::add('currency', 'C', Money::class);
         }
 
         // Refresh units and conversions as needed.
         self::refresh();
 
         // Load all currency units and conversions from the (possibly fresh) definitions.
-        UnitService::loadSystem(UnitSystem::Financial, true);
+        UnitService::loadBySystem(UnitSystem::Financial, true);
     }
 
     /**

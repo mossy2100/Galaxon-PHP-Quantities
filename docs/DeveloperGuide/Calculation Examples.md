@@ -532,7 +532,7 @@ $force = $rho->mul($volume)->mul($g);
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
-UnitService::loadSystem(UnitSystem::Imperial);
+UnitService::loadBySystem(UnitSystem::Imperial);
 
 $force = new Force(100, 'lbf');
 $area = new Area(10, 'in2');
@@ -551,9 +551,9 @@ These examples use mixed Imperial, Nautical, and SI units. Load the required sys
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
-UnitService::loadSystem(UnitSystem::Imperial);
-UnitService::loadSystem(UnitSystem::UsCustomary);
-UnitService::loadSystem(UnitSystem::Nautical);
+UnitService::loadBySystem(UnitSystem::Imperial);
+UnitService::loadBySystem(UnitSystem::UsCustomary);
+UnitService::loadBySystem(UnitSystem::Nautical);
 ```
 
 ### Ground speed: v = d/t

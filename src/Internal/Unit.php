@@ -365,7 +365,7 @@ class Unit implements UnitInterface
     // region Comparison methods
 
     /**
-     * Check if this unit is equal to another.
+     * Check if this Unit is equal to another.
      *
      * @param mixed $other The other value to compare.
      * @return bool True if equal, false otherwise.
@@ -408,7 +408,7 @@ class Unit implements UnitInterface
         }
 
         // See if there is a Converter for this dimension yet.
-        $converter = Converter::getByDimension($this->dimension);
+        $converter = Converter::getInstance($this->dimension);
         if ($converter === null) {
             return null;
         }

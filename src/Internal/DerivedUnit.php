@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\UnitSystem;
@@ -437,12 +438,24 @@ class DerivedUnit implements UnitInterface
         return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->prefix !== null);
     }
 
-    public function belongsToSystem(UnitSystem $system): bool
+    /**
+     * Check if the DerivedUnit includes any units from the given system.
+     *
+     * @param UnitSystem $system The unit system to check.
+     * @return bool True if any units from the specified unit system are included in the DerivedUnit.
+     */
+    public function includesUnitFromSystem(UnitSystem $system): bool
     {
         return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->belongsToSystem($system));
     }
 
-    public function involvesUnit(Unit $unit): bool
+    /**
+     * Check if the DerivedUnit includes the given unit.
+     *
+     * @param Unit $unit The unit to check.
+     * @return bool True if the unit is included in the DerivedUnit.
+     */
+    public function includesUnit(Unit $unit): bool
     {
         return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->unit->equal($unit));
     }
@@ -452,37 +465,14 @@ class DerivedUnit implements UnitInterface
     // region Comparison methods
 
     /**
-     * Check if this derived unit is equal to another.
+     * Check if this DerivedUnit is equal to another.
      *
-     * Two derived units are equal if they have the same unit terms with the same exponents.
-     *
-     * @param mixed $other The value to compare.
+     * @param mixed $other The other value to compare.
      * @return bool True if equal, false otherwise.
      */
     public function equal(mixed $other): bool
     {
-        // Check we have a UnitInterface object.
-        if (!$other instanceof UnitInterface) {
-            return false;
-        }
-
-        // Convert it to DerivedUnit if necessary.
-        $other = self::toDerivedUnit($other);
-
-        // Each must have the same number of unit terms.
-        if (count($this->unitTerms) !== count($other->unitTerms)) {
-            return false;
-        }
-
-        // Each unit term must be equal.
-        // This doesn't check that the order of the unit terms matches, but they should, since unit terms are maintained
-        // in a canonical order. It doesn't matter anyway.
-        return array_all(
-            $this->unitTerms,
-            static fn ($unitTerm, $symbol) => isset($other->unitTerms[$symbol]) && $unitTerm->equal(
-                $other->unitTerms[$symbol]
-            )
-        );
+        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
     }
 
     // endregion
@@ -716,11 +706,7 @@ class DerivedUnit implements UnitInterface
                 $unexponentiatedNewUnitTerm1 = $newUnitTerm1->removeExponent();
                 if (!$unexponentiatedThisUnitTerm->equal($unexponentiatedNewUnitTerm1)) {
                     // Get the conversion factor from the existing to the new unit term.
-                    $converter = Converter::getByDimension($unexponentiatedThisUnitTerm->dimension);
-                    $factor = $converter->getConversionFactor(
-                        $unexponentiatedThisUnitTerm,
-                        $unexponentiatedNewUnitTerm1
-                    );
+                    $factor = ConversionService::findFactor($unexponentiatedThisUnitTerm, $unexponentiatedNewUnitTerm1);
 
                     // Multiply by the conversion factor raised to the exponent of the second unit term.
                     $resultValue *= $factor ** $unitTerm->exponent;

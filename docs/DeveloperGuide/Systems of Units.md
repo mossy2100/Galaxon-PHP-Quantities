@@ -23,8 +23,8 @@ use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
 // Load Imperial and US Customary units
-UnitService::loadSystem(UnitSystem::Imperial);
-UnitService::loadSystem(UnitSystem::UsCustomary);
+UnitService::loadBySystem(UnitSystem::Imperial);
+UnitService::loadBySystem(UnitSystem::UsCustomary);
 
 // Now you can use feet, pounds, gallons, etc.
 $length = new Length(100, 'ft');

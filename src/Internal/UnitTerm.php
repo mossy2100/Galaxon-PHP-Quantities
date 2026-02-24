@@ -480,10 +480,7 @@ class UnitTerm implements UnitInterface
     #[Override]
     public function equal(mixed $other): bool
     {
-        return $other instanceof self &&
-            $this->unit->equal($other->unit) &&
-            $this->prefix === $other->prefix &&
-            $this->exponent === $other->exponent;
+        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
     }
 
     // endregion

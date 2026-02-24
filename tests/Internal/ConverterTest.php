@@ -30,7 +30,7 @@ class ConverterTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadBySystem(UnitSystem::Imperial);
     }
 
     // endregion
@@ -43,13 +43,13 @@ class ConverterTest extends TestCase
     public function testResetClearsCachedInstances(): void
     {
         // Get an instance to populate the cache.
-        $converter1 = Converter::getByDimension('L');
+        $converter1 = Converter::getInstance('L');
 
         // Reset the cache.
         Converter::clearInstances();
 
         // Get a new instance - should be a different object.
-        $converter2 = Converter::getByDimension('L');
+        $converter2 = Converter::getInstance('L');
 
         // They should not be the same instance.
         $this->assertNotSame($converter1, $converter2);
@@ -64,7 +64,7 @@ class ConverterTest extends TestCase
      */
     public function testGetByDimensionReturnsInstance(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $this->assertInstanceOf(Converter::class, $converter);
         $this->assertSame('L', $converter->dimension);
@@ -78,7 +78,7 @@ class ConverterTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code 'X'.");
 
-        Converter::getByDimension('X');
+        Converter::getInstance('X');
     }
 
     /**
@@ -86,8 +86,8 @@ class ConverterTest extends TestCase
      */
     public function testGetByDimensionReturnsSameInstance(): void
     {
-        $converter1 = Converter::getByDimension('L');
-        $converter2 = Converter::getByDimension('L');
+        $converter1 = Converter::getInstance('L');
+        $converter2 = Converter::getInstance('L');
 
         $this->assertSame($converter1, $converter2);
     }
@@ -97,8 +97,8 @@ class ConverterTest extends TestCase
      */
     public function testGetByDimensionReturnsDifferentInstancesForDifferentDimensions(): void
     {
-        $lengthConverter = Converter::getByDimension('L');
-        $timeConverter = Converter::getByDimension('T');
+        $lengthConverter = Converter::getInstance('L');
+        $timeConverter = Converter::getInstance('T');
 
         $this->assertNotSame($lengthConverter, $timeConverter);
         $this->assertSame('L', $lengthConverter->dimension);
@@ -114,9 +114,9 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionReturnsConversion(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
-        $conversion = $converter->getConversion('m', 'ft');
+        $conversion = $converter->findConversion('m', 'ft');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         $this->assertSame('m', (string)$conversion->srcUnit);
@@ -129,9 +129,9 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionReturnsUnityForIdenticalUnits(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
-        $conversion = $converter->getConversion('m', 'm');
+        $conversion = $converter->findConversion('m', 'm');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         $this->assertSame(1.0, $conversion->factor->value);
@@ -142,9 +142,9 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionHandlesPrefixOnlyDifference(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
-        $conversion = $converter->getConversion('km', 'm');
+        $conversion = $converter->findConversion('km', 'm');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         $this->assertSame('km', (string)$conversion->srcUnit);
@@ -157,9 +157,9 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionCentimetersToMeters(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
-        $conversion = $converter->getConversion('cm', 'm');
+        $conversion = $converter->findConversion('cm', 'm');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         $this->assertEqualsWithDelta(0.01, $conversion->factor->value, 1e-10);
@@ -170,11 +170,11 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionWithUnitTermObjects(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
         $srcUnitTerm = DerivedUnit::parse('m');
         $destUnitTerm = DerivedUnit::parse('ft');
 
-        $conversion = $converter->getConversion($srcUnitTerm, $destUnitTerm);
+        $conversion = $converter->findConversion($srcUnitTerm, $destUnitTerm);
 
         $this->assertInstanceOf(Conversion::class, $conversion);
     }
@@ -184,11 +184,11 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionThrowsForInvalidUnitTerm(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $this->expectException(DomainException::class);
 
-        $converter->getConversion('s', 'm'); // seconds is not a length unit
+        $converter->findConversion('s', 'm'); // seconds is not a length unit
     }
 
     /**
@@ -196,13 +196,13 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionCachesResults(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         // First call generates the conversion
-        $conversion1 = $converter->getConversion('m', 'ft');
+        $conversion1 = $converter->findConversion('m', 'ft');
 
         // Second call should return cached result
-        $conversion2 = $converter->getConversion('m', 'ft');
+        $conversion2 = $converter->findConversion('m', 'ft');
 
         $this->assertInstanceOf(Conversion::class, $conversion1);
         $this->assertInstanceOf(Conversion::class, $conversion2);
@@ -228,10 +228,10 @@ class ConverterTest extends TestCase
             // Clear cached converters to pick up the new unit.
             Converter::clearInstances();
 
-            $converter = Converter::getByDimension('L');
+            $converter = Converter::getInstance('L');
 
             // Try to convert between the isolated unit and meter - no path exists.
-            $conversion = $converter->getConversion('Xu', 'm');
+            $conversion = $converter->findConversion('Xu', 'm');
 
             $this->assertNull($conversion);
         } finally {
@@ -250,9 +250,9 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionFactorReturnsFactor(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
-        $factor = $converter->getConversionFactor('m', 'ft');
+        $factor = $converter->findConversionFactor('m', 'ft');
 
         $this->assertIsFloat($factor);
         $this->assertGreaterThan(0.0, $factor);
@@ -263,9 +263,9 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionFactorReturnsOneForIdenticalUnits(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
-        $factor = $converter->getConversionFactor('m', 'm');
+        $factor = $converter->findConversionFactor('m', 'm');
 
         $this->assertSame(1.0, $factor);
     }
@@ -275,9 +275,9 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionFactorForPrefixConversion(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
-        $factor = $converter->getConversionFactor('km', 'mm');
+        $factor = $converter->findConversionFactor('km', 'mm');
 
         // km → mm = 1,000,000
         $this->assertEqualsWithDelta(1e6, $factor, 1e-10);
@@ -301,107 +301,15 @@ class ConverterTest extends TestCase
             // Clear cached converters to pick up the new unit.
             Converter::clearInstances();
 
-            $converter = Converter::getByDimension('L');
+            $converter = Converter::getInstance('L');
 
             // Try to get factor between the isolated unit and meter - no path exists.
-            $factor = $converter->getConversionFactor('Yu', 'm');
+            $factor = $converter->findConversionFactor('Yu', 'm');
 
             $this->assertNull($factor);
         } finally {
             // Clean up.
             UnitService::remove($unit);
-            Converter::clearInstances();
-        }
-    }
-
-    // endregion
-
-    // region validateUnitTerm() tests
-
-    /**
-     * Test validateUnitTerm returns validated unit term.
-     */
-    public function testValidateUnitTermReturnsUnitTerm(): void
-    {
-        $converter = Converter::getByDimension('L');
-
-        $unit = $converter->validateUnit('m');
-
-        $this->assertInstanceOf(DerivedUnit::class, $unit);
-        $this->assertSame('m', (string)$unit);
-    }
-
-    /**
-     * Test validateUnitTerm accepts prefixed units.
-     */
-    public function testValidateUnitTermAcceptsPrefixedUnits(): void
-    {
-        $converter = Converter::getByDimension('L');
-
-        $unit = $converter->validateUnit('km');
-
-        $this->assertSame('km', (string)$unit);
-    }
-
-    /**
-     * Test validateUnitTerm throws for wrong dimension.
-     */
-    public function testValidateUnitTermThrowsForWrongDimension(): void
-    {
-        $converter = Converter::getByDimension('L');
-
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("The unit 's' is invalid for length quantities.");
-
-        $converter->validateUnit('s'); // seconds is time, not length
-    }
-
-    /**
-     * Test validateUnitTerm throws for unknown unit.
-     */
-    public function testValidateUnitTermThrowsForUnknownUnit(): void
-    {
-        $converter = Converter::getByDimension('L');
-
-        $this->expectException(DomainException::class);
-
-        $converter->validateUnit('xyz');
-    }
-
-    /**
-     * Test validateUnit throws with generic message for unknown dimension.
-     *
-     * When the converter's dimension is not in QuantityTypeService, the error message
-     * should use the generic format rather than the quantity-name format.
-     */
-    public function testValidateUnitThrowsGenericMessageForUnknownDimension(): void
-    {
-        // Register a custom unit with a dimension not in QuantityTypeService.
-        $unit = new Unit(
-            name: 'custom unit',
-            asciiSymbol: 'Zu',
-            dimension: 'L4',
-            systems: [UnitSystem::Si]
-        );
-        UnitService::add($unit);
-
-        // Also register a conversion so the converter has something to load.
-        $conversion = new Conversion('Zu', 'Zu', 1.0);
-        ConversionService::add($conversion);
-
-        try {
-            Converter::clearInstances();
-
-            $converter = Converter::getByDimension('L4');
-
-            // Try to validate a unit with wrong dimension.
-            $this->expectException(DomainException::class);
-            $this->expectExceptionMessage('does not match the converter dimension');
-
-            $converter->validateUnit('m'); // L dimension, not L4
-        } finally {
-            UnitService::remove($unit);
-            ConversionService::remove($conversion);
             Converter::clearInstances();
         }
     }
@@ -415,7 +323,7 @@ class ConverterTest extends TestCase
      */
     public function testConvertConvertsValue(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $result = $converter->convert(1.0, 'm', 'ft');
 
@@ -428,7 +336,7 @@ class ConverterTest extends TestCase
      */
     public function testConvertReturnsSameValueForIdenticalUnits(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $result = $converter->convert(42.5, 'm', 'm');
 
@@ -440,7 +348,7 @@ class ConverterTest extends TestCase
      */
     public function testConvertHandlesPrefixConversions(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $result = $converter->convert(5.0, 'km', 'm');
 
@@ -452,7 +360,7 @@ class ConverterTest extends TestCase
      */
     public function testConvertHandlesZeroValue(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $result = $converter->convert(0.0, 'm', 'ft');
 
@@ -464,7 +372,7 @@ class ConverterTest extends TestCase
      */
     public function testConvertHandlesNegativeValue(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $result = $converter->convert(-10.0, 'm', 'ft');
 
@@ -477,7 +385,7 @@ class ConverterTest extends TestCase
      */
     public function testConvertThrowsForInvalidSourceUnit(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $this->expectException(DomainException::class);
 
@@ -489,7 +397,7 @@ class ConverterTest extends TestCase
      */
     public function testConvertThrowsForInvalidDestinationUnit(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         $this->expectException(DomainException::class);
 
@@ -514,7 +422,7 @@ class ConverterTest extends TestCase
             // Clear cached converters to pick up the new unit.
             Converter::clearInstances();
 
-            $converter = Converter::getByDimension('L');
+            $converter = Converter::getInstance('L');
 
             $this->expectException(LogicException::class);
             $this->expectExceptionMessage("No conversion path found between 'Wu' and 'm'");
@@ -536,10 +444,10 @@ class ConverterTest extends TestCase
      */
     public function testFindsIndirectConversions(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         // Even if m → yd isn't directly defined, it should be found via m → ft → yd or similar
-        $conversion = $converter->getConversion('m', 'yd');
+        $conversion = $converter->findConversion('m', 'yd');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 meter ≈ 1.09361 yards
@@ -551,11 +459,11 @@ class ConverterTest extends TestCase
      */
     public function testHandlesInverseConversions(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         // If m → ft exists, ft → m should be derivable
-        $mToFt = $converter->getConversion('m', 'ft');
-        $ftToM = $converter->getConversion('ft', 'm');
+        $mToFt = $converter->findConversion('m', 'ft');
+        $ftToM = $converter->findConversion('ft', 'm');
 
         $this->assertInstanceOf(Conversion::class, $mToFt);
         $this->assertInstanceOf(Conversion::class, $ftToM);
@@ -572,9 +480,9 @@ class ConverterTest extends TestCase
      */
     public function testHandlesAreaDimension(): void
     {
-        $converter = Converter::getByDimension('L2');
+        $converter = Converter::getInstance('L2');
 
-        $conversion = $converter->getConversion('m2', 'ft2');
+        $conversion = $converter->findConversion('m2', 'ft2');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 m² ≈ 10.7639 ft²
@@ -586,9 +494,9 @@ class ConverterTest extends TestCase
      */
     public function testHandlesPrefixedAreaUnits(): void
     {
-        $converter = Converter::getByDimension('L2');
+        $converter = Converter::getInstance('L2');
 
-        $conversion = $converter->getConversion('km2', 'm2');
+        $conversion = $converter->findConversion('km2', 'm2');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
 
@@ -601,9 +509,9 @@ class ConverterTest extends TestCase
      */
     public function testHandlesVolumeDimension(): void
     {
-        $converter = Converter::getByDimension('L3');
+        $converter = Converter::getInstance('L3');
 
-        $conversion = $converter->getConversion('m3', 'ft3');
+        $conversion = $converter->findConversion('m3', 'ft3');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 m³ ≈ 35.3147 ft³
@@ -615,11 +523,11 @@ class ConverterTest extends TestCase
      */
     public function testExponentiatedConversionDerivesFromBaseDimension(): void
     {
-        $lengthConverter = Converter::getByDimension('L');
-        $areaConverter = Converter::getByDimension('L2');
+        $lengthConverter = Converter::getInstance('L');
+        $areaConverter = Converter::getInstance('L2');
 
-        $mToFt = $lengthConverter->getConversionFactor('m', 'ft');
-        $m2ToFt2 = $areaConverter->getConversionFactor('m2', 'ft2');
+        $mToFt = $lengthConverter->findConversionFactor('m', 'ft');
+        $m2ToFt2 = $areaConverter->findConversionFactor('m2', 'ft2');
 
         // m² → ft² factor should be (m → ft factor)²
         $this->assertEqualsWithDelta($mToFt ** 2, $m2ToFt2, 1e-6);
@@ -634,9 +542,9 @@ class ConverterTest extends TestCase
      */
     public function testHandlesTimeDimension(): void
     {
-        $converter = Converter::getByDimension('T');
+        $converter = Converter::getInstance('T');
 
-        $conversion = $converter->getConversion('h', 's');
+        $conversion = $converter->findConversion('h', 's');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
 
@@ -649,9 +557,9 @@ class ConverterTest extends TestCase
      */
     public function testHandlesTimeWithPrefixes(): void
     {
-        $converter = Converter::getByDimension('T');
+        $converter = Converter::getInstance('T');
 
-        $conversion = $converter->getConversion('ms', 's');
+        $conversion = $converter->findConversion('ms', 's');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
 
@@ -668,9 +576,9 @@ class ConverterTest extends TestCase
      */
     public function testHandlesMassDimension(): void
     {
-        $converter = Converter::getByDimension('M');
+        $converter = Converter::getInstance('M');
 
-        $conversion = $converter->getConversion('kg', 'g');
+        $conversion = $converter->findConversion('kg', 'g');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
 
@@ -683,9 +591,9 @@ class ConverterTest extends TestCase
      */
     public function testHandlesMassUnitConversions(): void
     {
-        $converter = Converter::getByDimension('M');
+        $converter = Converter::getInstance('M');
 
-        $conversion = $converter->getConversion('kg', 'lb');
+        $conversion = $converter->findConversion('kg', 'lb');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
 
@@ -702,10 +610,10 @@ class ConverterTest extends TestCase
      */
     public function testHandlesVerySmallConversionFactors(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         // mm to km is a very small factor
-        $factor = $converter->getConversionFactor('mm', 'km');
+        $factor = $converter->findConversionFactor('mm', 'km');
 
         $this->assertEqualsWithDelta(1e-6, $factor, 1e-12);
     }
@@ -715,10 +623,10 @@ class ConverterTest extends TestCase
      */
     public function testHandlesVeryLargeConversionFactors(): void
     {
-        $converter = Converter::getByDimension('L');
+        $converter = Converter::getInstance('L');
 
         // km to mm is a very large factor
-        $factor = $converter->getConversionFactor('km', 'mm');
+        $factor = $converter->findConversionFactor('km', 'mm');
 
         $this->assertEqualsWithDelta(1e6, $factor, 1e-10);
     }
@@ -732,9 +640,9 @@ class ConverterTest extends TestCase
      */
     public function testConversionOfForceUnits(): void
     {
-        $converter = Converter::getByDimension('MLT-2');
+        $converter = Converter::getInstance('MLT-2');
 
-        $conversion = $converter->getConversion('N', 'lbf');
+        $conversion = $converter->findConversion('N', 'lbf');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 N ≈ 0.2248 lbf
@@ -771,10 +679,10 @@ class ConverterTest extends TestCase
         ConversionService::add(new Conversion('Ty', 'Tz', 4.0));
 
         try {
-            $converter = Converter::getByDimension('L');
+            $converter = Converter::getInstance('L');
 
             // This should find X→Z via divergent combination.
-            $conversion = $converter->getConversion('Tx', 'Tz');
+            $conversion = $converter->findConversion('Tx', 'Tz');
 
             $this->assertInstanceOf(Conversion::class, $conversion);
             $this->assertEqualsWithDelta(2.0, $conversion->factor->value, 1e-10);
@@ -819,10 +727,10 @@ class ConverterTest extends TestCase
         ConversionService::add(new Conversion('Oc', 'Ob', new FloatWithError(0.5, 0.0)));
 
         try {
-            $converter = Converter::getByDimension($dimension);
+            $converter = Converter::getInstance($dimension);
 
             // This should find A→C via opposite combination with zero error.
-            $conversion = $converter->getConversion('Oa', 'Oc');
+            $conversion = $converter->findConversion('Oa', 'Oc');
 
             $this->assertInstanceOf(Conversion::class, $conversion);
             $this->assertEqualsWithDelta(1.0, $conversion->factor->value, 1e-10);
@@ -847,11 +755,11 @@ class ConverterTest extends TestCase
      */
     public function testGetConversionTriggersMergeForMergeableUnits(): void
     {
-        $converter = Converter::getByDimension('L2');
+        $converter = Converter::getInstance('L2');
 
         // m*ft has two length units that should be merged.
         // Getting a conversion should trigger addMergedUnit internally.
-        $conversion = $converter->getConversion('m*ft', 'm2');
+        $conversion = $converter->findConversion('m*ft', 'm2');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 m*ft = 0.3048 m² (since 1 ft = 0.3048 m)

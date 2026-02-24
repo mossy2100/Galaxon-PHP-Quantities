@@ -26,11 +26,11 @@ final class LengthTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load additional unit systems.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-        UnitService::loadSystem(UnitSystem::Scientific);
-        UnitService::loadSystem(UnitSystem::Css);
-        UnitService::loadSystem(UnitSystem::Nautical);
+        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadBySystem(UnitSystem::UsCustomary);
+        UnitService::loadBySystem(UnitSystem::Scientific);
+        UnitService::loadBySystem(UnitSystem::Css);
+        UnitService::loadBySystem(UnitSystem::Nautical);
     }
 
     // endregion

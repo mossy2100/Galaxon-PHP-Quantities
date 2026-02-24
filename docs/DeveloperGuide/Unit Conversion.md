@@ -20,8 +20,8 @@ use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
 // Load Imperial/US units (SI units are loaded by default)
-UnitService::loadSystem(UnitSystem::Imperial);
-UnitService::loadSystem(UnitSystem::UsCustomary);
+UnitService::loadBySystem(UnitSystem::Imperial);
+UnitService::loadBySystem(UnitSystem::UsCustomary);
 
 // Length
 $height = new Length(1.83, 'm');

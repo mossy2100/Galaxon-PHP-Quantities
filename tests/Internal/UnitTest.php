@@ -25,7 +25,7 @@ final class UnitTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load units for tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadBySystem(UnitSystem::Imperial);
     }
 
     // endregion

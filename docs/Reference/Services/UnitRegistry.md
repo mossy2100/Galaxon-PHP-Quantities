@@ -35,12 +35,12 @@ use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
 // Load Imperial and US Customary units
-UnitService::loadSystem(UnitSystem::Imperial);
-UnitService::loadSystem(UnitSystem::UsCustomary);
+UnitService::loadBySystem(UnitSystem::Imperial);
+UnitService::loadBySystem(UnitSystem::UsCustomary);
 
 // Load other systems as needed
-UnitService::loadSystem(UnitSystem::Scientific);
-UnitService::loadSystem(UnitSystem::Nautical);
+UnitService::loadBySystem(UnitSystem::Scientific);
+UnitService::loadBySystem(UnitSystem::Nautical);
 ```
 
 ---
@@ -180,7 +180,7 @@ $systems = UnitService::getLoadedSystems();
 // [UnitSystem::Si, UnitSystem::SiAccepted, UnitSystem::Common]
 
 // Load Imperial for feet, pounds, etc.
-UnitService::loadSystem(UnitSystem::Imperial);
+UnitService::loadBySystem(UnitSystem::Imperial);
 
 // Find a unit
 $foot = UnitService::getBySymbol('ft');

@@ -108,7 +108,7 @@ class Mass extends Quantity
      */
     public static function setImperialParts(): void
     {
-        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadBySystem(UnitSystem::Imperial);
 
         // The long ton and stone are in use, but the grain is not.
         self::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
@@ -120,7 +120,7 @@ class Mass extends Quantity
      */
     public static function setUsCustomaryParts(): void
     {
-        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadBySystem(UnitSystem::UsCustomary);
 
         // The short ton and grain are in use, but the stone is not.
         self::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);

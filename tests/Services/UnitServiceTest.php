@@ -208,7 +208,7 @@ final class UnitServiceTest extends TestCase
     public function testGetBySystemReturnsImperialUnits(): void
     {
         // Ensure Imperial is loaded.
-        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadBySystem(UnitSystem::Imperial);
 
         $result = UnitService::getBySystem(UnitSystem::Imperial);
         $symbols = array_map(static fn (Unit $u) => $u->asciiSymbol, $result);
@@ -611,7 +611,7 @@ final class UnitServiceTest extends TestCase
         // SI is auto-loaded during init(). Loading it again should be a no-op.
         $countBefore = count(UnitService::getAll());
 
-        UnitService::loadSystem(UnitSystem::Si);
+        UnitService::loadBySystem(UnitSystem::Si);
 
         $countAfter = count(UnitService::getAll());
         $this->assertSame($countBefore, $countAfter);
@@ -638,7 +638,7 @@ final class UnitServiceTest extends TestCase
      */
     public function testGetLoadedSystemsIncludesManuallyLoadedSystem(): void
     {
-        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadBySystem(UnitSystem::Imperial);
 
         $systems = UnitService::getLoadedSystems();
 

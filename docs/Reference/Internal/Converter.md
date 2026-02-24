@@ -260,7 +260,7 @@ Validate that a unit is valid for this converter's dimension.
 use Galaxon\Quantities\Internal\Converter;
 
 // Convert length
-$length = Converter::getByDimension('L');
+$length = Converter::getInstance('L');
 $meters = $length->convert(5280, 'ft', 'm');
 echo "$meters m"; // 1609.344 m
 
@@ -276,7 +276,7 @@ use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 
 // Force conversion
-$force = Converter::getByDimension('MLT-2');
+$force = Converter::getInstance('MLT-2');
 $newtons = $force->convert(1, 'lbf', 'N');
 ```
 
@@ -288,10 +288,10 @@ use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
 // Load Imperial units first
-UnitService::loadSystem(UnitSystem::Imperial);
+UnitService::loadBySystem(UnitSystem::Imperial);
 
 // Now convert
-$volume = Converter::getByDimension('L3');
+$volume = Converter::getInstance('L3');
 $liters = $volume->convert(1, 'imp gal', 'L');
 echo "$liters L"; // ~4.546 L (Imperial gallon)
 ```

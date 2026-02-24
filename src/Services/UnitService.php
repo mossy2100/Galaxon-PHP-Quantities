@@ -185,7 +185,13 @@ class UnitService
      * Add a new unit from a unit definition.
      *
      * @param string $name The unit name.
-     * @param array $definition The unit definition.
+     * @param array{
+     *            asciiSymbol: string,
+     *            unicodeSymbol?: string,
+     *            prefixGroup?: int,
+     *            alternateSymbol?: string,
+     *            systems: list<UnitSystem>
+     *        } $definition The unit definition.
      * @param bool $replaceExisting Determines action to take if a unit with this name already exists in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
      * @throws DomainException
@@ -234,7 +240,7 @@ class UnitService
      * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
      */
-    public static function loadSystem(UnitSystem $system, bool $replaceExisting = false): void
+    public static function loadBySystem(UnitSystem $system, bool $replaceExisting = false): void
     {
         // Loop through all unit definitions and add any belonging to the specified system.
         foreach (self::getAllDefinitions() as $name => $definition) {
@@ -366,7 +372,7 @@ class UnitService
 
             // Load the default units.
             foreach (UnitSystem::DEFAULTS as $system) {
-                self::loadSystem($system);
+                self::loadBySystem($system);
             }
         }
     }

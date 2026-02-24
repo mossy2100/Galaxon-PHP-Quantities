@@ -118,9 +118,15 @@ class Conversion implements Stringable
         return $this->factor->absoluteError === 0.0;
     }
 
+    /**
+     * Check if the conversion involves the given unit.
+     *
+     * @param Unit $unit The unit to check.
+     * @return bool True if the unit is involved in the conversion.
+     */
     public function involvesUnit(Unit $unit): bool
     {
-        return $this->srcUnit->involvesUnit($unit) || $this->destUnit->involvesUnit($unit);
+        return $this->srcUnit->includesUnit($unit) || $this->destUnit->includesUnit($unit);
     }
 
     // endregion

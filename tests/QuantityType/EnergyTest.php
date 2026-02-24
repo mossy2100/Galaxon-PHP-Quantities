@@ -26,7 +26,7 @@ final class EnergyTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load US units for BTU.
-        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadBySystem(UnitSystem::UsCustomary);
     }
 
     // endregion

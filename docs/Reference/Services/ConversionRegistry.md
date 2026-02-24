@@ -137,7 +137,7 @@ use Galaxon\Quantities\Services\ConversionService;
 
 // Check for a direct conversion
 if (ConversionService::has('m', 'in')) {
-    $conv = ConversionService::get('m', 'in');
+    $conv = ConversionService::lookupConversion('m', 'in');
     echo "1 m = {$conv->factor->value} in";
 }
 

@@ -28,8 +28,8 @@ final class VolumeTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadBySystem(UnitSystem::UsCustomary);
     }
 
     // endregion

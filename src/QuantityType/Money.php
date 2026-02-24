@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
+use Galaxon\Quantities\Currencies\CurrencyService;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\CurrencyService;
 use Galaxon\Quantities\UnitSystem;
 use NumberFormatter;
 use Override;
 
 /**
- * Represents currency quantities.
+ * Represents money quantities.
  */
-class Currency extends Quantity
+class Money extends Quantity
 {
     // region Overridden methods
 
@@ -57,8 +57,8 @@ class Currency extends Quantity
     #[Override]
     public function __toString(): string
     {
+        // By default, use the locale-specific currency formatter.
         $locale = CurrencyService::getLocale();
-
         if ($locale !== null) {
             $fmt = new NumberFormatter($locale, NumberFormatter::CURRENCY);
             $result = $fmt->formatCurrency($this->value, (string)$this->derivedUnit);
@@ -67,7 +67,7 @@ class Currency extends Quantity
             }
         }
 
-        // Fall back to usual format() method.
+        // Fall back to the usual format() method.
         return $this->format();
     }
 
