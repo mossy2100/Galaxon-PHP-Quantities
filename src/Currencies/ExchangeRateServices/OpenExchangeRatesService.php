@@ -49,7 +49,7 @@ class OpenExchangeRatesService implements ExchangeRateServiceInterface
     public function __construct(string $appId)
     {
         if (empty($appId)) {
-            throw new DomainException('API key cannot be empty.');
+            throw new DomainException('App ID cannot be empty.');
         }
 
         $this->appId = $appId;
