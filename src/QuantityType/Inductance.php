@@ -34,7 +34,9 @@ class Inductance extends Quantity
             'henry' => [
                 'asciiSymbol' => 'H',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

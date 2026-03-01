@@ -38,12 +38,16 @@ class RadiationDose extends Quantity
             'gray'    => [
                 'asciiSymbol' => 'Gy',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
             'sievert' => [
                 'asciiSymbol' => 'Sv',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

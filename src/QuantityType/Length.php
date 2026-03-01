@@ -53,60 +53,91 @@ class Length extends Quantity
             'meter'             => [
                 'asciiSymbol' => 'm',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
             // Scientific
             'astronomical unit' => [
                 'asciiSymbol' => 'au',
-                'systems'     => [UnitSystem::SiAccepted, UnitSystem::Scientific],
+                'systems'     => [
+                    UnitSystem::SiAccepted,
+                    UnitSystem::Scientific,
+                ],
             ],
             'light year'        => [
                 'asciiSymbol' => 'ly',
-                'systems'     => [UnitSystem::Scientific],
+                'systems'     => [
+                    UnitSystem::Scientific,
+                ],
             ],
             'parsec'            => [
                 'asciiSymbol' => 'pc',
                 'prefixGroup' => PrefixService::GROUP_LARGE_METRIC,
-                'systems'     => [UnitSystem::Scientific],
+                'systems'     => [
+                    UnitSystem::Scientific,
+                ],
             ],
             // CSS
             'pixel'             => [
                 'asciiSymbol' => 'px',
-                'systems'     => [UnitSystem::Css],
+                'systems'     => [
+                    UnitSystem::Css,
+                ],
             ],
             'point'             => [
                 'asciiSymbol' => 'p',
-                'systems'     => [UnitSystem::Css],
+                'systems'     => [
+                    UnitSystem::Css,
+                ],
             ],
             'pica'              => [
                 'asciiSymbol' => 'P',
-                'systems'     => [UnitSystem::Css],
+                'systems'     => [
+                    UnitSystem::Css,
+                ],
             ],
             // Imperial/US
             'inch'              => [
                 'asciiSymbol' => 'in',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                    UnitSystem::UsCustomary,
+                ],
             ],
             'foot'              => [
                 'asciiSymbol' => 'ft',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                    UnitSystem::UsCustomary,
+                ],
             ],
             'yard'              => [
                 'asciiSymbol' => 'yd',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                    UnitSystem::UsCustomary,
+                ],
             ],
             'mile'              => [
                 'asciiSymbol' => 'mi',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                    UnitSystem::UsCustomary,
+                ],
             ],
             // Nautical
             'fathom'            => [
                 'asciiSymbol' => 'ftm',
-                'systems'     => [UnitSystem::Nautical],
+                'systems'     => [
+                    UnitSystem::Nautical,
+                ],
             ],
             'nautical mile'     => [
                 'asciiSymbol' => 'nmi',
-                'systems'     => [UnitSystem::Nautical],
+                'systems'     => [
+                    UnitSystem::Nautical,
+                ],
             ],
         ];
     }
@@ -135,7 +166,11 @@ class Length extends Quantity
             // Astronomical
             ['au', 'm', 149597870700],
             ['ly', 'm', 9460730472580800],
-            ['pc', 'au', 648000 / M_PI],
+            [
+                'pc',
+                'au',
+                648000 / M_PI,
+            ],
             // Nautical
             ['ftm', 'yd', 2],
             ['nmi', 'm', 1852],

@@ -34,7 +34,9 @@ class Voltage extends Quantity
             'volt' => [
                 'asciiSymbol' => 'V',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

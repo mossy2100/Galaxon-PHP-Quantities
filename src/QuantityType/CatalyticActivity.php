@@ -34,7 +34,9 @@ class CatalyticActivity extends Quantity
             'katal' => [
                 'asciiSymbol' => 'kat',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

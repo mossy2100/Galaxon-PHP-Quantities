@@ -34,7 +34,9 @@ class MagneticFlux extends Quantity
             'weber' => [
                 'asciiSymbol' => 'Wb',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

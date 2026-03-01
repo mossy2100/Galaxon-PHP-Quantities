@@ -34,7 +34,9 @@ class AmountOfSubstance extends Quantity
             'mole' => [
                 'asciiSymbol' => 'mol',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

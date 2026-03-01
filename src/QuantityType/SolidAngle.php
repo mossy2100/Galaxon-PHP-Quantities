@@ -34,7 +34,9 @@ class SolidAngle extends Quantity
             'steradian' => [
                 'asciiSymbol' => 'sr',
                 'prefixGroup' => PrefixService::GROUP_SMALL_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

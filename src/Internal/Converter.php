@@ -47,7 +47,7 @@ class Converter
     private(set) string $dimension;
 
     /**
-     * Unprefixed units for this converter.
+     * Units for this converter.
      *
      * @var array<string, DerivedUnit>
      */
@@ -100,7 +100,7 @@ class Converter
         $this->dimension = $dimension;
 
         // Load the conversions for known units.
-        $this->loadConversionsFromDefinitions();
+        $this->loadConversionDefinitions();
     }
 
     // endregion
@@ -201,18 +201,28 @@ class Converter
         $this->addUnit($srcUnit);
         $this->addUnit($destUnit);
 
-        // Add merged, unprefixed, and expanded versions of each unit to the list.
-        foreach ($this->units as $unit) {
-            $this->addMerged($unit);
-            $this->addUnprefixed($unit);
-            $this->addExpanded($unit);
-        }
+        // Ensure merged, unprefixed, and expanded versions of all units ar in the list.
+        do {
+            $units = $this->units;
+            $nAdded = 0;
+            foreach ($units as $unit) {
+                if ($this->addMerged($unit)) {
+                    $nAdded++;
+                }
+                if ($this->addUnprefixed($unit)) {
+                    $nAdded++;
+                }
+                if ($this->addExpanded($unit)) {
+                    $nAdded++;
+                }
+            }
+        } while ($nAdded > 0);
 
         // Search for the conversion we want until we find it or have run out of options.
         do {
             // Check if we have it.
-            if (isset($this->conversionMatrix[$src][$dest])) {
-                return $this->conversionMatrix[$src][$dest];
+            if ($this->hasConversion($src, $dest)) {
+                return $this->getConversion($src, $dest);
             }
 
             // Try to find the conversion using a variety of strategies.
@@ -221,10 +231,19 @@ class Converter
                 return $conversion;
             }
 
-            // Generate a batch of new conversions, exact first.
-            $nAdded = $this->generateConversions($srcUnit, $destUnit, true) +
-                      $this->generateConversions($srcUnit, $destUnit);
-        } while ($nAdded > 0);
+            // Generate all exact conversions.
+            do {
+                $nAdded = $this->generateConversions($srcUnit, $destUnit, true);
+            } while ($nAdded > 0 && !$this->hasConversion($src, $dest));
+
+            // Check if we have it.
+            if ($this->hasConversion($src, $dest)) {
+                return $this->getConversion($src, $dest);
+            }
+
+            // Generate a batch of new conversions.
+            $nAdded = $this->generateConversions($srcUnit, $destUnit);
+        } while ($nAdded > 0 && !$this->hasConversion($src, $dest));
 
         // Return the desired conversion, or null if not found.
         return $this->getConversion($srcUnit, $destUnit);
@@ -247,7 +266,7 @@ class Converter
      * Convert a numeric value from one unit to another.
      *
      * Validates both unit symbols, retrieves or computes the conversion, and applies it to the value using the formula
-     * y = m*x
+     * y = m*x.
      *
      * @param float $value The value to convert.
      * @param string|UnitInterface $srcUnit The source unit.
@@ -344,14 +363,20 @@ class Converter
      * @throws DomainException If the dimensions don't match or the factor is invalid.
      * @throws LogicException If a conversion's dimension doesn't match this Converter.
      */
-    public function loadConversionsFromDefinitions(): void
+    public function loadConversionDefinitions(): void
     {
         // Get the quantity type for this dimension.
         $qtyType = QuantityTypeService::getByDimension($this->dimension);
         $conversionDefinitions = $qtyType?->class::getConversionDefinitions() ?? [];
 
         // Initialize the Converter with all conversion definitions for this dimension.
-        foreach ($conversionDefinitions as [$srcSymbol, $destSymbol, $factor]) {
+        foreach (
+            $conversionDefinitions as [
+                $srcSymbol,
+                $destSymbol,
+                $factor,
+            ]
+        ) {
             // Try to get the units as DerivedUnit objects.
             try {
                 $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
@@ -399,7 +424,7 @@ class Converter
         $destSymbol = $conversion->destUnit->asciiSymbol;
 
         // Add the conversion if it doesn't exist, or update it if it does, and we want to replace it.
-        if (!isset($this->conversionMatrix[$srcSymbol][$destSymbol]) || $replaceExisting) {
+        if (!$this->hasConversion($srcSymbol, $destSymbol) || $replaceExisting) {
             $this->conversionMatrix[$srcSymbol][$destSymbol] = $conversion;
             return true;
         }
@@ -430,7 +455,7 @@ class Converter
      *
      * Call this when unloading a Unit from the loaded units.
      *
-     * @param Unit $unit
+     * @param Unit $unit The unit whose conversions should be removed.
      */
     public function removeConversionsByUnit(Unit $unit): void
     {
@@ -475,7 +500,7 @@ class Converter
 
     // endregion
 
-    // region Private conversion helper methods
+    // region Conversion helper methods
 
     /**
      * Look for an inverse conversion between two units.
@@ -484,9 +509,9 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The inverse conversion, or null if not found.
      */
-    private function findConversionByInverse(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    public function findConversionByInverse(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
-        return ($this->conversionMatrix[$destUnit->asciiSymbol][$srcUnit->asciiSymbol] ?? null)?->inv();
+        return $this->getConversion($destUnit, $srcUnit)?->inv();
     }
 
     /**
@@ -496,7 +521,7 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The prefixed conversion, or null if not applicable.
      */
-    private function findConversionByPrefix(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    public function findConversionByPrefix(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         // Make sure both derived units have only one unit term.
         if (count($srcUnit->unitTerms) !== 1 || count($destUnit->unitTerms) !== 1) {
@@ -529,7 +554,7 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The exponentiated conversion, or null if not applicable.
      */
-    private function findConversionByExponentiation(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    public function findConversionByExponentiation(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         // Make sure both derived units have only one unit term.
         if (count($srcUnit->unitTerms) !== 1 || count($destUnit->unitTerms) !== 1) {
@@ -572,7 +597,7 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The combined conversion, or null if not applicable or no path exists.
      */
-    private function findConversionByUnitTermPairs(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    public function findConversionByUnitTermPairs(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         // Check the number of unit terms match.
         if (count($srcUnit->unitTerms) !== count($destUnit->unitTerms)) {
@@ -615,14 +640,14 @@ class Converter
      * Tries four combination strategies and returns the one with the least error:
      * - Sequential:  src→mid + mid→dest  → factor = m1 × m2
      * - Convergent:  src→mid + dest→mid  → factor = m1 / m2
-     * - Divergent:   mid→src + mid→dest  → factor = m2 / m1
      * - Opposite:    dest→mid + mid→src  → factor = 1 / (m1 × m2)
+     * - Divergent:   mid→src + mid→dest  → factor = m2 / m1
      *
      * @param DerivedUnit $srcUnit The source unit.
      * @param DerivedUnit $destUnit The destination unit.
-     * @return ?Conversion The conversion, or null if no indirect conversion exists.
+     * @return ?Conversion The conversion, or null if no conversion by this method is found.
      */
-    private function findConversionByCombination(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    public function findConversionByCombination(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         $src = $srcUnit->asciiSymbol;
         $dest = $destUnit->asciiSymbol;
@@ -634,18 +659,14 @@ class Converter
         $checkCandidate = static function (Conversion $candidate) use (&$bestConversion, &$minErr): bool {
             $err = $candidate->factor->absoluteError;
 
-            // If the error is 0, we aren't going to do any better, so return.
-            if ($err === 0.0) {
-                return true;
-            }
-
             // See if it's an improvement.
             if ($err < $minErr) {
                 $bestConversion = $candidate;
                 $minErr = $err;
             }
 
-            return false;
+            // If the error is 0, we aren't going to do any better, so return.
+            return $err === 0.0;
         };
 
         // Loop 1: Iterate conversions from src (src→mid).
@@ -655,7 +676,7 @@ class Converter
             $mid = $srcToMid->destUnit->asciiSymbol;
 
             // Sequential: src→mid + mid→dest.
-            $midToDest = $this->conversionMatrix[$mid][$dest] ?? null;
+            $midToDest = $this->getConversion($mid, $dest);
             if ($midToDest !== null) {
                 $newConversion = $srcToMid->combineSequential($midToDest);
                 if ($checkCandidate($newConversion)) {
@@ -664,7 +685,7 @@ class Converter
             }
 
             // Convergent: src→mid + dest→mid.
-            $destToMid = $this->conversionMatrix[$dest][$mid] ?? null;
+            $destToMid = $this->getConversion($dest, $mid);
             if ($destToMid !== null) {
                 $newConversion = $srcToMid->combineConvergent($destToMid);
                 if ($checkCandidate($newConversion)) {
@@ -673,7 +694,23 @@ class Converter
             }
         }
 
-        // Loop 2: Iterate all matrix rows as potential intermediate units.
+        // Loop 2: Iterate conversions from dest (dest→mid).
+        // This covers opposite (dest→mid, mid→src) combinations.
+        $conversionsFromDest = $this->conversionMatrix[$dest] ?? [];
+        foreach ($conversionsFromDest as $destToMid) {
+            $mid = $destToMid->destUnit->asciiSymbol;
+
+            // Opposite: dest→mid + mid→src.
+            $midToSrc = $this->getConversion($mid, $src);
+            if ($midToSrc !== null) {
+                $newConversion = $midToSrc->combineOpposite($destToMid);
+                if ($checkCandidate($newConversion)) {
+                    return $newConversion;
+                }
+            }
+        }
+
+        // Loop 3: Iterate all matrix rows as potential intermediate units.
         // This covers divergent (mid→src, mid→dest) combinations.
         foreach ($this->conversionMatrix as $mid => $conversionsFromMid) {
             if ($mid === $src || $mid === $dest) {
@@ -684,22 +721,6 @@ class Converter
             $midToDest = $conversionsFromMid[$dest] ?? null;
             if ($midToSrc !== null && $midToDest !== null) {
                 $newConversion = $midToSrc->combineDivergent($midToDest);
-                if ($checkCandidate($newConversion)) {
-                    return $newConversion;
-                }
-            }
-        }
-
-        // Loop 3: Iterate conversions from dest (dest→mid).
-        // This covers opposite (dest→mid, mid→src) combinations.
-        $conversionsFromDest = $this->conversionMatrix[$dest] ?? [];
-        foreach ($conversionsFromDest as $destToMid) {
-            $mid = $destToMid->destUnit->asciiSymbol;
-
-            // Opposite: dest→mid + mid→src.
-            $midToSrc = $this->conversionMatrix[$mid][$src] ?? null;
-            if ($midToSrc !== null) {
-                $newConversion = $midToSrc->combineOpposite($destToMid);
                 if ($checkCandidate($newConversion)) {
                     return $newConversion;
                 }
@@ -719,8 +740,6 @@ class Converter
      * 4. Unit term conversion
      * 5. Combination of 2 conversions via an intermediate unit
      *
-     * Found conversions are cached in the conversion matrix for future lookups.
-     *
      * @param DerivedUnit $srcUnit The source unit.
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The conversion, or null if no path exists.
@@ -729,7 +748,7 @@ class Converter
     {
         // Defensive programming. These situations would be a misuse of the function.
         // Check that the conversion doesn't already exist.
-        if (isset($this->conversionMatrix[$srcUnit->asciiSymbol][$destUnit->asciiSymbol])) {
+        if ($this->hasConversion($srcUnit, $destUnit)) {
             throw new LogicException('This conversion is already known.');
         }
         // Check that the units are different.
@@ -748,7 +767,7 @@ class Converter
             $this->findConversionByPrefix(...),
             $this->findConversionByExponentiation(...),
             $this->findConversionByUnitTermPairs(...),
-            $this->findConversionByCombination(...)
+            $this->findConversionByCombination(...),
         ];
 
         foreach ($strategies as $strategy) {
@@ -771,23 +790,22 @@ class Converter
             }
         }
 
-        // Return the best conversion found, or null was found.
+        // Return the best conversion found, or null if none was found.
         return $bestConversion;
     }
 
     /**
-     * Generate a bunch of new conversions between all unit pairs using a variety of strategies.
+     * Attempt to generate conversions between all unit pairs using a variety of strategies.
+     *
+     * Return if and when a conversion for the target pair is found.
      *
      * @param DerivedUnit $srcUnit The source unit of the conversion we're looking for.
      * @param DerivedUnit $destUnit The destination unit of the conversion we're looking for.
      * @param bool $exactOnly Whether to only keep exact conversions.
      * @return int The number of conversions added to the matrix.
      */
-    private function generateConversions(
-        ?DerivedUnit $srcUnit = null,
-        ?DerivedUnit $destUnit = null,
-        bool $exactOnly = false
-    ): int {
+    private function generateConversions(DerivedUnit $srcUnit, DerivedUnit $destUnit, bool $exactOnly = false): int
+    {
         $nAdded = 0;
 
         // Check every combination of units. This will add a batch of new conversions to the matrix.
@@ -808,12 +826,13 @@ class Converter
                 if ($newConversion !== null) {
                     // Add it to the matrix (checking exactness if necessary).
                     if (!$exactOnly || $newConversion->isExact()) {
-                        $this->addConversion($newConversion);
-                        $nAdded++;
+                        if ($this->addConversion($newConversion)) {
+                            $nAdded++;
+                        }
                     }
 
                     // If we've found the one we're looking for, return.
-                    if (isset($this->conversionMatrix[$srcUnit->asciiSymbol][$destUnit->asciiSymbol])) {
+                    if ($this->hasConversion($srcUnit, $destUnit)) {
                         return $nAdded;
                     }
                 }
@@ -831,13 +850,13 @@ class Converter
      * Attempts to merge compatible unit terms. If successful, adds the new unit and conversion to the Converter.
      *
      * @param DerivedUnit $derivedUnit The unit to check and potentially add a merged variant for.
-     * @return void
+     * @return bool True if a new conversion was added.
      */
-    private function addMerged(DerivedUnit $derivedUnit): void
+    private function addMerged(DerivedUnit $derivedUnit): bool
     {
         // Check if there's anything to do.
         if (!$derivedUnit->isMergeable()) {
-            return;
+            return false;
         }
 
         // Get the merged quantity.
@@ -845,7 +864,7 @@ class Converter
 
         // Add the new conversion to the matrix.
         $newConversion = new Conversion($derivedUnit, $mergedQty->derivedUnit, $mergedQty->value);
-        $this->addConversion($newConversion);
+        return $this->addConversion($newConversion);
     }
 
     /**
@@ -855,12 +874,13 @@ class Converter
      * reciprocals (e.g. 1/1000 for metric prefixes).
      *
      * @param DerivedUnit $derivedUnit The potentially prefixed unit.
+     * @return bool True if a new conversion was added.
      */
-    private function addUnprefixed(DerivedUnit $derivedUnit): void
+    private function addUnprefixed(DerivedUnit $derivedUnit): bool
     {
         // Check if there's anything to do.
         if (!$derivedUnit->hasPrefixes()) {
-            return;
+            return false;
         }
 
         // Get the total prefix multiplier and the unprefixed unit.
@@ -883,28 +903,28 @@ class Converter
         }
 
         // Add the new conversion to the matrix.
-        $this->addConversion($newConversion);
+        return $this->addConversion($newConversion);
     }
 
     /**
      * Attempts to expand the unit. If successful, adds the new unit and conversion to the Converter.
      *
      * @param DerivedUnit $derivedUnit The unit to check and potentially add an expanded variant for.
-     * @return void
+     * @return bool True if a new conversion was added.
      */
-    private function addExpanded(DerivedUnit $derivedUnit): void
+    private function addExpanded(DerivedUnit $derivedUnit): bool
     {
         // Attempt to compute the expanded quantity.
         $expansion = $derivedUnit->tryExpand();
 
         // If no expansion found, return.
         if ($expansion === null) {
-            return;
+            return false;
         }
 
         // Add the new conversion to the matrix.
         $newConversion = new Conversion($derivedUnit, $expansion->derivedUnit, $expansion->value);
-        $this->addConversion($newConversion);
+        return $this->addConversion($newConversion);
     }
 
     // endregion
@@ -914,7 +934,6 @@ class Converter
     /**
      * Print the conversion matrix for debugging purposes.
      *
-     * @return void
      * @codeCoverageIgnore
      */
     public function printMatrix(): void
@@ -935,7 +954,7 @@ class Converter
         foreach ($this->units as $srcUnit) {
             echo '|' . str_pad($srcUnit->asciiSymbol, $colWidth) . '|';
             foreach ($this->units as $destUnit) {
-                $conversion = $this->conversionMatrix[$srcUnit->asciiSymbol][$destUnit->asciiSymbol] ?? null;
+                $conversion = $this->getConversion($srcUnit, $destUnit);
 
                 if ($conversion !== null) {
                     $mul = $conversion->factor->value;

@@ -32,24 +32,34 @@ class Dimensionless extends Quantity
         return [
             'scalar'             => [
                 'asciiSymbol' => '',
-                'systems'     => [UnitSystem::Common],
+                'systems'     => [
+                    UnitSystem::Common,
+                ],
             ],
             'percentage'         => [
                 'asciiSymbol' => '%',
-                'systems'     => [UnitSystem::Common],
+                'systems'     => [
+                    UnitSystem::Common,
+                ],
             ],
             'parts per thousand' => [
                 'asciiSymbol'   => 'ppt',
                 'unicodeSymbol' => '‰',
-                'systems'       => [UnitSystem::Common],
+                'systems'       => [
+                    UnitSystem::Common,
+                ],
             ],
             'parts per million'  =>  [
                 'asciiSymbol' => 'ppm',
-                'systems'     => [UnitSystem::Common],
+                'systems'     => [
+                    UnitSystem::Common,
+                ],
             ],
             'parts per billion'  => [
                 'asciiSymbol' => 'ppb',
-                'systems'     => [UnitSystem::Common],
+                'systems'     => [
+                    UnitSystem::Common,
+                ],
             ],
         ];
     }

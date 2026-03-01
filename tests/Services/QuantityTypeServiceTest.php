@@ -482,7 +482,7 @@ final class QuantityTypeServiceTest extends TestCase
         $this->assertNotEmpty($before);
 
         // Clear the registry.
-        QuantityTypeService::clear();
+        QuantityTypeService::removeAll();
 
         // Verify the registry is empty.
         $after = QuantityTypeService::getAll();
@@ -498,7 +498,7 @@ final class QuantityTypeServiceTest extends TestCase
     public function testClearDoesNotReinitialize(): void
     {
         // Clear the registry.
-        QuantityTypeService::clear();
+        QuantityTypeService::removeAll();
 
         // Add a single custom type.
         QuantityTypeService::add('custom', 'L6', TestQuantity::class);

@@ -26,26 +26,31 @@ class ConversionService
     // region Static methods for loading conversions
 
     /**
-     * Load all conversions for a specific measurement system.
+     * Load all conversions from definitions.
      *
-     * Iterates through all conversion definitions and adds any with at least one unit that belongs to the specified
-     * system.
-     *
+     * Iterates through all conversion definitions and adds any new ones.
      * Both units must be known (in the registry).
-     *
      * This process will create and initialize all necessary Converters.
      *
-     * @param UnitSystem $system The measurement system to load conversions for.
+     * By default, this method does not replace any existing conversions, making it useful for adding any now-valid
+     * conversion definitions to the Converters' conversion matrixes after new units are loaded.
+     *
      * @param bool $replaceExisting Determines action to take if a conversion already exists in the registry.
      * If true, the existing conversion will be replaced; otherwise, the operation will be terminated.
      * @throws FormatException If either unit in a conversion definition is provided as a string that cannot be parsed.
      * @throws DomainException If the dimensions of the units in a conversion definition don't match or the factor is
      * not positive.
      */
-    public static function loadBySystem(UnitSystem $system, bool $replaceExisting = false): void
+    public static function loadDefinitions(bool $replaceExisting = false): void
     {
         // Scan all existing definitions for any that match the specified system.
-        foreach (self::getAllDefinitions() as [$srcSymbol, $destSymbol, $factor]) {
+        foreach (
+            self::getAllDefinitions() as [
+                $srcSymbol,
+                $destSymbol,
+                $factor,
+            ]
+        ) {
             // Try to get the source unit as a DerivedUnit object. This will validate the provided value.
             try {
                 $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
@@ -62,12 +67,7 @@ class ConversionService
                 continue;
             }
 
-            // Check if at least one derived unit contains a unit that belongs to the specified system.
-            if (!$srcUnit->includesUnitFromSystem($system) && !$destUnit->includesUnitFromSystem($system)) {
-                continue;
-            }
-
-            // Add the conversion (replacing any existing).
+            // Add the conversion (replacing any existing if specified).
             self::add(new Conversion($srcUnit, $destUnit, $factor), $replaceExisting);
         }
     }
@@ -140,7 +140,7 @@ class ConversionService
      *
      * @param UnitSystem $system The measurement system to unload.
      */
-    public static function unloadSystem(UnitSystem $system): void
+    public static function unloadBySystem(UnitSystem $system): void
     {
         // Get all the units in this system.
         $units = UnitService::getBySystem($system);
@@ -166,7 +166,10 @@ class ConversionService
      */
     public static function get(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
     {
-        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
+        [
+            $srcUnit,
+            $destUnit,
+        ] = self::validateUnits($srcUnit, $destUnit);
         $converter = Converter::getInstance($srcUnit->dimension);
         return $converter->getConversion($srcUnit, $destUnit);
     }
@@ -202,7 +205,10 @@ class ConversionService
      */
     public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
     {
-        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
+        [
+            $srcUnit,
+            $destUnit,
+        ] = self::validateUnits($srcUnit, $destUnit);
         $converter = Converter::getInstance($srcUnit->dimension);
         return $converter->convert($value, $srcUnit, $destUnit);
     }
@@ -221,7 +227,10 @@ class ConversionService
      */
     public static function find(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
     {
-        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
+        [
+            $srcUnit,
+            $destUnit,
+        ] = self::validateUnits($srcUnit, $destUnit);
         $converter = Converter::getInstance($srcUnit->dimension);
         return $converter->findConversion($srcUnit, $destUnit);
     }
@@ -237,7 +246,10 @@ class ConversionService
      */
     public static function findFactor(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?float
     {
-        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
+        [
+            $srcUnit,
+            $destUnit,
+        ] = self::validateUnits($srcUnit, $destUnit);
         $converter = Converter::getInstance($srcUnit->dimension);
         return $converter->findConversionFactor($srcUnit, $destUnit);
     }
@@ -267,7 +279,10 @@ class ConversionService
             );
         }
 
-        return [$srcUnit, $destUnit];
+        return [
+            $srcUnit,
+            $destUnit,
+        ];
     }
 
     // endregion

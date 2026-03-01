@@ -34,7 +34,9 @@ class Conductance extends Quantity
             'siemens' => [
                 'asciiSymbol' => 'S',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

@@ -70,7 +70,11 @@ class DerivedUnitTest extends TestCase
         $m = new UnitTerm('m');
         $s = new UnitTerm('s', null, -2);
 
-        $du = new DerivedUnit([$kg, $m, $s]);
+        $du = new DerivedUnit([
+            $kg,
+            $m,
+            $s,
+        ]);
 
         $this->assertCount(3, $du->unitTerms);
         // Sorted by dimension order: M, L, T.
@@ -648,7 +652,11 @@ class DerivedUnitTest extends TestCase
         $m = new UnitTerm('m');
         $kg = new UnitTerm('g', 'k');
 
-        $du = new DerivedUnit([$s, $m, $kg]);
+        $du = new DerivedUnit([
+            $s,
+            $m,
+            $kg,
+        ]);
 
         // Sorted by dimension order: M, L, T.
         $this->assertSame('kg*m*s', $du->format(true));
@@ -661,7 +669,11 @@ class DerivedUnitTest extends TestCase
         $m = new UnitTerm('m');
         $kg = new UnitTerm('g', 'k');
 
-        $du = new DerivedUnit([$s, $m, $kg]);
+        $du = new DerivedUnit([
+            $s,
+            $m,
+            $kg,
+        ]);
 
         // Sorted by dimension order: M, L, T.
         $this->assertSame('kg*m/s2', $du->format(true));
@@ -677,7 +689,10 @@ class DerivedUnitTest extends TestCase
         $s = new UnitTerm('s');
         $n = new UnitTerm('N');
 
-        $du = new DerivedUnit([$s, $n]);
+        $du = new DerivedUnit([
+            $s,
+            $n,
+        ]);
 
         $this->assertSame('N*s', $du->format(true));
     }
@@ -696,7 +711,10 @@ class DerivedUnitTest extends TestCase
         $pa = new UnitTerm('Pa');
         $j = new UnitTerm('J');
 
-        $du = new DerivedUnit([$pa, $j]);
+        $du = new DerivedUnit([
+            $pa,
+            $j,
+        ]);
 
         $this->assertSame('J*Pa', $du->format(true));
     }
@@ -1443,7 +1461,10 @@ class DerivedUnitTest extends TestCase
         // m and ft are both length (dimension 'L').
         $m = new UnitTerm('m');
         $ft = new UnitTerm('ft');
-        $du = new DerivedUnit([$m, $ft]);
+        $du = new DerivedUnit([
+            $m,
+            $ft,
+        ]);
 
         $this->assertTrue($du->isMergeable());
     }

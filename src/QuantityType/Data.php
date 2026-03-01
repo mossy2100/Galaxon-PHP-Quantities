@@ -34,12 +34,16 @@ class Data extends Quantity
             'bit'  => [
                 'asciiSymbol' => 'b',
                 'prefixGroup' => PrefixService::GROUP_LARGE,
-                'systems'     => [UnitSystem::Common],
+                'systems'     => [
+                    UnitSystem::Common,
+                ],
             ],
             'byte' => [
                 'asciiSymbol' => 'B',
                 'prefixGroup' => PrefixService::GROUP_LARGE,
-                'systems'     => [UnitSystem::Common],
+                'systems'     => [
+                    UnitSystem::Common,
+                ],
             ],
         ];
     }

@@ -269,7 +269,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Transformation methods
+    // region Conversion methods
 
     /**
      * Convert this Quantity to a different unit.
@@ -360,6 +360,10 @@ class Quantity implements Stringable
     {
         return $this->derivedUnit->siExpansionPreferred() ? $this->toSiBase() : $this->toEnglishBase();
     }
+
+    // endregion
+
+    // region Transformation methods
 
     /**
      * Create a new Quantity with the same unit but a different value.
@@ -1090,70 +1094,11 @@ class Quantity implements Stringable
         if ($unit === null) {
             throw new DomainException(
                 "Unknown unit symbol: '$symbol'. Ensure you have loaded the necessary system of units using " .
-                '`UnitService::loadSystem()`.'
+                '`UnitService::loadBySystem()`.'
             );
         }
 
         static::$defaultResultUnitSymbol = $symbol;
-    }
-
-    /**
-     * Check precision argument is valid.
-     *
-     * @param ?int $precision The precision to validate.
-     * @return void
-     * @throws DomainException If precision is negative.
-     */
-    protected static function validatePrecision(?int $precision): void
-    {
-        if ($precision !== null && $precision < 0) {
-            throw new DomainException(
-                "Invalid precision specified; $precision. Must be null or a non-negative integer."
-            );
-        }
-    }
-
-    /**
-     * Validate and transform the 'to' part units array into a list of Units.
-     *
-     * @param ?list<string> $symbols The part unit symbols to validate and transform.
-     * @return list<Unit> The part units.
-     * @throws InvalidArgumentException If any of the symbols are not strings.
-     * @throws DomainException If the array is empty or contains invalid units.
-     */
-    protected static function validatePartUnitSymbols(?array &$symbols): array
-    {
-        // Ensure we have some part units.
-        if (empty($symbols)) {
-            throw new DomainException('The array of part unit symbols must not be empty.');
-        }
-
-        // Ignore keys and duplicates.
-        $symbols = array_values(array_unique($symbols));
-
-        // Create a new array to contain the list of Unit objects.
-        $partUnits = [];
-
-        // Validate each part unit symbol.
-        foreach ($symbols as $partUnitSymbol) {
-            // Check the type.
-            if (!is_string($partUnitSymbol)) {
-                throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
-            }
-
-            // Get the unit.
-            $partUnit = UnitService::getBySymbol($partUnitSymbol);
-            if ($partUnit === null) {
-                throw new DomainException(
-                    "Unknown unit symbol: '$partUnitSymbol'. Ensure you have loaded the necessary system " .
-                    'of units using `UnitService::loadSystem()`.'
-                );
-            }
-
-            $partUnits[] = $partUnit;
-        }
-
-        return $partUnits;
     }
 
     /**
@@ -1192,7 +1137,7 @@ class Quantity implements Stringable
         if ($resultUnit === null) {
             throw new DomainException(
                 "Unknown result unit '$resultUnitSymbol'. Ensure you have loaded the necessary system of " .
-                'units using `UnitService::loadSystem()`.'
+                'units using `UnitService::loadBySystem()`.'
             );
         }
 
@@ -1488,6 +1433,69 @@ class Quantity implements Stringable
 
         // Get the other Quantity in the same unit as this one.
         return $this->derivedUnit->equal($other->derivedUnit) ? $other->value : $other->to($this->derivedUnit)->value;
+    }
+
+    // endregion
+
+    // region Validation methods
+
+    /**
+     * Check precision argument is valid.
+     *
+     * @param ?int $precision The precision to validate.
+     * @return void
+     * @throws DomainException If precision is negative.
+     */
+    protected static function validatePrecision(?int $precision): void
+    {
+        if ($precision !== null && $precision < 0) {
+            throw new DomainException(
+                "Invalid precision specified; $precision. Must be null or a non-negative integer."
+            );
+        }
+    }
+
+    /**
+     * Validate and transform the 'to' part units array into a list of Units.
+     *
+     * @param ?list<string> $symbols The part unit symbols to validate and transform.
+     * @return list<Unit> The part units.
+     * @throws InvalidArgumentException If any of the symbols are not strings.
+     * @throws DomainException If the array is empty or contains invalid units.
+     */
+    protected static function validatePartUnitSymbols(?array &$symbols): array
+    {
+        // Ensure we have some part units.
+        if (empty($symbols)) {
+            throw new DomainException('The array of part unit symbols must not be empty.');
+        }
+
+        // Ignore keys and duplicates.
+        $symbols = array_values(array_unique($symbols));
+
+        // Create a new array to contain the list of Unit objects.
+        $partUnits = [];
+
+        // Validate each part unit symbol.
+        foreach ($symbols as $partUnitSymbol) {
+            // Check the type.
+            if (!is_string($partUnitSymbol)) {
+                throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
+            }
+
+            // Get the unit.
+            $partUnit = UnitService::getBySymbol($partUnitSymbol);
+            if ($partUnit === null) {
+                throw new DomainException(
+                    "Unknown unit symbol: '$partUnitSymbol'. Ensure you have loaded the necessary system " .
+                    'of units using `UnitService::loadBySystem()`.'
+                );
+            }
+
+            $partUnits[] = $partUnit;
+        }
+
+        return $partUnits;
     }
 
     // endregion

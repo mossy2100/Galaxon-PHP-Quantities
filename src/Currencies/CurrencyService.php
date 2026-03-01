@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Currencies;
 
 use DateTime;
+use Galaxon\Core\Stringify;
 use Galaxon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
 use Galaxon\Quantities\QuantityType\Money;
 use Galaxon\Quantities\Services\ConversionService;
@@ -13,6 +14,7 @@ use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use Locale;
 use LogicException;
+use ParseError;
 use RuntimeException;
 use SimpleXMLElement;
 
@@ -25,6 +27,8 @@ class CurrencyService
 
     /**
      * The URL for the official ISO 4217 XML published by SIX Group.
+     *
+     * Note: "currrency" with three r's is SIX Group's actual URL, not a typo in our code.
      */
     private const string ISO_4217_URL =
         'https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml';
@@ -32,17 +36,17 @@ class CurrencyService
     /**
      * The path to the downloaded currencies XML data file.
      */
-    private const string CURRENCIES_XML_FILE = __DIR__ . '/../Currencies/Data/CurrencyData.xml';
+    private const string CURRENCIES_XML_FILE = __DIR__ . '/Data/CurrencyData.xml';
 
     /**
      * The path to the generated Currency unit definitions file.
      */
-    public const string CURRENCY_UNITS_FILE = __DIR__ . '/../Currencies/Data/CurrencyUnits.php';
+    public const string CURRENCY_UNITS_FILE = __DIR__ . '/Data/CurrencyUnits.php';
 
     /**
      * The path to the generated Currency conversion definitions file.
      */
-    public const string CURRENCY_CONVERSIONS_FILE = __DIR__ . '/../Currencies/Data/CurrencyConversions.php';
+    public const string CURRENCY_CONVERSIONS_FILE = __DIR__ . '/Data/CurrencyConversions.php';
 
     /**
      * The date format used for timestamps in generated data files.
@@ -133,16 +137,18 @@ class CurrencyService
     public static function refreshCurrencyUnits(bool $bypassCache = false): bool
     {
         // Try to load the unit data.
-        $unitData = self::loadUnitData();
+        try {
+            $unitData = self::loadUnitData();
+        } catch (ParseError) {
+            // File is corrupted.
+            $unitData = null;
+        }
 
         // Get the current unit definitions.
         $unitDefinitions = $unitData['definitions'] ?? null;
 
         // Get the timestamp when the data was last fetched.
-        $whenFetched = $unitData['whenFetched'] ?? false;
-        if ($whenFetched) {
-            $whenFetched = strtotime($whenFetched);
-        }
+        $whenFetched = isset($unitData['whenFetched']) ? strtotime($unitData['whenFetched']) : false;
         $expired = !$whenFetched || time() > $whenFetched + self::$currenciesTtl;
 
         // See if we can skip the download.
@@ -188,7 +194,9 @@ class CurrencyService
 
             $unitDefinitions[$name] = [
                 'asciiSymbol' => $code,
-                'systems'     => [UnitSystem::Financial],
+                'systems'     => [
+                    UnitSystem::Financial,
+                ],
             ];
         }
 
@@ -209,11 +217,11 @@ class CurrencyService
 
             /**
              * Unit definitions for currencies, based off ISO 4217 currency data.
-             * 
+             *
              * Fetched from
              * $url
              * at $datetime.
-             * 
+             *
              * Auto-generated from the official ISO 4217 XML published by SIX Group.
              *
              * To regenerate, call $className::$methodName().
@@ -232,7 +240,7 @@ class CurrencyService
 
             declare(strict_types=1);
             PHP;
-        $output .= "\n\nreturn " . var_export($unitData, true) . ";\n";
+        $output .= "\n\nreturn " . Stringify::stringify($unitData, true) . ";\n";
 
         // Save it.
         file_put_contents(self::CURRENCY_UNITS_FILE, $output);
@@ -254,16 +262,18 @@ class CurrencyService
         self::ensureExchangeRateServiceConfigured();
 
         // Try to load the conversion data.
-        $conversionData = self::loadConversionData();
+        try {
+            $conversionData = self::loadConversionData();
+        } catch (ParseError) {
+            // File is corrupted.
+            $conversionData = null;
+        }
 
         // Get the current conversion definitions.
         $conversionDefinitions = $conversionData['definitions'] ?? null;
 
         // Get the timestamp when the data was last fetched.
-        $whenFetched = $conversionData['whenFetched'] ?? false;
-        if ($whenFetched) {
-            $whenFetched = strtotime($whenFetched);
-        }
+        $whenFetched = isset($conversionData['whenFetched']) ? strtotime($conversionData['whenFetched']) : false;
         $expired = !$whenFetched || time() > $whenFetched + self::$ratesTtl;
 
         // Get the service name, see if it changed.
@@ -295,21 +305,21 @@ class CurrencyService
 
             /**
              * Conversion definitions for currencies.
-             * 
+             *
              * Fetched from $curServiceName at $datetime.
              *
              * To regenerate, call $className::$methodName().
              *
              * @return array{
-             *     whenFetched: string,             
-             *     serviceName: string,       
+             *     whenFetched: string,
+             *     serviceName: string,
              *     definitions: list<array{string, string, float}>
              * }
              */
 
             declare(strict_types=1);
             PHP;
-        $output .= "\n\nreturn " . var_export($conversionData, true) . ";\n";
+        $output .= "\n\nreturn " . Stringify::stringify($conversionData, true) . ";\n";
 
         // Save it.
         file_put_contents(self::CURRENCY_CONVERSIONS_FILE, $output);
@@ -326,14 +336,18 @@ class CurrencyService
     public static function refresh(): void
     {
         if (self::refreshCurrencyUnits()) {
-            UnitService::unloadSystem(UnitSystem::Financial);
-            UnitService::loadBySystem(UnitSystem::Financial);
+            UnitService::unloadBySystem(UnitSystem::Financial);
         }
 
+        // Load currency units from the (possibly fresh) definitions.
+        UnitService::loadBySystem(UnitSystem::Financial);
+
         if (self::refreshCurrencyConversions()) {
-            ConversionService::unloadSystem(UnitSystem::Financial);
-            ConversionService::loadBySystem(UnitSystem::Financial);
+            ConversionService::unloadBySystem(UnitSystem::Financial);
         }
+
+        // Load currency conversions from the (possibly fresh) definitions.
+        ConversionService::loadDefinitions();
     }
 
     // endregion
@@ -343,7 +357,6 @@ class CurrencyService
     /**
      * Ensure that the exchange rate service is configured.
      *
-     * @return void
      * @throws LogicException If the exchange rate service is not configured.
      */
     public static function ensureExchangeRateServiceConfigured(): void
@@ -382,11 +395,8 @@ class CurrencyService
             QuantityTypeService::add('currency', 'C', Money::class);
         }
 
-        // Refresh units and conversions as needed.
+        // Refresh and load units and conversions as needed.
         self::refresh();
-
-        // Load all currency units and conversions from the (possibly fresh) definitions.
-        UnitService::loadBySystem(UnitSystem::Financial, true);
     }
 
     /**
@@ -395,7 +405,7 @@ class CurrencyService
      * Returns the explicitly set locale, or auto-detects from the HTTP Accept-Language header, falling back to PHP's
      * default locale.
      *
-     * The result is cached in the static $locale property.
+     * If a locale is successfully determined, it is cached in the static $locale property for subsequent calls.
      *
      * @return ?string The locale string, or null if none could be determined.
      */

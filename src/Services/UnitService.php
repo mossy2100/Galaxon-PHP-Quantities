@@ -6,14 +6,13 @@ namespace Galaxon\Quantities\Services;
 
 use DomainException;
 use Galaxon\Core\Arrays;
-use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitSystem;
 
 /**
- * Services of known units.
+ * Service to support management of units used by the package.
  */
 class UnitService
 {
@@ -21,6 +20,7 @@ class UnitService
 
     /**
      * All known/supported units including defaults and custom.
+     * Keys are unit names.
      *
      * @var ?array<string, Unit>
      */
@@ -37,7 +37,11 @@ class UnitService
 
     // region Static accessors
 
-    /** @return list<UnitSystem> */
+    /**
+     * Get the systems of units that have been loaded so far.
+     *
+     * @return list<UnitSystem>
+     */
     public static function getLoadedSystems(): array
     {
         self::init();
@@ -49,9 +53,22 @@ class UnitService
     // region Static methods for unit lookup
 
     /**
+     * Get a unit by its name, or null if not found.
+     *
+     * @param string $name The unit name (e.g. 'meter', 'kilogram').
+     * @return ?Unit The matching unit, or null if not found.
+     */
+    public static function getByName(string $name): ?Unit
+    {
+        self::init();
+        assert(self::$units !== null);
+        return self::$units[$name] ?? null;
+    }
+
+    /**
      * Get the Unit object matching the given symbol, or null if not found.
      *
-     * Supports both the ASCII symbol and the Unicode symbol.
+     * Supports ASCII, Unicode, and alternate symbols, with or without prefixes.
      * Since unit symbols are required to be unique, this method can only match zero or one units.
      *
      * @param string $symbol The unit symbol to search for.
@@ -64,9 +81,7 @@ class UnitService
 
         return array_find(
             self::$units,
-            static fn (Unit $unit) => $unit->asciiSymbol === $symbol ||
-                $unit->unicodeSymbol === $symbol ||
-                $unit->alternateSymbol === $symbol
+            static fn (Unit $unit) => in_array($symbol, array_keys($unit->symbols), true)
         );
     }
 
@@ -82,6 +97,22 @@ class UnitService
         assert(self::$units !== null);
 
         return array_values(array_filter(self::$units, static fn (Unit $unit) => $unit->belongsToSystem($system)));
+    }
+
+    /**
+     * Get all units compatible with the given quantity type.
+     *
+     * @param QuantityType $quantityType The quantity type to match.
+     * @return list<Unit> Units compatible with the given quantity type.
+     */
+    public static function getByQuantityType(QuantityType $quantityType): array
+    {
+        self::init();
+        assert(self::$units !== null);
+
+        return array_values(
+            array_filter(self::$units, static fn (Unit $unit) => $unit->quantityType === $quantityType)
+        );
     }
 
     /**
@@ -128,9 +159,10 @@ class UnitService
      * @param Unit $unit The unit to add.
      * @param bool $replaceExisting Determines action to take if a unit with this name already exists in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
+     * @return bool True if the unit was added, false if it already existed and was not replaced.
      * @throws DomainException If any of the new unit's symbols are equal to any existing unit's symbol.
      */
-    public static function add(Unit $unit, bool $replaceExisting = false): void
+    public static function add(Unit $unit, bool $replaceExisting = false): bool
     {
         // Ensure the registry is initialized (unless we're in the middle of init).
         if (self::$units === null) {
@@ -141,7 +173,7 @@ class UnitService
         if (isset(self::$units[$unit->name])) {
             // Skip if requested.
             if (!$replaceExisting) {
-                return;
+                return false;
             }
 
             // Replace the existing unit. Remove it first, so the call to getAllSymbols() doesn't include the
@@ -163,22 +195,7 @@ class UnitService
 
         // All good, add the unit to the registry.
         self::$units[$unit->name] = $unit;
-    }
-
-    /**
-     * Remove a unit from the system.
-     *
-     * @param Unit $unit The unit to remove.
-     */
-    public static function remove(Unit $unit): void
-    {
-        // If the registry is not initialized yet, do nothing.
-        if (self::$units === null) {
-            return;
-        }
-
-        // Remove the unit from the registry.
-        unset(self::$units[$unit->name]);
+        return true;
     }
 
     /**
@@ -187,10 +204,11 @@ class UnitService
      * @param string $name The unit name.
      * @param array{
      *            asciiSymbol: string,
-     *            unicodeSymbol?: string,
+     *            dimension: string,
+     *            systems?: UnitSystem|list<UnitSystem>,
      *            prefixGroup?: int,
-     *            alternateSymbol?: string,
-     *            systems: list<UnitSystem>
+     *            unicodeSymbol?: string,
+     *            alternateSymbol?: string
      *        } $definition The unit definition.
      * @param bool $replaceExisting Determines action to take if a unit with this name already exists in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
@@ -211,6 +229,37 @@ class UnitService
     }
 
     /**
+     * Remove a unit from the system.
+     *
+     * @param string|Unit $unit The Unit object or the name of the unit to remove.
+     */
+    public static function remove(string|Unit $unit): void
+    {
+        // If the registry is not initialized yet, do nothing.
+        if (self::$units === null) {
+            return;
+        }
+
+        // Get the unit name.
+        $name = is_string($unit) ? $unit : $unit->name;
+
+        // Remove the unit from the registry.
+        unset(self::$units[$name]);
+    }
+
+    /**
+     * Remove all units from the registry.
+     *
+     * This will NOT trigger a re-initialization on next access.
+     * The array would have to be manually rebuilt using init(), loadBySystem(), or add().
+     */
+    public static function removeAll(): void
+    {
+        self::$units = [];
+        self::$loadedSystems = [];
+    }
+
+    /**
      * Reset the registry to its default initial state.
      *
      * It will be re-initialized on next access to the default systems of units.
@@ -218,18 +267,6 @@ class UnitService
     public static function reset(): void
     {
         self::$units = null;
-        self::$loadedSystems = [];
-    }
-
-    /**
-     * Removal all units from the registry.
-     *
-     * This will NOT trigger a re-initialization on next access.
-     * The array would have to be manually rebuilt using init(), loadSystem(), or add().
-     */
-    public static function clear(): void
-    {
-        self::$units = [];
         self::$loadedSystems = [];
     }
 
@@ -259,12 +296,8 @@ class UnitService
             self::$loadedSystems[] = $system;
         }
 
-        // Update the conversion definitions in the Converters, because now a new unit system is loaded, more
-        // conversion definitions will be valid.
-        $converters = Converter::getInstances();
-        foreach ($converters as $converter) {
-            $converter->loadConversionsFromDefinitions();
-        }
+        // Update conversion definitions in the Converters. With new units, more conversion definitions will be valid.
+        ConversionService::loadDefinitions();
     }
 
     /**
@@ -275,7 +308,7 @@ class UnitService
      *
      * @param UnitSystem $system The system of units to unload units for.
      */
-    public static function unloadSystem(UnitSystem $system): void
+    public static function unloadBySystem(UnitSystem $system): void
     {
         // Get all the units of this system.
         $units = self::getBySystem($system);
@@ -318,6 +351,9 @@ class UnitService
             $definition['dimension'] = $quantityType->dimension;
             self::addFromDefinition($name, $definition, $replaceExisting);
         }
+
+        // Update conversion definitions in the Converters. With new units, more conversion definitions will be valid.
+        ConversionService::loadDefinitions();
     }
 
     /**
@@ -338,6 +374,9 @@ class UnitService
 
         // Note all systems have been loaded.
         self::$loadedSystems = UnitSystem::cases();
+
+        // Update conversion definitions in the Converters. With new units, more conversion definitions will be valid.
+        ConversionService::loadDefinitions();
     }
 
     // endregion
@@ -347,13 +386,29 @@ class UnitService
     /**
      * Check if a unit is in the registry.
      *
-     * @param string $name The unit name to check.
+     * @param string|Unit $unit The unit or unit name to check.
      * @return bool True if the unit is in the registry.
      */
-    public static function has(string $name): bool
+    public static function has(string|Unit $unit): bool
     {
         self::init();
+
+        // Get the unit name.
+        $name = is_string($unit) ? $unit : $unit->name;
+
+        // Check if the unit is in the registry.
         return isset(self::$units[$name]);
+    }
+
+    /**
+     * Get the number of units in the registry.
+     *
+     * @return int The number of registered units.
+     */
+    public static function count(): int
+    {
+        self::init();
+        return count(self::$units);
     }
 
     // endregion
@@ -361,14 +416,14 @@ class UnitService
     // region Private static helper methods
 
     /**
-     * Initialize the units array from the QuantityType classes.
+     * Initialize the units array from the QuantityType classes and default UnitSystems.
      *
      * This is called lazily on first access.
      */
     private static function init(): void
     {
         if (self::$units === null) {
-            self::clear();
+            self::removeAll();
 
             // Load the default units.
             foreach (UnitSystem::DEFAULTS as $system) {

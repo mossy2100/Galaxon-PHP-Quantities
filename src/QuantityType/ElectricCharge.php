@@ -34,7 +34,9 @@ class ElectricCharge extends Quantity
             'coulomb' => [
                 'asciiSymbol' => 'C',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
         ];
     }

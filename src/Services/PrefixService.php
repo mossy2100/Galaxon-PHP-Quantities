@@ -65,16 +65,46 @@ class PrefixService
             'quetta' => ['Q', 1e30],
         ],
         self::GROUP_BINARY        => [
-            'kibi'  => ['Ki', 2 ** 10],
-            'mebi'  => ['Mi', 2 ** 20],
-            'gibi'  => ['Gi', 2 ** 30],
-            'tebi'  => ['Ti', 2 ** 40],
-            'pebi'  => ['Pi', 2 ** 50],
-            'exbi'  => ['Ei', 2 ** 60],
-            'zebi'  => ['Zi', 2 ** 70],
-            'yobi'  => ['Yi', 2 ** 80],
-            'robi'  => ['Ri', 2 ** 90],
-            'quebi' => ['Qi', 2 ** 100],
+            'kibi'  => [
+                'Ki',
+                2 ** 10,
+            ],
+            'mebi'  => [
+                'Mi',
+                2 ** 20,
+            ],
+            'gibi'  => [
+                'Gi',
+                2 ** 30,
+            ],
+            'tebi'  => [
+                'Ti',
+                2 ** 40,
+            ],
+            'pebi'  => [
+                'Pi',
+                2 ** 50,
+            ],
+            'exbi'  => [
+                'Ei',
+                2 ** 60,
+            ],
+            'zebi'  => [
+                'Zi',
+                2 ** 70,
+            ],
+            'yobi'  => [
+                'Yi',
+                2 ** 80,
+            ],
+            'robi'  => [
+                'Ri',
+                2 ** 90,
+            ],
+            'quebi' => [
+                'Qi',
+                2 ** 100,
+            ],
         ],
     ];
 
@@ -197,7 +227,7 @@ class PrefixService
      * After calling this method, the next access will NOT trigger re-initialization.
      * It will be necessary to call init() manually to re-initialize the prefixes array.
      */
-    public static function clear(): void
+    public static function removeAll(): void
     {
         self::$prefixes = [];
     }
@@ -215,12 +245,15 @@ class PrefixService
     private static function init(): void
     {
         if (self::$prefixes === null) {
-            self::clear();
+            self::removeAll();
 
             // Create the prefix objects from the definitions and add to the array.
             foreach (self::PREFIX_DEFINITIONS as $groupCode => $groupDefinitions) {
                 foreach ($groupDefinitions as $name => $definition) {
-                    [$asciiSymbol, $multiplier] = $definition;
+                    [
+                        $asciiSymbol,
+                        $multiplier,
+                    ] = $definition;
                     $unicodeSymbol = $definition[2] ?? null;
                     self::$prefixes[] = new Prefix($name, $asciiSymbol, $unicodeSymbol, $multiplier, $groupCode);
                 }
@@ -238,7 +271,12 @@ class PrefixService
      */
     private static function getValidGroupCodes(): array
     {
-        return [self::GROUP_SMALL_METRIC, self::GROUP_MEDIUM_METRIC, self::GROUP_LARGE_METRIC, self::GROUP_BINARY];
+        return [
+            self::GROUP_SMALL_METRIC,
+            self::GROUP_MEDIUM_METRIC,
+            self::GROUP_LARGE_METRIC,
+            self::GROUP_BINARY,
+        ];
     }
 
     // endregion

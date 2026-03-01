@@ -230,17 +230,6 @@ class QuantityTypeService
     }
 
     /**
-     * Remove all quantity types from the registry.
-     *
-     * This will NOT trigger re-initialization from the constant.
-     * The array would have to be manually rebuilt using init() or add().
-     */
-    public static function clear(): void
-    {
-        self::$quantityTypes = [];
-    }
-
-    /**
      * Get all registered quantity types.
      *
      * @return array<string, QuantityType>
@@ -324,6 +313,33 @@ class QuantityTypeService
     }
 
     /**
+     * Set or update the class for an existing quantity type.
+     *
+     * Use this to override the default class for a quantity type or to add a class to a quantity type that doesn't have
+     * one.
+     *
+     * @param string $name The quantity type name.
+     * @param class-string<Quantity> $class The Quantity subclass to use for this dimension.
+     * @throws DomainException If the dimension is not registered, or the class is invalid.
+     */
+    public static function setClass(string $name, string $class): void
+    {
+        self::init();
+
+        // Normalize argument.
+        $name = strtolower($name);
+
+        // Check we have a quantity type with the specified name.
+        $qt = self::$quantityTypes[$name] ?? null;
+        if ($qt === null) {
+            throw new DomainException("Quantity type '$name' not found. Use add() to register a new quantity type.");
+        }
+
+        // Update the class.
+        $qt->class = $class;
+    }
+
+    /**
      * Register a new quantity type for a dimension code.
      *
      * This allows Quantity::create() to instantiate the appropriate subclass based on dimensional analysis.
@@ -380,30 +396,14 @@ class QuantityTypeService
     }
 
     /**
-     * Set or update the class for an existing quantity type.
+     * Remove all quantity types from the registry.
      *
-     * Use this to override the default class for a quantity type or to add a class to a quantity type that doesn't have
-     * one.
-     *
-     * @param string $name The quantity type name.
-     * @param class-string<Quantity> $class The Quantity subclass to use for this dimension.
-     * @throws DomainException If the dimension is not registered, or the class is invalid.
+     * This will NOT trigger re-initialization from the constant.
+     * The array would have to be manually rebuilt using init() or add().
      */
-    public static function setClass(string $name, string $class): void
+    public static function removeAll(): void
     {
-        self::init();
-
-        // Normalize argument.
-        $name = strtolower($name);
-
-        // Check we have a quantity type with the specified name.
-        $qt = self::$quantityTypes[$name] ?? null;
-        if ($qt === null) {
-            throw new DomainException("Quantity type '$name' not found. Use add() to register a new quantity type.");
-        }
-
-        // Update the class.
-        $qt->class = $class;
+        self::$quantityTypes = [];
     }
 
     // endregion

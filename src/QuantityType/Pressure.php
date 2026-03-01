@@ -34,19 +34,27 @@ class Pressure extends Quantity
             'pascal'     => [
                 'asciiSymbol' => 'Pa',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
             'atmosphere' => [
                 'asciiSymbol' => 'atm',
-                'systems'     => [UnitSystem::Scientific],
+                'systems'     => [
+                    UnitSystem::Scientific,
+                ],
             ],
             'mmHg'       => [
                 'asciiSymbol' => 'mmHg',
-                'systems'     => [UnitSystem::Scientific],
+                'systems'     => [
+                    UnitSystem::Scientific,
+                ],
             ],
             'inHg'       => [
                 'asciiSymbol' => 'inHg',
-                'systems'     => [UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::UsCustomary,
+                ],
             ],
         ];
     }

@@ -36,41 +36,63 @@ class Mass extends Quantity
             'gram'      => [
                 'asciiSymbol' => 'g',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
+                'systems'     => [
+                    UnitSystem::Si,
+                ],
             ],
             // SI accepted
             'tonne'     => [
                 'asciiSymbol' => 't',
-                'systems'     => [UnitSystem::SiAccepted],
+                'systems'     => [
+                    UnitSystem::SiAccepted,
+                ],
             ],
             'dalton'    => [
                 'asciiSymbol' => 'Da',
-                'systems'     => [UnitSystem::SiAccepted, UnitSystem::Scientific],
+                'systems'     => [
+                    UnitSystem::SiAccepted,
+                    UnitSystem::Scientific,
+                ],
             ],
             // Imperial and US customary
             'grain'     => [
                 'asciiSymbol' => 'gr',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                    UnitSystem::UsCustomary,
+                ],
             ],
             'ounce'     => [
                 'asciiSymbol' => 'oz',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                    UnitSystem::UsCustomary,
+                ],
             ],
             'pound'     => [
                 'asciiSymbol' => 'lb',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                    UnitSystem::UsCustomary,
+                ],
             ],
             'stone'     => [
                 'asciiSymbol' => 'st',
-                'systems'     => [UnitSystem::Imperial],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                ],
             ],
             'short ton' => [
                 'asciiSymbol' => 'tn',
-                'systems'     => [UnitSystem::UsCustomary],
+                'systems'     => [
+                    UnitSystem::UsCustomary,
+                ],
             ],
             'long ton'  => [
                 'asciiSymbol' => 'LT',
-                'systems'     => [UnitSystem::Imperial],
+                'systems'     => [
+                    UnitSystem::Imperial,
+                ],
             ],
         ];
     }

@@ -38,7 +38,11 @@ enum UnitSystem
     /**
      * The default unit systems that will be lazy-loaded on first use of the UnitService.
      */
-    public const array DEFAULTS = [self::Si, self::SiAccepted, self::Common];
+    public const array DEFAULTS = [
+        self::Si,
+        self::SiAccepted,
+        self::Common,
+    ];
 
     // endregion
 }
