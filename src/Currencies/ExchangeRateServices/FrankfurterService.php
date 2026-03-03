@@ -66,11 +66,7 @@ class FrankfurterService implements ExchangeRateServiceInterface
         // Convert to conversion definitions.
         $conversionDefinitions = [];
         foreach ($rates as $currencyCode => $rate) {
-            $conversionDefinitions[] = [
-                $base,
-                $currencyCode,
-                $rate,
-            ];
+            $conversionDefinitions[] = [$base, $currencyCode, $rate];
         }
         return $conversionDefinitions;
     }

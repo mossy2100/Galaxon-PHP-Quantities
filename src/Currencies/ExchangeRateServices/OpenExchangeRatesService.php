@@ -102,11 +102,7 @@ class OpenExchangeRatesService implements ExchangeRateServiceInterface
         // Convert to conversion definitions.
         $conversionDefinitions = [];
         foreach ($rates as $currencyCode => $rate) {
-            $conversionDefinitions[] = [
-                'USD',
-                $currencyCode,
-                $rate,
-            ];
+            $conversionDefinitions[] = ['USD', $currencyCode, $rate];
         }
         return $conversionDefinitions;
     }

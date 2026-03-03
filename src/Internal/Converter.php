@@ -371,11 +371,7 @@ class Converter
 
         // Initialize the Converter with all conversion definitions for this dimension.
         foreach (
-            $conversionDefinitions as [
-                $srcSymbol,
-                $destSymbol,
-                $factor,
-            ]
+            $conversionDefinitions as [$srcSymbol, $destSymbol, $factor]
         ) {
             // Try to get the units as DerivedUnit objects.
             try {

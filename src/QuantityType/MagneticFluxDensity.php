@@ -34,9 +34,7 @@ class MagneticFluxDensity extends Quantity
             'tesla' => [
                 'asciiSymbol' => 'T',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
         ];
     }

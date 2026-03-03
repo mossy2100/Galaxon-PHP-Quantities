@@ -114,11 +114,7 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
         $conversionDefinitions = [];
         foreach ($quotes as $quoteKey => $rate) {
             $targetCode = substr($quoteKey, self::SOURCE_CODE_LENGTH);
-            $conversionDefinitions[] = [
-                $base,
-                $targetCode,
-                $rate,
-            ];
+            $conversionDefinitions[] = [$base, $targetCode, $rate];
         }
         return $conversionDefinitions;
     }

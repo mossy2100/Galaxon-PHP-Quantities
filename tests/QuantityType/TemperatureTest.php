@@ -597,9 +597,7 @@ final class TemperatureTest extends TestCase
             name: 'dummy temp',
             asciiSymbol: 'degX',
             dimension: 'H',
-            systems: [
-                UnitSystem::Si,
-            ]
+            systems: [UnitSystem::Si]
         );
         UnitService::add($unit);
 

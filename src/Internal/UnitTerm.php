@@ -184,10 +184,7 @@ class UnitTerm implements UnitInterface
         // Look for any matching units.
         foreach (UnitService::getAll() as $unit) {
             if (array_key_exists($symbol, $unit->symbols)) {
-                [
-                    $unitSymbol,
-                    $prefixSymbol,
-                ] = $unit->symbols[$symbol];
+                [$unitSymbol, $prefixSymbol] = $unit->symbols[$symbol];
                 return new self($unitSymbol, $prefixSymbol);
             }
         }

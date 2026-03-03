@@ -37,16 +37,12 @@ class Frequency extends Quantity
             'hertz'     => [
                 'asciiSymbol' => 'Hz',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
             'becquerel' => [
                 'asciiSymbol' => 'Bq',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
         ];
     }

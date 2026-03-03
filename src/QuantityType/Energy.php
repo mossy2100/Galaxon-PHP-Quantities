@@ -34,30 +34,21 @@ class Energy extends Quantity
             'joule'                => [
                 'asciiSymbol' => 'J',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
             'electronvolt'         => [
                 'asciiSymbol' => 'eV',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::SiAccepted,
-                    UnitSystem::Scientific,
-                ],
+                'systems'     => [UnitSystem::SiAccepted, UnitSystem::Scientific],
             ],
             'calorie'              => [
                 'asciiSymbol' => 'cal',
                 'prefixGroup' => PrefixService::GROUP_LARGE_METRIC,
-                'systems'     => [
-                    UnitSystem::Common,
-                ],
+                'systems'     => [UnitSystem::Common],
             ],
             'British thermal unit' => [
                 'asciiSymbol' => 'Btu',
-                'systems'     => [
-                    UnitSystem::UsCustomary,
-                ],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
         ];
     }

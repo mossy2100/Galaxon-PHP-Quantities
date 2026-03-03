@@ -34,9 +34,7 @@ class LuminousIntensity extends Quantity
             'candela' => [
                 'asciiSymbol' => 'cd',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
         ];
     }

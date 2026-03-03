@@ -35,59 +35,41 @@ class Volume extends Quantity
             'liter'                => [
                 'asciiSymbol' => 'L',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::SiAccepted,
-                ],
+                'systems'     => [UnitSystem::SiAccepted],
             ],
             // US customary volume units
             'US fluid ounce'       => [
                 'asciiSymbol' => 'US fl oz',
-                'systems'     => [
-                    UnitSystem::UsCustomary,
-                ],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             'US pint'              => [
                 'asciiSymbol' => 'US pt',
-                'systems'     => [
-                    UnitSystem::UsCustomary,
-                ],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             'US quart'             => [
                 'asciiSymbol' => 'US qt',
-                'systems'     => [
-                    UnitSystem::UsCustomary,
-                ],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             'US gallon'            => [
                 'asciiSymbol' => 'US gal',
-                'systems'     => [
-                    UnitSystem::UsCustomary,
-                ],
+                'systems'     => [UnitSystem::UsCustomary],
             ],
             // Imperial volume units
             'imperial fluid ounce' => [
                 'asciiSymbol' => 'imp fl oz',
-                'systems'     => [
-                    UnitSystem::Imperial,
-                ],
+                'systems'     => [UnitSystem::Imperial],
             ],
             'imperial pint'        => [
                 'asciiSymbol' => 'imp pt',
-                'systems'     => [
-                    UnitSystem::Imperial,
-                ],
+                'systems'     => [UnitSystem::Imperial],
             ],
             'imperial quart'       => [
                 'asciiSymbol' => 'imp qt',
-                'systems'     => [
-                    UnitSystem::Imperial,
-                ],
+                'systems'     => [UnitSystem::Imperial],
             ],
             'imperial gallon'      => [
                 'asciiSymbol' => 'imp gal',
-                'systems'     => [
-                    UnitSystem::Imperial,
-                ],
+                'systems'     => [UnitSystem::Imperial],
             ],
         ];
     }

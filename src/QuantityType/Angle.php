@@ -64,45 +64,33 @@ class Angle extends Quantity
             'radian'    => [
                 'asciiSymbol' => 'rad',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
             'degree'    => [
                 'asciiSymbol'   => 'deg',
                 'unicodeSymbol' => '°',
-                'systems'       => [
-                    UnitSystem::SiAccepted,
-                ],
+                'systems'       => [UnitSystem::SiAccepted],
             ],
             'arcminute' => [
                 'asciiSymbol'     => 'arcmin',
                 'unicodeSymbol'   => '′',
                 'alternateSymbol' => "'",
-                'systems'         => [
-                    UnitSystem::SiAccepted,
-                ],
+                'systems'         => [UnitSystem::SiAccepted],
             ],
             'arcsecond' => [
                 'asciiSymbol'     => 'arcsec',
                 'unicodeSymbol'   => '″',
                 'alternateSymbol' => '"',
                 'prefixGroup'     => PrefixService::GROUP_SMALL_METRIC,
-                'systems'         => [
-                    UnitSystem::SiAccepted,
-                ],
+                'systems'         => [UnitSystem::SiAccepted],
             ],
             'gradian'   => [
                 'asciiSymbol' => 'grad',
-                'systems'     => [
-                    UnitSystem::Common,
-                ],
+                'systems'     => [UnitSystem::Common],
             ],
             'turn'      => [
                 'asciiSymbol' => 'turn',
-                'systems'     => [
-                    UnitSystem::Common,
-                ],
+                'systems'     => [UnitSystem::Common],
             ],
         ];
     }
@@ -116,11 +104,7 @@ class Angle extends Quantity
     public static function getConversionDefinitions(): array
     {
         return [
-            [
-                'turn',
-                'rad',
-                Floats::TAU,
-            ],
+            ['turn', 'rad', Floats::TAU],
             ['turn', 'deg', 360],
             ['deg', 'arcmin', 60],
             ['arcmin', 'arcsec', 60],

@@ -185,9 +185,7 @@ class Unit implements UnitInterface
 
         // Convert a single UnitSystem value to an array.
         if ($systems instanceof UnitSystem) {
-            $systems = [
-                $systems,
-            ];
+            $systems = [$systems];
         }
         // Make sure the $systems array is a non-empty array of UnitSystem values.
         if (empty($systems)) {
@@ -462,10 +460,7 @@ class Unit implements UnitInterface
      */
     private static function addSymbol(array &$symbols, string $symbol, ?string $prefix = null): void
     {
-        $symbols[$prefix . $symbol] = [
-            $symbol,
-            $prefix,
-        ];
+        $symbols[$prefix . $symbol] = [$symbol, $prefix];
     }
 
     // endregion

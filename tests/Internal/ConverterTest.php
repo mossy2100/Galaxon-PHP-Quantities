@@ -220,9 +220,7 @@ class ConverterTest extends TestCase
             name: 'isolated length',
             asciiSymbol: 'Xu',
             dimension: 'L',
-            systems: [
-                UnitSystem::Si,
-            ]
+            systems: [UnitSystem::Si]
         );
         UnitService::add($unit);
 
@@ -295,9 +293,7 @@ class ConverterTest extends TestCase
             name: 'isolated length two',
             asciiSymbol: 'Yu',
             dimension: 'L',
-            systems: [
-                UnitSystem::Si,
-            ]
+            systems: [UnitSystem::Si]
         );
         UnitService::add($unit);
 
@@ -418,9 +414,7 @@ class ConverterTest extends TestCase
             name: 'isolated length three',
             asciiSymbol: 'Wu',
             dimension: 'L',
-            systems: [
-                UnitSystem::Si,
-            ]
+            systems: [UnitSystem::Si]
         );
         UnitService::add($unit);
 
@@ -671,15 +665,9 @@ class ConverterTest extends TestCase
         Converter::clearInstances();
 
         // Create custom units.
-        $tx = new Unit('test x', 'Tx', 'L', systems: [
-            UnitSystem::Si,
-        ]);
-        $ty = new Unit('test y', 'Ty', 'L', systems: [
-            UnitSystem::Si,
-        ]);
-        $tz = new Unit('test z', 'Tz', 'L', systems: [
-            UnitSystem::Si,
-        ]);
+        $tx = new Unit('test x', 'Tx', 'L', systems: [UnitSystem::Si]);
+        $ty = new Unit('test y', 'Ty', 'L', systems: [UnitSystem::Si]);
+        $tz = new Unit('test z', 'Tz', 'L', systems: [UnitSystem::Si]);
 
         // Register custom units.
         UnitService::add($tx);
@@ -724,15 +712,9 @@ class ConverterTest extends TestCase
         QuantityTypeService::add('hypertest', $dimension, UnregisteredQuantity::class);
 
         // Create custom units.
-        $oppA = new Unit('opp a', 'Oa', $dimension, systems: [
-            UnitSystem::Si,
-        ]);
-        $oppB = new Unit('opp b', 'Ob', $dimension, systems: [
-            UnitSystem::Si,
-        ]);
-        $oppC = new Unit('opp c', 'Oc', $dimension, systems: [
-            UnitSystem::Si,
-        ]);
+        $oppA = new Unit('opp a', 'Oa', $dimension, systems: [UnitSystem::Si]);
+        $oppB = new Unit('opp b', 'Ob', $dimension, systems: [UnitSystem::Si]);
+        $oppC = new Unit('opp c', 'Oc', $dimension, systems: [UnitSystem::Si]);
 
         // Register exactly three units in this dimension.
         UnitService::add($oppA);

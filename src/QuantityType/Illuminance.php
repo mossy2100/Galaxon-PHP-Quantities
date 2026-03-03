@@ -34,9 +34,7 @@ class Illuminance extends Quantity
             'lux' => [
                 'asciiSymbol' => 'lx',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
         ];
     }

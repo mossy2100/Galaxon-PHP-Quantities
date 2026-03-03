@@ -34,9 +34,7 @@ class Power extends Quantity
             'watt' => [
                 'asciiSymbol' => 'W',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
         ];
     }

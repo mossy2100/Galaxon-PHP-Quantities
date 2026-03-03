@@ -34,9 +34,7 @@ class LuminousFlux extends Quantity
             'lumen' => [
                 'asciiSymbol' => 'lm',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
         ];
     }

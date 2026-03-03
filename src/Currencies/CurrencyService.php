@@ -194,9 +194,7 @@ class CurrencyService
 
             $unitDefinitions[$name] = [
                 'asciiSymbol' => $code,
-                'systems'     => [
-                    UnitSystem::Financial,
-                ],
+                'systems'     => [UnitSystem::Financial],
             ];
         }
 

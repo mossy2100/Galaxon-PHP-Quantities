@@ -34,9 +34,7 @@ class ElectricCurrent extends Quantity
             'ampere' => [
                 'asciiSymbol' => 'A',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [
-                    UnitSystem::Si,
-                ],
+                'systems'     => [UnitSystem::Si],
             ],
         ];
     }

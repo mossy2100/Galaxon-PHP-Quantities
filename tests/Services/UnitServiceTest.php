@@ -314,9 +314,7 @@ final class UnitServiceTest extends TestCase
             name: 'testunitadd',
             asciiSymbol: 'tua',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ],
+            systems: [UnitSystem::Common],
             unicodeSymbol: 'τ'  // Greek letter (valid Unicode character)
         );
 
@@ -342,9 +340,7 @@ final class UnitServiceTest extends TestCase
             name: 'newunitohm',
             asciiSymbol: 'nuo',
             dimension: 'T-3L2MI-2',
-            systems: [
-                UnitSystem::Common,
-            ],
+            systems: [UnitSystem::Common],
             unicodeSymbol: 'Ω'  // Conflicts with ohm's Unicode symbol
         ));
     }
@@ -358,9 +354,7 @@ final class UnitServiceTest extends TestCase
             name: 'fullunitparams',
             asciiSymbol: 'fup',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ],
+            systems: [UnitSystem::Common],
             prefixGroup: PrefixService::GROUP_METRIC,
             unicodeSymbol: 'φ'  // Greek letter (valid Unicode letter)
         );
@@ -387,9 +381,7 @@ final class UnitServiceTest extends TestCase
             name: $name,
             asciiSymbol: $symbol,
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ],
+            systems: [UnitSystem::Common],
             prefixGroup: PrefixService::GROUP_METRIC,
             unicodeSymbol: 'φ'
         ));
@@ -410,9 +402,7 @@ final class UnitServiceTest extends TestCase
             name: 'autoinitunit',
             asciiSymbol: 'aiu',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ]
+            systems: [UnitSystem::Common]
         );
 
         UnitService::add($unit);
@@ -437,9 +427,7 @@ final class UnitServiceTest extends TestCase
             name: $name,
             asciiSymbol: 'rpt',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ]
+            systems: [UnitSystem::Common]
         );
         UnitService::add($unit);
         $this->assertSame('rpt', UnitService::getAll()[$name]->asciiSymbol);
@@ -450,9 +438,7 @@ final class UnitServiceTest extends TestCase
             name: $name,
             asciiSymbol: 'rpx',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ]
+            systems: [UnitSystem::Common]
         );
         UnitService::add($replacement, true);
 
@@ -475,9 +461,7 @@ final class UnitServiceTest extends TestCase
             name: $name,
             asciiSymbol: 'rpt',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ]
+            systems: [UnitSystem::Common]
         );
         UnitService::add($unit);
         $this->assertSame('rpt', UnitService::getAll()[$name]->asciiSymbol);
@@ -488,9 +472,7 @@ final class UnitServiceTest extends TestCase
             name: $name,
             asciiSymbol: 'rpx',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ]
+            systems: [UnitSystem::Common]
         ));
 
         // Should have the old symbol.
@@ -514,9 +496,7 @@ final class UnitServiceTest extends TestCase
             name: 'removetest',
             asciiSymbol: 'rmt',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ],
+            systems: [UnitSystem::Common],
             unicodeSymbol: 'ρ'  // Greek letter
         );
         UnitService::add($unit);
@@ -543,9 +523,7 @@ final class UnitServiceTest extends TestCase
             name: 'nonexistent_unit_xyz',
             asciiSymbol: 'nex',
             dimension: 'L',
-            systems: [
-                UnitSystem::Common,
-            ]
+            systems: [UnitSystem::Common]
         );
         UnitService::remove($unit);
 
@@ -566,9 +544,7 @@ final class UnitServiceTest extends TestCase
             name: 'meter',
             asciiSymbol: 'm',
             dimension: 'L',
-            systems: [
-                UnitSystem::Si,
-            ]
+            systems: [UnitSystem::Si]
         );
         UnitService::remove($unit);
 

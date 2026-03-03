@@ -45,11 +45,7 @@ class ConversionService
     {
         // Scan all existing definitions for any that match the specified system.
         foreach (
-            self::getAllDefinitions() as [
-                $srcSymbol,
-                $destSymbol,
-                $factor,
-            ]
+            self::getAllDefinitions() as [$srcSymbol, $destSymbol, $factor]
         ) {
             // Try to get the source unit as a DerivedUnit object. This will validate the provided value.
             try {
@@ -166,10 +162,7 @@ class ConversionService
      */
     public static function get(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
     {
-        [
-            $srcUnit,
-            $destUnit,
-        ] = self::validateUnits($srcUnit, $destUnit);
+        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
         $converter = Converter::getInstance($srcUnit->dimension);
         return $converter->getConversion($srcUnit, $destUnit);
     }
@@ -205,10 +198,7 @@ class ConversionService
      */
     public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
     {
-        [
-            $srcUnit,
-            $destUnit,
-        ] = self::validateUnits($srcUnit, $destUnit);
+        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
         $converter = Converter::getInstance($srcUnit->dimension);
         return $converter->convert($value, $srcUnit, $destUnit);
     }
@@ -227,10 +217,7 @@ class ConversionService
      */
     public static function find(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
     {
-        [
-            $srcUnit,
-            $destUnit,
-        ] = self::validateUnits($srcUnit, $destUnit);
+        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
         $converter = Converter::getInstance($srcUnit->dimension);
         return $converter->findConversion($srcUnit, $destUnit);
     }
@@ -246,10 +233,7 @@ class ConversionService
      */
     public static function findFactor(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?float
     {
-        [
-            $srcUnit,
-            $destUnit,
-        ] = self::validateUnits($srcUnit, $destUnit);
+        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
         $converter = Converter::getInstance($srcUnit->dimension);
         return $converter->findConversionFactor($srcUnit, $destUnit);
     }
@@ -279,10 +263,7 @@ class ConversionService
             );
         }
 
-        return [
-            $srcUnit,
-            $destUnit,
-        ];
+        return [$srcUnit, $destUnit];
     }
 
     // endregion

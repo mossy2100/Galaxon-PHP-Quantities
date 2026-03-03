@@ -32,9 +32,7 @@ class Velocity extends Quantity
         return [
             'knot' => [
                 'asciiSymbol' => 'kn',
-                'systems'     => [
-                    UnitSystem::Nautical,
-                ],
+                'systems'     => [UnitSystem::Nautical],
             ],
         ];
     }
