@@ -46,16 +46,22 @@ class FrankfurterService implements ExchangeRateServiceInterface
     {
         $response = @file_get_contents(self::API_URL);
         if ($response === false) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Failed to fetch exchange rates from Frankfurter API.');
+            // @codeCoverageIgnoreEnd
         }
 
         $data = json_decode($response, true);
         if (!is_array($data)) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Invalid JSON response from Frankfurter API.');
+            // @codeCoverageIgnoreEnd
         }
 
         if (!isset($data['rates']) || !is_array($data['rates'])) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Missing or invalid rates in Frankfurter API response.');
+            // @codeCoverageIgnoreEnd
         }
 
         $base = $data['base'] ?? 'EUR';

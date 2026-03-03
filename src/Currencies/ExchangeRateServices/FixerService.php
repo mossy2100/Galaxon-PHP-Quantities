@@ -77,22 +77,30 @@ class FixerService implements ExchangeRateServiceInterface
 
         $response = @file_get_contents($url);
         if ($response === false) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Failed to fetch exchange rates from Fixer.io API.');
+            // @codeCoverageIgnoreEnd
         }
 
         $data = json_decode($response, true);
         if (!is_array($data)) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Invalid JSON response from Fixer.io API.');
+            // @codeCoverageIgnoreEnd
         }
 
         // Check for API error response.
         if (isset($data['success']) && $data['success'] === false) {
+            // @codeCoverageIgnoreStart
             $message = $data['error']['info'] ?? 'Unknown error';
             throw new RuntimeException("Fixer.io API error: $message");
+            // @codeCoverageIgnoreEnd
         }
 
         if (!isset($data['rates']) || !is_array($data['rates'])) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Missing or invalid rates in Fixer.io API response.');
+            // @codeCoverageIgnoreEnd
         }
 
         $base = $data['base'] ?? 'EUR';

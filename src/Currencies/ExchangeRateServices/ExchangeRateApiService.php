@@ -81,22 +81,30 @@ class ExchangeRateApiService implements ExchangeRateServiceInterface
 
         $response = @file_get_contents($url);
         if ($response === false) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Failed to fetch exchange rates from ExchangeRate-API.');
+            // @codeCoverageIgnoreEnd
         }
 
         $data = json_decode($response, true);
         if (!is_array($data)) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Invalid JSON response from ExchangeRate-API.');
+            // @codeCoverageIgnoreEnd
         }
 
         // Check for API error response.
         if (isset($data['result']) && $data['result'] === 'error') {
+            // @codeCoverageIgnoreStart
             $message = $data['error-type'] ?? 'Unknown error';
             throw new RuntimeException("ExchangeRate-API error: $message");
+            // @codeCoverageIgnoreEnd
         }
 
         if (!isset($data['conversion_rates']) || !is_array($data['conversion_rates'])) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Missing or invalid rates in ExchangeRate-API response.');
+            // @codeCoverageIgnoreEnd
         }
 
         $base = $data['base_code'] ?? 'USD';

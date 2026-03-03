@@ -34,19 +34,9 @@ class CurrencyService
         'https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml';
 
     /**
-     * The path to the downloaded currencies XML data file.
+     * The default data directory path.
      */
-    private const string CURRENCIES_XML_FILE = __DIR__ . '/Data/CurrencyData.xml';
-
-    /**
-     * The path to the generated Currency unit definitions file.
-     */
-    public const string CURRENCY_UNITS_FILE = __DIR__ . '/Data/CurrencyUnits.php';
-
-    /**
-     * The path to the generated Currency conversion definitions file.
-     */
-    public const string CURRENCY_CONVERSIONS_FILE = __DIR__ . '/Data/CurrencyConversions.php';
+    public const string DEFAULT_DATA_DIR = __DIR__ . '/data';
 
     /**
      * The date format used for timestamps in generated data files.
@@ -75,6 +65,11 @@ class CurrencyService
     // region Private static properties
 
     /**
+     * The directory where currency data files are stored.
+     */
+    private static string $dataDir = self::DEFAULT_DATA_DIR;
+
+    /**
      * The TTL for currencies, in seconds. Defaults to 30 days.
      */
     private static int $currenciesTtl = 2592000;
@@ -98,11 +93,12 @@ class CurrencyService
      */
     public static function loadUnitData(): ?array
     {
-        if (!file_exists(self::CURRENCY_UNITS_FILE)) {
+        $path = self::getUnitsFilePath();
+        if (!file_exists($path)) {
             return null;
         }
 
-        return require self::CURRENCY_UNITS_FILE;
+        return require $path;
     }
 
     /**
@@ -116,11 +112,12 @@ class CurrencyService
      */
     public static function loadConversionData(): ?array
     {
-        if (!file_exists(self::CURRENCY_CONVERSIONS_FILE)) {
+        $path = self::getConversionsFilePath();
+        if (!file_exists($path)) {
             return null;
         }
 
-        return require self::CURRENCY_CONVERSIONS_FILE;
+        return require $path;
     }
 
     /**
@@ -139,9 +136,11 @@ class CurrencyService
         // Try to load the unit data.
         try {
             $unitData = self::loadUnitData();
+            // @codeCoverageIgnoreStart
         } catch (ParseError) {
             // File is corrupted.
             $unitData = null;
+            // @codeCoverageIgnoreEnd
         }
 
         // Get the current unit definitions.
@@ -159,16 +158,20 @@ class CurrencyService
         // Fetch the official ISO 4217 XML.
         $xmlContent = @file_get_contents(self::ISO_4217_URL);
         if ($xmlContent === false) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Failed to fetch ISO 4217 XML from ' . self::ISO_4217_URL);
+            // @codeCoverageIgnoreEnd
         }
 
         // Save the XML for reference, it's useful for debugging.
-        file_put_contents(self::CURRENCIES_XML_FILE, $xmlContent);
+        file_put_contents(self::getXmlFilePath(), $xmlContent);
 
         // Convert to SimpleXML.
         $xml = @simplexml_load_string($xmlContent);
         if (!$xml instanceof SimpleXMLElement) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Failed to parse ISO 4217 XML.');
+            // @codeCoverageIgnoreEnd
         }
 
         $unitDefinitions = [];
@@ -241,7 +244,7 @@ class CurrencyService
         $output .= "\n\nreturn " . Stringify::stringify($unitData, true) . ";\n";
 
         // Save it.
-        file_put_contents(self::CURRENCY_UNITS_FILE, $output);
+        file_put_contents(self::getUnitsFilePath(), $output);
 
         return true;
     }
@@ -262,9 +265,11 @@ class CurrencyService
         // Try to load the conversion data.
         try {
             $conversionData = self::loadConversionData();
+            // @codeCoverageIgnoreStart
         } catch (ParseError) {
             // File is corrupted.
             $conversionData = null;
+            // @codeCoverageIgnoreEnd
         }
 
         // Get the current conversion definitions.
@@ -320,7 +325,7 @@ class CurrencyService
         $output .= "\n\nreturn " . Stringify::stringify($conversionData, true) . ";\n";
 
         // Save it.
-        file_put_contents(self::CURRENCY_CONVERSIONS_FILE, $output);
+        file_put_contents(self::getConversionsFilePath(), $output);
 
         return true;
     }
@@ -351,6 +356,56 @@ class CurrencyService
     // endregion
 
     // region Configuration
+
+    /**
+     * Set the data directory for currency data files.
+     *
+     * @param string $dataDir The directory path.
+     */
+    public static function setDataDir(string $dataDir): void
+    {
+        self::$dataDir = rtrim($dataDir, '/');
+    }
+
+    /**
+     * Get the current data directory path.
+     *
+     * @return string The directory path.
+     */
+    public static function getDataDir(): string
+    {
+        return self::$dataDir;
+    }
+
+    /**
+     * Get the path to the currency units data file.
+     *
+     * @return string The file path.
+     */
+    public static function getUnitsFilePath(): string
+    {
+        return self::$dataDir . '/CurrencyUnits.php';
+    }
+
+    /**
+     * Get the path to the currency conversions data file.
+     *
+     * @return string The file path.
+     */
+    public static function getConversionsFilePath(): string
+    {
+        return self::$dataDir . '/CurrencyConversions.php';
+    }
+
+    /**
+     * Get the path to the downloaded currencies XML file.
+     *
+     * @return string The file path.
+     */
+    private static function getXmlFilePath(): string
+    {
+        return self::$dataDir . '/CurrencyData.xml';
+    }
 
     /**
      * Ensure that the exchange rate service is configured.
@@ -415,6 +470,7 @@ class CurrencyService
         }
 
         // Try to detect from the HTTP Accept-Language header.
+        // @codeCoverageIgnoreStart
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $detected = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
             if ($detected !== false) {
@@ -422,6 +478,7 @@ class CurrencyService
                 return self::$locale;
             }
         }
+        // @codeCoverageIgnoreEnd
 
         // Fall back to PHP's default locale.
         $default = Locale::getDefault();

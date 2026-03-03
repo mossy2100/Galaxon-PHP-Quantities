@@ -1,0 +1,6 @@
+{
+    "exchangeRateApi": "your-api-key-here",
+    "openExchangeRates": "your-app-id-here",
+    "currencyLayer": "your-access-key-here",
+    "fixer": "your-access-key-here"
+}

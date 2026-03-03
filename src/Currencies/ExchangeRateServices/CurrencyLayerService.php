@@ -86,22 +86,30 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
 
         $response = @file_get_contents($url);
         if ($response === false) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Failed to fetch exchange rates from CurrencyLayer API.');
+            // @codeCoverageIgnoreEnd
         }
 
         $data = json_decode($response, true);
         if (!is_array($data)) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Invalid JSON response from CurrencyLayer API.');
+            // @codeCoverageIgnoreEnd
         }
 
         // Check for API error response.
         if (isset($data['success']) && $data['success'] === false) {
+            // @codeCoverageIgnoreStart
             $message = $data['error']['info'] ?? 'Unknown error';
             throw new RuntimeException("CurrencyLayer API error: $message");
+            // @codeCoverageIgnoreEnd
         }
 
         if (!isset($data['quotes']) || !is_array($data['quotes'])) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException('Missing or invalid quotes in CurrencyLayer API response.');
+            // @codeCoverageIgnoreEnd
         }
 
         $base = $data['source'] ?? 'USD';
