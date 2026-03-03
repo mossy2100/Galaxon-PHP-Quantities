@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Internal;
 
-use DomainException;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Tests\Fixtures\UnregisteredQuantity;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -104,7 +104,7 @@ final class QuantityTypeTest extends TestCase
     {
         $qtyType = new QuantityType('test', 'L9', UnregisteredQuantity::class);
 
-        $this->expectException(DomainException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
         // @phpstan-ignore assign.propertyType
@@ -118,7 +118,7 @@ final class QuantityTypeTest extends TestCase
     {
         $qtyType = new QuantityType('test', 'L9', UnregisteredQuantity::class);
 
-        $this->expectException(DomainException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
         $qtyType->class = Quantity::class;
@@ -131,7 +131,7 @@ final class QuantityTypeTest extends TestCase
     {
         $qtyType = new QuantityType('test', 'L9', UnregisteredQuantity::class);
 
-        $this->expectException(DomainException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
         // @phpstan-ignore assign.propertyType
@@ -143,7 +143,7 @@ final class QuantityTypeTest extends TestCase
      */
     public function testConstructorThrowsForInvalidClass(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
         // @phpstan-ignore argument.type

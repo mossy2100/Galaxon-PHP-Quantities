@@ -9,8 +9,8 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Time;
+use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\Tests\Fixtures\BadUnitPartsQuantity;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  * Tests for parts-related methods on Quantity objects.
  */
 #[CoversClass(Quantity::class)]
+#[CoversClass(QuantityPartsService::class)]
 final class QuantityPartsTest extends TestCase
 {
     // region toParts() tests
@@ -228,7 +229,7 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('The array of part unit symbols must not be empty.');
 
-        // Base Quantity class has empty $defaultPartUnitSymbols.
+        // Base Quantity class has no default part unit symbols.
         $qty = Quantity::create(100, 'kg*m/s2');
         $qty->toParts();
     }
@@ -262,19 +263,20 @@ final class QuantityPartsTest extends TestCase
      */
     public function testToPartsWithUnknownUnitInDefaultThrowsException(): void
     {
-        // Temporarily register the fixture class for time.
-        QuantityTypeService::setClass('time', BadUnitPartsQuantity::class);
+        // Temporarily set bad partUnitSymbols on the time QuantityType.
+        $qtyType = QuantityTypeService::getByName('time');
+        $this->assertNotNull($qtyType);
+        $original = $qtyType->partUnitSymbols;
+        $qtyType->partUnitSymbols = ['h', 'min', 'xyz'];
 
         try {
             $this->expectException(DomainException::class);
             $this->expectExceptionMessage("Unknown unit symbol: 'xyz'");
 
-            // BadUnitPartsQuantity has 'xyz' in its default part unit symbols.
-            $qty = new BadUnitPartsQuantity(100, 's');
-            $qty->toParts();
+            $time = new Time(100, 's');
+            $time->toParts();
         } finally {
-            // Restore the original Time class.
-            QuantityTypeService::setClass('time', Time::class);
+            $qtyType->partUnitSymbols = $original;
         }
     }
 
@@ -287,7 +289,10 @@ final class QuantityPartsTest extends TestCase
      */
     public function testGetDefaultPartUnitSymbolsTime(): void
     {
-        $this->assertSame(['y', 'mo', 'w', 'd', 'h', 'min', 's'], Time::getDefaultPartUnitSymbols());
+        $this->assertSame(
+            ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
+            QuantityPartsService::getDefaultPartUnitSymbols(Time::class)
+        );
     }
 
     /**
@@ -295,15 +300,18 @@ final class QuantityPartsTest extends TestCase
      */
     public function testGetDefaultPartUnitSymbolsAngle(): void
     {
-        $this->assertSame(['deg', 'arcmin', 'arcsec'], Angle::getDefaultPartUnitSymbols());
+        $this->assertSame(
+            ['deg', 'arcmin', 'arcsec'],
+            QuantityPartsService::getDefaultPartUnitSymbols(Angle::class)
+        );
     }
 
     /**
-     * Test getDefaultPartUnitSymbols() returns empty array for base Quantity.
+     * Test getDefaultPartUnitSymbols() returns null for base Quantity.
      */
     public function testGetDefaultPartUnitSymbolsBaseQuantity(): void
     {
-        $this->assertSame([], Quantity::getDefaultPartUnitSymbols());
+        $this->assertNull(QuantityPartsService::getDefaultPartUnitSymbols(Quantity::class));
     }
 
     /**
@@ -311,12 +319,16 @@ final class QuantityPartsTest extends TestCase
      */
     public function testSetDefaultPartUnitSymbols(): void
     {
-        $original = Time::getDefaultPartUnitSymbols();
+        $original = QuantityPartsService::getDefaultPartUnitSymbols(Time::class);
+        $this->assertNotNull($original);
         try {
-            Time::setDefaultPartUnitSymbols(['h', 'min', 's']);
-            $this->assertSame(['h', 'min', 's'], Time::getDefaultPartUnitSymbols());
+            QuantityPartsService::setDefaultPartUnitSymbols(Time::class, ['h', 'min', 's']);
+            $this->assertSame(
+                ['h', 'min', 's'],
+                QuantityPartsService::getDefaultPartUnitSymbols(Time::class)
+            );
         } finally {
-            Time::setDefaultPartUnitSymbols($original);
+            QuantityPartsService::setDefaultPartUnitSymbols(Time::class, $original);
         }
     }
 
@@ -325,12 +337,16 @@ final class QuantityPartsTest extends TestCase
      */
     public function testSetDefaultPartUnitSymbolsDeduplicates(): void
     {
-        $original = Time::getDefaultPartUnitSymbols();
+        $original = QuantityPartsService::getDefaultPartUnitSymbols(Time::class);
+        $this->assertNotNull($original);
         try {
-            Time::setDefaultPartUnitSymbols(['h', 'min', 'h', 's']);
-            $this->assertSame(['h', 'min', 's'], Time::getDefaultPartUnitSymbols());
+            QuantityPartsService::setDefaultPartUnitSymbols(Time::class, ['h', 'min', 'h', 's']);
+            $this->assertSame(
+                ['h', 'min', 's'],
+                QuantityPartsService::getDefaultPartUnitSymbols(Time::class)
+            );
         } finally {
-            Time::setDefaultPartUnitSymbols($original);
+            QuantityPartsService::setDefaultPartUnitSymbols(Time::class, $original);
         }
     }
 
@@ -342,7 +358,7 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('The array of part unit symbols must not be empty.');
 
-        Time::setDefaultPartUnitSymbols([]);
+        QuantityPartsService::setDefaultPartUnitSymbols(Time::class, []);
     }
 
     /**
@@ -353,7 +369,7 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must contain only strings');
 
-        Time::setDefaultPartUnitSymbols(['h', 42]); // @phpstan-ignore argument.type
+        QuantityPartsService::setDefaultPartUnitSymbols(Time::class, ['h', 42]); // @phpstan-ignore argument.type
     }
 
     /**
@@ -364,7 +380,7 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Unknown unit symbol: 'xyz'.");
 
-        Time::setDefaultPartUnitSymbols(['h', 'xyz']);
+        QuantityPartsService::setDefaultPartUnitSymbols(Time::class, ['h', 'xyz']);
     }
 
     // endregion
@@ -376,7 +392,7 @@ final class QuantityPartsTest extends TestCase
      */
     public function testGetDefaultResultUnitSymbolTime(): void
     {
-        $this->assertSame('s', Time::getDefaultResultUnitSymbol());
+        $this->assertSame('s', QuantityPartsService::getDefaultResultUnitSymbol(Time::class));
     }
 
     /**
@@ -384,15 +400,15 @@ final class QuantityPartsTest extends TestCase
      */
     public function testGetDefaultResultUnitSymbolAngle(): void
     {
-        $this->assertSame('deg', Angle::getDefaultResultUnitSymbol());
+        $this->assertSame('deg', QuantityPartsService::getDefaultResultUnitSymbol(Angle::class));
     }
 
     /**
-     * Test getDefaultResultUnitSymbol() returns empty string for base Quantity.
+     * Test getDefaultResultUnitSymbol() returns null for base Quantity.
      */
     public function testGetDefaultResultUnitSymbolBaseQuantity(): void
     {
-        $this->assertSame('', Quantity::getDefaultResultUnitSymbol());
+        $this->assertNull(QuantityPartsService::getDefaultResultUnitSymbol(Quantity::class));
     }
 
     /**
@@ -400,12 +416,13 @@ final class QuantityPartsTest extends TestCase
      */
     public function testSetDefaultResultUnitSymbol(): void
     {
-        $original = Time::getDefaultResultUnitSymbol();
+        $original = QuantityPartsService::getDefaultResultUnitSymbol(Time::class);
+        $this->assertNotNull($original);
         try {
-            Time::setDefaultResultUnitSymbol('min');
-            $this->assertSame('min', Time::getDefaultResultUnitSymbol());
+            QuantityPartsService::setDefaultResultUnitSymbol(Time::class, 'min');
+            $this->assertSame('min', QuantityPartsService::getDefaultResultUnitSymbol(Time::class));
         } finally {
-            Time::setDefaultResultUnitSymbol($original);
+            QuantityPartsService::setDefaultResultUnitSymbol(Time::class, $original);
         }
     }
 
@@ -417,7 +434,7 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Unknown unit symbol: 'xyz'.");
 
-        Time::setDefaultResultUnitSymbol('xyz');
+        QuantityPartsService::setDefaultResultUnitSymbol(Time::class, 'xyz');
     }
 
     // endregion

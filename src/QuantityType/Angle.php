@@ -26,24 +26,6 @@ class Angle extends Quantity
 
     // endregion
 
-    // region Static properties
-
-    /**
-     * Default part unit symbols for output methods.
-     *
-     * @var list<string>
-     */
-    protected static array $defaultPartUnitSymbols = ['deg', 'arcmin', 'arcsec'];
-
-    /**
-     * Default result unit symbol for input methods.
-     *
-     * @var string
-     */
-    protected static string $defaultResultUnitSymbol = 'deg';
-
-    // endregion
-
     // region Overridden methods
 
     /**

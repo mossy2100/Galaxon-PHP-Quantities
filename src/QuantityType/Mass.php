@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use Override;
@@ -111,8 +112,8 @@ class Mass extends Quantity
         UnitService::loadBySystem(UnitSystem::Imperial);
 
         // The long ton and stone are in use, but the grain is not.
-        self::setDefaultPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
-        self::setDefaultResultUnitSymbol('lb');
+        QuantityPartsService::setDefaultPartUnitSymbols(self::class, ['LT', 'st', 'lb', 'oz']);
+        QuantityPartsService::setDefaultResultUnitSymbol(self::class, 'lb');
     }
 
     /**
@@ -123,8 +124,8 @@ class Mass extends Quantity
         UnitService::loadBySystem(UnitSystem::UsCustomary);
 
         // The short ton and grain are in use, but the stone is not.
-        self::setDefaultPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
-        self::setDefaultResultUnitSymbol('lb');
+        QuantityPartsService::setDefaultPartUnitSymbols(self::class, ['tn', 'lb', 'oz', 'gr']);
+        QuantityPartsService::setDefaultResultUnitSymbol(self::class, 'lb');
     }
 
     // endregion

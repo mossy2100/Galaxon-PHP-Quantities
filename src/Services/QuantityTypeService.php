@@ -59,7 +59,12 @@ class QuantityTypeService
      * - 'dimension': The dimension of the physical quantity
      * - 'class': The QuantityType class (if one exists)
      *
-     * @var array<string, array{dimension: string, class?: class-string<Quantity>}>
+     * @var array<string, array{
+     *     dimension: string,
+     *     class: class-string<Quantity>,
+     *     partUnitSymbols?: list<string>,
+     *     resultUnitSymbol?: string,
+     * }>
      * @see DimensionService
      */
     private const array QUANTITY_TYPES = [
@@ -71,16 +76,20 @@ class QuantityTypeService
 
         // Base dimensions
         'length'                => [
-            'dimension' => 'L',
-            'class'     => Length::class,
+            'dimension'        => 'L',
+            'class'            => Length::class,
+            'partUnitSymbols'  => ['mi', 'yd', 'ft', 'in'],
+            'resultUnitSymbol' => 'ft',
         ],
         'mass'                  => [
             'dimension' => 'M',
             'class'     => Mass::class,
         ],
         'time'                  => [
-            'dimension' => 'T',
-            'class'     => Time::class,
+            'dimension'        => 'T',
+            'class'            => Time::class,
+            'partUnitSymbols'  => ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
+            'resultUnitSymbol' => 's',
         ],
         'electric current'      => [
             'dimension' => 'I',
@@ -99,8 +108,10 @@ class QuantityTypeService
             'class'     => LuminousIntensity::class,
         ],
         'angle'                 => [
-            'dimension' => 'A',
-            'class'     => Angle::class,
+            'dimension'        => 'A',
+            'class'            => Angle::class,
+            'partUnitSymbols'  => ['deg', 'arcmin', 'arcsec'],
+            'resultUnitSymbol' => 'deg',
         ],
         'data'                  => [
             'dimension' => 'D',
@@ -305,9 +316,7 @@ class QuantityTypeService
 
         $classes = [];
         foreach (self::$quantityTypes as $quantityType) {
-            if ($quantityType->class !== null) {
-                $classes[] = $quantityType->class;
-            }
+            $classes[] = $quantityType->class;
         }
         return $classes;
     }
@@ -422,7 +431,13 @@ class QuantityTypeService
 
             // Convert info in constant into an array of objects.
             foreach (self::QUANTITY_TYPES as $name => $info) {
-                self::$quantityTypes[$name] = new QuantityType($name, $info['dimension'], $info['class']);
+                self::$quantityTypes[$name] = new QuantityType(
+                    $name,
+                    $info['dimension'],
+                    $info['class'],
+                    $info['partUnitSymbols'] ?? null,
+                    $info['resultUnitSymbol'] ?? null,
+                );
             }
         }
     }

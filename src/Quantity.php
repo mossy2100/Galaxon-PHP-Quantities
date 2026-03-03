@@ -20,6 +20,7 @@ use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\QuantityTypeService;
+use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use InvalidArgumentException;
@@ -64,20 +65,6 @@ class Quantity implements Stringable
      */
     private static bool $allowConstruct = false;
 
-    /**
-     * Default part unit symbols for output methods.
-     *
-     * @var list<string>
-     */
-    protected static array $defaultPartUnitSymbols = [];
-
-    /**
-     * Default result unit symbol for input methods.
-     *
-     * @var string
-     */
-    protected static string $defaultResultUnitSymbol = '';
-
     // endregion
 
     // region Instance properties
@@ -115,7 +102,7 @@ class Quantity implements Stringable
      * @var ?QuantityType
      */
     public ?QuantityType $type {
-        get => QuantityTypeService::getByDimension($this->dimension);
+        get => static::getType();
     }
 
     // endregion
@@ -265,6 +252,24 @@ class Quantity implements Stringable
     {
         // Delegate to the ConversionService.
         return ConversionService::convert($value, $srcUnit, $destUnit);
+    }
+
+    // endregion
+
+    // region Static access methods
+
+    /**
+     * Get the quantity type for this Quantity subclass.
+     *
+     * Static equivalent to the $type property.
+     *
+     * This method will return null if called on Quantity itself or if the subclass is not registered.
+     *
+     * @return ?QuantityType The quantity type, or null if not registered.
+     */
+    public static function getType(): ?QuantityType
+    {
+        return QuantityTypeService::getByClass(static::class);
     }
 
     // endregion
@@ -757,14 +762,13 @@ class Quantity implements Stringable
     /**
      * Invert this Quantity (1/x) or divide a scalar by this Quantity (n/x).
      *
-     * @param float $dividend The dividend of the division (1 by default).
      * @return self A new Quantity with the value and unit inverted.
      * @throws DivisionByZeroError If the value is zero.
      * @example
      *   $length = new Length(10, 'm');
      *   $inv = $length->inv();  // Length(0.1, 'm^-1')
      */
-    public function inv(float $dividend = 1.0): self
+    public function inv(): self
     {
         // Guards.
         if ($this->value === 0.0) {
@@ -772,7 +776,7 @@ class Quantity implements Stringable
         }
 
         // Invert the value and unit.
-        return self::create($dividend / $this->value, $this->derivedUnit->inv());
+        return self::create(1.0 / $this->value, $this->derivedUnit->inv());
     }
 
     /**
@@ -879,6 +883,7 @@ class Quantity implements Stringable
      * @return self A new Quantity parsed from the string.
      * @throws FormatException If the string format is invalid.
      * @throws DomainException If the string contains unknown units.
+     * @throws UnexpectedValueException
      * @example
      *   Length::parse("123.45 km")  // Length(123.45, 'km')
      *   Angle::parse("90deg")       // Angle(90.0, 'deg')
@@ -930,7 +935,7 @@ class Quantity implements Stringable
      * @return string The formatted value string.
      * @throws DomainException If the specifier or precision is invalid.
      */
-    private static function formatValue(
+    public static function formatValue(
         float $value,
         string $specifier = 'f',
         ?int $precision = null,
@@ -1045,141 +1050,21 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Part-related methods
+    // region Parts-related methods
 
     /**
-     * Get the default part unit symbols for output methods.
-     *
-     * @return list<string>
-     */
-    public static function getDefaultPartUnitSymbols(): array
-    {
-        return static::$defaultPartUnitSymbols;
-    }
-
-    /**
-     * Set the default part unit symbols for output methods.
-     *
-     * @param list<string> $symbols The unit symbols.
-     * @throw DomainException If the array is empty or contains unknown or invalid unit symbols.
-     * @throw InvalidArgumentException If the array contains non-string items.
-     */
-    public static function setDefaultPartUnitSymbols(array $symbols): void
-    {
-        self::validatePartUnitSymbols($symbols);
-        assert(is_array($symbols));
-        static::$defaultPartUnitSymbols = $symbols;
-    }
-
-    /**
-     * Get the default result unit symbol for input methods.
-     *
-     * @return string
-     */
-    public static function getDefaultResultUnitSymbol(): string
-    {
-        return static::$defaultResultUnitSymbol;
-    }
-
-    /**
-     * Set the default result unit symbol for input methods.
-     *
-     * @param string $symbol The unit symbol.
-     * @throw DomainException If the unit is unknown.
-     */
-    public static function setDefaultResultUnitSymbol(string $symbol): void
-    {
-        // Check the unit is valid.
-        $unit = UnitService::getBySymbol($symbol);
-        if ($unit === null) {
-            throw new DomainException(
-                "Unknown unit symbol: '$symbol'. Ensure you have loaded the necessary system of units using " .
-                '`UnitService::loadBySystem()`.'
-            );
-        }
-
-        static::$defaultResultUnitSymbol = $symbol;
-    }
-
-    /**
-     * Create a new Quantity object (of the derived type) as a sum of measurements of different units.
-     *
-     * If the calling class is registered as a quantity type, the input and result units must be compatible.
-     *
-     * This method can be called from Quantity rather than a subclass. The only requirement is that the
-     * parts unit symbols specified in the $parts array have the same dimension as the result unit.
-     *
-     * The $parts array may include an optional 'sign' key to indicate the sign of the sum, which can be 1
-     * (non-negative) or -1 (negative). If omitted, the sign is assumed to be 1.
-     *
-     * Part values may be positive or negative, but if you specify a sign of -1, the Quantity will be negated after all
-     * parts are summed.
+     * Create a new Quantity object as a sum of measurements of different units.
      *
      * @param array<string, int|float> $parts The parts.
      * @param ?string $resultUnitSymbol The unit to use for the resulting quantity, or null for default.
      * @return static A new Quantity representing the sum of the parts.
-     * @throws InvalidArgumentException|TypeError If any of the unit symbols are not strings, or any of the values are
-     * not numbers.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not numbers.
      * @throws DomainException If the result unit symbol or sign is invalid.
+     * @see QuantityPartsService::fromParts()
      */
     public static function fromParts(array $parts, ?string $resultUnitSymbol = null): static
     {
-        // Get the default result unit symbol if not provided.
-        if ($resultUnitSymbol === null) {
-            $resultUnitSymbol = static::$defaultResultUnitSymbol;
-        }
-
-        // Validate the result unit.
-        if (empty($resultUnitSymbol)) {
-            throw new DomainException('No result unit symbol provided and no default set.');
-        }
-        $resultUnit = UnitService::getBySymbol($resultUnitSymbol);
-        if ($resultUnit === null) {
-            throw new DomainException(
-                "Unknown result unit '$resultUnitSymbol'. Ensure you have loaded the necessary system of " .
-                'units using `UnitService::loadBySystem()`.'
-            );
-        }
-
-        // Check the result unit dimension if possible. We can only do this if the calling class is registered as a
-        // quantity type, which isn't a strict requirement for calling this method.
-        // If the input units are incompatible with the result unit, the call to add() will throw an exception anyway.
-        $qtyType = QuantityTypeService::getByClass(static::class);
-        if ($qtyType !== null && $qtyType->dimension !== $resultUnit->dimension) {
-            throw new DomainException(
-                "Result unit '$resultUnitSymbol' is incompatible with " . $qtyType->name . ' quantities.'
-            );
-        }
-
-        // Validate the sign.
-        $sign = 1;
-        if (isset($parts['sign'])) {
-            $sign = $parts['sign'];
-            if ($sign !== -1 && $sign !== 1) {
-                throw new DomainException("Invalid sign: $sign. Must be -1 or 1.");
-            }
-        }
-
-        // Initialize the Quantity to 0, with the unit set to the result unit.
-        $qty = self::create(0, $resultUnit);
-
-        // Add each of the possible units.
-        foreach ($parts as $partUnitSymbol => $partValue) {
-            // Skip sign.
-            if ($partUnitSymbol === 'sign') {
-                continue;
-            }
-
-            // Add the part. It will be converted to the result unit automatically.
-            // If the value or unit is invalid, this will throw an exception.
-            $qty = $qty->add($partValue, $partUnitSymbol);
-        }
-
-        // Make negative if necessary.
-        if ($sign === -1) {
-            $qty = $qty->neg();
-        }
-
+        $qty = QuantityPartsService::fromParts(static::class, $parts, $resultUnitSymbol);
         assert($qty instanceof static);
         return $qty;
     }
@@ -1187,171 +1072,43 @@ class Quantity implements Stringable
     /**
      * Convert the quantity to parts.
      *
-     * Returns an array with components from the largest to the smallest unit.
-     * All the part values will be integers except for the smallest unit value.
-     * A sign key is also included with an integer value of 1 for positive or zero, or -1 for negative.
-     *
      * @param ?list<string> $partUnitSymbols Array of symbols indicating units to include, or null for default.
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws DomainException If any arguments are invalid.
+     * @see QuantityPartsService::toParts()
      */
     public function toParts(?array $partUnitSymbols = null, ?int $precision = null): array
     {
-        // Get the default part unit symbols if not provided.
-        if ($partUnitSymbols === null) {
-            $partUnitSymbols = static::$defaultPartUnitSymbols;
-        }
-
-        // Validate args.
-        $partUnits = static::validatePartUnitSymbols($partUnitSymbols);
-        static::validatePrecision($precision);
-
-        // Initialize the result array.
-        $parts = [
-            'sign' => Numbers::sign($this->value, false),
-        ];
-
-        // Initialize the remainder to the source value converted to the smallest unit.
-        assert(is_array($partUnitSymbols));
-        $nUnits = count($partUnitSymbols);
-        $smallestUnitSymbol = $partUnitSymbols[$nUnits - 1];
-        $rem = abs($this->to($smallestUnitSymbol)->value);
-
-        // Get the integer parts.
-        for ($i = 0; $i < $nUnits - 1; $i++) {
-            // Get the number of current units in the smallest unit.
-            $partUnitSymbol = $partUnitSymbols[$i];
-            $factor = static::convert(1, $partUnits[$i], $smallestUnitSymbol);
-            $wholeNumCurUnit = (int)floor($rem / $factor);
-            $parts[$partUnitSymbol] = $wholeNumCurUnit;
-            $rem = $rem - $wholeNumCurUnit * $factor;
-        }
-
-        // If the precision is unspecified, we're done.
-        if ($precision === null) {
-            $parts[$smallestUnitSymbol] = $rem;
-            return $parts;
-        }
-
-        // Round off the remainder to the requested precision.
-        $rem2 = round($rem, $precision);
-        $parts[$smallestUnitSymbol] = $rem2;
-
-        // If the rounding doesn't increase the remainder, we're done.
-        if ($rem2 <= $rem) {
-            return $parts;
-        }
-
-        // If the rounding does increase the remainder, then rounding up one or more larger parts may be necessary.
-        // To account for non-integer conversion factors, rebuild the parts array.
-        // We call toParts() with $precision = null to avoid infinite recursion.
-        $rebuilt = static::fromParts($parts, $smallestUnitSymbol)->toParts($partUnitSymbols);
-        $rebuilt[$smallestUnitSymbol] = round($rebuilt[$smallestUnitSymbol], $precision);
-        return $rebuilt;
+        return QuantityPartsService::toParts($this, $partUnitSymbols, $precision);
     }
 
     /**
      * Parse a string of quantity parts.
-     *
-     * Examples:
-     *    - "4y 5mo 6d 12h 34min 56.789s"
-     *    - "12° 34′ 56.789″"
      *
      * @param string $input The string to parse.
      * @param ?string $resultUnitSymbol The unit to use for the resulting quantity, or null for default.
      * @return static A new Quantity representing the sum of the parts.
      * @throws FormatException If the input string is invalid.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
+     * @see QuantityPartsService::parseParts()
      */
     public static function parseParts(string $input, ?string $resultUnitSymbol = null): static
     {
-        // Ensure the input string is not empty.
-        $input = trim($input);
-        if ($input === '') {
-            throw new FormatException('The input string is empty.');
-        }
-
-        // Get the default result unit symbol if not provided.
-        if ($resultUnitSymbol === null) {
-            $resultUnitSymbol = static::$defaultResultUnitSymbol;
-        }
-
-        // Validate the result unit.
-        if (empty($resultUnitSymbol)) {
-            throw new DomainException('No result unit symbol provided and no default set.');
-        }
-
-        // Prepare an error message with the original value.
-        $qtyType = QuantityTypeService::getByClass(static::class);
-        $name = $qtyType === null ? '' : (' ' . $qtyType->name);
-        $err = "The provided string '$input' does not represent a valid$name quantity.";
-
-        // Allow for a string with multiple parts, e.g. "12h 34min 56.789s"
-        // In this format there can be no spaces between values and units.
-        $parts = [];
-        $stringParts = preg_split('/\s+/', $input);
-        if ($stringParts === false) {
-            // @codeCoverageIgnoreStart
-            throw new UnexpectedValueException('Error splitting string into parts.');
-            // @codeCoverageIgnoreEnd
-        }
-
-        // Collect the parts.
-        $sign = 1;
-        $firstPartSeen = false;
-        foreach ($stringParts as $stringPart) {
-            // Check the part looks like a quantity.
-            if (!RegexService::isValidQuantity($stringPart, $m) || empty($m[2])) {
-                throw new FormatException($err);
-            }
-
-            // Check the sign.
-            $partValue = (float)$m[1];
-            if ($partValue < 0) {
-                if (!$firstPartSeen) {
-                    $sign = -1;
-                } else {
-                    throw new FormatException(
-                        'In a string with multiple quantity parts, only the first may be negative.'
-                    );
-                }
-            }
-
-            // Add the part to the result array.
-            $partValue = abs($partValue);
-            $partSymbol = $m[2];
-            $parts[$partSymbol] = $partValue;
-
-            if (!$firstPartSeen) {
-                $firstPartSeen = true;
-            }
-        }
-
-        // Add the sign part.
-        $parts['sign'] = $sign;
-
-        // Construct the new Quantity from the extracted parts.
-        return static::fromParts($parts, $resultUnitSymbol);
+        $qty = QuantityPartsService::parseParts(static::class, $input, $resultUnitSymbol);
+        assert($qty instanceof static);
+        return $qty;
     }
 
     /**
      * Format quantity as parts.
-     *
-     * Examples:
-     *   - "4y 5mo 6d 12h 34min 56.789s"
-     *   - "12° 34′ 56.789″"
-     *
-     * Only the smallest unit may have a decimal point. Larger units will be integers.
-     *
-     * Note, if $showZeros is false, then any parts with zero values will not be included in the result string, unless
-     * the quantity value is 0, in which case the result will be 0 of the smallest unit, e.g. "0s" or "0ft".
      *
      * @param ?list<string> $partUnitSymbols Array of symbols indicating units to include, or null for default.
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
      * @return string The formatted string.
+     * @see QuantityPartsService::formatParts()
      */
     public function formatParts(
         ?array $partUnitSymbols = null,
@@ -1359,48 +1116,7 @@ class Quantity implements Stringable
         bool $showZeros = false,
         bool $ascii = false
     ): string {
-        // Get the default part unit symbols if not provided.
-        if ($partUnitSymbols === null) {
-            $partUnitSymbols = static::$defaultPartUnitSymbols;
-        }
-
-        // Get the quantity as parts. This will validate the arguments.
-        $parts = $this->toParts($partUnitSymbols, $precision);
-
-        // Prep.
-        $result = [];
-
-        // Generate string as parts for all but the smallest unit.
-        $nUnits = count($partUnitSymbols);
-        for ($i = 0; $i < $nUnits - 1; $i++) {
-            $symbol = $partUnitSymbols[$i];
-            $unit = UnitService::getBySymbol($symbol);
-            assert($unit instanceof Unit);
-            $value = $parts[$symbol] ?? 0;
-
-            // Skip zeros if requested.
-            if (Numbers::equal($value, 0) && !$showZeros) {
-                continue;
-            }
-
-            // Format the part with no space between the value and unit.
-            $result[] = $value . $unit->format($ascii);
-        }
-
-        // Add the smallest unit.
-        $symbol = $partUnitSymbols[$nUnits - 1];
-        $unit = UnitService::getBySymbol($symbol);
-        assert($unit instanceof Unit);
-        $value = $parts[$symbol] ?? 0;
-        $roundedValue = $precision === null ? $value : round($value, $precision);
-
-        // Skip unless we're showing zeros or the value is non-zero.
-        if ($showZeros || $roundedValue !== 0.0 || empty($result)) {
-            $result[] = self::formatValue($value, 'f', $precision, $ascii) . $unit->format($ascii);
-        }
-
-        // Return a string of units, separated by spaces. Prepend minus sign if negative.
-        return ($parts['sign'] === -1 ? '-' : '') . implode(' ', $result);
+        return QuantityPartsService::formatParts($this, $partUnitSymbols, $precision, $showZeros, $ascii);
     }
 
     // endregion
@@ -1433,69 +1149,6 @@ class Quantity implements Stringable
 
         // Get the other Quantity in the same unit as this one.
         return $this->derivedUnit->equal($other->derivedUnit) ? $other->value : $other->to($this->derivedUnit)->value;
-    }
-
-    // endregion
-
-    // region Validation methods
-
-    /**
-     * Check precision argument is valid.
-     *
-     * @param ?int $precision The precision to validate.
-     * @return void
-     * @throws DomainException If precision is negative.
-     */
-    protected static function validatePrecision(?int $precision): void
-    {
-        if ($precision !== null && $precision < 0) {
-            throw new DomainException(
-                "Invalid precision specified; $precision. Must be null or a non-negative integer."
-            );
-        }
-    }
-
-    /**
-     * Validate and transform the 'to' part units array into a list of Units.
-     *
-     * @param ?list<string> $symbols The part unit symbols to validate and transform.
-     * @return list<Unit> The part units.
-     * @throws InvalidArgumentException If any of the symbols are not strings.
-     * @throws DomainException If the array is empty or contains invalid units.
-     */
-    protected static function validatePartUnitSymbols(?array &$symbols): array
-    {
-        // Ensure we have some part units.
-        if (empty($symbols)) {
-            throw new DomainException('The array of part unit symbols must not be empty.');
-        }
-
-        // Ignore keys and duplicates.
-        $symbols = array_values(array_unique($symbols));
-
-        // Create a new array to contain the list of Unit objects.
-        $partUnits = [];
-
-        // Validate each part unit symbol.
-        foreach ($symbols as $partUnitSymbol) {
-            // Check the type.
-            if (!is_string($partUnitSymbol)) {
-                throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
-            }
-
-            // Get the unit.
-            $partUnit = UnitService::getBySymbol($partUnitSymbol);
-            if ($partUnit === null) {
-                throw new DomainException(
-                    "Unknown unit symbol: '$partUnitSymbol'. Ensure you have loaded the necessary system " .
-                    'of units using `UnitService::loadBySystem()`.'
-                );
-            }
-
-            $partUnits[] = $partUnit;
-        }
-
-        return $partUnits;
     }
 
     // endregion

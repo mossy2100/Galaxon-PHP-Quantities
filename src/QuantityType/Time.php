@@ -17,24 +17,6 @@ use Override;
  */
 class Time extends Quantity
 {
-    // region Static properties
-
-    /**
-     * Default part unit symbols for output methods.
-     *
-     * @var list<string>
-     */
-    protected static array $defaultPartUnitSymbols = ['y', 'mo', 'w', 'd', 'h', 'min', 's'];
-
-    /**
-     * Default part unit symbols for input methods.
-     *
-     * @var string
-     */
-    protected static string $defaultResultUnitSymbol = 's';
-
-    // endregion
-
     // region Overridden methods
 
     /**

@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Quantity;
 
 use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Energy;
 use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Frequency;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
+use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -467,6 +470,130 @@ final class QuantityTransformTest extends TestCase
         // Dimensionless quantities have no unit to prefix.
         $this->assertSame(1000.0, $prefixed->value);
         $this->assertSame('', $prefixed->derivedUnit->asciiSymbol);
+    }
+
+    // endregion
+
+    // region toEnglishBase() tests
+
+    /**
+     * Test toEnglishBase() converts force to lb*ft/s2.
+     */
+    public function testToEnglishBaseForce(): void
+    {
+        $force = new Force(1, 'lbf');
+        $english = $force->toEnglishBase();
+
+        $this->assertSame('lb*ft/s2', $english->derivedUnit->asciiSymbol);
+        // 1 lbf = 1 lb * 32.174049... ft/s2 (standard gravity in ft/s2)
+        $this->assertApproxEqual(32.174049, $english->value, 1e-3);
+    }
+
+    /**
+     * Test toEnglishBase() converts length to feet.
+     */
+    public function testToEnglishBaseLength(): void
+    {
+        $length = new Length(1, 'mi');
+        $english = $length->toEnglishBase();
+
+        $this->assertSame('ft', $english->derivedUnit->asciiSymbol);
+        $this->assertSame(5280.0, $english->value);
+    }
+
+    /**
+     * Test toEnglishBase() on mass converts to pounds.
+     */
+    public function testToEnglishBaseMass(): void
+    {
+        $mass = new Mass(1, 'kg');
+        $english = $mass->toEnglishBase();
+
+        $this->assertSame('lb', $english->derivedUnit->asciiSymbol);
+        $this->assertApproxEqual(2.20462262, $english->value, 1e-5);
+    }
+
+    /**
+     * Test toEnglishBase() on angle converts to degrees.
+     */
+    public function testToEnglishBaseAngle(): void
+    {
+        $angle = new Angle(M_PI, 'rad');
+        $english = $angle->toEnglishBase();
+
+        $this->assertSame('deg', $english->derivedUnit->asciiSymbol);
+        $this->assertApproxEqual(180.0, $english->value);
+    }
+
+    /**
+     * Test toEnglishBase() on time stays in seconds (no English override).
+     */
+    public function testToEnglishBaseTimeFallsBackToSi(): void
+    {
+        $time = new Time(1, 'h');
+        $english = $time->toEnglishBase();
+
+        // Time has no English base unit, falls back to SI (seconds).
+        $this->assertSame('s', $english->derivedUnit->asciiSymbol);
+        $this->assertSame(3600.0, $english->value);
+    }
+
+    /**
+     * Test toEnglishBase() when already in English base unit.
+     */
+    public function testToEnglishBaseAlreadyBase(): void
+    {
+        $length = new Length(10, 'ft');
+        $english = $length->toEnglishBase();
+
+        $this->assertSame('ft', $english->derivedUnit->asciiSymbol);
+        $this->assertSame(10.0, $english->value);
+    }
+
+    // endregion
+
+    // region getType() tests
+
+    /**
+     * Test getType() returns QuantityType for a registered subclass.
+     */
+    public function testGetTypeReturnsQuantityType(): void
+    {
+        $type = Length::getType();
+
+        $this->assertInstanceOf(QuantityType::class, $type);
+        $this->assertSame('length', $type->name);
+        $this->assertSame('L', $type->dimension);
+        $this->assertSame(Length::class, $type->class);
+    }
+
+    /**
+     * Test getType() returns null for base Quantity class.
+     */
+    public function testGetTypeReturnsNullForBaseQuantity(): void
+    {
+        $this->assertNull(Quantity::getType());
+    }
+
+    /**
+     * Test $type property matches getType() on an instance.
+     */
+    public function testTypePropertyMatchesGetType(): void
+    {
+        $length = new Length(1, 'm');
+
+        $this->assertSame(Length::getType(), $length->type);
+    }
+
+    /**
+     * Test $type property is null for unregistered compound quantity.
+     */
+    public function testTypePropertyNullForUnregisteredDimension(): void
+    {
+        // A compound unit with no registered quantity type.
+        $qty = Quantity::create(1, 'kg*m3');
+
+        $this->assertNull($qty->type);
     }
 
     // endregion

@@ -262,6 +262,18 @@ final class QuantityCreateTest extends TestCase
     }
 
     /**
+     * Test that calling a subclass constructor with an unregistered dimension throws an exception.
+     */
+    public function testWrongConstructorUnregisteredDimensionThrowsException(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage("quantity with dimension");
+
+        // kg*m3 has dimension ML3 which is not registered as any quantity type.
+        new Length(1, 'kg*m3');
+    }
+
+    /**
      * Test that calling `new Quantity()` directly throws an exception.
      */
     public function testDirectQuantityConstructorThrowsException(): void

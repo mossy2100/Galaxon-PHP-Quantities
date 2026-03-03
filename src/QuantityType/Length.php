@@ -14,24 +14,6 @@ use Override;
  */
 class Length extends Quantity
 {
-    // region Static properties
-
-    /**
-     * Default part unit symbols for output methods.
-     *
-     * @var list<string>
-     */
-    protected static array $defaultPartUnitSymbols = ['mi', 'yd', 'ft', 'in'];
-
-    /**
-     * Default part unit symbols for input methods.
-     *
-     * @var string
-     */
-    protected static string $defaultResultUnitSymbol = 'ft';
-
-    // endregion
-
     // region Overridden methods
 
     /**
