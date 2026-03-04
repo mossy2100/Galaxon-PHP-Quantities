@@ -142,7 +142,7 @@ class CurrencyServiceTest extends TestCase
 
         // Check that some well-known currencies are present by symbol.
         $symbols = array_map(
-            fn(array $def) => $def['asciiSymbol'],
+            static fn (array $def) => $def['asciiSymbol'],
             $data['definitions']
         );
 

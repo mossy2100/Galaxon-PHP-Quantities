@@ -108,7 +108,8 @@ class QuantityPartsService
      * @param array<string, int|float> $parts The parts.
      * @param ?string $resultUnitSymbol The unit to use for the resulting quantity, or null for default.
      * @return Quantity A new Quantity representing the sum of the parts.
-     * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not numbers.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
+     * numbers.
      * @throws DomainException If the result unit symbol or sign is invalid.
      */
     public static function fromParts(string $class, array $parts, ?string $resultUnitSymbol = null): Quantity
@@ -183,11 +184,8 @@ class QuantityPartsService
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws DomainException If any arguments are invalid.
      */
-    public static function toParts(
-        Quantity $quantity,
-        ?array $partUnitSymbols = null,
-        ?int $precision = null
-    ): array {
+    public static function toParts(Quantity $quantity, ?array $partUnitSymbols = null, ?int $precision = null): array
+    {
         // Get the default part unit symbols if not provided.
         if ($partUnitSymbols === null) {
             $partUnitSymbols = self::getDefaultPartUnitSymbols($quantity::class);

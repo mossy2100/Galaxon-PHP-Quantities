@@ -57,6 +57,53 @@ class ConverterTest extends TestCase
 
     // endregion
 
+    // region getInstances() tests
+
+    /**
+     * Test getInstances returns all cached Converter instances.
+     */
+    public function testGetInstancesReturnsAllCachedConverters(): void
+    {
+        Converter::clearInstances();
+
+        $this->assertEmpty(Converter::getInstances());
+
+        $length = Converter::getInstance('L');
+        $time = Converter::getInstance('T');
+
+        $instances = Converter::getInstances();
+
+        $this->assertCount(2, $instances);
+        $this->assertSame($length, $instances['L']);
+        $this->assertSame($time, $instances['T']);
+    }
+
+    // endregion
+
+    // region removeInstance() tests
+
+    /**
+     * Test removeInstance removes a single cached Converter.
+     */
+    public function testRemoveInstanceRemovesCachedConverter(): void
+    {
+        Converter::clearInstances();
+
+        Converter::getInstance('L');
+        Converter::getInstance('T');
+
+        $this->assertCount(2, Converter::getInstances());
+
+        Converter::removeInstance('L');
+
+        $instances = Converter::getInstances();
+        $this->assertCount(1, $instances);
+        $this->assertArrayHasKey('T', $instances);
+        $this->assertArrayNotHasKey('L', $instances);
+    }
+
+    // endregion
+
     // region getByDimension() tests
 
     /**
@@ -239,6 +286,21 @@ class ConverterTest extends TestCase
             UnitService::remove($unit);
             Converter::clearInstances();
         }
+    }
+
+    /**
+     * Test findConversion throws generic error when dimension has no registered QuantityType.
+     */
+    public function testFindConversionThrowsGenericErrorForUnregisteredDimension(): void
+    {
+        // L5 is a valid dimension but has no registered QuantityType.
+        $converter = Converter::getInstance('L5');
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('does not match the converter dimension');
+
+        // 's' is a time unit (dimension T), not L5.
+        $converter->findConversion('s', 'm5');
     }
 
     // endregion
@@ -744,6 +806,52 @@ class ConverterTest extends TestCase
         }
     }
 
+    /**
+     * Test that convergent combination path is used in graph traversal with zero error.
+     *
+     * Convergent: src→mid and dest→mid both exist, compute src→dest as m1/m2.
+     * We set up: A→B = 6 and C→B = 3, so A→C = 6/3 = 2.
+     * This triggers the convergent early return when zero error is achieved.
+     */
+    public function testConvergentCombinationPathWithZeroError(): void
+    {
+        // Reset converters.
+        Converter::clearInstances();
+
+        // Use a custom isolated dimension.
+        $dimension = 'L8';
+        QuantityTypeService::add('convtest', $dimension, UnregisteredQuantity::class);
+
+        // Create custom units.
+        $convA = new Unit('conv a', 'Ca', $dimension, systems: [UnitSystem::Si]);
+        $convB = new Unit('conv b', 'Cb', $dimension, systems: [UnitSystem::Si]);
+        $convC = new Unit('conv c', 'Cc', $dimension, systems: [UnitSystem::Si]);
+
+        UnitService::add($convA);
+        UnitService::add($convB);
+        UnitService::add($convC);
+
+        // Add conversions that enable convergent path: A→B and C→B.
+        ConversionService::add(new Conversion('Ca', 'Cb', 6.0));
+        ConversionService::add(new Conversion('Cc', 'Cb', 3.0));
+
+        try {
+            $converter = Converter::getInstance($dimension);
+
+            // This should find A→C via convergent combination: 6/3 = 2.
+            $conversion = $converter->findConversion('Ca', 'Cc');
+
+            $this->assertInstanceOf(Conversion::class, $conversion);
+            $this->assertEqualsWithDelta(2.0, $conversion->factor->value, 1e-10);
+        } finally {
+            UnitService::remove($convA);
+            UnitService::remove($convB);
+            UnitService::remove($convC);
+            Converter::clearInstances();
+            QuantityTypeService::reset();
+        }
+    }
+
     // endregion
 
     // region addMergedUnit() tests
@@ -764,6 +872,180 @@ class ConverterTest extends TestCase
         $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 m*ft = 0.3048 m² (since 1 ft = 0.3048 m)
         $this->assertEqualsWithDelta(0.3048, $conversion->factor->value, 1e-4);
+    }
+
+    // endregion
+
+    // region findConversionByPrefix() tests
+
+    /**
+     * Test findConversionByPrefix returns null when exponents differ.
+     */
+    public function testFindConversionByPrefixReturnsNullForDifferentExponents(): void
+    {
+        $converter = Converter::getInstance('L2');
+
+        $m2 = DerivedUnit::parse('m2');
+        $m3 = DerivedUnit::parse('m3');
+
+        $result = $converter->findConversionByPrefix($m2, $m3);
+
+        $this->assertNull($result);
+    }
+
+    // endregion
+
+    // region addConversion() tests
+
+    /**
+     * Test addConversion throws LogicException when conversion dimension doesn't match Converter.
+     */
+    public function testAddConversionThrowsForDimensionMismatch(): void
+    {
+        $converter = Converter::getInstance('L');
+
+        // Create a mass conversion (dimension M).
+        $conversion = new Conversion('kg', 'g', 1000);
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage("Cannot add conversion with dimension 'M'");
+
+        $converter->addConversion($conversion);
+    }
+
+    // endregion
+
+    // region removeConversion() tests
+
+    /**
+     * Test removeConversion removes a specific conversion from the matrix.
+     */
+    public function testRemoveConversionRemovesFromMatrix(): void
+    {
+        Converter::clearInstances();
+        $converter = Converter::getInstance('L');
+
+        // Verify a conversion exists after loading definitions.
+        $conversion = $converter->getConversion('m', 'ft');
+
+        if ($conversion === null) {
+            // Add one if not loaded by default.
+            $conversion = new Conversion('m', 'ft', 3.28084);
+            $converter->addConversion($conversion);
+        }
+
+        $this->assertNotNull($converter->getConversion('m', 'ft'));
+
+        $converter->removeConversion($conversion);
+
+        $this->assertNull($converter->getConversion('m', 'ft'));
+    }
+
+    // endregion
+
+    // region removeAllConversions() tests
+
+    /**
+     * Test removeAllConversions clears the conversion matrix.
+     */
+    public function testRemoveAllConversionsClearsMatrix(): void
+    {
+        Converter::clearInstances();
+        $converter = Converter::getInstance('L');
+
+        $this->assertNotEmpty($converter->conversionMatrix);
+
+        $converter->removeAllConversions();
+
+        $this->assertEmpty($converter->conversionMatrix);
+    }
+
+    // endregion
+
+    // region removeConversionsByUnit() tests
+
+    /**
+     * Test removeConversionsByUnit removes all conversions involving a given unit.
+     */
+    public function testRemoveConversionsByUnitRemovesAllInvolving(): void
+    {
+        Converter::clearInstances();
+
+        // Use an isolated dimension to avoid side effects.
+        $dimension = 'L9';
+        QuantityTypeService::add('remtest', $dimension, UnregisteredQuantity::class);
+
+        $unitA = new Unit('rem a', 'Xra', $dimension, systems: [UnitSystem::Si]);
+        $unitB = new Unit('rem b', 'Xrb', $dimension, systems: [UnitSystem::Si]);
+        $unitC = new Unit('rem c', 'Xrc', $dimension, systems: [UnitSystem::Si]);
+
+        UnitService::add($unitA);
+        UnitService::add($unitB);
+        UnitService::add($unitC);
+
+        // Add conversions: A→B and B→C.
+        ConversionService::add(new Conversion('Xra', 'Xrb', 2.0));
+        ConversionService::add(new Conversion('Xrb', 'Xrc', 3.0));
+
+        try {
+            $converter = Converter::getInstance($dimension);
+
+            $this->assertTrue($converter->hasConversion('Xra', 'Xrb'));
+            $this->assertTrue($converter->hasConversion('Xrb', 'Xrc'));
+
+            // Remove all conversions involving unitB.
+            $converter->removeConversionsByUnit($unitB);
+
+            // Both conversions should be gone since they both involve Xrb.
+            $this->assertFalse($converter->hasConversion('Xra', 'Xrb'));
+            $this->assertFalse($converter->hasConversion('Xrb', 'Xrc'));
+        } finally {
+            UnitService::remove($unitA);
+            UnitService::remove($unitB);
+            UnitService::remove($unitC);
+            Converter::clearInstances();
+            QuantityTypeService::reset();
+        }
+    }
+
+    // endregion
+
+    // region removeUnit() tests
+
+    /**
+     * Test removeUnit removes a unit from the unit list.
+     */
+    public function testRemoveUnitRemovesFromList(): void
+    {
+        Converter::clearInstances();
+        $converter = Converter::getInstance('L');
+
+        $unit = DerivedUnit::parse('m');
+        $converter->addUnit($unit);
+        $this->assertArrayHasKey('m', $converter->units);
+
+        $converter->removeUnit($unit);
+
+        $this->assertArrayNotHasKey('m', $converter->units);
+    }
+
+    // endregion
+
+    // region removeAllUnits() tests
+
+    /**
+     * Test removeAllUnits clears the unit list.
+     */
+    public function testRemoveAllUnitsClearsList(): void
+    {
+        Converter::clearInstances();
+        $converter = Converter::getInstance('L');
+
+        $this->assertNotEmpty($converter->units);
+
+        $converter->removeAllUnits();
+
+        $this->assertEmpty($converter->units);
     }
 
     // endregion

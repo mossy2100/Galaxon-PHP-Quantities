@@ -11,7 +11,6 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\RegexService;
-use Galaxon\Quantities\UnitSystem;
 use LogicException;
 use UnexpectedValueException;
 
@@ -38,18 +37,14 @@ class DerivedUnit implements UnitInterface
     private(set) array $unitTerms = [];
 
     /**
-     * Get the dimension code of the derived unit.
+     * The dimension code of the derived unit.
      *
      * Defaults to empty string '' (dimensionless).
-     *
-     * @return string The dimension code.
      */
     private(set) string $dimension = '';
 
     /**
      * The expansion quantity, if one exists and is known.
-     *
-     * @var ?Quantity
      */
     private(set) ?Quantity $expansion = null;
 
@@ -220,7 +215,11 @@ class DerivedUnit implements UnitInterface
         $new = new self();
 
         // Get the parts of the compound unit.
-        $parts = preg_split('/(' . RegexService::RX_CLASS_MUL_DIV_OPS . ')/iu', $symbol, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split(
+            '/(' . RegexService::RX_CLASS_MUL_DIV_OPS . ')/iu',
+            $symbol,
+            flags: PREG_SPLIT_DELIM_CAPTURE
+        );
         if ($parts === false) {
             // @codeCoverageIgnoreStart
             throw new UnexpectedValueException('Error splitting string into parts.');
@@ -364,16 +363,6 @@ class DerivedUnit implements UnitInterface
     }
 
     /**
-     * Check if this derived unit contains any unit terms that can be expanded.
-     *
-     * @return bool
-     */
-    public function isExpandable(): bool
-    {
-        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isExpandable());
-    }
-
-    /**
      * Check if any two unit terms have the same unit dimension and could be merged.
      *
      * For example, a derived unit containing both 'm' and 'ft' would return true
@@ -436,17 +425,6 @@ class DerivedUnit implements UnitInterface
     public function hasPrefixes(): bool
     {
         return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->prefix !== null);
-    }
-
-    /**
-     * Check if the DerivedUnit includes any units from the given system.
-     *
-     * @param UnitSystem $system The unit system to check.
-     * @return bool True if any units from the specified unit system are included in the DerivedUnit.
-     */
-    public function includesUnitFromSystem(UnitSystem $system): bool
-    {
-        return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->belongsToSystem($system));
     }
 
     /**
@@ -655,26 +633,27 @@ class DerivedUnit implements UnitInterface
                 continue;
             }
 
-            // Check if there's a known expansion for this unit.
-            $expansion = $unitTerm->tryExpand();
+            // Try to get the expansion for this unit.
+            $unitTermExpansion = $unitTerm->tryExpand();
 
-            // If none found, the expansion doesn't exist for the full derived unit either.
-            if ($expansion === null) {
-                return null;
+            // If none found, the expansion for the full derived unit isn't discoverable yet either.
+            if ($unitTermExpansion === null) {
+                return null; // @codeCoverageIgnore
             }
 
             // Multiply by the conversion factor.
-            $resultValue *= $expansion->value;
+            $resultValue *= $unitTermExpansion->value;
 
             // Add the unit terms from the expansion.
-            foreach ($expansion->derivedUnit->unitTerms as $expansionUnitTerm) {
+            foreach ($unitTermExpansion->derivedUnit->unitTerms as $expansionUnitTerm) {
                 $resultUnit->addUnitTerm($expansionUnitTerm);
             }
         }
 
         // Since a unit expansion can add different and new unit terms, we can end up with unmerged compatible units.
         // Merge compatible units if necessary.
-        return Quantity::create($resultValue, $resultUnit)->merge();
+        $this->expansion = Quantity::create($resultValue, $resultUnit)->merge();
+        return $this->expansion;
     }
 
     /**

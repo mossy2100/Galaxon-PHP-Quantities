@@ -59,12 +59,6 @@ class QuantityTypeService
      * - 'dimension': The dimension of the physical quantity
      * - 'class': The QuantityType class (if one exists)
      *
-     * @var array<string, array{
-     *     dimension: string,
-     *     class: class-string<Quantity>,
-     *     partUnitSymbols?: list<string>,
-     *     resultUnitSymbol?: string,
-     * }>
      * @see DimensionService
      */
     private const array QUANTITY_TYPES = [
@@ -436,7 +430,7 @@ class QuantityTypeService
                     $info['dimension'],
                     $info['class'],
                     $info['partUnitSymbols'] ?? null,
-                    $info['resultUnitSymbol'] ?? null,
+                    $info['resultUnitSymbol'] ?? null
                 );
             }
         }

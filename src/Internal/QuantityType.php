@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Internal;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use InvalidArgumentException;
@@ -36,6 +37,7 @@ class QuantityType
      * The fully-qualified class name of the Quantity subclass for this quantity type.
      *
      * @var class-string<Quantity>
+     * @throws InvalidArgumentException If the value is not a subclass of Quantity.
      */
     public string $class {
         set {
@@ -53,6 +55,8 @@ class QuantityType
      * The default unit symbols for part decomposition (e.g. ['deg', 'arcmin', 'arcsec'] for angles).
      *
      * @var ?list<string>
+     * @throws DomainException If the array is empty.
+     * @throws InvalidArgumentException If the array contains non-string values.
      */
     public ?array $partUnitSymbols = null {
         set {
@@ -63,9 +67,7 @@ class QuantityType
 
                 foreach ($value as $symbol) {
                     if (!is_string($symbol)) {
-                        throw new InvalidArgumentException(
-                            'The array of part unit symbols must contain only strings.'
-                        );
+                        throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
                     }
                 }
 
@@ -78,6 +80,8 @@ class QuantityType
 
     /**
      * The default result unit symbol for part operations (e.g. 'deg' for angles).
+     *
+     * @throws DomainException If the value is an empty string.
      */
     public ?string $resultUnitSymbol = null {
         set {
@@ -94,11 +98,17 @@ class QuantityType
     // region Constructor
 
     /**
+     * Create a new QuantityType instance.
+     *
      * @param string $name The human-readable name.
      * @param string $dimension The dimension code.
      * @param class-string<Quantity> $class The Quantity subclass.
      * @param ?list<string> $partUnitSymbols The default part unit symbols.
      * @param ?string $resultUnitSymbol The default result unit symbol.
+     * @throws FormatException If the dimension code is invalid.
+     * @throws InvalidArgumentException If the class is not a subclass of Quantity, or partUnitSymbols contains
+     * non-string values.
+     * @throws DomainException If partUnitSymbols is empty, or resultUnitSymbol is an empty string.
      */
     public function __construct(
         string $name,

@@ -7,7 +7,9 @@ namespace Galaxon\Quantities\Tests\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitTerm;
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
@@ -1300,74 +1302,6 @@ class DerivedUnitTest extends TestCase
 
     // endregion
 
-    // region isExpandable() tests
-
-    /**
-     * Test isExpandable returns true for a named derived SI unit.
-     */
-    public function testIsExpandableReturnsTrueForNamedDerivedUnit(): void
-    {
-        // Newton can be expanded to kg*m/s2.
-        $du = DerivedUnit::parse('N');
-
-        $this->assertTrue($du->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns true for a prefixed named derived unit.
-     */
-    public function testIsExpandableReturnsTrueForPrefixedNamedDerivedUnit(): void
-    {
-        // kN can be expanded.
-        $du = DerivedUnit::parse('kN');
-
-        $this->assertTrue($du->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns true when at least one unit term is expandable.
-     */
-    public function testIsExpandableReturnsTrueWhenOneTermIsExpandable(): void
-    {
-        // N*m - Newton is expandable, meter is not.
-        $du = DerivedUnit::parse('N*m');
-
-        $this->assertTrue($du->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for a simple base unit.
-     */
-    public function testIsExpandableReturnsFalseForBaseUnit(): void
-    {
-        $du = DerivedUnit::parse('m');
-
-        $this->assertFalse($du->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for compound base units.
-     */
-    public function testIsExpandableReturnsFalseForCompoundBaseUnits(): void
-    {
-        // kg*m/s2 is already fully expanded.
-        $du = DerivedUnit::parse('kg*m/s2');
-
-        $this->assertFalse($du->isExpandable());
-    }
-
-    /**
-     * Test isExpandable returns false for dimensionless unit.
-     */
-    public function testIsExpandableReturnsFalseForDimensionless(): void
-    {
-        $du = new DerivedUnit();
-
-        $this->assertFalse($du->isExpandable());
-    }
-
-    // endregion
-
     // region hasPrefixes() tests
 
     /**
@@ -1709,6 +1643,310 @@ class DerivedUnitTest extends TestCase
         $result = $du->pow(2);
 
         $this->assertSame('m4/s2', $result->format(true));
+    }
+
+    // endregion
+
+    // region siExpansionPreferred() tests
+
+    /**
+     * Test siExpansionPreferred returns true for pure SI unit.
+     */
+    public function testSiExpansionPreferredForPureSiUnit(): void
+    {
+        $du = DerivedUnit::parse('kg');
+
+        $this->assertTrue($du->siExpansionPreferred());
+    }
+
+    /**
+     * Test siExpansionPreferred returns false for pure English unit.
+     */
+    public function testSiExpansionPreferredReturnsFalseForEnglishUnit(): void
+    {
+        $du = DerivedUnit::parse('lb');
+
+        $this->assertFalse($du->siExpansionPreferred());
+    }
+
+    /**
+     * Test siExpansionPreferred returns true for mixed SI and English units.
+     */
+    public function testSiExpansionPreferredReturnsTrueForMixedUnits(): void
+    {
+        // kg (SI) and ft (English) — has both, but at least one unambiguous SI unit.
+        $du = DerivedUnit::parse('kg*ft');
+
+        $this->assertTrue($du->siExpansionPreferred());
+    }
+
+    /**
+     * Test siExpansionPreferred returns true for common base unit that is ambiguous.
+     */
+    public function testSiExpansionPreferredForAmbiguousBaseUnit(): void
+    {
+        // 's' is used with both SI and English systems, so it's in the common list.
+        // With no English units and no unambiguous SI units, nEnglishUnits === 0 → true.
+        $du = DerivedUnit::parse('s');
+
+        $this->assertTrue($du->siExpansionPreferred());
+    }
+
+    /**
+     * Test siExpansionPreferred returns false for English compound unit.
+     */
+    public function testSiExpansionPreferredReturnsFalseForEnglishCompound(): void
+    {
+        // lb*ft/s2 — lb and ft are English, s is ambiguous.
+        $du = DerivedUnit::parse('lb*ft/s2');
+
+        $this->assertFalse($du->siExpansionPreferred());
+    }
+
+    // endregion
+
+    // region includesUnit() tests
+
+    /**
+     * Test includesUnit returns true for a unit in the derived unit.
+     */
+    public function testIncludesUnitReturnsTrueForIncludedUnit(): void
+    {
+        $du = DerivedUnit::parse('kg*m/s2');
+        $meter = UnitService::getBySymbol('m');
+        $this->assertInstanceOf(Unit::class, $meter);
+
+        $this->assertTrue($du->includesUnit($meter));
+    }
+
+    /**
+     * Test includesUnit returns false for a unit not in the derived unit.
+     */
+    public function testIncludesUnitReturnsFalseForNonIncludedUnit(): void
+    {
+        $du = DerivedUnit::parse('kg*m/s2');
+        $foot = UnitService::getBySymbol('ft');
+        $this->assertInstanceOf(Unit::class, $foot);
+
+        $this->assertFalse($du->includesUnit($foot));
+    }
+
+    /**
+     * Test includesUnit with prefixed unit term finds the base unit.
+     */
+    public function testIncludesUnitWithPrefixedTerm(): void
+    {
+        $du = DerivedUnit::parse('km');
+        $meter = UnitService::getBySymbol('m');
+        $this->assertInstanceOf(Unit::class, $meter);
+
+        $this->assertTrue($du->includesUnit($meter));
+    }
+
+    /**
+     * Test includesUnit on a single-term derived unit.
+     */
+    public function testIncludesUnitOnSingleTerm(): void
+    {
+        $du = DerivedUnit::parse('ft');
+        $foot = UnitService::getBySymbol('ft');
+        $this->assertInstanceOf(Unit::class, $foot);
+
+        $this->assertTrue($du->includesUnit($foot));
+    }
+
+    // endregion
+
+    // region toEnglishBase() tests
+
+    /**
+     * Test toEnglishBase for length dimension.
+     */
+    public function testToEnglishBaseForLength(): void
+    {
+        $du = DerivedUnit::parse('m');
+        $result = $du->toEnglishBase();
+
+        $this->assertSame('ft', $result->asciiSymbol);
+    }
+
+    /**
+     * Test toEnglishBase for mass dimension.
+     */
+    public function testToEnglishBaseForMass(): void
+    {
+        $du = DerivedUnit::parse('kg');
+        $result = $du->toEnglishBase();
+
+        $this->assertSame('lb', $result->asciiSymbol);
+    }
+
+    /**
+     * Test toEnglishBase for compound dimension.
+     */
+    public function testToEnglishBaseForCompoundDimension(): void
+    {
+        // Force: MLT-2. English base should be lb*ft/s2.
+        $du = DerivedUnit::parse('N');
+        $result = $du->toEnglishBase();
+
+        $this->assertSame('lb*ft/s2', $result->asciiSymbol);
+    }
+
+    /**
+     * Test toEnglishBase for time dimension falls back to SI base.
+     */
+    public function testToEnglishBaseForTimeFallsBackToSi(): void
+    {
+        // Time has no English base unit, falls back to SI (seconds).
+        $du = DerivedUnit::parse('h');
+        $result = $du->toEnglishBase();
+
+        $this->assertSame('s', $result->asciiSymbol);
+    }
+
+    // endregion
+
+    // region tryExpand() tests
+
+    /**
+     * Test tryExpand returns null for a base unit.
+     */
+    public function testTryExpandReturnsNullForBaseUnit(): void
+    {
+        $du = DerivedUnit::parse('m');
+
+        $this->assertNull($du->tryExpand());
+    }
+
+    /**
+     * Test tryExpand expands a named unit to base units.
+     */
+    public function testTryExpandExpandsNamedUnit(): void
+    {
+        // N (newton) = kg*m/s2.
+        $du = DerivedUnit::parse('N');
+        $expansion = $du->tryExpand();
+
+        $this->assertInstanceOf(Quantity::class, $expansion);
+        $this->assertSame(1.0, $expansion->value);
+        $this->assertSame('kg*m/s2', $expansion->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test tryExpand expands a prefixed named unit.
+     */
+    public function testTryExpandExpandsPrefixedNamedUnit(): void
+    {
+        // kN (kilonewton) should expand to 1000 kg*m/s2.
+        $du = DerivedUnit::parse('kN');
+        $expansion = $du->tryExpand();
+
+        $this->assertInstanceOf(Quantity::class, $expansion);
+        $this->assertEqualsWithDelta(1000.0, $expansion->value, 1e-10);
+        $this->assertSame('kg*m/s2', $expansion->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test tryExpand returns cached expansion on second call.
+     */
+    public function testTryExpandReturnsCachedExpansion(): void
+    {
+        $du = DerivedUnit::parse('N');
+
+        $expansion1 = $du->tryExpand();
+        $expansion2 = $du->tryExpand();
+
+        $this->assertInstanceOf(Quantity::class, $expansion1);
+        $this->assertSame($expansion1, $expansion2);
+    }
+
+    /**
+     * Test tryExpand with mixed base and expandable terms.
+     */
+    public function testTryExpandWithMixedBaseAndExpandable(): void
+    {
+        // N*s = kg*m/s2 * s = kg*m/s. The N is expandable, s is base.
+        $du = DerivedUnit::parse('N*s');
+        $expansion = $du->tryExpand();
+
+        $this->assertInstanceOf(Quantity::class, $expansion);
+        $this->assertSame(1.0, $expansion->value);
+        $this->assertSame('kg*m/s', $expansion->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test tryExpand returns null when a term has no known expansion.
+     */
+    public function testTryExpandReturnsNullForUnexpandableTerm(): void
+    {
+        // A base unit compound like kg*m is already base — nothing to expand.
+        $du = DerivedUnit::parse('kg*m');
+
+        $this->assertNull($du->tryExpand());
+    }
+
+    // endregion
+
+    // region merge() tests
+
+    /**
+     * Test merge combines compatible unit terms.
+     */
+    public function testMergeCombinesCompatibleUnits(): void
+    {
+        // m*ft — both are length, should merge to a single length unit.
+        $du = DerivedUnit::parse('m*ft');
+        $result = $du->merge();
+
+        $this->assertInstanceOf(Quantity::class, $result);
+        // m*ft: ft → m conversion is 0.3048, so 1 m*ft = 0.3048 m2.
+        $this->assertSame('m2', $result->derivedUnit->asciiSymbol);
+        $this->assertEqualsWithDelta(0.3048, $result->value, 1e-4);
+    }
+
+    /**
+     * Test merge returns value of 1.0 when no conversion is needed.
+     */
+    public function testMergeWithNoConversionNeeded(): void
+    {
+        // m*m — same unit, should merge to m2 with value 1.0.
+        $du = DerivedUnit::parse('m*m');
+
+        // Note: m*m should already combine in the parser to m2.
+        // Let's use a unit that doesn't auto-combine.
+        $result = $du->merge();
+
+        $this->assertInstanceOf(Quantity::class, $result);
+        $this->assertSame(1.0, $result->value);
+    }
+
+    /**
+     * Test merge on a unit with no mergeable terms returns unchanged.
+     */
+    public function testMergeWithNoMergeableTerms(): void
+    {
+        $du = DerivedUnit::parse('kg*m/s2');
+        $result = $du->merge();
+
+        $this->assertInstanceOf(Quantity::class, $result);
+        $this->assertSame(1.0, $result->value);
+        $this->assertSame('kg*m/s2', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test merge with different units of the same dimension in a compound.
+     */
+    public function testMergeWithDifferentUnitsOfSameDimension(): void
+    {
+        // kg*lb — both are mass, should merge.
+        $du = DerivedUnit::parse('kg*lb');
+        $result = $du->merge();
+
+        $this->assertInstanceOf(Quantity::class, $result);
+        $this->assertSame('kg2', $result->derivedUnit->asciiSymbol);
+        // 1 lb ≈ 0.45359 kg, so 1 kg*lb ≈ 0.45359 kg2.
+        $this->assertEqualsWithDelta(0.45359, $result->value, 1e-4);
     }
 
     // endregion

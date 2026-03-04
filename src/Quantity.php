@@ -14,20 +14,18 @@ use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\QuantityType;
-use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\QuantityPartsService;
+use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use InvalidArgumentException;
 use LogicException;
 use Override;
 use Stringable;
-use TypeError;
 use UnexpectedValueException;
 
 /**
@@ -61,7 +59,6 @@ class Quantity implements Stringable
     /**
      * Flag to permit call to new Quantity().
      *
-     * @var bool
      */
     private static bool $allowConstruct = false;
 
@@ -71,15 +68,11 @@ class Quantity implements Stringable
 
     /**
      * The numeric value of the measurement in the specified unit.
-     *
-     * @var float
      */
     public readonly float $value;
 
     /**
      * The unit of the measurement.
-     *
-     * @var DerivedUnit
      */
     public readonly DerivedUnit $derivedUnit;
 
@@ -90,7 +83,6 @@ class Quantity implements Stringable
     /**
      * The dimension.
      *
-     * @var string
      */
     public string $dimension {
         get => $this->derivedUnit->dimension;
@@ -99,7 +91,6 @@ class Quantity implements Stringable
     /**
      * The quantity type.
      *
-     * @var ?QuantityType
      */
     public ?QuantityType $type {
         get => static::getType();
@@ -534,8 +525,8 @@ class Quantity implements Stringable
 
         // Loop through the units and try to find an expandable unit that matches the quantity.
         foreach (UnitService::getAll() as $unit) {
-            /// Skip any we can't currently expand.
-            if (!$unit->isExpandable()) {
+            /// Skip any units that don't have an expansion, or that we don't yet know the expansion for.
+            if ($unit->expansion === null) {
                 continue;
             }
 
@@ -1058,7 +1049,8 @@ class Quantity implements Stringable
      * @param array<string, int|float> $parts The parts.
      * @param ?string $resultUnitSymbol The unit to use for the resulting quantity, or null for default.
      * @return static A new Quantity representing the sum of the parts.
-     * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not numbers.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
+     * numbers.
      * @throws DomainException If the result unit symbol or sign is invalid.
      * @see QuantityPartsService::fromParts()
      */

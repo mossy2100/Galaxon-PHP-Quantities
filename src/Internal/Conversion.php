@@ -26,22 +26,16 @@ class Conversion implements Stringable
 
     /**
      * The source unit.
-     *
-     * @var DerivedUnit
      */
     private(set) DerivedUnit $srcUnit;
 
     /**
      * The destination unit.
-     *
-     * @var DerivedUnit
      */
     private(set) DerivedUnit $destUnit;
 
     /**
      * The scale factor.
-     *
-     * @var FloatWithError
      */
     private(set) FloatWithError $factor;
 
@@ -52,7 +46,6 @@ class Conversion implements Stringable
     /**
      * The Conversion dimension.
      *
-     * @var string
      */
     public string $dimension {
         get => $this->srcUnit->dimension;

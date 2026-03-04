@@ -13,7 +13,6 @@ use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**
@@ -54,8 +53,6 @@ class UnitTerm implements UnitInterface
 
     /**
      * The expansion quantity, if one exists and is known.
-     *
-     * @var ?Quantity
      */
     private(set) ?Quantity $expansion = null;
 
@@ -142,9 +139,10 @@ class UnitTerm implements UnitInterface
 
         // Allow for the prefix to be provided as a symbol.
         if (is_string($prefix)) {
+            $prefixSymbol = $prefix;
             $prefix = PrefixService::getBySymbol($prefix);
             if ($prefix === null) {
-                throw new DomainException("Prefix '$prefix' is unknown.");
+                throw new DomainException("Prefix '$prefixSymbol' is unknown.");
             }
         }
 
@@ -351,21 +349,6 @@ class UnitTerm implements UnitInterface
         return in_array($this->unexponentiatedAsciiSymbol, DimensionService::getSiBaseUnitSymbols(), true);
     }
 
-    /**
-     * Check if this unit term can be expanded.
-     *
-     * @return bool True if the unit term is expandable into base units.
-     */
-    public function isExpandable(): bool
-    {
-        return $this->unit->isExpandable();
-    }
-
-    public function belongsToSystem(UnitSystem $system): bool
-    {
-        return $this->unit->belongsToSystem($system);
-    }
-
     // endregion
 
     // region Transformation methods
@@ -452,19 +435,20 @@ class UnitTerm implements UnitInterface
             return null;
         }
 
-        // Check if there's a known expansion for this unit.
-        $expansion = $this->unit->tryExpand();
+        // Try to find the expansion for this unit.
+        $unitExpansion = $this->unit->tryExpand();
 
         // If none found, the expansion doesn't exist for this unit term.
-        if ($expansion === null) {
+        if ($unitExpansion === null) {
             return null;
         }
 
         // Multiply by the conversion factor modified by prefix and exponent.
-        $resultValue = ($expansion->value * $this->prefixMultiplier) ** $this->exponent;
+        $resultValue = ($unitExpansion->value * $this->prefixMultiplier) ** $this->exponent;
 
         // Construct the expanded quantity.
-        return Quantity::create($resultValue, $expansion->derivedUnit->pow($this->exponent));
+        $this->expansion = Quantity::create($resultValue, $unitExpansion->derivedUnit->pow($this->exponent));
+        return $this->expansion;
     }
 
     // endregion

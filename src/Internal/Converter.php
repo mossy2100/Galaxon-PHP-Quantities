@@ -41,8 +41,6 @@ class Converter
 
     /**
      * Dimension code for the converter.
-     *
-     * @var string
      */
     private(set) string $dimension;
 
@@ -173,6 +171,7 @@ class Converter
      * @param string|UnitInterface $srcUnit The source unit.
      * @param string|UnitInterface $destUnit The destination unit.
      * @return ?Conversion The conversion, or null if no path exists.
+     * @throws FormatException If a unit string cannot be parsed.
      * @throws DomainException If either unit is invalid.
      * @example
      *   $conversion = $converter->findConversion('m', 'ft');
@@ -201,7 +200,7 @@ class Converter
         $this->addUnit($srcUnit);
         $this->addUnit($destUnit);
 
-        // Ensure merged, unprefixed, and expanded versions of all units ar in the list.
+        // Ensure merged, unprefixed, and expanded versions of all units are in the list.
         do {
             $units = $this->units;
             $nAdded = 0;
@@ -255,6 +254,7 @@ class Converter
      * @param string|UnitInterface $srcUnit The source unit.
      * @param string|UnitInterface $destUnit The destination unit.
      * @return ?float The conversion factor or null if not found.
+     * @throws FormatException If a unit string cannot be parsed.
      * @throws DomainException If either unit term is invalid.
      */
     public function findConversionFactor(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?float
@@ -272,6 +272,7 @@ class Converter
      * @param string|UnitInterface $srcUnit The source unit.
      * @param string|UnitInterface $destUnit The destination unit.
      * @return float The converted value.
+     * @throws FormatException If a unit string cannot be parsed.
      * @throws DomainException If either unit symbol is invalid.
      * @throws LogicException If no conversion path exists between the units.
      * @example
@@ -475,6 +476,7 @@ class Converter
      *
      * @param string|UnitInterface $value The unit value to validate.
      * @return DerivedUnit The validated DerivedUnit object equivalent to the provided parameter.
+     * @throws FormatException If a unit string cannot be parsed.
      * @throws DomainException If the symbol is invalid or the unit has the wrong dimension for this Converter.
      */
     private function validateUnit(string|UnitInterface $value): DerivedUnit
@@ -620,7 +622,7 @@ class Converter
             // Get the conversion.
             $conversion = ConversionService::find($srcUnitTerm, $destUnitTerm);
             if ($conversion === null) {
-                return null; // @codeCoverageIgnore
+                return null;
             }
 
             // Multiply.
@@ -745,11 +747,11 @@ class Converter
         // Defensive programming. These situations would be a misuse of the function.
         // Check that the conversion doesn't already exist.
         if ($this->hasConversion($srcUnit, $destUnit)) {
-            throw new LogicException('This conversion is already known.');
+            throw new LogicException('This conversion is already known.'); // @codeCoverageIgnore
         }
         // Check that the units are different.
         if ($srcUnit->equal($destUnit)) {
-            throw new LogicException('The units should be different.');
+            throw new LogicException('The units should be different.'); // @codeCoverageIgnore
         }
 
         // Try several strategies to find a conversion and select the best one (i.e. least absolute error).
@@ -829,7 +831,7 @@ class Converter
 
                     // If we've found the one we're looking for, return.
                     if ($this->hasConversion($srcUnit, $destUnit)) {
-                        return $nAdded;
+                        return $nAdded; // @codeCoverageIgnore
                     }
                 }
             }

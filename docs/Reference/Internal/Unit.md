@@ -223,17 +223,6 @@ Check if this unit is a base unit. A base unit has a single-character dimension 
 **Returns:**
 - `bool` - True if the unit is a base unit
 
-### isExpandable()
-
-```php
-public function isExpandable(): bool
-```
-
-Check if this unit can be expanded into base units (e.g., newton expands to kg\*m/s2).
-
-**Returns:**
-- `bool` - True if the unit has an expansion unit symbol defined
-
 ### acceptsPrefix()
 
 ```php
@@ -337,7 +326,7 @@ echo $unit->dimension;  // 'MLT-2'
 echo $unit->isSi();     // true
 
 // Check expansion
-if ($unit->isExpandable()) {
+if ($unit->expansion !== null) {
     echo $unit->expansionUnit->asciiSymbol; // 'kg*m/s2'
 }
 ```

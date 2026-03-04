@@ -254,17 +254,6 @@ Check if this unit term is an SI base unit (with or without exponent). Returns t
 **Returns:**
 - `bool` - True if the unit is an SI base unit
 
-### isExpandable()
-
-```php
-public function isExpandable(): bool
-```
-
-Check if this unit term's unit is expandable into base units (e.g., N, J, Pa).
-
-**Returns:**
-- `bool` - True if the unit term is expandable
-
 ## Transformation Methods
 
 ### inv()

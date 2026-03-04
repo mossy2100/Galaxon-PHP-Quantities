@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\FloatWithError;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -580,6 +581,107 @@ class ConversionTest extends TestCase
         $this->assertSame('m²', (string)$unprefixed->destUnit);
         // m² → m² = 1e10 * (1e-6) * (1e-4) = 1e10 * 1e-10 = 1
         $this->assertEqualsWithDelta(1.0, $unprefixed->factor->value, 1e-10);
+    }
+
+    // endregion
+
+    // region isExact() tests
+
+    /**
+     * Test isExact() returns true for a conversion with an exact integer factor.
+     */
+    public function testIsExactWithIntegerFactor(): void
+    {
+        // Integer factors have zero error in FloatWithError.
+        $conv = new Conversion('ft', 'in', 12.0);
+
+        $this->assertTrue($conv->isExact());
+    }
+
+    /**
+     * Test isExact() returns false for a conversion with explicit error.
+     */
+    public function testIsExactWithExplicitError(): void
+    {
+        $factor = new FloatWithError(3.28084, 0.00001);
+        $conv = new Conversion('m', 'ft', $factor);
+
+        $this->assertFalse($conv->isExact());
+    }
+
+    /**
+     * Test isExact() returns false for a non-integer float factor.
+     */
+    public function testIsExactWithNonIntegerFactor(): void
+    {
+        // Non-integer floats get a half-ULP error estimate.
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $this->assertFalse($conv->isExact());
+    }
+
+    /**
+     * Test isExact() returns true for factor of 1.0 after inversion.
+     */
+    public function testIsExactAfterInvertOfOne(): void
+    {
+        $conv = new Conversion('m', 'ft', 1.0);
+        $inverted = $conv->inv();
+
+        // 1/1 = 1 exactly.
+        $this->assertTrue($inverted->isExact());
+    }
+
+    // endregion
+
+    // region involvesUnit() tests
+
+    /**
+     * Test involvesUnit() returns true for the source unit.
+     */
+    public function testInvolvesUnitSourceUnit(): void
+    {
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $meter = UnitService::getBySymbol('m');
+        $this->assertInstanceOf(Unit::class, $meter);
+        $this->assertTrue($conv->involvesUnit($meter));
+    }
+
+    /**
+     * Test involvesUnit() returns true for the destination unit.
+     */
+    public function testInvolvesUnitDestUnit(): void
+    {
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $foot = UnitService::getBySymbol('ft');
+        $this->assertInstanceOf(Unit::class, $foot);
+        $this->assertTrue($conv->involvesUnit($foot));
+    }
+
+    /**
+     * Test involvesUnit() returns false for an unrelated unit.
+     */
+    public function testInvolvesUnitUnrelatedUnit(): void
+    {
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $yard = UnitService::getBySymbol('yd');
+        $this->assertInstanceOf(Unit::class, $yard);
+        $this->assertFalse($conv->involvesUnit($yard));
+    }
+
+    /**
+     * Test involvesUnit() returns false for a unit of a different dimension.
+     */
+    public function testInvolvesUnitDifferentDimension(): void
+    {
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $second = UnitService::getBySymbol('s');
+        $this->assertInstanceOf(Unit::class, $second);
+        $this->assertFalse($conv->involvesUnit($second));
     }
 
     // endregion

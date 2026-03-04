@@ -26,15 +26,11 @@ class FloatWithError implements Stringable
 
     /**
      * The numeric value.
-     *
-     * @var float
      */
     private(set) float $value;
 
     /**
      * The absolute error (uncertainty) in the value.
-     *
-     * @var float
      */
     private(set) float $absoluteError;
 
@@ -48,7 +44,6 @@ class FloatWithError implements Stringable
      * Returns INF if value is zero but error is non-zero.
      * Returns 0.0 if both value and error are zero.
      *
-     * @var float
      */
     public float $relativeError {
         get {

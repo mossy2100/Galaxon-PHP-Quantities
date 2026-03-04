@@ -65,8 +65,6 @@ class Unit implements UnitInterface
 
     /**
      * The expansion quantity, if one exists and is known.
-     *
-     * @var ?Quantity
      */
     private(set) ?Quantity $expansion = null;
 
@@ -172,7 +170,7 @@ class Unit implements UnitInterface
         // Check the name is non-empty, ASCII, and up to 3 words.
         $name = trim($name);
         if (!RegexService::isValidUnitName($name)) {
-            throw new FormatException('Unit name must given in Unicode words, e.g. "joule", "US fluid ounce".');
+            throw new FormatException('Unit name must be given in Unicode words, e.g. "joule", "US fluid ounce".');
         }
 
         // Check ASCII symbol contains ASCII letters only (empty is allowed for dimensionless/scalar).
@@ -257,7 +255,7 @@ class Unit implements UnitInterface
      *
      * I'm calling these "English" units for want of a better term.
      *
-     * @return bool
+     * @return bool True if the unit is Imperial or US customary.
      */
     public function isEnglish(): bool
     {
@@ -274,18 +272,6 @@ class Unit implements UnitInterface
     {
         // Check if the dimension is a single letter (e.g. 'L') or '' (dimensionless).
         return strlen($this->dimension) <= 1;
-    }
-
-    /**
-     * Check if an expansion has already been found for this unit.
-     *
-     * No attempt is made to find one.
-     *
-     * @return bool
-     */
-    public function isExpandable(): bool
-    {
-        return $this->expansion !== null;
     }
 
     /**
@@ -407,13 +393,8 @@ class Unit implements UnitInterface
             return null;
         }
 
-        // See if there is a Converter for this dimension yet.
-        $converter = Converter::getInstance($this->dimension);
-        if ($converter === null) {
-            return null;
-        }
-
         // Find all conversions originating from this unit.
+        $converter = Converter::getInstance($this->dimension);
         $conversionList = $converter->conversionMatrix[$this->asciiSymbol] ?? null;
         if ($conversionList === null) {
             return null;

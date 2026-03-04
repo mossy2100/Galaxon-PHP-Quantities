@@ -206,17 +206,6 @@ Check if this derived unit is equivalent to its SI base form. Compares the unit 
 **Returns:**
 - `bool` - True if the unit equals its SI base equivalent. Also true if dimensionless.
 
-### isExpandable()
-
-```php
-public function isExpandable(): bool
-```
-
-Check if any unit term is expandable (is a named derived unit like N, J, Pa).
-
-**Returns:**
-- `bool` - True if at least one term is expandable
-
 ### isMergeable()
 
 ```php
@@ -445,10 +434,6 @@ $unit3 = DerivedUnit::parse('m2');
 // Check properties
 if ($unit1->isSi()) {
     echo "Unit is SI compatible";
-}
-
-if ($unit2->isExpandable()) {
-    echo "Unit can be expanded to base units";
 }
 ```
 
