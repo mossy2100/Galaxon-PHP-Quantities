@@ -1099,6 +1099,31 @@ class ConverterTest extends TestCase
 
     // endregion
 
+    // region quantityType property tests
+
+    /**
+     * Test quantityType property returns QuantityType for a registered dimension.
+     */
+    public function testQuantityTypePropertyReturnsQuantityType(): void
+    {
+        $converter = Converter::getInstance('L');
+
+        $this->assertNotNull($converter->quantityType);
+        $this->assertSame('length', $converter->quantityType->name);
+    }
+
+    /**
+     * Test quantityType property returns null for an unregistered dimension.
+     */
+    public function testQuantityTypePropertyReturnsNullForUnregisteredDimension(): void
+    {
+        $converter = Converter::getInstance('L5T3');
+
+        $this->assertNull($converter->quantityType);
+    }
+
+    // endregion
+
     // region removeAllUnits() tests
 
     /**

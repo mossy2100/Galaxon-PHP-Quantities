@@ -372,6 +372,30 @@ final class QuantityCreateTest extends TestCase
 
     // endregion
 
+    // region dimension property tests
+
+    /**
+     * Test dimension property returns the derived unit's dimension.
+     */
+    public function testDimensionPropertyReturnsDerivedUnitDimension(): void
+    {
+        $length = Quantity::create(5, 'm');
+
+        $this->assertSame('L', $length->dimension);
+    }
+
+    /**
+     * Test dimension property for compound unit via Quantity::create().
+     */
+    public function testDimensionPropertyForCompoundUnit(): void
+    {
+        $force = Quantity::create(10, 'kg*m/s2');
+
+        $this->assertSame('MLT-2', $force->dimension);
+    }
+
+    // endregion
+
     // region Base class method tests
 
     /**

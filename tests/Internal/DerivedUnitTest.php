@@ -1888,6 +1888,123 @@ class DerivedUnitTest extends TestCase
 
     // endregion
 
+    // region multiplier property tests
+
+    /**
+     * Test multiplier property for a single unprefixed unit.
+     */
+    public function testMultiplierPropertyForSingleUnit(): void
+    {
+        $du = DerivedUnit::parse('m');
+
+        $this->assertSame(1.0, $du->multiplier);
+    }
+
+    /**
+     * Test multiplier property for a prefixed unit.
+     */
+    public function testMultiplierPropertyForPrefixedUnit(): void
+    {
+        $du = DerivedUnit::parse('km');
+
+        $this->assertSame(1000.0, $du->multiplier);
+    }
+
+    /**
+     * Test multiplier property for a prefixed unit with exponent.
+     */
+    public function testMultiplierPropertyForPrefixedUnitWithExponent(): void
+    {
+        // km2 => (1000)^2 = 1e6
+        $du = DerivedUnit::parse('km2');
+
+        $this->assertSame(1e6, $du->multiplier);
+    }
+
+    /**
+     * Test multiplier property for compound unit with multiple prefixes.
+     */
+    public function testMultiplierPropertyForCompoundUnit(): void
+    {
+        // kg*km => 1000 * 1000 = 1e6 (kg prefix = 1000, km prefix = 1000)
+        $du = DerivedUnit::parse('kg*km');
+
+        $this->assertSame(1e6, $du->multiplier);
+    }
+
+    /**
+     * Test multiplier property for empty DerivedUnit.
+     */
+    public function testMultiplierPropertyForEmptyUnit(): void
+    {
+        $du = new DerivedUnit();
+
+        $this->assertSame(1.0, $du->multiplier);
+    }
+
+    // endregion
+
+    // region firstUnitTerm property tests
+
+    /**
+     * Test firstUnitTerm property returns first unit term.
+     */
+    public function testFirstUnitTermPropertyReturnsSingleTerm(): void
+    {
+        $du = DerivedUnit::parse('m');
+
+        $this->assertInstanceOf(UnitTerm::class, $du->firstUnitTerm);
+        $this->assertSame('meter', $du->firstUnitTerm->unit->name);
+    }
+
+    /**
+     * Test firstUnitTerm property returns first term in compound unit.
+     */
+    public function testFirstUnitTermPropertyReturnsFirstInCompound(): void
+    {
+        $du = DerivedUnit::parse('kg*m/s2');
+
+        $this->assertInstanceOf(UnitTerm::class, $du->firstUnitTerm);
+    }
+
+    /**
+     * Test firstUnitTerm property returns null for empty DerivedUnit.
+     */
+    public function testFirstUnitTermPropertyReturnsNullForEmpty(): void
+    {
+        $du = new DerivedUnit();
+
+        $this->assertNull($du->firstUnitTerm);
+    }
+
+    // endregion
+
+    // region quantityType property tests
+
+    /**
+     * Test quantityType property returns QuantityType for a registered dimension.
+     */
+    public function testQuantityTypePropertyReturnsQuantityType(): void
+    {
+        $du = DerivedUnit::parse('m');
+
+        $this->assertNotNull($du->quantityType);
+        $this->assertSame('length', $du->quantityType->name);
+    }
+
+    /**
+     * Test quantityType property returns null for an unregistered dimension.
+     */
+    public function testQuantityTypePropertyReturnsNullForUnregisteredDimension(): void
+    {
+        // L5T3 doesn't correspond to any registered quantity type.
+        $du = DerivedUnit::parse('m5*s3');
+
+        $this->assertNull($du->quantityType);
+    }
+
+    // endregion
+
     // region merge() tests
 
     /**

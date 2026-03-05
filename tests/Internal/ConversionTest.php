@@ -686,6 +686,30 @@ class ConversionTest extends TestCase
 
     // endregion
 
+    // region dimension property tests
+
+    /**
+     * Test dimension property returns the source unit's dimension.
+     */
+    public function testDimensionPropertyReturnsSrcDimension(): void
+    {
+        $conv = new Conversion('m', 'ft', 3.28084);
+
+        $this->assertSame('L', $conv->dimension);
+    }
+
+    /**
+     * Test dimension property for squared units.
+     */
+    public function testDimensionPropertyForSquaredUnits(): void
+    {
+        $conv = new Conversion('m2', 'ft2', 10.7639);
+
+        $this->assertSame('L2', $conv->dimension);
+    }
+
+    // endregion
+
     // region __toString() tests
 
     /**

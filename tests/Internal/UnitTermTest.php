@@ -1220,6 +1220,43 @@ final class UnitTermTest extends TestCase
 
     // endregion
 
+    // region quantityType property tests
+
+    /**
+     * Test quantityType property returns QuantityType for a registered dimension.
+     */
+    public function testQuantityTypePropertyReturnsQuantityTypeForRegisteredDimension(): void
+    {
+        $term = new UnitTerm('m');
+
+        $this->assertNotNull($term->quantityType);
+        $this->assertSame('length', $term->quantityType->name);
+    }
+
+    /**
+     * Test quantityType property returns null for an unregistered dimension.
+     */
+    public function testQuantityTypePropertyReturnsNullForUnregisteredDimension(): void
+    {
+        // Create a unit with a dimension that has no registered quantity type.
+        $unit = new Unit(
+            name: 'unregistered test',
+            asciiSymbol: 'Xur',
+            dimension: 'L5T3',
+            systems: [UnitSystem::Custom]
+        );
+        UnitService::add($unit);
+
+        try {
+            $term = new UnitTerm($unit);
+            $this->assertNull($term->quantityType);
+        } finally {
+            UnitService::remove($unit);
+        }
+    }
+
+    // endregion
+
     // region tryExpand() tests
 
     /**
