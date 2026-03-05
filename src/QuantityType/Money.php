@@ -68,7 +68,7 @@ class Money extends Quantity
         }
 
         // Fall back to the usual format() method.
-        return $this->format();
+        return $this->format(); // @codeCoverageIgnore
     }
 
     // endregion

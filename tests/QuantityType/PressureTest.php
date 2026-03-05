@@ -26,9 +26,9 @@ final class PressureTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Scientific and US units.
-        UnitService::loadBySystem(UnitSystem::Scientific);
-        UnitService::loadBySystem(UnitSystem::UsCustomary);
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Scientific);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion

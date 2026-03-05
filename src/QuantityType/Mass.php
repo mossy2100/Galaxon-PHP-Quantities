@@ -109,11 +109,12 @@ class Mass extends Quantity
      */
     public static function setImperialParts(): void
     {
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
 
         // The long ton and stone are in use, but the grain is not.
-        QuantityPartsService::setDefaultPartUnitSymbols(self::class, ['LT', 'st', 'lb', 'oz']);
-        QuantityPartsService::setDefaultResultUnitSymbol(self::class, 'lb');
+        $qtyType = self::getQuantityType();
+        $qtyType->partUnitSymbols = ['LT', 'st', 'lb', 'oz'];
+        $qtyType->resultUnitSymbol = 'lb';
     }
 
     /**
@@ -121,11 +122,12 @@ class Mass extends Quantity
      */
     public static function setUsCustomaryParts(): void
     {
-        UnitService::loadBySystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
 
         // The short ton and grain are in use, but the stone is not.
-        QuantityPartsService::setDefaultPartUnitSymbols(self::class, ['tn', 'lb', 'oz', 'gr']);
-        QuantityPartsService::setDefaultResultUnitSymbol(self::class, 'lb');
+        $qtyType = self::getQuantityType();
+        $qtyType->partUnitSymbols = ['tn', 'lb', 'oz', 'gr'];
+        $qtyType->resultUnitSymbol = 'lb';
     }
 
     // endregion

@@ -27,7 +27,7 @@ class DerivedUnitTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for cross-system tests.
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion

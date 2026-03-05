@@ -51,47 +51,47 @@ class DimensionService
      */
     public const array DIMENSION_CODES = [
         'M' => [
-            'name'                  => 'mass',
+            'quantityTypeName'      => 'mass',
             'siBaseUnitSymbol'      => 'kg',
             'englishBaseUnitSymbol' => 'lb',
         ],
         'L' => [
-            'name'                  => 'length',
+            'quantityTypeName'      => 'length',
             'siBaseUnitSymbol'      => 'm',
             'englishBaseUnitSymbol' => 'ft',
         ],
         'A' => [
-            'name'                  => 'angle',
+            'quantityTypeName'      => 'angle',
             'siBaseUnitSymbol'      => 'rad',
             'englishBaseUnitSymbol' => 'deg',
         ],
         'D' => [
-            'name'             => 'data',
+            'quantityTypeName' => 'data',
             'siBaseUnitSymbol' => 'B',
         ],
         'C' => [
-            'name'             => 'currency',
+            'quantityTypeName' => 'money',
             'siBaseUnitSymbol' => 'XAU',
         ],
         'T' => [
-            'name'             => 'time',
+            'quantityTypeName' => 'time',
             'siBaseUnitSymbol' => 's',
         ],
         'I' => [
-            'name'             => 'electric current',
+            'quantityTypeName' => 'electric current',
             'siBaseUnitSymbol' => 'A',
         ],
         'N' => [
-            'name'             => 'amount of substance',
+            'quantityTypeName' => 'amount of substance',
             'siBaseUnitSymbol' => 'mol',
         ],
         'H' => [
-            'name'                  => 'temperature',
+            'quantityTypeName'      => 'temperature',
             'siBaseUnitSymbol'      => 'K',
             'englishBaseUnitSymbol' => 'degR',
         ],
         'J' => [
-            'name'             => 'luminous intensity',
+            'quantityTypeName' => 'luminous intensity',
             'siBaseUnitSymbol' => 'cd',
         ],
     ];

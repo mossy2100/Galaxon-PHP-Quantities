@@ -26,7 +26,7 @@ class FluidMechanicsTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for lbf and in².
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     /**

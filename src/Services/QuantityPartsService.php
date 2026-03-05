@@ -19,81 +19,6 @@ use UnexpectedValueException;
  */
 class QuantityPartsService
 {
-    // region Default accessors
-
-    /**
-     * Get the default part unit symbols for a Quantity class.
-     *
-     * @param class-string<Quantity> $class The Quantity subclass.
-     * @return ?list<string> The default part unit symbols, or null if not set.
-     */
-    public static function getDefaultPartUnitSymbols(string $class): ?array
-    {
-        $qtyType = QuantityTypeService::getByClass($class);
-        return $qtyType?->partUnitSymbols;
-    }
-
-    /**
-     * Set the default part unit symbols for a Quantity class.
-     *
-     * @param class-string<Quantity> $class The Quantity subclass.
-     * @param list<string> $symbols The unit symbols.
-     * @throws DomainException If the class has no registered quantity type, or symbols are invalid.
-     * @throws InvalidArgumentException If the array contains non-string items.
-     */
-    public static function setDefaultPartUnitSymbols(string $class, array $symbols): void
-    {
-        $qtyType = QuantityTypeService::getByClass($class);
-        if ($qtyType === null) {
-            throw new DomainException("No quantity type registered for class '$class'.");
-        }
-
-        // Validate the symbols resolve to known units.
-        self::validatePartUnitSymbols($symbols);
-
-        $qtyType->partUnitSymbols = $symbols;
-    }
-
-    /**
-     * Get the default result unit symbol for a Quantity class.
-     *
-     * @param class-string<Quantity> $class The Quantity subclass.
-     * @return ?string The default result unit symbol, or null if not set.
-     */
-    public static function getDefaultResultUnitSymbol(string $class): ?string
-    {
-        $qtyType = QuantityTypeService::getByClass($class);
-        return $qtyType?->resultUnitSymbol;
-    }
-
-    /**
-     * Set the default result unit symbol for a Quantity class.
-     *
-     * @param class-string<Quantity> $class The Quantity subclass.
-     * @param string $symbol The unit symbol.
-     * @throws DomainException If the class has no registered quantity type, or the unit is unknown.
-     */
-    public static function setDefaultResultUnitSymbol(string $class, string $symbol): void
-    {
-        $qtyType = QuantityTypeService::getByClass($class);
-        if ($qtyType === null) {
-            throw new DomainException("No quantity type registered for class '$class'.");
-        }
-
-        // Check the unit is valid.
-        $unit = UnitService::getBySymbol($symbol);
-        if ($unit === null) {
-            throw new DomainException(
-                "Unknown unit symbol: '$symbol'. Ensure you have loaded the necessary system of units using " .
-                '`UnitService::loadBySystem()`.'
-            );
-        }
-
-        $qtyType->resultUnitSymbol = $symbol;
-    }
-
-    // endregion
-
     // region Part operations
 
     /**
@@ -116,7 +41,7 @@ class QuantityPartsService
     {
         // Get the default result unit symbol if not provided.
         if ($resultUnitSymbol === null) {
-            $resultUnitSymbol = self::getDefaultResultUnitSymbol($class);
+            $resultUnitSymbol = $class::getQuantityType()?->resultUnitSymbol;
         }
 
         // Validate the result unit.
@@ -132,7 +57,7 @@ class QuantityPartsService
         }
 
         // Check the result unit dimension if possible.
-        $qtyType = QuantityTypeService::getByClass($class);
+        $qtyType = $class::getQuantityType();
         if ($qtyType !== null && $qtyType->dimension !== $resultUnit->dimension) {
             throw new DomainException(
                 "Result unit '$resultUnitSymbol' is incompatible with " . $qtyType->name . ' quantities.'
@@ -188,7 +113,7 @@ class QuantityPartsService
     {
         // Get the default part unit symbols if not provided.
         if ($partUnitSymbols === null) {
-            $partUnitSymbols = self::getDefaultPartUnitSymbols($quantity::class);
+            $partUnitSymbols = $quantity->quantityType?->partUnitSymbols;
         }
 
         // Validate args.
@@ -264,7 +189,7 @@ class QuantityPartsService
 
         // Get the default result unit symbol if not provided.
         if ($resultUnitSymbol === null) {
-            $resultUnitSymbol = self::getDefaultResultUnitSymbol($class);
+            $resultUnitSymbol = $class::getQuantityType()?->resultUnitSymbol;
         }
 
         // Validate the result unit.
@@ -273,7 +198,7 @@ class QuantityPartsService
         }
 
         // Prepare an error message with the original value.
-        $qtyType = QuantityTypeService::getByClass($class);
+        $qtyType = $class::getQuantityType();
         $name = $qtyType === null ? '' : (' ' . $qtyType->name);
         $err = "The provided string '$input' does not represent a valid$name quantity.";
 
@@ -351,20 +276,20 @@ class QuantityPartsService
         bool $showZeros = false,
         bool $ascii = false
     ): string {
-        // Get the default part unit symbols if not provided.
-        if ($partUnitSymbols === null) {
-            $partUnitSymbols = self::getDefaultPartUnitSymbols($quantity::class);
-        }
-
         // Get the quantity as parts. This will validate the arguments.
         $parts = self::toParts($quantity, $partUnitSymbols, $precision);
+
+        // Get the default part unit symbols if not provided.
+        if ($partUnitSymbols === null) {
+            $partUnitSymbols = $quantity->quantityType?->partUnitSymbols;
+        }
+        assert(is_array($partUnitSymbols));
+        $nUnits = count($partUnitSymbols);
 
         // Prep.
         $result = [];
 
         // Generate string as parts for all but the smallest unit.
-        assert(is_array($partUnitSymbols));
-        $nUnits = count($partUnitSymbols);
         for ($i = 0; $i < $nUnits - 1; $i++) {
             $symbol = $partUnitSymbols[$i];
             $unit = UnitService::getBySymbol($symbol);

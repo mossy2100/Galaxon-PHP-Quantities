@@ -10,6 +10,7 @@ use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
+use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\RegexService;
 use LogicException;
 use UnexpectedValueException;
@@ -93,6 +94,13 @@ class DerivedUnit implements UnitInterface
         }
     }
 
+    /**
+     * The quantity type this derived unit is for, if known.
+     */
+    public ?QuantityType $quantityType {
+        get => QuantityTypeService::getByDimension($this->dimension);
+    }
+
     // endregion
 
     // region Constructor
@@ -168,7 +176,6 @@ class DerivedUnit implements UnitInterface
      * @return self The new DerivedUnit instance.
      * @throws FormatException If the symbol format is invalid.
      * @throws DomainException If any units are unknown.
-     * @throws LogicException If there was an error extracting unit terms from the symbol.
      */
     public static function parse(string $symbol): self
     {
@@ -206,7 +213,6 @@ class DerivedUnit implements UnitInterface
      * @return self The new DerivedUnit instance.
      * @throws DomainException If any units are unknown.
      * @throws FormatException If the symbol format is invalid.
-     * @throws LogicException If there was an error extracting unit terms from the symbol.
      * @throws UnexpectedValueException If an unexpected error occurs.
      */
     private static function parseHelper(string $symbol): self

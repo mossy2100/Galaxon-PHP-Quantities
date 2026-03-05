@@ -7,9 +7,7 @@ namespace Galaxon\Quantities\Currencies;
 use DateTime;
 use Galaxon\Core\Stringify;
 use Galaxon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
-use Galaxon\Quantities\QuantityType\Money;
 use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use Locale;
@@ -338,15 +336,15 @@ class CurrencyService
      */
     public static function refresh(): void
     {
-        if (self::refreshCurrencyUnits()) {
-            UnitService::unloadBySystem(UnitSystem::Financial);
+        // Load/reload currency units if necessary.
+        if (self::refreshCurrencyUnits() || !UnitService::isLoadedSystem(UnitSystem::Financial)) {
+            UnitService::loadSystem(UnitSystem::Financial, true);
         }
 
-        // Load currency units from the (possibly fresh) definitions.
-        UnitService::loadBySystem(UnitSystem::Financial);
-
+        // Refresh currency conversions if necessary.
         if (self::refreshCurrencyConversions()) {
-            ConversionService::unloadBySystem(UnitSystem::Financial);
+            // We refreshed the conversion rates, so remove all currency conversions.
+            ConversionService::removeBySystem(UnitSystem::Financial);
         }
 
         // Load currency conversions from the (possibly fresh) definitions.
@@ -441,12 +439,6 @@ class CurrencyService
         self::$locale = $locale;
         self::$ratesTtl = $ratesTtl;
         self::$currenciesTtl = $currenciesTtl;
-
-        // Add the currency quantity type to the QuantityTypeService, if not done already.
-        $qtyType = QuantityTypeService::getByName('currency');
-        if ($qtyType === null) {
-            QuantityTypeService::add('currency', 'C', Money::class);
-        }
 
         // Refresh and load units and conversions as needed.
         self::refresh();

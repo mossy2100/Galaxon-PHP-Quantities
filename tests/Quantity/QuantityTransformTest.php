@@ -32,8 +32,8 @@ final class QuantityTransformTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units for cross-system tests.
-        UnitService::loadBySystem(UnitSystem::Imperial);
-        UnitService::loadBySystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
     }
 
     // endregion
@@ -559,7 +559,7 @@ final class QuantityTransformTest extends TestCase
      */
     public function testGetTypeReturnsQuantityType(): void
     {
-        $type = Length::getType();
+        $type = Length::getQuantityType();
 
         $this->assertInstanceOf(QuantityType::class, $type);
         $this->assertSame('length', $type->name);
@@ -572,7 +572,7 @@ final class QuantityTransformTest extends TestCase
      */
     public function testGetTypeReturnsNullForBaseQuantity(): void
     {
-        $this->assertNull(Quantity::getType());
+        $this->assertNull(Quantity::getQuantityType());
     }
 
     /**
@@ -582,7 +582,7 @@ final class QuantityTransformTest extends TestCase
     {
         $length = new Length(1, 'm');
 
-        $this->assertSame(Length::getType(), $length->type);
+        $this->assertSame(Length::getQuantityType(), $length->quantityType);
     }
 
     /**
@@ -593,7 +593,7 @@ final class QuantityTransformTest extends TestCase
         // A compound unit with no registered quantity type.
         $qty = Quantity::create(1, 'kg*m3');
 
-        $this->assertNull($qty->type);
+        $this->assertNull($qty->quantityType);
     }
 
     // endregion

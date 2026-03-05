@@ -89,11 +89,11 @@ class Quantity implements Stringable
     }
 
     /**
-     * The quantity type.
+     * The quantity type this quantity is for, if known.
      *
      */
-    public ?QuantityType $type {
-        get => static::getType();
+    public ?QuantityType $quantityType {
+        get => QuantityTypeService::getByDimension($this->dimension);
     }
 
     // endregion
@@ -138,7 +138,7 @@ class Quantity implements Stringable
         $derivedUnit = DerivedUnit::toDerivedUnit($unit);
 
         // Check they are calling the correct constructor.
-        $qtyType = QuantityTypeService::getByDimension($derivedUnit->dimension);
+        $qtyType = $derivedUnit->quantityType;
         $correctClass = $qtyType?->class ?? $qtyClass;
         if ($callingClass !== $correctClass) {
             $classStr = $qtyType === null
@@ -180,7 +180,7 @@ class Quantity implements Stringable
         $unit = DerivedUnit::toDerivedUnit($unit);
 
         // If there's a registered subclass for this dimension code, create an object of that class.
-        $qtyType = QuantityTypeService::getByDimension($unit->dimension);
+        $qtyType = $unit->quantityType;
         if ($qtyType !== null) {
             return new ($qtyType->class)($value, $unit);
         }
@@ -250,15 +250,14 @@ class Quantity implements Stringable
     // region Static access methods
 
     /**
-     * Get the quantity type for this Quantity subclass.
+     * Get the quantity type corresponding to the calling class, if known.
      *
-     * Static equivalent to the $type property.
-     *
+     * Static equivalent to the $quantityType property.
      * This method will return null if called on Quantity itself or if the subclass is not registered.
      *
      * @return ?QuantityType The quantity type, or null if not registered.
      */
-    public static function getType(): ?QuantityType
+    public static function getQuantityType(): ?QuantityType
     {
         return QuantityTypeService::getByClass(static::class);
     }
@@ -883,7 +882,7 @@ class Quantity implements Stringable
     public static function parse(string $input): self
     {
         // Prepare an error message with the original value.
-        $qtyType = QuantityTypeService::getByClass(static::class);
+        $qtyType = static::getQuantityType();
         $name = $qtyType === null ? '' : (' ' . $qtyType->name);
         $err = "The provided string '$input' does not represent a valid$name quantity.";
 

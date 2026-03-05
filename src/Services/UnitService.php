@@ -277,7 +277,7 @@ class UnitService
      * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
      */
-    public static function loadBySystem(UnitSystem $system, bool $replaceExisting = false): void
+    public static function loadSystem(UnitSystem $system, bool $replaceExisting = false): void
     {
         // Loop through all unit definitions and add any belonging to the specified system.
         foreach (self::getAllDefinitions() as $name => $definition) {
@@ -294,62 +294,6 @@ class UnitService
         // Keep track of which systems have been loaded.
         if (!in_array($system, self::$loadedSystems, true)) {
             self::$loadedSystems[] = $system;
-        }
-
-        // Update conversion definitions in the Converters. With new units, more conversion definitions will be valid.
-        ConversionService::loadDefinitions();
-    }
-
-    /**
-     * Remove all units belonging to a specific system of units.
-     *
-     * Note, this does not remove conversions from Converters that involve these units.
-     * For that, call ConversionService::unloadSystem().
-     *
-     * @param UnitSystem $system The system of units to unload units for.
-     */
-    public static function unloadBySystem(UnitSystem $system): void
-    {
-        // Get all the units of this system.
-        $units = self::getBySystem($system);
-
-        // Remove them from the UnitService.
-        foreach ($units as $unit) {
-            self::remove($unit);
-        }
-
-        // Remove the system from the list of loaded systems.
-        self::$loadedSystems = Arrays::removeValue(self::$loadedSystems, $system);
-    }
-
-    /**
-     * Load all units belonging to a specific quantity type.
-     *
-     * @param QuantityType $quantityType The quantity type to load units for.
-     * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
-     * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
-     */
-    public static function loadByQuantityType(QuantityType $quantityType, bool $replaceExisting = false): void
-    {
-        // Get the unit definitions for this quantity type.
-        $unitDefinitions = $quantityType->class::getUnitDefinitions();
-
-        // Loop through all unit definitions and add any that align with the loaded systems.
-        foreach ($unitDefinitions as $name => $definition) {
-            // Only load units for loaded systems.
-            $unitSystems = $definition['systems'] ?? [];
-            $intersection = array_uintersect(
-                self::$loadedSystems,
-                $unitSystems,
-                static fn (UnitSystem $a, UnitSystem $b) => $a <=> $b
-            );
-            if (empty($intersection)) {
-                continue;
-            }
-
-            // Add the unit.
-            $definition['dimension'] = $quantityType->dimension;
-            self::addFromDefinition($name, $definition, $replaceExisting);
         }
 
         // Update conversion definitions in the Converters. With new units, more conversion definitions will be valid.
@@ -411,6 +355,17 @@ class UnitService
         return count(self::$units);
     }
 
+    /**
+     * Check if a specific system of units has been loaded.
+     *
+     * @param UnitSystem $system The system to check.
+     * @return bool True if the system has been loaded.
+     */
+    public static function isLoadedSystem(UnitSystem $system): bool
+    {
+        return in_array($system, self::$loadedSystems, true);
+    }
+
     // endregion
 
     // region Private static helper methods
@@ -427,7 +382,7 @@ class UnitService
 
             // Load the default units.
             foreach (UnitSystem::DEFAULTS as $system) {
-                self::loadBySystem($system);
+                self::loadSystem($system);
             }
         }
     }

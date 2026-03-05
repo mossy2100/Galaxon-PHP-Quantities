@@ -356,7 +356,7 @@ final class QuantityTypeTest extends TestCase
         $qtyType = new QuantityType('time', 'T', Time::class);
 
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must not be empty');
+        $this->expectExceptionMessage('must be null or a unit symbol');
 
         $qtyType->resultUnitSymbol = '';
     }

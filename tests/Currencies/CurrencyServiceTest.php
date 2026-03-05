@@ -111,7 +111,7 @@ class CurrencyServiceTest extends TestCase
     public function testLoadUnitDataReturnsNullWhenNoFile(): void
     {
         // Test data dir has no CurrencyUnits.php yet.
-        CurrencyService::setDataDir(__DIR__ . '/data/empty');
+        CurrencyService::setDataDir(self::TEST_DATA_DIR . '/empty');
         self::assertNull(CurrencyService::loadUnitData());
     }
 
@@ -159,7 +159,7 @@ class CurrencyServiceTest extends TestCase
 
     public function testLoadConversionDataReturnsNullWhenNoFile(): void
     {
-        CurrencyService::setDataDir(__DIR__ . '/data/empty');
+        CurrencyService::setDataDir(self::TEST_DATA_DIR . '/empty');
         self::assertNull(CurrencyService::loadConversionData());
     }
 
@@ -305,22 +305,30 @@ class CurrencyServiceTest extends TestCase
 
     public function testInitDoesNotWriteToProductionDir(): void
     {
-        // Record the production files' modification times before init.
+        // setUp() redirects the data dir to the test directory. This test verifies that init() respects
+        // that redirection and does not write to the production data directory.
         $unitsPath = CurrencyService::DEFAULT_DATA_DIR . '/CurrencyUnits.php';
         $conversionsPath = CurrencyService::DEFAULT_DATA_DIR . '/CurrencyConversions.php';
+
+        // Snapshot the production files' state before init().
         $unitsMtime = file_exists($unitsPath) ? filemtime($unitsPath) : null;
         $conversionsMtime = file_exists($conversionsPath) ? filemtime($conversionsPath) : null;
 
         CurrencyService::init(new FrankfurterService());
 
-        // Production files should not have been modified.
+        // If production files existed before, they should be untouched.
+        // If they didn't exist, they should still not exist.
         if ($unitsMtime !== null) {
             clearstatcache(true, $unitsPath);
             self::assertSame($unitsMtime, filemtime($unitsPath));
+        } else {
+            self::assertFileDoesNotExist($unitsPath);
         }
         if ($conversionsMtime !== null) {
             clearstatcache(true, $conversionsPath);
             self::assertSame($conversionsMtime, filemtime($conversionsPath));
+        } else {
+            self::assertFileDoesNotExist($conversionsPath);
         }
     }
 

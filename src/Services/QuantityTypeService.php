@@ -30,6 +30,7 @@ use Galaxon\Quantities\QuantityType\LuminousIntensity;
 use Galaxon\Quantities\QuantityType\MagneticFlux;
 use Galaxon\Quantities\QuantityType\MagneticFluxDensity;
 use Galaxon\Quantities\QuantityType\Mass;
+use Galaxon\Quantities\QuantityType\Money;
 use Galaxon\Quantities\QuantityType\Power;
 use Galaxon\Quantities\QuantityType\Pressure;
 use Galaxon\Quantities\QuantityType\RadiationDose;
@@ -110,6 +111,10 @@ class QuantityTypeService
         'data'                  => [
             'dimension' => 'D',
             'class'     => Data::class,
+        ],
+        'money' => [
+            'dimension' => 'C',
+            'class'     => Money::class,
         ],
 
         // Derived unit dimensions

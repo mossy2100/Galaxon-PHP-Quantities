@@ -44,23 +44,25 @@ class ConversionService
     public static function loadDefinitions(bool $replaceExisting = false): void
     {
         // Scan all existing definitions for any that match the specified system.
-        foreach (
-            self::getAllDefinitions() as [$srcSymbol, $destSymbol, $factor]
-        ) {
+        foreach (self::getAllDefinitions() as [$srcSymbol, $destSymbol, $factor]) {
             // Try to get the source unit as a DerivedUnit object. This will validate the provided value.
             try {
                 $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
-            } catch (DomainException) {
-                // The symbol contains an unknown unit.
+                // @codeCoverageIgnoreStart
+            } catch (DomainException|FormatException) {
+                // The symbol represents an unknown unit or is otherwise invalid; ignore this definition.
                 continue;
+                // @codeCoverageIgnoreEnd
             }
 
             // Try to get the destination unit as a DerivedUnit object. This will validate the provided value.
             try {
                 $destUnit = DerivedUnit::toDerivedUnit($destSymbol);
-            } catch (DomainException) {
-                // The symbol contains an unknown unit.
+                // @codeCoverageIgnoreStart
+            } catch (DomainException|FormatException) {
+                // The symbol represents an unknown unit or is otherwise invalid; ignore this definition.
                 continue;
+                // @codeCoverageIgnoreEnd
             }
 
             // Add the conversion (replacing any existing if specified).
@@ -132,11 +134,11 @@ class ConversionService
     }
 
     /**
-     * Remove all conversions involving units from a specific measurement system.
+     * Remove all conversions involving units from a specific system.
      *
-     * @param UnitSystem $system The measurement system to unload.
+     * @param UnitSystem $system The unit system to unload.
      */
-    public static function unloadBySystem(UnitSystem $system): void
+    public static function removeBySystem(UnitSystem $system): void
     {
         // Get all the units in this system.
         $units = UnitService::getBySystem($system);

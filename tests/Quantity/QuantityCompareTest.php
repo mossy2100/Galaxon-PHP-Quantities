@@ -26,8 +26,8 @@ final class QuantityCompareTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units for cross-system tests.
-        UnitService::loadBySystem(UnitSystem::Imperial);
-        UnitService::loadBySystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
     }
 
     // endregion

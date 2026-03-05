@@ -28,7 +28,7 @@ final class UnitTermTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for cross-system tests.
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion
@@ -1334,7 +1334,7 @@ final class UnitTermTest extends TestCase
             $this->assertNull($term->tryExpand());
         } finally {
             UnitService::remove($unit);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
         }
     }
 

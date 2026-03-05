@@ -6,7 +6,6 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use Galaxon\Quantities\UnitSystem;
@@ -27,8 +26,8 @@ final class MassTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US units.
-        UnitService::loadBySystem(UnitSystem::Imperial);
-        UnitService::loadBySystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
     }
 
     // endregion
@@ -575,17 +574,15 @@ final class MassTest extends TestCase
      */
     public function testSetImperialPartsSetsPartUnitSymbols(): void
     {
-        $original = QuantityPartsService::getDefaultPartUnitSymbols(Mass::class);
+        $original = Mass::getQuantityType()?->partUnitSymbols;
         try {
             Mass::setImperialParts();
             $this->assertSame(
                 ['LT', 'st', 'lb', 'oz'],
-                QuantityPartsService::getDefaultPartUnitSymbols(Mass::class)
+                Mass::getQuantityType()?->partUnitSymbols
             );
         } finally {
-            if ($original !== null) {
-                QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, $original);
-            }
+            Mass::getQuantityType()->partUnitSymbols = $original;
         }
     }
 
@@ -594,14 +591,12 @@ final class MassTest extends TestCase
      */
     public function testSetImperialPartsSetsResultUnitSymbol(): void
     {
-        $original = QuantityPartsService::getDefaultResultUnitSymbol(Mass::class);
+        $original = Mass::getQuantityType()?->resultUnitSymbol;
         try {
             Mass::setImperialParts();
-            $this->assertSame('lb', QuantityPartsService::getDefaultResultUnitSymbol(Mass::class));
+            $this->assertSame('lb', Mass::getQuantityType()?->resultUnitSymbol);
         } finally {
-            if ($original !== null) {
-                QuantityPartsService::setDefaultResultUnitSymbol(Mass::class, $original);
-            }
+            Mass::getQuantityType()->resultUnitSymbol = $original;
         }
     }
 
@@ -610,17 +605,15 @@ final class MassTest extends TestCase
      */
     public function testSetUsCustomaryPartsSetsPartUnitSymbols(): void
     {
-        $original = QuantityPartsService::getDefaultPartUnitSymbols(Mass::class);
+        $original = Mass::getQuantityType()?->partUnitSymbols;
         try {
             Mass::setUsCustomaryParts();
             $this->assertSame(
                 ['tn', 'lb', 'oz', 'gr'],
-                QuantityPartsService::getDefaultPartUnitSymbols(Mass::class)
+                Mass::getQuantityType()?->partUnitSymbols
             );
         } finally {
-            if ($original !== null) {
-                QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, $original);
-            }
+            Mass::getQuantityType()->partUnitSymbols = $original;
         }
     }
 
@@ -629,14 +622,12 @@ final class MassTest extends TestCase
      */
     public function testSetUsCustomaryPartsSetsResultUnitSymbol(): void
     {
-        $original = QuantityPartsService::getDefaultResultUnitSymbol(Mass::class);
+        $original = Mass::getQuantityType()?->resultUnitSymbol;
         try {
             Mass::setUsCustomaryParts();
-            $this->assertSame('lb', QuantityPartsService::getDefaultResultUnitSymbol(Mass::class));
+            $this->assertSame('lb', Mass::getQuantityType()?->resultUnitSymbol);
         } finally {
-            if ($original !== null) {
-                QuantityPartsService::setDefaultResultUnitSymbol(Mass::class, $original);
-            }
+            Mass::getQuantityType()->resultUnitSymbol = $original;
         }
     }
 
@@ -661,7 +652,7 @@ final class MassTest extends TestCase
             $this->assertSame(3, $parts['lb']);
             $this->assertSame(0.0, $parts['oz']);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['LT', 'st', 'lb', 'oz']);
+            Mass::getQuantityType()->partUnitSymbols = ['LT', 'st', 'lb', 'oz'];
         }
     }
 
@@ -681,7 +672,7 @@ final class MassTest extends TestCase
             $this->assertSame(2, $parts['lb']);
             $this->assertSame(8.0, $parts['oz']);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['LT', 'st', 'lb', 'oz']);
+            Mass::getQuantityType()->partUnitSymbols = ['LT', 'st', 'lb', 'oz'];
         }
     }
 
@@ -702,7 +693,7 @@ final class MassTest extends TestCase
             // 11 st 3 lb = 11 * 14 + 3 = 157 lb
             $this->assertSame(157.0, $mass->value);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['LT', 'st', 'lb', 'oz']);
+            Mass::getQuantityType()->partUnitSymbols = ['LT', 'st', 'lb', 'oz'];
         }
     }
 
@@ -719,7 +710,7 @@ final class MassTest extends TestCase
 
             $this->assertSame('11st 3lb', $result);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['LT', 'st', 'lb', 'oz']);
+            Mass::getQuantityType()->partUnitSymbols = ['LT', 'st', 'lb', 'oz'];
         }
     }
 
@@ -736,7 +727,7 @@ final class MassTest extends TestCase
             $this->assertSame('lb', $mass->derivedUnit->asciiSymbol);
             $this->assertSame(157.0, $mass->value);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['LT', 'st', 'lb', 'oz']);
+            Mass::getQuantityType()->partUnitSymbols = ['LT', 'st', 'lb', 'oz'];
         }
     }
 
@@ -761,7 +752,7 @@ final class MassTest extends TestCase
             $this->assertSame(4, $parts['oz']);
             $this->assertSame(0.0, $parts['gr']);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['tn', 'lb', 'oz', 'gr']);
+            Mass::getQuantityType()->partUnitSymbols = ['tn', 'lb', 'oz', 'gr'];
         }
     }
 
@@ -781,7 +772,7 @@ final class MassTest extends TestCase
             $this->assertSame(1, $parts['oz']);
             $this->assertSame(0.0, $parts['gr']);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['tn', 'lb', 'oz', 'gr']);
+            Mass::getQuantityType()->partUnitSymbols = ['tn', 'lb', 'oz', 'gr'];
         }
     }
 
@@ -802,7 +793,7 @@ final class MassTest extends TestCase
             // 3 lb 4 oz = 3.25 lb
             $this->assertSame(3.25, $mass->value);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['tn', 'lb', 'oz', 'gr']);
+            Mass::getQuantityType()->partUnitSymbols = ['tn', 'lb', 'oz', 'gr'];
         }
     }
 
@@ -819,7 +810,7 @@ final class MassTest extends TestCase
 
             $this->assertSame('3lb 4oz', $result);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['tn', 'lb', 'oz', 'gr']);
+            Mass::getQuantityType()->partUnitSymbols = ['tn', 'lb', 'oz', 'gr'];
         }
     }
 
@@ -836,7 +827,7 @@ final class MassTest extends TestCase
             $this->assertSame('lb', $mass->derivedUnit->asciiSymbol);
             $this->assertSame(3.25, $mass->value);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['tn', 'lb', 'oz', 'gr']);
+            Mass::getQuantityType()->partUnitSymbols = ['tn', 'lb', 'oz', 'gr'];
         }
     }
 
@@ -852,7 +843,7 @@ final class MassTest extends TestCase
             $this->assertInstanceOf(Mass::class, $mass);
             $this->assertSame(-3.25, $mass->value);
         } finally {
-            QuantityPartsService::setDefaultPartUnitSymbols(Mass::class, ['tn', 'lb', 'oz', 'gr']);
+            Mass::getQuantityType()->partUnitSymbols = ['tn', 'lb', 'oz', 'gr'];
         }
     }
 

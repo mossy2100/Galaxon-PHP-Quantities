@@ -11,6 +11,7 @@ use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use Override;
@@ -112,6 +113,13 @@ class UnitTerm implements UnitInterface
     public string $dimension
     {
         get => DimensionService::applyExponent($this->unit->dimension, $this->exponent);
+    }
+
+    /**
+     * The quantity type this unit term is for, if known.
+     */
+    public ?QuantityType $quantityType {
+        get => QuantityTypeService::getByDimension($this->dimension);
     }
 
     // endregion

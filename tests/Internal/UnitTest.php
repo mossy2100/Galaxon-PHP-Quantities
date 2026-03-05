@@ -27,7 +27,7 @@ final class UnitTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load units for tests.
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion
@@ -1077,7 +1077,7 @@ final class UnitTest extends TestCase
             $this->assertNull($unit->tryExpand());
         } finally {
             UnitService::remove($unit);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
         }
     }
 
@@ -1103,7 +1103,7 @@ final class UnitTest extends TestCase
     public function testTryExpandWithNonUnityFactor(): void
     {
         UnitService::reset();
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
 
         // lbf expands to lb*ft/s2 with factor ≈ 32.174 (not 1.0).
         $unit = UnitService::getBySymbol('lbf');

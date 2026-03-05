@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
+use Galaxon\Quantities\Services\UnitService;
 use InvalidArgumentException;
 
 /**
@@ -61,15 +62,20 @@ class QuantityType
     public ?array $partUnitSymbols = null {
         set {
             if ($value !== null) {
+                // Check value is not empty.
                 if (empty($value)) {
                     throw new DomainException('The array of part unit symbols must not be empty.');
                 }
 
+                // Check all the symbols are strings.
                 foreach ($value as $symbol) {
                     if (!is_string($symbol)) {
                         throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
                     }
                 }
+
+                // NB: We don't check the units are valid at this time because we want to be able to set the defaults
+                // before those units are loaded.
 
                 $value = array_values(array_unique($value));
             }
@@ -85,9 +91,13 @@ class QuantityType
      */
     public ?string $resultUnitSymbol = null {
         set {
-            if ($value !== null && $value === '') {
-                throw new DomainException('The result unit symbol must not be empty.');
+            // Check the value is not an empty string.
+            if ($value === '') {
+                throw new DomainException('The result unit symbol must be null or a unit symbol.');
             }
+
+            // NB: We don't check the unit is valid at this time, because we want to be able to set the default
+            // before the unit is loaded.
 
             $this->resultUnitSymbol = $value;
         }

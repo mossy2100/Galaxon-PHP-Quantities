@@ -10,6 +10,7 @@ use Galaxon\Core\Traits\Equatable;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
@@ -91,7 +92,7 @@ class Unit implements UnitInterface
      *
      * @var array<string, array{string, ?string}>
      */
-    public array $symbols = [] {
+    private(set) array $symbols = [] {
         get {
             // Return cached result if available.
             if ($this->symbols !== []) {
@@ -139,6 +140,13 @@ class Unit implements UnitInterface
             $this->symbols = $symbols;
             return $symbols;
         }
+    }
+
+    /**
+     * The quantity type this unit is for, if known.
+     */
+    public ?QuantityType $quantityType {
+        get => QuantityTypeService::getByDimension($this->dimension);
     }
 
     // endregion

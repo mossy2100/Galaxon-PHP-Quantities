@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
+use Galaxon\Quantities\Currencies\CurrencyService;
+use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
@@ -30,15 +32,15 @@ class ConverterTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for cross-system tests.
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion
 
-    // region reset() tests
+    // region removeAllInstances() tests
 
     /**
-     * Test reset clears cached instances.
+     * Test removeAllInstances clears cached instances.
      */
     public function testResetClearsCachedInstances(): void
     {
@@ -46,7 +48,7 @@ class ConverterTest extends TestCase
         $converter1 = Converter::getInstance('L');
 
         // Reset the cache.
-        Converter::clearInstances();
+        Converter::removeAllInstances();
 
         // Get a new instance - should be a different object.
         $converter2 = Converter::getInstance('L');
@@ -64,7 +66,7 @@ class ConverterTest extends TestCase
      */
     public function testGetInstancesReturnsAllCachedConverters(): void
     {
-        Converter::clearInstances();
+        Converter::removeAllInstances();
 
         $this->assertEmpty(Converter::getInstances());
 
@@ -87,7 +89,7 @@ class ConverterTest extends TestCase
      */
     public function testRemoveInstanceRemovesCachedConverter(): void
     {
-        Converter::clearInstances();
+        Converter::removeAllInstances();
 
         Converter::getInstance('L');
         Converter::getInstance('T');
@@ -104,12 +106,12 @@ class ConverterTest extends TestCase
 
     // endregion
 
-    // region getByDimension() tests
+    // region getInstance() tests
 
     /**
-     * Test getByDimension returns instance for valid dimension.
+     * Test getInstance returns instance for valid dimension.
      */
-    public function testGetByDimensionReturnsInstance(): void
+    public function testGetInstanceReturnsInstance(): void
     {
         $converter = Converter::getInstance('L');
 
@@ -118,9 +120,9 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getByDimension throws for invalid dimension.
+     * Test getInstance throws for invalid dimension.
      */
-    public function testGetByDimensionThrowsForInvalidDimension(): void
+    public function testGetInstanceThrowsForInvalidDimension(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Invalid dimension code 'X'.");
@@ -129,9 +131,9 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getByDimension returns same instance for same dimension (singleton).
+     * Test getInstance returns same instance for same dimension (singleton).
      */
-    public function testGetByDimensionReturnsSameInstance(): void
+    public function testGetInstanceReturnsSameInstance(): void
     {
         $converter1 = Converter::getInstance('L');
         $converter2 = Converter::getInstance('L');
@@ -140,9 +142,9 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getByDimension returns different instances for different dimensions.
+     * Test getInstance returns different instances for different dimensions.
      */
-    public function testGetByDimensionReturnsDifferentInstancesForDifferentDimensions(): void
+    public function testGetInstanceReturnsDifferentInstancesForDifferentDimensions(): void
     {
         $lengthConverter = Converter::getInstance('L');
         $timeConverter = Converter::getInstance('T');
@@ -154,10 +156,10 @@ class ConverterTest extends TestCase
 
     // endregion
 
-    // region getConversion() tests
+    // region findConversion() tests
 
     /**
-     * Test getConversion returns conversion for known units.
+     * Test findConversion returns conversion for known units.
      */
     public function testGetConversionReturnsConversion(): void
     {
@@ -172,7 +174,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion returns unity conversion for identical units.
+     * Test findConversion returns unity conversion for identical units.
      */
     public function testGetConversionReturnsUnityForIdenticalUnits(): void
     {
@@ -185,7 +187,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion handles prefix-only differences.
+     * Test findConversion handles prefix-only differences.
      */
     public function testGetConversionHandlesPrefixOnlyDifference(): void
     {
@@ -200,7 +202,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion handles centimeters to meters.
+     * Test findConversion handles centimeters to meters.
      */
     public function testGetConversionCentimetersToMeters(): void
     {
@@ -213,7 +215,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion with UnitTerm objects.
+     * Test findConversion with DerivedUnit objects.
      */
     public function testGetConversionWithUnitTermObjects(): void
     {
@@ -227,7 +229,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion throws for invalid unit term.
+     * Test findConversion throws for invalid unit.
      */
     public function testGetConversionThrowsForInvalidUnitTerm(): void
     {
@@ -239,7 +241,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion caches results.
+     * Test findConversion caches results.
      */
     public function testGetConversionCachesResults(): void
     {
@@ -258,7 +260,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversion returns null when no conversion path exists.
+     * Test findConversion returns null when no conversion path exists.
      */
     public function testGetConversionReturnsNullWhenNoPathExists(): void
     {
@@ -273,7 +275,7 @@ class ConverterTest extends TestCase
 
         try {
             // Clear cached converters to pick up the new unit.
-            Converter::clearInstances();
+            Converter::removeAllInstances();
 
             $converter = Converter::getInstance('L');
 
@@ -284,7 +286,7 @@ class ConverterTest extends TestCase
         } finally {
             // Clean up.
             UnitService::remove($unit);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
         }
     }
 
@@ -305,10 +307,10 @@ class ConverterTest extends TestCase
 
     // endregion
 
-    // region getConversionFactor() tests
+    // region findConversionFactor() tests
 
     /**
-     * Test getConversionFactor returns factor for known units.
+     * Test findConversionFactor returns factor for known units.
      */
     public function testGetConversionFactorReturnsFactor(): void
     {
@@ -321,7 +323,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversionFactor returns 1.0 for identical units.
+     * Test findConversionFactor returns 1.0 for identical units.
      */
     public function testGetConversionFactorReturnsOneForIdenticalUnits(): void
     {
@@ -333,7 +335,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversionFactor for prefix conversion.
+     * Test findConversionFactor for prefix conversion.
      */
     public function testGetConversionFactorForPrefixConversion(): void
     {
@@ -346,7 +348,7 @@ class ConverterTest extends TestCase
     }
 
     /**
-     * Test getConversionFactor returns null when no path exists.
+     * Test findConversionFactor returns null when no path exists.
      */
     public function testGetConversionFactorReturnsNullWhenNoPathExists(): void
     {
@@ -361,7 +363,7 @@ class ConverterTest extends TestCase
 
         try {
             // Clear cached converters to pick up the new unit.
-            Converter::clearInstances();
+            Converter::removeAllInstances();
 
             $converter = Converter::getInstance('L');
 
@@ -372,7 +374,7 @@ class ConverterTest extends TestCase
         } finally {
             // Clean up.
             UnitService::remove($unit);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
         }
     }
 
@@ -482,7 +484,7 @@ class ConverterTest extends TestCase
 
         try {
             // Clear cached converters to pick up the new unit.
-            Converter::clearInstances();
+            Converter::removeAllInstances();
 
             $converter = Converter::getInstance('L');
 
@@ -493,7 +495,7 @@ class ConverterTest extends TestCase
         } finally {
             // Clean up.
             UnitService::remove($unit);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
         }
     }
 
@@ -713,6 +715,53 @@ class ConverterTest extends TestCase
 
     // endregion
 
+    // region Currency conversion tests
+
+    /**
+     * Test that findConversion refreshes currency data when dimension contains 'C'.
+     */
+    public function testFindConversionRefreshesCurrencyData(): void
+    {
+        CurrencyService::init(new FrankfurterService());
+
+        try {
+            Converter::removeAllInstances();
+
+            $conversion = ConversionService::find('AUD', 'USD');
+
+            $this->assertInstanceOf(Conversion::class, $conversion);
+            $this->assertGreaterThan(0.0, $conversion->factor->value);
+        } finally {
+            CurrencyService::$exchangeRateService = null;
+            Converter::removeAllInstances();
+        }
+    }
+
+    // endregion
+
+    // region Multi-hop conversion tests
+
+    /**
+     * Test that findConversion uses generateConversions to find multi-hop paths.
+     *
+     * Some conversions (like in → mi) require multiple hops that cannot be found by
+     * findNewConversion directly, but are discovered after generateConversions fills in
+     * intermediate pairs.
+     */
+    public function testFindConversionViaGenerateConversions(): void
+    {
+        Converter::removeAllInstances();
+
+        $converter = Converter::getInstance('L');
+        $conversion = $converter->findConversion('in', 'mi');
+
+        $this->assertInstanceOf(Conversion::class, $conversion);
+        // 1 in = 1/63360 mi.
+        $this->assertEqualsWithDelta(1 / 63360, $conversion->factor->value, 1e-10);
+    }
+
+    // endregion
+
     // region Combination path coverage tests
 
     /**
@@ -724,7 +773,7 @@ class ConverterTest extends TestCase
     public function testDivergentCombinationPath(): void
     {
         // Reset converters.
-        Converter::clearInstances();
+        Converter::removeAllInstances();
 
         // Create custom units.
         $tx = new Unit('test x', 'Tx', 'L', systems: [UnitSystem::Si]);
@@ -752,7 +801,7 @@ class ConverterTest extends TestCase
             UnitService::remove($tx);
             UnitService::remove($ty);
             UnitService::remove($tz);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
         }
     }
 
@@ -767,7 +816,7 @@ class ConverterTest extends TestCase
     public function testOppositeCombinationPathWithZeroError(): void
     {
         // Reset converters.
-        Converter::clearInstances();
+        Converter::removeAllInstances();
 
         // Use a custom isolated dimension so only our units exist.
         $dimension = 'L7';
@@ -801,7 +850,7 @@ class ConverterTest extends TestCase
             UnitService::remove($oppA);
             UnitService::remove($oppB);
             UnitService::remove($oppC);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
             QuantityTypeService::reset();
         }
     }
@@ -816,7 +865,7 @@ class ConverterTest extends TestCase
     public function testConvergentCombinationPathWithZeroError(): void
     {
         // Reset converters.
-        Converter::clearInstances();
+        Converter::removeAllInstances();
 
         // Use a custom isolated dimension.
         $dimension = 'L8';
@@ -847,31 +896,50 @@ class ConverterTest extends TestCase
             UnitService::remove($convA);
             UnitService::remove($convB);
             UnitService::remove($convC);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
             QuantityTypeService::reset();
         }
     }
 
     // endregion
 
-    // region addMergedUnit() tests
+    // region addMerged() tests
 
     /**
-     * Test that addMergedUnit is triggered when getting conversion with mergeable units.
+     * Test that addMerged is triggered when finding conversion with mergeable units.
      *
-     * This covers addMergedUnit() by going through getConversion() with a mergeable unit.
+     * This covers addMerged() by going through findConversion() with a mergeable unit.
      */
     public function testGetConversionTriggersMergeForMergeableUnits(): void
     {
         $converter = Converter::getInstance('L2');
 
         // m*ft has two length units that should be merged.
-        // Getting a conversion should trigger addMergedUnit internally.
+        // Getting a conversion should trigger addMerged internally.
         $conversion = $converter->findConversion('m*ft', 'm2');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 m*ft = 0.3048 m² (since 1 ft = 0.3048 m)
         $this->assertEqualsWithDelta(0.3048, $conversion->factor->value, 1e-4);
+    }
+
+    /**
+     * Test that addExpanded is triggered for compound units during findConversion.
+     *
+     * When a non-base compound unit like N*m is first encountered, its expansion
+     * (N → kg*m/s2, so N*m → kg*m2/s2) is discovered and added as a new conversion.
+     */
+    public function testFindConversionTriggersAddExpanded(): void
+    {
+        Converter::removeAllInstances();
+
+        // N*m is not in the energy (ML2T-2) conversion definitions, but N can be expanded
+        // to kg*m/s2, so N*m expands to kg*m2/s2 = J. This triggers addExpanded().
+        $converter = Converter::getInstance('ML2T-2');
+        $conversion = $converter->findConversion('N*m', 'J');
+
+        $this->assertInstanceOf(Conversion::class, $conversion);
+        $this->assertEqualsWithDelta(1.0, $conversion->factor->value, 1e-10);
     }
 
     // endregion
@@ -922,7 +990,7 @@ class ConverterTest extends TestCase
      */
     public function testRemoveConversionRemovesFromMatrix(): void
     {
-        Converter::clearInstances();
+        Converter::removeAllInstances();
         $converter = Converter::getInstance('L');
 
         // Verify a conversion exists after loading definitions.
@@ -950,7 +1018,7 @@ class ConverterTest extends TestCase
      */
     public function testRemoveAllConversionsClearsMatrix(): void
     {
-        Converter::clearInstances();
+        Converter::removeAllInstances();
         $converter = Converter::getInstance('L');
 
         $this->assertNotEmpty($converter->conversionMatrix);
@@ -969,7 +1037,7 @@ class ConverterTest extends TestCase
      */
     public function testRemoveConversionsByUnitRemovesAllInvolving(): void
     {
-        Converter::clearInstances();
+        Converter::removeAllInstances();
 
         // Use an isolated dimension to avoid side effects.
         $dimension = 'L9';
@@ -1003,7 +1071,7 @@ class ConverterTest extends TestCase
             UnitService::remove($unitA);
             UnitService::remove($unitB);
             UnitService::remove($unitC);
-            Converter::clearInstances();
+            Converter::removeAllInstances();
             QuantityTypeService::reset();
         }
     }
@@ -1017,7 +1085,7 @@ class ConverterTest extends TestCase
      */
     public function testRemoveUnitRemovesFromList(): void
     {
-        Converter::clearInstances();
+        Converter::removeAllInstances();
         $converter = Converter::getInstance('L');
 
         $unit = DerivedUnit::parse('m');
@@ -1038,7 +1106,7 @@ class ConverterTest extends TestCase
      */
     public function testRemoveAllUnitsClearsList(): void
     {
-        Converter::clearInstances();
+        Converter::removeAllInstances();
         $converter = Converter::getInstance('L');
 
         $this->assertNotEmpty($converter->units);

@@ -288,7 +288,7 @@ use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
 // Load Imperial units first
-UnitService::loadBySystem(UnitSystem::Imperial);
+UnitService::loadSystem(UnitSystem::Imperial);
 
 // Now convert
 $volume = Converter::getInstance('L3');

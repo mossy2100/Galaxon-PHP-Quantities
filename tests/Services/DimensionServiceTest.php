@@ -24,7 +24,7 @@ final class DimensionServiceTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial units for English base unit tests.
-        UnitService::loadBySystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::Imperial);
     }
 
     // endregion

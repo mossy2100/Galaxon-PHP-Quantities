@@ -75,6 +75,17 @@ class Converter
 
     // endregion
 
+    // region Property hooks
+
+    /**
+     * The quantity type this converter is for, if known.
+     */
+    public ?QuantityType $quantityType {
+        get => QuantityTypeService::getByDimension($this->dimension);
+    }
+
+    // endregion
+
     // region Constructor
 
     /**
@@ -147,7 +158,7 @@ class Converter
      * Clears the multiton cache, forcing new instances to be created on next access.
      * Primarily intended for test isolation.
      */
-    public static function clearInstances(): void
+    public static function removeAllInstances(): void
     {
         self::$instances = [];
     }
@@ -366,14 +377,11 @@ class Converter
      */
     public function loadConversionDefinitions(): void
     {
-        // Get the quantity type for this dimension.
-        $qtyType = QuantityTypeService::getByDimension($this->dimension);
-        $conversionDefinitions = $qtyType?->class::getConversionDefinitions() ?? [];
+        // Get the conversion definitions for this dimension.
+        $conversionDefinitions = $this->quantityType?->class::getConversionDefinitions() ?? [];
 
         // Initialize the Converter with all conversion definitions for this dimension.
-        foreach (
-            $conversionDefinitions as [$srcSymbol, $destSymbol, $factor]
-        ) {
+        foreach ($conversionDefinitions as [$srcSymbol, $destSymbol, $factor]) {
             // Try to get the units as DerivedUnit objects.
             try {
                 $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
@@ -486,7 +494,7 @@ class Converter
 
         // Check the unit term has the right dimension.
         if ($unit->dimension !== $this->dimension) {
-            $qtyType = QuantityTypeService::getByDimension($this->dimension);
+            $qtyType = $this->quantityType;
             $error = $qtyType === null
                 ? "The unit dimension '$unit->dimension' does not match the converter dimension '$this->dimension'."
                 : "The unit '$unit->asciiSymbol' is invalid for $qtyType->name quantities.";
@@ -622,7 +630,7 @@ class Converter
             // Get the conversion.
             $conversion = ConversionService::find($srcUnitTerm, $destUnitTerm);
             if ($conversion === null) {
-                return null;
+                return null; // @codeCoverageIgnore
             }
 
             // Multiply.

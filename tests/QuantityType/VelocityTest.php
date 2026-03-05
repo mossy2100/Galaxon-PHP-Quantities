@@ -28,9 +28,9 @@ final class VelocityTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         // Load Imperial/US and Nautical units.
-        UnitService::loadBySystem(UnitSystem::Imperial);
-        UnitService::loadBySystem(UnitSystem::UsCustomary);
-        UnitService::loadBySystem(UnitSystem::Nautical);
+        UnitService::loadSystem(UnitSystem::Imperial);
+        UnitService::loadSystem(UnitSystem::UsCustomary);
+        UnitService::loadSystem(UnitSystem::Nautical);
     }
 
     // endregion
