@@ -3,7 +3,7 @@
 /**
  * Conversion definitions for currencies.
  *
- * Fetched from Frankfurter (ECB) at Thursday, 05-Mar-2026 06:15:43 UTC.
+ * Fetched from Frankfurter (ECB) at Sunday, 08-Mar-2026 03:47:13 UTC.
  *
  * To regenerate, call Galaxon\Quantities\Currencies\CurrencyService::refreshCurrencyConversions().
  *
@@ -17,37 +17,37 @@
 declare(strict_types=1);
 
 return [
-    'whenFetched' => '2026-03-05 06:15:43 UTC',
+    'whenFetched' => '2026-03-08 03:47:13 UTC',
     'serviceName' => 'Frankfurter (ECB)',
     'definitions' => [
-        ['EUR', 'AUD', 1.6503],
-        ['EUR', 'BRL', 6.0805],
-        ['EUR', 'CAD', 1.591],
-        ['EUR', 'CHF', 0.9082],
-        ['EUR', 'CNY', 8.0347],
-        ['EUR', 'CZK', 24.36],
-        ['EUR', 'DKK', 7.4715],
-        ['EUR', 'GBP', 0.8705],
-        ['EUR', 'HKD', 9.1064],
-        ['EUR', 'HUF', 384.33],
-        ['EUR', 'IDR', 19633.92],
-        ['EUR', 'ILS', 3.5838],
-        ['EUR', 'INR', 107.2678],
-        ['EUR', 'ISK', 144.7],
-        ['EUR', 'JPY', 183.02],
-        ['EUR', 'KRW', 1706.34],
-        ['EUR', 'MXN', 20.4415],
-        ['EUR', 'MYR', 4.5915],
-        ['EUR', 'NOK', 11.2385],
-        ['EUR', 'NZD', 1.9674],
-        ['EUR', 'PHP', 68.111],
-        ['EUR', 'PLN', 4.2588],
-        ['EUR', 'RON', 5.0925],
-        ['EUR', 'SEK', 10.6785],
-        ['EUR', 'SGD', 1.4844],
-        ['EUR', 'THB', 36.671],
-        ['EUR', 'TRY', 51.2254],
-        ['EUR', 'USD', 1.1649],
-        ['EUR', 'ZAR', 19.0098],
+        ['EUR', 'AUD', 1.6501],
+        ['EUR', 'BRL', 6.1002],
+        ['EUR', 'CAD', 1.5782],
+        ['EUR', 'CHF', 0.9045],
+        ['EUR', 'CNY', 7.9825],
+        ['EUR', 'CZK', 24.419],
+        ['EUR', 'DKK', 7.4708],
+        ['EUR', 'GBP', 0.86693],
+        ['EUR', 'HKD', 9.04],
+        ['EUR', 'HUF', 393.4],
+        ['EUR', 'IDR', 19623.06],
+        ['EUR', 'ILS', 3.5756],
+        ['EUR', 'INR', 106.1745],
+        ['EUR', 'ISK', 144.9],
+        ['EUR', 'JPY', 182.57],
+        ['EUR', 'KRW', 1717.02],
+        ['EUR', 'MXN', 20.5624],
+        ['EUR', 'MYR', 4.562],
+        ['EUR', 'NOK', 11.1725],
+        ['EUR', 'NZD', 1.9687],
+        ['EUR', 'PHP', 68.525],
+        ['EUR', 'PLN', 4.2875],
+        ['EUR', 'RON', 5.0951],
+        ['EUR', 'SEK', 10.693],
+        ['EUR', 'SGD', 1.481],
+        ['EUR', 'THB', 36.966],
+        ['EUR', 'TRY', 50.9539],
+        ['EUR', 'USD', 1.1561],
+        ['EUR', 'ZAR', 19.3277],
     ],
 ];

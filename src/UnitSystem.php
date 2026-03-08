@@ -27,7 +27,7 @@ enum UnitSystem
 
     case Css;
 
-    case Financial;
+    case Currency;
 
     case Custom;
 

@@ -11,7 +11,7 @@ Represents force quantities.
 
 The `Force` class handles force measurements in SI and Imperial/US Customary systems.
 
-For the complete list of force units, see [Supported Units: Force](Supported%20Units%20and%20Prefixes.md#force).
+For the complete list of force units, see [Supported Units: Force](2.6.%20Supported%20Units.md#force).
 
 ---
 
@@ -91,7 +91,7 @@ Force is related to other quantities:
 
 ## See Also
 
-- **[Supported Units: Force](Supported%20Units%20and%20Prefixes.md#force)** - Complete list of force units
+- **[Supported Units: Force](2.6.%20Supported%20Units.md#force)** - Complete list of force units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Pressure](Pressure.md)** - Related quantity (force per area)
 - **[Energy](Energy.md)** - Related quantity (force × distance)

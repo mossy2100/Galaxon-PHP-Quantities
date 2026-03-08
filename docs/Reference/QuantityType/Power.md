@@ -11,7 +11,7 @@ Represents power quantities.
 
 The `Power` class handles power measurements.
 
-For the complete list of power units, see [Supported Units: Power](Supported%20Units%20and%20Prefixes.md#power).
+For the complete list of power units, see [Supported Units: Power](2.6.%20Supported%20Units.md#power).
 
 ---
 
@@ -77,7 +77,7 @@ $energy = $power->value * $hours;  // 500 Wh = 0.5 kWh
 
 ## See Also
 
-- **[Supported Units: Power](Supported%20Units%20and%20Prefixes.md#power)** - Complete list
+- **[Supported Units: Power](2.6.%20Supported%20Units.md#power)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Energy](Energy.md)** - Related quantity (E = P·t)
 - **[Voltage](Voltage.md)** - Related quantity (P = V·I)

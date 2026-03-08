@@ -11,7 +11,7 @@ Represents magnetic flux density (magnetic field strength) quantities.
 
 The `MagneticFluxDensity` class handles magnetic flux density measurements, also known as magnetic field strength or B-field.
 
-For the complete list of magnetic flux density units, see [Supported Units: Magnetic Flux Density](Supported%20Units%20and%20Prefixes.md#magnetic-flux-density).
+For the complete list of magnetic flux density units, see [Supported Units: Magnetic Flux Density](2.6.%20Supported%20Units.md#magnetic-flux-density).
 
 ---
 
@@ -68,6 +68,6 @@ $magnet = new MagneticFluxDensity(1.2, 'T');
 
 ## See Also
 
-- **[Supported Units: Magnetic Flux Density](Supported%20Units%20and%20Prefixes.md#magnetic-flux-density)** - Complete list
+- **[Supported Units: Magnetic Flux Density](2.6.%20Supported%20Units.md#magnetic-flux-density)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[MagneticFlux](MagneticFlux.md)** - Related quantity (Φ = B·A)

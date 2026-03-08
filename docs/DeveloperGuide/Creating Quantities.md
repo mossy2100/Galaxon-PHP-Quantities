@@ -79,4 +79,4 @@ The package also includes `Data` (bytes, bits) and `Dimensionless` for dimension
 
 Most [SI derived units defined by field of application](https://en.wikipedia.org/wiki/SI_derived_unit#By_field_of_application) — such as viscosity, entropy, specific heat capacity, and surface tension — do not have dedicated classes. They can be created directly using the base `Quantity` class with compound unit expressions (e.g. `'Pa*s'`, `'J/K'`, `'J/(kg*K)'`).
 
-If you need a dedicated class for one of these, see [Custom Quantity Types and Units](Custom%20Quantity%20Types%20and%20Units.md).
+If you need a dedicated class for one of these, see [5. Extending the Package](5.%20Extending%20the%20Package.md).

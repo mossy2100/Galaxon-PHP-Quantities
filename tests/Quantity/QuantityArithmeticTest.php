@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Quantity;
 
+use ArgumentCountError;
 use DivisionByZeroError;
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
@@ -15,6 +16,7 @@ use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
+use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -163,6 +165,30 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame('km', $sum->derivedUnit->asciiSymbol);
     }
 
+    /**
+     * Test add() throws ArgumentCountError when a unit is specified with a Quantity operand.
+     */
+    public function testAddWithQuantityAndUnitThrowsArgumentCountError(): void
+    {
+        $this->expectException(ArgumentCountError::class);
+
+        $a = new Length(10, 'm');
+        $b = new Length(5, 'm');
+        $a->add($b, 'km');
+    }
+
+    /**
+     * Test add() throws DomainException when adding incompatible dimensions.
+     */
+    public function testAddIncompatibleDimensionsThrows(): void
+    {
+        $this->expectException(DomainException::class);
+
+        $length = new Length(10, 'm');
+        $time = new Time(5, 's');
+        $length->add($time);
+    }
+
     // endregion
 
     // region sub() tests
@@ -213,6 +239,30 @@ final class QuantityArithmeticTest extends TestCase
         $diff = $a->sub($b);
 
         $this->assertSame(-100.0, $diff->value);
+    }
+
+    /**
+     * Test sub() throws ArgumentCountError when a unit is specified with a Quantity operand.
+     */
+    public function testSubWithQuantityAndUnitThrowsArgumentCountError(): void
+    {
+        $this->expectException(ArgumentCountError::class);
+
+        $a = new Length(10, 'm');
+        $b = new Length(5, 'm');
+        $a->sub($b, 'km');
+    }
+
+    /**
+     * Test sub() throws DomainException when subtracting incompatible dimensions.
+     */
+    public function testSubIncompatibleDimensionsThrows(): void
+    {
+        $this->expectException(DomainException::class);
+
+        $mass = new Mass(50, 'kg');
+        $length = new Length(25, 'm');
+        $mass->sub($length);
     }
 
     // endregion
@@ -280,6 +330,53 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame(0.0, $result->value);
     }
 
+    /**
+     * Test mul() by negative scalar.
+     */
+    public function testMulByNegativeScalar(): void
+    {
+        $length = new Length(10, 'm');
+        $result = $length->mul(-3);
+
+        $this->assertSame(-30.0, $result->value);
+        $this->assertSame('m', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test mul() with a string unit creates compound unit with value 1.
+     */
+    public function testMulByStringUnit(): void
+    {
+        $length = new Length(10, 'm');
+        $result = $length->mul('s');
+
+        $this->assertSame(10.0, $result->value);
+        $this->assertSame('m*s', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test mul() throws ArgumentCountError when a unit is specified with a Quantity operand.
+     */
+    public function testMulWithQuantityAndUnitThrowsArgumentCountError(): void
+    {
+        $this->expectException(ArgumentCountError::class);
+
+        $a = new Length(10, 'm');
+        $b = new Length(5, 'm');
+        $a->mul($b, 's');
+    }
+
+    /**
+     * Test mul() that overflows to infinity throws DomainException.
+     */
+    public function testMulOverflowThrowsDomainException(): void
+    {
+        $this->expectException(DomainException::class);
+
+        $big = new Length(1e308, 'm');
+        $big->mul(1e308);
+    }
+
     // endregion
 
     // region div() tests
@@ -345,6 +442,54 @@ final class QuantityArithmeticTest extends TestCase
         $a->div($b);
     }
 
+    /**
+     * Test div() by negative scalar.
+     */
+    public function testDivByNegativeScalar(): void
+    {
+        $length = new Length(10, 'm');
+        $result = $length->div(-2);
+
+        $this->assertSame(-5.0, $result->value);
+        $this->assertSame('m', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test div() with a string unit creates inverse compound unit.
+     */
+    public function testDivByStringUnit(): void
+    {
+        $length = new Length(10, 'm');
+        $result = $length->div('s');
+
+        $this->assertSame(10.0, $result->value);
+        $this->assertSame('m/s', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test div() with value and unit.
+     */
+    public function testDivValueAndUnit(): void
+    {
+        $length = new Length(100, 'm');
+        $result = $length->div(10, 's');
+
+        $this->assertSame(10.0, $result->value);
+        $this->assertSame('m/s', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test div() throws ArgumentCountError when a unit is specified with a Quantity operand.
+     */
+    public function testDivWithQuantityAndUnitThrowsArgumentCountError(): void
+    {
+        $this->expectException(ArgumentCountError::class);
+
+        $a = new Length(10, 'm');
+        $b = new Time(5, 's');
+        $a->div($b, 'm');
+    }
+
     // endregion
 
     // region inv() tests
@@ -370,6 +515,18 @@ final class QuantityArithmeticTest extends TestCase
 
         $time = new Time(0, 's');
         $time->inv();
+    }
+
+    /**
+     * Test inv() on a negative value.
+     */
+    public function testInvNegative(): void
+    {
+        $time = new Time(-4, 's');
+        $result = $time->inv();
+
+        $this->assertSame(-0.25, $result->value);
+        $this->assertSame('s-1', $result->derivedUnit->asciiSymbol);
     }
 
     // endregion
@@ -461,6 +618,63 @@ final class QuantityArithmeticTest extends TestCase
 
         $this->assertSame(20.0, $newLength->value);
         $this->assertSame('km', $newLength->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test withValue() returns the same instance when the value is unchanged.
+     */
+    public function testWithValueSameValueReturnsSameInstance(): void
+    {
+        $length = new Length(10, 'm');
+        $same = $length->withValue(10);
+
+        $this->assertSame($length, $same);
+    }
+
+    /**
+     * Test withValue() with zero.
+     */
+    public function testWithValueZero(): void
+    {
+        $length = new Length(10, 'm');
+        $zero = $length->withValue(0);
+
+        $this->assertSame(0.0, $zero->value);
+        $this->assertSame('m', $zero->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test withValue() with negative value.
+     */
+    public function testWithValueNegative(): void
+    {
+        $length = new Length(10, 'm');
+        $neg = $length->withValue(-5);
+
+        $this->assertSame(-5.0, $neg->value);
+        $this->assertSame('m', $neg->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test withValue() with non-finite value throws DomainException.
+     */
+    public function testWithValueInfinityThrowsDomainException(): void
+    {
+        $this->expectException(DomainException::class);
+
+        $length = new Length(10, 'm');
+        $length->withValue(INF);
+    }
+
+    /**
+     * Test withValue() with NAN throws DomainException.
+     */
+    public function testWithValueNanThrowsDomainException(): void
+    {
+        $this->expectException(DomainException::class);
+
+        $length = new Length(10, 'm');
+        $length->withValue(NAN);
     }
 
     // endregion

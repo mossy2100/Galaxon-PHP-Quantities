@@ -185,24 +185,24 @@ final class QuantityTransformTest extends TestCase
     /**
      * Test merge() combines same dimension units.
      *
-     * Note: Since mul() now calls merge() internally, the product
-     * already has merged units. This test verifies merge() is idempotent.
+     * mul() does not auto-merge, so m * ft stays as m*ft.
+     * merge() then consolidates to a single unit per dimension.
      */
     public function testMergeSameDimension(): void
     {
-        // Create m² from m*ft (mul now auto-merges)
         $length1 = new Length(2, 'm');
         $length2 = new Length(3, 'ft');
         $product = $length1->mul($length2);
 
-        // mul() now auto-merges to m²
-        $this->assertSame('m2', $product->derivedUnit->asciiSymbol);
+        // mul() keeps both unit terms as-is.
+        $this->assertSame(6.0, $product->value);
+        $this->assertSame('m*ft', $product->derivedUnit->asciiSymbol);
 
-        // merge() is idempotent - calling again produces same result
+        // merge() converts to a single unit per dimension (m²).
         $merged = $product->merge();
         $this->assertSame('m2', $merged->derivedUnit->asciiSymbol);
 
-        // Value should be 2 * (3 * 0.3048) = 1.8288 m²
+        // Value should be 2 * (3 * 0.3048) = 1.8288 m².
         $this->assertApproxEqual(2 * 3 * 0.3048, $merged->value);
     }
 

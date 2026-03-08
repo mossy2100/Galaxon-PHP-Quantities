@@ -416,9 +416,9 @@ final class VolumeTest extends TestCase
     {
         $area = new Area(1000000, 'm2');
         $length = new Length(1, 'km');
-        $result = $area->mul($length);
+        $result = $area->mul($length)->merge();
 
-        // 1000000 m² × 1 km = 1000000 m² × 1000 m = 1,000,000,000 m³
+        // 1000000 m² × 1 km → merge → 1000000 × 1000 = 1,000,000,000 m³
         $this->assertInstanceOf(Volume::class, $result);
         $this->assertSame(1000000000.0, $result->value);
         $this->assertSame('m³', $result->derivedUnit->unicodeSymbol);

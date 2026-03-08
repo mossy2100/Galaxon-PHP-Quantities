@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities;
 
+use ArgumentCountError;
 use DivisionByZeroError;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
@@ -106,6 +107,7 @@ class Quantity implements Stringable
      * Creates a new measurement with the specified value and unit.
      * Validates that the value is finite and the unit is valid.
      * Furthermore, ensures the calling class matches the unit dimension.
+     * If the unit is omitted, the quantity is dimensionless.
      *
      * @param float $value The numeric value in the given unit.
      * @param null|string|UnitInterface $unit The unit as a symbol string (e.g. 'kg', 'mm', 'hr'),
@@ -169,7 +171,7 @@ class Quantity implements Stringable
      * @throws FormatException If the unit is provided as a string, and it cannot be parsed.
      * @throws DomainException If the unit is provided as a string, and it contains unknown units.
      */
-    public static function create(float $value, null|string|UnitInterface $unit): self
+    public static function create(float $value, null|string|UnitInterface $unit = null): self
     {
         // Check the value is finite.
         if (!is_finite($value)) {
@@ -657,6 +659,40 @@ class Quantity implements Stringable
     // region Arithmetic methods
 
     /**
+     * Convert the arguments supplied to an arithmetic method into a Quantity object.
+     *
+     * @param Quantity|float|string|UnitInterface $operand The first operand (Quantity, number, or unit).
+     * @param string|UnitInterface|null $operandUnit The unit of the first operand, if it is a float.
+     * @return self The equivalent Quantity.
+     * @throws ArgumentCountError If a unit is specified when the operand is not a float.
+     * @throws DomainException If the value is non-finite or the unit is unknown.
+     * @throws FormatException If a unit string cannot be parsed.
+     */
+    private static function argsToQuantity(
+        self|float|string|UnitInterface $operand,
+        null|string|UnitInterface $operandUnit = null
+    ): self {
+        // Construct the Quantity from the given value and unit.
+        if (is_float($operand)) {
+            // If the operand unit is null or not provided, this will create a dimensionless Quantity.
+            return self::create($operand, $operandUnit);
+        }
+
+        // Check no unit was provided.
+        if ($operandUnit !== null) {
+            throw new ArgumentCountError('Cannot specify a unit unless the first argument is a float.');
+        }
+
+        // If the operand is a Quantity, just return it.
+        if ($operand instanceof self) {
+            return $operand;
+        }
+
+        // Construct the Quantity from the given unit (string, Unit, UnitTerm, or DerivedUnit).
+        return Quantity::create(1, DerivedUnit::toDerivedUnit($operand));
+    }
+
+    /**
      * Get the absolute value of this Quantity.
      *
      * @return self A new Quantity with a non-negative value and the same unit.
@@ -685,27 +721,29 @@ class Quantity implements Stringable
     /**
      * Add another Quantity to this one. Units must be compatible, i.e. have the same dimension.
      *
-     * Supports two call styles:
-     * - add($otherQuantity)
+     * Supports multiple call styles:
+     * - add($quantity)
      * - add($value, $unit)
      *
      * Automatically converts units before adding.
      *
-     * @param self|float $otherOrValue Another Quantity or a numeric value.
-     * @param null|string|UnitInterface $otherUnit The other quantity's unit, if a numeric value was provided.
+     * @param self|float $operand Another Quantity or a numeric value.
+     * @param null|string|UnitInterface $operandUnit The other quantity's unit, if a numeric value was provided.
      * @return self A new Quantity containing the sum in this measurement's unit.
-     * @throws DomainException If the value is non-finite or the unit is invalid.
-     * @throws LogicException If no conversion path exists between units.
+     * @throws ArgumentCountError If a unit is specified when the operand is a Quantity.
+     * @throws DomainException If the value is non-finite, the unit is unknown, or the dimensions don't match.
+     * @throws FormatException If a unit string cannot be parsed.
+     * @throws LogicException If no conversion path exists between the units.
      * @example
      *   $a = new Length(100, 'm');
      *   $b = new Length(2, 'km');
-     *   $sum = $a->add($b);     // Length(2100, 'm')
-     *   $sum2 = $a->add(50, 'cm');    // Length(100.5, 'm')
+     *   $sum = $a->add($b);         // Length(2100, 'm')
+     *   $sum2 = $a->add(50, 'cm');  // Length(100.5, 'm')
      */
-    public function add(self|float $otherOrValue, null|string|UnitInterface $otherUnit = null): self
+    public function add(self|float $operand, null|string|UnitInterface $operandUnit = null): self
     {
-        // Get the other Quantity as an object.
-        $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
+        // Get the other operand as a Quantity object.
+        $other = self::argsToQuantity($operand, $operandUnit);
 
         // Get the other Quantity in the same unit as this one.
         $otherValue = $this->derivedUnit->equal($other->derivedUnit)
@@ -719,26 +757,28 @@ class Quantity implements Stringable
     /**
      * Subtract another Quantity from this one. Units must be compatible, i.e. have the same dimension.
      *
-     * Supports two call styles:
-     * - sub($otherQuantity)
+     * Supports multiple call styles:
+     * - sub($quantity)
      * - sub($value, $unit)
      *
      * Automatically converts units before subtracting.
      *
-     * @param self|float $otherOrValue Another Quantity or a numeric value.
-     * @param null|string|UnitInterface $otherUnit The other quantity's unit, if a numeric value was provided.
+     * @param self|float $operand Another Quantity or a numeric value.
+     * @param null|string|UnitInterface $operandUnit The other quantity's unit, if a numeric value was provided.
      * @return self A new Quantity containing the difference in this measurement's unit.
-     * @throws DomainException If the value is non-finite or the unit is invalid.
-     * @throws LogicException If no conversion path exists between units.
+     * @throws ArgumentCountError If a unit is specified when the operand is a Quantity.
+     * @throws DomainException If the value is non-finite, the unit is unknown, or the dimensions don't match.
+     * @throws FormatException If a unit string cannot be parsed.
+     * @throws LogicException If no conversion path exists between the units.
      * @example
      *   $a = new Length(100, 'm');
      *   $b = new Length(2, 'km');
      *   $diff = $a->sub($b);  // Length(-1900, 'm')
      */
-    public function sub(self|float $otherOrValue, null|string|UnitInterface $otherUnit = null): self
+    public function sub(self|float $operand, null|string|UnitInterface $operandUnit = null): self
     {
-        // Get the other Quantity as an object.
-        $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
+        // Get the other operand as a Quantity object.
+        $other = self::argsToQuantity($operand, $operandUnit);
 
         // Get the other Quantity in the same unit as this one.
         $otherValue = $this->derivedUnit->equal($other->derivedUnit)
@@ -770,28 +810,33 @@ class Quantity implements Stringable
     }
 
     /**
-     * Multiply this Quantity by a scalar factor or another Quantity.
+     * Multiply this Quantity by a scalar factor, another Quantity, or a unit.
      *
-     * Note, this operation merges compatible units.
-     * If you multiply a quantity in meters by one in feet, you will get a quantity in m2, not m*ft.
+     * Supports multiple call styles:
+     * - mul($quantity)
+     * - mul($value)
+     * - mul($unit)
+     * - mul($value, $unit)
      *
-     * @param self|float $otherOrValue Another Quantity or a numeric value.
-     * @param null|string|UnitInterface $otherUnit The other quantity's unit, if a numeric value was provided.
+     * @param self|float|string|UnitInterface $operand Another Quantity or a numeric value or a unit.
+     * @param null|string|UnitInterface $operandUnit The other quantity's unit, if a numeric value was provided.
      * @return self A new Quantity representing the result of the multiplication.
-     * @throws DomainException If the multiplier is a non-finite float (±INF or NAN).
+     * @throws ArgumentCountError If a unit is specified when the operand is not a float.
+     * @throws DomainException If a value is non-finite or the unit is unknown.
+     * @throws FormatException If a unit string cannot be parsed.
      * @example
      *   $length = new Length(10, 'm');
      *   $doubled = $length->mul(2);  // Length(20, 'm')
      */
-    public function mul(float|self $otherOrValue, null|string|UnitInterface $otherUnit = null): self
+    public function mul(float|self|string|UnitInterface $operand, null|string|UnitInterface $operandUnit = null): self
     {
         // Check for simple multiplication by a scalar.
-        if (is_float($otherOrValue) && $otherUnit === null) {
-            return $this->withValue($this->value * $otherOrValue);
+        if (is_float($operand) && $operandUnit === null) {
+            return $this->withValue($this->value * $operand);
         }
 
-        // Get the other quantity as an object.
-        $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
+        // Get the other operand as a Quantity object.
+        $other = self::argsToQuantity($operand, $operandUnit);
 
         // Start by multiplying the values.
         $newValue = $this->value * $other->value;
@@ -804,31 +849,43 @@ class Quantity implements Stringable
             $newUnit->addUnitTerm($otherUnitTerm);
         }
 
-        // Create the result Quantity and merge compatible units.
-        return self::create($newValue, $newUnit)->merge();
+        // Create the result Quantity.
+        return self::create($newValue, $newUnit);
     }
 
     /**
-     * Divide this Quantity by a scalar factor or another Quantity.
+     * Divide this Quantity by a scalar factor, another Quantity, or a unit.
      *
-     * @param float|self $otherOrValue The scalar or Quantity to divide by.
-     * @param null|string|UnitInterface $otherUnit The other quantity's unit, if a numeric value was provided.
+     * Supports multiple call styles:
+     * - div($quantity)
+     * - div($value)
+     * - div($unit)
+     * - div($value, $unit)
+     *
+     * @param self|float|string|UnitInterface $operand Another Quantity or a numeric value or a unit.
+     * @param null|string|UnitInterface $operandUnit The other quantity's unit, if a numeric value was provided.
      * @return self A new Quantity representing the result of the division.
+     * @throws ArgumentCountError If a unit is specified when the operand is not a float.
      * @throws DivisionByZeroError If the divisor is zero.
-     * @throws DomainException If the divisor is non-finite (±INF or NAN).
+     * @throws DomainException If a value is non-finite or the unit is unknown.
+     * @throws FormatException If a unit string cannot be parsed.
      * @example
      *   $length = new Length(10, 'm');
      *   $half = $length->div(2);  // Length(5, 'm')
      */
-    public function div(float|self $otherOrValue, null|string|UnitInterface $otherUnit = null): self
+    public function div(float|self|string|UnitInterface $operand, null|string|UnitInterface $operandUnit = null): self
     {
         // Check for simple division by a scalar.
-        if (is_float($otherOrValue) && $otherUnit === null) {
-            return $this->withValue($this->value / $otherOrValue);
+        if (is_float($operand) && $operandUnit === null) {
+            if ($operand === 0.0) {
+                throw new DivisionByZeroError('Cannot divide a quantity by 0.');
+            }
+
+            return $this->withValue($this->value / $operand);
         }
 
-        // Get the other quantity as an object.
-        $other = is_float($otherOrValue) ? self::create($otherOrValue, $otherUnit) : $otherOrValue;
+        // Get the other operand as a Quantity object.
+        $other = self::argsToQuantity($operand, $operandUnit);
 
         // Multiply by the inverse.
         return $this->mul($other->inv());

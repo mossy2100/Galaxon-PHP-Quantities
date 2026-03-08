@@ -11,7 +11,7 @@ Represents frequency and radioactivity quantities.
 
 The `Frequency` class handles measurements with dimension T⁻¹ (inverse time). This includes both frequency (hertz) and radioactivity (becquerel).
 
-For the complete list of frequency units, see [Supported Units: Frequency](Supported%20Units%20and%20Prefixes.md#frequency).
+For the complete list of frequency units, see [Supported Units: Frequency](2.6.%20Supported%20Units.md#frequency).
 
 ---
 
@@ -100,7 +100,7 @@ Where f is frequency in Hz and T is period in seconds.
 
 ## See Also
 
-- **[Supported Units: Frequency](Supported%20Units%20and%20Prefixes.md#frequency)** - Complete list of frequency units
+- **[Supported Units: Frequency](2.6.%20Supported%20Units.md#frequency)** - Complete list of frequency units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Time](Time.md)** - Related quantity (inverse relationship)
 - **[RadiationDose](RadiationDose.md)** - Related radiation quantity

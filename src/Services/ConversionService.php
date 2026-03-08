@@ -79,12 +79,9 @@ class ConversionService
     {
         $definitions = [];
 
+        // Collect conversion definitions.
         foreach (QuantityTypeService::getAll() as $qtyType) {
-            $qtyTypeClass = $qtyType->class;
-            assert(is_subclass_of($qtyTypeClass, Quantity::class));
-
-            // Collect conversion definitions.
-            foreach ($qtyTypeClass::getConversionDefinitions() as $definition) {
+            foreach ($qtyType->conversionDefinitions as $definition) {
                 $definitions[] = $definition;
             }
         }

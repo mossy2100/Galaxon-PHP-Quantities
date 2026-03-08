@@ -195,7 +195,7 @@ class CurrencyService
 
             $unitDefinitions[$name] = [
                 'asciiSymbol' => $code,
-                'systems'     => [UnitSystem::Financial],
+                'systems'     => [UnitSystem::Currency],
             ];
         }
 
@@ -337,14 +337,14 @@ class CurrencyService
     public static function refresh(): void
     {
         // Load/reload currency units if necessary.
-        if (self::refreshCurrencyUnits() || !UnitService::isLoadedSystem(UnitSystem::Financial)) {
-            UnitService::loadSystem(UnitSystem::Financial, true);
+        if (self::refreshCurrencyUnits() || !UnitService::isLoadedSystem(UnitSystem::Currency)) {
+            UnitService::loadSystem(UnitSystem::Currency, true);
         }
 
         // Refresh currency conversions if necessary.
         if (self::refreshCurrencyConversions()) {
             // We refreshed the conversion rates, so remove all currency conversions.
-            ConversionService::removeBySystem(UnitSystem::Financial);
+            ConversionService::removeBySystem(UnitSystem::Currency);
         }
 
         // Load currency conversions from the (possibly fresh) definitions.

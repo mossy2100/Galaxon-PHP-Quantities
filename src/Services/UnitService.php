@@ -390,21 +390,21 @@ class UnitService
     /**
      * Gather all unit definitions from all QuantityType classes.
      *
-     * Each definition is augmented with the dimension from its QuantityType.
-     *
-     * @return array<string, array{asciiSymbol: string, dimension: string, ...}>
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     alternateSymbol?: string,
+     *     systems: list<UnitSystem>
+     * }>
      */
     private static function getAllDefinitions(): array
     {
         $definitions = [];
 
+        // Collect unit definitions.
         foreach (QuantityTypeService::getAll() as $qtyType) {
-            $qtyTypeClass = $qtyType->class;
-            assert(is_subclass_of($qtyTypeClass, Quantity::class));
-
-            // Collect unit definitions, injecting the dimension.
-            foreach ($qtyTypeClass::getUnitDefinitions() as $name => $definition) {
-                $definition['dimension'] = $qtyType->dimension;
+            foreach ($qtyType->unitDefinitions as $name => $definition) {
                 $definitions[$name] = $definition;
             }
         }

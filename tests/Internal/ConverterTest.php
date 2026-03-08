@@ -753,11 +753,11 @@ class ConverterTest extends TestCase
         Converter::removeAllInstances();
 
         $converter = Converter::getInstance('L');
-        $conversion = $converter->findConversion('in', 'mi');
+        $conversion = $converter->findConversion('mi', 'in');
 
         $this->assertInstanceOf(Conversion::class, $conversion);
         // 1 in = 1/63360 mi.
-        $this->assertEqualsWithDelta(1 / 63360, $conversion->factor->value, 1e-10);
+        $this->assertEqualsWithDelta(63360, $conversion->factor->value, 1e-10);
     }
 
     // endregion

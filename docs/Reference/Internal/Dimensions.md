@@ -6,41 +6,7 @@ Utility class for working with physical dimension codes.
 
 ---
 
-## Overview
-
-Dimension codes represent the fundamental physical dimensions of a quantity using single-letter codes with optional exponents. Every quantity type has a unique dimension. For example:
-
-- `L` - length
-- `M` - mass
-- `MLT-2` - force (mass × length × time⁻²)
-- `1` - dimensionless
-
-This class provides methods for validating, decomposing, composing, and transforming dimension codes.
-
----
-
-## Dimension Codes
-
-The dimension codes used by the package are based on the [International System of Quantities](https://en.wikipedia.org/wiki/International_System_of_Quantities) (ISQ) with one variation and several additions:
-
-| Code | Name                | SI Base Unit  |
-|------|---------------------|---------------|
-| M    | mass                | kg            |
-| L    | length              | m             |
-| A    | angle               | rad           |
-| D    | data                | B             |
-| C    | currency            | XAU           |
-| T    | time                | s             |
-| I    | electric current    | A             |
-| N    | amount of substance | mol           |
-| H    | temperature         | K             |
-| J    | luminous intensity  | cd            |
-
-**Notes:**
-- `A` (angle) is not in ISQ, but needed for this system
-- `H` replaces ISQ's `Θ` (theta) for easier typing
-- `D` is added to support data quantities
-- `C` is reserved for future currency support
+## 
 
 ---
 

@@ -439,10 +439,9 @@ final class AreaTest extends TestCase
     {
         $a = new Length(1000, 'm');
         $b = new Length(2, 'km');
-        $result = $a->mul($b);
+        $result = $a->mul($b)->merge();
 
-        // 1000 m × 2 km = 1000 m × 2000 m = 2,000,000 m²
-        // (km converted to m to match first operand's unit)
+        // 1000 m × 2 km → merge → 1000 × 2000 = 2,000,000 m²
         $this->assertInstanceOf(Area::class, $result);
         $this->assertSame(2000000.0, $result->value);
         $this->assertSame('m²', $result->derivedUnit->unicodeSymbol);
@@ -455,10 +454,9 @@ final class AreaTest extends TestCase
     {
         $a = new Length(9, 'ft');
         $b = new Length(2, 'yd');
-        $result = $a->mul($b);
+        $result = $a->mul($b)->merge();
 
-        // 9 ft × 2 yd = 9 ft × 6 ft = 54 ft²
-        // (yd converted to ft to match first operand's unit)
+        // 9 ft × 2 yd → merge → 9 × 6 = 54 ft²
         $this->assertInstanceOf(Area::class, $result);
         $this->assertSame(54.0, $result->value);
         $this->assertSame('ft²', $result->derivedUnit->unicodeSymbol);
@@ -471,10 +469,9 @@ final class AreaTest extends TestCase
     {
         $a = new Length(10, 'm');
         $b = new Length(1, 'ft');
-        $result = $a->mul($b);
+        $result = $a->mul($b)->merge();
 
-        // 10 m × 1 ft = 10 m × 0.3048 m = 3.048 m²
-        // (ft converted to m to match first operand's unit)
+        // 10 m × 1 ft → merge → 10 × 0.3048 = 3.048 m²
         $this->assertInstanceOf(Area::class, $result);
         $this->assertSame(3.048, $result->value);
         $this->assertSame('m²', $result->derivedUnit->unicodeSymbol);

@@ -9,6 +9,7 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 use InvalidArgumentException;
 
 /**
@@ -101,6 +102,63 @@ class QuantityType
 
             $this->resultUnitSymbol = $value;
         }
+    }
+
+    /**
+     * The default unit definitions for this quantity type.
+     *
+     * @var array<string, array{
+     *      asciiSymbol: string,
+     *      unicodeSymbol?: string,
+     *      prefixGroup?: int,
+     *      alternateSymbol?: string,
+     *      systems: list<UnitSystem>
+     *  }>
+     */
+    private(set) array $unitDefinitions {
+        get {
+            // Return the cached value if it exists.
+            if (isset($this->unitDefinitions)) {
+                return $this->unitDefinitions;
+            }
+
+            // Load the unit definitions from the Quantity subclass.
+            $unitDefinitions = $this->class::getUnitDefinitions();
+
+            // Inject the dimension code into each unit definition.
+            foreach ($unitDefinitions as $unitName => $definition) {
+                $unitDefinitions[$unitName]['dimension'] = $this->dimension;
+            }
+
+            // Cache the value and return it.
+            $this->unitDefinitions = $unitDefinitions;
+            return $this->unitDefinitions;
+        }
+    }
+
+    /**
+     * The default conversion definitions for this quantity type.
+     *
+     * @var list<array{string, string, float}>
+     */
+    public array $conversionDefinitions {
+        get => $this->class::getConversionDefinitions();
+    }
+
+    /**
+     * The units compatible with this quantity type.
+     *
+     * @var list<Unit>
+     */
+    public array $units {
+        get => UnitService::getByQuantityType($this);
+    }
+
+    /**
+     * The converter for this quantity type.
+     */
+    public Converter $converter {
+        get => Converter::getInstance($this->dimension);
     }
 
     // endregion

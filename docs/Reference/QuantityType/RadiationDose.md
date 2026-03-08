@@ -11,7 +11,7 @@ Represents radiation dose quantities.
 
 The `RadiationDose` class handles radiation dose measurements using the gray (absorbed dose) and sievert (equivalent dose).
 
-For the complete list of radiation dose units, see [Supported Units: Radiation Dose](Supported%20Units%20and%20Prefixes.md#radiation-dose).
+For the complete list of radiation dose units, see [Supported Units: Radiation Dose](2.6.%20Supported%20Units.md#radiation-dose).
 
 ---
 
@@ -94,6 +94,6 @@ $inMGy = $treatment->to('mGy');  // 2000 mGy
 
 ## See Also
 
-- **[Supported Units: Radiation Dose](Supported%20Units%20and%20Prefixes.md#radiation-dose)** - Complete list of radiation dose units
+- **[Supported Units: Radiation Dose](2.6.%20Supported%20Units.md#radiation-dose)** - Complete list of radiation dose units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Frequency](Frequency.md)** - Contains becquerel (radioactivity)
