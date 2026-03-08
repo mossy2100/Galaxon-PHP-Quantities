@@ -336,7 +336,7 @@ class DerivedUnit implements UnitInterface
     /**
      * Check if all unit terms in this derived unit belong to the SI system.
      *
-     * Dimensionless units (with no terms) are not considered SI.
+     * Dimensionless units are not considered SI.
      *
      * @return bool True if all units are SI units.
      */

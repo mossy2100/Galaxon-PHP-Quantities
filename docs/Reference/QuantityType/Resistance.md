@@ -11,7 +11,7 @@ Represents electrical resistance quantities.
 
 The `Resistance` class handles electrical resistance measurements.
 
-For the complete list of resistance units, see [Supported Units: Resistance](2.6.%20Supported%20Units.md#resistance).
+For the complete list of resistance units, see [Supported Units: Resistance](2.6_SupportedUnits.md#resistance).
 
 ---
 
@@ -67,7 +67,7 @@ $inKohm = $input->to('kohm');  // 10,000 kΩ
 
 ## See Also
 
-- **[Supported Units: Resistance](2.6.%20Supported%20Units.md#resistance)** - Complete list
+- **[Supported Units: Resistance](2.6_SupportedUnits.md#resistance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Voltage](Voltage.md)** - Related quantity (V = IR)
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity

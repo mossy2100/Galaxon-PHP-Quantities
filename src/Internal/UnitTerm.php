@@ -341,22 +341,6 @@ class UnitTerm implements UnitInterface
         return $this->unit->isBase();
     }
 
-    /**
-     * Check if this unit term is an SI base unit, with or without an exponent.
-     *
-     * Thus:
-     * Returns true for: kg, m, s, A, K, cd, mol, as well as the honorary (for this package) SI units rad, B, and XAU.
-     * Plus any of these units with an exponent, e.g. m2, m3, s-1, etc.
-     * Returns false for, e.g.: g (gram; requires the 'k' prefix to be an SI base unit), km ('m' is not an SI base unit
-     * with prefix), ft, lb, any Imperial/US customary unit, etc.
-     *
-     * @return bool True if the unit is an SI base unit.
-     */
-    public function isSiBase(): bool
-    {
-        return in_array($this->unexponentiatedAsciiSymbol, DimensionService::getSiBaseUnitSymbols(), true);
-    }
-
     // endregion
 
     // region Transformation methods

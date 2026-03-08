@@ -168,4 +168,4 @@ The unit definitions will be picked up automatically when the relevant measureme
 - [Quantity](../Reference/Quantity.md) — base class API reference.
 - [UnitService](../Reference/Services/UnitService.md) — unit registration and lookup.
 - [QuantityTypeService](../Reference/Services/QuantityTypeService.md) — quantity type registration.
-- [2.6. Supported Units](2.6.%20Supported%20Units.md) — complete list of built-in units.
+- [2.6_SupportedUnits](2.6_SupportedUnits.md) — complete list of built-in units.

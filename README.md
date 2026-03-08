@@ -2,7 +2,7 @@
 
 Physical measurement types with automatic unit conversion and prefix support.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](2.6.%20Supported%20Units.md)** | **[Examples](3.3.%20Calculation%20Examples.md)** | **[Custom Types](5.%20Extending%20the%20Package.md)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](2.6_SupportedUnits.md)** | **[Examples](3.3_CalculationExamples.md)** | **[Custom Types](5_Customization.md)**
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
@@ -94,18 +94,18 @@ echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
 ---
 ## Developer Guide
 
-1. **[2.1. Terminology](2.1.%20Terminology.md)** — Key terms and definitions used throughout the library.
-2. **[Creating Quantities](Creating%20Quantities.md)** — Get started creating Quantity objects via the base Quantity class and dedicated subclasses.
+1. **[2.1_Terminology](2.1_Terminology.md)** — Key terms and definitions used throughout the library.
+2. **[CreatingQuantities](CreatingQuantities.md)** — Get started creating Quantity objects via the base Quantity class and dedicated subclasses.
 3. Quantity Types and Dimensions - A deeper dive into quantity types and dimensions.
-4. **[3.1. Unit Conversion](3.1.%20Unit%20Conversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
-5. **[2.6. Supported Units](2.6.%20Supported%20Units.md)** — Complete reference of all built-in units by quantity type.
-6. **[3.2. Arithmetic Operations](3.2.%20Arithmetic%20Operations.md)** — Add, subtract, multiply, and divide quantities.
-7. **[2.7. Physical Constants](2.7.%20Physical%20Constants.md)** — Using fundamental constants in calculations.
-8. **[3.3. Calculation Examples](3.3.%20Calculation%20Examples.md)** — Real-world physics and engineering calculations.
-9. **[3.4. Comparison Functions](3.4.%20Comparison%20Functions.md)** — Exact and approximate equality, ordering, and tolerances.
-10. **[3.5. String Functions](3.5.%20String%20Functions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
-11. **[5. Extending the Package](5.%20Extending%20the%20Package.md)** — How to add your own quantity types and units.
-12. **[3.6. Part Decomposition](3.6.%20Part%20Decomposition.md)** — Breaking quantities into components (e.g. 45° 30′ 15″ or 1h 30min 45s).
+4. **[3.1_UnitConversion](3.1_UnitConversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
+5. **[2.6_SupportedUnits](2.6_SupportedUnits.md)** — Complete reference of all built-in units by quantity type.
+6. **[3.2_ArithmeticOperations](3.2_ArithmeticOperations.md)** — Add, subtract, multiply, and divide quantities.
+7. **[2.7_PhysicalConstants](2.7_PhysicalConstants.md)** — Using fundamental constants in calculations.
+8. **[3.3_CalculationExamples](3.3_CalculationExamples.md)** — Real-world physics and engineering calculations.
+9. **[3.4_ComparisonFunctions](3.4_ComparisonFunctions.md)** — Exact and approximate equality, ordering, and tolerances.
+10. **[3.5_StringFunctions](3.5_StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
+11. **[5_Customization](5_Customization.md)** — How to add your own quantity types and units.
+12. **[3.6_PartDecomposition](3.6_PartDecomposition.md)** — Breaking quantities into components (e.g. 45° 30′ 15″ or 1h 30min 45s).
 
 ---
 ## Reference
@@ -122,7 +122,7 @@ Other than the quantity type classes (below), these are the main classes you'll 
 
 ### Quantity Types
 
-All quantity type classes extend `Quantity` and define their specific units and conversions. See **[2.6. Supported Units](2.6.%20Supported%20Units.md)** for a complete reference of all units organized by quantity type.
+All quantity type classes extend `Quantity` and define their specific units and conversions. See **[2.6_SupportedUnits](2.6_SupportedUnits.md)** for a complete reference of all units organized by quantity type.
 
 | Class                                                           | Dimension  | SI Unit | Description                                      |
 |-----------------------------------------------------------------|------------|---------|--------------------------------------------------|
@@ -223,7 +223,7 @@ For questions or suggestions, please [open an issue](https://github.com/mossy210
 
 - **Issues**: https://github.com/mossy2100/PHP-Quantities/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
-- **Examples**: See [3.3. Calculation Examples](3.3.%20Calculation%20Examples.md) for real-world physics and engineering calculations
+- **Examples**: See [3.3_CalculationExamples](3.3_CalculationExamples.md) for real-world physics and engineering calculations
 
 ## Changelog
 

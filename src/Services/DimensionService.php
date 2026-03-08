@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\UnitTerm;
+use LogicException;
 
 /**
  * Utility class for working with physical dimension codes.
@@ -48,6 +49,12 @@ class DimensionService
      * @see https://en.wikipedia.org/wiki/International_System_of_Quantities
      * @see https://en.wikipedia.org/wiki/Dimensional_analysis
      *
+     * @var array<string, array{
+     *     quantityTypeName: string,
+     *     siBaseUnitSymbol?: string,
+     *     englishBaseUnitSymbol?: string,
+     *     commonBaseUnitSymbol?: string,
+     * }>
      */
     public const array DIMENSION_CODES = [
         'M' => [
@@ -67,11 +74,11 @@ class DimensionService
         ],
         'D' => [
             'quantityTypeName' => 'data',
-            'siBaseUnitSymbol' => 'B',
+            'commonBaseUnitSymbol'   => 'B',
         ],
         'C' => [
             'quantityTypeName' => 'money',
-            'siBaseUnitSymbol' => 'XAU',
+            'commonBaseUnitSymbol'   => 'XAU',
         ],
         'T' => [
             'quantityTypeName' => 'time',
@@ -263,19 +270,6 @@ class DimensionService
     }
 
     /**
-     * Get the SI base unit symbols for all dimensions.
-     *
-     * NB: We're stretching the definition of an SI base unit for this system to include a few additional units.
-     * @see DIMENSION_CODES
-     *
-     * @return list<string>
-     */
-    public static function getSiBaseUnitSymbols(): array
-    {
-        return array_column(self::DIMENSION_CODES, 'siBaseUnitSymbol');
-    }
-
-    /**
      * Get the SI or English base unit term symbol for the given dimension letter code.
      *
      * The unit may be prefixed (e.g. 'kg' for 'M').
@@ -297,8 +291,18 @@ class DimensionService
             return self::DIMENSION_CODES[$dimensionLetterCode]['englishBaseUnitSymbol'];
         }
 
-        // Return the SI base unit (which may have a prefix, e.g. 'kg').
-        return self::DIMENSION_CODES[$dimensionLetterCode]['siBaseUnitSymbol'];
+        // Check for an SI base unit.
+        if (isset(self::DIMENSION_CODES[$dimensionLetterCode]['siBaseUnitSymbol'])) {
+            return self::DIMENSION_CODES[$dimensionLetterCode]['siBaseUnitSymbol'];
+        }
+
+        // Check for a common base unit.
+        if (isset(self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'])) {
+            return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
+        }
+
+        $system = $si ? 'SI' : 'English';
+        throw new LogicException("No $system base unit is defined for dimension '$dimensionLetterCode'.");
     }
 
     /**

@@ -1,5 +1,3 @@
-# Creating Quantities
-
 You can create quantities using either the base `Quantity` class or a dedicated subclass. Both approaches give you full access to arithmetic, conversion, comparison, and formatting.
 
 ## Using the Base Quantity Class
@@ -79,4 +77,4 @@ The package also includes `Data` (bytes, bits) and `Dimensionless` for dimension
 
 Most [SI derived units defined by field of application](https://en.wikipedia.org/wiki/SI_derived_unit#By_field_of_application) — such as viscosity, entropy, specific heat capacity, and surface tension — do not have dedicated classes. They can be created directly using the base `Quantity` class with compound unit expressions (e.g. `'Pa*s'`, `'J/K'`, `'J/(kg*K)'`).
 
-If you need a dedicated class for one of these, see [5. Extending the Package](5.%20Extending%20the%20Package.md).
+If you need a dedicated class for one of these, see [5_Customization](5_Customization.md).

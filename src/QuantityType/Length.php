@@ -57,11 +57,11 @@ class Length extends Quantity
                 'systems'     => [UnitSystem::Css],
             ],
             'point'             => [
-                'asciiSymbol' => 'p',
+                'asciiSymbol' => 'pt',
                 'systems'     => [UnitSystem::Css],
             ],
             'pica'              => [
-                'asciiSymbol' => 'P',
+                'asciiSymbol' => 'p',
                 'systems'     => [UnitSystem::Css],
             ],
             // Imperial/US
@@ -109,8 +109,8 @@ class Length extends Quantity
             ['in', 'mm', 25.4],
             // US customary
             ['in', 'px', 96],
-            ['in', 'p', 72],
-            ['in', 'P', 6],
+            ['in', 'pt', 72],
+            ['in', 'p', 6],
             ['ft', 'in', 12],
             ['yd', 'ft', 3],
             ['mi', 'yd', 1760],

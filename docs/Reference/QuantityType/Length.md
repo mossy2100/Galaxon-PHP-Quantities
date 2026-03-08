@@ -12,7 +12,7 @@ Represents length/distance quantities.
 The `Length` class handles distance measurements across multiple systems including SI, Imperial, US Customary,
 Scientific, Nautical, and Css units.
 
-For the complete list of length units, see [Supported Units: Length](2.6.%20Supported%20Units.md#length).
+For the complete list of length units, see [Supported Units: Length](2.6_SupportedUnits.md#length).
 
 ---
 
@@ -87,7 +87,7 @@ $inKm = $voyage->to('km');  // 185.2 km
 
 ## See Also
 
-- **[Supported Units: Length](2.6.%20Supported%20Units.md#length)** - Complete list of length units
+- **[Supported Units: Length](2.6_SupportedUnits.md#length)** - Complete list of length units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Area](Area.md)** - Related quantity (L²)
 - **[Volume](Volume.md)** - Related quantity (L³)

@@ -377,7 +377,7 @@ final class LengthTest extends TestCase
     public function testConvertInchesToPoints(): void
     {
         $length = new Length(1, 'in');
-        $pt = $length->to('p');
+        $pt = $length->to('pt');
 
         $this->assertSame(72.0, $pt->value);
     }
@@ -388,7 +388,7 @@ final class LengthTest extends TestCase
     public function testConvertInchesToPicas(): void
     {
         $length = new Length(1, 'in');
-        $pica = $length->to('P');
+        $pica = $length->to('p');
 
         $this->assertSame(6.0, $pica->value);
     }
@@ -398,8 +398,8 @@ final class LengthTest extends TestCase
      */
     public function testConvertPointsToPicas(): void
     {
-        $length = new Length(12, 'p');
-        $pica = $length->to('P');
+        $length = new Length(12, 'pt');
+        $pica = $length->to('p');
 
         $this->assertSame(1.0, $pica->value);
     }

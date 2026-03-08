@@ -205,8 +205,8 @@ class Unit implements UnitInterface
         }
 
         // Validate prefix group.
-        if ($prefixGroup < 0 || $prefixGroup > 15) {
-            throw new DomainException('Prefix group must be in the range 0-15.');
+        if ($prefixGroup < 0 || $prefixGroup > PrefixService::GROUP_ALL) {
+            throw new DomainException('Prefix group must be in the range 0-' . PrefixService::GROUP_ALL . '.');
         }
 
         // Validate Unicode symbol.
@@ -219,7 +219,7 @@ class Unit implements UnitInterface
         // Check if the alternate symbol contains a single ASCII non-letter symbol only.
         if (isset($alternateSymbol) && !RegexService::isValidAlternateSymbol($alternateSymbol)) {
             throw new FormatException(
-                "Unit symbol '$alternateSymbol' may only contain a single ASCII unit symbol (e.g. '\"%)."
+                "Unit symbol '$alternateSymbol' may only contain a single ASCII unit symbol (e.g. ' or \")."
             );
         }
 

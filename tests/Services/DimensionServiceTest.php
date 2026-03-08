@@ -653,36 +653,6 @@ final class DimensionServiceTest extends TestCase
 
     // endregion
 
-    // region getSiBaseUnitSymbols() tests
-
-    /**
-     * Test getSiBaseUnitSymbols() returns all expected SI base unit symbols.
-     */
-    public function testGetSiBaseUnitSymbolsContainsExpectedSymbols(): void
-    {
-        $symbols = DimensionService::getSiBaseUnitSymbols();
-
-        $this->assertContains('kg', $symbols);
-        $this->assertContains('m', $symbols);
-        $this->assertContains('s', $symbols);
-        $this->assertContains('A', $symbols);
-        $this->assertContains('mol', $symbols);
-        $this->assertContains('K', $symbols);
-        $this->assertContains('cd', $symbols);
-    }
-
-    /**
-     * Test getSiBaseUnitSymbols() returns correct count matching DIMENSION_CODES.
-     */
-    public function testGetSiBaseUnitSymbolsCountMatchesDimensionCodes(): void
-    {
-        $symbols = DimensionService::getSiBaseUnitSymbols();
-
-        $this->assertCount(count(DimensionService::DIMENSION_CODES), $symbols);
-    }
-
-    // endregion
-
     // region getBaseDerivedUnit() tests
 
     /**

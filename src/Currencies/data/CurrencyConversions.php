@@ -3,7 +3,7 @@
 /**
  * Conversion definitions for currencies.
  *
- * Fetched from Frankfurter (ECB) at Sunday, 08-Mar-2026 03:47:13 UTC.
+ * Fetched from Frankfurter (ECB) at Sunday, 08-Mar-2026 07:19:45 UTC.
  *
  * To regenerate, call Galaxon\Quantities\Currencies\CurrencyService::refreshCurrencyConversions().
  *
@@ -17,7 +17,7 @@
 declare(strict_types=1);
 
 return [
-    'whenFetched' => '2026-03-08 03:47:13 UTC',
+    'whenFetched' => '2026-03-08 07:19:45 UTC',
     'serviceName' => 'Frankfurter (ECB)',
     'definitions' => [
         ['EUR', 'AUD', 1.6501],

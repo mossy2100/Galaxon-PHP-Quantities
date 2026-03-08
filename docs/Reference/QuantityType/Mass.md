@@ -11,7 +11,7 @@ Represents mass quantities.
 
 The `Mass` class handles mass measurements across SI, Imperial, and US Customary systems.
 
-For the complete list of mass units, see [Supported Units: Mass](2.6.%20Supported%20Units.md#mass).
+For the complete list of mass units, see [Supported Units: Mass](2.6_SupportedUnits.md#mass).
 
 ---
 
@@ -79,7 +79,7 @@ $grains = new Mass(77, 'gr');  // ~5 grams
 
 ## See Also
 
-- **[Supported Units: Mass](2.6.%20Supported%20Units.md#mass)** - Complete list of mass units
+- **[Supported Units: Mass](2.6_SupportedUnits.md#mass)** - Complete list of mass units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Force](Force.md)** - Related quantity (M·L·T⁻²)
 - **[Density](Density.md)** - Related quantity (M·L⁻³)

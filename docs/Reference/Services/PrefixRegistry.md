@@ -102,4 +102,4 @@ $inverse = PrefixService::invert($source);    // micro (10⁻⁶)
 
 - **[Prefix](../Internal/Prefix.md)** - Prefix class documentation
 - **[Unit](../Internal/Unit.md)** - Unit class using prefix groups
-- **[2.6. Supported Units](2.6.%20Supported%20Units.md)** - Units with their prefix support
+- **[2.6_SupportedUnits](2.6_SupportedUnits.md)** - Units with their prefix support
