@@ -64,7 +64,7 @@ final class MoneyTest extends TestCase
         $units = Money::getUnitDefinitions();
 
         $symbols = array_map(
-            static fn(array $def) => $def['asciiSymbol'],
+            static fn (array $def) => $def['asciiSymbol'],
             $units
         );
 

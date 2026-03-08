@@ -112,7 +112,7 @@ class QuantityTypeService
             'dimension' => 'D',
             'class'     => Data::class,
         ],
-        'money' => [
+        'money'                 => [
             'dimension' => 'C',
             'class'     => Money::class,
         ],

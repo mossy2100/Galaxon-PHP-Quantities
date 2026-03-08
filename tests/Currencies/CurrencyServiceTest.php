@@ -80,8 +80,9 @@ class CurrencyServiceTest extends TestCase
     {
         CurrencyService::$exchangeRateService = new FrankfurterService();
         CurrencyService::ensureExchangeRateServiceConfigured();
+
         // No exception means success.
-        self::assertTrue(true);
+        self::assertTrue(true); // @phpstan-ignore staticMethod.alreadyNarrowedType
     }
 
     // endregion

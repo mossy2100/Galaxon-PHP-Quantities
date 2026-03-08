@@ -127,8 +127,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
-        // @phpstan-ignore assign.propertyType
-        $qtyType->class = stdClass::class;
+        $qtyType->class = stdClass::class; // @phpstan-ignore assign.propertyType
     }
 
     /**
@@ -154,8 +153,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must be a subclass of');
 
-        // @phpstan-ignore assign.propertyType
-        $qtyType->class = 'NonExistent\\FakeClass';
+        $qtyType->class = 'NonExistent\\FakeClass'; // @phpstan-ignore assign.propertyType
     }
 
     /**
@@ -301,8 +299,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must contain only strings');
 
-        // @phpstan-ignore assign.propertyType
-        $qtyType->partUnitSymbols = ['h', 123];
+        $qtyType->partUnitSymbols = ['h', 123]; // @phpstan-ignore assign.propertyType
     }
 
     /**

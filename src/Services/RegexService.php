@@ -48,16 +48,6 @@ final class RegexService
     private const string RX_UNICODE_LETTER = '\p{L}';
 
     /**
-     * Pattern for a single Unicode word (one or more letters).
-     */
-    private const string RX_UNICODE_WORD = self::RX_UNICODE_LETTER . '+';
-
-    /**
-     * Pattern for one to three Unicode words separated by single spaces.
-     */
-    private const string RX_UNICODE_WORDS = self::RX_UNICODE_WORD . '(?: ' . self::RX_UNICODE_WORD . '){0,2}';
-
-    /**
      * Pattern for a single Unicode special character valid for use as a unit symbol.
      */
     private const string RX_UNICODE_SPECIAL_CHR = "[!-'?@`′″‰\p{So}\p{Sc}]";

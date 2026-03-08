@@ -141,7 +141,7 @@ class Quantity implements Stringable
 
         // Check they are calling the correct constructor.
         $qtyType = $derivedUnit->quantityType;
-        $correctClass = $qtyType?->class ?? $qtyClass;
+        $correctClass = $qtyType->class ?? $qtyClass;
         if ($callingClass !== $correctClass) {
             $classStr = $qtyType === null
                 ? "quantity with dimension '$derivedUnit->dimension'"
@@ -535,7 +535,7 @@ class Quantity implements Stringable
             $expansionUnit = $unit->expansion->derivedUnit;
 
             // Skip units that expand to s-1 (i.e. 'Hz' or 'Bq').
-            if (count($expansionUnit->unitTerms) === 1 && $expansionUnit->firstUnitTerm->asciiSymbol === 's-1') {
+            if (count($expansionUnit->unitTerms) === 1 && $expansionUnit->firstUnitTerm?->asciiSymbol === 's-1') {
                 continue;
             }
 
@@ -689,7 +689,7 @@ class Quantity implements Stringable
         }
 
         // Construct the Quantity from the given unit (string, Unit, UnitTerm, or DerivedUnit).
-        return Quantity::create(1, DerivedUnit::toDerivedUnit($operand));
+        return self::create(1, DerivedUnit::toDerivedUnit($operand));
     }
 
     /**

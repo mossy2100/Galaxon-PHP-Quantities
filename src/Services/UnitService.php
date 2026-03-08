@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Services;
 
 use DomainException;
-use Galaxon\Core\Arrays;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitSystem;
 
 /**
@@ -352,6 +350,7 @@ class UnitService
     public static function count(): int
     {
         self::init();
+        assert(self::$units !== null);
         return count(self::$units);
     }
 
@@ -395,7 +394,8 @@ class UnitService
      *     unicodeSymbol?: string,
      *     prefixGroup?: int,
      *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
+     *     systems: list<UnitSystem>,
+     *     dimension: string
      * }>
      */
     private static function getAllDefinitions(): array

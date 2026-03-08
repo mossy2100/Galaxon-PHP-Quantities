@@ -13,7 +13,6 @@ use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
-use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -482,7 +481,7 @@ final class ConversionServiceTest extends TestCase
     {
         $definitions = ConversionService::getAllDefinitions();
 
-        $this->assertIsArray($definitions);
+        $this->assertIsArray($definitions); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertNotEmpty($definitions);
 
         // Each definition should be [srcSymbol, destSymbol, factor].

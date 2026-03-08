@@ -50,9 +50,18 @@ class FixerServiceTest extends TestCase
             self::markTestSkipped('Fixer.io access key not configured in tests/api-keys.json.');
         }
 
-        $keys = json_decode(file_get_contents($path), true);
+        $keysJson = file_get_contents($path);
+        if ($keysJson === false) {
+            self::markTestSkipped('Failed to read Fixer.io access key from tests/api-keys.json.');
+        }
+
+        $keys = json_decode($keysJson, true);
+        if (!is_array($keys)) {
+            self::markTestSkipped('Invalid JSON in tests/api-keys.json.');
+        }
+
         $apiKey = $keys['fixer'] ?? '';
-        if ($apiKey === '') {
+        if ($apiKey === '' || !is_string($apiKey)) {
             self::markTestSkipped('Fixer.io access key not configured in tests/api-keys.json.');
         }
 

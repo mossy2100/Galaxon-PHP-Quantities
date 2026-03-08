@@ -28,8 +28,7 @@ final class UnitServiceTest extends TestCase
     {
         $result = UnitService::getAll();
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
@@ -365,8 +364,7 @@ final class UnitServiceTest extends TestCase
     {
         $result = UnitService::getAllSymbols();
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
 
         foreach ($result as $symbol) {
             $this->assertIsString($symbol);

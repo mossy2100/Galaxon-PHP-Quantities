@@ -75,8 +75,7 @@ final class PrefixServiceTest extends TestCase
     {
         $result = PrefixService::getPrefixes(PrefixService::GROUP_METRIC);
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertNotEmpty($result);
         $this->assertContainsOnlyInstancesOf(Prefix::class, $result);
     }

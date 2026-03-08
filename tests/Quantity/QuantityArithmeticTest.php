@@ -16,7 +16,6 @@ use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
-use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

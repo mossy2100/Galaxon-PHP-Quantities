@@ -112,7 +112,8 @@ class QuantityType
      *      unicodeSymbol?: string,
      *      prefixGroup?: int,
      *      alternateSymbol?: string,
-     *      systems: list<UnitSystem>
+     *      systems: list<UnitSystem>,
+     *      dimension: string
      *  }>
      */
     private(set) array $unitDefinitions {

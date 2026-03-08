@@ -119,7 +119,9 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('No result unit symbol provided and no default set.');
 
-        QuantityPartsService::fromParts(Quantity::class, ['m' => 100]);
+        QuantityPartsService::fromParts(Quantity::class, [
+            'm' => 100,
+        ]);
     }
 
     /**
@@ -130,7 +132,9 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Unknown result unit 'xyz'");
 
-        QuantityPartsService::fromParts(Time::class, ['h' => 1], 'xyz');
+        QuantityPartsService::fromParts(Time::class, [
+            'h' => 1,
+        ], 'xyz');
     }
 
     /**
@@ -141,7 +145,9 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('incompatible with time quantities');
 
-        QuantityPartsService::fromParts(Time::class, ['h' => 1], 'm');
+        QuantityPartsService::fromParts(Time::class, [
+            'h' => 1,
+        ], 'm');
     }
 
     /**
@@ -152,7 +158,10 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid sign: 2. Must be -1 or 1.');
 
-        QuantityPartsService::fromParts(Time::class, ['h' => 1, 'sign' => 2]);
+        QuantityPartsService::fromParts(Time::class, [
+            'h'    => 1,
+            'sign' => 2,
+        ]);
     }
 
     // endregion
@@ -503,7 +512,7 @@ final class QuantityPartsServiceTest extends TestCase
     {
         // Should not throw.
         QuantityPartsService::validatePrecision(null);
-        $this->assertTrue(true);
+        $this->assertTrue(true); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
@@ -512,7 +521,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testValidatePrecisionAcceptsZero(): void
     {
         QuantityPartsService::validatePrecision(0);
-        $this->assertTrue(true);
+        $this->assertTrue(true); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
@@ -521,7 +530,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testValidatePrecisionAcceptsPositive(): void
     {
         QuantityPartsService::validatePrecision(5);
-        $this->assertTrue(true);
+        $this->assertTrue(true); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
@@ -597,8 +606,8 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must contain only strings');
 
-        $symbols = ['h', 42]; // @phpstan-ignore argument.type
-        QuantityPartsService::validatePartUnitSymbols($symbols);
+        $symbols = ['h', 42];
+        QuantityPartsService::validatePartUnitSymbols($symbols); // @phpstan-ignore argument.type
     }
 
     /**

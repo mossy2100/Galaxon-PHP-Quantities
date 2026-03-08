@@ -50,9 +50,18 @@ class CurrencyLayerServiceTest extends TestCase
             self::markTestSkipped('CurrencyLayer access key not configured in tests/api-keys.json.');
         }
 
-        $keys = json_decode(file_get_contents($path), true);
+        $keysJson = file_get_contents($path);
+        if ($keysJson === false) {
+            self::markTestSkipped('Failed to read CurrencyLayer access key from tests/api-keys.json.');
+        }
+
+        $keys = json_decode($keysJson, true);
+        if (!is_array($keys)) {
+            self::markTestSkipped('Invalid JSON in tests/api-keys.json.');
+        }
+
         $apiKey = $keys['currencyLayer'] ?? '';
-        if ($apiKey === '') {
+        if ($apiKey === '' || !is_string($apiKey)) {
             self::markTestSkipped('CurrencyLayer access key not configured in tests/api-keys.json.');
         }
 

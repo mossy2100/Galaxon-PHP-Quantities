@@ -34,8 +34,7 @@ final class QuantityTypeServiceTest extends TestCase
     {
         $result = QuantityTypeService::getAll();
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($result);
+        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**
@@ -428,8 +427,7 @@ final class QuantityTypeServiceTest extends TestCase
     {
         $classes = QuantityTypeService::getClasses();
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($classes);
+        $this->assertIsArray($classes); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertNotEmpty($classes);
 
         // Verify all elements are class strings.

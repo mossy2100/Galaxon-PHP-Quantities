@@ -11,7 +11,6 @@ use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
-use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\UnitSystem;
 use LogicException;
 
@@ -49,7 +48,7 @@ class ConversionService
             try {
                 $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
                 // @codeCoverageIgnoreStart
-            } catch (DomainException|FormatException) {
+            } catch (DomainException | FormatException) {
                 // The symbol represents an unknown unit or is otherwise invalid; ignore this definition.
                 continue;
                 // @codeCoverageIgnoreEnd
@@ -59,7 +58,7 @@ class ConversionService
             try {
                 $destUnit = DerivedUnit::toDerivedUnit($destSymbol);
                 // @codeCoverageIgnoreStart
-            } catch (DomainException|FormatException) {
+            } catch (DomainException | FormatException) {
                 // The symbol represents an unknown unit or is otherwise invalid; ignore this definition.
                 continue;
                 // @codeCoverageIgnoreEnd

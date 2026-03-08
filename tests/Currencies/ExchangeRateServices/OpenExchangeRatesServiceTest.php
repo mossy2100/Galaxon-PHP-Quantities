@@ -50,9 +50,18 @@ class OpenExchangeRatesServiceTest extends TestCase
             self::markTestSkipped('Open Exchange Rates App ID not configured in tests/api-keys.json.');
         }
 
-        $keys = json_decode(file_get_contents($path), true);
+        $keysJson = file_get_contents($path);
+        if ($keysJson === false) {
+            self::markTestSkipped('Failed to read Open Exchange Rates App ID from tests/api-keys.json.');
+        }
+
+        $keys = json_decode($keysJson, true);
+        if (!is_array($keys)) {
+            self::markTestSkipped('Invalid JSON in tests/api-keys.json.');
+        }
+
         $apiKey = $keys['openExchangeRates'] ?? '';
-        if ($apiKey === '') {
+        if ($apiKey === '' || !is_string($apiKey)) {
             self::markTestSkipped('Open Exchange Rates App ID not configured in tests/api-keys.json.');
         }
 

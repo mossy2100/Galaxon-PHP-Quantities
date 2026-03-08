@@ -43,8 +43,8 @@ final class UnitTest extends TestCase
             name: 'meter',
             asciiSymbol: 'm',
             dimension: 'L',
-            prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            prefixGroup: PrefixService::GROUP_METRIC
         );
 
         $this->assertSame('meter', $unit->name);
@@ -64,8 +64,8 @@ final class UnitTest extends TestCase
             name: 'hertz',
             asciiSymbol: 'Hz',
             dimension: 'T-1',
-            prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            prefixGroup: PrefixService::GROUP_METRIC
         );
 
         $this->assertSame('hertz', $unit->name);
@@ -82,10 +82,10 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'ohm',
             asciiSymbol: 'ohm',
-            unicodeSymbol: 'Ω',
             dimension: 'T-3L2MI-2',
+            systems: [UnitSystem::Si],
             prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            unicodeSymbol: 'Ω'
         );
 
         $this->assertSame('ohm', $unit->asciiSymbol);
@@ -150,9 +150,9 @@ final class UnitTest extends TestCase
         new Unit(
             name: 'test',
             asciiSymbol: 'm',
-            unicodeSymbol: '123',
             dimension: 'L',
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            unicodeSymbol: '123'
         );
     }
 
@@ -295,9 +295,9 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'ohm',
             asciiSymbol: 'ohm',
-            unicodeSymbol: 'Ω',
             dimension: 'T-3L2MI-2',
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            unicodeSymbol: 'Ω'
         );
 
         $this->assertSame('Ω', $unit->unicodeSymbol);
@@ -344,8 +344,8 @@ final class UnitTest extends TestCase
             name: 'meter',
             asciiSymbol: 'm',
             dimension: 'L',
-            prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            prefixGroup: PrefixService::GROUP_METRIC
         );
 
         $this->assertTrue($unit->acceptsPrefix('k'));
@@ -364,8 +364,8 @@ final class UnitTest extends TestCase
             name: 'meter',
             asciiSymbol: 'm',
             dimension: 'L',
-            prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            prefixGroup: PrefixService::GROUP_METRIC
         );
 
         $this->assertTrue($unit->acceptsPrefix('μ'));
@@ -380,8 +380,8 @@ final class UnitTest extends TestCase
             name: 'meter',
             asciiSymbol: 'm',
             dimension: 'L',
-            prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            prefixGroup: PrefixService::GROUP_METRIC
         );
 
         // Binary prefix not in METRIC group.
@@ -397,8 +397,8 @@ final class UnitTest extends TestCase
             name: 'meter',
             asciiSymbol: 'm',
             dimension: 'L',
-            prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            prefixGroup: PrefixService::GROUP_METRIC
         );
 
         $this->assertFalse($unit->acceptsPrefix('invalid'));
@@ -429,14 +429,13 @@ final class UnitTest extends TestCase
             name: 'meter',
             asciiSymbol: 'm',
             dimension: 'L',
-            prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            prefixGroup: PrefixService::GROUP_METRIC
         );
 
         $prefixes = $unit->allowedPrefixes;
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($prefixes);
+        $this->assertIsArray($prefixes); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertNotEmpty($prefixes);
     }
 
@@ -515,9 +514,9 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'ohm',
             asciiSymbol: 'ohm',
-            unicodeSymbol: 'Ω',
             dimension: 'T-3L2MI-2',
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            unicodeSymbol: 'Ω'
         );
 
         $this->assertSame('Ω', (string)$unit);
@@ -531,9 +530,9 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'ohm',
             asciiSymbol: 'ohm',
-            unicodeSymbol: 'Ω',
             dimension: 'T-3L2MI-2',
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            unicodeSymbol: 'Ω'
         );
 
         $this->assertSame('Ω', $unit->format());
@@ -548,9 +547,9 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'ohm',
             asciiSymbol: 'ohm',
-            unicodeSymbol: 'Ω',
             dimension: 'T-3L2MI-2',
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            unicodeSymbol: 'Ω'
         );
 
         $this->assertSame('ohm', $unit->format(true));
@@ -564,9 +563,9 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'degree',
             asciiSymbol: 'deg',
-            unicodeSymbol: '°',
             dimension: 'A',
-            systems: [UnitSystem::SiAccepted]
+            systems: [UnitSystem::SiAccepted],
+            unicodeSymbol: '°'
         );
 
         $this->assertSame('°', (string)$unit);
@@ -720,8 +719,8 @@ final class UnitTest extends TestCase
             name: 'liter',
             asciiSymbol: 'L',
             dimension: 'L3',
-            alternateSymbol: '#',
-            systems: [UnitSystem::SiAccepted]
+            systems: [UnitSystem::SiAccepted],
+            alternateSymbol: '#'
         );
 
         $this->assertSame('#', $unit->alternateSymbol);
@@ -739,8 +738,8 @@ final class UnitTest extends TestCase
             name: 'liter',
             asciiSymbol: 'L',
             dimension: 'L3',
-            alternateSymbol: 'ℓ',
-            systems: [UnitSystem::SiAccepted]
+            systems: [UnitSystem::SiAccepted],
+            alternateSymbol: 'ℓ'
         );
     }
 
@@ -753,8 +752,8 @@ final class UnitTest extends TestCase
             name: 'liter',
             asciiSymbol: 'L',
             dimension: 'L3',
-            alternateSymbol: 'l',
-            systems: [UnitSystem::SiAccepted]
+            systems: [UnitSystem::SiAccepted],
+            alternateSymbol: 'l'
         );
 
         $this->assertSame('l', $unit->alternateSymbol);
@@ -793,8 +792,7 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
-        // @phpstan-ignore method.alreadyNarrowedType
-        $this->assertIsArray($symbols);
+        $this->assertIsArray($symbols); // @phpstan-ignore method.alreadyNarrowedType
         $this->assertArrayHasKey('m', $symbols);
     }
 
@@ -806,9 +804,9 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'ohm',
             asciiSymbol: 'ohm',
-            unicodeSymbol: 'Ω',
             dimension: 'T-3L2MI-2',
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            unicodeSymbol: 'Ω'
         );
 
         $symbols = $unit->symbols;
@@ -826,8 +824,8 @@ final class UnitTest extends TestCase
             name: 'liter',
             asciiSymbol: 'L',
             dimension: 'L3',
-            alternateSymbol: '#',
-            systems: [UnitSystem::SiAccepted]
+            systems: [UnitSystem::SiAccepted],
+            alternateSymbol: '#'
         );
 
         $symbols = $unit->symbols;
@@ -845,8 +843,8 @@ final class UnitTest extends TestCase
             name: 'meter',
             asciiSymbol: 'm',
             dimension: 'L',
-            prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            systems: [UnitSystem::Si],
+            prefixGroup: PrefixService::GROUP_METRIC
         );
 
         $symbols = $unit->symbols;
@@ -865,10 +863,10 @@ final class UnitTest extends TestCase
         $unit = new Unit(
             name: 'ohm',
             asciiSymbol: 'ohm',
-            unicodeSymbol: 'Ω',
             dimension: 'T-3L2MI-2',
+            systems: [UnitSystem::Si],
             prefixGroup: PrefixService::GROUP_METRIC,
-            systems: [UnitSystem::Si]
+            unicodeSymbol: 'Ω'
         );
 
         $symbols = $unit->symbols;

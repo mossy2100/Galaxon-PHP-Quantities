@@ -603,7 +603,9 @@ class DerivedUnit implements UnitInterface
      */
     public function removePrefixes(): self
     {
-        $unitTerms = array_map(static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(), $this->unitTerms);
+        $unitTerms = array_values(
+            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(), $this->unitTerms)
+        );
         return new self($unitTerms);
     }
 

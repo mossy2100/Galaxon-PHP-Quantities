@@ -259,6 +259,7 @@ class CurrencyService
     {
         // Check if the exchange rate service is configured.
         self::ensureExchangeRateServiceConfigured();
+        assert(self::$exchangeRateService !== null);
 
         // Try to load the conversion data.
         try {
@@ -463,7 +464,7 @@ class CurrencyService
 
         // Try to detect from the HTTP Accept-Language header.
         // @codeCoverageIgnoreStart
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && is_string($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             $detected = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
             if ($detected !== false) {
                 self::$locale = $detected;
