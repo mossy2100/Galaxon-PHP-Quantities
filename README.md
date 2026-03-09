@@ -2,7 +2,7 @@
 
 Physical measurement types with automatic unit conversion and prefix support.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](2.6_SupportedUnits.md)** | **[Examples](3.4_CalculationExamples.md)** | **[Custom Types](5_Customization.md)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](2.6_SupportedUnits.md)** | **[Examples](3.4_CalculationExamples.md)** | **[Custom Types](5.2_AddingQuantityTypes.md)**
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
@@ -104,7 +104,7 @@ echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
 8. **[3.4_CalculationExamples](3.4_CalculationExamples.md)** — Real-world physics and engineering calculations.
 9. **[3.5_ComparisonFunctions](3.5_ComparisonFunctions.md)** — Exact and approximate equality, ordering, and tolerances.
 10. **[3.6_StringFunctions](3.6_StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
-11. **[5_Customization](5_Customization.md)** — How to add your own quantity types and units.
+11. **[5.2_AddingQuantityTypes](5.2_AddingQuantityTypes.md)** — How to add your own quantity types and units.
 12. **[3.7_PartDecomposition](3.7_PartDecomposition.md)** — Breaking quantities into components (e.g. 45° 30′ 15″ or 1h 30min 45s).
 
 ---

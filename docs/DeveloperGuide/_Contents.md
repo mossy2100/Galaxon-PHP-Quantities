@@ -1,4 +1,5 @@
-1. **Concepts**
+1. **[Introduction](1_Introduction.md)**
+2. **Concepts**
 	1. **[Terminology](2.1_Terminology.md)** — Key terms and definitions used throughout the library.
 	2. **[Dimensions](2.2_DimensionsAndBaseUnits.md)**
 	3. **[Quantity Types](2.3_QuantityTypes.md)**
@@ -15,13 +16,12 @@
 	6. **[String Functions](3.6_StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
 	7. **[Part Decomposition](3.7_PartDecomposition.md)** — Working with quantities as parts (e.g. 45° 30′ 15″ or 1h 30min 45s).
 3. **Specific Quantity Types**
-	1. Angle - Working with parts and trigonometric functions.
-	2. Time - Working with parts and interoperability with DateInterval.
-	3. Mass - Working with parts and choosing imperial vs. US customary units.
-	4. Volume - Choosing imperial vs. US customary units.
-	5. Temperature - Calculations and conversions with temperature units.
-	6. Money - Exchange rate services, currency conversions, and calculations.
+	1. **[Angle](4.1_Angle.md)** — Trigonometric functions, angle wrapping, and DMS parts.
+	2. **[Time](4.2_Time.md)** — DateInterval interoperability and time parts.
+	3. **[Mass](4.3_Mass.md)** — Imperial vs. US customary parts configuration.
+	4. **[Volume](4.4_Volume.md)** — Imperial, US customary, and metric units.
+	5. **[Temperature](4.5_Temperature.md)** — Offset-based conversions and temperature differences.
+	6. **[Money](4.6_Money.md)** — Exchange rate services, currency formatting, and conversions.
 4. **Customization**
-	1. Adding quantity types
-	2. **[Adding units](5.2_AddingUnits)**
-	3. Adding conversions
+	1. **[Adding custom units and conversions](5.1_AddingUnitsAndConversions.md)**
+	2. **[Adding custom quantity types](5.2_AddingQuantityTypes)**
