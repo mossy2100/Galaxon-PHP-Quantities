@@ -2,7 +2,7 @@
 
 Physical measurement types with automatic unit conversion and prefix support.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](2.6_SupportedUnits.md)** | **[Examples](3.3_CalculationExamples.md)** | **[Custom Types](5_Customization.md)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](2.6_SupportedUnits.md)** | **[Examples](3.4_CalculationExamples.md)** | **[Custom Types](5_Customization.md)**
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
@@ -95,17 +95,17 @@ echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
 ## Developer Guide
 
 1. **[2.1_Terminology](2.1_Terminology.md)** — Key terms and definitions used throughout the library.
-2. **[CreatingQuantities](CreatingQuantities.md)** — Get started creating Quantity objects via the base Quantity class and dedicated subclasses.
+2. **[3.1_CreatingQuantities](3.1_CreatingQuantities.md)** — Get started creating Quantity objects via the base Quantity class and dedicated subclasses.
 3. Quantity Types and Dimensions - A deeper dive into quantity types and dimensions.
-4. **[3.1_UnitConversion](3.1_UnitConversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
+4. **[3.2_UnitConversion](3.2_UnitConversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
 5. **[2.6_SupportedUnits](2.6_SupportedUnits.md)** — Complete reference of all built-in units by quantity type.
-6. **[3.2_ArithmeticOperations](3.2_ArithmeticOperations.md)** — Add, subtract, multiply, and divide quantities.
+6. **[3.3_ArithmeticOperations](3.3_ArithmeticOperations.md)** — Add, subtract, multiply, and divide quantities.
 7. **[2.7_PhysicalConstants](2.7_PhysicalConstants.md)** — Using fundamental constants in calculations.
-8. **[3.3_CalculationExamples](3.3_CalculationExamples.md)** — Real-world physics and engineering calculations.
-9. **[3.4_ComparisonFunctions](3.4_ComparisonFunctions.md)** — Exact and approximate equality, ordering, and tolerances.
-10. **[3.5_StringFunctions](3.5_StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
+8. **[3.4_CalculationExamples](3.4_CalculationExamples.md)** — Real-world physics and engineering calculations.
+9. **[3.5_ComparisonFunctions](3.5_ComparisonFunctions.md)** — Exact and approximate equality, ordering, and tolerances.
+10. **[3.6_StringFunctions](3.6_StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
 11. **[5_Customization](5_Customization.md)** — How to add your own quantity types and units.
-12. **[3.6_PartDecomposition](3.6_PartDecomposition.md)** — Breaking quantities into components (e.g. 45° 30′ 15″ or 1h 30min 45s).
+12. **[3.7_PartDecomposition](3.7_PartDecomposition.md)** — Breaking quantities into components (e.g. 45° 30′ 15″ or 1h 30min 45s).
 
 ---
 ## Reference
@@ -223,7 +223,7 @@ For questions or suggestions, please [open an issue](https://github.com/mossy210
 
 - **Issues**: https://github.com/mossy2100/PHP-Quantities/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
-- **Examples**: See [3.3_CalculationExamples](3.3_CalculationExamples.md) for real-world physics and engineering calculations
+- **Examples**: See [3.4_CalculationExamples](3.4_CalculationExamples.md) for real-world physics and engineering calculations
 
 ## Changelog
 

@@ -32,655 +32,655 @@ return [
     'definitions' => [
         'ADB Unit of Account'         => [
             'asciiSymbol' => 'XUA',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Afghani'                     => [
             'asciiSymbol' => 'AFN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Algerian Dinar'              => [
             'asciiSymbol' => 'DZD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Arab Accounting Dinar'       => [
             'asciiSymbol' => 'XAD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Argentine Peso'              => [
             'asciiSymbol' => 'ARS',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Armenian Dram'               => [
             'asciiSymbol' => 'AMD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Aruban Florin'               => [
             'asciiSymbol' => 'AWG',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Australian Dollar'           => [
             'asciiSymbol' => 'AUD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Azerbaijan Manat'            => [
             'asciiSymbol' => 'AZN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Bahamian Dollar'             => [
             'asciiSymbol' => 'BSD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Bahraini Dinar'              => [
             'asciiSymbol' => 'BHD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Baht'                        => [
             'asciiSymbol' => 'THB',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Balboa'                      => [
             'asciiSymbol' => 'PAB',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Barbados Dollar'             => [
             'asciiSymbol' => 'BBD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Belarusian Ruble'            => [
             'asciiSymbol' => 'BYN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Belize Dollar'               => [
             'asciiSymbol' => 'BZD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Bermudian Dollar'            => [
             'asciiSymbol' => 'BMD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Boliviano'                   => [
             'asciiSymbol' => 'BOB',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Bolívar Soberano'            => [
             'asciiSymbol' => 'VES',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Brazilian Real'              => [
             'asciiSymbol' => 'BRL',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Brunei Dollar'               => [
             'asciiSymbol' => 'BND',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Burundi Franc'               => [
             'asciiSymbol' => 'BIF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'CFA Franc BCEAO'             => [
             'asciiSymbol' => 'XOF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'CFA Franc BEAC'              => [
             'asciiSymbol' => 'XAF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'CFP Franc'                   => [
             'asciiSymbol' => 'XPF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Cabo Verde Escudo'           => [
             'asciiSymbol' => 'CVE',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Canadian Dollar'             => [
             'asciiSymbol' => 'CAD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Caribbean Guilder'           => [
             'asciiSymbol' => 'XCG',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Cayman Islands Dollar'       => [
             'asciiSymbol' => 'KYD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Chilean Peso'                => [
             'asciiSymbol' => 'CLP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Colombian Peso'              => [
             'asciiSymbol' => 'COP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Comorian Franc'              => [
             'asciiSymbol' => 'KMF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Congolese Franc'             => [
             'asciiSymbol' => 'CDF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Convertible Mark'            => [
             'asciiSymbol' => 'BAM',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Cordoba Oro'                 => [
             'asciiSymbol' => 'NIO',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Costa Rican Colon'           => [
             'asciiSymbol' => 'CRC',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Cuban Peso'                  => [
             'asciiSymbol' => 'CUP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Czech Koruna'                => [
             'asciiSymbol' => 'CZK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Dalasi'                      => [
             'asciiSymbol' => 'GMD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Danish Krone'                => [
             'asciiSymbol' => 'DKK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Denar'                       => [
             'asciiSymbol' => 'MKD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Djibouti Franc'              => [
             'asciiSymbol' => 'DJF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Dobra'                       => [
             'asciiSymbol' => 'STN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Dominican Peso'              => [
             'asciiSymbol' => 'DOP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Dong'                        => [
             'asciiSymbol' => 'VND',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'East Caribbean Dollar'       => [
             'asciiSymbol' => 'XCD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Egyptian Pound'              => [
             'asciiSymbol' => 'EGP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'El Salvador Colon'           => [
             'asciiSymbol' => 'SVC',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Ethiopian Birr'              => [
             'asciiSymbol' => 'ETB',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Euro'                        => [
             'asciiSymbol' => 'EUR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Falkland Islands Pound'      => [
             'asciiSymbol' => 'FKP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Fiji Dollar'                 => [
             'asciiSymbol' => 'FJD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Forint'                      => [
             'asciiSymbol' => 'HUF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Ghana Cedi'                  => [
             'asciiSymbol' => 'GHS',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Gibraltar Pound'             => [
             'asciiSymbol' => 'GIP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Gold'                        => [
             'asciiSymbol' => 'XAU',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Gourde'                      => [
             'asciiSymbol' => 'HTG',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Guarani'                     => [
             'asciiSymbol' => 'PYG',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Guinean Franc'               => [
             'asciiSymbol' => 'GNF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Guyana Dollar'               => [
             'asciiSymbol' => 'GYD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Hong Kong Dollar'            => [
             'asciiSymbol' => 'HKD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Hryvnia'                     => [
             'asciiSymbol' => 'UAH',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Iceland Krona'               => [
             'asciiSymbol' => 'ISK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Indian Rupee'                => [
             'asciiSymbol' => 'INR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Iranian Rial'                => [
             'asciiSymbol' => 'IRR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Iraqi Dinar'                 => [
             'asciiSymbol' => 'IQD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Jamaican Dollar'             => [
             'asciiSymbol' => 'JMD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Jordanian Dinar'             => [
             'asciiSymbol' => 'JOD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Kenyan Shilling'             => [
             'asciiSymbol' => 'KES',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Kina'                        => [
             'asciiSymbol' => 'PGK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Kuwaiti Dinar'               => [
             'asciiSymbol' => 'KWD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Kwanza'                      => [
             'asciiSymbol' => 'AOA',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Kyat'                        => [
             'asciiSymbol' => 'MMK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Lao Kip'                     => [
             'asciiSymbol' => 'LAK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Lari'                        => [
             'asciiSymbol' => 'GEL',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Lebanese Pound'              => [
             'asciiSymbol' => 'LBP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Lek'                         => [
             'asciiSymbol' => 'ALL',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Lempira'                     => [
             'asciiSymbol' => 'HNL',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Leone'                       => [
             'asciiSymbol' => 'SLE',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Liberian Dollar'             => [
             'asciiSymbol' => 'LRD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Libyan Dinar'                => [
             'asciiSymbol' => 'LYD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Lilangeni'                   => [
             'asciiSymbol' => 'SZL',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Loti'                        => [
             'asciiSymbol' => 'LSL',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Malagasy Ariary'             => [
             'asciiSymbol' => 'MGA',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Malawi Kwacha'               => [
             'asciiSymbol' => 'MWK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Malaysian Ringgit'           => [
             'asciiSymbol' => 'MYR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Mauritius Rupee'             => [
             'asciiSymbol' => 'MUR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Mexican Peso'                => [
             'asciiSymbol' => 'MXN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Moldovan Leu'                => [
             'asciiSymbol' => 'MDL',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Moroccan Dirham'             => [
             'asciiSymbol' => 'MAD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Mozambique Metical'          => [
             'asciiSymbol' => 'MZN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Naira'                       => [
             'asciiSymbol' => 'NGN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Nakfa'                       => [
             'asciiSymbol' => 'ERN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Namibia Dollar'              => [
             'asciiSymbol' => 'NAD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Nepalese Rupee'              => [
             'asciiSymbol' => 'NPR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'New Israeli Sheqel'          => [
             'asciiSymbol' => 'ILS',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'New Taiwan Dollar'           => [
             'asciiSymbol' => 'TWD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'New Zealand Dollar'          => [
             'asciiSymbol' => 'NZD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Ngultrum'                    => [
             'asciiSymbol' => 'BTN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'North Korean Won'            => [
             'asciiSymbol' => 'KPW',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Norwegian Krone'             => [
             'asciiSymbol' => 'NOK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Ouguiya'                     => [
             'asciiSymbol' => 'MRU',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Pakistan Rupee'              => [
             'asciiSymbol' => 'PKR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Palladium'                   => [
             'asciiSymbol' => 'XPD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Pataca'                      => [
             'asciiSymbol' => 'MOP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Pa’anga'                     => [
             'asciiSymbol' => 'TOP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Peso Uruguayo'               => [
             'asciiSymbol' => 'UYU',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Philippine Peso'             => [
             'asciiSymbol' => 'PHP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Platinum'                    => [
             'asciiSymbol' => 'XPT',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Pound Sterling'              => [
             'asciiSymbol' => 'GBP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Pula'                        => [
             'asciiSymbol' => 'BWP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Qatari Rial'                 => [
             'asciiSymbol' => 'QAR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Quetzal'                     => [
             'asciiSymbol' => 'GTQ',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Rand'                        => [
             'asciiSymbol' => 'ZAR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Rial Omani'                  => [
             'asciiSymbol' => 'OMR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Riel'                        => [
             'asciiSymbol' => 'KHR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Romanian Leu'                => [
             'asciiSymbol' => 'RON',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Rufiyaa'                     => [
             'asciiSymbol' => 'MVR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Rupiah'                      => [
             'asciiSymbol' => 'IDR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Russian Ruble'               => [
             'asciiSymbol' => 'RUB',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Rwanda Franc'                => [
             'asciiSymbol' => 'RWF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'SDR (Special Drawing Right)' => [
             'asciiSymbol' => 'XDR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Saint Helena Pound'          => [
             'asciiSymbol' => 'SHP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Saudi Riyal'                 => [
             'asciiSymbol' => 'SAR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Serbian Dinar'               => [
             'asciiSymbol' => 'RSD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Seychelles Rupee'            => [
             'asciiSymbol' => 'SCR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Silver'                      => [
             'asciiSymbol' => 'XAG',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Singapore Dollar'            => [
             'asciiSymbol' => 'SGD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Sol'                         => [
             'asciiSymbol' => 'PEN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Solomon Islands Dollar'      => [
             'asciiSymbol' => 'SBD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Som'                         => [
             'asciiSymbol' => 'KGS',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Somali Shilling'             => [
             'asciiSymbol' => 'SOS',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Somoni'                      => [
             'asciiSymbol' => 'TJS',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'South Sudanese Pound'        => [
             'asciiSymbol' => 'SSP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Sri Lanka Rupee'             => [
             'asciiSymbol' => 'LKR',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Sucre'                       => [
             'asciiSymbol' => 'XSU',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Sudanese Pound'              => [
             'asciiSymbol' => 'SDG',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Surinam Dollar'              => [
             'asciiSymbol' => 'SRD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Swedish Krona'               => [
             'asciiSymbol' => 'SEK',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Swiss Franc'                 => [
             'asciiSymbol' => 'CHF',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Syrian Pound'                => [
             'asciiSymbol' => 'SYP',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Taka'                        => [
             'asciiSymbol' => 'BDT',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Tala'                        => [
             'asciiSymbol' => 'WST',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Tanzanian Shilling'          => [
             'asciiSymbol' => 'TZS',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Tenge'                       => [
             'asciiSymbol' => 'KZT',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Trinidad and Tobago Dollar'  => [
             'asciiSymbol' => 'TTD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Tugrik'                      => [
             'asciiSymbol' => 'MNT',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Tunisian Dinar'              => [
             'asciiSymbol' => 'TND',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Turkish Lira'                => [
             'asciiSymbol' => 'TRY',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Turkmenistan New Manat'      => [
             'asciiSymbol' => 'TMT',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'UAE Dirham'                  => [
             'asciiSymbol' => 'AED',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'US Dollar'                   => [
             'asciiSymbol' => 'USD',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Uganda Shilling'             => [
             'asciiSymbol' => 'UGX',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Unidad Previsional'          => [
             'asciiSymbol' => 'UYW',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Uzbekistan Sum'              => [
             'asciiSymbol' => 'UZS',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Vatu'                        => [
             'asciiSymbol' => 'VUV',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Won'                         => [
             'asciiSymbol' => 'KRW',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Yemeni Rial'                 => [
             'asciiSymbol' => 'YER',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Yen'                         => [
             'asciiSymbol' => 'JPY',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Yuan Renminbi'               => [
             'asciiSymbol' => 'CNY',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Zambian Kwacha'              => [
             'asciiSymbol' => 'ZMW',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Zimbabwe Gold'               => [
             'asciiSymbol' => 'ZWG',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
         'Zloty'                       => [
             'asciiSymbol' => 'PLN',
-            'systems'     => [UnitSystem::Currency],
+            'systems'     => [UnitSystem::Financial],
         ],
     ],
 ];

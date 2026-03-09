@@ -16,9 +16,146 @@ use UnexpectedValueException;
  * Service for decomposing quantities into parts and reassembling them.
  *
  * Handles operations like converting 1.5 hours into "1h 30min 0s" and vice versa.
+ * Also stores the default part unit symbols and result unit symbols for each quantity type.
  */
 class QuantityPartsService
 {
+    // region Constants
+
+    /**
+     * Default parts configurations keyed by quantity type name.
+     *
+     * @var array<string, array{partUnitSymbols: list<string>, resultUnitSymbol: string}>
+     */
+    private const array PARTS_CONFIGS = [
+        'length' => [
+            'partUnitSymbols'  => ['mi', 'yd', 'ft', 'in'],
+            'resultUnitSymbol' => 'ft',
+        ],
+        'time' => [
+            'partUnitSymbols'  => ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
+            'resultUnitSymbol' => 's',
+        ],
+        'angle' => [
+            'partUnitSymbols'  => ['deg', 'arcmin', 'arcsec'],
+            'resultUnitSymbol' => 'deg',
+        ],
+    ];
+
+    // endregion
+
+    // region Static properties
+
+    /**
+     * Mutable parts configurations, initialised from the constant.
+     *
+     * @var ?array<string, array{partUnitSymbols: list<string>, resultUnitSymbol: string}>
+     */
+    private static ?array $partsConfigs = null;
+
+    // endregion
+
+    // region Configuration methods
+
+    /**
+     * Reset the parts configurations to their defaults.
+     *
+     * Primarily intended for test isolation.
+     */
+    public static function reset(): void
+    {
+        self::$partsConfigs = null;
+    }
+
+    /**
+     * Get the default part unit symbols for a quantity type.
+     *
+     * @param string $quantityTypeName The quantity type name (e.g. 'time', 'angle').
+     * @return ?list<string> The part unit symbols, or null if none configured.
+     */
+    public static function getPartUnitSymbols(string $quantityTypeName): ?array
+    {
+        self::init();
+        assert(self::$partsConfigs !== null);
+
+        return self::$partsConfigs[$quantityTypeName]['partUnitSymbols'] ?? null;
+    }
+
+    /**
+     * Set the default part unit symbols for a quantity type.
+     *
+     * @param string $quantityTypeName The quantity type name (e.g. 'time', 'angle').
+     * @param ?list<string> $partUnitSymbols The part unit symbols, or null to clear.
+     * @throws DomainException If the array is empty.
+     * @throws InvalidArgumentException If the array contains non-string values.
+     */
+    public static function setPartUnitSymbols(string $quantityTypeName, ?array $partUnitSymbols): void
+    {
+        self::init();
+        assert(self::$partsConfigs !== null);
+
+        if ($partUnitSymbols !== null) {
+            // Check value is not empty.
+            if (empty($partUnitSymbols)) {
+                throw new DomainException('The array of part unit symbols must not be empty.');
+            }
+
+            // Check all the symbols are strings.
+            foreach ($partUnitSymbols as $symbol) {
+                if (!is_string($symbol)) {
+                    throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
+                }
+            }
+
+            $partUnitSymbols = array_values(array_unique($partUnitSymbols));
+        }
+
+        if ($partUnitSymbols === null) {
+            unset(self::$partsConfigs[$quantityTypeName]['partUnitSymbols']);
+        } else {
+            self::$partsConfigs[$quantityTypeName]['partUnitSymbols'] = $partUnitSymbols;
+        }
+    }
+
+    /**
+     * Get the default result unit symbol for a quantity type.
+     *
+     * @param string $quantityTypeName The quantity type name (e.g. 'time', 'angle').
+     * @return ?string The result unit symbol, or null if none configured.
+     */
+    public static function getResultUnitSymbol(string $quantityTypeName): ?string
+    {
+        self::init();
+        assert(self::$partsConfigs !== null);
+
+        return self::$partsConfigs[$quantityTypeName]['resultUnitSymbol'] ?? null;
+    }
+
+    /**
+     * Set the default result unit symbol for a quantity type.
+     *
+     * @param string $quantityTypeName The quantity type name (e.g. 'time', 'angle').
+     * @param ?string $resultUnitSymbol The result unit symbol, or null to clear.
+     * @throws DomainException If the value is an empty string.
+     */
+    public static function setResultUnitSymbol(string $quantityTypeName, ?string $resultUnitSymbol): void
+    {
+        self::init();
+        assert(self::$partsConfigs !== null);
+
+        if ($resultUnitSymbol === '') {
+            throw new DomainException('The result unit symbol must be null or a unit symbol.');
+        }
+
+        if ($resultUnitSymbol === null) {
+            unset(self::$partsConfigs[$quantityTypeName]['resultUnitSymbol']);
+        } else {
+            self::$partsConfigs[$quantityTypeName]['resultUnitSymbol'] = $resultUnitSymbol;
+        }
+    }
+
+    // endregion
+
     // region Part operations
 
     /**
@@ -41,7 +178,8 @@ class QuantityPartsService
     {
         // Get the default result unit symbol if not provided.
         if ($resultUnitSymbol === null) {
-            $resultUnitSymbol = $class::getQuantityType()?->resultUnitSymbol;
+            $qtyTypeName = $class::getQuantityType()?->name;
+            $resultUnitSymbol = $qtyTypeName !== null ? self::getResultUnitSymbol($qtyTypeName) : null;
         }
 
         // Validate the result unit.
@@ -113,7 +251,8 @@ class QuantityPartsService
     {
         // Get the default part unit symbols if not provided.
         if ($partUnitSymbols === null) {
-            $partUnitSymbols = $quantity->quantityType?->partUnitSymbols;
+            $qtyTypeName = $quantity->quantityType?->name;
+            $partUnitSymbols = $qtyTypeName !== null ? self::getPartUnitSymbols($qtyTypeName) : null;
         }
 
         // Validate args.
@@ -189,7 +328,8 @@ class QuantityPartsService
 
         // Get the default result unit symbol if not provided.
         if ($resultUnitSymbol === null) {
-            $resultUnitSymbol = $class::getQuantityType()?->resultUnitSymbol;
+            $qtyTypeName = $class::getQuantityType()?->name;
+            $resultUnitSymbol = $qtyTypeName !== null ? self::getResultUnitSymbol($qtyTypeName) : null;
         }
 
         // Validate the result unit.
@@ -281,7 +421,8 @@ class QuantityPartsService
 
         // Get the default part unit symbols if not provided.
         if ($partUnitSymbols === null) {
-            $partUnitSymbols = $quantity->quantityType?->partUnitSymbols;
+            $qtyTypeName = $quantity->quantityType?->name;
+            $partUnitSymbols = $qtyTypeName !== null ? self::getPartUnitSymbols($qtyTypeName) : null;
         }
         assert(is_array($partUnitSymbols));
         $nUnits = count($partUnitSymbols);
@@ -381,6 +522,22 @@ class QuantityPartsService
         }
 
         return $partUnits;
+    }
+
+    // endregion
+
+    // region Private methods
+
+    /**
+     * Initialize the parts configurations from the constant.
+     *
+     * This is called lazily on first access.
+     */
+    private static function init(): void
+    {
+        if (self::$partsConfigs === null) {
+            self::$partsConfigs = self::PARTS_CONFIGS;
+        }
     }
 
     // endregion

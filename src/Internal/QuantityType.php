@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Internal;
 
-use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
+use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use InvalidArgumentException;
@@ -56,52 +56,23 @@ class QuantityType
     /**
      * The default unit symbols for part decomposition (e.g. ['deg', 'arcmin', 'arcsec'] for angles).
      *
+     * Delegates to QuantityPartsService.
+     *
      * @var ?list<string>
-     * @throws DomainException If the array is empty.
-     * @throws InvalidArgumentException If the array contains non-string values.
      */
-    public ?array $partUnitSymbols = null {
-        set {
-            if ($value !== null) {
-                // Check value is not empty.
-                if (empty($value)) {
-                    throw new DomainException('The array of part unit symbols must not be empty.');
-                }
-
-                // Check all the symbols are strings.
-                foreach ($value as $symbol) {
-                    if (!is_string($symbol)) {
-                        throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
-                    }
-                }
-
-                // NB: We don't check the units are valid at this time because we want to be able to set the defaults
-                // before those units are loaded.
-
-                $value = array_values(array_unique($value));
-            }
-
-            $this->partUnitSymbols = $value;
-        }
+    public ?array $partUnitSymbols {
+        get => QuantityPartsService::getPartUnitSymbols($this->name);
+        set => QuantityPartsService::setPartUnitSymbols($this->name, $value);
     }
 
     /**
      * The default result unit symbol for part operations (e.g. 'deg' for angles).
      *
-     * @throws DomainException If the value is an empty string.
+     * Delegates to QuantityPartsService.
      */
-    public ?string $resultUnitSymbol = null {
-        set {
-            // Check the value is not an empty string.
-            if ($value === '') {
-                throw new DomainException('The result unit symbol must be null or a unit symbol.');
-            }
-
-            // NB: We don't check the unit is valid at this time, because we want to be able to set the default
-            // before the unit is loaded.
-
-            $this->resultUnitSymbol = $value;
-        }
+    public ?string $resultUnitSymbol {
+        get => QuantityPartsService::getResultUnitSymbol($this->name);
+        set => QuantityPartsService::setResultUnitSymbol($this->name, $value);
     }
 
     /**
@@ -172,25 +143,17 @@ class QuantityType
      * @param string $name The human-readable name.
      * @param string $dimension The dimension code.
      * @param class-string<Quantity> $class The Quantity subclass.
-     * @param ?list<string> $partUnitSymbols The default part unit symbols.
-     * @param ?string $resultUnitSymbol The default result unit symbol.
      * @throws FormatException If the dimension code is invalid.
-     * @throws InvalidArgumentException If the class is not a subclass of Quantity, or partUnitSymbols contains
-     * non-string values.
-     * @throws DomainException If partUnitSymbols is empty, or resultUnitSymbol is an empty string.
+     * @throws InvalidArgumentException If the class is not a subclass of Quantity.
      */
     public function __construct(
         string $name,
         string $dimension,
         string $class,
-        ?array $partUnitSymbols = null,
-        ?string $resultUnitSymbol = null
     ) {
         $this->name = $name;
         $this->dimension = DimensionService::normalize($dimension);
         $this->class = $class;
-        $this->partUnitSymbols = $partUnitSymbols;
-        $this->resultUnitSymbol = $resultUnitSymbol;
     }
 
     // endregion

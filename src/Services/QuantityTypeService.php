@@ -71,20 +71,16 @@ class QuantityTypeService
 
         // Base dimensions
         'length'                => [
-            'dimension'        => 'L',
-            'class'            => Length::class,
-            'partUnitSymbols'  => ['mi', 'yd', 'ft', 'in'],
-            'resultUnitSymbol' => 'ft',
+            'dimension' => 'L',
+            'class'     => Length::class,
         ],
         'mass'                  => [
             'dimension' => 'M',
             'class'     => Mass::class,
         ],
         'time'                  => [
-            'dimension'        => 'T',
-            'class'            => Time::class,
-            'partUnitSymbols'  => ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
-            'resultUnitSymbol' => 's',
+            'dimension' => 'T',
+            'class'     => Time::class,
         ],
         'electric current'      => [
             'dimension' => 'I',
@@ -103,10 +99,8 @@ class QuantityTypeService
             'class'     => LuminousIntensity::class,
         ],
         'angle'                 => [
-            'dimension'        => 'A',
-            'class'            => Angle::class,
-            'partUnitSymbols'  => ['deg', 'arcmin', 'arcsec'],
-            'resultUnitSymbol' => 'deg',
+            'dimension' => 'A',
+            'class'     => Angle::class,
         ],
         'data'                  => [
             'dimension' => 'D',
@@ -434,8 +428,6 @@ class QuantityTypeService
                     $name,
                     $info['dimension'],
                     $info['class'],
-                    $info['partUnitSymbols'] ?? null,
-                    $info['resultUnitSymbol'] ?? null
                 );
             }
         }

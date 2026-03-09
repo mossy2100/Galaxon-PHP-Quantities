@@ -17,6 +17,8 @@ enum UnitSystem
 
     case Common;
 
+    case Metric;
+
     case Imperial;
 
     case UsCustomary;
@@ -27,7 +29,7 @@ enum UnitSystem
 
     case Css;
 
-    case Currency;
+    case Financial;
 
     case Custom;
 
