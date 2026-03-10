@@ -125,7 +125,7 @@ class CurrencyService
      * @return bool True if the data was updated.
      * @throws RuntimeException If the XML cannot be fetched or parsed.
      */
-    public static function refreshCurrencyUnits(bool $bypassCache = false): bool
+    public static function refreshUnits(bool $bypassCache = false): bool
     {
         // Try to load the unit data.
         try {
@@ -156,6 +156,9 @@ class CurrencyService
             throw new RuntimeException('Failed to fetch ISO 4217 XML from ' . self::ISO_4217_URL);
             // @codeCoverageIgnoreEnd
         }
+
+        // Ensure the data directory exists.
+        self::ensureDirExists(self::$dataDir);
 
         // Save the XML for reference, it's useful for debugging.
         file_put_contents(self::getXmlFilePath(), $xmlContent);
@@ -251,7 +254,7 @@ class CurrencyService
      * @throws LogicException If the exchange rate service is not configured.
      * @throws RuntimeException If the API request fails or returns invalid data.
      */
-    public static function refreshCurrencyConversions(bool $bypassCache = false): bool
+    public static function refreshConversions(bool $bypassCache = false): bool
     {
         // Check if the exchange rate service is configured.
         self::ensureExchangeRateServiceConfigured();
@@ -319,6 +322,9 @@ class CurrencyService
             PHP;
         $output .= "\n\nreturn " . Stringify::stringify($conversionData, true) . ";\n";
 
+        // Ensure the data directory exists.
+        self::ensureDirExists(self::$dataDir);
+
         // Save it.
         file_put_contents(self::getConversionsFilePath(), $output);
 
@@ -335,12 +341,12 @@ class CurrencyService
     public static function refresh(bool $bypassCache = false): void
     {
         // Load/reload currency units if necessary.
-        if (self::refreshCurrencyUnits($bypassCache) || !UnitService::isLoadedSystem(UnitSystem::Financial)) {
+        if (self::refreshUnits($bypassCache) || !UnitService::isLoadedSystem(UnitSystem::Financial)) {
             UnitService::loadSystem(UnitSystem::Financial, true);
         }
 
         // Refresh currency conversions if necessary.
-        if (self::refreshCurrencyConversions($bypassCache)) {
+        if (self::refreshConversions($bypassCache)) {
             // We refreshed the conversion rates, so remove all currency conversions.
             ConversionService::removeBySystem(UnitSystem::Financial);
         }
@@ -488,10 +494,17 @@ class CurrencyService
      * Set the data directory for currency data files.
      *
      * @param string $dataDir The directory path.
+     * @throws DomainException If the path is empty.
+     * @throws RuntimeException If the directory cannot be created.
      */
     public static function setDataDir(string $dataDir): void
     {
-        self::$dataDir = rtrim($dataDir, '/');
+        $dataDir = rtrim($dataDir, '/');
+        if ($dataDir === '') {
+            throw new DomainException('Data directory path cannot be empty.');
+        }
+        self::ensureDirExists($dataDir);
+        self::$dataDir = $dataDir;
     }
 
     /**
@@ -537,6 +550,19 @@ class CurrencyService
                 'The exchange rate service is not configured. Call `CurrencyService::setExchangeRateService()` ' .
                 'or `CurrencyService::init()` first.'
             );
+        }
+    }
+
+    /**
+     * Ensure that the data directory exists, creating it if necessary.
+     *
+     * @param string $dirPath The directory path.
+     * @throws RuntimeException If the directory cannot be created.
+     */
+    private static function ensureDirExists(string $dirPath): void
+    {
+        if (!is_dir($dirPath) && !mkdir($dirPath, 0755, true)) {
+            throw new RuntimeException("Failed to create directory: '$dirPath'.");
         }
     }
 

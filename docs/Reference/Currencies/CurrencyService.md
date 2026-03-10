@@ -75,7 +75,7 @@ Get the configured exchange rate service.
 
 #### `static setExchangeRateService(?ExchangeRateServiceInterface $exchangeRateService): void`
 
-Set the exchange rate service used to fetch conversion data. Must be set before calling `refresh()` or `refreshCurrencyConversions()`. Typically configured via `init()`.
+Set the exchange rate service used to fetch conversion data. Must be set before calling `refresh()` or `refreshConversions()`. Typically configured via `init()`.
 
 ```php
 use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
@@ -169,13 +169,13 @@ CurrencyService::refresh(bypassCache: true); // force re-fetch
 - `RuntimeException` - If the ISO 4217 XML or exchange rate API request fails.
 - `LogicException` - If the exchange rate service is not configured.
 
-#### `static refreshCurrencyUnits(bool $bypassCache = false): bool`
+#### `static refreshUnits(bool $bypassCache = false): bool`
 
 Regenerate the currency unit data file from the official ISO 4217 XML. Fund currencies and entries without currency codes are excluded.
 
 ```php
-$updated = CurrencyService::refreshCurrencyUnits();
-$updated = CurrencyService::refreshCurrencyUnits(bypassCache: true);
+$updated = CurrencyService::refreshUnits();
+$updated = CurrencyService::refreshUnits(bypassCache: true);
 ```
 
 **Parameters:**
@@ -188,13 +188,13 @@ $updated = CurrencyService::refreshCurrencyUnits(bypassCache: true);
 
 **Throws:** `RuntimeException` - If the XML cannot be fetched or parsed.
 
-#### `static refreshCurrencyConversions(bool $bypassCache = false): bool`
+#### `static refreshConversions(bool $bypassCache = false): bool`
 
 Update all currency conversion data using the configured exchange rate service.
 
 ```php
-$updated = CurrencyService::refreshCurrencyConversions();
-$updated = CurrencyService::refreshCurrencyConversions(bypassCache: true);
+$updated = CurrencyService::refreshConversions();
+$updated = CurrencyService::refreshConversions(bypassCache: true);
 ```
 
 **Parameters:**
@@ -247,9 +247,15 @@ $data = CurrencyService::loadConversionData();
 
 ### Data Directory
 
+#### `static getDataDir(): string`
+
+Get the current data directory path.
+
+**Returns:** `string` - The directory path.
+
 #### `static setDataDir(string $dataDir): void`
 
-Set the directory where currency data files are stored.
+Set the directory where currency data files are stored. Creates the directory if it does not exist.
 
 ```php
 CurrencyService::setDataDir('/path/to/custom/data');
@@ -261,11 +267,10 @@ CurrencyService::setDataDir('/path/to/custom/data');
 |---|---|---|
 | `$dataDir` | `string` | The directory path. Trailing slashes are trimmed. |
 
-#### `static getDataDir(): string`
+**Throws:**
 
-Get the current data directory path.
-
-**Returns:** `string` - The directory path.
+- `DomainException` - If the path is empty.
+- `RuntimeException` - If the directory cannot be created.
 
 #### `static getUnitsFilePath(): string`
 
@@ -309,7 +314,7 @@ CurrencyService::init(
 CurrencyService::setLocale('de_DE');
 
 // Force a fresh download of exchange rates.
-CurrencyService::refreshCurrencyConversions(bypassCache: true);
+CurrencyService::refreshConversions(bypassCache: true);
 
 // Use a custom data directory.
 CurrencyService::setDataDir('/tmp/currency-cache');
