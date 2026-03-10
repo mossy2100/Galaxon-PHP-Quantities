@@ -7,5 +7,5 @@ build/
 planning/
 vendor/
 src/Currencies/data/
-tests/api-keys.json
+tests/Currencoes/api-keys.json
 tests/Currencies/data/
