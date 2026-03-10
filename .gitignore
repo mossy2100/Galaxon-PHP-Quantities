@@ -6,5 +6,6 @@ _dev
 build/
 planning/
 vendor/
+src/Currencies/data/
 tests/api-keys.json
 tests/Currencies/data/
