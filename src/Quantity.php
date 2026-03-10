@@ -963,11 +963,20 @@ class Quantity implements Stringable
     /**
      * Format a numeric value as a string.
      *
-     * Precision meaning varies by specifier:
-     *  - 'f'/'F': Number of decimal places.
-     *  - 'e'/'E': Number of decimal places in the mantissa.
-     *  - 'g'/'G'/'h'/'H': Number of significant figures.
+     * Format specifiers:
+     *      - 'e': Scientific notation with lowercase 'e'.
+     *      - 'E': Scientific notation with uppercase 'E'.
+     *      - 'f': Fixed-point notation (locale-aware). [default]
+     *      - 'F': Fixed-point notation (non-locale-aware, always uses '.' as decimal separator).
+     *      - 'g': Shortest of 'e' or 'f' (lower-case 'e'/locale-aware).
+     *      - 'G': Shortest of 'E' or 'f' (upper-case 'E'/locale-aware).
+     *      - 'h': Shortest of 'e' or 'F' (lower-case 'e'/non-locale-aware).
+     *      - 'H': Shortest of 'E' or 'F' (upper-case 'E'/non-locale-aware).
      * For more information, see https://www.php.net/manual/en/function.sprintf.php
+     *
+     * The meaning of the precision argument depends on the format specifier.
+     *      - For e/E/f/F, precision means the number of digits after the decimal point.
+     *      - For g/G/h/H, precision means the number of significant digits.
      *
      * When $precision is null, trailing zeros (and a trailing decimal point) are automatically trimmed.
      * When an explicit precision is given, all digits are preserved.
@@ -976,7 +985,7 @@ class Quantity implements Stringable
      * superscript digits (e.g. 1.50×10³) instead of e+3.
      *
      * @param float $value The numeric value to format.
-     * @param string $specifier Format type: 'f'/'F' (fixed), 'e'/'E' (scientific), 'g'/'G'/'h'/'H' (shortest).
+     * @param string $specifier The format specifier.
      * @param ?int $precision Number of digits (null = sprintf default with trailing zeros trimmed).
      * @param bool $ascii If true, use ASCII e notation. If false, use ×10 with superscript exponents.
      * @return string The formatted value string.
@@ -989,7 +998,7 @@ class Quantity implements Stringable
         bool $ascii = false
     ): string {
         // Validate the specifier.
-        if (!in_array($specifier, ['e', 'E', 'f', 'F', 'g', 'G', 'h', 'H'], true)) {
+        if (!in_array(strtolower($specifier), ['e', 'f', 'g', 'h'], true)) {
             throw new DomainException("The specifier must be 'e', 'E', 'f', 'F', 'g', 'G', 'h', or 'H'.");
         }
 
@@ -1047,8 +1056,7 @@ class Quantity implements Stringable
      * non-letter symbol (e.g. °, %, "), no space is inserted. Otherwise, a space is inserted, including
      * for units that start with a non-letter such as °C.
      *
-     * @param string $specifier Format type: 'f'/'F' (fixed), 'e'/'E' (scientific), 'g'/'G'/'h'/'H' (shortest).
-     *     Uppercase variants use uppercase E in scientific notation. 'F', 'h', and 'H' are non-locale-aware.
+     * @param string $specifier The format specifier. See formatValue() for the full list.
      * @param ?int $precision Number of digits (null = sprintf default with trailing zeros trimmed).
      * @param ?bool $includeSpace Space between value and unit (null = auto, true = always, false = never).
      * @param bool $ascii If true, use ASCII symbols and e notation. If false, use Unicode symbols and ×10 notation.
@@ -1056,7 +1064,7 @@ class Quantity implements Stringable
      * @throws DomainException If the specifier or precision is invalid.
      */
     public function format(
-        string $specifier = 'g',
+        string $specifier = 'f',
         ?int $precision = null,
         ?bool $includeSpace = null,
         bool $ascii = false
@@ -1105,27 +1113,23 @@ class Quantity implements Stringable
      * Subclasses can override this to provide hardcoded defaults.
      *
      * @return ?list<string> The part unit symbols, or null if none configured.
+     * @throws DomainException If the quantity type is unregistered.
      */
     public static function getPartUnitSymbols(): ?array
     {
-        $qtyType = static::getQuantityType();
-        return $qtyType !== null ? QuantityPartsService::getPartUnitSymbols($qtyType) : null;
+        return QuantityPartsService::getPartUnitSymbols(static::getQuantityType());
     }
 
     /**
      * Set the part unit symbols for this quantity type.
      *
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to clear.
-     * @throws DomainException If the array is empty or the quantity type is not registered.
+     * @throws DomainException If the quantity type is unregistered or the array is empty.
      * @throws InvalidArgumentException If the array contains non-string values.
      */
     public static function setPartUnitSymbols(?array $partUnitSymbols): void
     {
-        $qtyType = static::getQuantityType();
-        if ($qtyType === null) {
-            throw new DomainException('Cannot set part unit symbols on a quantity type that is not registered.');
-        }
-        QuantityPartsService::setPartUnitSymbols($qtyType, $partUnitSymbols);
+        QuantityPartsService::setPartUnitSymbols(static::getQuantityType(), $partUnitSymbols);
     }
 
     /**
@@ -1134,47 +1138,37 @@ class Quantity implements Stringable
      * Subclasses can override this to provide hardcoded defaults.
      *
      * @return ?string The result unit symbol, or null if none configured.
+     * @throws DomainException If the quantity type is unregistered.
      */
     public static function getResultUnitSymbol(): ?string
     {
-        $qtyType = static::getQuantityType();
-        return $qtyType !== null ? QuantityPartsService::getResultUnitSymbol($qtyType) : null;
+        return QuantityPartsService::getResultUnitSymbol(static::getQuantityType());
     }
 
     /**
      * Set the result unit symbol for this quantity type.
      *
      * @param ?string $resultUnitSymbol The result unit symbol, or null to clear.
-     * @throws DomainException If the value is an empty string or the quantity type is not registered.
+     * @throws DomainException If the quantity type is unregistered or the value is an empty string.
      */
     public static function setResultUnitSymbol(?string $resultUnitSymbol): void
     {
-        $qtyType = static::getQuantityType();
-        if ($qtyType === null) {
-            throw new DomainException('Cannot set result unit symbol on a quantity type that is not registered.');
-        }
-        QuantityPartsService::setResultUnitSymbol($qtyType, $resultUnitSymbol);
+        QuantityPartsService::setResultUnitSymbol(static::getQuantityType(), $resultUnitSymbol);
     }
 
     /**
      * Create a new Quantity object as a sum of measurements of different units.
      *
      * @param array<string, int|float> $parts The parts.
-     * @return static A new Quantity representing the sum of the parts.
+     * @return Quantity A new Quantity representing the sum of the parts.
      * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
      * numbers.
-     * @throws DomainException If the result unit symbol or sign is invalid.
+     * @throws DomainException If the quantity type is unregistered, or the result unit symbol or sign is invalid.
      * @see QuantityPartsService::fromParts()
      */
-    public static function fromParts(array $parts): static
+    public static function fromParts(array $parts): Quantity
     {
-        $qtyType = static::getQuantityType();
-        if ($qtyType === null) {
-            throw new DomainException('Cannot call fromParts() on a quantity type that is not registered.');
-        }
-        $qty = QuantityPartsService::fromParts($qtyType, $parts);
-        assert($qty instanceof static);
-        return $qty;
+        return QuantityPartsService::fromParts(static::getQuantityType(), $parts);
     }
 
     /**
@@ -1182,7 +1176,9 @@ class Quantity implements Stringable
      *
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
-     * @throws DomainException If any arguments are invalid.
+     * @throws DomainException If the quantity type is unregistered, precision is negative, or part unit symbols are
+     * invalid.
+     * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::toParts()
      */
     public function toParts(?int $precision = null): array
@@ -1194,20 +1190,16 @@ class Quantity implements Stringable
      * Parse a string of quantity parts.
      *
      * @param string $input The string to parse.
-     * @return static A new Quantity representing the sum of the parts.
+     * @return Quantity A new Quantity representing the sum of the parts.
      * @throws FormatException If the input string is invalid.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
+     * @throws DomainException If the quantity type is unregistered or the result unit symbol is invalid.
+     * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::parseParts()
      */
-    public static function parseParts(string $input): static
+    public static function parseParts(string $input): Quantity
     {
-        $qtyType = static::getQuantityType();
-        if ($qtyType === null) {
-            throw new DomainException('Cannot call parseParts() on a quantity type that is not registered.');
-        }
-        $qty = QuantityPartsService::parseParts($qtyType, $input);
-        assert($qty instanceof static);
-        return $qty;
+        return QuantityPartsService::parseParts(static::getQuantityType(), $input);
     }
 
     /**
@@ -1217,6 +1209,8 @@ class Quantity implements Stringable
      * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
      * @return string The formatted string.
+     * @throws DomainException If the quantity type is unregistered.
+     * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::formatParts()
      */
     public function formatParts(?int $precision = null, bool $showZeros = false, bool $ascii = false): string

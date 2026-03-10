@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Currencies;
 
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Currencies\CurrencyService;
+use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -93,26 +93,6 @@ class CurrencyServiceTest extends TestCase
 
         // Clean up.
         rmdir($tempDir);
-    }
-
-    // endregion
-
-    // region ensureExchangeRateServiceConfigured
-
-    public function testEnsureExchangeRateServiceConfiguredThrowsWhenNotSet(): void
-    {
-        CurrencyService::setExchangeRateService(null);
-        $this->expectException(LogicException::class);
-        CurrencyService::ensureExchangeRateServiceConfigured();
-    }
-
-    public function testEnsureExchangeRateServiceConfiguredPassesWhenSet(): void
-    {
-        CurrencyService::setExchangeRateService(new FrankfurterService());
-        CurrencyService::ensureExchangeRateServiceConfigured();
-
-        // No exception means success.
-        self::assertTrue(true); // @phpstan-ignore staticMethod.alreadyNarrowedType
     }
 
     // endregion

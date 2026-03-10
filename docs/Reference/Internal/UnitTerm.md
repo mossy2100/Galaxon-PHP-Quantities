@@ -24,6 +24,8 @@ The class implements `UnitInterface` and uses the `Equatable` trait for value-ba
 - Immutable transformations
 - Dimension code with exponent applied
 
+---
+
 ## Properties
 
 ### unit
@@ -106,9 +108,11 @@ public string $dimension { get; }
 
 The dimension code with exponent applied (e.g., 'L2' for m²).
 
+---
+
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(
@@ -142,6 +146,8 @@ $squareKilometer = new UnitTerm('m', 'k', 2);
 // Inverse
 $perSecond = new UnitTerm('s', null, -1);
 ```
+
+---
 
 ## Factory Methods
 
@@ -219,6 +225,8 @@ $perSecond = UnitTerm::parse('s-1');
 $perSecondUnicode = UnitTerm::parse('s-1');
 ```
 
+---
+
 ## Inspection Methods
 
 ### isSi()
@@ -253,6 +261,8 @@ Check if this unit term is an SI base unit (with or without exponent). Returns t
 
 **Returns:**
 - `bool` - True if the unit is an SI base unit
+
+---
 
 ## Transformation Methods
 
@@ -342,6 +352,8 @@ $m = $km->removePrefix();
 echo $m->asciiSymbol; // 'm'
 ```
 
+---
+
 ## String Methods
 
 ### format()
@@ -376,6 +388,8 @@ Convert to string using Unicode format.
 **Returns:**
 - `string` - The Unicode representation
 
+---
+
 ## Comparison Methods
 
 ### equal()
@@ -391,6 +405,8 @@ Check if this UnitTerm equals another.
 
 **Returns:**
 - `bool` - True if unit, prefix, and exponent all match
+
+---
 
 ## Usage Examples
 
@@ -444,6 +460,8 @@ $term3 = UnitTerm::parse('degC');
 echo $term1->dimension; // 'L2'
 echo $term2->dimension; // 'T-1'
 ```
+
+---
 
 ## See Also
 

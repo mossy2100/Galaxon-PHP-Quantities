@@ -6,8 +6,10 @@ namespace Galaxon\Quantities\Tests\Services;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\UnitService;
@@ -30,6 +32,11 @@ final class QuantityPartsServiceTest extends TestCase
         UnitService::loadSystem(UnitSystem::UsCustomary);
     }
 
+    protected function setUp(): void
+    {
+        QuantityPartsService::reset();
+    }
+
     // endregion
 
     // region fromParts() tests
@@ -39,7 +46,6 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testFromPartsCreatesTimeQuantity(): void
     {
-        // @phpstan-ignore argument.type
         $qty = QuantityPartsService::fromParts(Time::getQuantityType(), [
             'h'   => 1,
             'min' => 30,
@@ -56,7 +62,6 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testFromPartsWithNegativeSign(): void
     {
-        // @phpstan-ignore argument.type
         $qty = QuantityPartsService::fromParts(Time::getQuantityType(), [
             'h'    => 1,
             'min'  => 30,
@@ -72,7 +77,6 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testFromPartsCreatesAngleQuantity(): void
     {
-        // @phpstan-ignore argument.type
         $qty = QuantityPartsService::fromParts(Angle::getQuantityType(), [
             'deg'    => 45,
             'arcmin' => 30,
@@ -88,7 +92,6 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testFromPartsCreatesLengthQuantity(): void
     {
-        // @phpstan-ignore argument.type
         $qty = QuantityPartsService::fromParts(Length::getQuantityType(), [
             'ft' => 5,
             'in' => 11,
@@ -108,7 +111,6 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid sign: 2. Must be -1 or 1.');
 
-        // @phpstan-ignore argument.type
         QuantityPartsService::fromParts(Time::getQuantityType(), [
             'h'    => 1,
             'sign' => 2,
@@ -118,6 +120,18 @@ final class QuantityPartsServiceTest extends TestCase
     // endregion
 
     // region toParts() tests
+
+    /**
+     * Test toParts() throws for a quantity without a registered quantity type.
+     */
+    public function testToPartsThrowsForUnregisteredQuantityType(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('unregistered');
+
+        $entropy = Quantity::create(42, 'J/K');
+        QuantityPartsService::toParts($entropy);
+    }
 
     /**
      * Test toParts() decomposes a time quantity into parts.
@@ -237,7 +251,6 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testParsePartsTime(): void
     {
-        // @phpstan-ignore argument.type
         $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '1h 30min 45s');
 
         $this->assertInstanceOf(Time::class, $qty);
@@ -249,7 +262,6 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testParsePartsNegativeTime(): void
     {
-        // @phpstan-ignore argument.type
         $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '-2h 15min');
 
         $this->assertTrue($qty->value < 0);
@@ -261,7 +273,6 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testParsePartsAngle(): void
     {
-        // @phpstan-ignore argument.type
         $qty = QuantityPartsService::parseParts(Angle::getQuantityType(), '45deg 30arcmin');
 
         $this->assertInstanceOf(Angle::class, $qty);
@@ -273,7 +284,6 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testParsePartsTrimsWhitespace(): void
     {
-        // @phpstan-ignore argument.type
         $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '  90min  ');
 
         $this->assertEqualsWithDelta(5400.0, $qty->value, 1e-10);
@@ -287,7 +297,6 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('empty');
 
-        // @phpstan-ignore argument.type
         QuantityPartsService::parseParts(Time::getQuantityType(), '');
     }
 
@@ -299,7 +308,6 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('empty');
 
-        // @phpstan-ignore argument.type
         QuantityPartsService::parseParts(Time::getQuantityType(), '   ');
     }
 
@@ -310,7 +318,6 @@ final class QuantityPartsServiceTest extends TestCase
     {
         $this->expectException(FormatException::class);
 
-        // @phpstan-ignore argument.type
         QuantityPartsService::parseParts(Time::getQuantityType(), 'not a quantity');
     }
 
@@ -322,7 +329,6 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('only the first may be negative');
 
-        // @phpstan-ignore argument.type
         QuantityPartsService::parseParts(Time::getQuantityType(), '1h -30min');
     }
 
@@ -422,123 +428,355 @@ final class QuantityPartsServiceTest extends TestCase
 
     // endregion
 
-    // region validatePrecision() tests
+    // region Configuration methods tests
 
     /**
-     * Test validatePrecision() accepts null.
+     * Test getPartUnitSymbols() returns configured symbols.
      */
-    public function testValidatePrecisionAcceptsNull(): void
+    public function testGetPartUnitSymbolsReturnsConfigured(): void
     {
-        // Should not throw.
-        QuantityPartsService::validatePrecision(null);
-        $this->assertTrue(true); // @phpstan-ignore method.alreadyNarrowedType
+        $symbols = QuantityPartsService::getPartUnitSymbols(
+            Time::getQuantityType()
+        );
+
+        $this->assertSame(['y', 'mo', 'w', 'd', 'h', 'min', 's'], $symbols);
     }
 
     /**
-     * Test validatePrecision() accepts zero.
+     * Test getPartUnitSymbols() returns null for unconfigured type.
      */
-    public function testValidatePrecisionAcceptsZero(): void
+    public function testGetPartUnitSymbolsReturnsNullForUnconfigured(): void
     {
-        QuantityPartsService::validatePrecision(0);
-        $this->assertTrue(true); // @phpstan-ignore method.alreadyNarrowedType
+        // Mass has a resultUnitSymbol but no partUnitSymbols configured.
+        $symbols = QuantityPartsService::getPartUnitSymbols(
+            Mass::getQuantityType()
+        );
+
+        $this->assertNull($symbols);
     }
 
     /**
-     * Test validatePrecision() accepts positive integer.
+     * Test setPartUnitSymbols() changes the symbols.
      */
-    public function testValidatePrecisionAcceptsPositive(): void
+    public function testSetPartUnitSymbolsChangesSymbols(): void
     {
-        QuantityPartsService::validatePrecision(5);
-        $this->assertTrue(true); // @phpstan-ignore method.alreadyNarrowedType
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getPartUnitSymbols($qtyType);
+
+        try {
+            QuantityPartsService::setPartUnitSymbols($qtyType, ['h', 'min', 's']);
+            $this->assertSame(['h', 'min', 's'], QuantityPartsService::getPartUnitSymbols($qtyType));
+        } finally {
+            QuantityPartsService::setPartUnitSymbols($qtyType, $original);
+        }
     }
 
     /**
-     * Test validatePrecision() throws for negative value.
+     * Test setPartUnitSymbols() deduplicates symbols.
      */
-    public function testValidatePrecisionThrowsForNegative(): void
+    public function testSetPartUnitSymbolsDeduplicates(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid precision');
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getPartUnitSymbols($qtyType);
 
-        QuantityPartsService::validatePrecision(-1);
-    }
-
-    // endregion
-
-    // region validatePartUnitSymbols() tests
-
-    /**
-     * Test validatePartUnitSymbols() returns Unit objects for valid symbols.
-     */
-    public function testValidatePartUnitSymbolsReturnsUnits(): void
-    {
-        $symbols = ['h', 'min', 's'];
-        $units = QuantityPartsService::validatePartUnitSymbols($symbols);
-
-        $this->assertCount(3, $units);
-        $this->assertSame('h', $units[0]->asciiSymbol);
-        $this->assertSame('min', $units[1]->asciiSymbol);
-        $this->assertSame('s', $units[2]->asciiSymbol);
+        try {
+            QuantityPartsService::setPartUnitSymbols($qtyType, ['h', 'min', 'h', 's']);
+            $this->assertSame(['h', 'min', 's'], QuantityPartsService::getPartUnitSymbols($qtyType));
+        } finally {
+            QuantityPartsService::setPartUnitSymbols($qtyType, $original);
+        }
     }
 
     /**
-     * Test validatePartUnitSymbols() deduplicates and re-indexes.
+     * Test setPartUnitSymbols(null) clears the symbols.
      */
-    public function testValidatePartUnitSymbolsDeduplicates(): void
+    public function testSetPartUnitSymbolsNullClearsSymbols(): void
     {
-        $symbols = ['h', 'min', 'h', 's'];
-        $units = QuantityPartsService::validatePartUnitSymbols($symbols);
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getPartUnitSymbols($qtyType);
 
-        $this->assertCount(3, $units);
-        $this->assertSame(['h', 'min', 's'], $symbols);
+        try {
+            QuantityPartsService::setPartUnitSymbols($qtyType, null);
+            $this->assertNull(QuantityPartsService::getPartUnitSymbols($qtyType));
+        } finally {
+            QuantityPartsService::setPartUnitSymbols($qtyType, $original);
+        }
     }
 
     /**
-     * Test validatePartUnitSymbols() throws for null.
+     * Test setPartUnitSymbols() throws for empty array.
      */
-    public function testValidatePartUnitSymbolsThrowsForNull(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must not be empty');
-
-        $symbols = null;
-        QuantityPartsService::validatePartUnitSymbols($symbols);
-    }
-
-    /**
-     * Test validatePartUnitSymbols() throws for empty array.
-     */
-    public function testValidatePartUnitSymbolsThrowsForEmptyArray(): void
+    public function testSetPartUnitSymbolsThrowsForEmptyArray(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('must not be empty');
 
-        $symbols = [];
-        QuantityPartsService::validatePartUnitSymbols($symbols);
+        QuantityPartsService::setPartUnitSymbols(
+            Time::getQuantityType(),
+            []
+        );
     }
 
     /**
-     * Test validatePartUnitSymbols() throws for non-string items.
+     * Test setPartUnitSymbols() throws for non-string items.
      */
-    public function testValidatePartUnitSymbolsThrowsForNonStringItems(): void
+    public function testSetPartUnitSymbolsThrowsForNonStringItems(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('must contain only strings');
 
-        $symbols = ['h', 42];
-        QuantityPartsService::validatePartUnitSymbols($symbols); // @phpstan-ignore argument.type
+        QuantityPartsService::setPartUnitSymbols(
+            Time::getQuantityType(),
+            ['h', 42] // @phpstan-ignore argument.type
+        );
     }
 
     /**
-     * Test validatePartUnitSymbols() throws for unknown unit.
+     * Test getResultUnitSymbol() returns configured symbol.
      */
-    public function testValidatePartUnitSymbolsThrowsForUnknownUnit(): void
+    public function testGetResultUnitSymbolReturnsConfigured(): void
+    {
+        $symbol = QuantityPartsService::getResultUnitSymbol(
+            Time::getQuantityType()
+        );
+
+        $this->assertSame('s', $symbol);
+    }
+
+    /**
+     * Test setResultUnitSymbol() changes the symbol.
+     */
+    public function testSetResultUnitSymbolChangesSymbol(): void
+    {
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getResultUnitSymbol($qtyType);
+
+        try {
+            QuantityPartsService::setResultUnitSymbol($qtyType, 'min');
+            $this->assertSame('min', QuantityPartsService::getResultUnitSymbol($qtyType));
+        } finally {
+            QuantityPartsService::setResultUnitSymbol($qtyType, $original);
+        }
+    }
+
+    /**
+     * Test setResultUnitSymbol(null) clears the symbol.
+     */
+    public function testSetResultUnitSymbolNullClearsSymbol(): void
+    {
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getResultUnitSymbol($qtyType);
+
+        try {
+            QuantityPartsService::setResultUnitSymbol($qtyType, null);
+            $this->assertNull(QuantityPartsService::getResultUnitSymbol($qtyType));
+        } finally {
+            QuantityPartsService::setResultUnitSymbol($qtyType, $original);
+        }
+    }
+
+    /**
+     * Test setResultUnitSymbol() throws for empty string.
+     */
+    public function testSetResultUnitSymbolThrowsForEmptyString(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Unknown unit symbol: 'xyz'");
+        $this->expectExceptionMessage('must be null or a unit symbol');
 
-        $symbols = ['h', 'xyz'];
-        QuantityPartsService::validatePartUnitSymbols($symbols);
+        QuantityPartsService::setResultUnitSymbol(
+            Time::getQuantityType(),
+            ''
+        );
+    }
+
+    /**
+     * Test reset() restores default configuration.
+     */
+    public function testResetRestoresDefaults(): void
+    {
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+
+        // Change something.
+        QuantityPartsService::setPartUnitSymbols($qtyType, ['h', 'min', 's']);
+        $this->assertSame(['h', 'min', 's'], QuantityPartsService::getPartUnitSymbols($qtyType));
+
+        // Reset and verify defaults are restored.
+        QuantityPartsService::reset();
+        $this->assertSame(
+            ['y', 'mo', 'w', 'd', 'h', 'min', 's'],
+            QuantityPartsService::getPartUnitSymbols($qtyType)
+        );
+    }
+
+    // endregion
+
+    // region fromParts() error tests
+
+    /**
+     * Test fromParts() throws when no result unit is configured.
+     */
+    public function testFromPartsThrowsForNoResultUnit(): void
+    {
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getResultUnitSymbol($qtyType);
+
+        try {
+            QuantityPartsService::setResultUnitSymbol($qtyType, null);
+
+            $this->expectException(DomainException::class);
+            $this->expectExceptionMessage('No result unit symbol configured');
+
+            QuantityPartsService::fromParts($qtyType, [
+                'h' => 1,
+            ]);
+        } finally {
+            QuantityPartsService::setResultUnitSymbol($qtyType, $original);
+        }
+    }
+
+    /**
+     * Test fromParts() throws for unknown result unit symbol.
+     */
+    public function testFromPartsThrowsForUnknownResultUnit(): void
+    {
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getResultUnitSymbol($qtyType);
+
+        try {
+            QuantityPartsService::setResultUnitSymbol($qtyType, 'x');
+
+            $this->expectException(DomainException::class);
+            $this->expectExceptionMessage("Unknown result unit 'x'");
+
+            QuantityPartsService::fromParts($qtyType, [
+                'h' => 1,
+            ]);
+        } finally {
+            QuantityPartsService::setResultUnitSymbol($qtyType, $original);
+        }
+    }
+
+    /**
+     * Test fromParts() throws for incompatible result unit.
+     */
+    public function testFromPartsThrowsForIncompatibleResultUnit(): void
+    {
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getResultUnitSymbol($qtyType);
+
+        try {
+            // Set a length unit as the result for a time quantity type.
+            QuantityPartsService::setResultUnitSymbol($qtyType, 'm');
+
+            $this->expectException(DomainException::class);
+            $this->expectExceptionMessage('incompatible');
+
+            QuantityPartsService::fromParts($qtyType, [
+                'h' => 1,
+            ]);
+        } finally {
+            QuantityPartsService::setResultUnitSymbol($qtyType, $original);
+        }
+    }
+
+    // endregion
+
+    // region parseParts() error tests
+
+    /**
+     * Test parseParts() throws when no result unit is configured.
+     */
+    public function testParsePartsThrowsForNoResultUnit(): void
+    {
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getResultUnitSymbol($qtyType);
+
+        try {
+            QuantityPartsService::setResultUnitSymbol($qtyType, null);
+
+            $this->expectException(DomainException::class);
+            $this->expectExceptionMessage('No result unit symbol configured');
+
+            QuantityPartsService::parseParts($qtyType, '1h 30min');
+        } finally {
+            QuantityPartsService::setResultUnitSymbol($qtyType, $original);
+        }
+    }
+
+    // endregion
+
+    // region formatParts() additional tests
+
+    /**
+     * Test formatParts() with ascii flag on Time quantity.
+     */
+    public function testFormatPartsAsciiTime(): void
+    {
+        $qty = new Time(3661, 's');
+        $result = QuantityPartsService::formatParts($qty, ascii: true);
+
+        $this->assertSame('1h 1min 1s', $result);
+    }
+
+    /**
+     * Test formatParts() with precision where smallest part has no fractional component.
+     */
+    public function testFormatPartsWithPrecisionNoFraction(): void
+    {
+        $qty = new Time(3660, 's');
+        $result = QuantityPartsService::formatParts($qty, precision: 2, showZeros: true);
+
+        $this->assertSame('0y 0mo 0w 0d 1h 1min 0.00s', $result);
+    }
+
+    // endregion
+
+    // region validatePartUnitSymbols() coverage tests
+
+    /**
+     * Test toParts() throws when part unit symbols are not configured (empty).
+     */
+    public function testToPartsThrowsForEmptyPartUnitSymbols(): void
+    {
+        // Mass has no partUnitSymbols configured.
+        $qty = new Mass(100, 'kg');
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('must not be empty');
+
+        QuantityPartsService::toParts($qty);
+    }
+
+    /**
+     * Test toParts() throws when part unit symbols contain an unknown unit.
+     */
+    public function testToPartsThrowsForUnknownPartUnitSymbol(): void
+    {
+        $qtyType = Time::getQuantityType();
+        assert($qtyType !== null);
+        $original = QuantityPartsService::getPartUnitSymbols($qtyType);
+
+        try {
+            QuantityPartsService::setPartUnitSymbols($qtyType, ['h', 'min', 'xyz']);
+
+            $this->expectException(DomainException::class);
+            $this->expectExceptionMessage("Unknown unit symbol: 'xyz'");
+
+            $qty = new Time(3661, 's');
+            QuantityPartsService::toParts($qty);
+        } finally {
+            QuantityPartsService::setPartUnitSymbols($qtyType, $original);
+        }
     }
 
     // endregion

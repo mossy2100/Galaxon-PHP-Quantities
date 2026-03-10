@@ -13,6 +13,8 @@ Quantity types are registered with the `QuantityTypeService` and are used to:
 
 The class uses a PHP 8.4 property hook on `$class` to validate that only valid `Quantity` subclasses can be assigned.
 
+---
+
 ## Properties
 
 ### name
@@ -54,9 +56,11 @@ This property has a setter hook that validates the value is a subclass of `Quant
 **Throws (on set):**
 - `DomainException` - If the value is not null and not a subclass of `Quantity`
 
+---
+
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(
@@ -81,6 +85,8 @@ $length = new QuantityType('length', 'L', 'm', Length::class);
 // Create a quantity type for force (without a class)
 $force = new QuantityType('force', 'MLT-2', 'N');
 ```
+
+---
 
 ## Usage Examples
 
@@ -129,6 +135,8 @@ if ($qtyType !== null) {
     echo "This is a {$qtyType->name} unit";
 }
 ```
+
+---
 
 ## See Also
 

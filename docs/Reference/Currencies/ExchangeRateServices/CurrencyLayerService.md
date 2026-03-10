@@ -13,14 +13,15 @@ Fetches live exchange rates from the [CurrencyLayer API](https://currencylayer.c
 tier provides USD-based rates only, with 1,000 requests per month. An access key is required,
 which you can obtain by creating a CurrencyLayer account.
 
-CurrencyLayer returns quote keys as concatenated currency code pairs (e.g. `USDEUR`, `USDGBP`).
-The service automatically extracts the target currency code from these keys.
+The service provides rates for approximately 170 currencies. CurrencyLayer returns quote keys as
+concatenated currency code pairs (e.g. `USDEUR`, `USDGBP`). The service automatically extracts the
+target currency code from these keys.
 
 ---
 
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(string $accessKey)

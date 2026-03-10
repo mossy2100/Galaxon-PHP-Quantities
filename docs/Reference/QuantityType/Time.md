@@ -5,8 +5,6 @@ Represents time quantities with integration to PHP's DateInterval.
 **Namespace:** `Galaxon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
----
-
 ## Overview
 
 The `Time` class handles time durations and provides conversion to/from PHP's native `DateInterval` class.
@@ -17,7 +15,11 @@ For the complete list of time units, see [Supported Units: Time](../../Developer
 
 ## Factory Methods
 
-### `static fromDateInterval(DateInterval $interval): Time`
+### fromDateInterval()
+
+```php
+public static function fromDateInterval(DateInterval $interval): self
+```
 
 Create a Time from a PHP DateInterval object.
 
@@ -39,19 +41,24 @@ $negativeTime = Time::fromDateInterval($interval);
 
 ## Conversion Methods
 
-### `toDateIntervalSpecifier(string $largestUnit = 'y', string $smallestUnit = 's'): string`
+### toDateIntervalSpecifier()
+
+```php
+public function toDateIntervalSpecifier(): string
+```
 
 Convert to a DateInterval specification string (ISO 8601 duration format).
 
 ```php
 $time = new Time(90061, 's');  // 1 day, 1 hour, 1 minute, 1 second
 $spec = $time->toDateIntervalSpecifier();  // "P1DT1H1M1S"
-
-// Limit the range of units
-$spec = $time->toDateIntervalSpecifier('h', 's');  // "PT25H1M1S"
 ```
 
-### `toDateInterval(string $largestUnit = 'y', string $smallestUnit = 's'): DateInterval`
+### toDateInterval()
+
+```php
+public function toDateInterval(): DateInterval
+```
 
 Convert to a PHP DateInterval object.
 

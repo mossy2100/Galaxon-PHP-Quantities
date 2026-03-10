@@ -19,6 +19,8 @@ The class implements `UnitInterface` and uses the `Equatable` trait for value-ba
 - Expansion support for derived SI units
 - Validation of symbol formats
 
+---
+
 ## Properties
 
 ### name
@@ -93,6 +95,8 @@ private(set) ?float $expansionValue
 
 The conversion factor for the expansion (e.g., 1.0 for newton to kg\*m/s2). Defaults to 1.0 when `expansionUnitSymbol` is set. Null for non-expandable units.
 
+---
+
 ## Property Hooks
 
 ### expansionUnit
@@ -121,9 +125,11 @@ public array $symbols { get; }
 
 All symbol variants for the unit, including ASCII, Unicode, alternate, and all prefixed versions.
 
+---
+
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(
@@ -185,6 +191,8 @@ $newton = new Unit(
 );
 ```
 
+---
+
 ## Inspection Methods
 
 ### belongsToSystem()
@@ -244,6 +252,8 @@ $meter->acceptsPrefix('k'); // true (kilo)
 $meter->acceptsPrefix('c'); // true (centi)
 ```
 
+---
+
 ## String Methods
 
 ### parse()
@@ -296,6 +306,8 @@ Convert the unit to a string using the Unicode symbol.
 **Returns:**
 - `string` - The Unicode symbol
 
+---
+
 ## Comparison Methods
 
 ### equal()
@@ -311,6 +323,8 @@ Check if this unit equals another.
 
 **Returns:**
 - `bool` - True if both units have the same ASCII symbol
+
+---
 
 ## Usage Examples
 
@@ -349,6 +363,8 @@ foreach ($prefixes as $prefix) {
 $symbols = $meter->symbols;
 // ['m', 'km', 'mm', 'um', 'nm', ...]
 ```
+
+---
 
 ## See Also
 

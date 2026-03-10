@@ -8,6 +8,8 @@ Unit prefixes representing multipliers allow expressing very large or very small
 
 As with units, prefixes have both ASCII and Unicode symbol representations. These are usually the same, the notable exception being the micro prefix having ASCII symbol 'u' and Unicode symbol 'μ'.
 
+---
+
 ## Properties
 
 ### name
@@ -53,9 +55,11 @@ public readonly int $groupCode
 
 Bitwise flag indicating which prefix group(s) this prefix belongs to. Used for determining which prefixes a unit accepts. See [Prefix Group Constants](../Services/PrefixService.md).
 
+---
+
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(
@@ -85,6 +89,8 @@ $kilo = new Prefix('kilo', 'k', null, 1000, PrefixService::GROUP_LARGE_METRIC);
 $micro = new Prefix('micro', 'u', 'μ', 1e-6, PrefixService::GROUP_SMALL_METRIC);
 ```
 
+---
+
 ## Inspection Methods
 
 ### isEngineering()
@@ -109,6 +115,8 @@ $centi = PrefixService::getBySymbol('c');
 $centi->isEngineering(); // false
 ```
 
+---
+
 ## Comparison Methods
 
 ### equal()
@@ -131,6 +139,8 @@ $kilo1 = PrefixService::getBySymbol('k');
 $kilo2 = PrefixService::getBySymbol('k');
 $kilo1->equal($kilo2); // true
 ```
+
+---
 
 ## String Methods
 
@@ -166,6 +176,8 @@ Convert the prefix to a string using the Unicode symbol.
 **Returns:**
 - `string` - The Unicode symbol
 
+---
+
 ## Usage Examples
 
 ### Working with Prefix Groups
@@ -191,6 +203,8 @@ $km = new UnitTerm('m', 'k');
 // The multiplier accounts for the prefix
 echo $km->multiplier; // 1000
 ```
+
+---
 
 ## See Also
 

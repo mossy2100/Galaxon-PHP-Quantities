@@ -4,8 +4,6 @@ Utility class for working with physical dimension codes.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
----
-
 ## Overview
 
 The `DimensionService` provides tools for parsing, composing, validating, and transforming dimension codes. Dimension codes represent fundamental physical dimensions using single-letter codes with optional exponents, based on the ISQ (International System of Quantities). For example, `'MLT-2'` represents mass x length x time^-2 (force).
@@ -45,7 +43,11 @@ The order of codes determines the canonical ordering of terms within a dimension
 
 ## Validation
 
-#### `static isValid(string $dimension): bool`
+### isValid()
+
+```php
+public static function isValid(string $dimension): bool
+```
 
 Check if a dimension code string is valid. An empty string is valid and represents a dimensionless quantity.
 
@@ -61,7 +63,11 @@ DimensionService::isValid('L2M-1');   // true
 
 ## Decomposition and Composition
 
-#### `static decompose(string $dimension): array`
+### decompose()
+
+```php
+public static function decompose(string $dimension): array
+```
 
 Decompose a dimension code string into an associative array mapping dimension letters to their exponents.
 
@@ -80,7 +86,11 @@ $terms = DimensionService::decompose('');
 // [] (empty for dimensionless)
 ```
 
-#### `static compose(array $dimTerms): string`
+### compose()
+
+```php
+public static function compose(array $dimTerms): string
+```
 
 Compose an associative array of dimension terms into a normalized dimension code string. Terms are automatically sorted into canonical order.
 
@@ -101,7 +111,11 @@ $dim = DimensionService::compose([]);
 
 ## Transformation
 
-#### `static normalize(string $dimension): string`
+### normalize()
+
+```php
+public static function normalize(string $dimension): string
+```
 
 Normalize a dimension code to canonical form by decomposing and recomposing it. This sorts terms into canonical order and removes explicit exponents of 1.
 
@@ -115,7 +129,11 @@ $norm = DimensionService::normalize('L1');
 // 'L' (removes exponent of 1)
 ```
 
-#### `static applyExponent(string $dimension, int $exponent): string`
+### applyExponent()
+
+```php
+public static function applyExponent(string $dimension, int $exponent): string
+```
 
 Apply an exponent to every term in a dimension code. Each term's existing exponent is multiplied by the given exponent.
 
@@ -136,7 +154,11 @@ $dim = DimensionService::applyExponent('MLT-2', 2);
 
 ## Utility Methods
 
-#### `static letterToInt(string $letter): int`
+### letterToInt()
+
+```php
+public static function letterToInt(string $letter): int
+```
 
 Convert a dimension code letter to its position index (0-based) in the canonical ordering.
 
@@ -149,7 +171,11 @@ $idx = DimensionService::letterToInt('T');  // 5
 DimensionService::letterToInt('X');         // throws DomainException
 ```
 
-#### `static getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string`
+### getBaseUnitSymbol()
+
+```php
+public static function getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string
+```
 
 Get the base unit symbol for a dimension letter code. When `$si` is true, returns the SI base unit symbol. When false, returns the English base unit symbol if one exists, otherwise falls back to the SI or common base unit.
 
@@ -165,7 +191,11 @@ DimensionService::getBaseUnitSymbol('T', false);  // 's' (no English unit, falls
 DimensionService::getBaseUnitSymbol('D', true);   // 'B' (common base unit)
 ```
 
-#### `static getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm`
+### getBaseUnitTerm()
+
+```php
+public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm
+```
 
 Get the base unit as a `UnitTerm` object for a dimension letter code. Delegates to `getBaseUnitSymbol()` and parses the result.
 
@@ -179,7 +209,11 @@ $term = DimensionService::getBaseUnitTerm('L', false);
 // UnitTerm representing 'ft'
 ```
 
-#### `static getBaseDerivedUnit(string $dimension, bool $si): DerivedUnit`
+### getBaseDerivedUnit()
+
+```php
+public static function getBaseDerivedUnit(string $dimension, bool $si): DerivedUnit
+```
 
 Convert a dimension code to a `DerivedUnit` composed of SI or English base units. Each dimension term is converted to a `UnitTerm` with the appropriate exponent.
 

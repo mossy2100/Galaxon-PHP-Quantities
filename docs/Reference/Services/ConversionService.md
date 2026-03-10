@@ -4,8 +4,6 @@ Registry for unit conversions organized by dimension.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
----
-
 ## Overview
 
 The `ConversionService` stores and retrieves conversions between units. Conversions are:
@@ -16,11 +14,13 @@ The `ConversionService` stores and retrieves conversions between units. Conversi
 
 ---
 
-## Methods
+## Lookup Methods
 
-### Lookup Methods
+### get()
 
-#### `static get(string $dimension, string $srcSymbol, string $destSymbol): ?Conversion`
+```php
+public static function get(string $dimension, string $srcSymbol, string $destSymbol): ?Conversion
+```
 
 Get a specific conversion between two units.
 
@@ -31,7 +31,11 @@ if ($conversion !== null) {
 }
 ```
 
-#### `static getByDimension(string $dimension): array`
+### getByDimension()
+
+```php
+public static function getByDimension(string $dimension): array
+```
 
 Get all conversions for a dimension.
 
@@ -40,9 +44,15 @@ $lengthConversions = ConversionService::getByDimension('L');
 // Returns nested array: [$srcSymbol][$destSymbol] => Conversion
 ```
 
-### Modification Methods
+---
 
-#### `static add(Conversion $conversion): void`
+## Modification Methods
+
+### add()
+
+```php
+public static function add(Conversion $conversion): void
+```
 
 Add a Conversion object to the registry. If either unit has prefixes, the unprefixed conversion is also added automatically.
 
@@ -51,7 +61,11 @@ $conversion = new Conversion($srcUnit, $destUnit, $factor);
 ConversionService::add($conversion);
 ```
 
-#### `static remove(Conversion $conversion): void`
+### remove()
+
+```php
+public static function remove(Conversion $conversion): void
+```
 
 Remove a conversion from the registry.
 
@@ -59,7 +73,11 @@ Remove a conversion from the registry.
 ConversionService::remove($conversion);
 ```
 
-#### `static loadSystem(UnitSystem $system): void`
+### loadSystem()
+
+```php
+public static function loadSystem(UnitSystem $system): void
+```
 
 Load conversions for a measurement system. Iterates through all conversion definitions and adds any where at least one unit belongs to the specified system. Also loads expansion conversions for expandable units in the system.
 
@@ -67,7 +85,11 @@ Load conversions for a measurement system. Iterates through all conversion defin
 ConversionService::loadSystem(UnitSystem::Imperial);
 ```
 
-#### `static reset(): void`
+### reset()
+
+```php
+public static function reset(): void
+```
 
 Reset the registry to its default initial state. Triggers re-initialization on next access.
 
@@ -75,7 +97,11 @@ Reset the registry to its default initial state. Triggers re-initialization on n
 ConversionService::reset();
 ```
 
-#### `static clear(): void`
+### clear()
+
+```php
+public static function clear(): void
+```
 
 Remove all conversions. Does not trigger re-initialization on next access.
 
@@ -83,7 +109,11 @@ Remove all conversions. Does not trigger re-initialization on next access.
 ConversionService::clear();
 ```
 
-#### `static removeByDimension(string $dimension): void`
+### removeByDimension()
+
+```php
+public static function removeByDimension(string $dimension): void
+```
 
 Remove all conversions for a specific dimension.
 
@@ -91,9 +121,15 @@ Remove all conversions for a specific dimension.
 ConversionService::removeByDimension('L');
 ```
 
-### Inspection Methods
+---
 
-#### `static has(string $dimension, string $srcSymbol, string $destSymbol): bool`
+## Inspection Methods
+
+### has()
+
+```php
+public static function has(string $dimension, string $srcSymbol, string $destSymbol): bool
+```
 
 Check if a conversion exists.
 

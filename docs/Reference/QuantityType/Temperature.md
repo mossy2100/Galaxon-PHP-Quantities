@@ -5,8 +5,6 @@ Represents temperature quantities with special handling for offset-based convers
 **Namespace:** `Galaxon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
----
-
 ## Overview
 
 The `Temperature` class handles the complexity of temperature conversions, which differ from other quantity types because Celsius and Fahrenheit are offset from absolute zero.
@@ -43,7 +41,11 @@ The package supports four temperature scales:
 
 ## Methods
 
-### `static convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float`
+### convert()
+
+```php
+public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
+```
 
 Convert temperature between units, correctly handling offset-based scales.
 

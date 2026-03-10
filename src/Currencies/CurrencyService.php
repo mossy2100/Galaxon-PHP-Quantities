@@ -539,34 +539,6 @@ class CurrencyService
     }
 
     /**
-     * Ensure that the exchange rate service is configured.
-     *
-     * @throws LogicException If the exchange rate service is not configured.
-     */
-    public static function ensureExchangeRateServiceConfigured(): void
-    {
-        if (self::$exchangeRateService === null) {
-            throw new LogicException(
-                'The exchange rate service is not configured. Call `CurrencyService::setExchangeRateService()` ' .
-                'or `CurrencyService::init()` first.'
-            );
-        }
-    }
-
-    /**
-     * Ensure that the data directory exists, creating it if necessary.
-     *
-     * @param string $dirPath The directory path.
-     * @throws RuntimeException If the directory cannot be created.
-     */
-    private static function ensureDirExists(string $dirPath): void
-    {
-        if (!is_dir($dirPath) && !mkdir($dirPath, 0755, true)) {
-            throw new RuntimeException("Failed to create directory: '$dirPath'.");
-        }
-    }
-
-    /**
      * Initialize the currency service.
      *
      * @param ExchangeRateServiceInterface $exchangeRateService The exchange rate service.
@@ -590,6 +562,40 @@ class CurrencyService
 
         // Refresh and load units and conversions as needed.
         self::refresh();
+    }
+
+    // endregion
+
+    // region Private configuration methods
+
+    /**
+     * Ensure that the exchange rate service is configured.
+     *
+     * @throws LogicException If the exchange rate service is not configured.
+     */
+    private static function ensureExchangeRateServiceConfigured(): void
+    {
+        if (self::$exchangeRateService === null) {
+            throw new LogicException(
+                'The exchange rate service is not configured. Call `CurrencyService::setExchangeRateService()` ' .
+                'or `CurrencyService::init()` first.'
+            );
+        }
+    }
+
+    /**
+     * Ensure that the data directory exists, creating it if necessary.
+     *
+     * @param string $dirPath The directory path.
+     * @throws RuntimeException If the directory cannot be created.
+     */
+    private static function ensureDirExists(string $dirPath): void
+    {
+        if (!is_dir($dirPath) && !mkdir($dirPath, 0755, true)) {
+            // @codeCoverageIgnoreStart
+            throw new RuntimeException("Failed to create directory: '$dirPath'.");
+            // @codeCoverageIgnoreEnd
+        }
     }
 
     // endregion

@@ -4,8 +4,6 @@ Registry of known units organized by measurement system.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
----
-
 ## Overview
 
 The `UnitService` manages the collection of known units in the system. It provides:
@@ -45,11 +43,13 @@ UnitService::loadSystem(UnitSystem::Nautical);
 
 ---
 
-## Methods
+## Lookup Methods
 
-### Lookup Methods
+### getBySymbol()
 
-#### `static getBySymbol(string $symbol): ?Unit`
+```php
+public static function getBySymbol(string $symbol): ?Unit
+```
 
 Find a unit by its symbol (ASCII, Unicode, or alternate).
 
@@ -59,7 +59,11 @@ $ohm = UnitService::getBySymbol('Ω');  // Unicode
 $ohm = UnitService::getBySymbol('ohm');  // ASCII
 ```
 
-#### `static getBySystem(UnitSystem $system): array`
+### getBySystem()
+
+```php
+public static function getBySystem(UnitSystem $system): array
+```
 
 Get all units belonging to a given measurement system.
 
@@ -74,7 +78,11 @@ $imperialUnits = UnitService::getBySystem(UnitSystem::Imperial);
 // Returns all Imperial units (foot, pound, etc.)
 ```
 
-#### `static getAll(): array`
+### getAll()
+
+```php
+public static function getAll(): array
+```
 
 Get all registered units.
 
@@ -82,7 +90,11 @@ Get all registered units.
 $allUnits = UnitService::getAll();
 ```
 
-#### `static getAllSymbols(): array`
+### getAllSymbols()
+
+```php
+public static function getAllSymbols(): array
+```
 
 Get all valid unit symbols, including prefixed variants.
 
@@ -91,9 +103,15 @@ $symbols = UnitService::getAllSymbols();
 // Includes: 'm', 'km', 'mm', 'nm', 'Hz', 'kHz', 'MHz', etc.
 ```
 
-### Modification Methods
+---
 
-#### `static add(...): Unit`
+## Modification Methods
+
+### add()
+
+```php
+public static function add(...): Unit
+```
 
 Add a custom unit to the registry.
 
@@ -107,7 +125,11 @@ $unit = UnitService::add(
 );
 ```
 
-#### `static remove(string $name): void`
+### remove()
+
+```php
+public static function remove(string $name): void
+```
 
 Remove a unit from the registry.
 
@@ -115,7 +137,11 @@ Remove a unit from the registry.
 UnitService::remove('furlong');
 ```
 
-#### `static loadSystem(UnitSystem $system): void`
+### loadSystem()
+
+```php
+public static function loadSystem(UnitSystem $system): void
+```
 
 Load all units belonging to a measurement system.
 
@@ -123,7 +149,11 @@ Load all units belonging to a measurement system.
 UnitService::loadSystem(UnitSystem::Imperial);
 ```
 
-#### `static reset(): void`
+### reset()
+
+```php
+public static function reset(): void
+```
 
 Reset the registry to an empty state.
 
@@ -132,9 +162,15 @@ UnitService::reset();
 // Services is now empty - use loadSystem() or add() to populate
 ```
 
-### Inspection Methods
+---
 
-#### `static has(string $name): bool`
+## Inspection Methods
+
+### has()
+
+```php
+public static function has(string $name): bool
+```
 
 Check if a unit exists in the registry.
 
@@ -144,7 +180,11 @@ if (UnitService::has('meter')) {
 }
 ```
 
-#### `static getLoadedSystems(): array`
+### getLoadedSystems()
+
+```php
+public static function getLoadedSystems(): array
+```
 
 Get the list of measurement systems that have been loaded.
 

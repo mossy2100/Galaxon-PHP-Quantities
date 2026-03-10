@@ -12,6 +12,8 @@ The `QuantityPartsService` class handles operations like converting `1.5 hours` 
 
 The class maintains a configurable registry of default part unit symbols and result unit symbols for each quantity type. Built-in defaults are provided for length, time, angle, and mass.
 
+All methods are accessed indirectly via `Quantity` delegation methods.
+
 ### Built-in Defaults
 
 | Quantity Type | Part Unit Symbols                     | Result Unit Symbol |
@@ -47,16 +49,19 @@ Reset the parts configurations to their defaults. Primarily intended for test is
 ### getPartUnitSymbols()
 
 ```php
-public static function getPartUnitSymbols(QuantityType $quantityType): ?array
+public static function getPartUnitSymbols(?QuantityType $quantityType): ?array
 ```
 
 Get the default part unit symbols for a quantity type.
 
 **Parameters:**
-- `$quantityType` (QuantityType) - The quantity type.
+- `$quantityType` (?QuantityType) - The quantity type.
 
 **Returns:**
 - `?list<string>` - The part unit symbols, or `null` if none configured.
+
+**Throws:**
+- `DomainException` - If the quantity type is unregistered.
 
 ---
 
@@ -64,7 +69,7 @@ Get the default part unit symbols for a quantity type.
 
 ```php
 public static function setPartUnitSymbols(
-    QuantityType $quantityType,
+    ?QuantityType $quantityType,
     ?array $partUnitSymbols
 ): void
 ```
@@ -72,11 +77,11 @@ public static function setPartUnitSymbols(
 Set the default part unit symbols for a quantity type. Duplicates are removed and values are re-indexed.
 
 **Parameters:**
-- `$quantityType` (QuantityType) - The quantity type.
+- `$quantityType` (?QuantityType) - The quantity type.
 - `$partUnitSymbols` (`?list<string>`) - The part unit symbols, or `null` to clear.
 
 **Throws:**
-- `DomainException` - If the array is empty.
+- `DomainException` - If the quantity type is unregistered or the array is empty.
 - `InvalidArgumentException` - If the array contains non-string values.
 
 ---
@@ -84,16 +89,19 @@ Set the default part unit symbols for a quantity type. Duplicates are removed an
 ### getResultUnitSymbol()
 
 ```php
-public static function getResultUnitSymbol(QuantityType $quantityType): ?string
+public static function getResultUnitSymbol(?QuantityType $quantityType): ?string
 ```
 
 Get the default result unit symbol for a quantity type.
 
 **Parameters:**
-- `$quantityType` (QuantityType) - The quantity type.
+- `$quantityType` (?QuantityType) - The quantity type.
 
 **Returns:**
 - `?string` - The result unit symbol, or `null` if none configured.
+
+**Throws:**
+- `DomainException` - If the quantity type is unregistered.
 
 ---
 
@@ -101,7 +109,7 @@ Get the default result unit symbol for a quantity type.
 
 ```php
 public static function setResultUnitSymbol(
-    QuantityType $quantityType,
+    ?QuantityType $quantityType,
     ?string $resultUnitSymbol
 ): void
 ```
@@ -109,11 +117,11 @@ public static function setResultUnitSymbol(
 Set the default result unit symbol for a quantity type.
 
 **Parameters:**
-- `$quantityType` (QuantityType) - The quantity type.
+- `$quantityType` (?QuantityType) - The quantity type.
 - `$resultUnitSymbol` (`?string`) - The result unit symbol, or `null` to clear.
 
 **Throws:**
-- `DomainException` - If the value is an empty string.
+- `DomainException` - If the quantity type is unregistered or the value is an empty string.
 
 ---
 
@@ -123,7 +131,7 @@ Set the default result unit symbol for a quantity type.
 
 ```php
 public static function fromParts(
-    QuantityType $quantityType,
+    ?QuantityType $quantityType,
     array $parts
 ): Quantity
 ```
@@ -133,15 +141,15 @@ Create a new `Quantity` as the sum of measurements in different units. The resul
 The `$parts` array is keyed by unit symbol with numeric values. An optional `'sign'` key may be included with a value of `1` (non-negative) or `-1` (negative). If omitted, the sign defaults to `1`.
 
 **Parameters:**
-- `$quantityType` (QuantityType) - The quantity type.
+- `$quantityType` (?QuantityType) - The quantity type.
 - `$parts` (`array<string, int|float>`) - The parts, keyed by unit symbol.
 
 **Returns:**
 - `Quantity` - A new Quantity representing the sum of the parts.
 
 **Throws:**
+- `DomainException` - If the quantity type is unregistered, the result unit symbol or sign is invalid, or no result unit is configured.
 - `InvalidArgumentException` - If any unit symbols are not strings, or any values are not numbers.
-- `DomainException` - If the result unit symbol or sign is invalid, or no result unit is configured.
 
 ---
 
@@ -166,7 +174,8 @@ If `$precision` is provided, the smallest unit value is rounded to that many dec
 - `array<string, int|float>` - Array of parts keyed by unit symbol, plus a `'sign'` key.
 
 **Throws:**
-- `DomainException` - If the quantity type is not registered, part unit symbols are not configured, or precision is negative.
+- `DomainException` - If the quantity type is unregistered, part unit symbols are not configured, or precision is negative.
+- `InvalidArgumentException` - If any of the unit symbols are not strings.
 
 ---
 
@@ -174,7 +183,7 @@ If `$precision` is provided, the smallest unit value is rounded to that many dec
 
 ```php
 public static function parseParts(
-    QuantityType $quantityType,
+    ?QuantityType $quantityType,
     string $input
 ): Quantity
 ```
@@ -182,16 +191,17 @@ public static function parseParts(
 Parse a multi-unit string into a `Quantity`. Each part in the string must have no space between the value and unit symbol. Parts are separated by whitespace. Only the first part may be negative.
 
 **Parameters:**
-- `$quantityType` (QuantityType) - The quantity type.
+- `$quantityType` (?QuantityType) - The quantity type.
 - `$input` (string) - The string to parse (e.g. `"4y 5mo 6d 12h 34min 56.789s"`).
 
 **Returns:**
 - `Quantity` - A new Quantity representing the sum of the parsed parts.
 
 **Throws:**
+- `DomainException` - If the quantity type is unregistered or no result unit is configured.
 - `FormatException` - If the input string is empty or invalid.
 - `UnexpectedValueException` - If there is an unexpected error during parsing.
-- `DomainException` - If no result unit is configured for the quantity type.
+- `InvalidArgumentException` - If any of the unit symbols are not strings.
 
 ---
 
@@ -219,108 +229,9 @@ If `$showZeros` is `false`, parts with zero values are omitted. However, if the 
 **Returns:**
 - `string` - The formatted string (e.g. `"1h 30min 0s"`, `"12deg 34arcmin 56.789arcsec"`).
 
----
-
-## Validation Methods
-
-### validatePrecision()
-
-```php
-public static function validatePrecision(?int $precision): void
-```
-
-Check that a precision argument is valid.
-
-**Parameters:**
-- `$precision` (`?int`) - The precision to validate.
-
 **Throws:**
-- `DomainException` - If precision is negative.
-
----
-
-### validatePartUnitSymbols()
-
-```php
-public static function validatePartUnitSymbols(?array &$symbols): array
-```
-
-Validate and transform an array of part unit symbols into a list of `Unit` objects. Duplicates are removed and values are re-indexed. Each symbol is looked up via `UnitService::getBySymbol()`.
-
-**Parameters:**
-- `$symbols` (`?list<string>`) - The part unit symbols to validate. Passed by reference; may be modified (re-indexed, deduplicated).
-
-**Returns:**
-- `list<Unit>` - The resolved Unit objects.
-
-**Throws:**
-- `InvalidArgumentException` - If any symbols are not strings.
-- `DomainException` - If the array is empty or contains unknown unit symbols.
-
----
-
-## Usage Examples
-
-### Decomposing a Time Quantity into Parts
-
-```php
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\QuantityPartsService;
-
-$time = Quantity::create(90061.5, 's');
-$parts = QuantityPartsService::toParts($time, 1);
-// ['sign' => 1, 'y' => 0, 'mo' => 0, 'w' => 0, 'd' => 1, 'h' => 1, 'min' => 1, 's' => 1.5]
-```
-
-### Formatting a Quantity as Parts
-
-```php
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\QuantityPartsService;
-
-$time = Quantity::create(5400, 's');
-$formatted = QuantityPartsService::formatParts($time, 0);
-// "1h 30min 0s" (with showZeros) or "1h 30min" (without)
-```
-
-### Assembling a Quantity from Parts
-
-```php
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Services\QuantityPartsService;
-
-$parts = ['h' => 1, 'min' => 30, 's' => 0];
-$qty = QuantityPartsService::fromParts(Time::getQuantityType(), $parts);
-// Quantity of 5400s
-```
-
-### Parsing a Multi-Unit String
-
-```php
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Services\QuantityPartsService;
-
-$qty = QuantityPartsService::parseParts(Time::getQuantityType(), '1h 30min 0s');
-// Quantity of 5400s
-```
-
-### Customising Part Units
-
-```php
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\Services\QuantityPartsService;
-
-$angle = Angle::getQuantityType();
-
-// Change part units for angles.
-QuantityPartsService::setPartUnitSymbols($angle, ['deg', 'arcmin']);
-
-// Change the result unit.
-QuantityPartsService::setResultUnitSymbol($angle, 'arcmin');
-
-// Reset to defaults when done.
-QuantityPartsService::reset();
-```
+- `DomainException` - If the quantity type is unregistered, part unit symbols are not configured, or precision is negative.
+- `InvalidArgumentException` - If any of the unit symbols are not strings.
 
 ---
 

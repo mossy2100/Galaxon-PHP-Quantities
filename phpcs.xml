@@ -6,6 +6,9 @@
     <file>src</file>
     <file>tests</file>
 
+    <!-- Exclude generated data files -->
+    <exclude-pattern>src/Currencies/data</exclude-pattern>
+
     <!-- Use Galaxon PHP Coding Standard (includes PSR12 + custom rules) -->
     <rule ref="Galaxon"/>
 

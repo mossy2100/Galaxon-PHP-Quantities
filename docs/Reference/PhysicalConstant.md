@@ -21,6 +21,8 @@ The class includes:
 - Lookup by symbol via `get()`
 - Computed derived constants (e.g., reduced Planck constant = h / 2π)
 
+---
+
 ## SI Defining Constants
 
 ### caesiumFrequency()
@@ -100,6 +102,8 @@ The luminous efficacy of 540 THz radiation (Kcd). Defines the candela.
 **Returns:**
 - `Quantity` - 683 lm/W (exact)
 
+---
+
 ## Gravitational Constants
 
 ### earthGravity()
@@ -124,6 +128,8 @@ The Newtonian constant of gravitation (G).
 **Returns:**
 - `Quantity` - 6.67430×10⁻¹¹ m³/(kg⋅s²)
 
+---
+
 ## Electromagnetic Constants
 
 ### vacuumPermittivity()
@@ -147,6 +153,8 @@ The vacuum magnetic permeability (mu0).
 
 **Returns:**
 - `Quantity` - 1.25663706212×10⁻⁶ H/m
+
+---
 
 ## Atomic and Nuclear Constants
 
@@ -216,6 +224,8 @@ The Bohr radius (a0).
 **Returns:**
 - `Quantity` - 5.29177210903×10⁻¹¹ m
 
+---
+
 ## Thermodynamic Constants
 
 ### molarGas()
@@ -240,6 +250,8 @@ The Stefan-Boltzmann constant (σ).
 **Returns:**
 - `Quantity` - 5.670374419×10⁻⁸ W/(m²⋅K⁴)
 
+---
+
 ## Derived Constants
 
 ### reducedPlanck()
@@ -252,6 +264,8 @@ The reduced Planck constant (hbar = h / 2π).
 
 **Returns:**
 - `Quantity` - Computed from Planck constant with full precision
+
+---
 
 ## Lookup Methods
 
@@ -280,6 +294,8 @@ $hbar = PhysicalConstant::get('hbar');   // Reduced Planck constant
 $g = PhysicalConstant::get('g');         // Earth gravity
 $R = PhysicalConstant::get('R');         // Molar gas constant
 ```
+
+---
 
 ## Usage Examples
 
@@ -311,6 +327,8 @@ $c = PhysicalConstant::get('c');
 $NA = PhysicalConstant::get('NA');
 $G = PhysicalConstant::get('G');
 ```
+
+---
 
 ## See Also
 

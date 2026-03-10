@@ -13,11 +13,13 @@ Fetches live exchange rates from the [Fixer.io API](https://fixer.io/). The free
 EUR-based rates only, with 10,000 requests per month. An access key is required, which you can
 obtain by creating a Fixer.io account.
 
+The service provides rates for approximately 170 currencies.
+
 ---
 
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(string $accessKey)

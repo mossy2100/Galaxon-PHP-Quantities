@@ -13,13 +13,14 @@ Fetches live exchange rates from the [ExchangeRate-API](https://www.exchangerate
 free tier supports any base currency, with 1,500 requests per month. An API key is required,
 which you can obtain by creating an ExchangeRate-API account and finding it in your dashboard.
 
-Rates are fetched relative to USD by default.
+The service provides rates for approximately 160 currencies. Rates are fetched relative to USD by
+default.
 
 ---
 
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(string $apiKey)

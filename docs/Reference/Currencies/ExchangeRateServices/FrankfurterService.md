@@ -13,7 +13,9 @@ Fetches live exchange rates from the [Frankfurter API](https://frankfurter.dev/)
 its data from the European Central Bank (ECB). This service is completely free with no API key
 required and no request limits. Rates are updated daily around 16:00 CET.
 
-This is the simplest service to use as it requires no authentication or configuration.
+The ECB publishes rates for approximately 30 major currencies. This is the simplest service to use
+as it requires no authentication or configuration, but it covers fewer currencies than the paid
+services.
 
 ---
 

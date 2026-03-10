@@ -15,6 +15,8 @@ The class composes patterns from small, private constants (e.g. `RX_ASCII_WORD`,
 - Validation methods for names, symbols, prefixes, derived units, quantities, and DMS angles.
 - No state -- all methods and constants are static.
 
+---
+
 ## Regex Builder Methods
 
 ### unitRegex()
@@ -71,6 +73,8 @@ Get the regex pattern for matching a derived unit in either form. Combines `deri
 
 **Returns:**
 - `string` - The regex pattern (without delimiters or anchors).
+
+---
 
 ## Validation Methods
 
@@ -288,6 +292,8 @@ Check if a string is a valid prefix symbol. Accepts both ASCII and Unicode prefi
 **Returns:**
 - `bool` - True if the string is a valid prefix symbol.
 
+---
+
 ## Usage Examples
 
 You shouldn't need to use these methods - they are primarily for internal use by the package to validate strings.
@@ -337,6 +343,8 @@ RegexService::isValidDmsAngle('45°30\'15.5"', $matches); // true
 RegexService::isValidDmsAngle('-90°', $matches);          // true
 // $matches['sign'] = '-', $matches['deg'] = '90'
 ```
+
+---
 
 ## See Also
 

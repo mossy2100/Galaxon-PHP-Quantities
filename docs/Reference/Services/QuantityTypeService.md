@@ -4,8 +4,6 @@ Registry of quantity types keyed by dimension code.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
----
-
 ## Overview
 
 The `QuantityTypeService` provides mapping between:
@@ -44,11 +42,13 @@ The registry includes all standard physical quantities:
 
 ---
 
-## Methods
+## Lookup Methods
 
-### Lookup Methods
+### getByDimension()
 
-#### `static getByDimension(string $dimension): ?QuantityType`
+```php
+public static function getByDimension(string $dimension): ?QuantityType
+```
 
 Get a quantity type by its dimension code.
 
@@ -59,7 +59,11 @@ echo $qtyType->dimension; // 'L'
 echo $qtyType->class;     // 'Galaxon\Quantities\QuantityType\Length'
 ```
 
-#### `static getByName(string $name): ?QuantityType`
+### getByName()
+
+```php
+public static function getByName(string $name): ?QuantityType
+```
 
 Get a quantity type by its name (case-insensitive).
 
@@ -69,7 +73,11 @@ echo $qtyType->dimension; // 'T-2L2M'
 echo $qtyType->class;     // 'Galaxon\Quantities\QuantityType\Energy'
 ```
 
-#### `static getByClass(string $class): ?QuantityType`
+### getByClass()
+
+```php
+public static function getByClass(string $class): ?QuantityType
+```
 
 Get a quantity type by its PHP class.
 
@@ -79,7 +87,11 @@ echo $qtyType->name;       // 'force'
 echo $qtyType->dimension;  // 'T-2LM'
 ```
 
-#### `static getAll(): array`
+### getAll()
+
+```php
+public static function getAll(): array
+```
 
 Get all registered quantity types.
 
@@ -90,7 +102,11 @@ foreach ($allTypes as $name => $qtyType) {
 }
 ```
 
-#### `static getClasses(): array`
+### getClasses()
+
+```php
+public static function getClasses(): array
+```
 
 Get all registered quantity type classes.
 
@@ -99,9 +115,15 @@ $classes = QuantityTypeService::getClasses();
 // ['Galaxon\Quantities\QuantityType\Length', ...]
 ```
 
-### Modification Methods
+---
 
-#### `static add(string $name, string $dimension, ?string $class): void`
+## Modification Methods
+
+### add()
+
+```php
+public static function add(string $name, string $dimension, ?string $class): void
+```
 
 Register a new quantity type.
 
@@ -113,7 +135,11 @@ QuantityTypeService::add(
 );
 ```
 
-#### `static setClass(string $name, string $class): void`
+### setClass()
+
+```php
+public static function setClass(string $name, string $class): void
+```
 
 Set or update the class for an existing quantity type.
 
@@ -122,7 +148,11 @@ Set or update the class for an existing quantity type.
 QuantityTypeService::setClass('currency', Currency::class);
 ```
 
-#### `static reset(): void`
+### reset()
+
+```php
+public static function reset(): void
+```
 
 Reset the registry to its initial state.
 

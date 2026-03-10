@@ -22,6 +22,8 @@ All operations return new instances, maintaining immutability.
 - Four combination methods for building conversion graphs
 - Support for exponentiation (area, volume conversions)
 
+---
+
 ## Properties
 
 ### srcUnit
@@ -48,9 +50,11 @@ public readonly FloatWithError $factor
 
 The conversion factor with error tracking. To convert from source to destination, multiply by this factor.
 
+---
+
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(
@@ -79,6 +83,8 @@ $ftToM = new Conversion('ft', 'm', 0.3048);
 $factor = new FloatWithError(0.3048, 1e-10);
 $ftToM = new Conversion('ft', 'm', $factor);
 ```
+
+---
 
 ## Transformation Methods
 
@@ -120,6 +126,8 @@ $ftToM = new Conversion('ft', 'm', 0.3048);
 $ft2ToM2 = $ftToM->pow(2);  // Square feet to square meters
 echo $ft2ToM2->factor->value; // 0.09290304
 ```
+
+---
 
 ## Combination Methods
 
@@ -224,6 +232,8 @@ $ydToM = new Conversion('yd', 'm', 0.9144);
 $ftToYd = $mToFt->combineOpposite($ydToM);
 echo $ftToYd->factor->value; // 0.333...
 ```
+
+---
 
 ## See Also
 

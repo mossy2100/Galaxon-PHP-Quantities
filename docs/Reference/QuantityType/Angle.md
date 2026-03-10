@@ -5,8 +5,6 @@ Represents angle quantities with support for various angular units, trigonometri
 **Namespace:** `Galaxon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
----
-
 ## Overview
 
 The `Angle` class provides specialized handling for angular measurements, including:
@@ -31,9 +29,15 @@ For the complete list of angular units, see [Supported Units: Angle](../../Devel
 
 ## Methods
 
-### Extraction Methods
+---
 
-#### `toRadians(): float`
+## Extraction Methods
+
+### toRadians()
+
+```php
+public function toRadians(): float
+```
 
 Get the angle value in radians.
 
@@ -42,9 +46,15 @@ $angle = new Angle(180, 'deg');
 $radians = $angle->toRadians(); // 3.14159...
 ```
 
-### Transformation Methods
+---
 
-#### `isRadians(): bool`
+## Transformation Methods
+
+### isRadians()
+
+```php
+public function isRadians(): bool
+```
 
 Check if the angle's current unit is radians.
 
@@ -56,7 +66,11 @@ $angle2 = new Angle(180, 'deg');
 $angle2->isRadians(); // false
 ```
 
-#### `wrap(bool $signed = true): Angle`
+### wrap()
+
+```php
+public function wrap(bool $signed = true): Quantity
+```
 
 Normalize an angle to a standard range.
 
@@ -72,18 +86,49 @@ $angle2 = new Angle(450, 'deg');
 $wrapped2 = $angle2->wrap();      // 90°
 ```
 
-### Trigonometric Methods
+---
+
+## Trigonometric Methods
 
 These methods are convenient if you prefer to work with angles in degrees (or any other unit) rather than radians, which PHP's built-in functions require. They also improve on PHP's handling of singularities: PHP's tan(M_PI / 2) returns a large finite number (~1.6e16) rather than INF,  because the floating-point representation of π/2 is not exact. The `Angle` trig methods detect when the denominator is within floating-point precision of zero and return ±INF with the correct sign, giving mathematically consistent results for tan(), sec(), csc(), and cot() at their singularities.
 
 All trigonometric methods return float values.
 
-#### `sin(): float`
-#### `cos(): float`
-#### `tan(): float`
-#### `sec(): float`
-#### `csc(): float`
-#### `cot(): float`
+### sin()
+
+```php
+public function sin(): float
+```
+
+### cos()
+
+```php
+public function cos(): float
+```
+
+### tan()
+
+```php
+public function tan(): float
+```
+
+### sec()
+
+```php
+public function sec(): float
+```
+
+### csc()
+
+```php
+public function csc(): float
+```
+
+### cot()
+
+```php
+public function cot(): float
+```
 
 ```php
 $angle = new Angle(45, 'deg');
@@ -96,9 +141,15 @@ $angle90->tan();  // INF (handled gracefully)
 $angle90->sec();  // INF
 ```
 
-### String Parsing
+---
 
-#### `static parse(string $value): Angle`
+## String Parsing
+
+### parse()
+
+```php
+public static function parse(string $value): Angle
+```
 
 Parse an angle from a string. Supports:
 
@@ -115,9 +166,15 @@ $a3 = Angle::parse("45° 30' 15\"");  // 45.504166...°
 $a4 = Angle::parse('-45°30′15″');    // Negative angle
 ```
 
-### Comparison Methods
+---
 
-#### `approxEqual(mixed $other, float $relTol = 0, float $absTol = Angle::RAD_EPSILON): bool`
+## Comparison Methods
+
+### approxEqual()
+
+```php
+public function approxEqual(mixed $other, float $relTol = 0, float $absTol = self::RAD_EPSILON): bool
+```
 
 Compare angles with tolerances appropriate for angular measurements. Comparison is performed in radians.
 

@@ -302,9 +302,11 @@ class DimensionService
             return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
         }
 
+        // @codeCoverageIgnoreStart
         // @phpstan-ignore deadCode.unreachable
         $system = $si ? 'SI' : 'English';
         throw new LogicException("No $system base unit is defined for dimension '$dimensionLetterCode'.");
+        // @codeCoverageIgnoreEnd
     }
 
     /**

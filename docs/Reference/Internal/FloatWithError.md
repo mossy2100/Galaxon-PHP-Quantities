@@ -18,6 +18,8 @@ Implements `Stringable`, formatting as `"value ± absoluteError"`.
 - Allows comparison of conversion paths by precision
 - Integer values start with zero error
 
+---
+
 ## Properties
 
 ### value
@@ -46,9 +48,11 @@ The relative error as a proportion of the absolute value. Calculated as `absolut
 
 This property is useful for comparing the precision of different conversion paths.
 
+---
+
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(float $value, ?float $error = null)
@@ -80,6 +84,8 @@ $measured = new FloatWithError(100.0, 0.5);
 echo $measured->absoluteError; // 0.5
 ```
 
+---
+
 ## Inspection Methods
 
 ### isExactInt()
@@ -101,6 +107,8 @@ $int->isExactInt(); // true
 $float = new FloatWithError(42.5);
 $float->isExactInt(); // false
 ```
+
+---
 
 ## Arithmetic Methods
 
@@ -256,6 +264,8 @@ $squared = $factor->pow(2);             // km2 to m2
 echo $squared->value; // 1000000.0
 ```
 
+---
+
 ## String Methods
 
 ### \_\_toString()
@@ -268,6 +278,8 @@ Convert to a string representation showing value and absolute error.
 
 **Returns:**
 - `string` - Formatted as `"value ± absoluteError"` (e.g. `"3.14159 ± 2.22e-16"`)
+
+---
 
 ## Usage Examples
 
@@ -305,6 +317,8 @@ $ydToM = $ydToFt->mul($ftToM);
 echo $ydToM->value; // 0.9144
 echo $ydToM->relativeError; // Error from ftToM only (ydToFt was exact)
 ```
+
+---
 
 ## See Also
 

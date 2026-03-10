@@ -17,6 +17,8 @@ Quantities are immutable value objects combining a numeric value with a unit. Al
 - Flexible string formatting and parsing
 - Parts-based formatting (e.g., "5h 30min 45s")
 
+---
+
 ## Properties
 
 ### value
@@ -53,9 +55,11 @@ public ?QuantityType $type { get; }
 
 The quantity type metadata, or null if not registered.
 
+---
+
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(float $value, null|string|UnitInterface $unit = null)
@@ -82,6 +86,8 @@ use Galaxon\Quantities\QuantityType\Mass;
 $length = new Length(100, 'm');
 $mass = new Mass(5.5, 'kg');
 ```
+
+---
 
 ## Factory Methods
 
@@ -155,6 +161,8 @@ $celsius = Quantity::convert(100, 'degF', 'degC');
 // Convert 5 miles to kilometres.
 $km = Quantity::convert(5, 'mi', 'km');
 ```
+
+---
 
 ## Transformation Methods
 
@@ -326,7 +334,7 @@ $expanded = $force->expand();  // lb*ft/s2
 public function merge(): self
 ```
 
-Merge units with the same dimension (e.g., m*ft -> m2).
+Merge units with the same dimension (e.g., m\*ft -> m2).
 
 The first unit encountered of a given dimension will be the one any others are converted to.
 
@@ -368,6 +376,8 @@ Substitute base units for derived units where possible (e.g., kg*m/s2 -> N).
 
 **Returns:**
 - `Quantity` - A new Quantity with simplified units.
+
+---
 
 ## Arithmetic Methods
 
@@ -506,6 +516,8 @@ Invert this quantity (1/x).
 **Throws:**
 - `DivisionByZeroError` - If value is zero.
 
+---
+
 ## Comparison Methods
 
 ### compare()
@@ -552,6 +564,8 @@ $a = new Length(1, 'km');
 $b = new Length(1000.0001, 'm');
 $a->approxEqual($b);  // true
 ```
+
+---
 
 ## String Methods
 
@@ -601,9 +615,22 @@ When `$precision` is null, trailing zeros are automatically trimmed. When an exp
 When `$ascii` is false (default) and scientific notation is used, the exponent is rendered as `x10` with superscript digits (e.g. `1.50x10^3`) instead of `e+3`.
 
 **Parameters:**
-- `$specifier` (string) - Format type: `'f'`/`'F'` (fixed), `'e'`/`'E'` (scientific), `'g'`/`'G'` (shortest), `'h'`/`'H'` (shortest, non-locale-aware). Uppercase variants use uppercase `E` in scientific notation. `'F'`, `'h'`, and `'H'` are non-locale-aware (always use `.` as decimal separator). See [sprintf()](https://www.php.net/manual/en/function.sprintf.php) for details.
-- `$precision` (?int) - Number of decimal digits. Null uses sprintf default and trims trailing zeros.
-- `$includeSpace` (?bool) - Space between value and unit. Null = auto (no space for symbol-only units like deg).
+
+- `$specifier` (string) - The format specifier. Precision means decimal places for `e`/`E`/`f`/`F` and significant digits for `g`/`G`/`h`/`H`.
+
+| Specifier | Description                                                                    |
+| --------- | ------------------------------------------------------------------------------ |
+| `'e'`     | Scientific notation with lowercase `e`.                                        |
+| `'E'`     | Scientific notation with uppercase `E`.                                        |
+| `'f'`     | Fixed-point notation (locale-aware). **Default.**                              |
+| `'F'`     | Fixed-point notation (non-locale-aware, always uses `.` as decimal separator). |
+| `'g'`     | Shortest of `e` or `f` (lower-case `e`, locale-aware).                         |
+| `'G'`     | Shortest of `E` or `f` (upper-case `E`, locale-aware).                         |
+| `'h'`     | Shortest of `e` or `F` (lower-case `e`, non-locale-aware).                     |
+| `'H'`     | Shortest of `E` or `F` (upper-case `E`, non-locale-aware).                     |
+
+- `$precision` (?int) - Number of digits. Null uses `sprintf` default and trims trailing zeros.
+- `$includeSpace` (?bool) - Space between value and unit. `null` = auto (no space for symbol-only units like °).
 - `$ascii` (bool) - If true, use ASCII symbols and `e` notation. If false (default), use Unicode symbols and superscript notation.
 
 **Returns:**
@@ -631,6 +658,8 @@ Convert to string using default formatting.
 
 **Returns:**
 - `string` - The measurement as a string.
+
+---
 
 ## Parts Methods
 
@@ -773,6 +802,8 @@ Only the smallest unit may have a decimal point. Larger units will be integers. 
 
 **Returns:**
 - `string` - Formatted string like "5h 30min 45s".
+
+---
 
 ## See Also
 

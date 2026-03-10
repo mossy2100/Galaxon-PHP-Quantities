@@ -4,19 +4,19 @@ Registry for SI and binary prefixes.
 
 **Namespace:** `Galaxon\Quantities`
 
----
-
 ## Overview
 
 The `PrefixService` provides access to metric prefixes (milli, kilo, mega, etc.) and binary prefixes (kibi, mebi, etc.) organized by group codes for flexible filtering.
 
 ---
 
----
-
 ## Methods
 
-#### `static getPrefixes(int $prefixGroup = GROUP_ALL): array`
+### getPrefixes()
+
+```php
+public static function getPrefixes(int $prefixGroup = GROUP_ALL): array
+```
 
 Get prefixes matching a group code.
 
@@ -37,7 +37,11 @@ $binary = PrefixService::getPrefixes(PrefixService::GROUP_BINARY);
 $large = PrefixService::getPrefixes(PrefixService::GROUP_LARGE);
 ```
 
-#### `static getBySymbol(string $symbol): ?Prefix`
+### getBySymbol()
+
+```php
+public static function getBySymbol(string $symbol): ?Prefix
+```
 
 Find a prefix by its symbol (ASCII or Unicode).
 
@@ -48,7 +52,11 @@ $micro = PrefixService::getBySymbol('u');  // ASCII alternative
 $kibi = PrefixService::getBySymbol('Ki');
 ```
 
-#### `static invert(?Prefix $prefix): ?Prefix`
+### invert()
+
+```php
+public static function invert(?Prefix $prefix): ?Prefix
+```
 
 Get the inverse of a prefix (opposite exponent).
 
@@ -60,7 +68,11 @@ $mega = PrefixService::getBySymbol('M');   // 10⁶
 $micro = PrefixService::invert($mega);      // 10⁻⁶
 ```
 
-#### `static isValidGroupCode(int $groupCode): bool`
+### isValidGroupCode()
+
+```php
+public static function isValidGroupCode(int $groupCode): bool
+```
 
 Check if a group code is one of the base codes.
 

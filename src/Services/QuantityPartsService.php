@@ -54,7 +54,7 @@ class QuantityPartsService
     // region Static properties
 
     /**
-     * Mutable parts configurations, initialised from the constant.
+     * Mutable parts configurations, initialized from the constant.
      *
      * @var ?array<string, array{
      *     partUnitSymbols?: list<string>,
@@ -80,11 +80,14 @@ class QuantityPartsService
     /**
      * Get the default part unit symbols for a quantity type.
      *
-     * @param QuantityType $quantityType The quantity type.
+     * @param ?QuantityType $quantityType The quantity type.
      * @return ?list<string> The part unit symbols, or null if none configured.
+     * @throws DomainException If the quantity type is unregistered.
      */
-    public static function getPartUnitSymbols(QuantityType $quantityType): ?array
+    public static function getPartUnitSymbols(?QuantityType $quantityType): ?array
     {
+        $quantityType = self::validateQuantityType($quantityType);
+
         self::init();
         assert(self::$partsConfigs !== null);
 
@@ -94,13 +97,15 @@ class QuantityPartsService
     /**
      * Set the default part unit symbols for a quantity type.
      *
-     * @param QuantityType $quantityType The quantity type.
+     * @param ?QuantityType $quantityType The quantity type.
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to clear.
-     * @throws DomainException If the array is empty.
+     * @throws DomainException If the quantity type is unregistered or the array is empty.
      * @throws InvalidArgumentException If the array contains non-string values.
      */
-    public static function setPartUnitSymbols(QuantityType $quantityType, ?array $partUnitSymbols): void
+    public static function setPartUnitSymbols(?QuantityType $quantityType, ?array $partUnitSymbols): void
     {
+        $quantityType = self::validateQuantityType($quantityType);
+
         self::init();
         assert(self::$partsConfigs !== null);
 
@@ -131,11 +136,14 @@ class QuantityPartsService
     /**
      * Get the default result unit symbol for a quantity type.
      *
-     * @param QuantityType $quantityType The quantity type.
+     * @param ?QuantityType $quantityType The quantity type.
      * @return ?string The result unit symbol, or null if none configured.
+     * @throws DomainException If the quantity type is unregistered.
      */
-    public static function getResultUnitSymbol(QuantityType $quantityType): ?string
+    public static function getResultUnitSymbol(?QuantityType $quantityType): ?string
     {
+        $quantityType = self::validateQuantityType($quantityType);
+
         self::init();
         assert(self::$partsConfigs !== null);
 
@@ -145,12 +153,14 @@ class QuantityPartsService
     /**
      * Set the default result unit symbol for a quantity type.
      *
-     * @param QuantityType $quantityType The quantity type.
+     * @param ?QuantityType $quantityType The quantity type.
      * @param ?string $resultUnitSymbol The result unit symbol, or null to clear.
-     * @throws DomainException If the value is an empty string.
+     * @throws DomainException If the quantity type is unregistered or the value is an empty string.
      */
-    public static function setResultUnitSymbol(QuantityType $quantityType, ?string $resultUnitSymbol): void
+    public static function setResultUnitSymbol(?QuantityType $quantityType, ?string $resultUnitSymbol): void
     {
+        $quantityType = self::validateQuantityType($quantityType);
+
         self::init();
         assert(self::$partsConfigs !== null);
 
@@ -178,15 +188,17 @@ class QuantityPartsService
      * The $parts array may include an optional 'sign' key to indicate the sign of the sum, which can be 1
      * (non-negative) or -1 (negative). If omitted, the sign is assumed to be 1.
      *
-     * @param QuantityType $quantityType The quantity type.
+     * @param ?QuantityType $quantityType The quantity type.
      * @param array<string, int|float> $parts The parts.
      * @return Quantity A new Quantity representing the sum of the parts.
      * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
      * numbers.
-     * @throws DomainException If the result unit symbol or sign is invalid.
+     * @throws DomainException If the quantity type is unregistered, or the result unit symbol or sign is invalid.
      */
-    public static function fromParts(QuantityType $quantityType, array $parts): Quantity
+    public static function fromParts(?QuantityType $quantityType, array $parts): Quantity
     {
+        $quantityType = self::validateQuantityType($quantityType);
+
         // Get the default result unit symbol.
         $resultUnitSymbol = self::getResultUnitSymbol($quantityType);
 
@@ -250,17 +262,14 @@ class QuantityPartsService
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws DomainException If any arguments are invalid.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings.
      */
     public static function toParts(Quantity $quantity, ?int $precision = null): array
     {
-        // Make sure we have a quantity type.
-        $qtyType = $quantity->quantityType;
-        if ($qtyType === null) {
-            throw new DomainException('Cannot call toParts() on a quantity type that is not registered.');
-        }
+        $quantityType = self::validateQuantityType($quantity->quantityType);
 
         // Get the part unit symbols for this quantity type.
-        $partUnitSymbols = self::getPartUnitSymbols($qtyType);
+        $partUnitSymbols = self::getPartUnitSymbols($quantityType);
 
         // Validate args.
         $partUnits = self::validatePartUnitSymbols($partUnitSymbols);
@@ -272,7 +281,6 @@ class QuantityPartsService
         ];
 
         // Initialize the remainder to the source value converted to the smallest unit.
-        assert(is_array($partUnitSymbols));
         $nUnits = count($partUnitSymbols);
         $smallestUnitSymbol = $partUnitSymbols[$nUnits - 1];
         $rem = abs($quantity->to($smallestUnitSymbol)->value);
@@ -305,7 +313,7 @@ class QuantityPartsService
         // If the rounding does increase the remainder, then rounding up one or more larger parts may be necessary.
         // To account for non-integer conversion factors, rebuild the parts array.
         // We call toParts() with $precision = null to avoid infinite recursion.
-        $rebuilt = self::fromParts($qtyType, $parts);
+        $rebuilt = self::fromParts($quantityType, $parts);
         $rebuiltParts = self::toParts($rebuilt);
         $rebuiltParts[$smallestUnitSymbol] = round($rebuiltParts[$smallestUnitSymbol], $precision);
         return $rebuiltParts;
@@ -318,14 +326,18 @@ class QuantityPartsService
      *    - "4y 5mo 6d 12h 34min 56.789s"
      *    - "12° 34′ 56.789″"
      *
-     * @param QuantityType $quantityType The quantity type.
+     * @param ?QuantityType $quantityType The quantity type.
      * @param string $input The string to parse.
      * @return Quantity A new Quantity representing the sum of the parts.
+     * @throws DomainException If the quantity type is unregistered.
      * @throws FormatException If the input string is invalid.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings.
      */
-    public static function parseParts(QuantityType $quantityType, string $input): Quantity
+    public static function parseParts(?QuantityType $quantityType, string $input): Quantity
     {
+        $quantityType = self::validateQuantityType($quantityType);
+
         // Ensure the input string is not empty.
         $input = trim($input);
         if ($input === '') {
@@ -407,6 +419,8 @@ class QuantityPartsService
      * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
      * @return string The formatted string.
+     * @throws DomainException If the quantity type is unregistered.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings.
      */
     public static function formatParts(
         Quantity $quantity,
@@ -415,15 +429,13 @@ class QuantityPartsService
         bool $ascii = false
     ): string {
 
+        $quantityType = self::validateQuantityType($quantity->quantityType);
+
         // Get the quantity as parts. This will validate the arguments.
         $parts = self::toParts($quantity, $precision);
 
-        // Get the quantity type.
-        $qtyType = $quantity->quantityType;
-        assert($qtyType instanceof QuantityType);
-
         // Get the default part unit symbols.
-        $partUnitSymbols = self::getPartUnitSymbols($qtyType);
+        $partUnitSymbols = self::getPartUnitSymbols($quantityType);
         assert(is_array($partUnitSymbols));
         $nUnits = count($partUnitSymbols);
 
@@ -467,12 +479,28 @@ class QuantityPartsService
     // region Validation methods
 
     /**
+     * Check that the quantity type is registered.
+     *
+     * @param ?QuantityType $quantityType The quantity type to validate.
+     * @return QuantityType The validated quantity type.
+     * @throws DomainException If the quantity type is null.
+     */
+    private static function validateQuantityType(?QuantityType $quantityType): QuantityType
+    {
+        if ($quantityType === null) {
+            throw new DomainException('Cannot call parts methods on an unregistered quantity type.');
+        }
+
+        return $quantityType;
+    }
+
+    /**
      * Check precision argument is valid.
      *
      * @param ?int $precision The precision to validate.
      * @throws DomainException If precision is negative.
      */
-    public static function validatePrecision(?int $precision): void
+    private static function validatePrecision(?int $precision): void
     {
         if ($precision !== null && $precision < 0) {
             throw new DomainException(
@@ -485,11 +513,12 @@ class QuantityPartsService
      * Validate and transform the part units array into a list of Units.
      *
      * @param ?list<string> $symbols The part unit symbols to validate and transform.
+     * @param-out list<string> $symbols The validated and transformed part unit symbols.
      * @return list<Unit> The part units.
-     * @throws InvalidArgumentException If any of the symbols are not strings.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings.
      * @throws DomainException If the array is empty or contains invalid units.
      */
-    public static function validatePartUnitSymbols(?array &$symbols): array
+    private static function validatePartUnitSymbols(?array &$symbols): array
     {
         // Ensure we have some part units.
         if (empty($symbols)) {
@@ -506,7 +535,9 @@ class QuantityPartsService
         foreach ($symbols as $partUnitSymbol) {
             // Check the type.
             if (!is_string($partUnitSymbol)) {
+                // @codeCoverageIgnoreStart
                 throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
+                // @codeCoverageIgnoreEnd
             }
 
             // Get the unit.

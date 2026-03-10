@@ -218,7 +218,11 @@ final class QuantityStringsTest extends TestCase
     {
         $length = new Length(1234567.89, 'm');
 
-        $this->assertSame('1.23457×10⁶ m', $length->format());
+        // Default specifier is 'f', which shows the full fixed-point value.
+        $this->assertSame('1234567.89 m', $length->format());
+
+        // Use 'g' specifier for automatic scientific notation.
+        $this->assertSame('1.23457×10⁶ m', $length->format('g'));
     }
 
     // endregion

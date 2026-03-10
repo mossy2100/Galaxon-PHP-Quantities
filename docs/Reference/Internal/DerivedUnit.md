@@ -20,6 +20,8 @@ Key behaviors:
 - Immutable transformations (inv, pow, toSiBase)
 - Equatable via the `Equatable` trait
 
+---
+
 ## Properties
 
 ### unitTerms
@@ -70,9 +72,11 @@ public ?UnitTerm $firstUnitTerm { get; }
 
 The first unit term in the derived unit, or null if empty. Useful for applying prefixes or checking unit properties.
 
+---
+
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(null|Unit|UnitTerm|array $unit = null)
@@ -100,6 +104,8 @@ $velocity = new DerivedUnit([
     new UnitTerm('s', null, -1)
 ]);
 ```
+
+---
 
 ## Factory Methods
 
@@ -159,6 +165,8 @@ $force = DerivedUnit::parse('kg*m/s2');
 $heatCapacity = DerivedUnit::parse('J/(mol*K)');
 $frequency = DerivedUnit::parse('s-1');
 ```
+
+---
 
 ## Inspection Methods
 
@@ -236,6 +244,8 @@ Check if any unit term has a prefix.
 
 **Returns:**
 - `bool` - True if at least one term has a prefix
+
+---
 
 ## Transformation Methods
 
@@ -315,6 +325,8 @@ $prefixed = DerivedUnit::parse('km/ms');
 $unprefixed = $prefixed->removePrefixes(); // m/s
 ```
 
+---
+
 ## Manipulation Methods
 
 ### addUnitTerm()
@@ -352,6 +364,8 @@ public function sortUnitTerms(): void
 
 Sort the unit terms into canonical order. Called automatically by `addUnitTerm()`.
 
+---
+
 ## Comparison Methods
 
 ### equal()
@@ -367,6 +381,8 @@ Check if this derived unit equals another.
 
 **Returns:**
 - `bool` - True if both have the same unit terms with same exponents
+
+---
 
 ## String Methods
 
@@ -400,6 +416,8 @@ Convert to string using Unicode format.
 
 **Returns:**
 - `string` - The Unicode representation
+
+---
 
 ## Usage Examples
 
@@ -454,6 +472,8 @@ $velocity->addUnitTerm($time->firstUnitTerm->inv());
 
 echo $velocity->asciiSymbol; // 'm/s'
 ```
+
+---
 
 ## See Also
 

@@ -13,6 +13,8 @@ The interface defines:
 - `parse()` - Static method to create an instance from a string
 - `format()` - Instance method to format the unit as a string
 
+---
+
 ## Properties
 
 ### asciiSymbol
@@ -47,6 +49,8 @@ M (mass), T (time), I (electric current), N (amount of substance), J (luminous i
 H (temperature), A (angle), D (data), and C (currency).
 
 Compound dimensions include exponents (e.g., 'L2' for area, 'MLT-2' for force). Dimensionless units have an empty string '' for the dimension code.
+
+---
 
 ## Methods
 
@@ -88,11 +92,15 @@ Format the unit as a string.
 - When `$ascii` is true, should return the ASCII representation with digit exponents
 - The returned string should be parseable by `parse()`
 
+---
+
 ## Implementing Classes
 
 - `Galaxon\Quantities\Unit` - Represents a single unit of measurement
 - `Galaxon\Quantities\UnitTerm` - Represents a unit with optional prefix and exponent
 - `Galaxon\Quantities\DerivedUnit` - Represents a compound unit with 0 or more unit terms
+
+---
 
 ## See Also
 

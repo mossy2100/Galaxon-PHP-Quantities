@@ -14,11 +14,13 @@ The free tier provides USD-based rates only. An App ID is required, which you ca
 creating an account and visiting your
 [App IDs page](https://openexchangerates.org/account/app-ids).
 
+The service provides rates for approximately 170 currencies.
+
 ---
 
 ## Constructor
 
-### __construct()
+### \_\_construct()
 
 ```php
 public function __construct(string $appId)

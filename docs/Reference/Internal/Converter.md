@@ -22,6 +22,8 @@ All conversions use the linear transformation formula: `destValue = srcValue * f
 - Unit expansion (e.g., N → kg\*m\*s⁻²)
 - Unit merging (e.g., m\*ft → m²)
 
+---
+
 ## Properties
 
 ### dimension
@@ -39,6 +41,8 @@ private(set) array $units
 ```
 
 Array of unprefixed units registered with this converter, keyed by ASCII symbol.
+
+---
 
 ## Factory Methods
 
@@ -72,6 +76,8 @@ public static function clear(): void
 ```
 
 Clear all Converter instances. Resets the multiton cache, forcing new instances to be created on next access. Primarily intended for test isolation.
+
+---
 
 ## Conversion Methods
 
@@ -162,6 +168,8 @@ $converter = Converter::getByDimension('L');
 $meters = $converter->convert(100, 'ft', 'm'); // 30.48
 ```
 
+---
+
 ## Static Conversion Methods
 
 ### expand()
@@ -220,6 +228,8 @@ echo $merged->asciiSymbol; // 'm2'
 echo $value; // 0.3048
 ```
 
+---
+
 ## Modification Methods
 
 ### addUnit()
@@ -232,6 +242,8 @@ Add a unit to this converter. Strips prefixes, and also adds merged and expanded
 
 **Parameters:**
 - `$derivedUnit` (DerivedUnit) - The unit to add
+
+---
 
 ## Validation Methods
 
@@ -251,6 +263,8 @@ Validate that a unit is valid for this converter's dimension.
 
 **Throws:**
 - `DomainException` - If the unit has the wrong dimension
+
+---
 
 ## Usage Examples
 
@@ -295,6 +309,8 @@ $volume = Converter::getInstance('L3');
 $liters = $volume->convert(1, 'imp gal', 'L');
 echo "$liters L"; // ~4.546 L (Imperial gallon)
 ```
+
+---
 
 ## See Also
 
