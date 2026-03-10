@@ -225,43 +225,6 @@ $ftToYd = $mToFt->combineOpposite($ydToM);
 echo $ftToYd->factor->value; // 0.333...
 ```
 
-## Usage Examples
-
-### Building a Conversion Chain
-
-```php
-use Galaxon\Quantities\Internal\Conversion;
-
-// Miles to kilometers via multiple steps
-$miToFt = new Conversion('mi', 'ft', 5280);
-$ftToIn = new Conversion('ft', 'in', 12);
-$inToCm = new Conversion('in', 'cm', 2.54);
-$cmToM = new Conversion('cm', 'm', 0.01);
-$mToKm = new Conversion('m', 'km', 0.001);
-
-$miToKm = $miToFt
-    ->combineSequential($ftToIn)
-    ->combineSequential($inToCm)
-    ->combineSequential($cmToM)
-    ->combineSequential($mToKm);
-
-echo $miToKm->factor->value; // 1.609344
-```
-
-### Area Conversion
-
-```php
-use Galaxon\Quantities\Internal\Conversion;
-
-// Convert acres to square meters
-$acreToFt2 = new Conversion('acre', 'ft2', 43560);
-$ftToM = new Conversion('ft', 'm', 0.3048);
-$ft2ToM2 = $ftToM->pow(2);
-
-$acreToM2 = $acreToFt2->combineSequential($ft2ToM2);
-echo $acreToM2->factor->value; // 4046.86...
-```
-
 ## See Also
 
 - **[Converter](Converter.md)** - Manages conversion paths between units

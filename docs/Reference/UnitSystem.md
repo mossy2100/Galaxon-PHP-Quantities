@@ -1,3 +1,11 @@
+# UnitSystem
+
+Categorizes units of measurement by their measurement system.
+
+**Namespace:** `Galaxon\Quantities`
+
+---
+
 ## Overview
 
 The `UnitSystem` enum categorizes units of measurement according to the measurement system they belong to. This classification allows filtering and grouping units by their origin and typical use context.

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Internal;
 
-use DomainException;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
@@ -29,30 +28,11 @@ final class QuantityTypeTest extends TestCase
      */
     public function testConstructorWithAllParameters(): void
     {
-        $qtyType = new QuantityType(
-            'length',
-            'L',
-            Length::class,
-            ['mi', 'yd', 'ft', 'in'],
-            'ft'
-        );
+        $qtyType = new QuantityType('length', 'L', Length::class);
 
         $this->assertSame('length', $qtyType->name);
         $this->assertSame('L', $qtyType->dimension);
         $this->assertSame(Length::class, $qtyType->class);
-        $this->assertSame(['mi', 'yd', 'ft', 'in'], $qtyType->partUnitSymbols);
-        $this->assertSame('ft', $qtyType->resultUnitSymbol);
-    }
-
-    /**
-     * Test constructor defaults partUnitSymbols and resultUnitSymbol to null.
-     */
-    public function testConstructorDefaultsPartPropertiesToNull(): void
-    {
-        $qtyType = new QuantityType('length', 'L', Length::class);
-
-        $this->assertNull($qtyType->partUnitSymbols);
-        $this->assertNull($qtyType->resultUnitSymbol);
     }
 
     /**
@@ -234,138 +214,6 @@ final class QuantityTypeTest extends TestCase
         // Change to a different class
         $qtyType->class = Mass::class;
         $this->assertSame(Mass::class, $qtyType->class);
-    }
-
-    // endregion
-
-    // region partUnitSymbols property hook tests
-
-    /**
-     * Test partUnitSymbols accepts valid array of symbols.
-     */
-    public function testPartUnitSymbolsAcceptsValidArray(): void
-    {
-        $qtyType = new QuantityType('time', 'T', Time::class);
-
-        $qtyType->partUnitSymbols = ['h', 'min', 's'];
-
-        $this->assertSame(['h', 'min', 's'], $qtyType->partUnitSymbols);
-    }
-
-    /**
-     * Test partUnitSymbols accepts null.
-     */
-    public function testPartUnitSymbolsAcceptsNull(): void
-    {
-        $qtyType = new QuantityType('time', 'T', Time::class, ['h', 'min', 's']);
-
-        $qtyType->partUnitSymbols = null;
-
-        $this->assertNull($qtyType->partUnitSymbols);
-    }
-
-    /**
-     * Test partUnitSymbols deduplicates values.
-     */
-    public function testPartUnitSymbolsDeduplicatesValues(): void
-    {
-        $qtyType = new QuantityType('time', 'T', Time::class);
-
-        $qtyType->partUnitSymbols = ['h', 'min', 'h', 's'];
-
-        $this->assertSame(['h', 'min', 's'], $qtyType->partUnitSymbols);
-    }
-
-    /**
-     * Test partUnitSymbols throws for empty array.
-     */
-    public function testPartUnitSymbolsThrowsForEmptyArray(): void
-    {
-        $qtyType = new QuantityType('time', 'T', Time::class);
-
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must not be empty');
-
-        $qtyType->partUnitSymbols = [];
-    }
-
-    /**
-     * Test partUnitSymbols throws for non-string values.
-     */
-    public function testPartUnitSymbolsThrowsForNonStringValues(): void
-    {
-        $qtyType = new QuantityType('time', 'T', Time::class);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('must contain only strings');
-
-        $qtyType->partUnitSymbols = ['h', 123]; // @phpstan-ignore assign.propertyType
-    }
-
-    /**
-     * Test partUnitSymbols can be set via constructor.
-     */
-    public function testPartUnitSymbolsViaConstructor(): void
-    {
-        $qtyType = new QuantityType(
-            'angle',
-            'A',
-            UnregisteredQuantity::class,
-            ['deg', 'arcmin', 'arcsec']
-        );
-
-        $this->assertSame(['deg', 'arcmin', 'arcsec'], $qtyType->partUnitSymbols);
-    }
-
-    // endregion
-
-    // region resultUnitSymbol property hook tests
-
-    /**
-     * Test resultUnitSymbol accepts valid string.
-     */
-    public function testResultUnitSymbolAcceptsValidString(): void
-    {
-        $qtyType = new QuantityType('time', 'T', Time::class);
-
-        $qtyType->resultUnitSymbol = 's';
-
-        $this->assertSame('s', $qtyType->resultUnitSymbol);
-    }
-
-    /**
-     * Test resultUnitSymbol accepts null.
-     */
-    public function testResultUnitSymbolAcceptsNull(): void
-    {
-        $qtyType = new QuantityType('time', 'T', Time::class, null, 's');
-
-        $qtyType->resultUnitSymbol = null;
-
-        $this->assertNull($qtyType->resultUnitSymbol);
-    }
-
-    /**
-     * Test resultUnitSymbol throws for empty string.
-     */
-    public function testResultUnitSymbolThrowsForEmptyString(): void
-    {
-        $qtyType = new QuantityType('time', 'T', Time::class);
-
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must be null or a unit symbol');
-
-        $qtyType->resultUnitSymbol = '';
-    }
-
-    /**
-     * Test resultUnitSymbol can be set via constructor.
-     */
-    public function testResultUnitSymbolViaConstructor(): void
-    {
-        $qtyType = new QuantityType('angle', 'A', UnregisteredQuantity::class, null, 'deg');
-
-        $this->assertSame('deg', $qtyType->resultUnitSymbol);
     }
 
     // endregion

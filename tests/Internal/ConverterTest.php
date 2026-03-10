@@ -732,7 +732,7 @@ class ConverterTest extends TestCase
             $this->assertInstanceOf(Conversion::class, $conversion);
             $this->assertGreaterThan(0.0, $conversion->factor->value);
         } finally {
-            CurrencyService::$exchangeRateService = null;
+            CurrencyService::setExchangeRateService(null);
             Converter::removeAllInstances();
         }
     }

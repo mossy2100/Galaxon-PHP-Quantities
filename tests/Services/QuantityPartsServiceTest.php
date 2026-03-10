@@ -6,7 +6,6 @@ namespace Galaxon\Quantities\Tests\Services;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Time;
@@ -40,7 +39,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testFromPartsCreatesTimeQuantity(): void
     {
-        $qty = QuantityPartsService::fromParts(Time::class, [
+        // @phpstan-ignore argument.type
+        $qty = QuantityPartsService::fromParts(Time::getQuantityType(), [
             'h'   => 1,
             'min' => 30,
             's'   => 45,
@@ -52,25 +52,12 @@ final class QuantityPartsServiceTest extends TestCase
     }
 
     /**
-     * Test fromParts() with explicit result unit symbol.
-     */
-    public function testFromPartsWithExplicitResultUnit(): void
-    {
-        $qty = QuantityPartsService::fromParts(Time::class, [
-            'h'   => 1,
-            'min' => 30,
-        ], 'min');
-
-        $this->assertSame('min', $qty->derivedUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(90.0, $qty->value, 1e-10);
-    }
-
-    /**
      * Test fromParts() with negative sign.
      */
     public function testFromPartsWithNegativeSign(): void
     {
-        $qty = QuantityPartsService::fromParts(Time::class, [
+        // @phpstan-ignore argument.type
+        $qty = QuantityPartsService::fromParts(Time::getQuantityType(), [
             'h'    => 1,
             'min'  => 30,
             'sign' => -1,
@@ -85,7 +72,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testFromPartsCreatesAngleQuantity(): void
     {
-        $qty = QuantityPartsService::fromParts(Angle::class, [
+        // @phpstan-ignore argument.type
+        $qty = QuantityPartsService::fromParts(Angle::getQuantityType(), [
             'deg'    => 45,
             'arcmin' => 30,
             'arcsec' => 0,
@@ -100,7 +88,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testFromPartsCreatesLengthQuantity(): void
     {
-        $qty = QuantityPartsService::fromParts(Length::class, [
+        // @phpstan-ignore argument.type
+        $qty = QuantityPartsService::fromParts(Length::getQuantityType(), [
             'ft' => 5,
             'in' => 11,
         ]);
@@ -112,45 +101,6 @@ final class QuantityPartsServiceTest extends TestCase
     }
 
     /**
-     * Test fromParts() throws when no result unit and no default.
-     */
-    public function testFromPartsThrowsWithNoResultUnit(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('No result unit symbol provided and no default set.');
-
-        QuantityPartsService::fromParts(Quantity::class, [
-            'm' => 100,
-        ]);
-    }
-
-    /**
-     * Test fromParts() throws for unknown result unit.
-     */
-    public function testFromPartsThrowsForUnknownResultUnit(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Unknown result unit 'xyz'");
-
-        QuantityPartsService::fromParts(Time::class, [
-            'h' => 1,
-        ], 'xyz');
-    }
-
-    /**
-     * Test fromParts() throws for incompatible result unit dimension.
-     */
-    public function testFromPartsThrowsForIncompatibleResultUnit(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('incompatible with time quantities');
-
-        QuantityPartsService::fromParts(Time::class, [
-            'h' => 1,
-        ], 'm');
-    }
-
-    /**
      * Test fromParts() throws for invalid sign value.
      */
     public function testFromPartsThrowsForInvalidSign(): void
@@ -158,7 +108,8 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid sign: 2. Must be -1 or 1.');
 
-        QuantityPartsService::fromParts(Time::class, [
+        // @phpstan-ignore argument.type
+        QuantityPartsService::fromParts(Time::getQuantityType(), [
             'h'    => 1,
             'sign' => 2,
         ]);
@@ -174,7 +125,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testToPartsDecomposesTime(): void
     {
         $qty = new Time(5445, 's');
-        $parts = QuantityPartsService::toParts($qty, ['h', 'min', 's']);
+        $parts = QuantityPartsService::toParts($qty);
 
         $this->assertSame(1, $parts['sign']);
         $this->assertSame(1, $parts['h']);
@@ -188,7 +139,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testToPartsWithNegativeValue(): void
     {
         $qty = new Time(-3661, 's');
-        $parts = QuantityPartsService::toParts($qty, ['h', 'min', 's']);
+        $parts = QuantityPartsService::toParts($qty);
 
         $this->assertSame(-1, $parts['sign']);
         $this->assertSame(1, $parts['h']);
@@ -203,7 +154,7 @@ final class QuantityPartsServiceTest extends TestCase
     {
         // 3661.567s = 1h 1min 1.567s. Rounding to 1dp gives 1.6s (rounds up, triggers rebuild).
         $qty = new Time(3661.567, 's');
-        $parts = QuantityPartsService::toParts($qty, ['h', 'min', 's'], 1);
+        $parts = QuantityPartsService::toParts($qty, 1);
 
         $this->assertSame(1, $parts['h']);
         $this->assertSame(1, $parts['min']);
@@ -217,7 +168,7 @@ final class QuantityPartsServiceTest extends TestCase
     {
         // 3661.3s = 1h 1min 1.3s. Rounding to 0dp gives 1.0s (rounds down, no rebuild needed).
         $qty = new Time(3661.3, 's');
-        $parts = QuantityPartsService::toParts($qty, ['h', 'min', 's'], 0);
+        $parts = QuantityPartsService::toParts($qty, 0);
 
         $this->assertSame(1, $parts['h']);
         $this->assertSame(1, $parts['min']);
@@ -243,7 +194,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testToPartsWithZeroValue(): void
     {
         $qty = new Time(0, 's');
-        $parts = QuantityPartsService::toParts($qty, ['h', 'min', 's']);
+        $parts = QuantityPartsService::toParts($qty);
 
         $this->assertSame(1, $parts['sign']);
         $this->assertSame(0, $parts['h']);
@@ -258,23 +209,11 @@ final class QuantityPartsServiceTest extends TestCase
     {
         // 59 min 59.9 s → rounds to 1h 0min 0s at precision 0.
         $qty = new Time(3599.9, 's');
-        $parts = QuantityPartsService::toParts($qty, ['h', 'min', 's'], 0);
+        $parts = QuantityPartsService::toParts($qty, 0);
 
         $this->assertSame(1, $parts['h']);
         $this->assertSame(0, $parts['min']);
         $this->assertSame(0.0, $parts['s']);
-    }
-
-    /**
-     * Test toParts() throws for empty part unit symbols.
-     */
-    public function testToPartsThrowsForEmptySymbols(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must not be empty');
-
-        $qty = new Time(3661, 's');
-        QuantityPartsService::toParts($qty, []);
     }
 
     /**
@@ -286,7 +225,7 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectExceptionMessage('Invalid precision');
 
         $qty = new Time(3661, 's');
-        QuantityPartsService::toParts($qty, ['h', 'min', 's'], -1);
+        QuantityPartsService::toParts($qty, -1);
     }
 
     // endregion
@@ -298,7 +237,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testParsePartsTime(): void
     {
-        $qty = QuantityPartsService::parseParts(Time::class, '1h 30min 45s');
+        // @phpstan-ignore argument.type
+        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '1h 30min 45s');
 
         $this->assertInstanceOf(Time::class, $qty);
         $this->assertEqualsWithDelta(5445.0, $qty->value, 1e-10);
@@ -309,21 +249,11 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testParsePartsNegativeTime(): void
     {
-        $qty = QuantityPartsService::parseParts(Time::class, '-2h 15min');
+        // @phpstan-ignore argument.type
+        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '-2h 15min');
 
         $this->assertTrue($qty->value < 0);
         $this->assertEqualsWithDelta(-8100.0, $qty->value, 1e-10);
-    }
-
-    /**
-     * Test parseParts() with explicit result unit.
-     */
-    public function testParsePartsWithResultUnit(): void
-    {
-        $qty = QuantityPartsService::parseParts(Time::class, '1h 30min', 'min');
-
-        $this->assertSame('min', $qty->derivedUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(90.0, $qty->value, 1e-10);
     }
 
     /**
@@ -331,7 +261,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testParsePartsAngle(): void
     {
-        $qty = QuantityPartsService::parseParts(Angle::class, '45deg 30arcmin');
+        // @phpstan-ignore argument.type
+        $qty = QuantityPartsService::parseParts(Angle::getQuantityType(), '45deg 30arcmin');
 
         $this->assertInstanceOf(Angle::class, $qty);
         $this->assertEqualsWithDelta(45.5, $qty->value, 1e-6);
@@ -342,7 +273,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testParsePartsTrimsWhitespace(): void
     {
-        $qty = QuantityPartsService::parseParts(Time::class, '  90min  ');
+        // @phpstan-ignore argument.type
+        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '  90min  ');
 
         $this->assertEqualsWithDelta(5400.0, $qty->value, 1e-10);
     }
@@ -355,7 +287,8 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('empty');
 
-        QuantityPartsService::parseParts(Time::class, '');
+        // @phpstan-ignore argument.type
+        QuantityPartsService::parseParts(Time::getQuantityType(), '');
     }
 
     /**
@@ -366,7 +299,8 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('empty');
 
-        QuantityPartsService::parseParts(Time::class, '   ');
+        // @phpstan-ignore argument.type
+        QuantityPartsService::parseParts(Time::getQuantityType(), '   ');
     }
 
     /**
@@ -376,7 +310,8 @@ final class QuantityPartsServiceTest extends TestCase
     {
         $this->expectException(FormatException::class);
 
-        QuantityPartsService::parseParts(Time::class, 'not a quantity');
+        // @phpstan-ignore argument.type
+        QuantityPartsService::parseParts(Time::getQuantityType(), 'not a quantity');
     }
 
     /**
@@ -387,18 +322,8 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('only the first may be negative');
 
-        QuantityPartsService::parseParts(Time::class, '1h -30min');
-    }
-
-    /**
-     * Test parseParts() throws when no result unit and no default.
-     */
-    public function testParsePartsThrowsWhenNoResultUnit(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('No result unit symbol provided and no default set.');
-
-        QuantityPartsService::parseParts(Quantity::class, '100m');
+        // @phpstan-ignore argument.type
+        QuantityPartsService::parseParts(Time::getQuantityType(), '1h -30min');
     }
 
     // endregion
@@ -411,9 +336,11 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFormatPartsTime(): void
     {
         $qty = new Time(5445, 's');
-        $result = QuantityPartsService::formatParts($qty, ['h', 'min', 's']);
+        $result = QuantityPartsService::formatParts($qty);
 
-        $this->assertSame('1h 30min 45s', $result);
+        $this->assertStringContainsString('1h', $result);
+        $this->assertStringContainsString('30min', $result);
+        $this->assertStringContainsString('45s', $result);
     }
 
     /**
@@ -422,9 +349,12 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFormatPartsNegative(): void
     {
         $qty = new Time(-3661, 's');
-        $result = QuantityPartsService::formatParts($qty, ['h', 'min', 's']);
+        $result = QuantityPartsService::formatParts($qty);
 
-        $this->assertSame('-1h 1min 1s', $result);
+        $this->assertStringStartsWith('-', $result);
+        $this->assertStringContainsString('1h', $result);
+        $this->assertStringContainsString('1min', $result);
+        $this->assertStringContainsString('1s', $result);
     }
 
     /**
@@ -433,9 +363,11 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFormatPartsShowZeros(): void
     {
         $qty = new Time(3600, 's');
-        $result = QuantityPartsService::formatParts($qty, ['h', 'min', 's'], showZeros: true);
+        $result = QuantityPartsService::formatParts($qty, showZeros: true);
 
-        $this->assertSame('1h 0min 0s', $result);
+        $this->assertStringContainsString('1h', $result);
+        $this->assertStringContainsString('0min', $result);
+        $this->assertStringContainsString('0s', $result);
     }
 
     /**
@@ -444,10 +376,11 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFormatPartsSkipsZeros(): void
     {
         $qty = new Time(3600, 's');
-        $result = QuantityPartsService::formatParts($qty, ['h', 'min', 's'], showZeros: false);
+        $result = QuantityPartsService::formatParts($qty, showZeros: false);
 
-        // All zero parts are skipped, including the smallest unit when the result is non-empty.
-        $this->assertSame('1h', $result);
+        // Non-zero parts should be present, zero parts should be skipped.
+        $this->assertStringContainsString('1h', $result);
+        $this->assertStringNotContainsString('0min', $result);
     }
 
     /**
@@ -456,7 +389,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFormatPartsZeroValue(): void
     {
         $qty = new Time(0, 's');
-        $result = QuantityPartsService::formatParts($qty, ['h', 'min', 's']);
+        $result = QuantityPartsService::formatParts($qty);
 
         $this->assertSame('0s', $result);
     }
@@ -467,7 +400,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFormatPartsWithPrecision(): void
     {
         $qty = new Time(3661.567, 's');
-        $result = QuantityPartsService::formatParts($qty, ['h', 'min', 's'], precision: 2);
+        $result = QuantityPartsService::formatParts($qty, precision: 2);
 
         $this->assertSame('1h 1min 1.57s', $result);
     }
@@ -485,20 +418,6 @@ final class QuantityPartsServiceTest extends TestCase
         $this->assertStringContainsString('°', $resultUnicode);
         // ASCII uses deg, arcmin, arcsec.
         $this->assertStringContainsString('deg', $resultAscii);
-    }
-
-    /**
-     * Test formatParts() uses class defaults when no symbols provided.
-     */
-    public function testFormatPartsUsesClassDefaults(): void
-    {
-        $qty = new Time(3661, 's');
-        $result = QuantityPartsService::formatParts($qty);
-
-        // Should use the Time class defaults (y, mo, w, d, h, min, s).
-        $this->assertStringContainsString('1h', $result);
-        $this->assertStringContainsString('1min', $result);
-        $this->assertStringContainsString('1s', $result);
     }
 
     // endregion

@@ -695,20 +695,6 @@ final class AngleTest extends TestCase
     }
 
     /**
-     * Test fromParts with custom result unit.
-     */
-    public function testFromPartsCustomResultUnit(): void
-    {
-        $angle = Angle::fromParts([
-            'deg' => 180,
-        ], 'rad');
-
-        // 180 degrees = π radians
-        $this->assertApproxEqual(M_PI, $angle->value);
-        $this->assertSame('rad', $angle->derivedUnit->asciiSymbol);
-    }
-
-    /**
      * Test toParts decomposes angle correctly.
      */
     public function testToParts(): void
@@ -765,10 +751,16 @@ final class AngleTest extends TestCase
      */
     public function testFormatPartsToArcminutes(): void
     {
-        $angle = new Angle(45.5, 'deg');
-        $result = $angle->formatParts(['deg', 'arcmin'], 0);
+        $original = Angle::getPartUnitSymbols();
+        Angle::setPartUnitSymbols(['deg', 'arcmin']);
+        try {
+            $angle = new Angle(45.5, 'deg');
+            $result = $angle->formatParts(precision: 0);
 
-        $this->assertSame('45° 30′', $result);
+            $this->assertSame('45° 30′', $result);
+        } finally {
+            Angle::setPartUnitSymbols($original);
+        }
     }
 
     /**
@@ -787,10 +779,16 @@ final class AngleTest extends TestCase
      */
     public function testFormatPartsNegative(): void
     {
-        $angle = new Angle(-45.5, 'deg');
-        $result = $angle->formatParts(['deg', 'arcmin'], 0);
+        $original = Angle::getPartUnitSymbols();
+        Angle::setPartUnitSymbols(['deg', 'arcmin']);
+        try {
+            $angle = new Angle(-45.5, 'deg');
+            $result = $angle->formatParts(precision: 0);
 
-        $this->assertSame('-45° 30′', $result);
+            $this->assertSame('-45° 30′', $result);
+        } finally {
+            Angle::setPartUnitSymbols($original);
+        }
     }
 
     /**

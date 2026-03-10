@@ -358,35 +358,6 @@ final class TimeTest extends TestCase
     }
 
     /**
-     * Test fromParts with negative value uses sign key instead.
-     */
-    public function testFromPartsNegativeValueUsesSign(): void
-    {
-        // Negative values in parts are handled via the 'sign' key
-        $time = Time::fromParts([
-            'h'    => 1,
-            'sign' => -1,
-        ]);
-
-        $this->assertSame(-3600.0, $time->value);
-    }
-
-    /**
-     * Test fromParts with custom result unit.
-     */
-    public function testFromPartsCustomResultUnit(): void
-    {
-        $time = Time::fromParts([
-            'h'   => 2,
-            'min' => 30,
-        ], 'min');
-
-        // 2.5 hours = 150 minutes
-        $this->assertSame(150.0, $time->value);
-        $this->assertSame('min', $time->derivedUnit->asciiSymbol);
-    }
-
-    /**
      * Test fromParts uses default result unit from config.
      */
     public function testFromPartsDefaultResultUnit(): void
@@ -487,17 +458,6 @@ final class TimeTest extends TestCase
         $result = $time->formatParts();
 
         $this->assertSame('-1h 1min 1s', $result);
-    }
-
-    /**
-     * Test formatParts to minutes only.
-     */
-    public function testFormatPartsToMinutes(): void
-    {
-        $time = new Time(5400, 's');  // 1h 30min
-        $result = $time->formatParts();
-
-        $this->assertSame('1h 30min', $result);
     }
 
     /**

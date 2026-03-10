@@ -11,7 +11,7 @@ Represents luminous flux quantities.
 
 The `LuminousFlux` class handles luminous flux measurements, commonly used to rate light bulb brightness.
 
-For the complete list of luminous flux units, see [Supported Units: Luminous Flux](2.6_SupportedUnits.md#luminous-flux).
+For the complete list of luminous flux units, see [Supported Units: Luminous Flux](../../DeveloperGuide/2.6_SupportedUnits.md#luminous-flux).
 
 ---
 
@@ -58,7 +58,7 @@ $inKlm = $flashlight->to('klm');  // 1 klm
 
 ## See Also
 
-- **[Supported Units: Luminous Flux](2.6_SupportedUnits.md#luminous-flux)** - Complete list
+- **[Supported Units: Luminous Flux](../../DeveloperGuide/2.6_SupportedUnits.md#luminous-flux)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousIntensity](LuminousIntensity.md)** - Related quantity
 - **[Illuminance](Illuminance.md)** - Related quantity (lm/m²)

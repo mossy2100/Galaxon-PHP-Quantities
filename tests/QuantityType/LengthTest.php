@@ -631,20 +631,6 @@ final class LengthTest extends TestCase
     }
 
     /**
-     * Test fromParts with custom result unit.
-     */
-    public function testFromPartsCustomResultUnit(): void
-    {
-        $length = Length::fromParts([
-            'ft' => 3,
-        ], 'yd');
-
-        // 3 feet = 1 yard
-        $this->assertSame(1.0, $length->value);
-        $this->assertSame('yd', $length->derivedUnit->asciiSymbol);
-    }
-
-    /**
      * Test toParts decomposes length correctly.
      */
     public function testToParts(): void
@@ -680,12 +666,18 @@ final class LengthTest extends TestCase
      */
     public function testToPartsCarry(): void
     {
-        $length = new Length(2.99999999, 'ft');  // Just under 3 feet = 1 yard
-        $parts = $length->toParts(['yd', 'ft'], 0);
+        $original = Length::getPartUnitSymbols();
+        Length::setPartUnitSymbols(['yd', 'ft']);
+        try {
+            $length = new Length(2.99999999, 'ft');  // Just under 3 feet = 1 yard
+            $parts = $length->toParts(precision: 0);
 
-        // Should round to 3 feet and carry to 1 yard
-        $this->assertSame(1, $parts['yd']);
-        $this->assertSame(0.0, $parts['ft']);
+            // Should round to 3 feet and carry to 1 yard.
+            $this->assertSame(1, $parts['yd']);
+            $this->assertSame(0.0, $parts['ft']);
+        } finally {
+            Length::setPartUnitSymbols($original);
+        }
     }
 
     /**
@@ -742,10 +734,10 @@ final class LengthTest extends TestCase
     public function testFormatPartsShowZeros(): void
     {
         $length = new Length(5280, 'ft');  // 1 mile
-        $result = $length->formatParts(['mi', 'yd', 'ft'], showZeros: true);
+        $result = $length->formatParts(showZeros: true);
 
-        // Shows all parts including zeros
-        $this->assertSame('1mi 0yd 0ft', $result);
+        // Shows all parts including zeros (default: mi, yd, ft, in).
+        $this->assertSame('1mi 0yd 0ft 0in', $result);
     }
 
     /**

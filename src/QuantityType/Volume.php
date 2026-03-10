@@ -37,15 +37,15 @@ class Volume extends Quantity
                 'prefixGroup' => PrefixService::GROUP_METRIC,
                 'systems'     => [UnitSystem::SiAccepted, UnitSystem::Metric],
             ],
-            'metric cup'                => [
+            'metric cup'           => [
                 'asciiSymbol' => 'cup',
                 'systems'     => [UnitSystem::Metric],
             ],
-            'metric tablespoon'         => [
+            'metric tablespoon'    => [
                 'asciiSymbol' => 'tbsp',
                 'systems'     => [UnitSystem::Metric],
             ],
-            'metric teaspoon'           => [
+            'metric teaspoon'      => [
                 'asciiSymbol' => 'tsp',
                 'systems'     => [UnitSystem::Metric],
             ],
@@ -66,15 +66,15 @@ class Volume extends Quantity
                 'asciiSymbol' => 'US fl oz',
                 'systems'     => [UnitSystem::UsCustomary],
             ],
-            'US cup'                    => [
+            'US cup'               => [
                 'asciiSymbol' => 'US cup',
                 'systems'     => [UnitSystem::UsCustomary],
             ],
-            'US tablespoon'             => [
+            'US tablespoon'        => [
                 'asciiSymbol' => 'US tbsp',
                 'systems'     => [UnitSystem::UsCustomary],
             ],
-            'US teaspoon'               => [
+            'US teaspoon'          => [
                 'asciiSymbol' => 'US tsp',
                 'systems'     => [UnitSystem::UsCustomary],
             ],
@@ -95,11 +95,11 @@ class Volume extends Quantity
                 'asciiSymbol' => 'imp fl oz',
                 'systems'     => [UnitSystem::Imperial],
             ],
-            'imperial tablespoon'       => [
+            'imperial tablespoon'  => [
                 'asciiSymbol' => 'imp tbsp',
                 'systems'     => [UnitSystem::Imperial],
             ],
-            'imperial teaspoon'         => [
+            'imperial teaspoon'    => [
                 'asciiSymbol' => 'imp tsp',
                 'systems'     => [UnitSystem::Imperial],
             ],

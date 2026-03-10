@@ -11,7 +11,7 @@ Represents pressure quantities.
 
 The `Pressure` class handles pressure measurements across SI and common scientific/engineering units.
 
-For the complete list of pressure units, see [Supported Units: Pressure](2.6_SupportedUnits.md#pressure).
+For the complete list of pressure units, see [Supported Units: Pressure](../../DeveloperGuide/2.6_SupportedUnits.md#pressure).
 
 ---
 
@@ -90,6 +90,6 @@ Atmospheric pressure decreases with altitude. At sea level:
 
 ## See Also
 
-- **[Supported Units: Pressure](2.6_SupportedUnits.md#pressure)** - Complete list of pressure units
+- **[Supported Units: Pressure](../../DeveloperGuide/2.6_SupportedUnits.md#pressure)** - Complete list of pressure units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Force](Force.md)** - Related quantity (pressure = force/area)

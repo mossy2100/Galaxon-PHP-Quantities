@@ -1100,19 +1100,79 @@ class Quantity implements Stringable
     // region Parts-related methods
 
     /**
+     * Get the part unit symbols for this quantity type.
+     *
+     * Subclasses can override this to provide hardcoded defaults.
+     *
+     * @return ?list<string> The part unit symbols, or null if none configured.
+     */
+    public static function getPartUnitSymbols(): ?array
+    {
+        $qtyType = static::getQuantityType();
+        return $qtyType !== null ? QuantityPartsService::getPartUnitSymbols($qtyType) : null;
+    }
+
+    /**
+     * Set the part unit symbols for this quantity type.
+     *
+     * @param ?list<string> $partUnitSymbols The part unit symbols, or null to clear.
+     * @throws DomainException If the array is empty or the quantity type is not registered.
+     * @throws InvalidArgumentException If the array contains non-string values.
+     */
+    public static function setPartUnitSymbols(?array $partUnitSymbols): void
+    {
+        $qtyType = static::getQuantityType();
+        if ($qtyType === null) {
+            throw new DomainException('Cannot set part unit symbols on a quantity type that is not registered.');
+        }
+        QuantityPartsService::setPartUnitSymbols($qtyType, $partUnitSymbols);
+    }
+
+    /**
+     * Get the result unit symbol for this quantity type.
+     *
+     * Subclasses can override this to provide hardcoded defaults.
+     *
+     * @return ?string The result unit symbol, or null if none configured.
+     */
+    public static function getResultUnitSymbol(): ?string
+    {
+        $qtyType = static::getQuantityType();
+        return $qtyType !== null ? QuantityPartsService::getResultUnitSymbol($qtyType) : null;
+    }
+
+    /**
+     * Set the result unit symbol for this quantity type.
+     *
+     * @param ?string $resultUnitSymbol The result unit symbol, or null to clear.
+     * @throws DomainException If the value is an empty string or the quantity type is not registered.
+     */
+    public static function setResultUnitSymbol(?string $resultUnitSymbol): void
+    {
+        $qtyType = static::getQuantityType();
+        if ($qtyType === null) {
+            throw new DomainException('Cannot set result unit symbol on a quantity type that is not registered.');
+        }
+        QuantityPartsService::setResultUnitSymbol($qtyType, $resultUnitSymbol);
+    }
+
+    /**
      * Create a new Quantity object as a sum of measurements of different units.
      *
      * @param array<string, int|float> $parts The parts.
-     * @param ?string $resultUnitSymbol The unit to use for the resulting quantity, or null for default.
      * @return static A new Quantity representing the sum of the parts.
      * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
      * numbers.
      * @throws DomainException If the result unit symbol or sign is invalid.
      * @see QuantityPartsService::fromParts()
      */
-    public static function fromParts(array $parts, ?string $resultUnitSymbol = null): static
+    public static function fromParts(array $parts): static
     {
-        $qty = QuantityPartsService::fromParts(static::class, $parts, $resultUnitSymbol);
+        $qtyType = static::getQuantityType();
+        if ($qtyType === null) {
+            throw new DomainException('Cannot call fromParts() on a quantity type that is not registered.');
+        }
+        $qty = QuantityPartsService::fromParts($qtyType, $parts);
         assert($qty instanceof static);
         return $qty;
     }
@@ -1120,30 +1180,32 @@ class Quantity implements Stringable
     /**
      * Convert the quantity to parts.
      *
-     * @param ?list<string> $partUnitSymbols Array of symbols indicating units to include, or null for default.
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws DomainException If any arguments are invalid.
      * @see QuantityPartsService::toParts()
      */
-    public function toParts(?array $partUnitSymbols = null, ?int $precision = null): array
+    public function toParts(?int $precision = null): array
     {
-        return QuantityPartsService::toParts($this, $partUnitSymbols, $precision);
+        return QuantityPartsService::toParts($this, $precision);
     }
 
     /**
      * Parse a string of quantity parts.
      *
      * @param string $input The string to parse.
-     * @param ?string $resultUnitSymbol The unit to use for the resulting quantity, or null for default.
      * @return static A new Quantity representing the sum of the parts.
      * @throws FormatException If the input string is invalid.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
      * @see QuantityPartsService::parseParts()
      */
-    public static function parseParts(string $input, ?string $resultUnitSymbol = null): static
+    public static function parseParts(string $input): static
     {
-        $qty = QuantityPartsService::parseParts(static::class, $input, $resultUnitSymbol);
+        $qtyType = static::getQuantityType();
+        if ($qtyType === null) {
+            throw new DomainException('Cannot call parseParts() on a quantity type that is not registered.');
+        }
+        $qty = QuantityPartsService::parseParts($qtyType, $input);
         assert($qty instanceof static);
         return $qty;
     }
@@ -1151,20 +1213,15 @@ class Quantity implements Stringable
     /**
      * Format quantity as parts.
      *
-     * @param ?list<string> $partUnitSymbols Array of symbols indicating units to include, or null for default.
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
      * @return string The formatted string.
      * @see QuantityPartsService::formatParts()
      */
-    public function formatParts(
-        ?array $partUnitSymbols = null,
-        ?int $precision = null,
-        bool $showZeros = false,
-        bool $ascii = false
-    ): string {
-        return QuantityPartsService::formatParts($this, $partUnitSymbols, $precision, $showZeros, $ascii);
+    public function formatParts(?int $precision = null, bool $showZeros = false, bool $ascii = false): string
+    {
+        return QuantityPartsService::formatParts($this, $precision, $showZeros, $ascii);
     }
 
     // endregion

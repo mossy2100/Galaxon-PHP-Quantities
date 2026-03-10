@@ -45,7 +45,6 @@ class Conversion implements Stringable
 
     /**
      * The Conversion dimension.
-     *
      */
     public string $dimension {
         get => $this->srcUnit->dimension;

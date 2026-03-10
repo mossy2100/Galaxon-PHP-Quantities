@@ -73,12 +73,12 @@ class DimensionService
             'englishBaseUnitSymbol' => 'deg',
         ],
         'D' => [
-            'quantityTypeName' => 'data',
-            'commonBaseUnitSymbol'   => 'B',
+            'quantityTypeName'     => 'data',
+            'commonBaseUnitSymbol' => 'B',
         ],
         'C' => [
-            'quantityTypeName' => 'money',
-            'commonBaseUnitSymbol'   => 'XAU',
+            'quantityTypeName'     => 'money',
+            'commonBaseUnitSymbol' => 'XAU',
         ],
         'T' => [
             'quantityTypeName' => 'time',
@@ -297,10 +297,12 @@ class DimensionService
         }
 
         // Check for a common base unit.
+        // @phpstan-ignore isset.offset
         if (isset(self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'])) {
             return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
         }
 
+        // @phpstan-ignore deadCode.unreachable
         $system = $si ? 'SI' : 'English';
         throw new LogicException("No $system base unit is defined for dimension '$dimensionLetterCode'.");
     }

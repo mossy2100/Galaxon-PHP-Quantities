@@ -7,7 +7,6 @@ namespace Galaxon\Quantities\Internal;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
-use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use InvalidArgumentException;
@@ -51,28 +50,6 @@ class QuantityType
             /** @var class-string<Quantity> $value */
             $this->class = $value;
         }
-    }
-
-    /**
-     * The default unit symbols for part decomposition (e.g. ['deg', 'arcmin', 'arcsec'] for angles).
-     *
-     * Delegates to QuantityPartsService.
-     *
-     * @var ?list<string>
-     */
-    public ?array $partUnitSymbols {
-        get => QuantityPartsService::getPartUnitSymbols($this->name);
-        set => QuantityPartsService::setPartUnitSymbols($this->name, $value);
-    }
-
-    /**
-     * The default result unit symbol for part operations (e.g. 'deg' for angles).
-     *
-     * Delegates to QuantityPartsService.
-     */
-    public ?string $resultUnitSymbol {
-        get => QuantityPartsService::getResultUnitSymbol($this->name);
-        set => QuantityPartsService::setResultUnitSymbol($this->name, $value);
     }
 
     /**
@@ -146,11 +123,8 @@ class QuantityType
      * @throws FormatException If the dimension code is invalid.
      * @throws InvalidArgumentException If the class is not a subclass of Quantity.
      */
-    public function __construct(
-        string $name,
-        string $dimension,
-        string $class,
-    ) {
+    public function __construct(string $name, string $dimension, string $class)
+    {
         $this->name = $name;
         $this->dimension = DimensionService::normalize($dimension);
         $this->class = $class;

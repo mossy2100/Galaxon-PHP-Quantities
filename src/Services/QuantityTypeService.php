@@ -424,11 +424,7 @@ class QuantityTypeService
 
             // Convert info in constant into an array of objects.
             foreach (self::QUANTITY_TYPES as $name => $info) {
-                self::$quantityTypes[$name] = new QuantityType(
-                    $name,
-                    $info['dimension'],
-                    $info['class'],
-                );
+                self::$quantityTypes[$name] = new QuantityType($name, $info['dimension'], $info['class']);
             }
         }
     }

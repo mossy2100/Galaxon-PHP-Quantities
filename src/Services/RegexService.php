@@ -98,6 +98,12 @@ final class RegexService
      */
     private const string RX_NUM = '\d+(?:\.\d+)?(?:[eE][+-]?\d+)?';
 
+    /**
+     * Regex for locale codes, following the IETF BCP 47 standard.
+     * @see https://datatracker.ietf.org/doc/html/bcp47
+     */
+    public const string RX_LOCALE = '/^[a-z]{2,4}([-_][A-Z][a-z]{3})?([-_]([A-Z]{2}|[0-9]{3}))?$/';
+
     // endregion Constants
 
     // region Regex builder methods

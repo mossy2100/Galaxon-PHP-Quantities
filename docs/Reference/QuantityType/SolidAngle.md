@@ -11,7 +11,7 @@ Represents solid angle quantities.
 
 The `SolidAngle` class handles solid angle measurements. A solid angle is the two-dimensional angle in three-dimensional space that an object subtends at a point.
 
-For the complete list of solid angle units, see [Supported Units: Solid Angle](2.6_SupportedUnits.md#solid-angle).
+For the complete list of solid angle units, see [Supported Units: Solid Angle](../../DeveloperGuide/2.6_SupportedUnits.md#solid-angle).
 
 ---
 
@@ -62,7 +62,7 @@ $sphere = new SolidAngle(4 * M_PI, 'sr');
 
 ## See Also
 
-- **[Supported Units: Solid Angle](2.6_SupportedUnits.md#solid-angle)** - Complete list
+- **[Supported Units: Solid Angle](../../DeveloperGuide/2.6_SupportedUnits.md#solid-angle)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Angle](Angle.md)** - Related planar angle quantity
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (lm = cd·sr)

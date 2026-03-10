@@ -6,6 +6,8 @@ namespace Galaxon\Quantities\Tests\Currencies;
 
 use Galaxon\Quantities\Currencies\CurrencyService;
 use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
+use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -32,8 +34,10 @@ class CurrencyServiceTest extends TestCase
     protected function tearDown(): void
     {
         // Reset static state after each test.
-        CurrencyService::$exchangeRateService = null;
-        CurrencyService::$locale = null;
+        CurrencyService::setExchangeRateService(null);
+        CurrencyService::setLocale(null);
+        CurrencyService::setRatesTtl(3600);
+        CurrencyService::setCurrenciesTtl(2592000);
         CurrencyService::setDataDir(CurrencyService::DEFAULT_DATA_DIR);
     }
 
@@ -71,14 +75,14 @@ class CurrencyServiceTest extends TestCase
 
     public function testEnsureExchangeRateServiceConfiguredThrowsWhenNotSet(): void
     {
-        CurrencyService::$exchangeRateService = null;
+        CurrencyService::setExchangeRateService(null);
         $this->expectException(LogicException::class);
         CurrencyService::ensureExchangeRateServiceConfigured();
     }
 
     public function testEnsureExchangeRateServiceConfiguredPassesWhenSet(): void
     {
-        CurrencyService::$exchangeRateService = new FrankfurterService();
+        CurrencyService::setExchangeRateService(new FrankfurterService());
         CurrencyService::ensureExchangeRateServiceConfigured();
 
         // No exception means success.
@@ -87,22 +91,102 @@ class CurrencyServiceTest extends TestCase
 
     // endregion
 
-    // region getLocale
+    // region getLocale / setLocale
 
     public function testGetLocaleReturnsExplicitlySetLocale(): void
     {
-        CurrencyService::$locale = 'en_AU';
+        CurrencyService::setLocale('en_AU');
         self::assertSame('en_AU', CurrencyService::getLocale());
     }
 
     public function testGetLocaleReturnsSomethingWhenNotSet(): void
     {
-        CurrencyService::$locale = null;
+        CurrencyService::setLocale(null);
         $locale = CurrencyService::getLocale();
 
         // Should fall back to PHP's default locale.
         self::assertNotNull($locale);
         self::assertNotEmpty($locale);
+    }
+
+    public function testSetLocaleAcceptsNull(): void
+    {
+        CurrencyService::setLocale('en_US');
+        CurrencyService::setLocale(null);
+
+        // After clearing, getLocale() falls back to auto-detection rather than returning the old value.
+        // We can't assert null because getLocale() auto-detects, but we verify no exception is thrown.
+        self::assertNotSame('en_US', CurrencyService::getLocale());
+    }
+
+    public function testSetLocaleThrowsForInvalidLocale(): void
+    {
+        $this->expectException(FormatException::class);
+        CurrencyService::setLocale('!!invalid');
+    }
+
+    public function testSetLocaleAcceptsVariousValidFormats(): void
+    {
+        CurrencyService::setLocale('en');
+        self::assertSame('en', CurrencyService::getLocale());
+
+        CurrencyService::setLocale(null);
+        CurrencyService::setLocale('en_US');
+        self::assertSame('en_US', CurrencyService::getLocale());
+
+        CurrencyService::setLocale(null);
+        CurrencyService::setLocale('zh-Hant-TW');
+        self::assertSame('zh-Hant-TW', CurrencyService::getLocale());
+    }
+
+    // endregion
+
+    // region TTL getters / setters
+
+    public function testGetRatesTtlReturnsDefault(): void
+    {
+        self::assertSame(3600, CurrencyService::getRatesTtl());
+    }
+
+    public function testSetRatesTtlChangesValue(): void
+    {
+        CurrencyService::setRatesTtl(1800);
+        self::assertSame(1800, CurrencyService::getRatesTtl());
+    }
+
+    public function testSetRatesTtlAcceptsZero(): void
+    {
+        CurrencyService::setRatesTtl(0);
+        self::assertSame(0, CurrencyService::getRatesTtl());
+    }
+
+    public function testSetRatesTtlThrowsForNegativeValue(): void
+    {
+        $this->expectException(DomainException::class);
+        CurrencyService::setRatesTtl(-1);
+    }
+
+    public function testGetCurrenciesTtlReturnsDefault(): void
+    {
+        self::assertSame(2592000, CurrencyService::getCurrenciesTtl());
+    }
+
+    public function testSetCurrenciesTtlChangesValue(): void
+    {
+        CurrencyService::setCurrenciesTtl(86400);
+        self::assertSame(86400, CurrencyService::getCurrenciesTtl());
+    }
+
+    public function testSetCurrenciesTtlAcceptsZero(): void
+    {
+        CurrencyService::setCurrenciesTtl(0);
+        self::assertSame(0, CurrencyService::getCurrenciesTtl());
+    }
+
+    public function testSetCurrenciesTtlThrowsForNegativeValue(): void
+    {
+        $this->expectException(DomainException::class);
+        CurrencyService::setCurrenciesTtl(-1);
     }
 
     // endregion
@@ -220,7 +304,7 @@ class CurrencyServiceTest extends TestCase
 
     public function testRefreshCurrencyConversionsWithBypassCache(): void
     {
-        CurrencyService::$exchangeRateService = new FrankfurterService();
+        CurrencyService::setExchangeRateService(new FrankfurterService());
         $result = CurrencyService::refreshCurrencyConversions(true);
 
         self::assertTrue($result);
@@ -229,7 +313,7 @@ class CurrencyServiceTest extends TestCase
 
     public function testRefreshCurrencyConversionsReturnsFalseWhenCached(): void
     {
-        CurrencyService::$exchangeRateService = new FrankfurterService();
+        CurrencyService::setExchangeRateService(new FrankfurterService());
 
         // First call populates the cache.
         CurrencyService::refreshCurrencyConversions(true);
@@ -241,7 +325,7 @@ class CurrencyServiceTest extends TestCase
 
     public function testRefreshCurrencyConversionsWritesValidData(): void
     {
-        CurrencyService::$exchangeRateService = new FrankfurterService();
+        CurrencyService::setExchangeRateService(new FrankfurterService());
         CurrencyService::refreshCurrencyConversions(true);
 
         $data = CurrencyService::loadConversionData();
@@ -254,7 +338,7 @@ class CurrencyServiceTest extends TestCase
 
     public function testRefreshCurrencyConversionsThrowsWithoutService(): void
     {
-        CurrencyService::$exchangeRateService = null;
+        CurrencyService::setExchangeRateService(null);
         $this->expectException(LogicException::class);
         CurrencyService::refreshCurrencyConversions(true);
     }
@@ -270,11 +354,36 @@ class CurrencyServiceTest extends TestCase
         @unlink(self::TEST_DATA_DIR . '/CurrencyConversions.php');
         @unlink(self::TEST_DATA_DIR . '/CurrencyData.xml');
 
-        CurrencyService::$exchangeRateService = new FrankfurterService();
+        CurrencyService::setExchangeRateService(new FrankfurterService());
         CurrencyService::refresh();
 
         self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.php');
         self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+    }
+
+    public function testRefreshWithBypassCacheRefreshesEvenWhenCached(): void
+    {
+        // First call populates the cache.
+        CurrencyService::setExchangeRateService(new FrankfurterService());
+        CurrencyService::refresh();
+
+        // Record the timestamps.
+        clearstatcache();
+        $unitsMtime = filemtime(self::TEST_DATA_DIR . '/CurrencyUnits.php');
+        $conversionsMtime = filemtime(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+
+        // Wait a moment so timestamps differ if files are rewritten.
+        sleep(1);
+
+        // Refresh with bypass should re-fetch even though the cache is fresh.
+        CurrencyService::refresh(bypassCache: true);
+
+        clearstatcache();
+        $newUnitsMtime = filemtime(self::TEST_DATA_DIR . '/CurrencyUnits.php');
+        $newConversionsMtime = filemtime(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+
+        self::assertGreaterThan($unitsMtime, $newUnitsMtime);
+        self::assertGreaterThan($conversionsMtime, $newConversionsMtime);
     }
 
     // endregion
@@ -285,14 +394,14 @@ class CurrencyServiceTest extends TestCase
     {
         CurrencyService::init(new FrankfurterService());
 
-        self::assertInstanceOf(FrankfurterService::class, CurrencyService::$exchangeRateService);
+        self::assertInstanceOf(FrankfurterService::class, CurrencyService::getExchangeRateService());
     }
 
     public function testInitWithCustomLocale(): void
     {
         CurrencyService::init(new FrankfurterService(), 'de_DE');
 
-        self::assertSame('de_DE', CurrencyService::$locale);
+        self::assertSame('de_DE', CurrencyService::getLocale());
     }
 
     public function testInitWritesDataToConfiguredDir(): void

@@ -11,7 +11,7 @@ Represents electrical inductance quantities.
 
 The `Inductance` class handles electrical inductance measurements.
 
-For the complete list of inductance units, see [Supported Units: Inductance](2.6_SupportedUnits.md#inductance).
+For the complete list of inductance units, see [Supported Units: Inductance](../../DeveloperGuide/2.6_SupportedUnits.md#inductance).
 
 ---
 
@@ -55,7 +55,7 @@ $inNH = $power->to('nH');  // 100,000 nH
 
 ## See Also
 
-- **[Supported Units: Inductance](2.6_SupportedUnits.md#inductance)** - Complete list
+- **[Supported Units: Inductance](../../DeveloperGuide/2.6_SupportedUnits.md#inductance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[MagneticFlux](MagneticFlux.md)** - Related quantity (Φ = LI)
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity

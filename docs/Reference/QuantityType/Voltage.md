@@ -11,7 +11,7 @@ Represents voltage/electric potential quantities.
 
 The `Voltage` class handles voltage (electric potential difference) measurements.
 
-For the complete list of voltage units, see [Supported Units: Voltage](2.6_SupportedUnits.md#voltage).
+For the complete list of voltage units, see [Supported Units: Voltage](../../DeveloperGuide/2.6_SupportedUnits.md#voltage).
 
 ---
 
@@ -63,7 +63,7 @@ $inUV = $ecg->to('uV');  // 1000 μV
 
 ## See Also
 
-- **[Supported Units: Voltage](2.6_SupportedUnits.md#voltage)** - Complete list
+- **[Supported Units: Voltage](../../DeveloperGuide/2.6_SupportedUnits.md#voltage)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity (Ohm's law)
 - **[Resistance](Resistance.md)** - Related quantity (V = IR)

@@ -10,7 +10,6 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\QuantityPartsService;
-use Galaxon\Quantities\Services\QuantityTypeService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +29,7 @@ final class QuantityPartsTest extends TestCase
     {
         // 1 hour, 30 minutes, 45 seconds = 5445 seconds
         $time = new Time(5445, 's');
-        $parts = $time->toParts(['h', 'min', 's']);
+        $parts = $time->toParts();
 
         $this->assertSame(1, $parts['sign']);
         $this->assertSame(1, $parts['h']);
@@ -44,7 +43,7 @@ final class QuantityPartsTest extends TestCase
     public function testToPartsNegative(): void
     {
         $time = new Time(-3661, 's');
-        $parts = $time->toParts(['h', 'min', 's']);
+        $parts = $time->toParts();
 
         $this->assertSame(-1, $parts['sign']);
         $this->assertSame(1, $parts['h']);
@@ -58,7 +57,7 @@ final class QuantityPartsTest extends TestCase
     public function testToPartsWithPrecision(): void
     {
         $time = new Time(3661.5, 's');
-        $parts = $time->toParts(['h', 'min', 's'], precision: 1);
+        $parts = $time->toParts(precision: 1);
 
         $this->assertSame(1, $parts['h']);
         $this->assertSame(1, $parts['min']);
@@ -112,9 +111,9 @@ final class QuantityPartsTest extends TestCase
     public function testFormatPartsShowZeros(): void
     {
         $time = new Time(3600, 's');
-        $result = $time->formatParts(['h', 'min', 's'], showZeros: true);
+        $result = $time->formatParts(showZeros: true);
 
-        $this->assertSame('1h 0min 0s', $result);
+        $this->assertSame('0y 0mo 0w 0d 1h 0min 0s', $result);
     }
 
     /**
@@ -133,45 +132,17 @@ final class QuantityPartsTest extends TestCase
     // region fromParts() error tests
 
     /**
-     * Test fromParts() without result unit and no default throws exception.
+     * Test fromParts() on unregistered quantity type throws exception.
      */
-    public function testFromPartsWithoutResultUnitThrowsException(): void
+    public function testFromPartsUnregisteredQuantityTypeThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('No result unit symbol provided and no default set.');
+        $this->expectExceptionMessage('Cannot call fromParts() on a quantity type that is not registered.');
 
-        // Base Quantity class has no default result unit symbol.
+        // Base Quantity class has no registered quantity type.
         Quantity::fromParts([
             'm' => 100,
         ]);
-    }
-
-    /**
-     * Test fromParts() with unknown result unit throws exception.
-     */
-    public function testFromPartsUnknownResultUnitThrowsException(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Unknown result unit 'xyz'");
-
-        Quantity::fromParts([
-            'm' => 100,
-        ], 'xyz');
-    }
-
-    /**
-     * Test fromParts() with result unit of incompatible dimension throws exception.
-     */
-    public function testFromPartsIncompatibleResultUnitThrowsException(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('incompatible with time quantities');
-
-        // 'm' is a length unit, not a time unit.
-        Time::fromParts([
-            'h'   => 1,
-            'min' => 30,
-        ], 'm');
     }
 
     /**
@@ -182,10 +153,10 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid sign: 0. Must be -1 or 1.');
 
-        Quantity::fromParts([
-            'm'    => 100,
+        Time::fromParts([
+            'h'    => 1,
             'sign' => 0,
-        ], 'm');
+        ]);
     }
 
     // endregion
@@ -234,39 +205,13 @@ final class QuantityPartsTest extends TestCase
     }
 
     /**
-     * Test toParts() with empty array throws exception.
-     */
-    public function testToPartsEmptyArrayThrowsException(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('The array of part unit symbols must not be empty.');
-
-        $time = new Time(3661, 's');
-        $time->toParts([]);
-    }
-
-    /**
-     * Test toParts() with unknown unit in part unit symbols throws exception.
-     */
-    public function testToPartsWithUnknownUnitThrowsException(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Unknown unit symbol: 'xyz'");
-
-        $time = new Time(3661, 's');
-        $time->toParts(['h', 'min', 'xyz']);
-    }
-
-    /**
      * Test toParts() with unknown unit in class default throws exception.
      */
     public function testToPartsWithUnknownUnitInDefaultThrowsException(): void
     {
-        // Temporarily set bad partUnitSymbols on the time QuantityType.
-        $qtyType = QuantityTypeService::getByName('time');
-        $this->assertNotNull($qtyType);
-        $original = $qtyType->partUnitSymbols;
-        $qtyType->partUnitSymbols = ['h', 'min', 'xyz'];
+        // Temporarily set bad partUnitSymbols on the time quantity type.
+        $original = Time::getPartUnitSymbols();
+        Time::setPartUnitSymbols(['h', 'min', 'xyz']);
 
         try {
             $this->expectException(DomainException::class);
@@ -275,11 +220,9 @@ final class QuantityPartsTest extends TestCase
             $time = new Time(100, 's');
             $time->toParts();
         } finally {
-            $qtyType->partUnitSymbols = $original;
+            Time::setPartUnitSymbols($original);
         }
     }
-
-    // endregion
 
     // endregion
 
@@ -331,18 +274,6 @@ final class QuantityPartsTest extends TestCase
     }
 
     /**
-     * Test parseParts() with explicit result unit symbol.
-     */
-    public function testParsePartsWithResultUnit(): void
-    {
-        $time = Time::parseParts('1h 30min', 'min');
-
-        $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame('min', $time->derivedUnit->format());
-        $this->assertSame(90.0, $time->value);
-    }
-
-    /**
      * Test parseParts() with decimal value in smallest unit.
      */
     public function testParsePartsDecimalSmallestUnit(): void
@@ -385,12 +316,12 @@ final class QuantityPartsTest extends TestCase
     }
 
     /**
-     * Test parseParts() on base Quantity without default result unit throws exception.
+     * Test parseParts() on unregistered quantity type throws exception.
      */
-    public function testParsePartsNoDefaultResultUnitThrowsException(): void
+    public function testParsePartsUnregisteredQuantityTypeThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('No result unit symbol provided and no default set.');
+        $this->expectExceptionMessage('Cannot call parseParts() on a quantity type that is not registered.');
 
         Quantity::parseParts('100m 50cm');
     }
@@ -406,7 +337,7 @@ final class QuantityPartsTest extends TestCase
     {
         // 59 minutes 59.9 seconds → should round to 1h 0min 0s when precision=0.
         $time = new Time(3599.9, 's');
-        $parts = $time->toParts(['h', 'min', 's'], precision: 0);
+        $parts = $time->toParts(precision: 0);
 
         $this->assertSame(1, $parts['h']);
         $this->assertSame(0, $parts['min']);

@@ -6,7 +6,6 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use Override;
@@ -105,27 +104,25 @@ class Mass extends Quantity
     // region Part-related methods
 
     /**
-     * Set the default part units for imperial mass quantities.
+     * Set the part units for imperial mass quantities.
      */
     public static function setImperialParts(): void
     {
         UnitService::loadSystem(UnitSystem::Imperial);
 
         // The long ton and stone are in use, but the grain is not.
-        QuantityPartsService::setPartUnitSymbols('mass', ['LT', 'st', 'lb', 'oz']);
-        QuantityPartsService::setResultUnitSymbol('mass', 'lb');
+        static::setPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
     }
 
     /**
-     * Set the default part units for US customary mass quantities.
+     * Set the part units for US customary mass quantities.
      */
     public static function setUsCustomaryParts(): void
     {
         UnitService::loadSystem(UnitSystem::UsCustomary);
 
         // The short ton and grain are in use, but the stone is not.
-        QuantityPartsService::setPartUnitSymbols('mass', ['tn', 'lb', 'oz', 'gr']);
-        QuantityPartsService::setResultUnitSymbol('mass', 'lb');
+        static::setPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
     }
 
     // endregion

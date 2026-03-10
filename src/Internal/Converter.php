@@ -536,7 +536,7 @@ class Converter
             return null;
         }
 
-        // Get the first/only unit terms
+        // Get the first/only unit terms.
         $srcUnitTerm = $srcUnit->firstUnitTerm;
         $destUnitTerm = $destUnit->firstUnitTerm;
         assert($srcUnitTerm instanceof UnitTerm && $destUnitTerm instanceof UnitTerm);

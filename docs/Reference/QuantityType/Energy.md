@@ -11,7 +11,7 @@ Represents energy quantities.
 
 The `Energy` class handles energy measurements across SI, scientific, and common units.
 
-For the complete list of energy units, see [Supported Units: Energy](2.6_SupportedUnits.md#energy).
+For the complete list of energy units, see [Supported Units: Energy](../../DeveloperGuide/2.6_SupportedUnits.md#energy).
 
 ---
 
@@ -99,7 +99,7 @@ Energy is related to other quantities:
 
 ## See Also
 
-- **[Supported Units: Energy](2.6_SupportedUnits.md#energy)** - Complete list of energy units
+- **[Supported Units: Energy](../../DeveloperGuide/2.6_SupportedUnits.md#energy)** - Complete list of energy units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Power](Power.md)** - Related quantity (energy per time)
 - **[Force](Force.md)** - Related quantity (energy per distance)

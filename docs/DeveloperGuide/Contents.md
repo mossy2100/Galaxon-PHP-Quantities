@@ -21,7 +21,7 @@
 	3. **[Mass](4.3_Mass.md)** — Imperial vs. US customary parts configuration.
 	4. **[Volume](4.4_Volume.md)** — Imperial, US customary, and metric units.
 	5. **[Temperature](4.5_Temperature.md)** — Offset-based conversions and temperature differences.
-	6. **[Money](4.6_Money.md)** — Exchange rate services, currency formatting, and conversions.
+	6. **[Money](4.6_MoneyAndCurrencies.md)** — Exchange rate services, currency formatting, and conversions.
 4. **Customization**
 	1. **[Adding custom units and conversions](5.1_AddingUnitsAndConversions.md)**
 	2. **[Adding custom quantity types](5.2_AddingQuantityTypes)**

@@ -30,7 +30,6 @@ class PrefixService
 
     /**
      * Prefix definitions.
-     *
      */
     private const array PREFIX_DEFINITIONS = [
         self::GROUP_SMALL_METRIC  => [
@@ -209,7 +208,6 @@ class PrefixService
      * Initialize the prefixes array from the prefix definitions.
      *
      * This is called lazily on first access.
-     *
      */
     private static function init(): void
     {

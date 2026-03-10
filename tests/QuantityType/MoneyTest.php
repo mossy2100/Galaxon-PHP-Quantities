@@ -37,8 +37,8 @@ final class MoneyTest extends TestCase
     public static function tearDownAfterClass(): void
     {
         // Reset static state.
-        CurrencyService::$exchangeRateService = null;
-        CurrencyService::$locale = null;
+        CurrencyService::setExchangeRateService(null);
+        CurrencyService::setLocale(null);
         CurrencyService::setDataDir(CurrencyService::DEFAULT_DATA_DIR);
         Converter::removeAllInstances();
     }
@@ -247,7 +247,7 @@ final class MoneyTest extends TestCase
      */
     public function testToStringWithLocale(): void
     {
-        CurrencyService::$locale = 'en_US';
+        CurrencyService::setLocale('en_US');
         $money = new Money(1234.56, 'USD');
 
         $result = (string)$money;
@@ -263,7 +263,7 @@ final class MoneyTest extends TestCase
      */
     public function testToStringWithDifferentLocale(): void
     {
-        CurrencyService::$locale = 'de_DE';
+        CurrencyService::setLocale('de_DE');
         $money = new Money(1234.56, 'EUR');
 
         $result = (string)$money;
@@ -277,7 +277,7 @@ final class MoneyTest extends TestCase
      */
     public function testToStringFallsBackToFormatWhenNoLocale(): void
     {
-        CurrencyService::$locale = null;
+        CurrencyService::setLocale(null);
 
         // Temporarily set PHP's default locale to empty to force fallback.
         $originalLocale = setlocale(LC_ALL, '0');
@@ -302,7 +302,7 @@ final class MoneyTest extends TestCase
      */
     public function testToStringWithZero(): void
     {
-        CurrencyService::$locale = 'en_US';
+        CurrencyService::setLocale('en_US');
         $money = new Money(0, 'USD');
 
         $result = (string)$money;
@@ -315,7 +315,7 @@ final class MoneyTest extends TestCase
      */
     public function testToStringWithNegativeValue(): void
     {
-        CurrencyService::$locale = 'en_US';
+        CurrencyService::setLocale('en_US');
         $money = new Money(-50, 'USD');
 
         $result = (string)$money;

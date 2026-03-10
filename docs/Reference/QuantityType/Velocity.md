@@ -11,7 +11,7 @@ Represents velocity/speed quantities.
 
 The `Velocity` class handles speed and velocity measurements. Most velocity units are derived from length/time ratios (m/s, km/h, mph), which are automatically supported. This class provides the knot as a named unit.
 
-For the complete list of velocity units, see [Supported Units: Velocity](2.6_SupportedUnits.md#velocity).
+For the complete list of velocity units, see [Supported Units: Velocity](../../DeveloperGuide/2.6_SupportedUnits.md#velocity).
 
 ---
 
@@ -90,7 +90,7 @@ $inKmh = $c->to('km/h');  // 1.079×10⁹ km/h
 
 ## See Also
 
-- **[Supported Units: Velocity](2.6_SupportedUnits.md#velocity)** - Complete list of velocity units
+- **[Supported Units: Velocity](../../DeveloperGuide/2.6_SupportedUnits.md#velocity)** - Complete list of velocity units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity
 - **[Time](Time.md)** - Related quantity

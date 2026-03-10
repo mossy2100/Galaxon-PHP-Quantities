@@ -11,7 +11,7 @@ Represents electric charge quantities.
 
 The `ElectricCharge` class handles electric charge measurements.
 
-For the complete list of electric charge units, see [Supported Units: Electric Charge](2.6_SupportedUnits.md#electric-charge).
+For the complete list of electric charge units, see [Supported Units: Electric Charge](../../DeveloperGuide/2.6_SupportedUnits.md#electric-charge).
 
 ---
 
@@ -61,7 +61,7 @@ $inMC = $charge->to('mC');  // 1000 mC
 
 ## See Also
 
-- **[Supported Units: Electric Charge](2.6_SupportedUnits.md#electric-charge)** - Complete list
+- **[Supported Units: Electric Charge](../../DeveloperGuide/2.6_SupportedUnits.md#electric-charge)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity (I = Q/t)
 - **[Capacitance](Capacitance.md)** - Related quantity (C = Q/V)
