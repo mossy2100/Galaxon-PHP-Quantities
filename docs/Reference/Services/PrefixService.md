@@ -4,6 +4,8 @@ Registry for SI and binary prefixes.
 
 **Namespace:** `Galaxon\Quantities`
 
+---
+
 ## Overview
 
 The `PrefixService` provides access to metric prefixes (milli, kilo, mega, etc.) and binary prefixes (kibi, mebi, etc.) organized by group codes for flexible filtering.
@@ -114,4 +116,4 @@ $inverse = PrefixService::invert($source);    // micro (10⁻⁶)
 
 - **[Prefix](../Internal/Prefix.md)** - Prefix class documentation
 - **[Unit](../Internal/Unit.md)** - Unit class using prefix groups
-- **[2.6_SupportedUnits](../../DeveloperGuide/2.6_SupportedUnits.md)** - Units with their prefix support
+- **[Supported Units](../../DeveloperGuide/SupportedUnits.md)** - Units with their prefix support

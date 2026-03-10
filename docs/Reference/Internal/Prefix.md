@@ -2,6 +2,8 @@
 
 Represents an SI or binary prefix for units.
 
+---
+
 ## Overview
 
 Unit prefixes representing multipliers allow expressing very large or very small quantities more conveniently, such as kilometer (km), microsecond (µs), or gibibyte (GiB). The `Prefix` class represents metric (SI) and binary prefixes that can be applied to units of measurement.

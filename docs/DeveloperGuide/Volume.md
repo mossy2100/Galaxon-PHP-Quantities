@@ -2,6 +2,8 @@
 
 The `Volume` class provides units across three measurement systems — metric, imperial, and US customary — where unit names overlap but sizes differ.
 
+---
+
 ## Imperial vs US Customary
 
 Several volume units share the same name but represent different amounts in the imperial and US customary systems. These are disambiguated with system prefixes:
@@ -33,6 +35,8 @@ echo $impPint->to('mL');  // 568.26 mL
 echo $usPint->to('mL');   // 473.18 mL
 ```
 
+---
+
 ## Metric culinary units
 
 The metric cup (250 mL), tablespoon (15 mL), and teaspoon (5 mL) are available in the `Metric` unit system:
@@ -52,8 +56,10 @@ echo $salt->to('mL');  // 5 mL
 
 These use unprefixed symbols (`cup`, `tbsp`, `tsp`) since they are unambiguous — metric is the international standard for these units.
 
+---
+
 ## See Also
 
 - [Volume reference](../Reference/QuantityType/Volume.md)
-- [2.5_SystemsOfUnits](2.5_SystemsOfUnits.md) — Loading unit systems.
-- [2.6_SupportedUnits](2.6_SupportedUnits.md) — Complete unit reference.
+- [Systems of Units](SystemsOfUnits.md) — Loading unit systems.
+- [Supported Units](SupportedUnits.md) — Complete unit reference.

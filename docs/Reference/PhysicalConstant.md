@@ -2,6 +2,8 @@
 
 Provides access to fundamental physical constants as Quantity objects.
 
+---
+
 ## Overview
 
 The `PhysicalConstant` class provides a convenient way to access well-known physical constants as properly typed `Quantity` objects with their correct units. Constants are lazily created and cached for efficient reuse.

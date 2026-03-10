@@ -2,6 +2,8 @@
 
 The `Temperature` class extends `Quantity` with special handling for offset-based temperature scales (Celsius and Fahrenheit).
 
+---
+
 ## Why Temperature is Special
 
 Most unit conversions are simple scale factors (e.g. 1 km = 1000 m). Temperature is different because Celsius and Fahrenheit are offset from absolute zero:
@@ -10,6 +12,8 @@ Most unit conversions are simple scale factors (e.g. 1 km = 1000 m). Temperature
 - 0 °F = 459.67 °R
 
 This means converting 20 °C to Kelvin is not just multiplication — it requires adding an offset. The `Temperature` class overrides the `convert()` method to handle this correctly.
+
+---
 
 ## Basic Conversions
 
@@ -29,6 +33,8 @@ echo $absolute->to('degC');  // -273.15 °C
 echo $absolute->to('degF');  // -459.67 °F
 ```
 
+---
+
 ## Temperature Differences vs Absolute Temperatures
 
 The offset only applies when converting absolute temperatures — quantities with dimension `H` and no other unit terms. For derived units containing temperature (e.g. J/K, W/°C), only the scale factor is applied, not the offset. This is physically correct because such quantities represent rates of change, not absolute temperatures:
@@ -45,6 +51,8 @@ $rate = Quantity::create(5, 'J/K');
 echo $rate->to('J/degR');  // 2.7778 J/°R
 ```
 
+---
+
 ## Prefixed Kelvin
 
 Kelvin supports SI prefixes (millikelvin, microkelvin, etc.), and the conversion handles these correctly:
@@ -54,6 +62,8 @@ $cmbr = new Temperature(2725, 'mK');
 echo $cmbr->to('K');     // 2.725 K
 echo $cmbr->to('degC');  // -270.425 °C
 ```
+
+---
 
 ## Conversion Constants
 
@@ -65,7 +75,9 @@ The `Temperature` class exposes its conversion constants for reference:
 | `FAHRENHEIT_OFFSET`  | 459.67  | Rankine value of 0 °F            |
 | `RANKINE_PER_KELVIN` | 1.8     | Scale factor between K and °R    |
 
+---
+
 ## See Also
 
 - [Temperature reference](../Reference/QuantityType/Temperature.md)
-- [2.6_SupportedUnits](2.6_SupportedUnits.md) — Complete unit reference.
+- [Supported Units](SupportedUnits.md) — Complete unit reference.

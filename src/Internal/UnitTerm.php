@@ -268,7 +268,7 @@ class UnitTerm implements UnitInterface
 
         // Check we found a match.
         if ($match === null) {
-            throw new DomainException("Unknown unit '$prefixedSymbol'.");
+            throw new DomainException("Unknown unit: '$prefixedSymbol'.");
         }
 
         // Create the new object.

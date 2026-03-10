@@ -2,6 +2,8 @@
 
 The `Angle` class extends `Quantity` with trigonometric functions, angle normalization, and DMS (degrees, minutes, seconds) support.
 
+---
+
 ## Trigonometric Functions
 
 All six trigonometric functions are available as methods. They convert the angle to radians internally before computing:
@@ -42,6 +44,8 @@ $zero->csc();    // INF
 $zero->cot();    // INF
 ```
 
+---
+
 ## Angle Normalization with `wrap()`
 
 The `wrap()` method normalizes an angle to a standard range:
@@ -64,6 +68,8 @@ The range boundaries depend on the unit:
 - Degrees: (-180, 180] signed, \[0, 360) unsigned
 - Radians: (-π, π] signed, \[0, τ) unsigned
 
+---
+
 ## Approximate Equality
 
 `Angle` overrides `approxEqual()` to compare in radians with a default absolute tolerance of `1e-9` radians:
@@ -73,6 +79,8 @@ $a = new Angle(180, 'deg');
 $b = new Angle(M_PI, 'rad');
 $a->approxEqual($b);  // true
 ```
+
+---
 
 ## DMS Parts
 
@@ -91,8 +99,10 @@ $restored = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'arcsec' => 15]);
 echo $restored;  // 45.504167 deg
 ```
 
+---
+
 ## See Also
 
 - [Angle reference](../Reference/QuantityType/Angle.md)
-- [3.7_PartDecomposition](3.7_PartDecomposition.md) — General parts documentation.
-- [3.3_ArithmeticOperations](3.3_ArithmeticOperations.md) — Arithmetic with quantities.
+- [Part Decomposition](PartDecomposition.md) — General parts documentation.
+- [Arithmetic Operations](ArithmeticOperations.md) — Arithmetic with quantities.

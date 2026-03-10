@@ -1,3 +1,5 @@
+---
+
 ## Built-in Quantity Types
 
 The package includes built-in support for most quantity types in common usage and all with dedicated units. Each of the following quantity types has a dedicated class, which is a subclass of the central Quantity class. Most only provide default units and definitions for that particular quantity type, but several provide additional functionality or override the base Quantity class behaviour, and can be used as examples of how to develop your own quantity type classes.
@@ -45,7 +47,9 @@ Examples of quantity types without dedicated classes include: momentum, torque, 
 
 Only two Quantity type classes (Acceleration and Density) are included that add no additional functionality, as they have no dedicated units or conversions. They're included as they are quite common, and serve as examples of how to add your own custom quantity types.
 
-Using a dedicated subclass for a quantity type improves code readability and type safety, and can be a form of future-proofing in case additional functionality needs to be added later.  (See: [Adding quantity types](5.2_AddingQuantityTypes)).
+Using a dedicated subclass for a quantity type improves code readability and type safety, and can be a form of future-proofing in case additional functionality needs to be added later.  (See: [Adding Quantity Types](AddingQuantityTypes.md)).
+
+---
 
 ## See also
 

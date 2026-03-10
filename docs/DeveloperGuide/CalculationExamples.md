@@ -621,6 +621,6 @@ $totalFuelSi = $totalFuel->toSi();
 ## See Also
 
 - **[README](../../README.md)** - Package overview and quick start
-- **[2.6_SupportedUnits](2.6_SupportedUnits.md)** - Complete unit reference
+- **[Supported Units](SupportedUnits.md)** - Complete unit reference
 - **[Quantity](../Reference/Quantity.md)** - Quantity class documentation
 - **[PhysicalConstant](../Reference/PhysicalConstant.md)** - Available physical constants

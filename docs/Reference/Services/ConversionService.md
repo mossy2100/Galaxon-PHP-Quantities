@@ -4,6 +4,8 @@ Registry for unit conversions organized by dimension.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
+---
+
 ## Overview
 
 The `ConversionService` stores and retrieves conversions between units. Conversions are:

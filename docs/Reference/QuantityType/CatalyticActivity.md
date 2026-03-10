@@ -11,7 +11,7 @@ Represents catalytic activity quantities.
 
 The `CatalyticActivity` class handles catalytic activity measurements, used in enzymology and biochemistry.
 
-For the complete list of catalytic activity units, see [Supported Units: Catalytic Activity](../../DeveloperGuide/2.6_SupportedUnits.md#catalytic-activity).
+For the complete list of catalytic activity units, see [Supported Units: Catalytic Activity](../../DeveloperGuide/SupportedUnits.md#catalytic-activity).
 
 ---
 
@@ -60,7 +60,7 @@ $inNkat = $serum->to('nkat');  // 1000 nkat
 
 ## See Also
 
-- **[Supported Units: Catalytic Activity](../../DeveloperGuide/2.6_SupportedUnits.md#catalytic-activity)** - Complete list
+- **[Supported Units: Catalytic Activity](../../DeveloperGuide/SupportedUnits.md#catalytic-activity)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[AmountOfSubstance](AmountOfSubstance.md)** - Related quantity
 - **[Time](Time.md)** - Related quantity

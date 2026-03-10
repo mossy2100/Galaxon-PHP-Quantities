@@ -2,6 +2,8 @@
 
 Represents a compound unit composed of one or more unit terms.
 
+---
+
 ## Overview
 
 The `DerivedUnit` class represents compound units like 'kg\*m/s²' (newton) or 'J/(mol\*K)' (molar heat capacity). It maintains a collection of `UnitTerm` objects, each representing a unit with its prefix and exponent.

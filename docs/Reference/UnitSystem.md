@@ -14,6 +14,8 @@ Units can belong to multiple systems simultaneously. For example, the *foot* bel
 
 This is an unbacked enum (no string or int values).
 
+---
+
 ## Cases
 
 ### Si
@@ -104,6 +106,8 @@ case Custom;
 
 The default system for user-defined units.
 
+---
+
 ## Cases Summary
 
 | Case          | Description                                                   |
@@ -119,6 +123,8 @@ The default system for user-defined units.
 | `Css`         | Units for typography and display layouts                      |
 | `Financial`   | Currencies                                                    |
 | `Custom`      | User-defined units                                            |
+
+---
 
 ## See Also
 

@@ -11,7 +11,7 @@ Represents amount of substance quantities.
 
 The `AmountOfSubstance` class handles measurements of the amount of substance. The mole is one of the seven SI base units.
 
-For the complete list of amount of substance units, see [Supported Units: Amount of Substance](../../DeveloperGuide/2.6_SupportedUnits.md#amount-of-substance).
+For the complete list of amount of substance units, see [Supported Units: Amount of Substance](../../DeveloperGuide/SupportedUnits.md#amount-of-substance).
 
 ---
 
@@ -61,6 +61,6 @@ $glucose = new AmountOfSubstance(5, 'mmol');
 
 ## See Also
 
-- **[Supported Units: Amount of Substance](../../DeveloperGuide/2.6_SupportedUnits.md#amount-of-substance)** - Complete list
+- **[Supported Units: Amount of Substance](../../DeveloperGuide/SupportedUnits.md#amount-of-substance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[CatalyticActivity](CatalyticActivity.md)** - Related quantity (mol/s)

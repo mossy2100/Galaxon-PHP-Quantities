@@ -2,6 +2,8 @@
 
 The `Time` class extends `Quantity` with interoperability with PHP's `DateInterval` class.
 
+---
+
 ## DateInterval Interoperability
 
 ### Creating from DateInterval
@@ -56,6 +58,8 @@ echo $time->toDateIntervalSpecifier();  // P0D
 
 The specifier rounds to the nearest second (precision 0), and zero-value components are omitted.
 
+---
+
 ## Time Parts
 
 Time quantities support part decomposition by default using the full set of time units:
@@ -74,6 +78,8 @@ echo $time->formatParts(['h', 'min', 's']);
 // 25h 1min 1s
 ```
 
+---
+
 ## Conversion Notes
 
 Time conversions use these standard relationships:
@@ -87,7 +93,9 @@ Time conversions use these standard relationships:
 
 The year-to-day conversion uses the Gregorian calendar average (365.2425), which accounts for leap years. This means month and year conversions are approximate.
 
+---
+
 ## See Also
 
 - [Time reference](../Reference/QuantityType/Time.md)
-- [3.7_PartDecomposition](3.7_PartDecomposition.md) — General parts documentation.
+- [Part Decomposition](PartDecomposition.md) — General parts documentation.

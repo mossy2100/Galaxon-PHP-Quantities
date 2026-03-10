@@ -2,6 +2,8 @@
 
 Represents a floating-point value with tracked numerical error.
 
+---
+
 ## Overview
 
 The `FloatWithError` class wraps a float value together with an estimate of its accumulated absolute error. This allows tracking precision loss through chains of arithmetic operations, which is particularly important in unit conversion where multiple multiplications and divisions can compound rounding errors.

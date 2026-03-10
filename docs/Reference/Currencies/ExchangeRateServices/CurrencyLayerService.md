@@ -9,13 +9,9 @@ Exchange rate service using the CurrencyLayer API.
 
 ## Overview
 
-Fetches live exchange rates from the [CurrencyLayer API](https://currencylayer.com/). The free
-tier provides USD-based rates only, with 1,000 requests per month. An access key is required,
-which you can obtain by creating a CurrencyLayer account.
+Fetches live exchange rates from the [CurrencyLayer API](https://currencylayer.com/). The free tier provides USD-based rates only, with 1,000 requests per month. An access key is required, which you can obtain by creating a CurrencyLayer account.
 
-The service provides rates for approximately 170 currencies. CurrencyLayer returns quote keys as
-concatenated currency code pairs (e.g. `USDEUR`, `USDGBP`). The service automatically extracts the
-target currency code from these keys.
+The service provides rates for approximately 170 currencies. CurrencyLayer returns quote keys as concatenated currency code pairs (e.g. `USDEUR`, `USDGBP`). The service automatically extracts the target currency code from these keys.
 
 ---
 
@@ -61,8 +57,7 @@ Returns the service name: `'CurrencyLayer'`.
 public function getConversionDefinitions(): array
 ```
 
-Fetches fresh exchange rates from the CurrencyLayer API and returns conversion definitions. Rates
-are relative to USD on the free tier.
+Fetches fresh exchange rates from the CurrencyLayer API and returns conversion definitions. Rates are relative to USD on the free tier.
 
 **Returns:** `list<array{string, string, float}>` - Currency conversion definitions as
 `[base, target, rate]` tuples.

@@ -221,6 +221,56 @@ final class ConversionServiceTest extends TestCase
 
     // endregion
 
+    // region addFromDefinition() tests
+
+    /**
+     * Test addFromDefinition() creates and stores a conversion from raw parameters.
+     */
+    public function testAddFromDefinitionStoresConversion(): void
+    {
+        ConversionService::addFromDefinition('m', 'ft', 3.28084, true);
+
+        $result = ConversionService::get('m', 'ft');
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertEqualsWithDelta(3.28084, $result->factor->value, 1e-10);
+    }
+
+    /**
+     * Test addFromDefinition() accepts UnitInterface objects.
+     */
+    public function testAddFromDefinitionAcceptsUnitInterfaceObjects(): void
+    {
+        $srcUnit = DerivedUnit::toDerivedUnit('km');
+        $destUnit = DerivedUnit::toDerivedUnit('mi');
+
+        ConversionService::addFromDefinition($srcUnit, $destUnit, 0.621371, true);
+
+        $result = ConversionService::get('km', 'mi');
+
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertEqualsWithDelta(0.621371, $result->factor->value, 1e-10);
+    }
+
+    /**
+     * Test addFromDefinition() with replaceExisting false does not overwrite.
+     */
+    public function testAddFromDefinitionDoesNotOverwriteByDefault(): void
+    {
+        // Add a custom conversion.
+        ConversionService::addFromDefinition('m', 'yd', 1.09361, true);
+
+        // Try to overwrite without replace flag.
+        ConversionService::addFromDefinition('m', 'yd', 999.0);
+
+        // Original should remain.
+        $result = ConversionService::get('m', 'yd');
+        $this->assertInstanceOf(Conversion::class, $result);
+        $this->assertEqualsWithDelta(1.09361, $result->factor->value, 1e-10);
+    }
+
+    // endregion
+
     // region remove() tests
 
     /**

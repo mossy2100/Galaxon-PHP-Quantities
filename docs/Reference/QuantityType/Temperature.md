@@ -5,11 +5,13 @@ Represents temperature quantities with special handling for offset-based convers
 **Namespace:** `Galaxon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
+---
+
 ## Overview
 
 The `Temperature` class handles the complexity of temperature conversions, which differ from other quantity types because Celsius and Fahrenheit are offset from absolute zero.
 
-For the complete list of temperature units, see [Supported Units: Temperature](../../DeveloperGuide/2.6_SupportedUnits.md#temperature).
+For the complete list of temperature units, see [Supported Units: Temperature](../../DeveloperGuide/SupportedUnits.md#temperature).
 
 ---
 
@@ -127,5 +129,5 @@ $kelvin = Temperature::convert(25, 'degC', 'K');  // 298.15
 
 ## See Also
 
-- **[Supported Units: Temperature](../../DeveloperGuide/2.6_SupportedUnits.md#temperature)** - Complete list of temperature units
+- **[Supported Units: Temperature](../../DeveloperGuide/SupportedUnits.md#temperature)** - Complete list of temperature units
 - **[Quantity](../Quantity.md)** - Base class documentation

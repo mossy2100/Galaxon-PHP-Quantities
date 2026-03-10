@@ -5,11 +5,13 @@ Represents time quantities with integration to PHP's DateInterval.
 **Namespace:** `Galaxon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
+---
+
 ## Overview
 
 The `Time` class handles time durations and provides conversion to/from PHP's native `DateInterval` class.
 
-For the complete list of time units, see [Supported Units: Time](../../DeveloperGuide/2.6_SupportedUnits.md#time).
+For the complete list of time units, see [Supported Units: Time](../../DeveloperGuide/SupportedUnits.md#time).
 
 ---
 
@@ -148,6 +150,6 @@ $total = $hours->add($minutes);  // 4 hours total
 
 ## See Also
 
-- **[Supported Units: Time](../../DeveloperGuide/2.6_SupportedUnits.md#time)** - Complete list of time units
+- **[Supported Units: Time](../../DeveloperGuide/SupportedUnits.md#time)** - Complete list of time units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[PHP DateInterval](https://www.php.net/manual/en/class.dateinterval.php)** - Native PHP class

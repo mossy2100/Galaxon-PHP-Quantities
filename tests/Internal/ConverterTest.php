@@ -1078,6 +1078,38 @@ class ConverterTest extends TestCase
 
     // endregion
 
+    // region hasUnit() tests
+
+    /**
+     * Test hasUnit() returns true for a unit that has been added.
+     */
+    public function testHasUnitReturnsTrueForAddedUnit(): void
+    {
+        Converter::removeAllInstances();
+        $converter = Converter::getInstance('L');
+
+        $unit = DerivedUnit::parse('m');
+        $converter->addUnit($unit);
+
+        $this->assertTrue($converter->hasUnit($unit));
+    }
+
+    /**
+     * Test hasUnit() returns false for a unit that has not been added.
+     */
+    public function testHasUnitReturnsFalseForUnknownUnit(): void
+    {
+        Converter::removeAllInstances();
+        $converter = Converter::getInstance('L');
+        $converter->removeAllUnits();
+
+        $unit = DerivedUnit::parse('m');
+
+        $this->assertFalse($converter->hasUnit($unit));
+    }
+
+    // endregion
+
     // region removeUnit() tests
 
     /**

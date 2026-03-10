@@ -2,6 +2,8 @@
 
 This guide explains how to work with quantities beyond what the package provides by default. Using entropy as an example, we'll cover four progressively more integrated approaches.
 
+---
+
 ## 1. Using Derived Units Directly
 
 You don't need a dedicated class for every quantity type. The package can work with any combination of units through derived unit expressions. For example, entropy has units of J/K (energy per temperature), and you can use this directly:
@@ -31,6 +33,8 @@ $s2 = Quantity::create(37.5, 'J/K');
 ```
 
 This will produce a `Quantity` object since no `Entropy` class is registered. Furthermore, this code will still work if you add an `Entropy` class later.
+
+---
 
 ## 2. Creating a Custom Quantity Type Class
 
@@ -77,6 +81,8 @@ $entropy = $energy->div($temp);
 echo get_class($entropy); // "Entropy"
 ```
 
+---
+
 ## 3. Adding a Custom Unit
 
 You can add custom units to the `UnitService` without creating a custom class. For example, suppose you want a "chaos" unit (`ch`) for entropy, equivalent to J/K:
@@ -120,7 +126,9 @@ echo $s->to('Btu/degR');  // 0.019746 Btu/°R
 | `unicodeSymbol`   | Optional Unicode symbol for display (e.g. `'Ω'`). Null if same as ASCII.             |
 | `alternateSymbol` | An additional symbol accepted by the parser. This symbol cannot accept prefixes.     |
 
-For more examples of adding units at runtime, see [5.1 Adding Units](5.1_AddingUnitsAndConversions.md).
+For more examples of adding units at runtime, see [Adding Units](AddingUnitsAndConversions.md).
+
+---
 
 ## 4. Defining Units in a Custom Class
 
@@ -159,9 +167,11 @@ class Entropy extends Quantity
 
 The unit and conversion definitions will be picked up automatically when the relevant measurement system is loaded, just like the built-in types. The `chaos` unit will accept metric prefixes as specified in the definition (*kch*, *mch*, etc.), and participate in the full conversion system.
 
+---
+
 ## See Also
 
 - [Quantity](../Reference/Quantity.md) — base class API reference.
 - [UnitService](../Reference/Services/UnitService.md) — unit registration and lookup.
 - [QuantityTypeService](../Reference/Services/QuantityTypeService.md) — quantity type registration.
-- [2.6_SupportedUnits](2.6_SupportedUnits.md) — complete list of built-in units.
+- [Supported Units](SupportedUnits.md) — complete list of built-in units.

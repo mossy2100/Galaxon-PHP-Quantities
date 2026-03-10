@@ -48,29 +48,34 @@ class Mass extends Quantity
                 'systems'     => [UnitSystem::SiAccepted, UnitSystem::Scientific],
             ],
             // Imperial and US customary
-            'grain'     => [
-                'asciiSymbol' => 'gr',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
-            ],
-            'ounce'     => [
-                'asciiSymbol' => 'oz',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
-            ],
-            'pound'     => [
-                'asciiSymbol' => 'lb',
-                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
-            ],
-            'stone'     => [
-                'asciiSymbol' => 'st',
+            'long ton'  => [
+                'asciiSymbol' => 'LT',
                 'systems'     => [UnitSystem::Imperial],
             ],
             'short ton' => [
                 'asciiSymbol' => 'tn',
                 'systems'     => [UnitSystem::UsCustomary],
             ],
-            'long ton'  => [
-                'asciiSymbol' => 'LT',
+            'stone'     => [
+                'asciiSymbol' => 'st',
                 'systems'     => [UnitSystem::Imperial],
+            ],
+            'pound'     => [
+                'asciiSymbol' => 'lb',
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+            ],
+            'ounce'     => [
+                'asciiSymbol' => 'oz',
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+            ],
+            'grain'     => [
+                'asciiSymbol' => 'gr',
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+            ],
+            // Financial
+            'troy ounce'     => [
+                'asciiSymbol' => 'oz t',
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
         ];
     }
@@ -91,11 +96,13 @@ class Mass extends Quantity
             // Metric-Imperial/US bridge
             ['lb', 'kg', 0.453_592_37],
             // Imperial and US customary
-            ['lb', 'gr', 7000],
-            ['lb', 'oz', 16],
-            ['st', 'lb', 14],
-            ['tn', 'lb', 2000],
             ['LT', 'lb', 2240],
+            ['tn', 'lb', 2000],
+            ['st', 'lb', 14],
+            ['lb', 'oz', 16],
+            ['lb', 'gr', 7000],
+            // Financial
+            ['oz t', 'gr', 480],
         ];
     }
 

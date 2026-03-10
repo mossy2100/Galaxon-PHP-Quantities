@@ -2,6 +2,8 @@
 
 Represents a unit conversion between two units of the same dimension.
 
+---
+
 ## Overview
 
 The `Conversion` class encapsulates a conversion relationship between a source unit and a destination unit. It stores the conversion factor as a `FloatWithError` to track numerical precision through chains of conversions.

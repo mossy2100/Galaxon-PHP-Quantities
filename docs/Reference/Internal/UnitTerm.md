@@ -2,6 +2,8 @@
 
 Represents a decomposed unit symbol with prefix and exponent.
 
+---
+
 ## Overview
 
 The `UnitTerm` class represents a unit symbol like 'km2' decomposed into its components:

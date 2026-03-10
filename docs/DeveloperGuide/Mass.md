@@ -2,6 +2,8 @@
 
 The `Mass` class extends `Quantity` with convenience methods for configuring imperial or US customary part decomposition.
 
+---
+
 ## Choosing a Parts System
 
 Mass has no default part unit symbols because the choice between imperial and US customary units depends on context. Two convenience methods configure the parts system:
@@ -46,6 +48,8 @@ echo $cargo->formatParts();   // 2tn 1000lb
 
 These methods also call `UnitService::loadSystem()` to ensure the relevant units are available.
 
+---
+
 ## SI base unit
 
 Note that the SI base unit for mass is the kilogram (`kg`), not the gram. The gram is defined with `all metric` prefixes, so `kg`, `mg`, `μg`, etc. are all available:
@@ -55,8 +59,10 @@ $mass = new Mass(1500, 'g');
 echo $mass->toSi();  // 1.5 kg
 ```
 
+---
+
 ## See Also
 
 - [Mass reference](../Reference/QuantityType/Mass.md)
-- [3.7_PartDecomposition](3.7_PartDecomposition.md) — General parts documentation.
-- [2.5_SystemsOfUnits](2.5_SystemsOfUnits.md) — Loading unit systems.
+- [Part Decomposition](PartDecomposition.md) — General parts documentation.
+- [Systems of Units](SystemsOfUnits.md) — Loading unit systems.

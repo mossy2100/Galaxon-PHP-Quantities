@@ -4,6 +4,8 @@ Registry of quantity types keyed by dimension code.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
+---
+
 ## Overview
 
 The `QuantityTypeService` provides mapping between:

@@ -2,6 +2,8 @@
 
 Base class for physical measurements with units.
 
+---
+
 ## Overview
 
 The `Quantity` class provides a framework for creating strongly typed measurement classes (Length, Mass, Time, etc.) with automatic unit conversion, arithmetic operations, and comparison capabilities.
@@ -597,22 +599,19 @@ $time = Time::parse('1.5e3 ms');
 $duration = Time::parse('5h 30min 45s');
 ```
 
-### format()
+### formatValue()
 
 ```php
-public function format(
+public static function formatValue(
+    float $value,
     string $specifier = 'f',
     ?int $precision = null,
-    ?bool $includeSpace = null,
+    ?bool $trimZeros = null,
     bool $ascii = false
 ): string
 ```
 
-Format the measurement as a string.
-
-When `$precision` is null, trailing zeros are automatically trimmed. When an explicit precision is given, all digits are preserved (e.g. `format('f', 2)` on 5.0 gives `"5.00 m"`).
-
-When `$ascii` is false (default) and scientific notation is used, the exponent is rendered as `x10` with superscript digits (e.g. `1.50x10^3`) instead of `e+3`.
+Format a numeric value as a string. This is a static utility method used internally by `format()` but also available for standalone use.
 
 **Parameters:**
 
@@ -629,23 +628,69 @@ When `$ascii` is false (default) and scientific notation is used, the exponent i
 | `'h'`     | Shortest of `e` or `F` (lower-case `e`, non-locale-aware).                     |
 | `'H'`     | Shortest of `E` or `F` (upper-case `E`, non-locale-aware).                     |
 
-- `$precision` (?int) - Number of digits. Null uses `sprintf` default and trims trailing zeros.
-- `$includeSpace` (?bool) - Space between value and unit. `null` = auto (no space for symbol-only units like °).
-- `$ascii` (bool) - If true, use ASCII symbols and `e` notation. If false (default), use Unicode symbols and superscript notation.
+- `$precision` (?int) - Number of digits. `null` uses the `sprintf` default (usually 6).
+- `$trimZeros` (?bool) - Controls trailing zero trimming:
+  - `null` (default) — auto: trims when `$precision` is null, preserves when `$precision` is explicit.
+  - `true` — always trim trailing zeros (and trailing decimal point).
+  - `false` — never trim; preserve all digits.
+- `$ascii` (bool) - If `true`, use ASCII `e` notation. If `false` (default), use `×10` with superscript exponents.
+
+**Returns:**
+- `string` - The formatted value string.
+
+**Throws:**
+- `DomainException` - If the specifier is invalid or precision is outside 0–17.
+
+**Examples:**
+```php
+Quantity::formatValue(5.0);                       // "5"
+Quantity::formatValue(5.0, 'f', 2);               // "5.00"
+Quantity::formatValue(5.0, 'f', 2, true);         // "5"
+Quantity::formatValue(1500.0, 'e', 2);            // "1.50×10³"
+Quantity::formatValue(1500.0, 'e', 2, ascii: true); // "1.50e+3"
+```
+
+### format()
+
+```php
+public function format(
+    string $specifier = 'f',
+    ?int $precision = null,
+    ?bool $trimZeros = null,
+    ?bool $includeSpace = null,
+    bool $ascii = false
+): string
+```
+
+Format the measurement as a string with value and unit.
+
+See `formatValue()` for details on the `$specifier`, `$precision`, `$trimZeros`, and `$ascii` parameters.
+
+**Parameters:**
+- `$specifier` (string) - The format specifier (see `formatValue()` for the table).
+- `$precision` (?int) - Number of digits. `null` uses the `sprintf` default (usually 6).
+- `$trimZeros` (?bool) - Controls trailing zero trimming. `null` (default) trims when precision is null, preserves when explicit. `true` always trims, `false` never trims.
+- `$includeSpace` (?bool) - Space between value and unit. `null` = auto (no space for symbol-only units like `°`). `true` = always. `false` = never.
+- `$ascii` (bool) - If `true`, use ASCII symbols and `e` notation. If `false` (default), use Unicode symbols and superscript notation.
 
 **Returns:**
 - `string` - The formatted string.
 
+**Throws:**
+- `DomainException` - If the specifier is invalid or precision is outside 0–17.
+
 **Examples:**
 ```php
 $length = new Length(1500.0, 'm');
-$length->format('f', 2);              // "1500.00 m"
-$length->format('e', 2);              // "1.50x10^3 m"
-$length->format('e', 2, ascii: true); // "1.50e+3 m"
+$length->format();                                // "1500 m"
+$length->format('f', 2);                          // "1500.00 m"
+$length->format('f', 2, trimZeros: true);         // "1500 m"
+$length->format('e', 2);                          // "1.50×10³ m"
+$length->format('e', 2, ascii: true);             // "1.50e+3 m"
 
 $angle = new Angle(90, 'deg');
-$angle->format();                     // "90deg"
-$angle->format('f', 2, false);        // "90.00deg"
+$angle->format();                                 // "90°"
+$angle->format(includeSpace: true);               // "90 °"
 ```
 
 ### \_\_toString()

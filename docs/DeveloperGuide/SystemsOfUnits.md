@@ -1,5 +1,7 @@
 # Systems of Units
 
+---
+
 ## Overview
 
 The Quantities package includes units from multiple systems of units, which are represented by the `UnitSystem` enum:
@@ -21,6 +23,8 @@ The Quantities package includes units from multiple systems of units, which are 
 **See:** [UnitSystem reference](../Reference/UnitSystem.md)
 
 The purpose of the enum is to provide a mechanism for only loading the units likely to be needed by a package. Loading all units can impact performance due to the conversion discovery algorithm, which optimises for accuracy, not time.
+
+---
 
 ## Loading Additional Systems
 

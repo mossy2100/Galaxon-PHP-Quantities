@@ -2,6 +2,8 @@
 
 Interface for unit representations in the Quantities package.
 
+---
+
 ## Overview
 
 `UnitInterface` defines the contract that all unit representations must follow, including simple units (`Unit`), prefixed units with exponents (`UnitTerm`), and compound units (`DerivedUnit`). This interface ensures consistent behavior for parsing, formatting, and accessing unit symbols across all unit types.

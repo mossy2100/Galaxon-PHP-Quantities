@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Internal;
 
+use _PHPStan_5adafcbb8\Psr\Log\NullLogger;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
@@ -336,7 +337,18 @@ class Converter
 
     // endregion
 
-    // region Methods for modifying unit list
+    // region Unit methods
+
+    /**
+     * Check if a unit is in the list.
+     *
+     * @param DerivedUnit $unit The unit to check.
+     * @return bool True if the unit is in the list.
+     */
+    public function hasUnit(DerivedUnit $unit): bool
+    {
+        return isset($this->units[$unit->asciiSymbol]);
+    }
 
     /**
      * Add the unit to the list.
@@ -345,6 +357,11 @@ class Converter
      */
     public function addUnit(DerivedUnit $unit): void
     {
+        if ($this->hasUnit($unit)) {
+            return;
+        }
+
+        // Add the unit.
         $this->units[$unit->asciiSymbol] = $unit;
     }
 
@@ -379,8 +396,12 @@ class Converter
      */
     public function loadConversionDefinitions(): void
     {
+        if ($this->quantityType === null) {
+            return;
+        }
+
         // Get the conversion definitions for this dimension.
-        $conversionDefinitions = $this->quantityType?->class::getConversionDefinitions() ?? [];
+        $conversionDefinitions = $this->quantityType->conversionDefinitions ?? [];
 
         // Initialize the Converter with all conversion definitions for this dimension.
         foreach ($conversionDefinitions as [$srcSymbol, $destSymbol, $factor]) {

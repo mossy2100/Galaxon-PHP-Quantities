@@ -7,6 +7,7 @@ namespace Galaxon\Quantities;
 use ArgumentCountError;
 use DivisionByZeroError;
 use DomainException;
+use Galaxon\Core\Arrays;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Core\Floats;
@@ -964,30 +965,34 @@ class Quantity implements Stringable
      * Format a numeric value as a string.
      *
      * Format specifiers:
-     *      - 'e': Scientific notation with lowercase 'e'.
-     *      - 'E': Scientific notation with uppercase 'E'.
-     *      - 'f': Fixed-point notation (locale-aware). [default]
-     *      - 'F': Fixed-point notation (non-locale-aware, always uses '.' as decimal separator).
-     *      - 'g': Shortest of 'e' or 'f' (lower-case 'e'/locale-aware).
-     *      - 'G': Shortest of 'E' or 'f' (upper-case 'E'/locale-aware).
-     *      - 'h': Shortest of 'e' or 'F' (lower-case 'e'/non-locale-aware).
-     *      - 'H': Shortest of 'E' or 'F' (upper-case 'E'/non-locale-aware).
+     *   - 'e': Scientific notation with lowercase 'e'.
+     *   - 'E': Scientific notation with uppercase 'E'.
+     *   - 'f': Fixed-point notation (locale-aware). [default]
+     *   - 'F': Fixed-point notation (non-locale-aware, always uses '.' as decimal separator).
+     *   - 'g': Shortest of 'e' or 'f' (lower-case 'e'/locale-aware).
+     *   - 'G': Shortest of 'E' or 'f' (upper-case 'E'/locale-aware).
+     *   - 'h': Shortest of 'e' or 'F' (lower-case 'e'/non-locale-aware).
+     *   - 'H': Shortest of 'E' or 'F' (upper-case 'E'/non-locale-aware).
      * For more information, see https://www.php.net/manual/en/function.sprintf.php
      *
      * The meaning of the precision argument depends on the format specifier.
-     *      - For e/E/f/F, precision means the number of digits after the decimal point.
-     *      - For g/G/h/H, precision means the number of significant digits.
+     *   - For e/E/f/F, precision means the number of digits after the decimal point.
+     *   - For g/G/h/H, precision means the number of significant digits.
      *
-     * When $precision is null, trailing zeros (and a trailing decimal point) are automatically trimmed.
-     * When an explicit precision is given, all digits are preserved.
+     * If $trimZeros is true, trailing zeros (and if necessary a trailing decimal point) are automatically
+     * removed. For a value string with an exponent, this applies only to the mantissa (the part before the 'e').
+     * If $trimZeros is false, all digits are preserved.
+     * If $trimZeros is null (default), the behavior will depend on whether a precision was provided or not.
+     * If $precision is null, zeros will be trimmed; if the $precision is specified, zeros will not be trimmed.
      *
      * When $ascii is false and scientific notation is used, the exponent is rendered as ×10 with
      * superscript digits (e.g. 1.50×10³) instead of e+3.
      *
      * @param float $value The numeric value to format.
-     * @param string $specifier The format specifier.
-     * @param ?int $precision Number of digits (null = sprintf default with trailing zeros trimmed).
-     * @param bool $ascii If true, use ASCII e notation. If false, use ×10 with superscript exponents.
+     * @param string $specifier The format specifier (default 'f').
+     * @param ?int $precision Number of digits (default null = sprintf default, usually 6).
+     * @param ?bool $trimZeros If trailing zeros should be trimmed (default null for auto).
+     * @param bool $ascii If true, use ASCII e notation. If false (default), use ×10 with superscript exponents.
      * @return string The formatted value string.
      * @throws DomainException If the specifier or precision is invalid.
      */
@@ -995,16 +1000,24 @@ class Quantity implements Stringable
         float $value,
         string $specifier = 'f',
         ?int $precision = null,
+        ?bool $trimZeros = null,
         bool $ascii = false
     ): string {
         // Validate the specifier.
-        if (!in_array(strtolower($specifier), ['e', 'f', 'g', 'h'], true)) {
-            throw new DomainException("The specifier must be 'e', 'E', 'f', 'F', 'g', 'G', 'h', or 'H'.");
+        $validFormats = ['e', 'E', 'f', 'F', 'g', 'G', 'h', 'H'];
+        if (!in_array($specifier, $validFormats, true)) {
+            $formatsString = Arrays::toSerialList(Arrays::quoteValues($validFormats), 'or');
+            throw new DomainException("The specifier must be $formatsString.");
         }
 
         // Validate the precision.
         if ($precision !== null && ($precision < 0 || $precision > 17)) {
             throw new DomainException('The precision must be null or an integer between 0 and 17.');
+        }
+
+        // Set $trimZeros if not set.
+        if ($trimZeros === null) {
+            $trimZeros = $precision === null;
         }
 
         // Canonicalize -0.0 to 0.0.
@@ -1015,62 +1028,66 @@ class Quantity implements Stringable
         $formatString = $precision === null ? "%$specifier" : "%.$precision$specifier";
         $valueStr = sprintf($formatString, $value);
 
-        // If precision is null and there's a decimal point in the string, remove trailing zeros and possibly also the
-        // decimal point from the number. If there's an 'E' or 'e' in the string, this only applies to the mantissa.
-        if ($precision === null && str_contains($valueStr, '.')) {
-            $ePos = stripos($valueStr, 'E');
-            $mantissa = $ePos === false ? $valueStr : substr($valueStr, 0, $ePos);
-            $exp = $ePos === false ? '' : substr($valueStr, $ePos);
-            $valueStr = rtrim(rtrim($mantissa, '0'), '.') . $exp;
-        }
+        // Look for an 'e' or 'E'.
+        $ePos = stripos($valueStr, 'e');
 
-        // If $ascii is false and there's an exponent, replace it with the Unicode version.
-        if (!$ascii) {
-            $ePos = stripos($valueStr, 'E');
-            if ($ePos !== false) {
-                $exp = (int)substr($valueStr, $ePos + 1);
-                $valueStr = substr($valueStr, 0, $ePos) . '×10' . Integers::toSuperscript($exp);
+        // Check for fixed point format.
+        if ($ePos === false) {
+            // Trim zeros if requested.
+            if ($trimZeros && str_contains($valueStr, '.')) {
+                $valueStr = rtrim(rtrim($valueStr, '0'), '.');
             }
+
+            return $valueStr;
         }
 
-        return $valueStr;
+        // Disassemble the value string.
+        $mantissa = substr($valueStr, 0, $ePos);
+        $expSeparator = $valueStr[$ePos];
+        $exp = substr($valueStr, $ePos + 1);
+
+        // Trim zeros from the mantissa if requested.
+        if ($trimZeros && str_contains($mantissa, '.')) {
+            $mantissa = rtrim(rtrim($mantissa, '0'), '.');
+        }
+
+        // If we want Unicode format and there's an exponent, replace it with the Unicode version.
+        if (!$ascii) {
+            $expSeparator = '×10';
+            $exp = Integers::toSuperscript((int)$exp);
+        }
+
+        // Reassemble the value string.
+        return $mantissa . $expSeparator . $exp;
     }
 
     /**
      * Format the measurement as a string with control over precision and notation.
      *
-     * Precision meaning varies by specifier:
-     *  - 'f'/'F': Number of decimal places.
-     *  - 'e'/'E': Number of decimal places in the mantissa.
-     *  - 'g'/'G'/'h'/'H': Number of significant figures.
-     * For more information, see https://www.php.net/manual/en/function.sprintf.php
-     *
-     * When $precision is null, trailing zeros are automatically trimmed. When an explicit precision is
-     * given, all digits are preserved.
-     *
-     * When $ascii is false (default) and scientific notation is used, the exponent is rendered as ×10
-     * with superscript digits (e.g. 1.50×10³) instead of e+3.
+     * See formatValue() for details on the $specifier, $precision, and $trimZeros parameters.
      *
      * It's usually best to leave $includeSpace as null, which uses common style rules to determine if a
      * space should be placed between the number and the unit. The rule is: if the unit is a single
      * non-letter symbol (e.g. °, %, "), no space is inserted. Otherwise, a space is inserted, including
      * for units that start with a non-letter such as °C.
      *
-     * @param string $specifier The format specifier. See formatValue() for the full list.
-     * @param ?int $precision Number of digits (null = sprintf default with trailing zeros trimmed).
+     * @param string $specifier The format specifier.
+     * @param ?int $precision Number of digits (default null = sprintf default, usually 6).
+     * @param ?bool $trimZeros If trailing zeros should be trimmed (default null for auto).
      * @param ?bool $includeSpace Space between value and unit (null = auto, true = always, false = never).
      * @param bool $ascii If true, use ASCII symbols and e notation. If false, use Unicode symbols and ×10 notation.
-     * @return string The formatted measurement string.
+     * @return string The formatted quantity.
      * @throws DomainException If the specifier or precision is invalid.
      */
     public function format(
         string $specifier = 'f',
         ?int $precision = null,
+        ?bool $trimZeros = null,
         ?bool $includeSpace = null,
         bool $ascii = false
     ): string {
         // Format the value.
-        $valueStr = self::formatValue($this->value, $specifier, $precision, $ascii);
+        $valueStr = self::formatValue($this->value, $specifier, $precision, $trimZeros, $ascii);
 
         // Get the unit as a string.
         $unitSymbol = $this->derivedUnit->format($ascii);
@@ -1166,7 +1183,7 @@ class Quantity implements Stringable
      * @throws DomainException If the quantity type is unregistered, or the result unit symbol or sign is invalid.
      * @see QuantityPartsService::fromParts()
      */
-    public static function fromParts(array $parts): Quantity
+    public static function fromParts(array $parts): self
     {
         return QuantityPartsService::fromParts(static::getQuantityType(), $parts);
     }
@@ -1197,7 +1214,7 @@ class Quantity implements Stringable
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::parseParts()
      */
-    public static function parseParts(string $input): Quantity
+    public static function parseParts(string $input): self
     {
         return QuantityPartsService::parseParts(static::getQuantityType(), $input);
     }

@@ -1,6 +1,8 @@
 # String Functions
 
-### Parsing Strings
+---
+
+## Parsing strings
 
 Use `parse()` to create a Quantity from a string. Whitespace between the value and unit is allowed:
 
@@ -29,7 +31,9 @@ $time = Time::parse('-1h 30min 45s');       // Time(-5445, 's')
 
 When `parse()` encounters a multi-part string (e.g. `"1h 30min 45s"`), it automatically delegates to `parseParts()`, which reconstructs the quantity from its component parts. In this case, spaces between values and units are *not* allowed.
 
-### Formatting Output
+---
+
+## Formatting output
 
 #### Default Formatting with `echo`
 
@@ -72,7 +76,7 @@ echo $length->format('g', 4);    // 1235 m
 | `e` / `E` | Scientific | Decimal places in mantissa |
 | `g` / `G` / `h` / `H` | Shortest | Significant figures |
 
-When `$precision` is `null` (the default), trailing zeros are automatically trimmed.
+When `$precision` is `null` (the default), trailing zeros are automatically trimmed. When an explicit precision is given, digits are preserved. This behavior can be overridden with the `$trimZeros` parameter (`true` = always trim, `false` = never trim, `null` = auto).
 
 ### ASCII vs. Unicode
 
@@ -132,3 +136,11 @@ You can override this with the `$includeSpace` parameter:
 echo $angle->format(includeSpace: true);   // 45 °
 echo $length->format(includeSpace: false); // 100m
 ```
+
+---
+
+## See Also
+
+- **[Quantity](../Reference/Quantity.md)** — Full reference for `format()`, `formatValue()`, `parse()`, and `__toString()`.
+- **[Part Decomposition](PartDecomposition.md)** — Multi-part formatting and parsing (e.g. `"5h 30min 45s"`).
+- **[Money](Money.md)** — Currency-specific formatting with locale support.

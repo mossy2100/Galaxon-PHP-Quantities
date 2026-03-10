@@ -11,7 +11,7 @@ Represents dimensionless quantities (ratios, percentages, concentrations).
 
 The `Dimensionless` class handles quantities that have no physical dimension, such as ratios, percentages, and concentrations.
 
-For the complete list of dimensionless units, see [Supported Units: Dimensionless](../../DeveloperGuide/2.6_SupportedUnits.md#dimensionless).
+For the complete list of dimensionless units, see [Supported Units: Dimensionless](../../DeveloperGuide/SupportedUnits.md#dimensionless).
 
 ---
 
@@ -89,5 +89,5 @@ $total = $discount->add($additional);     // 30%
 
 ## See Also
 
-- **[Supported Units: Dimensionless](../../DeveloperGuide/2.6_SupportedUnits.md#dimensionless)** - Complete list of dimensionless units
+- **[Supported Units: Dimensionless](../../DeveloperGuide/SupportedUnits.md#dimensionless)** - Complete list of dimensionless units
 - **[Quantity](../Quantity.md)** - Base class documentation

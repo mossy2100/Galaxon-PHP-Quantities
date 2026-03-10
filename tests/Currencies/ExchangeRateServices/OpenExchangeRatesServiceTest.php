@@ -45,7 +45,7 @@ class OpenExchangeRatesServiceTest extends TestCase
      */
     private function loadApiKey(): string
     {
-        $path = __DIR__ . '/../../api-keys.json';
+        $path = __DIR__ . '/../api-keys.json';
         if (!file_exists($path)) {
             self::markTestSkipped('Open Exchange Rates App ID not configured in tests/api-keys.json.');
         }

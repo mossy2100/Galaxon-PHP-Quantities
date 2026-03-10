@@ -1,5 +1,7 @@
 You can create quantities using either the base `Quantity` class or a dedicated subclass. Both approaches give you full access to arithmetic, conversion, comparison, and formatting.
 
+---
+
 ## Using the base Quantity class
 
 The `Quantity` class works with any valid unit expression, making it ideal for ad-hoc or uncommon measurements:
@@ -17,6 +19,8 @@ As a rule, calling `Quantity::create()` is preferable to `new Quantity()`.
 The `Quantity::create()` factory method infers the quantity type from the unit and checks the `QuantityTypeService` for an appropriate subclass. For example, `Quantity::create(10, 'm')` returns a `Length` object. If no dedicated subclass is registered for the quantity type, then the result will be a `Quantity` object.
 
 However, when `new Quantity()` is called, the quantity type is inferred from the unit, and if there is a preferable subclass, such as `Angle` or `Length`, an exception will be thrown.
+
+---
 
 ## Using subclasses
 
@@ -40,6 +44,8 @@ Subclasses are provided when at least one of the following applies:
 - **Specific units** — The quantity type has its own named units (e.g. Force has newtons and pound-force, Pressure has pascals and bar).
 - **Added features** — The class offers methods beyond the base `Quantity` API. For example, `Angle` provides `sin()`, `cos()`, and `tan()`.
 - **Common use** — The quantity type is frequently used in calculations, so a dedicated class improves convenience even without custom units (e.g. `Acceleration`, `Density`, `Velocity`).
+
+---
 
 ## Which Quantity Types Have Classes?
 
@@ -77,4 +83,4 @@ The package also includes `Data` (bytes, bits) and `Dimensionless` for dimension
 
 Most [SI derived units defined by field of application](https://en.wikipedia.org/wiki/SI_derived_unit#By_field_of_application) — such as viscosity, entropy, specific heat capacity, and surface tension — do not have dedicated classes. They can be created directly using the base `Quantity` class with compound unit expressions (e.g. `'Pa*s'`, `'J/K'`, `'J/(kg*K)'`).
 
-If you need a dedicated class for one of these, see [5.2_AddingQuantityTypes](5.2_AddingQuantityTypes.md).
+If you need a dedicated class for one of these, see [Adding Quantity Types](AddingQuantityTypes.md).

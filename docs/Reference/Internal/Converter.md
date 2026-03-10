@@ -2,6 +2,8 @@
 
 Manages unit conversions for a measurement dimension.
 
+---
+
 ## Overview
 
 The `Converter` class is responsible for finding and computing conversions between units of the same physical dimension. It uses the multiton pattern to maintain one instance per dimension (e.g., one for length, one for mass, etc.).

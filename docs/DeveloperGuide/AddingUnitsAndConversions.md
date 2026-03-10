@@ -64,6 +64,8 @@ echo $concentration->to('ppb');  // 0.005 ppb
 echo $concentration->to('ppm');  // 0.000005 ppm
 ```
 
+---
+
 ## Key points
 
 - The `dimension` parameter must match the quantity type you intend the unit for. Use `'L3'` for volume, `''` (empty string) for dimensionless, `'L'` for length, etc.
@@ -71,9 +73,11 @@ echo $concentration->to('ppm');  // 0.000005 ppm
 - The conversion factor means: 1 of the source unit equals *n* of the destination unit. So `new Conversion('US legal cup', 'mL', 240)` means 1 US legal cup = 240 mL.
 - Unit symbols must be unique across all registered units. `UnitService::add()` will throw a `DomainException` if a symbol conflict is detected.
 
+---
+
 ## See Also
 
-- [5.2_AddingQuantityTypes](5.2_AddingQuantityTypes.md) - Creating custom quantity type classes with built-in units.
+- [Adding Quantity Types](AddingQuantityTypes.md) - Creating custom quantity type classes with built-in units.
 - [UnitService](../Reference/Services/UnitService.md) - Unit registration and lookup.
 - [ConversionService](../Reference/Services/ConversionService.md) - Conversion registration.
-- [2.6_SupportedUnits](2.6_SupportedUnits.md) - Complete list of built-in units.
+- [Supported Units](SupportedUnits.md) - Complete list of built-in units.

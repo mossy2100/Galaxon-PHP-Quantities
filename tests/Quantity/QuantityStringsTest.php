@@ -386,7 +386,7 @@ final class QuantityStringsTest extends TestCase
     {
         $angle = new Angle(45, 'deg');
 
-        $this->assertSame('45 °', $angle->format('f', null, true));
+        $this->assertSame('45 °', $angle->format(includeSpace: true));
     }
 
     /**
@@ -396,7 +396,7 @@ final class QuantityStringsTest extends TestCase
     {
         $length = new Length(100, 'm');
 
-        $this->assertSame('100m', $length->format('f', null, false));
+        $this->assertSame('100m', $length->format(includeSpace: false));
     }
 
     // endregion
@@ -454,7 +454,7 @@ final class QuantityStringsTest extends TestCase
     {
         $original = '123.45 km';
         $parsed = Length::parse($original);
-        $formatted = $parsed->format('f', 2, null, true);
+        $formatted = $parsed->format('f', 2, includeSpace: true);
 
         $this->assertSame($original, $formatted);
     }
@@ -521,6 +521,181 @@ final class QuantityStringsTest extends TestCase
         $qty = Quantity::create(3.14159, '');
 
         $this->assertSame('3.14159', (string)$qty);
+    }
+
+    // endregion
+
+    // region formatValue() tests
+
+    /**
+     * Test formatValue() with default parameters trims trailing zeros.
+     */
+    public function testFormatValueDefaultTrimsZeros(): void
+    {
+        $this->assertSame('5', Quantity::formatValue(5.0));
+    }
+
+    /**
+     * Test formatValue() with explicit precision preserves trailing zeros.
+     */
+    public function testFormatValueExplicitPrecisionPreservesZeros(): void
+    {
+        $this->assertSame('5.00', Quantity::formatValue(5.0, 'f', 2));
+    }
+
+    /**
+     * Test formatValue() with explicit precision and trimZeros true forces trimming.
+     */
+    public function testFormatValueExplicitPrecisionWithTrimZerosTrue(): void
+    {
+        $this->assertSame('5', Quantity::formatValue(5.0, 'f', 2, true));
+    }
+
+    /**
+     * Test formatValue() with null precision and trimZeros false preserves zeros.
+     */
+    public function testFormatValueNullPrecisionWithTrimZerosFalse(): void
+    {
+        $this->assertSame('5.000000', Quantity::formatValue(5.0, 'f', null, false));
+    }
+
+    /**
+     * Test formatValue() normalizes negative zero.
+     */
+    public function testFormatValueNormalizesNegativeZero(): void
+    {
+        $this->assertSame('0', Quantity::formatValue(-0.0));
+    }
+
+    /**
+     * Test formatValue() with scientific notation and explicit precision preserves zeros.
+     */
+    public function testFormatValueScientificPrecisionPreservesZeros(): void
+    {
+        $this->assertSame('3.0000e+3', Quantity::formatValue(3000.0, 'e', 4, ascii: true));
+    }
+
+    /**
+     * Test formatValue() with scientific notation and null precision trims zeros.
+     */
+    public function testFormatValueScientificNullPrecisionTrimsZeros(): void
+    {
+        $this->assertSame('3e+3', Quantity::formatValue(3000.0, 'e', ascii: true));
+    }
+
+    /**
+     * Test formatValue() with scientific notation and ASCII output.
+     */
+    public function testFormatValueScientificAscii(): void
+    {
+        $this->assertSame('1.50e+3', Quantity::formatValue(1500.0, 'e', 2, ascii: true));
+    }
+
+    /**
+     * Test formatValue() with invalid specifier throws exception.
+     */
+    public function testFormatValueInvalidSpecifierThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+
+        Quantity::formatValue(1.0, 'x');
+    }
+
+    /**
+     * Test formatValue() with invalid precision throws exception.
+     */
+    public function testFormatValueInvalidPrecisionThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+
+        Quantity::formatValue(1.0, 'f', -1);
+    }
+
+    // endregion
+
+    // region format() trimZeros tests
+
+    /**
+     * Test format() with default trimZeros trims when precision is null.
+     */
+    public function testFormatAutoTrimWithNullPrecision(): void
+    {
+        $length = new Length(5.0, 'm');
+
+        $this->assertSame('5 m', $length->format());
+    }
+
+    /**
+     * Test format() with default trimZeros preserves digits when precision is explicit.
+     */
+    public function testFormatAutoPreservesWithExplicitPrecision(): void
+    {
+        $length = new Length(5.0, 'm');
+
+        $this->assertSame('5.00 m', $length->format('f', 2));
+    }
+
+    /**
+     * Test format() with trimZeros true forces trimming despite explicit precision.
+     */
+    public function testFormatTrimZerosTrueOverridesPrecision(): void
+    {
+        $length = new Length(5.0, 'm');
+
+        $this->assertSame('5 m', $length->format('f', 2, trimZeros: true));
+    }
+
+    /**
+     * Test format() with trimZeros false preserves zeros despite null precision.
+     */
+    public function testFormatTrimZerosFalseOverridesNullPrecision(): void
+    {
+        $length = new Length(5.0, 'm');
+
+        $this->assertSame('5.000000 m', $length->format('f', null, trimZeros: false));
+    }
+
+    /**
+     * Test format() with g specifier and explicit precision.
+     */
+    public function testFormatGSpecifierExplicitPrecision(): void
+    {
+        $length = new Length(1234.56, 'm');
+
+        // 'g' with precision 6 = 6 significant digits.
+        $this->assertSame('1234.56 m', $length->format('g', 6));
+    }
+
+    /**
+     * Test format() with h specifier (non-locale-aware shortest).
+     */
+    public function testFormatHSpecifier(): void
+    {
+        $length = new Length(1234.5, 'm');
+
+        $this->assertSame('1234.5 m', $length->format('h'));
+    }
+
+    /**
+     * Test that trimming does not strip significant zeros from integer values.
+     */
+    public function testFormatTrimDoesNotStripIntegerZeros(): void
+    {
+        // g specifier on 1500.0 produces "1500" (no decimal point).
+        // Trimming must not strip the trailing zeros.
+        $length = new Length(1500.0, 'm');
+
+        $this->assertSame('1500 m', $length->format('g'));
+    }
+
+    /**
+     * Test that trimming strips decimal trailing zeros but not integer zeros.
+     */
+    public function testFormatValueTrimStripsDecimalButNotIntegerZeros(): void
+    {
+        // f specifier with precision 2 on 1500.0 produces "1500.00".
+        // With trimming, the ".00" is removed but "1500" is preserved.
+        $this->assertSame('1500', Quantity::formatValue(1500.0, 'f', 2, true));
     }
 
     // endregion

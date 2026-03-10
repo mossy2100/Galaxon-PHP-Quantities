@@ -2,6 +2,8 @@
 
 Centralised regex patterns and validation for unit symbols.
 
+---
+
 ## Overview
 
 The `RegexService` class consolidates all regular expression constants, pattern builders, and validation methods used across the Quantities package. It is the single source of truth for how unit symbols, prefix symbols, derived unit expressions, quantity strings, and DMS angle strings are validated and matched.

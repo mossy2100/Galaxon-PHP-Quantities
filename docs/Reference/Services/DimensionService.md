@@ -4,6 +4,8 @@ Utility class for working with physical dimension codes.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
+---
+
 ## Overview
 
 The `DimensionService` provides tools for parsing, composing, validating, and transforming dimension codes. Dimension codes represent fundamental physical dimensions using single-letter codes with optional exponents, based on the ISQ (International System of Quantities). For example, `'MLT-2'` represents mass x length x time^-2 (force).

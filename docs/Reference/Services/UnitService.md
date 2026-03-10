@@ -4,6 +4,8 @@ Registry of known units organized by measurement system.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
+---
+
 ## Overview
 
 The `UnitService` manages the collection of known units in the system. It provides:
@@ -238,4 +240,4 @@ UnitService::add(new Unit('cubit', 'cbt', 'L', [UnitSystem::Common]));
 - **[ConversionService](ConversionService.md)** - Conversion registry
 - **[QuantityTypeService](QuantityTypeService.md)** - Quantity type registry
 - **[UnitSystem](../UnitSystem.md)** - Measurement system enum
-- **[2.6_SupportedUnits](../../DeveloperGuide/2.6_SupportedUnits.md)** - Complete unit reference
+- **[Supported Units](../../DeveloperGuide/SupportedUnits.md)** - Complete unit reference

@@ -52,8 +52,6 @@ Returns the service name: `'Open Exchange Rates'`.
 
 **Returns:** `string`
 
----
-
 ### getConversionDefinitions()
 
 ```php

@@ -31,8 +31,6 @@ Returns the service name: `'Frankfurter (ECB)'`.
 
 **Returns:** `string`
 
----
-
 ### getConversionDefinitions()
 
 ```php

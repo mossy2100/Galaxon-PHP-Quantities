@@ -2,6 +2,8 @@
 
 Represents a type of physical quantity with its associated metadata.
 
+---
+
 ## Overview
 
 The `QuantityType` class defines the metadata for a category of physical quantities, such as Length, Mass, Time, or Force. Each quantity type has a unique name, a dimensional code, and an optional associated PHP class.

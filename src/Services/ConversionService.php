@@ -9,6 +9,7 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\FloatWithError;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\UnitSystem;
@@ -65,7 +66,7 @@ class ConversionService
             }
 
             // Add the conversion (replacing any existing if specified).
-            self::add(new Conversion($srcUnit, $destUnit, $factor), $replaceExisting);
+            self::addFromDefinition($srcUnit, $destUnit, $factor, $replaceExisting);
         }
     }
 
@@ -97,12 +98,32 @@ class ConversionService
      *
      * @param Conversion $conversion The conversion to add.
      * @param bool $replaceExisting If true, replace any existing conversion between the same units.
-     * @throws LogicException If the conversion's dimension doesn't match its Converter.
      */
     public static function add(Conversion $conversion, bool $replaceExisting = false): void
     {
         $converter = Converter::getInstance($conversion->dimension);
         $converter->addConversion($conversion, $replaceExisting);
+    }
+
+    /**
+     * Add a conversion to the appropriate Converter.
+     *
+     * @param string|UnitInterface $srcUnit The source unit.
+     * @param string|UnitInterface $destUnit The destination unit.
+     * @param float $factor The scale factor (must be positive).
+     * @param bool $replaceExisting If true, replace any existing conversion between the same units.
+     * @throws FormatException If either unit is provided as a string that cannot be parsed.
+     * @throws DomainException If dimensions don't match or the factor is not positive.
+     */
+    public static function addFromDefinition(
+        string|UnitInterface $srcUnit,
+        string|UnitInterface $destUnit,
+        float $factor,
+        bool $replaceExisting = false
+    ): void
+    {
+        $conversion = new Conversion($srcUnit, $destUnit, $factor);
+        self::add($conversion, $replaceExisting);
     }
 
     /**

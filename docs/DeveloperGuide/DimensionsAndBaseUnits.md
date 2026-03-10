@@ -1,7 +1,5 @@
 # Overview
 
-==Generally speaking, developers won't need to known about or understand dimensions for regular use, but they can be useful to know about.==
-
 Dimension codes represent the fundamental physical dimensions of a quantity without specifying actual units. Single-letter codes represent base units, which can be combined together with optional exponents to represent various quantity types. Every quantity type has a unique dimension. For example:
 
 - `L` - length
@@ -58,6 +56,8 @@ Whenever a Quantity is converted to base units, the resulting derived unit will 
 
 If no English unit is defined for a dimension, the algorithm will fall back to the SI base unit.
 If no SI base unit is defined for a dimension, it will fall back to the common base unit.
+
+---
 
 ## See also
 

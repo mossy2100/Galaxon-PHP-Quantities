@@ -467,7 +467,8 @@ class QuantityPartsService
 
         // Skip unless we're showing zeros or the value is non-zero.
         if ($showZeros || $roundedValue !== 0.0 || empty($result)) {
-            $result[] = Quantity::formatValue($value, 'f', $precision, $ascii) . $unit->format($ascii);
+            $valueStr = Quantity::formatValue($value, 'f', $precision, true, $ascii);
+            $result[] = $valueStr . $unit->format($ascii);
         }
 
         // Return a string of units, separated by spaces. Prepend minus sign if negative.

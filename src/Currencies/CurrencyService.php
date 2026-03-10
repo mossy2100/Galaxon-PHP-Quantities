@@ -243,6 +243,13 @@ class CurrencyService
         // Save it.
         file_put_contents(self::getUnitsFilePath(), $output);
 
+        // Refresh the currency units.
+        UnitService::loadSystem(UnitSystem::Financial, true);
+
+        // Loading any missing conversions. If new currency codes have been added, some conversion definitions that were
+        // not loaded before, due to unknown units, may now be loadable.
+        ConversionService::loadDefinitions();
+
         return true;
     }
 
@@ -328,6 +335,10 @@ class CurrencyService
         // Save it.
         file_put_contents(self::getConversionsFilePath(), $output);
 
+        // Refresh currency conversions.
+        ConversionService::removeBySystem(UnitSystem::Financial);
+        ConversionService::loadDefinitions();
+
         return true;
     }
 
@@ -340,19 +351,8 @@ class CurrencyService
      */
     public static function refresh(bool $bypassCache = false): void
     {
-        // Load/reload currency units if necessary.
-        if (self::refreshUnits($bypassCache) || !UnitService::isLoadedSystem(UnitSystem::Financial)) {
-            UnitService::loadSystem(UnitSystem::Financial, true);
-        }
-
-        // Refresh currency conversions if necessary.
-        if (self::refreshConversions($bypassCache)) {
-            // We refreshed the conversion rates, so remove all currency conversions.
-            ConversionService::removeBySystem(UnitSystem::Financial);
-        }
-
-        // Load currency conversions from the (possibly fresh) definitions.
-        ConversionService::loadDefinitions();
+        self::refreshUnits($bypassCache);
+        self::refreshConversions($bypassCache);
     }
 
     // endregion
@@ -560,7 +560,10 @@ class CurrencyService
         self::setRatesTtl($ratesTtl);
         self::setCurrenciesTtl($currenciesTtl);
 
-        // Refresh and load units and conversions as needed.
+        // Load currencies.
+        UnitService::loadSystem(UnitSystem::Financial);
+
+        // Refresh units and conversions as needed.
         self::refresh();
     }
 
