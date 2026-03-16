@@ -105,21 +105,18 @@ class Time extends Quantity
      */
     public static function fromDateInterval(DateInterval $interval): self
     {
-        // Add all the parts of the DateInterval, starting with seconds.
-        $result = new self($interval->s + $interval->f, 's')
-            ->add($interval->y, 'y')
-            ->add($interval->m, 'mo')
-            ->add($interval->d, 'd')
-            ->add($interval->h, 'h')
-            ->add($interval->i, 'min');
+        // Convert the DateInterval to an array of time parts.
+        $parts = [
+            'sign' => $interval->invert ? -1 : 1,
+            'y'    => $interval->y,
+            'mo'   => $interval->m,
+            'd'    => $interval->d,
+            'h'    => $interval->h,
+            'min'  => $interval->i,
+            's'    => $interval->s + $interval->f,
+        ];
 
-        // Handle negative interval.
-        if ($interval->invert === 1) {
-            $result = $result->neg();
-        }
-
-        assert($result instanceof self);
-        return $result;
+        return self::fromParts($parts);
     }
 
     /**
@@ -176,11 +173,19 @@ class Time extends Quantity
      */
     public function toDateInterval(): DateInterval
     {
-        // Get the specifier string.
-        $spec = $this->toDateIntervalSpecifier();
+        // Get the specifier string using absolute value to avoid floor() sign issues.
+        $spec = $this->abs()->to('s')->floor()->toDateIntervalSpecifier();
 
         // Construct the DateInterval.
         $dateInterval = new DateInterval($spec);
+
+        // Add microseconds from the fractional part of seconds.
+        $parts = $this->toParts();
+        $seconds = $parts['s'] ?? 0;
+        $fraction = $seconds - floor($seconds);
+        if ($fraction > 0) {
+            $dateInterval->f = $fraction;
+        }
 
         // If the time value is negative, invert the DateInterval.
         if ($this->value < 0) {

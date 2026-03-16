@@ -254,6 +254,72 @@ final class TimeTest extends TestCase
     }
 
     /**
+     * Test toDateInterval preserves fractional seconds in the f property.
+     */
+    public function testToDateIntervalFractionalSeconds(): void
+    {
+        $time = new Time(3661.5, 's');  // 1h 1min 1.5s
+        $interval = $time->toDateInterval();
+
+        $this->assertSame(1, $interval->h);
+        $this->assertSame(1, $interval->i);
+        $this->assertSame(1, $interval->s);
+        $this->assertSame(0.5, $interval->f);
+    }
+
+    /**
+     * Test toDateInterval with microsecond-level fractional seconds.
+     */
+    public function testToDateIntervalMicroseconds(): void
+    {
+        $time = new Time(1.000123, 's');
+        $interval = $time->toDateInterval();
+
+        $this->assertSame(1, $interval->s);
+        $this->assertApproxEqual(0.000123, $interval->f);
+    }
+
+    /**
+     * Test toDateInterval with fractional seconds does not round up.
+     */
+    public function testToDateIntervalFractionalDoesNotRoundUp(): void
+    {
+        $time = new Time(3599.9, 's');  // Just under 1 hour.
+        $interval = $time->toDateInterval();
+
+        $this->assertSame(0, $interval->h);
+        $this->assertSame(59, $interval->i);
+        $this->assertSame(59, $interval->s);
+        $this->assertApproxEqual(0.9, $interval->f);
+    }
+
+    /**
+     * Test toDateInterval with negative fractional seconds.
+     */
+    public function testToDateIntervalNegativeFractional(): void
+    {
+        $time = new Time(-90.25, 's');  // -1min 30.25s
+        $interval = $time->toDateInterval();
+
+        $this->assertSame(1, $interval->invert);
+        $this->assertSame(1, $interval->i);
+        $this->assertSame(30, $interval->s);
+        $this->assertSame(0.25, $interval->f);
+    }
+
+    /**
+     * Test toDateInterval with whole seconds has zero f property.
+     */
+    public function testToDateIntervalWholeSecondsHasZeroF(): void
+    {
+        $time = new Time(3600, 's');
+        $interval = $time->toDateInterval();
+
+        $this->assertSame(1, $interval->h);
+        $this->assertSame(0.0, $interval->f);
+    }
+
+    /**
      * Test toDateIntervalSpecifier with simple time.
      */
     public function testToDateIntervalSpecifierSimple(): void

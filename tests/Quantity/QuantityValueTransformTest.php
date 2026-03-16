@@ -6,20 +6,14 @@ namespace Galaxon\Quantities\Tests\Quantity;
 
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
-use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\QuantityType\Energy;
-use Galaxon\Quantities\QuantityType\Force;
-use Galaxon\Quantities\QuantityType\Frequency;
 use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RoundingMode;
 
 /**
  * Tests for transformation operations on Quantity objects.
@@ -194,7 +188,7 @@ final class QuantityValueTransformTest extends TestCase
     public function testRoundWithMode(): void
     {
         $length = new Length(2.5, 'm');
-        $rounded = $length->round(0, \RoundingMode::HalfEven);
+        $rounded = $length->round(0, RoundingMode::HalfEven);
 
         $this->assertSame(2.0, $rounded->value);
     }

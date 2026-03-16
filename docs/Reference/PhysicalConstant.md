@@ -2,6 +2,8 @@
 
 Provides access to fundamental physical constants as Quantity objects.
 
+**Namespace:** `Galaxon\Quantities`
+
 ---
 
 ## Overview

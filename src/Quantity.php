@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities;
 
-use ArgumentCountError;
 use DivisionByZeroError;
 use DomainException;
 use Galaxon\Core\Arrays;
@@ -277,14 +276,14 @@ class Quantity implements Stringable
      * Returns a new Quantity object with the equivalent value in the destination unit.
      *
      * @param string|UnitInterface $destUnit The destination unit to convert to.
-     * @return self A new Quantity in the specified unit.
+     * @return static A new Quantity in the specified unit.
      * @throws DomainException If the destination unit is invalid.
      * @throws LogicException If no conversion path exists between the units.
      * @example
      *   $length = new Length(1000, 'm');
      *   $km = $length->to('km');  // Length(1, 'km')
      */
-    public function to(string|UnitInterface $destUnit): self
+    public function to(string|UnitInterface $destUnit): static
     {
         // Convert the value to the target unit.
         $value = static::convert($this->value, $this->derivedUnit, $destUnit);
@@ -306,9 +305,9 @@ class Quantity implements Stringable
      *
      * @param bool $simplify If true, base units will be replaced by expandable units where possible.
      * @param bool $autoPrefix If true, the result will be converted to the best SI prefix.
-     * @return self A new Quantity with the value converted to SI units.
+     * @return static A new Quantity with the value converted to SI units.
      */
-    public function toSi(bool $simplify = true, bool $autoPrefix = true): self
+    public function toSi(bool $simplify = true, bool $autoPrefix = true): static
     {
         // Convert to SI base units.
         $result = $this->toSiBase();
@@ -328,9 +327,9 @@ class Quantity implements Stringable
      * Unlike toSi(), this method returns purely SI base units (e.g., kg·m·s⁻² instead of N).
      * Useful for calculations or when you need the fundamental SI form.
      *
-     * @return self A new Quantity expressed in SI base units.
+     * @return static A new Quantity expressed in SI base units.
      */
-    public function toSiBase(): self
+    public function toSiBase(): static
     {
         return $this->to($this->derivedUnit->toSiBase());
     }
@@ -340,9 +339,9 @@ class Quantity implements Stringable
      *
      * This method returns purely base units (e.g., lb·ft·s⁻² instead of lbf).
      *
-     * @return self A new Quantity expressed in English base units.
+     * @return static A new Quantity expressed in English base units.
      */
-    public function toEnglishBase(): self
+    public function toEnglishBase(): static
     {
         return $this->to($this->derivedUnit->toEnglishBase());
     }
@@ -354,9 +353,9 @@ class Quantity implements Stringable
      * existing derived unit. For example, units like lbf, mi, ac, US gal, etc. will be converted to lb, ft, and s.
      * But units like km, mg, N, Hz, etc. will be converted to kg, m and s.
      *
-     * @return self A new Quantity expressed in SI or English base units.
+     * @return static A new Quantity expressed in SI or English base units.
      */
-    public function toBase(): self
+    public function toBase(): static
     {
         return $this->derivedUnit->siExpansionPreferred() ? $this->toSiBase() : $this->toEnglishBase();
     }
@@ -368,9 +367,9 @@ class Quantity implements Stringable
     /**
      * Substitute expandable units for base units, e.g. N => kg*m/s2
      *
-     * @return self A new Quantity with expandable (named) units expanded.
+     * @return static A new Quantity with expandable (named) units expanded.
      */
-    public function expand(): self
+    public function expand(): static
     {
         // Try to expand the derived unit.
         $expansion = $this->derivedUnit->tryExpand();
@@ -392,9 +391,9 @@ class Quantity implements Stringable
      *
      * The first unit encountered of a given dimension will be the one any others are converted to.
      *
-     * @return self A new Quantity with compatible units merged.
+     * @return static A new Quantity with compatible units merged.
      */
-    public function merge(): self
+    public function merge(): static
     {
         if (!$this->derivedUnit->isMergeable()) {
             return $this;
@@ -410,9 +409,9 @@ class Quantity implements Stringable
     /**
      * Find the best SI prefix and construct a new Quantity equal to this one, but with the prefix applied.
      *
-     * @return self A new Quantity with the best SI prefix applied.
+     * @return static A new Quantity with the best SI prefix applied.
      */
-    public function autoPrefix(): self
+    public function autoPrefix(): static
     {
         // See what prefixes are available for the first unit term.
         $firstUnitTerm = $this->derivedUnit->firstUnitTerm;
@@ -481,9 +480,9 @@ class Quantity implements Stringable
      * 's-1' will not be replaced by 'Hz' unless it's the only unit term.
      * Furthermore, 's-1' is not replaced by 'Bq'. You can call $q->to('Bq') to get that effect.
      *
-     * @return self A new Quantity with expandable units substituted for base units.
+     * @return static A new Quantity with expandable units substituted for base units.
      */
-    public function simplify(bool $autoPrefix = true): self
+    public function simplify(bool $autoPrefix = true): static
     {
         // Merge compatible units.
         $qty = $this->merge();
@@ -600,9 +599,9 @@ class Quantity implements Stringable
      * Create a new Quantity with the same unit but a different value.
      *
      * @param float $value The new numeric value.
-     * @return self A new Quantity with the given value in the same unit.
+     * @return static A new Quantity with the given value in the same unit.
      */
-    public function withValue(float $value): self
+    public function withValue(float $value): static
     {
         return self::create($value, $this->derivedUnit);
     }
@@ -610,12 +609,12 @@ class Quantity implements Stringable
     /**
      * Get the absolute value of this Quantity.
      *
-     * @return self A new Quantity with a non-negative value and the same unit.
+     * @return static A new Quantity with a non-negative value and the same unit.
      * @example
      *   $temp = new Temperature(-10, 'C');
      *   $abs = $temp->abs();  // Temperature(10, 'C')
      */
-    public function abs(): self
+    public function abs(): static
     {
         return $this->withValue(abs($this->value));
     }
@@ -625,9 +624,9 @@ class Quantity implements Stringable
      *
      * @param int $precision The number of decimal places to round to (default 0).
      * @param RoundingMode $mode The rounding mode (default RoundingMode::HalfAwayFromZero).
-     * @return self A new Quantity with the rounded value in the same unit.
+     * @return static A new Quantity with the rounded value in the same unit.
      */
-    public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): self
+    public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): static
     {
         return $this->withValue(round($this->value, $precision, $mode));
     }
@@ -635,9 +634,9 @@ class Quantity implements Stringable
     /**
      * Round the value down (towards negative infinity).
      *
-     * @return self A new Quantity with the value rounded down, in the same unit.
+     * @return static A new Quantity with the value rounded down, in the same unit.
      */
-    public function floor(): self
+    public function floor(): static
     {
         return $this->withValue(floor($this->value));
     }
@@ -645,9 +644,9 @@ class Quantity implements Stringable
     /**
      * Round the value up (towards positive infinity).
      *
-     * @return self A new Quantity with the value rounded up, in the same unit.
+     * @return static A new Quantity with the value rounded up, in the same unit.
      */
-    public function ceil(): self
+    public function ceil(): static
     {
         return $this->withValue(ceil($this->value));
     }
@@ -655,40 +654,6 @@ class Quantity implements Stringable
     // endregion
 
     // region Arithmetic methods
-
-    /**
-     * Convert the arguments supplied to an arithmetic method into a Quantity object.
-     *
-     * @param Quantity|float|string|UnitInterface $operand The first operand (Quantity, number, or unit).
-     * @param string|UnitInterface|null $operandUnit The unit of the first operand, if it is a float.
-     * @return self The equivalent Quantity.
-     * @throws ArgumentCountError If a unit is specified when the operand is not a float.
-     * @throws DomainException If the value is non-finite or the unit is unknown.
-     * @throws FormatException If a unit string cannot be parsed.
-     */
-    private static function argsToQuantity(
-        self|float|string|UnitInterface $operand,
-        null|string|UnitInterface $operandUnit = null
-    ): self {
-        // Construct the Quantity from the given value and unit.
-        if (is_float($operand)) {
-            // If the operand unit is null or not provided, this will create a dimensionless Quantity.
-            return self::create($operand, $operandUnit);
-        }
-
-        // Check no unit was provided.
-        if ($operandUnit !== null) {
-            throw new ArgumentCountError('Cannot specify a unit unless the first argument is a float.');
-        }
-
-        // If the operand is a Quantity, just return it.
-        if ($operand instanceof self) {
-            return $operand;
-        }
-
-        // Construct the Quantity from the given unit (string, Unit, UnitTerm, or DerivedUnit).
-        return self::create(1, DerivedUnit::toDerivedUnit($operand));
-    }
 
     /**
      * Negate a Quantity.
@@ -706,18 +671,11 @@ class Quantity implements Stringable
     /**
      * Add another Quantity to this one. Units must be compatible, i.e. have the same dimension.
      *
-     * Supports multiple call styles:
-     * - add($quantity)
-     * - add($value, $unit)
-     *
      * Automatically converts units before adding.
      *
-     * @param self|float $operand Another Quantity or a numeric value.
-     * @param null|string|UnitInterface $operandUnit The other quantity's unit, if a numeric value was provided.
+     * @param self $other The Quantity to add.
      * @return self A new Quantity containing the sum in this measurement's unit.
-     * @throws ArgumentCountError If a unit is specified when the operand is a Quantity.
-     * @throws DomainException If the value is non-finite, the unit is unknown, or the dimensions don't match.
-     * @throws FormatException If a unit string cannot be parsed.
+     * @throws DimensionMismatchException If the units have different dimensions.
      * @throws LogicException If no conversion path exists between the units.
      * @example
      *   $a = new Length(100, 'm');
@@ -725,11 +683,8 @@ class Quantity implements Stringable
      *   $sum = $a->add($b);         // Length(2100, 'm')
      *   $sum2 = $a->add(50, 'cm');  // Length(100.5, 'm')
      */
-    public function add(self|float $operand, null|string|UnitInterface $operandUnit = null): self
+    public function add(self $other): self
     {
-        // Get the other operand as a Quantity object.
-        $other = self::argsToQuantity($operand, $operandUnit);
-
         // Get the other Quantity in the same unit as this one.
         $otherValue = $this->derivedUnit->equal($other->derivedUnit)
             ? $other->value
@@ -742,29 +697,19 @@ class Quantity implements Stringable
     /**
      * Subtract another Quantity from this one. Units must be compatible, i.e. have the same dimension.
      *
-     * Supports multiple call styles:
-     * - sub($quantity)
-     * - sub($value, $unit)
-     *
      * Automatically converts units before subtracting.
      *
-     * @param self|float $operand Another Quantity or a numeric value.
-     * @param null|string|UnitInterface $operandUnit The other quantity's unit, if a numeric value was provided.
+     * @param self $other The Quantity to subtract.
      * @return self A new Quantity containing the difference in this measurement's unit.
-     * @throws ArgumentCountError If a unit is specified when the operand is a Quantity.
-     * @throws DomainException If the value is non-finite, the unit is unknown, or the dimensions don't match.
-     * @throws FormatException If a unit string cannot be parsed.
+     * @throws DimensionMismatchException If the units have different dimensions.
      * @throws LogicException If no conversion path exists between the units.
      * @example
      *   $a = new Length(100, 'm');
      *   $b = new Length(2, 'km');
      *   $diff = $a->sub($b);  // Length(-1900, 'm')
      */
-    public function sub(self|float $operand, null|string|UnitInterface $operandUnit = null): self
+    public function sub(self $other): self
     {
-        // Get the other operand as a Quantity object.
-        $other = self::argsToQuantity($operand, $operandUnit);
-
         // Get the other Quantity in the same unit as this one.
         $otherValue = $this->derivedUnit->equal($other->derivedUnit)
             ? $other->value
@@ -801,27 +746,26 @@ class Quantity implements Stringable
      * - mul($quantity)
      * - mul($value)
      * - mul($unit)
-     * - mul($value, $unit)
      *
-     * @param self|float|string|UnitInterface $operand Another Quantity or a numeric value or a unit.
-     * @param null|string|UnitInterface $operandUnit The other quantity's unit, if a numeric value was provided.
+     * @param self|float|string|UnitInterface $other The Quantity, number, or unit to multiply.
      * @return self A new Quantity representing the result of the multiplication.
-     * @throws ArgumentCountError If a unit is specified when the operand is not a float.
      * @throws DomainException If a value is non-finite or the unit is unknown.
      * @throws FormatException If a unit string cannot be parsed.
      * @example
      *   $length = new Length(10, 'm');
      *   $doubled = $length->mul(2);  // Length(20, 'm')
      */
-    public function mul(float|self|string|UnitInterface $operand, null|string|UnitInterface $operandUnit = null): self
+    public function mul(float|self|string|UnitInterface $other): self
     {
         // Check for simple multiplication by a scalar.
-        if (is_float($operand) && $operandUnit === null) {
-            return $this->withValue($this->value * $operand);
+        if (is_float($other)) {
+            return $this->withValue($this->value * $other);
         }
 
         // Get the other operand as a Quantity object.
-        $other = self::argsToQuantity($operand, $operandUnit);
+        if (!$other instanceof self) {
+            $other = self::create(1, DerivedUnit::toDerivedUnit($other));
+        }
 
         // Start by multiplying the values.
         $newValue = $this->value * $other->value;
@@ -845,12 +789,9 @@ class Quantity implements Stringable
      * - div($quantity)
      * - div($value)
      * - div($unit)
-     * - div($value, $unit)
      *
-     * @param self|float|string|UnitInterface $operand Another Quantity or a numeric value or a unit.
-     * @param null|string|UnitInterface $operandUnit The other quantity's unit, if a numeric value was provided.
+     * @param self|float|string|UnitInterface $other The Quantity, number, or unit to divide.
      * @return self A new Quantity representing the result of the division.
-     * @throws ArgumentCountError If a unit is specified when the operand is not a float.
      * @throws DivisionByZeroError If the divisor is zero.
      * @throws DomainException If a value is non-finite or the unit is unknown.
      * @throws FormatException If a unit string cannot be parsed.
@@ -858,19 +799,21 @@ class Quantity implements Stringable
      *   $length = new Length(10, 'm');
      *   $half = $length->div(2);  // Length(5, 'm')
      */
-    public function div(float|self|string|UnitInterface $operand, null|string|UnitInterface $operandUnit = null): self
+    public function div(float|self|string|UnitInterface $other): self
     {
         // Check for simple division by a scalar.
-        if (is_float($operand) && $operandUnit === null) {
-            if ($operand === 0.0) {
+        if (is_float($other)) {
+            if ($other === 0.0) {
                 throw new DivisionByZeroError('Cannot divide a quantity by 0.');
             }
 
-            return $this->withValue($this->value / $operand);
+            return $this->withValue($this->value / $other);
         }
 
         // Get the other operand as a Quantity object.
-        $other = self::argsToQuantity($operand, $operandUnit);
+        if (!$other instanceof self) {
+            $other = self::create(1, DerivedUnit::toDerivedUnit($other));
+        }
 
         // Multiply by the inverse.
         return $this->mul($other->inv());
@@ -1211,13 +1154,13 @@ class Quantity implements Stringable
      * Create a new Quantity object as a sum of measurements of different units.
      *
      * @param array<string, int|float> $parts The parts.
-     * @return Quantity A new Quantity representing the sum of the parts.
+     * @return static A new Quantity representing the sum of the parts.
      * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
      * numbers.
      * @throws DomainException If the quantity type is unregistered, or the result unit symbol or sign is invalid.
      * @see QuantityPartsService::fromParts()
      */
-    public static function fromParts(array $parts): self
+    public static function fromParts(array $parts): static
     {
         return QuantityPartsService::fromParts(static::getQuantityType(), $parts);
     }
@@ -1241,14 +1184,14 @@ class Quantity implements Stringable
      * Parse a string of quantity parts.
      *
      * @param string $input The string to parse.
-     * @return Quantity A new Quantity representing the sum of the parts.
+     * @return static A new Quantity representing the sum of the parts.
      * @throws FormatException If the input string is invalid.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
      * @throws DomainException If the quantity type is unregistered or the result unit symbol is invalid.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::parseParts()
      */
-    public static function parseParts(string $input): self
+    public static function parseParts(string $input): static
     {
         return QuantityPartsService::parseParts(static::getQuantityType(), $input);
     }

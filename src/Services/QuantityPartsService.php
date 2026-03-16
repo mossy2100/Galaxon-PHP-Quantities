@@ -241,7 +241,7 @@ class QuantityPartsService
 
             // Add the part. It will be converted to the result unit automatically.
             // If the value or unit is invalid, this will throw an exception.
-            $qty = $qty->add($partValue, $partUnitSymbol);
+            $qty = $qty->add(Quantity::create($partValue, $partUnitSymbol));
         }
 
         // Make negative if necessary.
@@ -468,7 +468,7 @@ class QuantityPartsService
 
         // Skip unless we're showing zeros or the value is non-zero.
         if ($showZeros || $roundedValue !== 0.0 || empty($result)) {
-            $valueStr = Quantity::formatValue($value, 'f', $precision, true, $ascii);
+            $valueStr = Quantity::formatValue($value, 'f', $precision, null, $ascii);
             $result[] = $valueStr . $unit->format($ascii);
         }
 

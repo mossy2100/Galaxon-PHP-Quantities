@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Quantity;
 
-use ArgumentCountError;
 use DivisionByZeroError;
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
@@ -105,14 +104,17 @@ final class QuantityArithmeticTest extends TestCase
     }
 
     /**
-     * Test add() with value and unit.
+     * Test add() with cross-system unit conversion.
      */
-    public function testAddValueAndUnit(): void
+    public function testAddWithConversion(): void
     {
-        $a = new Length(100, 'm');
-        $sum = $a->add(50, 'cm');
+        $a = new Length(1, 'mi');
+        $b = new Length(1, 'km');
+        $sum = $a->add($b);
 
-        $this->assertSame(100.5, $sum->value);
+        // 1 mi + 1 km ≈ 1 mi + 0.621371 mi ≈ 1.621371 mi
+        $this->assertApproxEqual(1.6213711922, $sum->value);
+        $this->assertSame('mi', $sum->derivedUnit->asciiSymbol);
     }
 
     /**
@@ -126,18 +128,6 @@ final class QuantityArithmeticTest extends TestCase
 
         $this->assertSame(1.5, $sum->value);
         $this->assertSame('km', $sum->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test add() throws ArgumentCountError when a unit is specified with a Quantity operand.
-     */
-    public function testAddWithQuantityAndUnitThrowsArgumentCountError(): void
-    {
-        $this->expectException(ArgumentCountError::class);
-
-        $a = new Length(10, 'm');
-        $b = new Length(5, 'm');
-        $a->add($b, 'km');
     }
 
     /**
@@ -182,14 +172,17 @@ final class QuantityArithmeticTest extends TestCase
     }
 
     /**
-     * Test sub() with value and unit.
+     * Test sub() with cross-system unit conversion.
      */
-    public function testSubValueAndUnit(): void
+    public function testSubWithConversion(): void
     {
-        $a = new Length(100, 'm');
-        $diff = $a->sub(50, 'cm');
+        $a = new Length(1, 'mi');
+        $b = new Length(1, 'km');
+        $diff = $a->sub($b);
 
-        $this->assertSame(99.5, $diff->value);
+        // 1 mi - 1 km ≈ 1 mi - 0.621371 mi ≈ 0.378629 mi
+        $this->assertApproxEqual(0.3786288078, $diff->value);
+        $this->assertSame('mi', $diff->derivedUnit->asciiSymbol);
     }
 
     /**
@@ -202,18 +195,6 @@ final class QuantityArithmeticTest extends TestCase
         $diff = $a->sub($b);
 
         $this->assertSame(-100.0, $diff->value);
-    }
-
-    /**
-     * Test sub() throws ArgumentCountError when a unit is specified with a Quantity operand.
-     */
-    public function testSubWithQuantityAndUnitThrowsArgumentCountError(): void
-    {
-        $this->expectException(ArgumentCountError::class);
-
-        $a = new Length(10, 'm');
-        $b = new Length(5, 'm');
-        $a->sub($b, 'km');
     }
 
     /**
@@ -271,18 +252,6 @@ final class QuantityArithmeticTest extends TestCase
     }
 
     /**
-     * Test mul() with value and unit.
-     */
-    public function testMulValueAndUnit(): void
-    {
-        $length = new Length(10, 'm');
-        $result = $length->mul(5, 'm');
-
-        $this->assertSame(50.0, $result->value);
-        $this->assertSame('m2', $result->derivedUnit->asciiSymbol);
-    }
-
-    /**
      * Test mul() by zero.
      */
     public function testMulByZero(): void
@@ -315,18 +284,6 @@ final class QuantityArithmeticTest extends TestCase
 
         $this->assertSame(10.0, $result->value);
         $this->assertSame('m*s', $result->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test mul() throws ArgumentCountError when a unit is specified with a Quantity operand.
-     */
-    public function testMulWithQuantityAndUnitThrowsArgumentCountError(): void
-    {
-        $this->expectException(ArgumentCountError::class);
-
-        $a = new Length(10, 'm');
-        $b = new Length(5, 'm');
-        $a->mul($b, 's');
     }
 
     /**
@@ -427,30 +384,6 @@ final class QuantityArithmeticTest extends TestCase
 
         $this->assertSame(10.0, $result->value);
         $this->assertSame('m/s', $result->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test div() with value and unit.
-     */
-    public function testDivValueAndUnit(): void
-    {
-        $length = new Length(100, 'm');
-        $result = $length->div(10, 's');
-
-        $this->assertSame(10.0, $result->value);
-        $this->assertSame('m/s', $result->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test div() throws ArgumentCountError when a unit is specified with a Quantity operand.
-     */
-    public function testDivWithQuantityAndUnitThrowsArgumentCountError(): void
-    {
-        $this->expectException(ArgumentCountError::class);
-
-        $a = new Length(10, 'm');
-        $b = new Time(5, 's');
-        $a->div($b, 'm');
     }
 
     // endregion
@@ -577,7 +510,7 @@ final class QuantityArithmeticTest extends TestCase
     public function testChainedOperations(): void
     {
         $length = new Length(10, 'm');
-        $result = $length->mul(2)->add(5, 'm')->sub(3, 'm');
+        $result = $length->mul(2)->addnew Length(5, 'm')->sub(new Length(3, 'm'));
 
         $this->assertSame(22.0, $result->value);
     }

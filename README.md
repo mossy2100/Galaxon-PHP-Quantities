@@ -135,42 +135,42 @@ Other than the quantity type classes (below), these are the main classes you'll 
 
 All quantity type classes extend `Quantity` and define their specific units and conversions. See **[Supported Units](docs/Concepts/SupportedUnits.md)** for a complete reference of all units organized by quantity type.
 
-| Class                                                                     | Dimension  | SI Unit | Description                                      |
-| ------------------------------------------------------------------------- | ---------- | ------- | ------------------------------------------------ |
-| [Acceleration](docs/Reference/QuantityType/Acceleration.md)               | T-2L       | m/s²    | Rate of change of velocity.                      |
-| [AmountOfSubstance](docs/Reference/QuantityType/AmountOfSubstance.md)     | N          | mol     | SI base quantity for counting entities.          |
-| [Angle](docs/Reference/QuantityType/Angle.md)                             | A          | rad     | Angular measurements with trig functions.        |
-| [Area](docs/Reference/QuantityType/Area.md)                               | L2         | m²      | Two-dimensional extent.                          |
-| [Capacitance](docs/Reference/QuantityType/Capacitance.md)                 | T4I2L-2M-1 | F       | Ability to store electric charge.                |
-| [CatalyticActivity](docs/Reference/QuantityType/CatalyticActivity.md)     | T-1N       | kat     | Rate of catalysis.                               |
-| [Conductance](docs/Reference/QuantityType/Conductance.md)                 | T3I2L-2M-1 | S       | Electrical conductance.                          |
-| [Data](docs/Reference/QuantityType/Data.md)                               | D          | B       | Digital storage with metric and binary prefixes. |
-| [Density](docs/Reference/QuantityType/Density.md)                         | L-3M       | kg/m³   | Mass per unit volume.                            |
-| [Dimensionless](docs/Reference/QuantityType/Dimensionless.md)             | 1          | —       | Ratios, percentages, and pure numbers.           |
-| [ElectricCharge](docs/Reference/QuantityType/ElectricCharge.md)           | TI         | C       | Quantity of electricity.                         |
-| [ElectricCurrent](docs/Reference/QuantityType/ElectricCurrent.md)         | I          | A       | SI base quantity for electric current.           |
-| [Energy](docs/Reference/QuantityType/Energy.md)                           | T-2L2M     | J       | Capacity to do work.                             |
-| [Force](docs/Reference/QuantityType/Force.md)                             | T-2LM      | N       | Interaction causing acceleration.                |
-| [Frequency](docs/Reference/QuantityType/Frequency.md)                     | T-1        | Hz, Bq  | Cycles per unit time.                            |
-| [Illuminance](docs/Reference/QuantityType/Illuminance.md)                 | L-2J       | lx      | Luminous flux per area.                          |
-| [Inductance](docs/Reference/QuantityType/Inductance.md)                   | T-2L2MI-2  | H       | Property opposing current change.                |
-| [Length](docs/Reference/QuantityType/Length.md)                           | L          | m       | SI base quantity for distance.                   |
-| [LuminousFlux](docs/Reference/QuantityType/LuminousFlux.md)               | AJ         | lm      | Perceived light power.                           |
-| [LuminousIntensity](docs/Reference/QuantityType/LuminousIntensity.md)     | J          | cd      | SI base quantity for luminous intensity.         |
-| [MagneticFlux](docs/Reference/QuantityType/MagneticFlux.md)               | T-2L2MI-1  | Wb      | Total magnetic field through surface.            |
-| [MagneticFluxDensity](docs/Reference/QuantityType/MagneticFluxDensity.md) | T-2MI-1    | T       | Magnetic field strength.                         |
-| [Mass](docs/Reference/QuantityType/Mass.md)                               | M          | kg      | SI base quantity for mass.                       |
-| [Money](docs/Reference/QuantityType/Money.md)                             | C          | XAU     | Currency conversions and calculations.           |
-| [Power](docs/Reference/QuantityType/Power.md)                             | T-3L2M     | W       | Rate of energy transfer.                         |
-| [Pressure](docs/Reference/QuantityType/Pressure.md)                       | T-2L-1M    | Pa      | Force per unit area.                             |
-| [RadiationDose](docs/Reference/QuantityType/RadiationDose.md)             | T-2L2      | Gy, Sv  | Absorbed and equivalent radiation dose.          |
-| [Resistance](docs/Reference/QuantityType/Resistance.md)                   | T-3L2MI-2  | Ω       | Opposition to electric current.                  |
-| [SolidAngle](docs/Reference/QuantityType/SolidAngle.md)                   | A2         | sr      | Three-dimensional angular extent.                |
-| [Temperature](docs/Reference/QuantityType/Temperature.md)                 | H          | K       | SI base quantity with affine conversions.        |
-| [Time](docs/Reference/QuantityType/Time.md)                               | T          | s       | SI base quantity for duration.                   |
-| [Velocity](docs/Reference/QuantityType/Velocity.md)                       | T-1L       | m/s     | Rate of change of position.                      |
-| [Voltage](docs/Reference/QuantityType/Voltage.md)                         | T-3L2MI-1  | V       | Electric potential difference.                   |
-| [Volume](docs/Reference/QuantityType/Volume.md)                           | L3         | m³      | Three-dimensional extent.                        |
+| Class                                                                     | Dimension  | SI or common base unit | Description                                      |
+| ------------------------------------------------------------------------- | ---------- | ---------------------- | ------------------------------------------------ |
+| [Acceleration](docs/Reference/QuantityType/Acceleration.md)               | T-2L       | m/s²                   | Rate of change of velocity.                      |
+| [AmountOfSubstance](docs/Reference/QuantityType/AmountOfSubstance.md)     | N          | mol                    | SI base quantity for counting entities.          |
+| [Angle](docs/Reference/QuantityType/Angle.md)                             | A          | rad                    | Angular measurements with trig functions.        |
+| [Area](docs/Reference/QuantityType/Area.md)                               | L2         | m²                     | Two-dimensional extent.                          |
+| [Capacitance](docs/Reference/QuantityType/Capacitance.md)                 | T4I2L-2M-1 | F                      | Ability to store electric charge.                |
+| [CatalyticActivity](docs/Reference/QuantityType/CatalyticActivity.md)     | T-1N       | kat                    | Rate of catalysis.                               |
+| [Conductance](docs/Reference/QuantityType/Conductance.md)                 | T3I2L-2M-1 | S                      | Electrical conductance.                          |
+| [Data](docs/Reference/QuantityType/Data.md)                               | D          | B                      | Digital storage with metric and binary prefixes. |
+| [Density](docs/Reference/QuantityType/Density.md)                         | L-3M       | kg/m³                  | Mass per unit volume.                            |
+| [Dimensionless](docs/Reference/QuantityType/Dimensionless.md)             | *empty*    | *empty*                | Ratios, percentages, and pure numbers.           |
+| [ElectricCharge](docs/Reference/QuantityType/ElectricCharge.md)           | TI         | C                      | Quantity of electricity.                         |
+| [ElectricCurrent](docs/Reference/QuantityType/ElectricCurrent.md)         | I          | A                      | SI base quantity for electric current.           |
+| [Energy](docs/Reference/QuantityType/Energy.md)                           | T-2L2M     | J                      | Capacity to do work.                             |
+| [Force](docs/Reference/QuantityType/Force.md)                             | T-2LM      | N                      | Interaction causing acceleration.                |
+| [Frequency](docs/Reference/QuantityType/Frequency.md)                     | T-1        | Hz, Bq                 | Cycles per unit time.                            |
+| [Illuminance](docs/Reference/QuantityType/Illuminance.md)                 | L-2J       | lx                     | Luminous flux per area.                          |
+| [Inductance](docs/Reference/QuantityType/Inductance.md)                   | T-2L2MI-2  | H                      | Property opposing current change.                |
+| [Length](docs/Reference/QuantityType/Length.md)                           | L          | m                      | SI base quantity for distance.                   |
+| [LuminousFlux](docs/Reference/QuantityType/LuminousFlux.md)               | AJ         | lm                     | Perceived light power.                           |
+| [LuminousIntensity](docs/Reference/QuantityType/LuminousIntensity.md)     | J          | cd                     | SI base quantity for luminous intensity.         |
+| [MagneticFlux](docs/Reference/QuantityType/MagneticFlux.md)               | T-2L2MI-1  | Wb                     | Total magnetic field through surface.            |
+| [MagneticFluxDensity](docs/Reference/QuantityType/MagneticFluxDensity.md) | T-2MI-1    | T                      | Magnetic field strength.                         |
+| [Mass](docs/Reference/QuantityType/Mass.md)                               | M          | kg                     | SI base quantity for mass.                       |
+| [Money](docs/Reference/QuantityType/Money.md)                             | C          | XAU                    | Currency conversions and calculations.           |
+| [Power](docs/Reference/QuantityType/Power.md)                             | T-3L2M     | W                      | Rate of energy transfer.                         |
+| [Pressure](docs/Reference/QuantityType/Pressure.md)                       | T-2L-1M    | Pa                     | Force per unit area.                             |
+| [RadiationDose](docs/Reference/QuantityType/RadiationDose.md)             | T-2L2      | Gy, Sv                 | Absorbed and equivalent radiation dose.          |
+| [Resistance](docs/Reference/QuantityType/Resistance.md)                   | T-3L2MI-2  | Ω                      | Opposition to electric current.                  |
+| [SolidAngle](docs/Reference/QuantityType/SolidAngle.md)                   | A2         | sr                     | Three-dimensional angular extent.                |
+| [Temperature](docs/Reference/QuantityType/Temperature.md)                 | H          | K                      | SI base quantity with affine conversions.        |
+| [Time](docs/Reference/QuantityType/Time.md)                               | T          | s                      | SI base quantity for duration.                   |
+| [Velocity](docs/Reference/QuantityType/Velocity.md)                       | T-1L       | m/s                    | Rate of change of position.                      |
+| [Voltage](docs/Reference/QuantityType/Voltage.md)                         | T-3L2MI-1  | V                      | Electric potential difference.                   |
+| [Volume](docs/Reference/QuantityType/Volume.md)                           | L3         | m³                     | Three-dimensional extent.                        |
 
 ### Services
 
@@ -199,6 +199,15 @@ These classes provide the core functionality of the library and will typically n
 | [Converter](docs/Reference/Internal/Converter.md)           | Graph-based algorithm for finding conversion paths between units.                              |
 | [FloatWithError](docs/Reference/Internal/FloatWithError.md) | Floating-point numbers with tracked error bounds for precision monitoring.                     |
 | [QuantityType](docs/Reference/Internal/QuantityType.md)     | Data class representing a quantity type with its dimension, SI unit, and PHP class.            |
+
+### Exceptions
+
+Custom exception types to provide additional context when needed. Both extend `DomainException`, as they relate to provided values being outside a valid domain.
+
+| Class                                                                                 | Description                                      |
+|---------------------------------------------------------------------------------------|--------------------------------------------------|
+| [UnknownUnitException](docs/Reference/Exceptions/UnknownUnitException.md)             | Thrown when a unit symbol cannot be resolved.     |
+| [DimensionMismatchException](docs/Reference/Exceptions/DimensionMismatchException.md) | Thrown when units have incompatible dimensions.   |
 
 ## Testing
 

@@ -2,6 +2,8 @@
 
 Base class for physical measurements with units.
 
+**Namespace:** `Galaxon\Quantities`
+
 ---
 
 ## Overview
@@ -472,74 +474,91 @@ Negate this measurement.
 ### add()
 
 ```php
-public function add(self|float $otherOrValue, null|string|UnitInterface $otherUnit = null): self
+public function add(self $other): self
 ```
 
-Add another measurement to this one.
+Add another measurement to this one. The other Quantity must have the same dimension. The result is expressed in this measurement's unit.
 
 **Parameters:**
-- `$otherOrValue` (self|float) - Another Quantity or numeric value.
-- `$otherUnit` (null|string|UnitInterface) - Unit if numeric value provided.
+- `$other` (self) - Another Quantity with the same dimension.
 
 **Returns:**
 - `Quantity` - Sum in this measurement's unit.
+
+**Throws:**
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If the quantities have different dimensions.
 
 **Examples:**
 ```php
 $a = new Length(100, 'm');
 $b = new Length(2, 'km');
-$sum = $a->add($b);          // 2100 m
-$sum = $a->add(50, 'cm');    // 100.5 m
+$sum = $a->add($b);                    // 2100 m
+$sum = $a->add(new Length(50, 'cm'));   // 100.5 m
 ```
 
 ### sub()
 
 ```php
-public function sub(self|float $otherOrValue, null|string|UnitInterface $otherUnit = null): self
+public function sub(self $other): self
 ```
 
-Subtract another measurement from this one.
+Subtract another measurement from this one. The other Quantity must have the same dimension. The result is expressed in this measurement's unit.
 
 **Parameters:**
-- `$otherOrValue` (self|float) - Another Quantity or numeric value.
-- `$otherUnit` (null|string|UnitInterface) - Unit if numeric value provided.
+- `$other` (self) - Another Quantity with the same dimension.
 
 **Returns:**
 - `Quantity` - Difference in this measurement's unit.
 
+**Throws:**
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If the quantities have different dimensions.
+
+**Examples:**
+```php
+$a = new Length(2, 'km');
+$b = new Length(500, 'm');
+$diff = $a->sub($b);  // 1.5 km
+```
+
 ### mul()
 
 ```php
-public function mul(float|self $otherOrValue, null|string|UnitInterface $otherUnit = null): self
+public function mul(float|self|string|UnitInterface $other): self
 ```
 
-Multiply this measurement by a scalar or another Quantity.
+Multiply this measurement by a scalar, another Quantity, or a unit.
+
+When multiplying by a scalar, the unit is preserved. When multiplying by a Quantity or unit, the units are combined.
 
 **Parameters:**
-- `$otherOrValue` (float|self) - Scalar or another Quantity.
-- `$otherUnit` (null|string|UnitInterface) - Unit if numeric value provided.
+- `$other` (float|self|string|UnitInterface) - A scalar, Quantity, unit symbol, or UnitInterface.
 
 **Returns:**
-- `Quantity` - Product with combined units (merged if same dimension).
+- `Quantity` - Product with combined units.
+
+**Throws:**
+- `DomainException` - If the result overflows to infinity.
 
 **Examples:**
 ```php
 $length = new Length(10, 'm');
 $doubled = $length->mul(2);        // 20 m
 $area = $length->mul($length);     // 100 m2
+$ms = $length->mul('s');           // 10 m*s
 ```
 
 ### div()
 
 ```php
-public function div(float|self $otherOrValue, null|string|UnitInterface $otherUnit = null): self
+public function div(float|self|string|UnitInterface $other): self
 ```
 
-Divide this measurement by a scalar or another Quantity.
+Divide this measurement by a scalar, another Quantity, or a unit.
+
+When dividing by a scalar, the unit is preserved. When dividing by a Quantity or unit, the units are combined with inverse exponents. Dividing by the same dimension cancels out, yielding a dimensionless result.
 
 **Parameters:**
-- `$otherOrValue` (float|self) - Divisor scalar or Quantity.
-- `$otherUnit` (null|string|UnitInterface) - Unit if numeric value provided.
+- `$other` (float|self|string|UnitInterface) - A scalar, Quantity, unit symbol, or UnitInterface.
 
 **Returns:**
 - `Quantity` - Quotient with adjusted units.
