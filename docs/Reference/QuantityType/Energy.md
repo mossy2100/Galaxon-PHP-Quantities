@@ -11,7 +11,7 @@ Represents energy quantities.
 
 The `Energy` class handles energy measurements across SI, scientific, and common units.
 
-For the complete list of energy units, see [Supported Units: Energy](../../DeveloperGuide/SupportedUnits.md#energy).
+For the complete list of energy units, see [Supported Units: Energy](SupportedUnits.md#energy).
 
 ---
 
@@ -39,19 +39,6 @@ $inBaseUnits = $energy->to('kg*m2*s-2');  // 1
 | eV | J | 1.602176634×10⁻¹⁹ |
 | cal | J | 4.184 (exact, thermochemical) |
 | Btu | J | 1055.05585262 |
-
----
-
-## Common Prefixed Units
-
-| Unit | Value |
-|------|-------|
-| kJ | 1,000 J |
-| MJ | 1,000,000 J |
-| kWh | 3,600,000 J |
-| kcal | 4,184 J |
-| keV | 1.602×10⁻¹⁶ J |
-| MeV | 1.602×10⁻¹³ J |
 
 ---
 
@@ -99,7 +86,7 @@ Energy is related to other quantities:
 
 ## See Also
 
-- **[Supported Units: Energy](../../DeveloperGuide/SupportedUnits.md#energy)** - Complete list of energy units
+- **[Supported Units: Energy](SupportedUnits.md#energy)** - Complete list of energy units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Power](Power.md)** - Related quantity (energy per time)
 - **[Force](Force.md)** - Related quantity (energy per distance)

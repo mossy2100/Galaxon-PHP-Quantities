@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\FloatWithError;
@@ -102,8 +103,8 @@ class ConversionTest extends TestCase
      */
     public function testConstructorThrowsForMismatchedDimensions(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("'m' (L) and 's' (T) have different dimensions");
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage("Dimension mismatch: 'L' (length) and 'T' (time)");
 
         new Conversion('m', 's', 1.0);
     }

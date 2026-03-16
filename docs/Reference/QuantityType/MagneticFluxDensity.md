@@ -11,7 +11,7 @@ Represents magnetic flux density (magnetic field strength) quantities.
 
 The `MagneticFluxDensity` class handles magnetic flux density measurements, also known as magnetic field strength or B-field.
 
-For the complete list of magnetic flux density units, see [Supported Units: Magnetic Flux Density](../../DeveloperGuide/SupportedUnits.md#magnetic-flux-density).
+For the complete list of magnetic flux density units, see [Supported Units: Magnetic Flux Density](SupportedUnits.md#magnetic-flux-density).
 
 ---
 
@@ -22,28 +22,6 @@ The tesla is defined as:
 ```
 T = kg·s⁻²·A⁻¹ = Wb/m² = V·s/m²
 ```
-
----
-
-## Common Prefixed Units
-
-| Unit | Value | Typical Use |
-|------|-------|-------------|
-| nT | 10⁻⁹ T | Geomagnetic surveys |
-| μT | 10⁻⁶ T | Earth's field, safety limits |
-| mT | 10⁻³ T | Permanent magnets |
-| T | 1 T | MRI, strong magnets |
-
----
-
-## Reference Values
-
-| Field | Strength |
-|-------|----------|
-| Earth's field | 25-65 μT |
-| Refrigerator magnet | 5 mT |
-| MRI machine | 1.5-3 T |
-| Strongest lab magnets | ~45 T |
 
 ---
 
@@ -68,6 +46,6 @@ $magnet = new MagneticFluxDensity(1.2, 'T');
 
 ## See Also
 
-- **[Supported Units: Magnetic Flux Density](../../DeveloperGuide/SupportedUnits.md#magnetic-flux-density)** - Complete list
+- **[Supported Units: Magnetic Flux Density](SupportedUnits.md#magnetic-flux-density)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[MagneticFlux](MagneticFlux.md)** - Related quantity (Φ = B·A)

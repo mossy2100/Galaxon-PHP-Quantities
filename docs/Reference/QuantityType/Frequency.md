@@ -11,7 +11,7 @@ Represents frequency and radioactivity quantities.
 
 The `Frequency` class handles measurements with dimension T⁻¹ (inverse time). This includes both frequency (hertz) and radioactivity (becquerel).
 
-For the complete list of frequency units, see [Supported Units: Frequency](../../DeveloperGuide/SupportedUnits.md#frequency).
+For the complete list of frequency units, see [Supported Units: Frequency](SupportedUnits.md#frequency).
 
 ---
 
@@ -41,19 +41,6 @@ Both hertz and becquerel expand to the same base unit expression:
 Hz = s⁻¹
 Bq = s⁻¹
 ```
-
----
-
-## Common Prefixed Units
-
-| Unit | Value | Typical Use |
-|------|-------|-------------|
-| mHz | 0.001 Hz | Seismic waves |
-| Hz | 1 Hz | Low audio |
-| kHz | 1,000 Hz | Audio, AM radio |
-| MHz | 1,000,000 Hz | FM radio, computers |
-| GHz | 10⁹ Hz | Microwave, WiFi, CPUs |
-| THz | 10¹² Hz | Infrared light |
 
 ---
 
@@ -98,9 +85,17 @@ Where f is frequency in Hz and T is period in seconds.
 
 ---
 
+## Physical Constants
+
+The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
+
+- **`PhysicalConstant::caesiumFrequency()`** (ΔνCs) — Hyperfine transition frequency of caesium, 9,192,631,770 Hz.
+
+---
+
 ## See Also
 
-- **[Supported Units: Frequency](../../DeveloperGuide/SupportedUnits.md#frequency)** - Complete list of frequency units
+- **[Supported Units: Frequency](SupportedUnits.md#frequency)** - Complete list of frequency units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Time](Time.md)** - Related quantity (inverse relationship)
 - **[RadiationDose](RadiationDose.md)** - Related radiation quantity

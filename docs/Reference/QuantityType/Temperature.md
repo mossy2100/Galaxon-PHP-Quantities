@@ -11,7 +11,7 @@ Represents temperature quantities with special handling for offset-based convers
 
 The `Temperature` class handles the complexity of temperature conversions, which differ from other quantity types because Celsius and Fahrenheit are offset from absolute zero.
 
-For the complete list of temperature units, see [Supported Units: Temperature](../../DeveloperGuide/SupportedUnits.md#temperature).
+For the complete list of temperature units, see [Supported Units: Temperature](SupportedUnits.md#temperature).
 
 ---
 
@@ -81,8 +81,25 @@ The conversion process:
 
 ### Important Notes
 
-- **Offsets only apply to absolute temperatures** - When converting derived units like `J/°C` to `J/K`, only the factor (1.0) applies, not the offset. This is correct because such quantities represent rates of change, not absolute temperatures.
-- **Prefixed Kelvin is supported** - Units like `mK` (millikelvin) work correctly.
+- **Offsets only apply to absolute temperatures** — When converting derived units like `J/°C` to `J/K`, only the scale factor applies, not the offset. This is physically correct because such quantities represent rates of change, not absolute temperatures:
+
+```php
+// Absolute temperature — offset is applied.
+$t = new Temperature(20, 'degC');
+echo $t->to('K');  // 293.15 K (not 20 K)
+
+// Rate of change — only scale factor, no offset.
+$rate = Quantity::create(5, 'J/K');
+echo $rate->to('J/degR');  // 2.7778 J/°R
+```
+
+- **Prefixed Kelvin is supported** — Units like `mK` (millikelvin) work correctly:
+
+```php
+$cmbr = new Temperature(2725, 'mK');
+echo $cmbr->to('K');     // 2.725 K
+echo $cmbr->to('degC');  // -270.425 °C
+```
 
 ---
 
@@ -115,19 +132,7 @@ $kelvin = Temperature::convert(25, 'degC', 'K');  // 298.15
 
 ---
 
-## Common Reference Points
-
-| Description      | Celsius  | Fahrenheit | Kelvin  |
-|------------------|----------|------------|---------|
-| Absolute zero    | -273.15  | -459.67    | 0       |
-| Water freezes    | 0        | 32         | 273.15  |
-| Room temperature | 20-22    | 68-72      | 293-295 |
-| Human body       | 37       | 98.6       | 310.15  |
-| Water boils      | 100      | 212        | 373.15  |
-
----
-
 ## See Also
 
-- **[Supported Units: Temperature](../../DeveloperGuide/SupportedUnits.md#temperature)** - Complete list of temperature units
-- **[Quantity](../Quantity.md)** - Base class documentation
+- **[Supported Units: Temperature](SupportedUnits.md#temperature)** — Complete list of temperature units.
+- **[Quantity](../Quantity.md)** — Base class documentation.

@@ -21,6 +21,19 @@ CurrencyService::init(new FrankfurterService());
 
 ---
 
+## Basic currency conversion
+
+Convert a money value from one currency to another:
+
+```php
+$price = new Money(12.99, 'USD');
+echo $price->to('AUD');  // e.g. 20.58 AUD
+echo $price->to('EUR');  // e.g. 11.99 EUR
+echo $price->to('JPY');  // e.g. 1955 JPY
+```
+
+---
+
 ## Salary conversion
 
 Divide an annual salary by a work capacity to get an hourly rate, then convert currencies:
@@ -47,8 +60,8 @@ Convert a metal price from one mass unit and currency to another. For example, c
 CurrencyService::init(new OpenExchangeRatesService('your-api-key'));
 UnitService::loadSystem(UnitSystem::Imperial);
 
-$silverPerOzT = Quantity::create(1, 'XAG/oz t');
-$silverPerKg = $silverPerOzT->to('USD/kg');
+$silverPerOz = Quantity::create(1, 'XAG/oz t');
+$silverPerKg = $silverPerOz->to('USD/kg');
 echo $silverPerKg->format(precision: 2);  // e.g. 1044.97 USD/kg
 ```
 
@@ -76,7 +89,7 @@ echo $priceA->to('USD/US gal')->format(precision: 2);  // 68.06 USD/US gal
 
 ## Cost per nutrient
 
-Compare the cost-effectiveness of two protein powder products by computing the price per gram of protein.
+Compare the cost-effectiveness of two protein powder products by computing the price per kilogram of protein.
 
 ```php
 use Galaxon\Quantities\QuantityType\Mass;
@@ -87,10 +100,10 @@ $productMassA = new Mass(2.5, 'kg');
 $servingSizeA = new Mass(44, 'g');
 $proteinPerServeA = new Mass(30.1, 'g');
 
-$costPerGramPowderA = $priceA->div($productMassA); // AUD/kg
+$costPerKgPowderA = $priceA->div($productMassA);        // AUD/kg
 $proteinRatioA = $proteinPerServeA->div($servingSizeA); // g/g (dimensionless)
-$proteinCostA = $costPerGramPowderA->div($proteinRatioA); // AUD/kg of protein
-echo $proteinCostA->to('AUD/g')->format(precision: 4); // 0.0742 AUD/g
+$proteinCostA = $costPerKgPowderA->div($proteinRatioA); // AUD/kg of protein
+echo $proteinCostA->to('AUD/kg')->format(precision: 2); // 74.23 AUD/kg
 
 // Product B: $69.95 for 900 g, 22.7 g protein per 30 g serve.
 $priceB = new Money(69.95, 'AUD');
@@ -98,10 +111,10 @@ $productMassB = new Mass(900, 'g');
 $servingSizeB = new Mass(30, 'g');
 $proteinPerServeB = new Mass(22.7, 'g');
 
-$costPerGramPowderB = $priceB->div($productMassB);
+$costPerKgPowderB = $priceB->div($productMassB);
 $proteinRatioB = $proteinPerServeB->div($servingSizeB);
-$proteinCostB = $costPerGramPowderB->div($proteinRatioB);
-echo $proteinCostB->to('AUD/g')->format(precision: 4); // 0.1027 AUD/g
+$proteinCostB = $costPerKgPowderB->div($proteinRatioB);
+echo $proteinCostB->to('AUD/kg')->format(precision: 2); // 102.72 AUD/kg
 
 // Product A is ~28% cheaper per gram of protein.
 ```
@@ -115,11 +128,11 @@ Calculate the cost of running an appliance:
 ```php
 $power = Quantity::create(2.4, 'kW');
 $duration = Quantity::create(3, 'h');
-$energyRate = Quantity::create(0.30, 'AUD/kW*h');
+$energyRate = Quantity::create(0.30, 'AUD/(kW*h)');
 
-$energy = $power->mul($duration);            // 7.2 kW*h
-$cost = $energy->mul($energyRate)->to('AUD'); // 2.16 AUD
-echo $cost->format(precision: 2);             // 2.16 AUD
+$energy = $power->mul($duration);  // 7.2 kW*h
+$cost = $energy->mul($energyRate); // 2.16 AUD
+echo $cost;                        // A$ 2.16
 ```
 
 ---
@@ -145,7 +158,7 @@ echo $difference;  // e.g. $458.77
 
 ## See Also
 
-- [Money](Money.md) — Creating and using Money quantities.
-- [Currency Service](CurrencyService.md) — Exchange rate services, caching, and configuration.
-- [Arithmetic Operations](ArithmeticOperations.md) — Add, subtract, multiply, and divide quantities.
-- [Unit Conversion](UnitConversion.md) — Converting between units.
+- **[Money](../Reference/QuantityType/Money.md)** — Creating and using Money quantities.
+- **[CurrencyService](../Reference/Currencies/CurrencyService.md)** — Exchange rate services, caching, and configuration.
+- **[Arithmetic Operations](ArithmeticOperations.md)** — Add, subtract, multiply, and divide quantities.
+- **[Unit Conversion](UnitConversion.md)** — Converting between units.

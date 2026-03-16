@@ -9,9 +9,9 @@ Represents pressure quantities.
 
 ## Overview
 
-The `Pressure` class handles pressure measurements across SI and common scientific/engineering units.
+The `Pressure` class handles pressure measurements across SI, scientific, and US customary units.
 
-For the complete list of pressure units, see [Supported Units: Pressure](../../DeveloperGuide/SupportedUnits.md#pressure).
+For the complete list of pressure units, see [Supported Units: Pressure](SupportedUnits.md#pressure).
 
 ---
 
@@ -25,6 +25,17 @@ Pa = kg·m⁻¹·s⁻² = N/m²
 
 ---
 
+## Units
+
+| Unit | Symbol | System | Prefix Support |
+|------|--------|--------|----------------|
+| pascal | Pa | SI | Metric (kPa, MPa, GPa, etc.) |
+| atmosphere | atm | Scientific | No |
+| mmHg | mmHg | Scientific | No |
+| inHg | inHg | US Customary | No |
+
+---
+
 ## Key Conversions
 
 | From | To | Factor |
@@ -32,23 +43,6 @@ Pa = kg·m⁻¹·s⁻² = N/m²
 | atm | Pa | 101,325 (exact) |
 | mmHg | Pa | 133.322387415 |
 | inHg | mmHg | 25.4 |
-| bar | Pa | 100,000 |
-| kPa | Pa | 1,000 |
-
----
-
-## Common Pressure Units
-
-| Unit | Value | Typical Use |
-|------|-------|-------------|
-| Pa | 1 Pa | SI base |
-| kPa | 1,000 Pa | Tire pressure, weather |
-| MPa | 10⁶ Pa | Material strength |
-| GPa | 10⁹ Pa | Diamond anvil cells |
-| bar | 100,000 Pa | Industrial |
-| atm | 101,325 Pa | Reference |
-| mmHg | 133.322 Pa | Blood pressure |
-| inHg | 3,386.39 Pa | US weather |
 
 ---
 
@@ -57,39 +51,28 @@ Pa = kg·m⁻¹·s⁻² = N/m²
 ```php
 use Galaxon\Quantities\QuantityType\Pressure;
 
-// Atmospheric pressure
+// Atmospheric pressure.
 $seaLevel = new Pressure(1, 'atm');
 $inKPa = $seaLevel->to('kPa');    // 101.325 kPa
 $inMmHg = $seaLevel->to('mmHg');  // 760 mmHg
 
-// Blood pressure
+// Blood pressure.
 $systolic = new Pressure(120, 'mmHg');
 $inKPa = $systolic->to('kPa');    // 16.0 kPa
 
-// Tire pressure
-$tire = new Pressure(32, 'psi');  // Using compound units
-$inKPa = $tire->to('kPa');        // 220.6 kPa
-
-// Weather (barometric)
+// Weather (barometric).
 $high = new Pressure(30.2, 'inHg');
-$inMbar = $high->to('mbar');      // 1022.68 mbar
+$inKPa = $high->to('kPa');        // 102.269 kPa
 
-// Industrial
+// Industrial.
 $hydraulic = new Pressure(20, 'MPa');
-$inBar = $hydraulic->to('bar');   // 200 bar
+$inAtm = $hydraulic->to('atm');   // 197.385 atm
 ```
-
----
-
-## Pressure and Altitude
-
-Atmospheric pressure decreases with altitude. At sea level:
-- 1 atm = 101.325 kPa = 760 mmHg = 29.92 inHg
 
 ---
 
 ## See Also
 
-- **[Supported Units: Pressure](../../DeveloperGuide/SupportedUnits.md#pressure)** - Complete list of pressure units
-- **[Quantity](../Quantity.md)** - Base class documentation
-- **[Force](Force.md)** - Related quantity (pressure = force/area)
+- **[Supported Units: Pressure](SupportedUnits.md#pressure)** — Complete list of pressure units.
+- **[Quantity](../Quantity.md)** — Base class documentation.
+- **[Force](Force.md)** — Related quantity (pressure = force/area).

@@ -79,7 +79,7 @@ class QuantityType
                 $unitDefinitions[$unitName]['dimension'] = $this->dimension;
             }
 
-            // Cache the value and return it.
+            // Cache the result in the backing value and return it.
             $this->unitDefinitions = $unitDefinitions;
             return $this->unitDefinitions;
         }
@@ -121,7 +121,6 @@ class QuantityType
      * @param string $dimension The dimension code.
      * @param class-string<Quantity> $class The Quantity subclass.
      * @throws FormatException If the dimension code is invalid.
-     * @throws InvalidArgumentException If the class is not a subclass of Quantity.
      */
     public function __construct(string $name, string $dimension, string $class)
     {

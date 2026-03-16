@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Quantity;
 
 use DomainException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Length;
@@ -214,7 +215,7 @@ final class QuantityCreateTest extends TestCase
      */
     public function testUnknownUnitThrowsException(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(UnknownUnitException::class);
 
         new Length(5, 'xyz');
     }

@@ -32,18 +32,6 @@ $car = new Quantity(3.6, 'km/(h*s)');  // Equivalent to 1 m/s²
 
 ---
 
-## Standard Gravity
-
-The standard acceleration due to gravity (g₀) is defined exactly as:
-
-```
-g₀ = 9.80665 m/s²
-```
-
-This value is used to define the pound-force and other gravitational units.
-
----
-
 ## Usage Examples
 
 ```php
@@ -60,6 +48,14 @@ $inG = $car->value / 9.80665;  // 0.354 g
 // Centrifuge
 $centrifuge = new Quantity(10000 * 9.80665, 'm/s2');  // 10,000 g
 ```
+
+---
+
+## Physical Constants
+
+The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
+
+- **`PhysicalConstant::earthGravity()`** (g) — Standard acceleration of gravity, 9.80665 m/s².
 
 ---
 

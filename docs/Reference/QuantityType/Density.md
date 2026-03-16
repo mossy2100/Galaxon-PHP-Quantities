@@ -30,18 +30,6 @@ $inLbFt3 = $water->to('lb/ft3');  // 62.428 lb/ft³
 
 ---
 
-## Common Densities
-
-| Material | Density |
-|----------|---------|
-| Air (STP) | 1.225 kg/m³ |
-| Water | 1000 kg/m³ = 1 g/cm³ |
-| Aluminum | 2700 kg/m³ |
-| Iron | 7874 kg/m³ |
-| Gold | 19300 kg/m³ |
-
----
-
 ## Usage Examples
 
 ```php

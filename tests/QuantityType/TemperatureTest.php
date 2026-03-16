@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\QuantityType;
 
-use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
@@ -384,8 +384,8 @@ final class TemperatureTest extends TestCase
      */
     public function testConvertThrowsForInvalidSourceUnit(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid temperature unit: 'm'");
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('Dimension mismatch');
 
         Temperature::convert(100, 'm', 'K');
     }
@@ -395,8 +395,8 @@ final class TemperatureTest extends TestCase
      */
     public function testConvertThrowsForInvalidDestinationUnit(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid temperature unit: 'm'");
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('Dimension mismatch');
 
         Temperature::convert(100, 'K', 'm');
     }

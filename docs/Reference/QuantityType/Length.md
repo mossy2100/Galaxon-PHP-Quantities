@@ -9,10 +9,9 @@ Represents length/distance quantities.
 
 ## Overview
 
-The `Length` class handles distance measurements across multiple systems including SI, Imperial, US Customary,
-Scientific, Nautical, and Css units.
+The `Length` class handles distance measurements across multiple systems including SI, Imperial, US Customary, Scientific, Nautical, and Css units.
 
-For the complete list of length units, see [Supported Units: Length](../../DeveloperGuide/SupportedUnits.md#length).
+For the complete list of length units, see [Supported Units: Length](SupportedUnits.md#length).
 
 ---
 
@@ -85,9 +84,17 @@ $inKm = $voyage->to('km');  // 185.2 km
 
 ---
 
+## Physical Constants
+
+The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
+
+- **`PhysicalConstant::bohrRadius()`** (a₀) — Bohr radius, 5.29177210903 × 10⁻¹¹ m.
+
+---
+
 ## See Also
 
-- **[Supported Units: Length](../../DeveloperGuide/SupportedUnits.md#length)** - Complete list of length units
+- **[Supported Units: Length](SupportedUnits.md#length)** - Complete list of length units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Area](Area.md)** - Related quantity (L²)
 - **[Volume](Volume.md)** - Related quantity (L³)

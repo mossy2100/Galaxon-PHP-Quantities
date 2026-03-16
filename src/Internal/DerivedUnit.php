@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
@@ -146,7 +147,8 @@ class DerivedUnit implements UnitInterface
      * @param null|string|UnitInterface $value The value to convert.
      * @return self The equivalent DerivedUnit object.
      * @throws FormatException If a string is provided, and it cannot be parsed.
-     * @throws DomainException If a string is provided, and it contains unknown units.
+     * @throws UnknownUnitException If a string is provided, and it contains unknown units.
+     * @throws DomainException If a string is provided, and an exponent is zero.
      */
     public static function toDerivedUnit(null|string|UnitInterface $value): self
     {
@@ -175,7 +177,7 @@ class DerivedUnit implements UnitInterface
      * @param string $symbol The unit symbol, which can be simple or complex (e.g. 'm', 'kg*m/s2', etc.).
      * @return self The new DerivedUnit instance.
      * @throws FormatException If the symbol format is invalid.
-     * @throws DomainException If any units are unknown.
+     * @throws UnknownUnitException If any units are unknown.
      */
     public static function parse(string $symbol): self
     {
@@ -211,9 +213,10 @@ class DerivedUnit implements UnitInterface
      *
      * @param string $symbol The derived unit symbol.
      * @return self The new DerivedUnit instance.
-     * @throws DomainException If any units are unknown.
+     * @throws UnknownUnitException If any units are unknown.
      * @throws FormatException If the symbol format is invalid.
      * @throws UnexpectedValueException If an unexpected error occurs.
+     * @throws DomainException If an exponent is zero.
      */
     private static function parseHelper(string $symbol): self
     {
@@ -235,7 +238,7 @@ class DerivedUnit implements UnitInterface
         // Convert the substrings to unit terms.
         $nParts = count($parts);
         for ($i = 0; $i < $nParts; $i += 2) {
-            // Parse the unit term. This could throw a DomainException if the symbol is invalid.
+            // Parse the unit term. This could throw an UnknownUnitException if the symbol is invalid.
             $unitTerm = UnitTerm::parse($parts[$i]);
 
             if ($i > 0 && $parts[$i - 1] === '/') {

@@ -11,11 +11,11 @@ Represents time quantities with integration to PHP's DateInterval.
 
 The `Time` class handles time durations and provides conversion to/from PHP's native `DateInterval` class.
 
-For the complete list of time units, see [Supported Units: Time](../../DeveloperGuide/SupportedUnits.md#time).
+For the complete list of time units, see [Supported Units: Time](SupportedUnits.md#time).
 
 ---
 
-## Factory Methods
+## DateInterval interoperability methods
 
 ### fromDateInterval()
 
@@ -39,21 +39,23 @@ $interval->invert = 1;
 $negativeTime = Time::fromDateInterval($interval);
 ```
 
----
-
-## Conversion Methods
-
 ### toDateIntervalSpecifier()
 
 ```php
 public function toDateIntervalSpecifier(): string
 ```
 
-Convert to a DateInterval specification string (ISO 8601 duration format).
+Convert to a DateInterval specification string (ISO 8601 duration format). The specifier rounds to the nearest second, and zero-value components are omitted.
 
 ```php
-$time = new Time(90061, 's');  // 1 day, 1 hour, 1 minute, 1 second
-$spec = $time->toDateIntervalSpecifier();  // "P1DT1H1M1S"
+$time = new Time(90061, 's');
+echo $time->toDateIntervalSpecifier();  // P1DT1H1M1S
+
+$time = new Time(3600, 's');
+echo $time->toDateIntervalSpecifier();  // PT1H
+
+$time = new Time(0, 's');
+echo $time->toDateIntervalSpecifier();  // P0D
 ```
 
 ### toDateInterval()
@@ -80,18 +82,18 @@ echo $interval->invert;  // 1
 
 ---
 
-## Parts Methods
+## Parts
 
-The `Time` class supports decomposition into years, months, weeks, days, hours, minutes, and seconds:
+Time quantities support part decomposition by default using the full set of time units (years, months, weeks, days, hours, minutes, seconds):
 
 ```php
 $time = new Time(90061, 's');
-$parts = $time->toParts();
-// ['y' => 0, 'mo' => 0, 'w' => 0, 'd' => 1, 'h' => 1, 'min' => 1, 's' => 1, 'sign' => 1]
 
-// Limit the range
-$parts = $time->toParts('h', 's');
-// ['h' => 25, 'min' => 1, 's' => 1, 'sign' => 1]
+$parts = $time->toParts();
+// ['sign' => 1, 'y' => 0, 'mo' => 0, 'w' => 0, 'd' => 1, 'h' => 1, 'min' => 1, 's' => 1.0]
+
+echo $time->formatParts();
+// 1d 1h 1min 1s
 ```
 
 ---
@@ -150,6 +152,7 @@ $total = $hours->add($minutes);  // 4 hours total
 
 ## See Also
 
-- **[Supported Units: Time](../../DeveloperGuide/SupportedUnits.md#time)** - Complete list of time units
-- **[Quantity](../Quantity.md)** - Base class documentation
-- **[PHP DateInterval](https://www.php.net/manual/en/class.dateinterval.php)** - Native PHP class
+- **[Supported Units: Time](SupportedUnits.md#time)** — Complete list of time units.
+- **[Quantity](../Quantity.md)** — Base class documentation.
+- **[QuantityPartsService](../Services/QuantityPartsService.md)** — General parts formatting and parsing.
+- **[PHP DateInterval](https://www.php.net/manual/en/class.dateinterval.php)** — Native PHP class.

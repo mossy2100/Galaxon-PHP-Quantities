@@ -11,7 +11,7 @@ Represents electric charge quantities.
 
 The `ElectricCharge` class handles electric charge measurements.
 
-For the complete list of electric charge units, see [Supported Units: Electric Charge](../../DeveloperGuide/SupportedUnits.md#electric-charge).
+For the complete list of electric charge units, see [Supported Units: Electric Charge](SupportedUnits.md#electric-charge).
 
 ---
 
@@ -24,19 +24,6 @@ C = A·s
 ```
 
 One coulomb is the charge transported by a current of one ampere in one second.
-
----
-
-## Common Prefixed Units
-
-| Unit | Value | Typical Use |
-|------|-------|-------------|
-| pC | 10⁻¹² C | Static electricity |
-| nC | 10⁻⁹ C | Capacitors |
-| μC | 10⁻⁶ C | Small capacitors |
-| mC | 10⁻³ C | Batteries |
-| C | 1 C | Reference |
-| kC | 10³ C | Industrial |
 
 ---
 
@@ -59,9 +46,17 @@ $inMC = $charge->to('mC');  // 1000 mC
 
 ---
 
+## Physical Constants
+
+The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
+
+- **`PhysicalConstant::elementaryCharge()`** (e) — Elementary charge, 1.602176634 × 10⁻¹⁹ C.
+
+---
+
 ## See Also
 
-- **[Supported Units: Electric Charge](../../DeveloperGuide/SupportedUnits.md#electric-charge)** - Complete list
+- **[Supported Units: Electric Charge](SupportedUnits.md#electric-charge)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity (I = Q/t)
 - **[Capacitance](Capacitance.md)** - Related quantity (C = Q/V)

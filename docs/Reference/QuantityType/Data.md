@@ -11,33 +11,13 @@ Represents data/information quantities.
 
 The `Data` class handles digital information measurements in bits and bytes, supporting both metric (decimal) and binary prefixes.
 
-For the complete list of data units, see [Supported Units: Data](../../DeveloperGuide/SupportedUnits.md#data).
+For the complete list of data units, see [Supported Units: Data](SupportedUnits.md#data).
 
 ---
 
 ## Prefixes
 
-Data units support two prefix systems:
-
-### Metric (Decimal) Prefixes
-
-| Prefix | Symbol | Factor |
-|--------|--------|--------|
-| kilo | k | 10³ (1,000) |
-| mega | M | 10⁶ (1,000,000) |
-| giga | G | 10⁹ |
-| tera | T | 10¹² |
-| peta | P | 10¹⁵ |
-
-### Binary (IEC) Prefixes
-
-| Prefix | Symbol | Factor |
-|--------|--------|--------|
-| kibi | Ki | 2¹⁰ (1,024) |
-| mebi | Mi | 2²⁰ (1,048,576) |
-| gibi | Gi | 2³⁰ |
-| tebi | Ti | 2⁴⁰ |
-| pebi | Pi | 2⁵⁰ |
+Data units support both large metric prefixes (*kilo* and above), and binary (IEC) prefixes (*kibi*, *mebi*, etc.). See [Prefixes](Prefixes.md) for the full list.
 
 ---
 
@@ -86,17 +66,7 @@ echo $actual->to('GB')->value;       // 1099.51 GB
 
 ---
 
-## Common Conversions
-
-| Marketing | Actual (Binary) |
-|-----------|-----------------|
-| 1 TB | 931.32 GiB |
-| 1 GB | 953.67 MiB |
-| 1 MB | 976.56 KiB |
-
----
-
 ## See Also
 
-- **[Supported Units: Data](../../DeveloperGuide/SupportedUnits.md#data)** - Complete list of data units
+- **[Supported Units: Data](SupportedUnits.md#data)** - Complete list of data units
 - **[Quantity](../Quantity.md)** - Base class documentation

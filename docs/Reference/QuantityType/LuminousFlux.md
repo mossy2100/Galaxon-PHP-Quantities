@@ -11,7 +11,7 @@ Represents luminous flux quantities.
 
 The `LuminousFlux` class handles luminous flux measurements, commonly used to rate light bulb brightness.
 
-For the complete list of luminous flux units, see [Supported Units: Luminous Flux](../../DeveloperGuide/SupportedUnits.md#luminous-flux).
+For the complete list of luminous flux units, see [Supported Units: Luminous Flux](SupportedUnits.md#luminous-flux).
 
 ---
 
@@ -24,18 +24,6 @@ lm = cd·sr
 ```
 
 One lumen is the luminous flux emitted by a source of one candela intensity over a solid angle of one steradian.
-
----
-
-## Common Values
-
-| Light Source | Luminous Flux |
-|--------------|---------------|
-| Candle | ~12 lm |
-| 40W incandescent | ~450 lm |
-| 60W incandescent | ~800 lm |
-| 100W incandescent | ~1600 lm |
-| LED equivalent | Same lumens, less watts |
 
 ---
 
@@ -58,7 +46,7 @@ $inKlm = $flashlight->to('klm');  // 1 klm
 
 ## See Also
 
-- **[Supported Units: Luminous Flux](../../DeveloperGuide/SupportedUnits.md#luminous-flux)** - Complete list
+- **[Supported Units: Luminous Flux](SupportedUnits.md#luminous-flux)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousIntensity](LuminousIntensity.md)** - Related quantity
 - **[Illuminance](Illuminance.md)** - Related quantity (lm/m²)

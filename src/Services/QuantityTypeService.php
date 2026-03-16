@@ -211,8 +211,7 @@ class QuantityTypeService
     // region Static properties
 
     /**
-     * All known/supported quantity types, including defaults and custom.
-     * Stored as an associative array with keys equal to dimension codes.
+     * All known/supported quantity types, including defaults and custom. Keyed by name.
      *
      * @var ?array<string, QuantityType>
      */
@@ -226,7 +225,7 @@ class QuantityTypeService
      * Reset the registry to its initial state.
      *
      * Clears all cached quantity types, forcing re-initialization from the constant on next access.
-     * Primarily intended for test isolation.
+     * Useful for test isolation.
      */
     public static function reset(): void
     {

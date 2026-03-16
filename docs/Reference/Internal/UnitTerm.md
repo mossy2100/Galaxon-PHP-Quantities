@@ -132,7 +132,8 @@ Create a new UnitTerm instance.
 - `$exponent` (int) - The exponent (default: 1)
 
 **Throws:**
-- `DomainException` - If the unit is unknown, prefix is invalid for the unit, or exponent is invalid
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the unit symbol is not recognized
+- `DomainException` - If the prefix is invalid for the unit, or the exponent is invalid
 
 **Examples:**
 ```php
@@ -212,7 +213,8 @@ Parse a string into a UnitTerm.
 
 **Throws:**
 - `FormatException` - If the format is invalid
-- `DomainException` - If the unit is unknown or exponent is zero
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the unit symbol is not recognized
+- `DomainException` - If the exponent is zero
 
 **Behavior:**
 - Accepts ASCII exponents (m2, s-1)

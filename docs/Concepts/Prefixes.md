@@ -1,3 +1,7 @@
+# Prefixes
+
+Unit prefixes are short codes prepended to a unit symbol to indicate a scaling factor, such as *k* for kilo (×10³) or *Mi* for mebi (×2²⁰). The Quantities package supports all standard SI metric prefixes and IEC binary prefixes, and applies them automatically during parsing, formatting, and auto-prefixing.
+
 ---
 
 ## Available Prefixes

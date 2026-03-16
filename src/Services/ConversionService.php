@@ -6,10 +6,11 @@ namespace Galaxon\Quantities\Services;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
-use Galaxon\Quantities\Internal\FloatWithError;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\UnitSystem;
@@ -120,8 +121,7 @@ class ConversionService
         string|UnitInterface $destUnit,
         float $factor,
         bool $replaceExisting = false
-    ): void
-    {
+    ): void {
         $conversion = new Conversion($srcUnit, $destUnit, $factor);
         self::add($conversion, $replaceExisting);
     }
@@ -177,7 +177,8 @@ class ConversionService
      * @param string|UnitInterface $destUnit The destination unit.
      * @return ?Conversion The conversion, or null if not in the matrix.
      * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If a unit string contains unknown units or the dimensions don't match.
+     * @throws UnknownUnitException If a unit string contains unknown units.
+     * @throws DimensionMismatchException If the dimensions don't match.
      */
     public static function get(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
     {
@@ -193,7 +194,8 @@ class ConversionService
      * @param string|UnitInterface $destUnit The destination unit.
      * @return bool True if the conversion exists.
      * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If a unit string contains unknown units or the dimensions don't match.
+     * @throws UnknownUnitException If a unit string contains unknown units.
+     * @throws DimensionMismatchException If the dimensions don't match.
      */
     public static function has(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): bool
     {
@@ -212,7 +214,8 @@ class ConversionService
      * @param string|UnitInterface $destUnit The destination unit.
      * @return float The converted value.
      * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If a unit string contains unknown units or the dimensions don't match.
+     * @throws UnknownUnitException If a unit string contains unknown units.
+     * @throws DimensionMismatchException If the dimensions don't match.
      * @throws LogicException If no conversion path exists between the units.
      */
     public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
@@ -232,7 +235,8 @@ class ConversionService
      * @param string|UnitInterface $destUnit The destination unit.
      * @return ?Conversion The conversion, or null if no path exists.
      * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If a unit string contains unknown units or the dimensions don't match.
+     * @throws UnknownUnitException If a unit string contains unknown units.
+     * @throws DimensionMismatchException If the dimensions don't match.
      */
     public static function find(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
     {
@@ -248,7 +252,8 @@ class ConversionService
      * @param string|UnitInterface $destUnit The destination unit.
      * @return ?float The conversion factor, or null if no path exists.
      * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If a unit string contains unknown units or the dimensions don't match.
+     * @throws UnknownUnitException If a unit string contains unknown units.
+     * @throws DimensionMismatchException If the dimensions don't match.
      */
     public static function findFactor(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?float
     {
@@ -268,7 +273,8 @@ class ConversionService
      * @param string|UnitInterface $destUnit The destination unit.
      * @return array{DerivedUnit, DerivedUnit} The validated DerivedUnit pair.
      * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If a unit string contains unknown units or the dimensions don't match.
+     * @throws UnknownUnitException If a unit string contains unknown units.
+     * @throws DimensionMismatchException If the dimensions don't match.
      */
     private static function validateUnits(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): array
     {
@@ -276,10 +282,7 @@ class ConversionService
         $destUnit = DerivedUnit::toDerivedUnit($destUnit);
 
         if ($srcUnit->dimension !== $destUnit->dimension) {
-            throw new DomainException(
-                "Cannot convert between units of different dimensions: '$srcUnit' ($srcUnit->dimension) " .
-                "and '$destUnit' ($destUnit->dimension)."
-            );
+            throw new DimensionMismatchException($srcUnit->dimension, $destUnit->dimension);
         }
 
         return [$srcUnit, $destUnit];

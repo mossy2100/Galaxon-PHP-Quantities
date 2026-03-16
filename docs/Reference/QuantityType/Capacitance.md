@@ -11,7 +11,7 @@ Represents electrical capacitance quantities.
 
 The `Capacitance` class handles electrical capacitance measurements.
 
-For the complete list of capacitance units, see [Supported Units: Capacitance](../../DeveloperGuide/SupportedUnits.md#capacitance).
+For the complete list of capacitance units, see [Supported Units: Capacitance](SupportedUnits.md#capacitance).
 
 ---
 
@@ -22,20 +22,6 @@ The farad is defined as:
 ```
 F = kg⁻¹·m⁻²·s⁴·A² = C/V = s/Ω
 ```
-
----
-
-## Common Prefixed Units
-
-| Unit | Value | Typical Use |
-|------|-------|-------------|
-| pF | 10⁻¹² F | RF circuits, small caps |
-| nF | 10⁻⁹ F | Decoupling, timing |
-| μF | 10⁻⁶ F | Electrolytic, power |
-| mF | 10⁻³ F | Supercapacitors |
-| F | 1 F | Large supercapacitors |
-
-Note: One farad is a very large capacitance. Most capacitors are measured in pF, nF, or μF.
 
 ---
 
@@ -61,7 +47,7 @@ $inMF = $super->to('mF');  // 1000 mF
 
 ## See Also
 
-- **[Supported Units: Capacitance](../../DeveloperGuide/SupportedUnits.md#capacitance)** - Complete list
+- **[Supported Units: Capacitance](SupportedUnits.md#capacitance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCharge](ElectricCharge.md)** - Related quantity (C = Q/V)
 - **[Voltage](Voltage.md)** - Related quantity

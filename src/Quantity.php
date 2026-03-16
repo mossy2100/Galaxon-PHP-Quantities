@@ -14,6 +14,7 @@ use Galaxon\Core\Floats;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\ApproxComparable;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\UnitInterface;
@@ -27,6 +28,7 @@ use Galaxon\Quantities\Services\UnitService;
 use InvalidArgumentException;
 use LogicException;
 use Override;
+use RoundingMode;
 use Stringable;
 use UnexpectedValueException;
 
@@ -361,22 +363,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Transformation methods
-
-    /**
-     * Create a new Quantity with the same unit but a different value.
-     *
-     * @param float $value The new numeric value.
-     * @return self A new Quantity with the given value in the same unit.
-     */
-    public function withValue(float $value): self
-    {
-        if ($this->value === $value) {
-            return $this;
-        }
-
-        return self::create($value, $this->derivedUnit);
-    }
+    // region Unit transformation methods
 
     /**
      * Substitute expandable units for base units, e.g. N => kg*m/s2
@@ -607,52 +594,62 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Comparison methods
+    // region Value transformation methods
 
     /**
-     * Compare two Quantities.
+     * Create a new Quantity with the same unit but a different value.
      *
-     * This method will only return 0 for *exactly* equal.
-     * It's usually preferable to use approxCompare() instead, which allows for user-defined tolerances.
-     *
-     * Automatically converts the other measurement to this one's unit before comparing.
-     *
-     * @param mixed $other The measurement to compare with.
-     * @return int -1 if this < other, 0 if equal, 1 if this > other.
-     * @throws IncomparableTypesException If the other Quantity has a different type.
-     * @throws InvalidArgumentException If the Quantities have different dimensions.
-     * @throws LogicException If no conversion path exists between the units.
+     * @param float $value The new numeric value.
+     * @return self A new Quantity with the given value in the same unit.
      */
-    #[Override]
-    public function compare(mixed $other): int
+    public function withValue(float $value): self
     {
-        $otherValue = $this->preCompare($other);
-        return Numbers::sign($this->value <=> $otherValue);
+        return self::create($value, $this->derivedUnit);
     }
 
     /**
-     * Compare this Quantity with another and determine if they are equal, within user-defined tolerances.
+     * Get the absolute value of this Quantity.
      *
-     * @param mixed $other The value to compare with (can be any type).
-     * @return bool True if the values are equal, false otherwise.
+     * @return self A new Quantity with a non-negative value and the same unit.
+     * @example
+     *   $temp = new Temperature(-10, 'C');
+     *   $abs = $temp->abs();  // Temperature(10, 'C')
      */
-    #[Override]
-    public function approxEqual(
-        mixed $other,
-        float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
-    ): bool {
-        try {
-            // Get the other Quantity's value in the same unit.
-            // This will throw the other Quantity has a different type or dimension.
-            $otherValue = $this->preCompare($other);
-        } catch (DomainException | IncomparableTypesException) {
-            // If the other Quantity has a different type or dimension to this one.
-            return false;
-        }
+    public function abs(): self
+    {
+        return $this->withValue(abs($this->value));
+    }
 
-        // Now we have the other Quantity in the same unit, compare the values.
-        return Floats::approxEqual($this->value, $otherValue, $relTol, $absTol);
+    /**
+     * Round the value to the given precision.
+     *
+     * @param int $precision The number of decimal places to round to (default 0).
+     * @param RoundingMode $mode The rounding mode (default RoundingMode::HalfAwayFromZero).
+     * @return self A new Quantity with the rounded value in the same unit.
+     */
+    public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): self
+    {
+        return $this->withValue(round($this->value, $precision, $mode));
+    }
+
+    /**
+     * Round the value down (towards negative infinity).
+     *
+     * @return self A new Quantity with the value rounded down, in the same unit.
+     */
+    public function floor(): self
+    {
+        return $this->withValue(floor($this->value));
+    }
+
+    /**
+     * Round the value up (towards positive infinity).
+     *
+     * @return self A new Quantity with the value rounded up, in the same unit.
+     */
+    public function ceil(): self
+    {
+        return $this->withValue(ceil($this->value));
     }
 
     // endregion
@@ -694,19 +691,6 @@ class Quantity implements Stringable
     }
 
     /**
-     * Get the absolute value of this Quantity.
-     *
-     * @return self A new Quantity with a non-negative value and the same unit.
-     * @example
-     *   $temp = new Temperature(-10, 'C');
-     *   $abs = $temp->abs();  // Temperature(10, 'C')
-     */
-    public function abs(): self
-    {
-        return self::create(abs($this->value), $this->derivedUnit);
-    }
-
-    /**
      * Negate a Quantity.
      *
      * @return self A new Quantity containing the negative of this Quantity's unit.
@@ -716,7 +700,7 @@ class Quantity implements Stringable
      */
     public function neg(): self
     {
-        return self::create(-$this->value, $this->derivedUnit);
+        return $this->withValue(-$this->value);
     }
 
     /**
@@ -915,6 +899,56 @@ class Quantity implements Stringable
 
         // Construct the result Quantity.
         return self::create($value, new DerivedUnit($unitTerms));
+    }
+
+    // endregion
+
+    // region Comparison methods
+
+    /**
+     * Compare two Quantities.
+     *
+     * This method will only return 0 for *exactly* equal.
+     * It's usually preferable to use approxCompare() instead, which allows for user-defined tolerances.
+     *
+     * Automatically converts the other measurement to this one's unit before comparing.
+     *
+     * @param mixed $other The measurement to compare with.
+     * @return int -1 if this < other, 0 if equal, 1 if this > other.
+     * @throws IncomparableTypesException If the other Quantity has a different type.
+     * @throws InvalidArgumentException If the Quantities have different dimensions.
+     * @throws LogicException If no conversion path exists between the units.
+     */
+    #[Override]
+    public function compare(mixed $other): int
+    {
+        $otherValue = $this->preCompare($other);
+        return Numbers::sign($this->value <=> $otherValue);
+    }
+
+    /**
+     * Compare this Quantity with another and determine if they are equal, within user-defined tolerances.
+     *
+     * @param mixed $other The value to compare with (can be any type).
+     * @return bool True if the values are equal, false otherwise.
+     */
+    #[Override]
+    public function approxEqual(
+        mixed $other,
+        float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
+        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
+    ): bool {
+        try {
+            // Get the other Quantity's value in the same unit.
+            // This will throw the other Quantity has a different type or dimension.
+            $otherValue = $this->preCompare($other);
+        } catch (DomainException | IncomparableTypesException) {
+            // If the other Quantity has a different type or dimension to this one.
+            return false;
+        }
+
+        // Now we have the other Quantity in the same unit, compare the values.
+        return Floats::approxEqual($this->value, $otherValue, $relTol, $absTol);
     }
 
     // endregion
@@ -1247,7 +1281,7 @@ class Quantity implements Stringable
      * @return float The value of the other measurement in the same unit as this one.
      * @throws LogicException If no conversion path exists between the units.
      * @throws IncomparableTypesException If the other value is not a Quantity.
-     * @throws DomainException If the two Quantities have different dimensions.
+     * @throws DimensionMismatchException If the two Quantities have different dimensions.
      */
     protected function preCompare(mixed $other): float
     {
@@ -1260,7 +1294,7 @@ class Quantity implements Stringable
         $dim1 = $this->derivedUnit->dimension;
         $dim2 = $other->derivedUnit->dimension;
         if ($dim1 !== $dim2) {
-            throw new DomainException("Cannot compare quantities with different dimensions, got '$dim1' and '$dim2'.");
+            throw new DimensionMismatchException($dim1, $dim2);
         }
 
         // Get the other Quantity in the same unit as this one.

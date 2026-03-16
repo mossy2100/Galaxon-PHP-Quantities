@@ -11,7 +11,7 @@ Represents velocity/speed quantities.
 
 The `Velocity` class handles speed and velocity measurements. Most velocity units are derived from length/time ratios (m/s, km/h, mph), which are automatically supported. This class provides the knot as a named unit.
 
-For the complete list of velocity units, see [Supported Units: Velocity](../../DeveloperGuide/SupportedUnits.md#velocity).
+For the complete list of velocity units, see [Supported Units: Velocity](SupportedUnits.md#velocity).
 
 ---
 
@@ -76,21 +76,17 @@ $inKmh = $c->to('km/h');  // 1.079×10⁹ km/h
 
 ---
 
-## Common Speed Conversions
+## Physical Constants
 
-| Speed | m/s | km/h | mph | kn |
-|-------|-----|------|-----|-----|
-| Walking | 1.4 | 5 | 3.1 | 2.7 |
-| Running | 6 | 21.6 | 13.4 | 11.7 |
-| City driving | 13.9 | 50 | 31.1 | 27.0 |
-| Highway | 31.3 | 112.7 | 70 | 60.8 |
-| Sound | 343 | 1235 | 767 | 667 |
+The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
+
+- **`PhysicalConstant::speedOfLight()`** (c) — Speed of light in vacuum, 299,792,458 m/s.
 
 ---
 
 ## See Also
 
-- **[Supported Units: Velocity](../../DeveloperGuide/SupportedUnits.md#velocity)** - Complete list of velocity units
+- **[Supported Units: Velocity](SupportedUnits.md#velocity)** - Complete list of velocity units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity
 - **[Time](Time.md)** - Related quantity

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Quantity;
 
-use DomainException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Quantity;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -86,7 +86,7 @@ final class QuantityConvertTest extends TestCase
      */
     public function testConvertThrowsForIncompatibleDimensions(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(DimensionMismatchException::class);
 
         Quantity::convert(1, 'm', 's');
     }

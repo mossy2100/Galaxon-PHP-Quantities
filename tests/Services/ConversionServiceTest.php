@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Services;
 
-use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
@@ -51,11 +52,11 @@ final class ConversionServiceTest extends TestCase
     }
 
     /**
-     * Test has() throws DomainException for unknown units.
+     * Test has() throws UnknownUnitException for unknown units.
      */
     public function testHasThrowsForUnknownUnits(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(UnknownUnitException::class);
 
         ConversionService::has('nonexistent1', 'nonexistent2');
     }
@@ -102,11 +103,11 @@ final class ConversionServiceTest extends TestCase
     }
 
     /**
-     * Test get() throws DomainException for unknown units.
+     * Test get() throws UnknownUnitException for unknown units.
      */
     public function testGetThrowsForUnknownUnits(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(UnknownUnitException::class);
 
         ConversionService::get('nonexistent1', 'nonexistent2');
     }
@@ -379,12 +380,12 @@ final class ConversionServiceTest extends TestCase
     }
 
     /**
-     * Test convert() throws DomainException for dimension mismatch.
+     * Test convert() throws DimensionMismatchException for dimension mismatch.
      */
     public function testConvertThrowsForDimensionMismatch(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('different dimensions');
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('Dimension mismatch');
 
         ConversionService::convert(1.0, 'm', 's');
     }
@@ -394,7 +395,7 @@ final class ConversionServiceTest extends TestCase
      */
     public function testConvertThrowsForUnknownUnit(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(UnknownUnitException::class);
 
         ConversionService::convert(1.0, 'nonexistent', 'm');
     }
@@ -455,12 +456,12 @@ final class ConversionServiceTest extends TestCase
     }
 
     /**
-     * Test find() throws DomainException for dimension mismatch.
+     * Test find() throws DimensionMismatchException for dimension mismatch.
      */
     public function testFindThrowsForDimensionMismatch(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('different dimensions');
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('Dimension mismatch');
 
         ConversionService::find('m', 'kg');
     }
@@ -510,12 +511,12 @@ final class ConversionServiceTest extends TestCase
     }
 
     /**
-     * Test findFactor() throws DomainException for dimension mismatch.
+     * Test findFactor() throws DimensionMismatchException for dimension mismatch.
      */
     public function testFindFactorThrowsForDimensionMismatch(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('different dimensions');
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('Dimension mismatch');
 
         ConversionService::findFactor('m', 's');
     }
@@ -596,12 +597,12 @@ final class ConversionServiceTest extends TestCase
     // region validateUnits() tests (via public methods)
 
     /**
-     * Test that dimension mismatch throws DomainException with descriptive message.
+     * Test that dimension mismatch throws DimensionMismatchException with descriptive message.
      */
     public function testValidateUnitsThrowsForDimensionMismatch(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('different dimensions');
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('Dimension mismatch');
 
         ConversionService::has('m', 'kg');
     }

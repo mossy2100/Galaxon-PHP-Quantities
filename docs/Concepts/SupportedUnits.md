@@ -1,3 +1,5 @@
+# Supported Units
+
 ---
 
 ## Overview
@@ -93,7 +95,7 @@ The **Prefixes** column indicates which prefixes are supported by a given unit:
 
 **Note 2:** While CSS uses `pc` for picas, the package instead uses `p` for several reasons:
 1. Lower-case `p` is used for picas in design software like Adobe InDesign and QuarkXPress.
-2. `pc` is also the symbol for parsec, and there's no obvious alternative.
+2. `pc` is the symbol for parsec, and there's no obvious alternative.
 3. Picas are not often used in CSS, so this shouldn't be a huge problem.
 
 **See:** [Length class documentation](../Reference/QuantityType/Length.md)

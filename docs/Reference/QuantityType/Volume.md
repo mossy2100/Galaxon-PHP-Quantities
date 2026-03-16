@@ -11,46 +11,84 @@ Represents volume quantities.
 
 The `Volume` class handles volume measurements including liters and Imperial/US Customary liquid measures.
 
-For the complete list of volume units, see [Supported Units: Volume](../../DeveloperGuide/SupportedUnits.md#volume).
+For the complete list of volume units, see [Supported Units: Volume](SupportedUnits.md#volume).
 
 ---
 
-## US vs Imperial
+## Imperial vs US Customary
 
-US Customary and Imperial volume units share names but have different sizes:
+Several volume units share the same name but represent different amounts in the imperial and US customary systems. These are disambiguated with system prefixes (`imp` or `US`):
 
-| Unit | US Customary | Imperial |
-|------|--------------|----------|
-| Fluid ounce | 29.5735 mL | 28.4131 mL |
-| Pint | 473.176 mL | 568.261 mL |
-| Quart | 946.353 mL | 1136.52 mL |
-| Gallon | 3.78541 L | 4.54609 L |
+| Unit         | Imperial (`imp`)   | US Customary (`US`) |
+| ------------ | ------------------ | ------------------- |
+| gallon       | 4546.09 mL         | 3785.41 mL          |
+| quart        | 1136.52 mL         | 946.35 mL           |
+| pint         | 568.26 mL          | 473.18 mL           |
+| fluid ounce  | 28.41 mL           | 29.57 mL            |
+| cup          | —                  | 236.59 mL           |
+| tablespoon   | 14.21 mL           | 14.79 mL            |
+| teaspoon     | 3.55 mL            | 4.93 mL             |
 
-Use the appropriate prefix (`US` or `imp`) to specify which system:
+Always use the system prefix to avoid ambiguity:
 
 ```php
-$usGal = new Volume(1, 'US gal');
-$impGal = new Volume(1, 'imp gal');
+use Galaxon\Quantities\QuantityType\Volume;
+use Galaxon\Quantities\Services\UnitService;
+use Galaxon\Quantities\UnitSystem;
 
-$usGal->to('L');   // 3.78541 L
-$impGal->to('L');  // 4.54609 L
+UnitService::loadSystem(UnitSystem::Imperial);
+UnitService::loadSystem(UnitSystem::UsCustomary);
+
+$impPint = new Volume(1, 'imp pt');
+$usPint = new Volume(1, 'US pt');
+
+echo $impPint->to('mL');  // 568.26 mL
+echo $usPint->to('mL');   // 473.18 mL
 ```
 
 ---
 
 ## Key Conversions
 
-| From | To | Factor |
-|------|-----|--------|
-| m³ | L | 1000 |
-| US gallon | in³ | 231 (exact) |
-| US gallon | US quart | 4 |
-| US quart | US pint | 2 |
-| US pint | US fl oz | 16 |
-| Imperial gallon | L | 4.54609 (exact) |
-| Imperial gallon | imp quart | 4 |
-| Imperial quart | imp pint | 2 |
-| Imperial pint | imp fl oz | 20 |
+| From            | To             | Factor  |
+| --------------- | -------------- | ------- |
+| m³              | L              | 1000    |
+| metric cup      | mL             | 250     |
+| metric tbsp     | mL             | 15      |
+| metric tsp      | mL             | 5       |
+| imperial gallon | L              | 4.54609 |
+| imperial gallon | imperial quart | 4       |
+| imperial quart  | imperial pint  | 2       |
+| imperial pint   | imperial fl oz | 20      |
+| imperial fl oz  | imperial tbsp  | 2       |
+| imperial tbsp   | imperial tsp   | 4       |
+| US gallon       | in³            | 231     |
+| US gallon       | US quart       | 4       |
+| US quart        | US pint        | 2       |
+| US pint         | US fl oz       | 16      |
+| US pint         | US cup         | 2       |
+| US cup          | US fl oz       | 8       |
+| US fl oz        | US tbsp        | 2       |
+| US tbsp         | US tsp         | 3       |
+
+---
+
+## Metric Culinary Units
+
+The metric cup (250 mL), tablespoon (15 mL), and teaspoon (5 mL) are available in the `Metric` unit system. These use unprefixed symbols (`cup`, `tbsp`, `tsp`) since metric is the international standard for these units.
+
+```php
+UnitService::loadSystem(UnitSystem::Metric);
+
+$recipe = new Volume(2, 'cup');
+echo $recipe->to('mL');  // 500 mL
+
+$oil = new Volume(3, 'tbsp');
+echo $oil->to('mL');  // 45 mL
+
+$salt = new Volume(1, 'tsp');
+echo $salt->to('mL');  // 5 mL
+```
 
 ---
 
@@ -105,7 +143,7 @@ $inImpGal = $tank->to('imp gal');  // 10.998 imp gal
 
 ## See Also
 
-- **[Supported Units: Volume](../../DeveloperGuide/SupportedUnits.md#volume)** - Complete list of volume units
+- **[Supported Units: Volume](SupportedUnits.md#volume)** - Complete list of volume units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity (cubic length = volume)
 - **[Area](Area.md)** - Related quantity

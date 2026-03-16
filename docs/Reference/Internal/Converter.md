@@ -102,7 +102,7 @@ Find the conversion between two units.
 - `?Conversion` - The conversion, or null if no path exists
 
 **Throws:**
-- `DomainException` - If either unit is invalid for this dimension
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension for this converter
 
 **Behavior:**
 - Returns cached conversion if available
@@ -161,7 +161,7 @@ Convert a numeric value from one unit to another.
 - `float` - The converted value
 
 **Throws:**
-- `DomainException` - If either unit is invalid
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension
 - `LogicException` - If no conversion path exists
 
 **Examples:**
@@ -264,7 +264,7 @@ Validate that a unit is valid for this converter's dimension.
 - `DerivedUnit` - The validated unit as a DerivedUnit
 
 **Throws:**
-- `DomainException` - If the unit has the wrong dimension
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the unit has the wrong dimension
 
 ---
 

@@ -73,7 +73,7 @@ Parse a string representation of a unit into an instance.
 **Contract:**
 - Must accept both ASCII and Unicode symbol formats
 - Must throw `FormatException` if the symbol format is invalid
-- Must throw `DomainException` if the symbol represents an unknown unit
+- Must throw `UnknownUnitException` if the symbol represents an unknown unit
 
 ### format()
 

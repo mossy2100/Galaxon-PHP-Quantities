@@ -33,48 +33,47 @@ class Mass extends Quantity
     {
         return [
             // SI
-            'gram'      => [
+            'gram'       => [
                 'asciiSymbol' => 'g',
                 'prefixGroup' => PrefixService::GROUP_METRIC,
                 'systems'     => [UnitSystem::Si],
             ],
             // SI accepted
-            'tonne'     => [
+            'tonne'      => [
                 'asciiSymbol' => 't',
                 'systems'     => [UnitSystem::SiAccepted],
             ],
-            'dalton'    => [
+            'dalton'     => [
                 'asciiSymbol' => 'Da',
                 'systems'     => [UnitSystem::SiAccepted, UnitSystem::Scientific],
             ],
             // Imperial and US customary
-            'long ton'  => [
+            'long ton'   => [
                 'asciiSymbol' => 'LT',
                 'systems'     => [UnitSystem::Imperial],
             ],
-            'short ton' => [
+            'short ton'  => [
                 'asciiSymbol' => 'tn',
                 'systems'     => [UnitSystem::UsCustomary],
             ],
-            'stone'     => [
+            'stone'      => [
                 'asciiSymbol' => 'st',
                 'systems'     => [UnitSystem::Imperial],
             ],
-            'pound'     => [
+            'pound'      => [
                 'asciiSymbol' => 'lb',
                 'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
-            'ounce'     => [
+            'ounce'      => [
                 'asciiSymbol' => 'oz',
                 'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
-            'grain'     => [
-                'asciiSymbol' => 'gr',
+            'troy ounce' => [
+                'asciiSymbol' => 'oz t',
                 'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
-            // Financial
-            'troy ounce'     => [
-                'asciiSymbol' => 'oz t',
+            'grain'      => [
+                'asciiSymbol' => 'gr',
                 'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
         ];
@@ -101,7 +100,6 @@ class Mass extends Quantity
             ['st', 'lb', 14],
             ['lb', 'oz', 16],
             ['lb', 'gr', 7000],
-            // Financial
             ['oz t', 'gr', 480],
         ];
     }

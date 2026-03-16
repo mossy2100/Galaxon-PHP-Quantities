@@ -77,7 +77,8 @@ The `Quantity` constructor cannot be called directly — use a specific subclass
 
 **Throws:**
 - `LogicException` - If `new Quantity()` is called directly or the wrong subclass constructor is called for the unit's dimension.
-- `DomainException` - If the value is non-finite (INF or NAN) or if the unit string contains unknown units.
+- `DomainException` - If the value is non-finite (INF or NAN).
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the unit string contains unknown units.
 - `FormatException` - If the unit string cannot be parsed.
 
 **Examples:**
@@ -111,7 +112,8 @@ Uses the dimension class registry to instantiate the correct subclass. If no sub
 - `Quantity` - A Quantity of the appropriate type.
 
 **Throws:**
-- `DomainException` - If the value is non-finite (INF or NAN) or the unit string contains unknown units.
+- `DomainException` - If the value is non-finite (INF or NAN).
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the unit string contains unknown units.
 - `FormatException` - If the unit string cannot be parsed.
 
 **Examples:**
@@ -152,7 +154,7 @@ A convenience method for converting a raw numeric value without creating Quantit
 
 **Throws:**
 - `FormatException` - If a unit string cannot be parsed.
-- `DomainException` - If a unit string contains unknown units.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
 - `LogicException` - If no conversion path exists between the units.
 
 **Examples:**
@@ -166,7 +168,7 @@ $km = Quantity::convert(5, 'mi', 'km');
 
 ---
 
-## Transformation Methods
+## Conversion Methods
 
 ### to()
 
@@ -183,7 +185,8 @@ Convert this Quantity to a different unit.
 - `Quantity` - A new Quantity in the specified unit.
 
 **Throws:**
-- `DomainException` - If the destination unit is invalid.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the destination unit is unknown.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If the destination unit has a different dimension.
 - `LogicException` - If no conversion path exists.
 
 **Examples:**
@@ -286,27 +289,9 @@ $force = new Force(1, 'lbf');
 $base = $force->toBase();  // lb*ft/s2
 ```
 
-### withValue()
+---
 
-```php
-public function withValue(float $value): self
-```
-
-Create a new Quantity with the same unit but a different value.
-
-Returns the same instance if the value is unchanged.
-
-**Parameters:**
-- `$value` (float) - The new numeric value.
-
-**Returns:**
-- `Quantity` - A new Quantity with the given value in the same unit.
-
-**Examples:**
-```php
-$length = new Length(10, 'm');
-$doubled = $length->withValue(20);  // 20 m
-```
+## Unit Transformation Methods
 
 ### expand()
 
@@ -371,7 +356,7 @@ $prefixed = $length->autoPrefix();  // 1000 km
 public function simplify(bool $autoPrefix = true): self
 ```
 
-Substitute base units for derived units where possible (e.g., kg*m/s2 -> N).
+Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
 
 **Parameters:**
 - `$autoPrefix` (bool) - If true, apply the best prefix.
@@ -381,7 +366,27 @@ Substitute base units for derived units where possible (e.g., kg*m/s2 -> N).
 
 ---
 
-## Arithmetic Methods
+## Value Transformation Methods
+
+### withValue()
+
+```php
+public function withValue(float $value): self
+```
+
+Create a new Quantity with the same unit but a different value.
+
+**Parameters:**
+- `$value` (float) - The new numeric value.
+
+**Returns:**
+- `Quantity` - A new Quantity with the given value in the same unit.
+
+**Examples:**
+```php
+$length = new Length(10, 'm');
+$doubled = $length->withValue(20);  // 20 m
+```
 
 ### abs()
 
@@ -393,6 +398,65 @@ Get the absolute value of this measurement.
 
 **Returns:**
 - `Quantity` - A new Quantity with non-negative value.
+
+### round()
+
+```php
+public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): self
+```
+
+Round the value to a given number of decimal places.
+
+**Parameters:**
+- `$precision` (int) - Number of decimal places. Default: `0`.
+- `$mode` (RoundingMode) - The rounding mode. Default: `RoundingMode::HalfAwayFromZero`.
+
+**Returns:**
+- `Quantity` - A new Quantity with the rounded value in the same unit.
+
+**Examples:**
+```php
+$length = new Length(1.5678, 'm');
+$rounded = $length->round(2);  // 1.57 m
+```
+
+### floor()
+
+```php
+public function floor(): self
+```
+
+Round the value down to the nearest integer.
+
+**Returns:**
+- `Quantity` - A new Quantity with the value rounded down, in the same unit.
+
+**Examples:**
+```php
+$length = new Length(1.9, 'm');
+$floored = $length->floor();  // 1 m
+```
+
+### ceil()
+
+```php
+public function ceil(): self
+```
+
+Round the value up to the nearest integer.
+
+**Returns:**
+- `Quantity` - A new Quantity with the value rounded up, in the same unit.
+
+**Examples:**
+```php
+$length = new Length(1.1, 'm');
+$ceiled = $length->ceil();  // 2 m
+```
+
+---
+
+## Arithmetic Methods
 
 ### neg()
 
@@ -538,7 +602,7 @@ Compare two Quantities for ordering.
 
 **Throws:**
 - `IncomparableTypesException` - If other is not a Quantity.
-- `DomainException` - If quantities have different dimensions.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If quantities have different dimensions.
 
 ### approxEqual()
 
@@ -589,7 +653,7 @@ Supports single-value strings (e.g. "123.45 km") and multi-part strings (e.g. "5
 
 **Throws:**
 - `FormatException` - If the format is invalid.
-- `DomainException` - If units are unknown.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If units are unknown.
 
 **Examples:**
 ```php
@@ -733,7 +797,8 @@ Set the default part unit symbols for output methods.
 - `$symbols` (list\<string\>) - The unit symbols from largest to smallest.
 
 **Throws:**
-- `DomainException` - If the array is empty or contains unknown unit symbols.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the array contains unknown unit symbols.
+- `DomainException` - If the array is empty.
 - `InvalidArgumentException` - If the array contains non-string items.
 
 ### getDefaultResultUnitSymbol()
@@ -759,7 +824,7 @@ Set the default result unit symbol for input methods.
 - `$symbol` (string) - The unit symbol.
 
 **Throws:**
-- `DomainException` - If the unit is unknown.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the unit is unknown.
 
 ### fromParts()
 

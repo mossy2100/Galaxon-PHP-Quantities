@@ -274,7 +274,7 @@ Parse a unit symbol and return the matching Unit.
 
 **Throws:**
 - `FormatException` - If the symbol contains invalid characters
-- `DomainException` - If the symbol is not recognized
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the symbol is not recognized
 
 **Examples:**
 ```php

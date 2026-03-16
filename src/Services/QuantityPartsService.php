@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Services;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Numbers;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
@@ -517,7 +518,8 @@ class QuantityPartsService
      * @param-out list<string> $symbols The validated and transformed part unit symbols.
      * @return list<Unit> The part units.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
-     * @throws DomainException If the array is empty or contains invalid units.
+     * @throws UnknownUnitException If a unit symbol is not recognized.
+     * @throws DomainException If the array is empty.
      */
     private static function validatePartUnitSymbols(?array &$symbols): array
     {
@@ -544,8 +546,9 @@ class QuantityPartsService
             // Get the unit.
             $partUnit = UnitService::getBySymbol($partUnitSymbol);
             if ($partUnit === null) {
-                throw new DomainException(
-                    "Unknown unit symbol: '$partUnitSymbol'. Ensure you have loaded the necessary system " .
+                throw new UnknownUnitException(
+                    $partUnitSymbol,
+                    "Unknown unit: '$partUnitSymbol'. Ensure you have loaded the necessary system " .
                     'of units using `UnitService::loadBySystem()`.'
                 );
             }

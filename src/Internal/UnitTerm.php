@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Traits\Equatable;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
@@ -132,6 +133,7 @@ class UnitTerm implements UnitInterface
      * @param string|Unit $unit The unit or its symbol (e.g. 'm', 'ft', 'N').
      * @param null|string|Prefix $prefix The prefix symbol or object, or null if none.
      * @param int $exponent The exponent (default 1).
+     * @throws UnknownUnitException If the unit symbol is not recognized.
      * @throws DomainException If the exponent or prefix is invalid.
      */
     public function __construct(string|Unit $unit = '', null|string|Prefix $prefix = null, int $exponent = 1)
@@ -141,7 +143,7 @@ class UnitTerm implements UnitInterface
             $symbol = $unit;
             $unit = UnitService::getBySymbol($symbol);
             if ($unit === null) {
-                throw new DomainException("Unit '$symbol' is unknown.");
+                throw new UnknownUnitException($symbol);
             }
         }
 
@@ -231,7 +233,8 @@ class UnitTerm implements UnitInterface
      * @param string $symbol The unit symbol with an optional prefix and/or exponent (e.g. 'm2', 's-1').
      * @return self The parsed unit term.
      * @throws FormatException If the format is invalid.
-     * @throws DomainException If the unit is unknown or the exponent is zero.
+     * @throws UnknownUnitException If the unit symbol is not recognized.
+     * @throws DomainException If the exponent is zero.
      */
     public static function parse(string $symbol): self
     {
@@ -268,7 +271,7 @@ class UnitTerm implements UnitInterface
 
         // Check we found a match.
         if ($match === null) {
-            throw new DomainException("Unknown unit: '$prefixedSymbol'.");
+            throw new UnknownUnitException($prefixedSymbol);
         }
 
         // Create the new object.

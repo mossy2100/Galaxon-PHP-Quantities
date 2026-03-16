@@ -11,7 +11,7 @@ Represents illuminance quantities.
 
 The `Illuminance` class handles illuminance measurements, which describe how much light falls on a surface.
 
-For the complete list of illuminance units, see [Supported Units: Illuminance](../../DeveloperGuide/SupportedUnits.md#illuminance).
+For the complete list of illuminance units, see [Supported Units: Illuminance](SupportedUnits.md#illuminance).
 
 ---
 
@@ -24,19 +24,6 @@ lx = cd·sr·m⁻² = lm/m²
 ```
 
 One lux equals one lumen per square meter.
-
----
-
-## Common Illuminance Levels
-
-| Environment | Illuminance |
-|-------------|-------------|
-| Moonlight | 0.1 lx |
-| Street lighting | 10 lx |
-| Living room | 50-100 lx |
-| Office | 300-500 lx |
-| Overcast day | 1,000 lx |
-| Direct sunlight | 100,000 lx |
 
 ---
 
@@ -63,7 +50,7 @@ $inMlx = $night->to('mlx');  // 1000 mlx
 
 ## See Also
 
-- **[Supported Units: Illuminance](../../DeveloperGuide/SupportedUnits.md#illuminance)** - Complete list
+- **[Supported Units: Illuminance](SupportedUnits.md#illuminance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (lx = lm/m²)
 - **[LuminousIntensity](LuminousIntensity.md)** - Related quantity

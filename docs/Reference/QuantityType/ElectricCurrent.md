@@ -11,26 +11,13 @@ Represents electric current quantities.
 
 The `ElectricCurrent` class handles electric current measurements. The ampere is one of the seven SI base units.
 
-For the complete list of electric current units, see [Supported Units: Electric Current](../../DeveloperGuide/SupportedUnits.md#electric-current).
+For the complete list of electric current units, see [Supported Units: Electric Current](SupportedUnits.md#electric-current).
 
 ---
 
 ## SI Base Unit
 
 The ampere (A) is an SI base unit, defined by fixing the value of the elementary charge *e*.
-
----
-
-## Common Prefixed Units
-
-| Unit | Value | Typical Use |
-|------|-------|-------------|
-| pA | 10⁻¹² A | Ion channels |
-| nA | 10⁻⁹ A | Sensors |
-| μA | 10⁻⁶ A | Electronics |
-| mA | 10⁻³ A | LEDs, batteries |
-| A | 1 A | Household |
-| kA | 10³ A | Industrial, lightning |
 
 ---
 
@@ -56,7 +43,7 @@ $inNA = $sensor->to('nA');  // 100,000 nA
 
 ## See Also
 
-- **[Supported Units: Electric Current](../../DeveloperGuide/SupportedUnits.md#electric-current)** - Complete list
+- **[Supported Units: Electric Current](SupportedUnits.md#electric-current)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Voltage](Voltage.md)** - Related quantity
 - **[Resistance](Resistance.md)** - Related quantity (Ohm's law: V = IR)

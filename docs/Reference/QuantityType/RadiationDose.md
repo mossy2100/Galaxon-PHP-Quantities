@@ -11,7 +11,7 @@ Represents radiation dose quantities.
 
 The `RadiationDose` class handles radiation dose measurements using the gray (absorbed dose) and sievert (equivalent dose).
 
-For the complete list of radiation dose units, see [Supported Units: Radiation Dose](../../DeveloperGuide/SupportedUnits.md#radiation-dose).
+For the complete list of radiation dose units, see [Supported Units: Radiation Dose](SupportedUnits.md#radiation-dose).
 
 ---
 
@@ -43,19 +43,6 @@ Sv = m²·s⁻² = J/kg
 
 ---
 
-## Common Prefixed Units
-
-| Unit | Value | Typical Use |
-|------|-------|-------------|
-| μGy | 10⁻⁶ Gy | Diagnostic imaging |
-| mGy | 10⁻³ Gy | Medical procedures |
-| Gy | 1 Gy | Radiation therapy |
-| μSv | 10⁻⁶ Sv | Background radiation |
-| mSv | 10⁻³ Sv | Occupational limits |
-| Sv | 1 Sv | High dose (dangerous) |
-
----
-
 ## Usage Examples
 
 ```php
@@ -80,20 +67,8 @@ $inMGy = $treatment->to('mGy');  // 2000 mGy
 
 ---
 
-## Typical Dose Values
-
-| Exposure | Approximate Dose |
-|----------|-----------------|
-| Chest X-ray | 0.1 mGy |
-| CT scan | 10-20 mGy |
-| Annual background | 2-3 mSv |
-| Occupational limit | 20 mSv/year |
-| Acute radiation sickness | > 1 Sv |
-
----
-
 ## See Also
 
-- **[Supported Units: Radiation Dose](../../DeveloperGuide/SupportedUnits.md#radiation-dose)** - Complete list of radiation dose units
+- **[Supported Units: Radiation Dose](SupportedUnits.md#radiation-dose)** - Complete list of radiation dose units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Frequency](Frequency.md)** - Contains becquerel (radioactivity)

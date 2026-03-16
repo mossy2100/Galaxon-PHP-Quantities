@@ -11,7 +11,7 @@ Represents dimensionless quantities (ratios, percentages, concentrations).
 
 The `Dimensionless` class handles quantities that have no physical dimension, such as ratios, percentages, and concentrations.
 
-For the complete list of dimensionless units, see [Supported Units: Dimensionless](../../DeveloperGuide/SupportedUnits.md#dimensionless).
+For the complete list of dimensionless units, see [Supported Units: Dimensionless](SupportedUnits.md#dimensionless).
 
 ---
 
@@ -87,7 +87,15 @@ $total = $discount->add($additional);     // 30%
 
 ---
 
+## Physical Constants
+
+The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
+
+- **`PhysicalConstant::fineStructure()`** (α) — Fine-structure constant, 7.2973525693 × 10⁻³.
+
+---
+
 ## See Also
 
-- **[Supported Units: Dimensionless](../../DeveloperGuide/SupportedUnits.md#dimensionless)** - Complete list of dimensionless units
+- **[Supported Units: Dimensionless](SupportedUnits.md#dimensionless)** - Complete list of dimensionless units
 - **[Quantity](../Quantity.md)** - Base class documentation

@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -167,8 +168,8 @@ final class UnitTermTest extends TestCase
      */
     public function testConstructorThrowsForUnknownSymbol(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Unit 'xyz' is unknown");
+        $this->expectException(UnknownUnitException::class);
+        $this->expectExceptionMessage("Unknown unit: 'xyz'");
 
         new UnitTerm('xyz');
     }
@@ -499,8 +500,8 @@ final class UnitTermTest extends TestCase
      */
     public function testParseThrowsForUnknownUnit(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Unknown unit');
+        $this->expectException(UnknownUnitException::class);
+        $this->expectExceptionMessage("Unknown unit: 'xyz'");
 
         UnitTerm::parse('xyz');
     }

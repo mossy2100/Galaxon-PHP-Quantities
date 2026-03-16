@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Internal;
 
-use _PHPStan_5adafcbb8\Psr\Log\NullLogger;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Quantities\Currencies\CurrencyService;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\QuantityTypeService;
@@ -508,7 +508,7 @@ class Converter
      * @param string|UnitInterface $value The unit value to validate.
      * @return DerivedUnit The validated DerivedUnit object equivalent to the provided parameter.
      * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If the symbol is invalid or the unit has the wrong dimension for this Converter.
+     * @throws DimensionMismatchException If the unit has the wrong dimension for this Converter.
      */
     private function validateUnit(string|UnitInterface $value): DerivedUnit
     {
@@ -517,11 +517,7 @@ class Converter
 
         // Check the unit term has the right dimension.
         if ($unit->dimension !== $this->dimension) {
-            $qtyType = $this->quantityType;
-            $error = $qtyType === null
-                ? "The unit dimension '$unit->dimension' does not match the converter dimension '$this->dimension'."
-                : "The unit '$unit->asciiSymbol' is invalid for $qtyType->name quantities.";
-            throw new DomainException($error);
+            throw new DimensionMismatchException($this->dimension, $unit->dimension);
         }
 
         return $unit;

@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Equatable;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
@@ -308,7 +309,7 @@ class Unit implements UnitInterface
      * @param string $symbol The unit symbol to parse (e.g. 'm', 'kg', 'Hz').
      * @return self The matching Unit.
      * @throws FormatException If the symbol contains invalid characters.
-     * @throws DomainException If the symbol is not recognized.
+     * @throws UnknownUnitException If the symbol is not recognized.
      */
     #[Override]
     public static function parse(string $symbol): self
@@ -324,7 +325,7 @@ class Unit implements UnitInterface
         $unit = UnitService::getBySymbol($symbol);
 
         // If not found, throw an exception.
-        return $unit ?? throw new DomainException("Unknown unit symbol '$symbol'.");
+        return $unit ?? throw new UnknownUnitException($symbol);
     }
 
     /**

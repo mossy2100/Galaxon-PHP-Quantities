@@ -11,7 +11,7 @@ Represents power quantities.
 
 The `Power` class handles power measurements.
 
-For the complete list of power units, see [Supported Units: Power](../../DeveloperGuide/SupportedUnits.md#power).
+For the complete list of power units, see [Supported Units: Power](SupportedUnits.md#power).
 
 ---
 
@@ -22,20 +22,6 @@ The watt is defined as:
 ```
 W = kg·m²·s⁻³ = J/s = V·A
 ```
-
----
-
-## Common Prefixed Units
-
-| Unit | Value | Typical Use |
-|------|-------|-------------|
-| μW | 10⁻⁶ W | Sensors, low-power electronics |
-| mW | 10⁻³ W | LEDs, RF signals |
-| W | 1 W | Light bulbs, small appliances |
-| kW | 10³ W | Appliances, vehicles |
-| MW | 10⁶ W | Power plants |
-| GW | 10⁹ W | National grids |
-| TW | 10¹² W | Global consumption |
 
 ---
 
@@ -77,7 +63,7 @@ $energy = $power->value * $hours;  // 500 Wh = 0.5 kWh
 
 ## See Also
 
-- **[Supported Units: Power](../../DeveloperGuide/SupportedUnits.md#power)** - Complete list
+- **[Supported Units: Power](SupportedUnits.md#power)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Energy](Energy.md)** - Related quantity (E = P·t)
 - **[Voltage](Voltage.md)** - Related quantity (P = V·I)

@@ -8,7 +8,7 @@ Static service for managing currency units and exchange rate conversions.
 
 ## Overview
 
-The `CurrencyService` manages currency data for the Quantities package. It provides:
+The `CurrencyService` manages currency data for the Quantities package. It must be initialized before using [`Money`](../QuantityType/Money.md) quantities.
 
 - Currency unit definitions loaded from the official ISO 4217 XML (published by SIX Group)
 - Exchange rate conversion data loaded via a pluggable `ExchangeRateServiceInterface`
@@ -17,6 +17,31 @@ The `CurrencyService` manages currency data for the Quantities package. It provi
 - A single `init()` entry point that configures the service and triggers data loading
 
 Currency units are registered under the `UnitSystem::Financial` unit system.
+
+### Exchange Rate Services
+
+The package includes adapters for several exchange rate APIs, all of which have free tiers:
+
+| Service                    | API key required | Approx. currencies | Website                                                   |
+| -------------------------- | ---------------- | ------------------ | --------------------------------------------------------- |
+| `FrankfurterService`       | No               | 30                 | [frankfurter.dev](https://frankfurter.dev/)               |
+| `ExchangeRateApiService`   | Yes              | 160                | [exchangerate-api.com](https://www.exchangerate-api.com/) |
+| `OpenExchangeRatesService` | Yes              | 170                | [openexchangerates.org](https://openexchangerates.org/)   |
+| `CurrencyLayerService`     | Yes              | 170                | [currencylayer.com](https://currencylayer.com/)           |
+| `FixerService`             | Yes              | 170                | [fixer.io](https://fixer.io/)                            |
+
+All services are in the `Galaxon\Quantities\Currencies\ExchangeRateServices` namespace.
+
+`FrankfurterService` is the simplest option — no API key, no signup. It uses European Central Bank data and covers ~30 major currencies. The other services require a free API key but support 160+ currencies, including precious metals (XAU, XAG) and some cryptocurrencies.
+
+### Caching
+
+Both currency unit definitions and exchange rates are cached as PHP files in a local data directory. The cache TTLs control how often fresh data is fetched:
+
+- **Currency units** (`$currenciesTtl`, default 30 days) — ISO 4217 currency codes change rarely.
+- **Exchange rates** (`$ratesTtl`, default 1 hour) — rates change frequently.
+
+`refresh()` is called automatically when currency conversion is attempted. It checks the cache timestamps and only fetches new data when a cache has expired.
 
 ---
 
@@ -303,8 +328,8 @@ $locale = CurrencyService::getLocale();
 
 ## See Also
 
-- **[ExchangeRateServiceInterface](ExchangeRateServices/ExchangeRateServiceInterface.md)** - Interface for exchange rate providers
-- **[Money](../QuantityType/Money.md)** - Money quantity type
-- **[UnitService](../Services/UnitService.md)** - Unit registry
-- **[ConversionService](../Services/ConversionService.md)** - Conversion registry
-- **[UnitSystem](../UnitSystem.md)** - Measurement system enum
+- **[ExchangeRateServiceInterface](ExchangeRateServices/ExchangeRateServiceInterface.md)** — Interface for exchange rate providers.
+- **[Money](../QuantityType/Money.md)** — Money quantity type.
+- **[UnitService](../Services/UnitService.md)** — Unit registry.
+- **[ConversionService](../Services/ConversionService.md)** — Conversion registry.
+- **[UnitSystem](../UnitSystem.md)** — Measurement system enum.

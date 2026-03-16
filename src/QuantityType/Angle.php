@@ -96,20 +96,6 @@ class Angle extends Quantity
 
     // endregion
 
-    // region Inspection methods
-
-    /**
-     * Check if the Angle is in radians.
-     *
-     * @return bool
-     */
-    public function isRadians(): bool
-    {
-        return (string)$this->derivedUnit === 'rad';
-    }
-
-    // endregion
-
     // region Comparison methods
 
     /**
@@ -146,7 +132,7 @@ class Angle extends Quantity
      */
     public function toRadians(): float
     {
-        if ($this->isRadians()) {
+        if ($this->derivedUnit->asciiSymbol === 'rad') {
             return $this->value;
         }
 

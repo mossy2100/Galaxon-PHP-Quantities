@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\Quantity;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Time;
@@ -214,8 +215,8 @@ final class QuantityPartsTest extends TestCase
         Time::setPartUnitSymbols(['h', 'min', 'xyz']);
 
         try {
-            $this->expectException(DomainException::class);
-            $this->expectExceptionMessage("Unknown unit symbol: 'xyz'");
+            $this->expectException(UnknownUnitException::class);
+            $this->expectExceptionMessage("Unknown unit: 'xyz'");
 
             $time = new Time(100, 's');
             $time->toParts();

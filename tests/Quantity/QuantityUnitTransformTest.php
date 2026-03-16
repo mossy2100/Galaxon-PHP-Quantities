@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
  * Tests for transformation operations on Quantity objects.
  */
 #[CoversClass(Quantity::class)]
-final class QuantityTransformTest extends TestCase
+final class QuantityUnitTransformTest extends TestCase
 {
     use FloatAssertions;
 
@@ -425,34 +425,6 @@ final class QuantityTransformTest extends TestCase
 
         $this->assertTrue($force->approxEqual($simplified));
         $this->assertSame('N', $simplified->derivedUnit->asciiSymbol);
-    }
-
-    // endregion
-
-    // region withValue() tests
-
-    /**
-     * Test withValue() returns same instance when value unchanged.
-     */
-    public function testWithValueReturnsSameInstanceWhenUnchanged(): void
-    {
-        $length = new Length(10, 'm');
-        $result = $length->withValue(10.0);
-
-        $this->assertSame($length, $result);
-    }
-
-    /**
-     * Test withValue() returns new instance when value changed.
-     */
-    public function testWithValueReturnsNewInstanceWhenChanged(): void
-    {
-        $length = new Length(10, 'm');
-        $result = $length->withValue(20.0);
-
-        $this->assertNotSame($length, $result);
-        $this->assertSame(20.0, $result->value);
-        $this->assertSame('m', $result->derivedUnit->asciiSymbol);
     }
 
     // endregion

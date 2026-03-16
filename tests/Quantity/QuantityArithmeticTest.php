@@ -8,6 +8,7 @@ use ArgumentCountError;
 use DivisionByZeroError;
 use DomainException;
 use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Length;
@@ -34,43 +35,6 @@ final class QuantityArithmeticTest extends TestCase
         // Load Imperial/US units for cross-system tests.
         UnitService::loadSystem(UnitSystem::Imperial);
         UnitService::loadSystem(UnitSystem::UsCustomary);
-    }
-
-    // endregion
-
-    // region abs() tests
-
-    /**
-     * Test abs() on positive value.
-     */
-    public function testAbsPositive(): void
-    {
-        $length = new Length(5, 'm');
-        $abs = $length->abs();
-
-        $this->assertSame(5.0, $abs->value);
-    }
-
-    /**
-     * Test abs() on negative value.
-     */
-    public function testAbsNegative(): void
-    {
-        $temp = new Temperature(-10, 'degC');
-        $abs = $temp->abs();
-
-        $this->assertSame(10.0, $abs->value);
-    }
-
-    /**
-     * Test abs() on zero.
-     */
-    public function testAbsZero(): void
-    {
-        $length = new Length(0, 'm');
-        $abs = $length->abs();
-
-        $this->assertSame(0.0, $abs->value);
     }
 
     // endregion
@@ -177,11 +141,11 @@ final class QuantityArithmeticTest extends TestCase
     }
 
     /**
-     * Test add() throws DomainException when adding incompatible dimensions.
+     * Test add() throws DimensionMismatchException when adding incompatible dimensions.
      */
     public function testAddIncompatibleDimensionsThrows(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(DimensionMismatchException::class);
 
         $length = new Length(10, 'm');
         $time = new Time(5, 's');
@@ -253,11 +217,11 @@ final class QuantityArithmeticTest extends TestCase
     }
 
     /**
-     * Test sub() throws DomainException when subtracting incompatible dimensions.
+     * Test sub() throws DimensionMismatchException when subtracting incompatible dimensions.
      */
     public function testSubIncompatibleDimensionsThrows(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(DimensionMismatchException::class);
 
         $mass = new Mass(50, 'kg');
         $length = new Length(25, 'm');
@@ -601,79 +565,6 @@ final class QuantityArithmeticTest extends TestCase
 
         $this->assertSame(4.0, $result->value);
         $this->assertSame('m2/s2', $result->derivedUnit->asciiSymbol);
-    }
-
-    // endregion
-
-    // region withValue() tests
-
-    /**
-     * Test withValue() preserves unit.
-     */
-    public function testWithValuePreservesUnit(): void
-    {
-        $length = new Length(10, 'km');
-        $newLength = $length->withValue(20);
-
-        $this->assertSame(20.0, $newLength->value);
-        $this->assertSame('km', $newLength->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test withValue() returns the same instance when the value is unchanged.
-     */
-    public function testWithValueSameValueReturnsSameInstance(): void
-    {
-        $length = new Length(10, 'm');
-        $same = $length->withValue(10);
-
-        $this->assertSame($length, $same);
-    }
-
-    /**
-     * Test withValue() with zero.
-     */
-    public function testWithValueZero(): void
-    {
-        $length = new Length(10, 'm');
-        $zero = $length->withValue(0);
-
-        $this->assertSame(0.0, $zero->value);
-        $this->assertSame('m', $zero->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test withValue() with negative value.
-     */
-    public function testWithValueNegative(): void
-    {
-        $length = new Length(10, 'm');
-        $neg = $length->withValue(-5);
-
-        $this->assertSame(-5.0, $neg->value);
-        $this->assertSame('m', $neg->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test withValue() with non-finite value throws DomainException.
-     */
-    public function testWithValueInfinityThrowsDomainException(): void
-    {
-        $this->expectException(DomainException::class);
-
-        $length = new Length(10, 'm');
-        $length->withValue(INF);
-    }
-
-    /**
-     * Test withValue() with NAN throws DomainException.
-     */
-    public function testWithValueNanThrowsDomainException(): void
-    {
-        $this->expectException(DomainException::class);
-
-        $length = new Length(10, 'm');
-        $length->withValue(NAN);
     }
 
     // endregion

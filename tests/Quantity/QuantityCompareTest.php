@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Quantity;
 
-use DomainException;
 use Galaxon\Core\Exceptions\IncomparableTypesException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
@@ -99,7 +99,7 @@ final class QuantityCompareTest extends TestCase
      */
     public function testCompareDifferentDimensionsThrowsException(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(DimensionMismatchException::class);
 
         $length = new Length(100, 'm');
         $mass = new Mass(100, 'kg');

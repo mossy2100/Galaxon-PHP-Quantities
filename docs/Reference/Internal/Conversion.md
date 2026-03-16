@@ -74,7 +74,7 @@ Create a new Conversion instance.
 - `$factor` (float|FloatWithError) - The conversion factor
 
 **Throws:**
-- `DomainException` - If the source and destination units have different dimensions
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the source and destination units have different dimensions
 
 **Examples:**
 ```php

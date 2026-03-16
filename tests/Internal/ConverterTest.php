@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Tests\Internal;
 use DomainException;
 use Galaxon\Quantities\Currencies\CurrencyService;
 use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
@@ -235,7 +236,7 @@ class ConverterTest extends TestCase
     {
         $converter = Converter::getInstance('L');
 
-        $this->expectException(DomainException::class);
+        $this->expectException(DimensionMismatchException::class);
 
         $converter->findConversion('s', 'm'); // seconds is not a length unit
     }
@@ -298,8 +299,8 @@ class ConverterTest extends TestCase
         // L5 is a valid dimension but has no registered QuantityType.
         $converter = Converter::getInstance('L5');
 
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('does not match the converter dimension');
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('Dimension mismatch');
 
         // 's' is a time unit (dimension T), not L5.
         $converter->findConversion('s', 'm5');
@@ -451,7 +452,7 @@ class ConverterTest extends TestCase
     {
         $converter = Converter::getInstance('L');
 
-        $this->expectException(DomainException::class);
+        $this->expectException(DimensionMismatchException::class);
 
         $converter->convert(1.0, 's', 'm');
     }
@@ -463,7 +464,7 @@ class ConverterTest extends TestCase
     {
         $converter = Converter::getInstance('L');
 
-        $this->expectException(DomainException::class);
+        $this->expectException(DimensionMismatchException::class);
 
         $converter->convert(1.0, 'm', 's');
     }

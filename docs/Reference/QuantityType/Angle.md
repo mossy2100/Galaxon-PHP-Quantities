@@ -16,7 +16,7 @@ The `Angle` class provides specialized handling for angular measurements, includ
 - Parsing of degree-minute-second notation (e.g., `45° 30' 15"`)
 - Specialized approximate equality comparison
 
-For the complete list of angular units, see [Supported Units: Angle](../../DeveloperGuide/SupportedUnits.md#angle).
+For the complete list of angular units, see [Supported Units: Angle](SupportedUnits.md#angle).
 
 ---
 
@@ -29,11 +29,7 @@ For the complete list of angular units, see [Supported Units: Angle](../../Devel
 
 ---
 
-## Methods
-
----
-
-## Extraction Methods
+## Transformation methods
 
 ### toRadians()
 
@@ -48,26 +44,6 @@ $angle = new Angle(180, 'deg');
 $radians = $angle->toRadians(); // 3.14159...
 ```
 
----
-
-## Transformation Methods
-
-### isRadians()
-
-```php
-public function isRadians(): bool
-```
-
-Check if the angle's current unit is radians.
-
-```php
-$angle = new Angle(M_PI, 'rad');
-$angle->isRadians(); // true
-
-$angle2 = new Angle(180, 'deg');
-$angle2->isRadians(); // false
-```
-
 ### wrap()
 
 ```php
@@ -76,25 +52,24 @@ public function wrap(bool $signed = true): Quantity
 
 Normalize an angle to a standard range.
 
-- **Signed (default):** Range is `(-half turn, half turn]`, e.g., `(-180°, 180°]` or `(-π, π]`
-- **Unsigned:** Range is `[0, full turn)`, e.g., `[0°, 360°)` or `[0, 2π)`
+- **Signed (default):** The result will be > -180° and <= 180° (or > -π and <= π for radians).
+- **Unsigned:** The result will be >= 0° and < 360° (or >= 0 and < 2π for radians).
 
 ```php
 $angle = new Angle(270, 'deg');
-$wrapped = $angle->wrap();        // -90°
-$unsigned = $angle->wrap(false);  // 270°
+echo $angle->wrap();          // -90 deg
+echo $angle->wrap(false);     // 270 deg
 
-$angle2 = new Angle(450, 'deg');
-$wrapped2 = $angle2->wrap();      // 90°
+$angle2 = new Angle(720, 'deg');
+echo $angle2->wrap();         // 0 deg
+echo $angle2->wrap(false);    // 0 deg
 ```
 
 ---
 
-## Trigonometric Methods
+## Trigonometric methods
 
-These methods are convenient if you prefer to work with angles in degrees (or any other unit) rather than radians, which PHP's built-in functions require. They also improve on PHP's handling of singularities: PHP's tan(M_PI / 2) returns a large finite number (~1.6e16) rather than INF,  because the floating-point representation of π/2 is not exact. The `Angle` trig methods detect when the denominator is within floating-point precision of zero and return ±INF with the correct sign, giving mathematically consistent results for tan(), sec(), csc(), and cot() at their singularities.
-
-All trigonometric methods return float values.
+These methods are convenient if you prefer to work with angles in degrees (or any other unit) rather than radians, which PHP's built-in functions require. All return float values.
 
 ### sin()
 
@@ -132,45 +107,34 @@ public function csc(): float
 public function cot(): float
 ```
 
+### Examples
+
 ```php
 $angle = new Angle(45, 'deg');
-$angle->sin();  // 0.7071...
-$angle->cos();  // 0.7071...
-$angle->tan();  // 1.0
+$angle->sin();   // 0.7071067811865...
+$angle->cos();   // 0.7071067811865...
+$angle->tan();   // 1.0
+$angle->sec();   // 1.4142135623731...
+$angle->csc();   // 1.4142135623731...
+$angle->cot();   // 1.0
+```
 
-$angle90 = new Angle(90, 'deg');
-$angle90->tan();  // INF (handled gracefully)
-$angle90->sec();  // INF
+These methods also improve on PHP's handling of singularities: PHP's tan(M_PI / 2) returns a large finite number (~1.6e16) rather than INF, because the floating-point representation of π/2 is not exact. The `Angle` trig methods detect when the denominator is within floating-point precision of zero and return ±INF with the correct sign, giving mathematically consistent results for tan(), sec(), csc(), and cot() at their singularities.
+
+```php
+// Singularities return ±INF with the correct sign.
+$right = new Angle(90, 'deg');
+$right->tan();   // INF
+$right->sec();   // INF
+
+$zero = new Angle(0, 'deg');
+$zero->csc();    // INF
+$zero->cot();    // INF
 ```
 
 ---
 
-## String Parsing
-
-### parse()
-
-```php
-public static function parse(string $value): Angle
-```
-
-Parse an angle from a string. Supports:
-
-- Standard quantity format: `"45 deg"`, `"3.14159 rad"`, `"100 grad"`
-- Degree-minute-second notation: `"45° 30' 15\""`, `"45°30′15″"`
-- Signed values: `"-45° 30' 15\""`
-
-The Unicode prime `′` and double-prime `″` are accepted for arcminutes and arcseconds respectively, as well as single-quote `'` and double-quote `"`.
-
-```php
-$a1 = Angle::parse('45 deg');
-$a2 = Angle::parse('1.5708 rad');
-$a3 = Angle::parse("45° 30' 15\"");  // 45.504166...°
-$a4 = Angle::parse('-45°30′15″');    // Negative angle
-```
-
----
-
-## Comparison Methods
+## Comparison methods
 
 ### approxEqual()
 
@@ -188,22 +152,21 @@ $a1->approxEqual($a2);  // true
 
 ---
 
-## Parts Methods
+## DMS Parts
 
-The `Angle` class supports decomposition into degrees, arcminutes, and arcseconds:
+Angles support part decomposition into degrees, arcminutes, and arcseconds by default:
 
 ```php
-$angle = new Angle(45.5042, 'deg');
-$parts = $angle->toParts();
-// ['deg' => 45, 'arcmin' => 30, 'arcsec' => 15.12, 'sign' => 1]
+$angle = new Angle(45.504200, 'deg');
 
-// Create from parts
-$angle = Angle::fromParts([
-    'deg' => 45,
-    'arcmin' => 30,
-    'arcsec' => 15,
-    'sign' => 1
-]);
+$parts = $angle->toParts();
+// ['sign' => 1, 'deg' => 45, 'arcmin' => 30, 'arcsec' => 15.12]
+
+echo $angle->formatParts();
+// 45° 30′ 15.12″
+
+$restored = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'arcsec' => 15]);
+echo $restored;  // 45.504167 deg
 ```
 
 ---
@@ -213,22 +176,15 @@ $angle = Angle::fromParts([
 ```php
 use Galaxon\Quantities\QuantityType\Angle;
 
-// Create angles in different units
+// Create angles in different units.
 $radians = new Angle(M_PI / 4, 'rad');
 $degrees = new Angle(45, 'deg');
 $gradians = new Angle(50, 'grad');
 
-// Convert between units
+// Convert between units.
 $inDegrees = $radians->to('deg');  // 45°
 
-// Trigonometry
-$sin45 = $degrees->sin();  // 0.7071...
-
-// Normalize angles
-$large = new Angle(720, 'deg');
-$normalized = $large->wrap();  // 0°
-
-// Parse DMS notation
+// Parse DMS notation.
 $dms = Angle::parse("23° 26' 21\"");  // Earth's axial tilt
 ```
 
@@ -236,6 +192,7 @@ $dms = Angle::parse("23° 26' 21\"");  // Earth's axial tilt
 
 ## See Also
 
-- **[Supported Units: Angle](../../DeveloperGuide/SupportedUnits.md#angle)** - Complete list of angular units
-- **[Quantity](../Quantity.md)** - Base class documentation
-- **[SolidAngle](SolidAngle.md)** - Related quantity for solid angles
+- **[Supported Units: Angle](SupportedUnits.md#angle)** — Complete list of angular units.
+- **[Quantity](../Quantity.md)** — Base class documentation.
+- **[Part Decomposition](PartDecomposition.md)** — General parts formatting and parsing.
+- **[SolidAngle](SolidAngle.md)** — Related quantity for solid angles.

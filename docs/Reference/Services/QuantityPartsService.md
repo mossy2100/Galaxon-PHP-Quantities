@@ -174,6 +174,7 @@ If `$precision` is provided, the smallest unit value is rounded to that many dec
 - `array<string, int|float>` - Array of parts keyed by unit symbol, plus a `'sign'` key.
 
 **Throws:**
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If any part unit symbol is not recognized.
 - `DomainException` - If the quantity type is unregistered, part unit symbols are not configured, or precision is negative.
 - `InvalidArgumentException` - If any of the unit symbols are not strings.
 
@@ -230,6 +231,7 @@ If `$showZeros` is `false`, parts with zero values are omitted. However, if the 
 - `string` - The formatted string (e.g. `"1h 30min 0s"`, `"12deg 34arcmin 56.789arcsec"`).
 
 **Throws:**
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If any part unit symbol is not recognized.
 - `DomainException` - If the quantity type is unregistered, part unit symbols are not configured, or precision is negative.
 - `InvalidArgumentException` - If any of the unit symbols are not strings.
 

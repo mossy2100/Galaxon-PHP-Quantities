@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Internal;
 
-use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -165,7 +165,7 @@ class DerivedUnitTest extends TestCase
 
     public function testParseInvalidUnit(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(UnknownUnitException::class);
         DerivedUnit::parse('xyz');
     }
 

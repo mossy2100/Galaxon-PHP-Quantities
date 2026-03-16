@@ -43,7 +43,7 @@ $diff = $a->sub(2, 'km');             // -1900 m
 Units are automatically converted before the operation. An exception is thrown if the dimensions don't match:
 
 ```php
-$a->add(new Mass(5, 'kg'));  // DomainException: incompatible dimensions
+$a->add(new Mass(5, 'kg'));  // DimensionMismatchException
 ```
 
 ---
@@ -185,7 +185,9 @@ $invSquared = $time->pow(-2);  // 0.25 s-2
 
 ## Result types
 
-The result type of a `mul()`, `div()`, `inv()`, or `pow()` operation is determined automatically. If a built-in quantity type matches the resulting unit, the correct subclass is returned:
+The result type of an `add()`, `aub()`, `neg()`, or `abs()` operation will be the same as the calling object.
+
+The result type of a `mul()`, `div()`, `inv()`, or `pow()` operation will be determined automatically. If a built-in quantity type matches the resulting unit, the correct subclass is returned. If no built-in quantity type matches the resulting dimension, a base `Quantity` object is returned.
 
 ```php
 use Galaxon\Quantities\PhysicalConstant;
@@ -211,11 +213,3 @@ $f = new Frequency(5.4545e14, 'Hz');
 $wavelength = $c->div($f);  // ~550 nm (Length object)
 ```
 
-Some common relationships:
-
-- **Power x Time = Energy**: 1 kW x 1 h = 1 kWh
-- **Force x Distance = Energy**: 1 N x 1 m = 1 J
-- **Length x Length = Area**: 10 m x 5 m = 50 m2
-- **Area x Length = Volume**: 50 m2 x 2 m = 100 m3
-
-If no built-in quantity type matches the resulting dimension, a base `Quantity` object is returned.

@@ -127,7 +127,7 @@ Convert any unit representation to a DerivedUnit.
 
 **Throws:**
 - `FormatException` - If a string cannot be parsed
-- `DomainException` - If a string contains unknown units
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a string contains unknown units
 
 **Examples:**
 ```php
@@ -152,7 +152,7 @@ Parse a string into a DerivedUnit.
 
 **Throws:**
 - `FormatException` - If the format is invalid
-- `DomainException` - If any units are unknown
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If any units are unknown
 - `LogicException` - If there was a parsing error
 
 **Behavior:**

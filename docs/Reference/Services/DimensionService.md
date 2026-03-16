@@ -18,28 +18,7 @@ All methods are static. The class has no constructor or instance state.
 
 ### `DIMENSION_CODES`
 
-Maps single-letter dimension codes to their quantity type name and base unit symbols (SI, English, or common).
-
-| Code | Quantity Type | SI Base Unit | English Base Unit | Common Base Unit |
-|------|---------------|:------------:|:-----------------:|:----------------:|
-| `M` | mass | `kg` | `lb` | |
-| `L` | length | `m` | `ft` | |
-| `A` | angle | `rad` | `deg` | |
-| `D` | data | | | `B` |
-| `C` | money | | | `XAU` |
-| `T` | time | `s` | | |
-| `I` | electric current | `A` | | |
-| `N` | amount of substance | `mol` | | |
-| `H` | temperature | `K` | `degR` | |
-| `J` | luminous intensity | `cd` | | |
-
-The order of codes determines the canonical ordering of terms within a dimension code (used for comparison and formatting).
-
-**Design notes:**
-
-- `A` (angle) is not part of the ISQ but is needed for this system.
-- `C` is reserved for a future currency extension, using `XAU` (gold troy ounces) as the base unit.
-- `H` is used for temperature instead of the ISQ's Greek capital theta, because ASCII is easier to type.
+Maps single-letter dimension codes to their quantity type name and base unit symbols (SI, English, or common). See [Dimensions and Base Units](DimensionsAndBaseUnits.md).
 
 ---
 

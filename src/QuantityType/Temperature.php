@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -112,7 +112,7 @@ class Temperature extends Quantity
      * @param string|UnitInterface $destUnit The destination temperature unit.
      * @return float The converted temperature value.
      * @throws FormatException If a string cannot be parsed.
-     * @throws DomainException If the unit is unknown or not a temperature unit.
+     * @throws DimensionMismatchException If a unit is not a temperature unit.
      */
     #[Override]
     public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
@@ -127,10 +127,10 @@ class Temperature extends Quantity
 
         // Validate units.
         if ($srcUnit->dimension !== 'H') {
-            throw new DomainException("Invalid temperature unit: '$srcSymbol'.");
+            throw new DimensionMismatchException('H', $srcUnit->dimension);
         }
         if ($destUnit->dimension !== 'H') {
-            throw new DomainException("Invalid temperature unit: '$destSymbol'.");
+            throw new DimensionMismatchException('H', $destUnit->dimension);
         }
 
         // If either unit is not a known temperature unit, delegate to parent immediately.

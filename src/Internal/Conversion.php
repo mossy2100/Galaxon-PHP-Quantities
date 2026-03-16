@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Stringable;
 
 /**
@@ -61,7 +62,8 @@ class Conversion implements Stringable
      * @param string|UnitInterface $destUnit The destination unit.
      * @param float|FloatWithError $factor The scale factor (must be positive).
      * @throws FormatException If either unit is provided as a string that cannot be parsed.
-     * @throws DomainException If dimensions don't match or the factor is not positive.
+     * @throws DimensionMismatchException If the source and destination unit dimensions don't match.
+     * @throws DomainException If the factor is not positive.
      */
     public function __construct(
         string|UnitInterface $srcUnit,
@@ -74,10 +76,7 @@ class Conversion implements Stringable
 
         // Ensure dimensions match.
         if ($srcUnit->dimension !== $destUnit->dimension) {
-            throw new DomainException(
-                "Cannot create conversion: '$srcUnit->asciiSymbol' ($srcUnit->dimension) " .
-                "and '$destUnit->asciiSymbol' ($destUnit->dimension) have different dimensions."
-            );
+            throw new DimensionMismatchException($srcUnit->dimension, $destUnit->dimension);
         }
 
         // Ensure the factor is a FloatWithError.

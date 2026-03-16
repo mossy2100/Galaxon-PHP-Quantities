@@ -161,27 +161,7 @@ final class AngleTest extends TestCase
 
     // endregion
 
-    // region Inspection methods tests
-
-    /**
-     * Test isRadians returns true for radians.
-     */
-    public function testIsRadiansTrue(): void
-    {
-        $angle = new Angle(M_PI, 'rad');
-
-        $this->assertTrue($angle->isRadians());
-    }
-
-    /**
-     * Test isRadians returns false for degrees.
-     */
-    public function testIsRadiansFalse(): void
-    {
-        $angle = new Angle(180, 'deg');
-
-        $this->assertFalse($angle->isRadians());
-    }
+    // region Transformation methods tests
 
     /**
      * Test toRadians for angle already in radians.

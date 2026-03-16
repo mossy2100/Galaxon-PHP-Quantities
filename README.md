@@ -2,14 +2,14 @@
 
 Physical measurement types with automatic unit conversion and prefix support.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](2.6_SupportedUnits.md)** | **[Examples](3.4_CalculationExamples.md)** | **[Custom Types](6.2_AddingQuantityTypes.md)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](docs/Concepts/SupportedUnits.md)** | **[Examples](docs/WorkingWithQuantities/CalculationExamples.md)** | **[Customization](docs/WorkingWithQuantities/Customization.md)**
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
 ---
 ## Description
 
-This package provides strongly-typed classes for physical quantities (length, mass, time, temperature, etc.) with comprehensive unit conversion capabilities. The system automatically find conversion factors between compatible units, supports metric and binary prefixes, and handles affine transformations for temperature scales.
+This package provides strongly-typed classes for physical quantities (length, mass, time, temperature, money, etc.) with comprehensive unit conversion capabilities. The system automatically finds conversion factors between compatible units, supports metric and binary prefixes, and handles affine transformations for temperature scales.
 
 Key capabilities include:
 
@@ -18,12 +18,15 @@ Key capabilities include:
 - **Prefix support**: Full support for SI metric and binary prefixes.
 - **Arithmetic operations**: Add, subtract, multiply, and divide quantities with automatic unit handling.
 - **Flexible parsing**: Parse strings like "123.45 km", "90deg", or "25°C" into Quantity objects.
-- **Part decomposition**: Break measurements into components (e.g. 12° 34′ 56″ or 1y 3mo 2d)
+- **String formatting**: Format quantities as ASCII or Unicode, with configurable decimal places and locale-specific currency formatting.
+- **Part decomposition**: Break measurements into components (e.g. 12° 34′ 56″ or 1y 3mo 2d).
+- **Physical constants**: Built-in constants like the speed of light, Planck's constant, and Avogadro's number as Quantity objects.
+- **Up-to-date exchange rates**: Interfaces automatically with the exchange rate API of your choice to get the latest conversion rates as needed.
 
 ---
 ## Development and Quality Assurance / AI Disclosure
 
-[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach resulted in a high-quality, thoroughly-tested, and well-documented package delivered in significantly less time than traditional development methods.
+[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach resulted in a well-designed, production-quality, thoroughly-tested, and well-documented package delivered in significantly less time than with traditional development methods.
 
 ![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
@@ -52,11 +55,13 @@ use Galaxon\Quantities\QuantityType\Angle;
 $distance = new Length(5, 'km');
 $temp = new Temperature(25, 'degC');
 $angle = new Angle(90, 'deg');
+$price = new Money(4269, 'EUR');
 
 // Convert between units
-$miles = $distance->to('mi');     // 3.10686... miles
+$miles = $distance->to('mi');        // 3.10686... miles
 $fahrenheit = $temp->to('degF');     // 77°F
-$radians = $angle->to('rad');     // 1.5707... rad
+$radians = $angle->to('rad');        // 1.5707... rad
+$dollars = $price->to('USD');        // e.g. 4621 USD
 
 // Convert to SI units
 $force = new Force(28000, 'lbf');
@@ -94,18 +99,24 @@ echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
 ---
 ## Developer Guide
 
-1. **[2.1_Terminology](2.1_Terminology.md)** — Key terms and definitions used throughout the library.
-2. **[3.1_CreatingQuantities](3.1_CreatingQuantities.md)** — Get started creating Quantity objects via the base Quantity class and dedicated subclasses.
-3. Quantity Types and Dimensions - A deeper dive into quantity types and dimensions.
-4. **[3.2_UnitConversion](3.2_UnitConversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
-5. **[2.6_SupportedUnits](2.6_SupportedUnits.md)** — Complete reference of all built-in units by quantity type.
-6. **[3.3_ArithmeticOperations](3.3_ArithmeticOperations.md)** — Add, subtract, multiply, and divide quantities.
-7. **[2.7_PhysicalConstants](2.7_PhysicalConstants.md)** — Using fundamental constants in calculations.
-8. **[3.4_CalculationExamples](3.4_CalculationExamples.md)** — Real-world physics and engineering calculations.
-9. **[3.5_ComparisonFunctions](3.5_ComparisonFunctions.md)** — Exact and approximate equality, ordering, and tolerances.
-10. **[3.6_StringFunctions](3.6_StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
-11. **[6.2_AddingQuantityTypes](6.2_AddingQuantityTypes.md)** — How to add your own quantity types and units.
-12. **[3.7_PartDecomposition](3.7_PartDecomposition.md)** — Breaking quantities into components (e.g. 45° 30′ 15″ or 1h 30min 45s).
+1. **Concepts**
+	1. **[Terminology](docs/Concepts/Terminology.md)** — Key terms and definitions used throughout the library.
+	2. **[Dimensions and Base Units](docs/Concepts/DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
+	3. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
+	4. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
+	5. **[Systems of Units](docs/Concepts/SystemsOfUnits.md)** — SI, imperial, US customary, and other unit systems.
+	6. **[Supported Units](docs/Concepts/SupportedUnits.md)** — Complete reference of all built-in units organised by quantity type.
+	7. **[Physical Constants](docs/Concepts/PhysicalConstants.md)** — Built-in physical constants as Quantity objects.
+2. **Working with Quantities**
+	1. **[Creating Quantities](docs/WorkingWithQuantities/CreatingQuantities.md)** — Creating new quantities with constructors and the factory method.
+	2. **[Unit Conversion](docs/WorkingWithQuantities/UnitConversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
+	3. **[Arithmetic Operations](docs/WorkingWithQuantities/ArithmeticOperations.md)** — Add, subtract, multiply, and divide quantities.
+	4. **[Calculation Examples](docs/WorkingWithQuantities/CalculationExamples.md)** — Real-world physics and engineering calculations.
+	5. **[Comparison Functions](docs/WorkingWithQuantities/ComparisonFunctions.md)** — Exact and approximate equality, ordering, and tolerances.
+	6. **[String Functions](docs/WorkingWithQuantities/StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
+	7. **[Part Decomposition](docs/WorkingWithQuantities/PartDecomposition.md)** — Working with quantities as parts (e.g. 45° 30′ 15″ or 1h 30min 45s).
+	8. **[Customization](docs/WorkingWithQuantities/Customization.md)** — Adding custom units, conversions, and quantity type classes.
+	9. **[Currency Calculations](docs/WorkingWithQuantities/CurrencyCalculations.md)** — Example conversions and calculations involving currencies.
 
 ---
 ## Reference
@@ -122,10 +133,10 @@ Other than the quantity type classes (below), these are the main classes you'll 
 
 ### Quantity Types
 
-All quantity type classes extend `Quantity` and define their specific units and conversions. See **[2.6_SupportedUnits](2.6_SupportedUnits.md)** for a complete reference of all units organized by quantity type.
+All quantity type classes extend `Quantity` and define their specific units and conversions. See **[Supported Units](docs/Concepts/SupportedUnits.md)** for a complete reference of all units organized by quantity type.
 
-| Class                                                           | Dimension  | SI Unit | Description                                      |
-|-----------------------------------------------------------------|------------|---------|--------------------------------------------------|
+| Class                                                                     | Dimension  | SI Unit | Description                                      |
+| ------------------------------------------------------------------------- | ---------- | ------- | ------------------------------------------------ |
 | [Acceleration](docs/Reference/QuantityType/Acceleration.md)               | T-2L       | m/s²    | Rate of change of velocity.                      |
 | [AmountOfSubstance](docs/Reference/QuantityType/AmountOfSubstance.md)     | N          | mol     | SI base quantity for counting entities.          |
 | [Angle](docs/Reference/QuantityType/Angle.md)                             | A          | rad     | Angular measurements with trig functions.        |
@@ -149,6 +160,7 @@ All quantity type classes extend `Quantity` and define their specific units and 
 | [MagneticFlux](docs/Reference/QuantityType/MagneticFlux.md)               | T-2L2MI-1  | Wb      | Total magnetic field through surface.            |
 | [MagneticFluxDensity](docs/Reference/QuantityType/MagneticFluxDensity.md) | T-2MI-1    | T       | Magnetic field strength.                         |
 | [Mass](docs/Reference/QuantityType/Mass.md)                               | M          | kg      | SI base quantity for mass.                       |
+| [Money](docs/Reference/QuantityType/Money.md)                             | C          | XAU     | Currency conversions and calculations.           |
 | [Power](docs/Reference/QuantityType/Power.md)                             | T-3L2M     | W       | Rate of energy transfer.                         |
 | [Pressure](docs/Reference/QuantityType/Pressure.md)                       | T-2L-1M    | Pa      | Force per unit area.                             |
 | [RadiationDose](docs/Reference/QuantityType/RadiationDose.md)             | T-2L2      | Gy, Sv  | Absorbed and equivalent radiation dose.          |
@@ -223,7 +235,6 @@ For questions or suggestions, please [open an issue](https://github.com/mossy210
 
 - **Issues**: https://github.com/mossy2100/PHP-Quantities/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
-- **Examples**: See [3.4_CalculationExamples](3.4_CalculationExamples.md) for real-world physics and engineering calculations
 
 ## Changelog
 

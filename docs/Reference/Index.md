@@ -57,6 +57,15 @@ All quantity type classes extend [`Quantity`](Quantity.md) and inherit its full 
 
 ---
 
+## Exceptions
+
+| Class | Description |
+|-------|-------------|
+| [UnknownUnitException](Exceptions/UnknownUnitException.md) | Thrown when a unit symbol cannot be resolved to a known unit |
+| [DimensionMismatchException](Exceptions/DimensionMismatchException.md) | Thrown when an operation requires matching dimensions but receives different ones |
+
+---
+
 ## Internal Classes
 
 These classes form the internal architecture of the package. They are used by the public API but are not typically used directly.
@@ -97,7 +106,7 @@ Classes for currency data management and exchange rate integration.
 
 | Class | Description |
 |-------|-------------|
-| [CurrencyService](Currencies/CurrencyService.md) | Manages currency unit data and exchange rate conversions |
+| [CurrencyService](packages/Quantities/docs/Reference/Currencies/CurrencyService.md) | Manages currency unit data and exchange rate conversions |
 | [ExchangeRateServiceInterface](Currencies/ExchangeRateServices/ExchangeRateServiceInterface.md) | Contract for exchange rate providers |
 | [CurrencyLayerService](Currencies/ExchangeRateServices/CurrencyLayerService.md) | CurrencyLayer API (USD-based, 1,000 req/month free) |
 | [ExchangeRateApiService](Currencies/ExchangeRateServices/ExchangeRateApiService.md) | ExchangeRate-API (any base currency, 1,500 req/month free) |
