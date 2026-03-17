@@ -105,8 +105,8 @@ class Time extends Quantity
      */
     public static function fromDateInterval(DateInterval $interval): self
     {
-        // Convert the DateInterval to an array of time parts.
-        $parts = [
+        // Convert the DateInterval to an array of parts and create a Time instance.
+        return self::fromParts([
             'sign' => $interval->invert ? -1 : 1,
             'y'    => $interval->y,
             'mo'   => $interval->m,
@@ -114,9 +114,7 @@ class Time extends Quantity
             'h'    => $interval->h,
             'min'  => $interval->i,
             's'    => $interval->s + $interval->f,
-        ];
-
-        return self::fromParts($parts);
+        ]);
     }
 
     /**
