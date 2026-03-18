@@ -200,7 +200,24 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Overrideable methods
+    // region Static methods
+
+    /**
+     * Convert a value from a source unit to a destination unit.
+     *
+     * @param float $value The numeric value to convert.
+     * @param string|UnitInterface $srcUnit The source unit.
+     * @param string|UnitInterface $destUnit The destination unit.
+     * @return float The converted value.
+     * @throws FormatException If a unit string cannot be parsed.
+     * @throws DomainException If a unit string contains unknown units.
+     * @throws LogicException If no conversion path exists between the units.
+     */
+    public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
+    {
+        // Delegate to the ConversionService.
+        return ConversionService::convert($value, $srcUnit, $destUnit);
+    }
 
     /**
      * Unit definitions.
@@ -233,27 +250,6 @@ class Quantity implements Stringable
     }
 
     /**
-     * Convert a value from a source unit to a destination unit.
-     *
-     * @param float $value The numeric value to convert.
-     * @param string|UnitInterface $srcUnit The source unit.
-     * @param string|UnitInterface $destUnit The destination unit.
-     * @return float The converted value.
-     * @throws FormatException If a unit string cannot be parsed.
-     * @throws DomainException If a unit string contains unknown units.
-     * @throws LogicException If no conversion path exists between the units.
-     */
-    public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
-    {
-        // Delegate to the ConversionService.
-        return ConversionService::convert($value, $srcUnit, $destUnit);
-    }
-
-    // endregion
-
-    // region Static access methods
-
-    /**
      * Get the quantity type corresponding to the calling class, if known.
      *
      * Static equivalent to the $quantityType property.
@@ -264,6 +260,19 @@ class Quantity implements Stringable
     public static function getQuantityType(): ?QuantityType
     {
         return QuantityTypeService::getByClass(static::class);
+    }
+
+    /**
+     * Get the dimension code corresponding to the calling class, if known.
+     *
+     * Returns the dimension code (e.g. 'L' for Length, 'M' for Mass) if the calling class is a registered
+     * quantity type subclass. Returns null if called on Quantity itself or if the subclass is not registered.
+     *
+     * @return ?string The dimension code, or null if not registered.
+     */
+    public static function getDimension(): ?string
+    {
+        return static::getQuantityType()?->dimension;
     }
 
     // endregion
@@ -906,9 +915,13 @@ class Quantity implements Stringable
      *
      * @param string $input The string to parse.
      * @return self A new Quantity parsed from the string.
-     * @throws FormatException If the string format is invalid.
-     * @throws DomainException If the string contains unknown units.
-     * @throws UnexpectedValueException
+     * @throws FormatException If the input string format is invalid.
+     * @throws DomainException If the string contains unknown units, or the string contains multiple parts and either
+     * the quantity type is unregistered or the result unit symbol is invalid.
+     * @throws DimensionMismatchException If called on a subclass and the parsed unit's dimension doesn't match.
+     * @throws UnexpectedValueException If there's an unexpected error during parsing.
+     * @throws InvalidArgumentException If the string contains multiple parts, and any of the part unit symbols are not
+     * strings.
      * @example
      *   Length::parse("123.45 km")  // Length(123.45, 'km')
      *   Angle::parse("90deg")       // Angle(90.0, 'deg')
@@ -927,15 +940,22 @@ class Quantity implements Stringable
             throw new FormatException($err);
         }
 
-        // Look for <num><unit>. Whitespace between the number and unit is permitted. The unit is optional, as for a
-        // dimensionless quantity.
+        // Try to parse as <num><unit>. Whitespace between the number and unit is permitted. The unit is optional, as
+        // for a dimensionless quantity.
         if (RegexService::isValidQuantity($input, $m)) {
             assert(isset($m[1]));
-            return self::create((float)$m[1], $m[2] ?? null);
+            $result = self::create((float)$m[1], $m[2] ?? null);
+        } else {
+            // Try to parse the string as multiple parts, as if output from formatParts().
+            $result = self::parseParts($input);
         }
 
-        // Try to parse the string as multiple parts, as if output from formatParts().
-        return self::parseParts($input);
+        // If this method is not called from Quantity, check the result class is the same as the calling class.
+        if (self::class !== static::class && $result::class !== static::class) {
+            throw new DimensionMismatchException(static::getDimension(), $result->dimension);
+        }
+
+        return $result;
     }
 
     /**

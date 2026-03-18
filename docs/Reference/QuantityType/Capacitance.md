@@ -11,7 +11,7 @@ Represents electrical capacitance quantities.
 
 The `Capacitance` class handles electrical capacitance measurements.
 
-For the complete list of capacitance units, see [Supported Units: Capacitance](SupportedUnits.md#capacitance).
+For the complete list of capacitance units, see [Supported Units: Capacitance](Units.md#capacitance).
 
 ---
 
@@ -47,7 +47,7 @@ $inMF = $super->to('mF');  // 1000 mF
 
 ## See Also
 
-- **[Supported Units: Capacitance](SupportedUnits.md#capacitance)** - Complete list
+- **[Supported Units: Capacitance](Units.md#capacitance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCharge](ElectricCharge.md)** - Related quantity (C = Q/V)
 - **[Voltage](Voltage.md)** - Related quantity

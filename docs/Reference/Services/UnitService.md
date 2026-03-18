@@ -240,4 +240,4 @@ UnitService::add(new Unit('cubit', 'cbt', 'L', [UnitSystem::Common]));
 - **[ConversionService](ConversionService.md)** - Conversion registry
 - **[QuantityTypeService](QuantityTypeService.md)** - Quantity type registry
 - **[UnitSystem](../UnitSystem.md)** - Measurement system enum
-- **[Supported Units](SupportedUnits.md)** - Complete unit reference
+- **[Supported Units](Units.md)** - Complete unit reference

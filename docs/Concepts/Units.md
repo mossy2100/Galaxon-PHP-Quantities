@@ -1,4 +1,4 @@
-# Supported Units
+# Units
 
 ---
 
@@ -18,17 +18,17 @@ Note, however, that the prefix meaning 10 is spelled "deca" within the package, 
 
 ## Unit symbols
 
-All units can have at least one and up to three symbols, excluding additional symbols formed by the addition of prefixes.
+All units can have at least one and up to three symbols, with additional symbols formed by combination with prefixes.
 
 ### Symbol types
 
 1. **ASCII symbol.** Every unit has one, and they must be unique. The ASCII symbol is necessary for easy typing in code on a regular keyboard.
-2. **Unicode symbol.** This is defined for a handful of units only, the most common being the degree symbol (`°`) as used in the symbols for degrees of angle, degrees Celsius or Fahrenheit, etc., and the ohm symbol (`Ω`). When formatting a quantity or unit the Unicode symbol will be preferred, if specified; if none is specified, the ASCII symbol will be used.
-3. **Alternate symbol.** This is an additional unit symbol accepted by the parser. It can only be one character, it doesn't combine with prefixes, and it is never used by `format()` methods. The only current uses are the single and double quote characters (i.e. `'` and `"`) which may be used for arcminutes and arcseconds respectively.
+2. **Unicode symbol.** This is defined for a handful of units only, the most common being the degree symbol (`°`) as used in the symbols for degrees of angle, degrees Celsius or Fahrenheit, etc.; and the ohm symbol (`Ω`). When formatting a quantity or unit the Unicode symbol will be preferred, if specified; if none is specified, the ASCII symbol will be used.
+3. **Alternate symbol.** This is an additional unit symbol accepted by `parse()` methods. It can only be one character, it doesn't combine with prefixes, and it is never used by `format()` methods. The only defaults are the single and double quote characters (i.e. `'` and `"`), which may be used for arcminutes and arcseconds respectively.
 
 All units normally expressed with non-ASCII characters are assigned an ASCII symbol so they are easier to type on a standard keyboard. Therefore, you can use the following:
 
-1. `deg` in place of `°` (this matches CSS notation)
+1. `deg` in place of `°` (this matches [CSS notation](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/angle) for angles)
 2. `arcmin` in place of `′`
 3. `arcsec` in place of `″`
 4. `degC` in place of `°C`
@@ -41,7 +41,7 @@ All units normally expressed with non-ASCII characters are assigned an ASCII sym
 
 In some cases a conventional unit symbol may not be supported. The main reason is because the package relies on unit symbols being unique. It could also be necessary for prefixes to work properly (e.g. 'kcal'); or it could be a stylistic choice (e.g. 'L').
 
-1. Use `p` (lower-case) for picas (12 points or 1/6 in), not `pc`, which means parsec.
+1. Use `p` (lower-case) for picas, not `pc`, which means parsec.
 2. Don't use `pt` for pint, which means point, a typographical unit. For pints, use either `imp pt` for imperial pints, or `US pt` for US pints.
 3. Use `arcsec` for arcsecond, not `as`, which means attosecond.
 4. Use `ft` for feet, not `′` (the prime symbol), which means arcminutes.
@@ -57,6 +57,7 @@ In some cases a conventional unit symbol may not be supported. The main reason i
 14. Use `mi/h` for miles per hour, not `mph`. 
 15. Use `u` or `µ` for the 'micro' prefix, not `mc`. e.g. for microgram use `ug` or `µg`, not `mcg`. 
 16. Use `ppt` for 'parts per thousand'. There is no built-in unit for 'parts per trillion'.
+17. Use `min` for minutes, not `mi`, which means miles.
 
 ### Unit system codes
 
@@ -91,12 +92,12 @@ The **Prefixes** column indicates which prefixes are supported by a given unit:
 | mile              | `mi`         |                |              | Imperial, US Customary  |
 | fathom            | `ftm`        |                |              | Nautical                |
 | nautical mile     | `nmi`        |                |              | Nautical                |
-**Note 1:** The abbreviation `pt`, for point, can also mean pint. Unit uniqueness is maintained because the unit symbols for pints are `imp pt` and `US pt`.
+**Note 1:** The abbreviation `pt`, for point, can also mean pint. Unit uniqueness is maintained because the unit symbols for pints within the package are `imp pt` and `US pt`.
 
 **Note 2:** While CSS uses `pc` for picas, the package instead uses `p` for several reasons:
-1. Lower-case `p` is used for picas in design software like Adobe InDesign and QuarkXPress.
-2. `pc` is the symbol for parsec, and there's no obvious alternative.
-3. Picas are not often used in CSS, so this shouldn't be a huge problem.
+1. `pc` is the symbol for parsec, and there's no obvious alternative.
+2. Lower-case `p` is used for picas in design software like Adobe InDesign and QuarkXPress, so there is an established precedent.
+3. Picas are not often used in CSS, so it shouldn't be a huge problem.
 
 **See:** [Length class documentation](../Reference/QuantityType/Length.md)
 
@@ -104,17 +105,18 @@ The **Prefixes** column indicates which prefixes are supported by a given unit:
 
 ### Mass
 
-| Name      | ASCII symbol | Unicode symbol | Prefixes   | Systems                |
-|-----------|--------------|----------------|------------|------------------------|
-| gram      | `g`          |                | all metric | SI                     |
-| tonne     | `t`          |                |            | SI Accepted            |
-| dalton    | `Da`         |                |            | SI Accepted            |
-| grain     | `gr`         |                |            | Imperial, US Customary |
-| ounce     | `oz`         |                |            | Imperial, US Customary |
-| pound     | `lb`         |                |            | Imperial, US Customary |
-| stone     | `st`         |                |            | Imperial               |
-| short ton | `tn`         |                |            | US Customary           |
-| long ton  | `LT`         |                |            | Imperial               |
+| Name       | ASCII symbol | Unicode symbol | Prefixes   | Systems                |
+| ---------- | ------------ | -------------- | ---------- | ---------------------- |
+| gram       | `g`          |                | all metric | SI                     |
+| tonne      | `t`          |                |            | SI Accepted            |
+| dalton     | `Da`         |                |            | SI Accepted            |
+| grain      | `gr`         |                |            | Imperial, US Customary |
+| ounce      | `oz`         |                |            | Imperial, US Customary |
+| troy ounce | `oz `t       |                |            | Imperial, US Customary |
+| pound      | `lb`         |                |            | Imperial, US Customary |
+| stone      | `st`         |                |            | Imperial               |
+| short ton  | `tn`         |                |            | US Customary           |
+| long ton   | `LT`         |                |            | Imperial               |
 
 **Note:** The SI base unit for mass is the kilogram (kg), not the gram.
 

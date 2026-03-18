@@ -1,11 +1,13 @@
 # Quantity Types
 
-A [quantity type](https://en.wikipedia.org/wiki/Quantity) is a category of measurable property — such as length, mass, or time — that defines what kind of thing is being measured. The Quantities package provides several classes to support quantity types.
+A [quantity type](https://en.wikipedia.org/wiki/Quantity) is a category of measurable property — such as length, mass, or time — that defines what kind of thing is being measured.
 
-1. The Quantity base class, which provides most of the functionality for quantity conversion, arithmetic, comparison, etc.
-2. The Quantity subclasses (`Time`, `Length`, `Force`, etc.), each of which represents a quantity type. See below.
-3. The QuantityType class, which encapsulates a quantity type.
-4. The QuantityTypeService, which functions as a registry linking dimensions to quantity type classes (i.e. Quantity subclasses).
+The package provides several classes to support quantity types:
+
+1. The `Quantity` base class, which provides most of the functionality for quantity conversion, arithmetic, comparison, etc.
+2. The `Quantity` subclasses (`Time`, `Length`, `Force`, etc.), each of which represents a quantity type. See below.
+3. The `QuantityType` class, which encapsulates a quantity type.
+4. The `QuantityTypeService`, which functions as a registry linking dimensions to quantity type classes (i.e. `Quantity` subclasses).
 
 ---
 
@@ -76,7 +78,7 @@ There are many other quantity types for which no dedicated subclass is provided,
 
 Examples include: momentum, torque, viscosity, electric field strength, and heat capacity. Many more can be found at the [list of physical quantities](https://en.wikipedia.org/wiki/List_of_physical_quantities) on Wikipedia.
 
-Only two quantity type classes (Acceleration and Density) are included that add no additional functionality, as they have no dedicated units or conversions. They're included as they are quite common, and serve as examples of how to add your own custom quantity types.
+Only two quantity type classes (`Acceleration` and `Density`) are included that add no additional functionality, as they have no dedicated units or conversions. They're included because they're reasonably common, and serve as examples of how to add your own custom quantity types.
 
 Using a dedicated subclass for a quantity type improves code readability and type safety, and can be a form of future-proofing in case additional functionality needs to be added later.
 
@@ -86,7 +88,7 @@ Using a dedicated subclass for a quantity type improves code readability and typ
 
 - **[Creating Quantities](CreatingQuantities.md)** — How to instantiate quantities using constructors and the factory method.
 - **[Adding Quantity Types](AddingQuantityTypes.md)** — How to create your own custom quantity type classes.
-- **[Supported Units](SupportedUnits.md)** — Complete list of built-in units for each quantity type.
+- **[Supported Units](Units.md)** — Complete list of built-in units for each quantity type.
 - **[QuantityTypeService](../Reference/Services/QuantityTypeService.md)** — Service for registering and looking up quantity types.
 - **[QuantityType](../Reference/Internal/QuantityType.md)** — Internal metadata class representing a quantity type.
 

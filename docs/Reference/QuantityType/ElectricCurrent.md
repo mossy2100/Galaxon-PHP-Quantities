@@ -11,7 +11,7 @@ Represents electric current quantities.
 
 The `ElectricCurrent` class handles electric current measurements. The ampere is one of the seven SI base units.
 
-For the complete list of electric current units, see [Supported Units: Electric Current](SupportedUnits.md#electric-current).
+For the complete list of electric current units, see [Supported Units: Electric Current](Units.md#electric-current).
 
 ---
 
@@ -43,7 +43,7 @@ $inNA = $sensor->to('nA');  // 100,000 nA
 
 ## See Also
 
-- **[Supported Units: Electric Current](SupportedUnits.md#electric-current)** - Complete list
+- **[Supported Units: Electric Current](Units.md#electric-current)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Voltage](Voltage.md)** - Related quantity
 - **[Resistance](Resistance.md)** - Related quantity (Ohm's law: V = IR)

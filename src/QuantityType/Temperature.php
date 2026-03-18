@@ -41,62 +41,6 @@ class Temperature extends Quantity
     // region Overridden methods
 
     /**
-     * Unit definitions for temperature.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
-     */
-    #[Override]
-    public static function getUnitDefinitions(): array
-    {
-        return [
-            'kelvin'     => [
-                'asciiSymbol' => 'K',
-                'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::Si],
-            ],
-            'celsius'    => [
-                'asciiSymbol'   => 'degC',
-                'unicodeSymbol' => '°C',
-                'systems'       => [UnitSystem::Si],
-            ],
-            'fahrenheit' => [
-                'asciiSymbol'   => 'degF',
-                'unicodeSymbol' => '°F',
-                'systems'       => [UnitSystem::Imperial, UnitSystem::UsCustomary],
-            ],
-            'rankine'    => [
-                'asciiSymbol'   => 'degR',
-                'unicodeSymbol' => '°R',
-                'systems'       => [UnitSystem::Imperial, UnitSystem::UsCustomary],
-            ],
-        ];
-    }
-
-    /**
-     * Conversion factors for temperature units.
-     *
-     * Note: Temperature conversions are special because Celsius and Fahrenheit have offsets.
-     * The convert() method is overridden to handle these correctly.
-     *
-     * @return list<array{string, string, float}>
-     */
-    #[Override]
-    public static function getConversionDefinitions(): array
-    {
-        return [
-            ['degC', 'K', 1],
-            ['degF', 'degR', 1],
-            ['K', 'degR', self::RANKINE_PER_KELVIN],
-        ];
-    }
-
-    /**
      * Convert temperature from one unit to another.
      *
      * This override is necessary because Celsius and Fahrenheit are offset from absolute zero, but the conversion
@@ -211,6 +155,62 @@ class Temperature extends Quantity
 
         // Destination unit must be Kelvin with an SI prefix.
         return $value / $destUnit->multiplier;
+    }
+
+    /**
+     * Unit definitions for temperature.
+     *
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     alternateSymbol?: string,
+     *     systems: list<UnitSystem>
+     * }>
+     */
+    #[Override]
+    public static function getUnitDefinitions(): array
+    {
+        return [
+            'kelvin'     => [
+                'asciiSymbol' => 'K',
+                'prefixGroup' => PrefixService::GROUP_METRIC,
+                'systems'     => [UnitSystem::Si],
+            ],
+            'celsius'    => [
+                'asciiSymbol'   => 'degC',
+                'unicodeSymbol' => '°C',
+                'systems'       => [UnitSystem::Si],
+            ],
+            'fahrenheit' => [
+                'asciiSymbol'   => 'degF',
+                'unicodeSymbol' => '°F',
+                'systems'       => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+            ],
+            'rankine'    => [
+                'asciiSymbol'   => 'degR',
+                'unicodeSymbol' => '°R',
+                'systems'       => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+            ],
+        ];
+    }
+
+    /**
+     * Conversion factors for temperature units.
+     *
+     * Note: Temperature conversions are special because Celsius and Fahrenheit have offsets.
+     * The convert() method is overridden to handle these correctly.
+     *
+     * @return list<array{string, string, float}>
+     */
+    #[Override]
+    public static function getConversionDefinitions(): array
+    {
+        return [
+            ['degC', 'K', 1],
+            ['degF', 'degR', 1],
+            ['K', 'degR', self::RANKINE_PER_KELVIN],
+        ];
     }
 
     // endregion

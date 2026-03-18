@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\Quantity;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Length;
@@ -185,6 +186,57 @@ final class QuantityStringsTest extends TestCase
         $this->expectException(FormatException::class);
 
         Length::parse('not a valid quantity');
+    }
+
+    // endregion
+
+    // region Parse tests - dimension mismatch
+
+    /**
+     * Test that parsing a unit with the wrong dimension throws DimensionMismatchException.
+     */
+    public function testParseWrongDimensionThrowsException(): void
+    {
+        $this->expectException(DimensionMismatchException::class);
+
+        Length::parse('123 kg');
+    }
+
+    /**
+     * Test that parsing a compound unit with the wrong dimension throws DimensionMismatchException.
+     */
+    public function testParseCompoundUnitWrongDimensionThrowsException(): void
+    {
+        $this->expectException(DimensionMismatchException::class);
+
+        Length::parse('10 kg*m/s2');
+    }
+
+    /**
+     * Test that Quantity::parse() accepts any valid unit without dimension restriction.
+     */
+    public function testQuantityParseAcceptsAnyDimension(): void
+    {
+        $mass = Quantity::parse('123 kg');
+        $length = Quantity::parse('456 m');
+
+        $this->assertInstanceOf(Mass::class, $mass);
+        $this->assertInstanceOf(Length::class, $length);
+    }
+
+    /**
+     * Test that subclass parse() works when the dimension matches.
+     */
+    public function testParseCorrectDimensionSucceeds(): void
+    {
+        $length = Length::parse('100 km');
+        $mass = Mass::parse('50 kg');
+
+        $this->assertInstanceOf(Length::class, $length);
+        $this->assertSame(100.0, $length->value);
+
+        $this->assertInstanceOf(Mass::class, $mass);
+        $this->assertSame(50.0, $mass->value);
     }
 
     // endregion

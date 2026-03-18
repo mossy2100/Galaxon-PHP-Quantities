@@ -65,9 +65,9 @@ Prefixes are organised into groups using bitwise flags:
 
 ### Combined Group Codes
 
-| Constant            | Components       | Description                                                                                                                                                                                          |
-| ------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GROUP_METRIC`      | 1 \| 2 \| 4      | All metric prefixes                                                                                                                                                                                  |
-| `GROUP_ENGINEERING` | 1 \| 4           | Engineering metric prefixes, which represent powers of 1000. This includes all small and large metric prefixes, and excludes the medium ones. These prefixes are used by the autoprefixing function. |
-| `GROUP_LARGE`       | 4 \| 8           | Large metric + binary (i.e. *kilo* and *Kibi* upwards). Used by data units.                                                                                                                          |
-| `GROUP_ALL`         | 1 \| 2 \| 4 \| 8 | All prefixes                                                                                                                                                                                         |
+| Constant            | Components       | Description                                                                                                                                                                                      |
+| ------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GROUP_METRIC`      | 1 \| 2 \| 4      | All metric prefixes                                                                                                                                                                              |
+| `GROUP_ENGINEERING` | 1 \| 4           | Engineering metric prefixes representing powers of 1000. This includes all small and large metric prefixes, and excludes the medium ones. These prefixes are used by the autoprefixing function. |
+| `GROUP_LARGE`       | 4 \| 8           | Large metric and binary (i.e. *kilo* and *Kibi* upwards). Used by data units.                                                                                                                    |
+| `GROUP_ALL`         | 1 \| 2 \| 4 \| 8 | All prefixes                                                                                                                                                                                     |

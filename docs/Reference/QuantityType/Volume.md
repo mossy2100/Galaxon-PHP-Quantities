@@ -11,7 +11,7 @@ Represents volume quantities.
 
 The `Volume` class handles volume measurements including liters and Imperial/US Customary liquid measures.
 
-For the complete list of volume units, see [Supported Units: Volume](SupportedUnits.md#volume).
+For the complete list of volume units, see [Supported Units: Volume](Units.md#volume).
 
 ---
 
@@ -143,7 +143,7 @@ $inImpGal = $tank->to('imp gal');  // 10.998 imp gal
 
 ## See Also
 
-- **[Supported Units: Volume](SupportedUnits.md#volume)** - Complete list of volume units
+- **[Supported Units: Volume](Units.md#volume)** - Complete list of volume units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity (cubic length = volume)
 - **[Area](Area.md)** - Related quantity

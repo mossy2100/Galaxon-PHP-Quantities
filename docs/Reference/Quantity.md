@@ -61,7 +61,7 @@ The quantity type metadata, or null if not registered.
 
 ---
 
-## Constructor
+## Constructor and Factory Method
 
 ### \_\_construct()
 
@@ -71,7 +71,7 @@ public function __construct(float $value, null|string|UnitInterface $unit = null
 
 Create a new Quantity with the specified value and unit.
 
-The `Quantity` constructor cannot be called directly — use a specific subclass constructor (e.g. `new Length(...)`) or the `Quantity::create()` factory method. This ensures the correct subclass is always used for each dimension.
+The `Quantity` constructor cannot be called directly — use a specific subclass constructor (e.g. `new Length(...)`) or the `Quantity::create()` factory method. This ensures the correct subclass is always used for each dimension. See [Creating Quantities](../WorkingWithQuantities/CreatingQuantities).
 
 **Parameters:**
 - `$value` (float) - The numeric value.
@@ -92,10 +92,6 @@ $length = new Length(100, 'm');
 $mass = new Mass(5.5, 'kg');
 ```
 
----
-
-## Factory Methods
-
 ### create()
 
 ```php
@@ -104,7 +100,7 @@ public static function create(float $value, null|string|UnitInterface $unit): se
 
 Create a Quantity of the appropriate type for the given unit.
 
-Uses the dimension class registry to instantiate the correct subclass. If no subclass is registered for the dimension, a generic Quantity is created.
+Determines the quantity dimension from the unit, and refers to [QuantityTypeService](Services/QuantityTypeService.md) to find and instantiate the correct subclass. If no subclass is registered for the dimension, a generic `Quantity` object is created.
 
 **Parameters:**
 - `$value` (float) - The numeric value.
@@ -132,6 +128,9 @@ $force = Quantity::create(10, 'N');
 $custom = Quantity::create(5, 'kg*m2/s3');
 ```
 
+---
+
+## Static Methods
 ### convert()
 
 ```php
@@ -166,6 +165,79 @@ $celsius = Quantity::convert(100, 'degF', 'degC');
 
 // Convert 5 miles to kilometres.
 $km = Quantity::convert(5, 'mi', 'km');
+```
+
+### getUnitDefinitions()
+
+```php
+public static function getUnitDefinitions(): array
+```
+
+Get the unit definitions for this quantity type.
+
+Returns an empty array in the base `Quantity` class. Overridden in subclasses (e.g. `Length`, `Mass`, `Force`) to define the units specific to that quantity type. Each entry specifies the unit's ASCII symbol, optional Unicode symbol, prefix group, and unit systems.
+
+These definitions are loaded by `UnitService` when a unit system is initialised.
+
+**Returns:**
+- `array` - An associative array of unit definitions keyed by unit name.
+
+### getConversionDefinitions()
+
+```php
+public static function getConversionDefinitions(): array
+```
+
+Get the conversion definitions for this quantity type.
+
+Returns an empty array in the base `Quantity` class. Overridden in subclasses to define conversion factors between units. Each entry is a tuple of `[sourceUnit, destUnit, factor]`.
+
+These definitions are loaded by `ConversionService` when a unit system is initialised.
+
+**Returns:**
+- `list<array{string, string, float}>` - A list of conversion definition tuples.
+
+### getQuantityType()
+
+```php
+public static function getQuantityType(): ?QuantityType
+```
+
+Get the quantity type metadata for the calling class.
+
+Returns the registered `QuantityType` for the calling subclass, or null if called on `Quantity` itself or an unregistered subclass.
+
+**Returns:**
+- `?QuantityType` - The quantity type, or null if not registered.
+
+**Examples:**
+```php
+$type = Length::getQuantityType();
+$type->name;       // 'length'
+$type->dimension;  // 'L'
+
+Quantity::getQuantityType();  // null
+```
+
+### getDimension()
+
+```php
+public static function getDimension(): ?string
+```
+
+Get the dimension code for the calling class.
+
+Returns the dimension code (e.g. `'L'` for Length, `'M'` for Mass) if the calling class is a registered quantity type subclass. Returns null if called on `Quantity` itself or an unregistered subclass.
+
+**Returns:**
+- `?string` - The dimension code, or null if not registered.
+
+**Examples:**
+```php
+Length::getDimension();       // 'L'
+Mass::getDimension();         // 'M'
+Temperature::getDimension();  // 'H'
+Quantity::getDimension();     // null
 ```
 
 ---
@@ -662,7 +734,9 @@ public static function parse(string $input): self
 
 Parse a string representation into a Quantity.
 
-Supports single-value strings (e.g. "123.45 km") and multi-part strings (e.g. "5h 30min 45s"). Subclasses may override this to support additional formats (e.g. Angle supports DMS notation).
+Supports single-value strings (e.g. "123.45 km") and multi-part strings (e.g. "5h 30min 45s"). Subclasses may override this to support additional formats.
+
+When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimension must match the subclass's dimension. When called as `Quantity::parse()`, any valid unit is accepted.
 
 **Parameters:**
 - `$input` (string) - The string to parse.
@@ -673,6 +747,7 @@ Supports single-value strings (e.g. "123.45 km") and multi-part strings (e.g. "5
 **Throws:**
 - `FormatException` - If the format is invalid.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If units are unknown.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If called on a subclass and the parsed unit has a different dimension.
 
 **Examples:**
 ```php
@@ -680,6 +755,12 @@ $length = Length::parse('123.45 km');
 $angle = Angle::parse('90deg');
 $time = Time::parse('1.5e3 ms');
 $duration = Time::parse('5h 30min 45s');
+
+// Quantity::parse() accepts any unit.
+$mass = Quantity::parse('50 kg');  // Mass object
+
+// Subclass parse rejects wrong dimensions.
+Length::parse('123 kg');  // DimensionMismatchException
 ```
 
 ### formatValue()

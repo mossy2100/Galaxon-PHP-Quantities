@@ -11,7 +11,7 @@ Represents dimensionless quantities (ratios, percentages, concentrations).
 
 The `Dimensionless` class handles quantities that have no physical dimension, such as ratios, percentages, and concentrations.
 
-For the complete list of dimensionless units, see [Supported Units: Dimensionless](SupportedUnits.md#dimensionless).
+For the complete list of dimensionless units, see [Supported Units: Dimensionless](Units.md#dimensionless).
 
 ---
 
@@ -43,11 +43,9 @@ For the complete list of dimensionless units, see [Supported Units: Dimensionles
 
 ```php
 use Galaxon\Quantities\QuantityType\Dimensionless;
+use Galaxon\Quantities\QuantityType\Time;
 
-// Percentages
-$rate = new Dimensionless(0.05, '');  // 5% as scalar
-$asPercent = $rate->to('%');          // 5%
-
+// Discount
 $discount = new Dimensionless(25, '%');
 $asScalar = $discount->to('');        // 0.25
 
@@ -67,9 +65,14 @@ $wine = new Dimensionless(13, '%');
 // Probability
 $chance = new Dimensionless(0.75, '');
 $asPercent = $chance->to('%');        // 75%
-```
 
----
+// Interest rate
+$annualRate = new Dimensionless(5.25, '%');
+$asDecimal = $annualRate->to('');     // 0.0525
+
+// Work capacity (hours per week as a ratio)
+$hoursPerWeek = (new Time(40, 'h'))->div(new Time(1, 'w'));
+$utilisation = $hoursPerWeek->to('%');  // 23.809523...%```
 
 ## Arithmetic with Dimensionless Quantities
 
@@ -97,5 +100,5 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ## See Also
 
-- **[Supported Units: Dimensionless](SupportedUnits.md#dimensionless)** - Complete list of dimensionless units
+- **[Supported Units: Dimensionless](Units.md#dimensionless)** - Complete list of dimensionless units
 - **[Quantity](../Quantity.md)** - Base class documentation

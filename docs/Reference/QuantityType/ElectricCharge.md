@@ -11,7 +11,7 @@ Represents electric charge quantities.
 
 The `ElectricCharge` class handles electric charge measurements.
 
-For the complete list of electric charge units, see [Supported Units: Electric Charge](SupportedUnits.md#electric-charge).
+For the complete list of electric charge units, see [Supported Units: Electric Charge](Units.md#electric-charge).
 
 ---
 
@@ -56,7 +56,7 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ## See Also
 
-- **[Supported Units: Electric Charge](SupportedUnits.md#electric-charge)** - Complete list
+- **[Supported Units: Electric Charge](Units.md#electric-charge)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity (I = Q/t)
 - **[Capacitance](Capacitance.md)** - Related quantity (C = Q/V)

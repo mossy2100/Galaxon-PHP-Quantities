@@ -126,3 +126,12 @@ Mass::setImperialParts();
 $weight = new Mass(157, 'lb');
 echo $weight->formatParts();  // 11st 3lb
 ```
+
+---
+
+## See Also
+
+- **[Quantity](../Reference/Quantity.md#parts-methods)** — Full reference for `fromParts()`, `toParts()`, `parseParts()`, and `formatParts()`.
+- **[String Functions](StringFunctions.md)** — Parsing and formatting quantities as strings.
+- **[Angle](../Reference/QuantityType/Angle.md)** — DMS (degrees, arcminutes, arcseconds) parts support.
+- **[Time](../Reference/QuantityType/Time.md)** — Time decomposition and `DateInterval` interoperability.

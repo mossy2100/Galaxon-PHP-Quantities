@@ -381,6 +381,30 @@ final class QuantityCreateTest extends TestCase
 
     // endregion
 
+    // region getDimension() tests
+
+    /**
+     * Test getDimension() returns the correct dimension code for a subclass.
+     */
+    public function testGetDimensionReturnsCorrectCode(): void
+    {
+        $this->assertSame('L', Length::getDimension());
+        $this->assertSame('M', Mass::getDimension());
+        $this->assertSame('T', Time::getDimension());
+        $this->assertSame('A', Angle::getDimension());
+        $this->assertSame('H', Temperature::getDimension());
+    }
+
+    /**
+     * Test getDimension() returns null when called on the base Quantity class.
+     */
+    public function testGetDimensionReturnsNullForBaseClass(): void
+    {
+        $this->assertNull(Quantity::getDimension());
+    }
+
+    // endregion
+
     // region Base class method tests
 
     /**
