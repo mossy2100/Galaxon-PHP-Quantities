@@ -87,8 +87,8 @@ Using a dedicated subclass for a quantity type improves code readability and typ
 ## See Also
 
 - **[Creating Quantities](CreatingQuantities.md)** — How to instantiate quantities using constructors and the factory method.
-- **[Adding Quantity Types](AddingQuantityTypes.md)** — How to create your own custom quantity type classes.
-- **[Supported Units](Units.md)** — Complete list of built-in units for each quantity type.
+- **[Customization](Customization.md)** — How to create your own custom quantity type classes.
+- **[Units](Units.md)** — Complete list of built-in units for each quantity type.
 - **[QuantityTypeService](../Reference/Services/QuantityTypeService.md)** — Service for registering and looking up quantity types.
 - **[QuantityType](../Reference/Internal/QuantityType.md)** — Internal metadata class representing a quantity type.
 

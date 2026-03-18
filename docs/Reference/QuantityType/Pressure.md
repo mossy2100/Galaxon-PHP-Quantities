@@ -11,7 +11,7 @@ Represents pressure quantities.
 
 The `Pressure` class handles pressure measurements across SI, scientific, and US customary units.
 
-For the complete list of pressure units, see [Supported Units: Pressure](Units.md#pressure).
+For the complete list of pressure units, see [Units: Pressure](../../Concepts/Units.md#pressure).
 
 ---
 
@@ -73,6 +73,6 @@ $inAtm = $hydraulic->to('atm');   // 197.385 atm
 
 ## See Also
 
-- **[Supported Units: Pressure](Units.md#pressure)** — Complete list of pressure units.
+- **[Units: Pressure](../../Concepts/Units.md#pressure)** — Complete list of pressure units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[Force](Force.md)** — Related quantity (pressure = force/area).

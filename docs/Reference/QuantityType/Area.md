@@ -11,7 +11,7 @@ Represents area quantities.
 
 The `Area` class handles area measurements. Most area units are derived from length units squared (m², ft², etc.), which are automatically supported. This class provides additional named area units.
 
-For the complete list of area units, see [Supported Units: Area](Units.md#area).
+For the complete list of area units, see [Units: Area](../../Concepts/Units.md#area).
 
 ---
 
@@ -71,7 +71,7 @@ $inSqKm = $hectares->to('km2');  // 0.01 km²
 
 ## See Also
 
-- **[Supported Units: Area](Units.md#area)** - Complete list of area units
+- **[Units: Area](../../Concepts/Units.md#area)** - Complete list of area units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity (squared length = area)
 - **[Volume](Volume.md)** - Related quantity (area × length = volume)

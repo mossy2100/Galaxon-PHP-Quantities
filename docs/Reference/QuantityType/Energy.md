@@ -11,7 +11,7 @@ Represents energy quantities.
 
 The `Energy` class handles energy measurements across SI, scientific, and common units.
 
-For the complete list of energy units, see [Supported Units: Energy](Units.md#energy).
+For the complete list of energy units, see [Units: Energy](../../Concepts/Units.md#energy).
 
 ---
 
@@ -55,7 +55,7 @@ $inKJ = $work->to('kJ');  // 0.5 kJ
 $usage = new Energy(1, 'kWh');
 $inMJ = $usage->to('MJ');  // 3.6 MJ
 
-// Food energy (calories)
+// Food energy
 $food = new Energy(2000, 'kcal');
 $inKJ = $food->to('kJ');   // 8368 kJ
 $inMJ = $food->to('MJ');   // 8.368 MJ
@@ -86,7 +86,7 @@ Energy is related to other quantities:
 
 ## See Also
 
-- **[Supported Units: Energy](Units.md#energy)** - Complete list of energy units
+- **[Units: Energy](../../Concepts/Units.md#energy)** - Complete list of energy units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Power](Power.md)** - Related quantity (energy per time)
 - **[Force](Force.md)** - Related quantity (energy per distance)

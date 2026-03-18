@@ -11,7 +11,7 @@ Represents dimensionless quantities (ratios, percentages, concentrations).
 
 The `Dimensionless` class handles quantities that have no physical dimension, such as ratios, percentages, and concentrations.
 
-For the complete list of dimensionless units, see [Supported Units: Dimensionless](Units.md#dimensionless).
+For the complete list of dimensionless units, see [Units: Dimensionless](../../Concepts/Units.md#dimensionless).
 
 ---
 
@@ -100,5 +100,5 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ## See Also
 
-- **[Supported Units: Dimensionless](Units.md#dimensionless)** - Complete list of dimensionless units
+- **[Units: Dimensionless](../../Concepts/Units.md#dimensionless)** - Complete list of dimensionless units
 - **[Quantity](../Quantity.md)** - Base class documentation

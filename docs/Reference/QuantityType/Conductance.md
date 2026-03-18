@@ -11,7 +11,7 @@ Represents electrical conductance quantities.
 
 The `Conductance` class handles electrical conductance measurements. Conductance is the reciprocal of resistance.
 
-For the complete list of conductance units, see [Supported Units: Conductance](Units.md#conductance).
+For the complete list of conductance units, see [Units: Conductance](../../Concepts/Units.md#conductance).
 
 ---
 
@@ -47,6 +47,6 @@ $inNS = $channel->to('nS');  // 0.03 nS
 
 ## See Also
 
-- **[Supported Units: Conductance](Units.md#conductance)** - Complete list
+- **[Units: Conductance](../../Concepts/Units.md#conductance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Resistance](Resistance.md)** - Inverse quantity (Ω = 1/S)

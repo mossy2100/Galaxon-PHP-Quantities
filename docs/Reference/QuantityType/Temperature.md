@@ -11,7 +11,7 @@ Represents temperature quantities with special handling for offset-based convers
 
 The `Temperature` class handles the complexity of temperature conversions, which differ from other quantity types because Celsius and Fahrenheit are offset from absolute zero.
 
-For the complete list of temperature units, see [Supported Units: Temperature](Units.md#temperature).
+For the complete list of temperature units, see [Units: Temperature](../../Concepts/Units.md#temperature).
 
 ---
 
@@ -134,5 +134,5 @@ $kelvin = Temperature::convert(25, 'degC', 'K');  // 298.15
 
 ## See Also
 
-- **[Supported Units: Temperature](Units.md#temperature)** — Complete list of temperature units.
+- **[Units: Temperature](../../Concepts/Units.md#temperature)** — Complete list of temperature units.
 - **[Quantity](../Quantity.md)** — Base class documentation.

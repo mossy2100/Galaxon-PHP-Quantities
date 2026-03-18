@@ -11,7 +11,7 @@ Represents data/information quantities.
 
 The `Data` class handles digital information measurements in bits and bytes, supporting both metric (decimal) and binary prefixes.
 
-For the complete list of data units, see [Supported Units: Data](Units.md#data).
+For the complete list of data units, see [Units: Data](../../Concepts/Units.md#data).
 
 ---
 
@@ -68,5 +68,5 @@ echo $actual->to('GB')->value;       // 1099.51 GB
 
 ## See Also
 
-- **[Supported Units: Data](Units.md#data)** - Complete list of data units
+- **[Units: Data](../../Concepts/Units.md#data)** - Complete list of data units
 - **[Quantity](../Quantity.md)** - Base class documentation

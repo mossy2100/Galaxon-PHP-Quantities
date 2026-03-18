@@ -11,7 +11,7 @@ Represents illuminance quantities.
 
 The `Illuminance` class handles illuminance measurements, which describe how much light falls on a surface.
 
-For the complete list of illuminance units, see [Supported Units: Illuminance](Units.md#illuminance).
+For the complete list of illuminance units, see [Units: Illuminance](../../Concepts/Units.md#illuminance).
 
 ---
 
@@ -50,7 +50,7 @@ $inMlx = $night->to('mlx');  // 1000 mlx
 
 ## See Also
 
-- **[Supported Units: Illuminance](Units.md#illuminance)** - Complete list
+- **[Units: Illuminance](../../Concepts/Units.md#illuminance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (lx = lm/m²)
 - **[LuminousIntensity](LuminousIntensity.md)** - Related quantity

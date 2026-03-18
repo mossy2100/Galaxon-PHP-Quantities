@@ -11,7 +11,7 @@ Represents electric charge quantities.
 
 The `ElectricCharge` class handles electric charge measurements.
 
-For the complete list of electric charge units, see [Supported Units: Electric Charge](Units.md#electric-charge).
+For the complete list of electric charge units, see [Units: Electric Charge](../../Concepts/Units.md#electric-charge).
 
 ---
 
@@ -33,11 +33,12 @@ One coulomb is the charge transported by a current of one ampere in one second.
 use Galaxon\Quantities\QuantityType\ElectricCharge;
 
 // Battery capacity
-$battery = new ElectricCharge(5000, 'mAh');  // Using compound unit
+$battery = new ElectricCharge(5000, 'mA*h');
 $capacitor = new ElectricCharge(100, 'uC');
 
 // Elementary charge
-$electron = new ElectricCharge(1.602e-19, 'C');
+$electron = new ElectricCharge(1.602176634e-19, 'C');
+echo $electron->autoPrefix();  // 160.217663 zC
 
 // Convert units
 $charge = new ElectricCharge(1, 'C');
@@ -56,7 +57,7 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ## See Also
 
-- **[Supported Units: Electric Charge](Units.md#electric-charge)** - Complete list
+- **[Units: Electric Charge](../../Concepts/Units.md#electric-charge)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity (I = Q/t)
 - **[Capacitance](Capacitance.md)** - Related quantity (C = Q/V)

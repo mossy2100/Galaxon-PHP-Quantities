@@ -15,7 +15,7 @@ The SI base unit for mass is the **kilogram** (kg), not the gram. This is the on
 
 Mass has no default part unit symbols because the choice between Imperial and US Customary units depends on context. Two convenience methods configure the parts system.
 
-For the complete list of mass units, see [Supported Units: Mass](Units.md#mass).
+For the complete list of mass units, see [Units: Mass](../../Concepts/Units.md#mass).
 
 ---
 
@@ -117,7 +117,7 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ## See Also
 
-- **[Supported Units: Mass](Units.md#mass)** — Complete list of mass units.
+- **[Units: Mass](../../Concepts/Units.md#mass)** — Complete list of mass units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[QuantityPartsService](../Services/QuantityPartsService.md)** — General parts formatting and parsing.
 - **[Force](Force.md)** — Related quantity (M·L·T⁻²).

@@ -11,7 +11,7 @@ Represents time quantities with integration to PHP's DateInterval.
 
 The `Time` class handles time durations and provides conversion to/from PHP's native `DateInterval` class.
 
-For the complete list of time units, see [Supported Units: Time](Units.md#time).
+For the complete list of time units, see [Units: Time](../../Concepts/Units.md#time).
 
 ---
 
@@ -152,7 +152,7 @@ $total = $hours->add($minutes);  // 4 hours total
 
 ## See Also
 
-- **[Supported Units: Time](Units.md#time)** — Complete list of time units.
+- **[Units: Time](../../Concepts/Units.md#time)** — Complete list of time units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[QuantityPartsService](../Services/QuantityPartsService.md)** — General parts formatting and parsing.
 - **[PHP DateInterval](https://www.php.net/manual/en/class.dateinterval.php)** — Native PHP class.

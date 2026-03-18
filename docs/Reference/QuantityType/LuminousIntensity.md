@@ -11,7 +11,7 @@ Represents luminous intensity quantities.
 
 The `LuminousIntensity` class handles luminous intensity measurements. The candela is one of the seven SI base units.
 
-For the complete list of luminous intensity units, see [Supported Units: Luminous Intensity](Units.md#luminous-intensity).
+For the complete list of luminous intensity units, see [Units: Luminous Intensity](../../Concepts/Units.md#luminous-intensity).
 
 ---
 
@@ -46,7 +46,7 @@ $inCd = $spot->to('cd');  // 5000 cd
 
 ## See Also
 
-- **[Supported Units: Luminous Intensity](Units.md#luminous-intensity)** - Complete list
+- **[Units: Luminous Intensity](../../Concepts/Units.md#luminous-intensity)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (cd·sr)
 - **[Illuminance](Illuminance.md)** - Related quantity

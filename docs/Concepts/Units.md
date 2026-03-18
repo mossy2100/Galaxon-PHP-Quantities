@@ -58,6 +58,8 @@ In some cases a conventional unit symbol may not be supported. The main reason i
 15. Use `u` or `µ` for the 'micro' prefix, not `mc`. e.g. for microgram use `ug` or `µg`, not `mcg`. 
 16. Use `ppt` for 'parts per thousand'. There is no built-in unit for 'parts per trillion'.
 17. Use `min` for minutes, not `mi`, which means miles.
+18. Use `mA*h`, not `mAh`, for battery capacity.
+19. Use `kW*h`, not `kWh`, for energy consumption.
 
 ### Unit system codes
 
@@ -112,7 +114,7 @@ The **Prefixes** column indicates which prefixes are supported by a given unit:
 | dalton     | `Da`         |                |            | SI Accepted            |
 | grain      | `gr`         |                |            | Imperial, US Customary |
 | ounce      | `oz`         |                |            | Imperial, US Customary |
-| troy ounce | `oz `t       |                |            | Imperial, US Customary |
+| troy ounce | `oz t`       |                |            | Imperial, US Customary |
 | pound      | `lb`         |                |            | Imperial, US Customary |
 | stone      | `st`         |                |            | Imperial               |
 | short ton  | `tn`         |                |            | US Customary           |

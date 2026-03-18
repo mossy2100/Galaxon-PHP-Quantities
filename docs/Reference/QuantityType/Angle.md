@@ -16,7 +16,7 @@ The `Angle` class provides specialized handling for angular measurements, includ
 - Parsing of degree-minute-second notation (e.g., `45° 30' 15"`)
 - Specialized approximate equality comparison
 
-For the complete list of angular units, see [Supported Units: Angle](Units.md#angle).
+For the complete list of angular units, see [Units: Angle](../../Concepts/Units.md#angle).
 
 ---
 
@@ -192,7 +192,7 @@ $dms = Angle::parse("23° 26' 21\"");  // Earth's axial tilt
 
 ## See Also
 
-- **[Supported Units: Angle](Units.md#angle)** — Complete list of angular units.
+- **[Units: Angle](../../Concepts/Units.md#angle)** — Complete list of angular units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[Part Decomposition](PartDecomposition.md)** — General parts formatting and parsing.
 - **[SolidAngle](SolidAngle.md)** — Related quantity for solid angles.
