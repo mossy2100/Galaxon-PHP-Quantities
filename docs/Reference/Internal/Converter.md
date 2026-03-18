@@ -247,27 +247,6 @@ Add a unit to this converter. Strips prefixes, and also adds merged and expanded
 
 ---
 
-## Validation Methods
-
-### validateUnit()
-
-```php
-public function validateUnit(string|UnitInterface $value): DerivedUnit
-```
-
-Validate that a unit is valid for this converter's dimension.
-
-**Parameters:**
-- `$value` (string|UnitInterface) - The unit to validate
-
-**Returns:**
-- `DerivedUnit` - The validated unit as a DerivedUnit
-
-**Throws:**
-- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the unit has the wrong dimension
-
----
-
 ## Usage Examples
 
 ### Basic Conversion

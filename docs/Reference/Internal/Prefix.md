@@ -55,7 +55,7 @@ The numeric multiplier the prefix represents. For example:
 public readonly int $groupCode
 ```
 
-Bitwise flag indicating which prefix group(s) this prefix belongs to. Used for determining which prefixes a unit accepts. See [Prefix Group Constants](../Services/PrefixService.md).
+Bitwise flag indicating which prefix group(s) this prefix belongs to. Used for determining which prefixes a unit accepts. See [Prefix Group Constants](../../Concepts/Prefixes.md#prefix-group-constants).
 
 ---
 
