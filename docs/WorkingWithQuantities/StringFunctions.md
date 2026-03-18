@@ -143,4 +143,4 @@ echo $length->format(includeSpace: false); // 100m
 
 - **[Quantity](../Reference/Quantity.md)** — Full reference for `format()`, `formatValue()`, `parse()`, and `__toString()`.
 - **[Part Decomposition](PartDecomposition.md)** — Multi-part formatting and parsing (e.g. `"5h 30min 45s"`).
-- **[Money](Money.md)** — Currency-specific formatting with locale support.
+- **[Money](../Reference/QuantityType/Money.md)** — Currency-specific formatting with locale support.

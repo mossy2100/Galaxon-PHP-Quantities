@@ -508,7 +508,7 @@ The **Prefixes** column indicates which prefixes are supported by a given unit:
 
 ## See Also
 
-- **[QuantityType/](QuantityType/)** - Documentation for all quantity type classes
+- **[Quantity Types](../Reference/QuantityType/)** — Documentation for all quantity type classes.
 - **[UnitSystem](../Reference/UnitSystem.md)** - Measurement system classification
 - **[Prefix](../Reference/Internal/Prefix.md)** - SI and binary prefixes
 - **[Unit](../Reference/Internal/Unit.md)** - Unit class documentation

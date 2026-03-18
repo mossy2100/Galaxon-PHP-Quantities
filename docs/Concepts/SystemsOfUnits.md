@@ -20,8 +20,6 @@ The Quantities package includes units from multiple systems of units, which are 
 | `UnitSystem::Financial`   | Currencies                                               |                   |
 | `UnitSystem::Custom`      | Default for user-defined units                           |                   |
 
-**See:** [UnitSystem reference](../Reference/UnitSystem.md)
-
 The purpose of the enum is to provide a mechanism for only loading the units likely to be needed by a package. Loading all units can impact performance due to the conversion discovery algorithm, which optimises for accuracy, not time.
 
 ---
@@ -42,3 +40,12 @@ $length = new Length(100, 'ft');
 ```
 
 Many units are members of more than one system.
+
+---
+
+## See Also
+
+- **[Units](Units.md)** — Complete unit reference, showing which system each unit belongs to.
+- **[UnitSystem](../Reference/UnitSystem.md)** — Enum reference for unit system values.
+- **[UnitService](../Reference/Services/UnitService.md)** — Service for loading unit systems and managing units.
+- **[Customization](../WorkingWithQuantities/Customization.md)** — Adding custom units and assigning them to systems.

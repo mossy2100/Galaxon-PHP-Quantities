@@ -2,7 +2,7 @@
 
 This package enables calculations and conversions with physical and non-physical quantities, including support for SI and other systems of units (including data and currencies), metric and binary prefixes, parsing, and formatting.
 
-**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Supported Units](Units.md)** | **[Examples](docs/WorkingWithQuantities/CalculationExamples.md)** | **[Customization](docs/WorkingWithQuantities/Customization.md)**
+**[License](LICENSE)** | **[Changelog](CHANGELOG.md)** | **[Documentation](docs/)** | **[Examples](docs/WorkingWithQuantities/CalculationExamples.md)**
 
 ![PHP 8.4](docs/logo_php8_4.png)
 
@@ -92,7 +92,7 @@ $angle = Angle::parse("45° 30' 15\"");
 
 // Format as parts
 $angle = new Angle(45.5042, 'deg');
-echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
+echo $angle->formatParts(precision: 1);
 // "45° 30′ 15.1″"
 ```
 
@@ -105,7 +105,7 @@ echo $angle->formatParts(smallestUnitSymbol: 'arcsec', precision: 1);
 	3. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
 	4. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
 	5. **[Systems of Units](docs/Concepts/SystemsOfUnits.md)** — SI, imperial, US customary, and other unit systems.
-	6. **[Supported Units](Units.md)** — Complete reference of all built-in units organised by quantity type.
+	6. **[Units](Units.md)** — Complete reference of all built-in units organised by quantity type.
 	7. **[Physical Constants](docs/Concepts/PhysicalConstants.md)** — Built-in physical constants as Quantity objects.
 2. **Working with Quantities**
 	1. **[Creating Quantities](docs/WorkingWithQuantities/CreatingQuantities.md)** — Creating new quantities with constructors and the factory method.
@@ -133,7 +133,7 @@ Other than the quantity type classes (below), these are the main classes you'll 
 
 ### Quantity Types
 
-All quantity type classes extend `Quantity` and define their specific units and conversions. See **[Supported Units](Units.md)** for a complete reference of all units organized by quantity type.
+All quantity type classes extend `Quantity` and define their specific units and conversions. See **[Units](Units.md)** for a complete reference of all built-in units organized by quantity type.
 
 | Class                                                                     | Dimension  | SI or common base unit | Description                                      |
 | ------------------------------------------------------------------------- | ---------- | ---------------------- | ------------------------------------------------ |
