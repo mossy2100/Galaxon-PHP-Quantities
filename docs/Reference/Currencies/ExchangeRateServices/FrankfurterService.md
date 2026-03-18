@@ -52,6 +52,6 @@ are relative to EUR (the ECB's base currency).
 
 ## See Also
 
-- [ExchangeRateServiceInterface](ExchangeRateServiceInterface.md)
-- [CurrencyService](../CurrencyService.md)
-- [Money](../../QuantityType/Money.md)
+- **[ExchangeRateServiceInterface](ExchangeRateServiceInterface.md)** — The interface this service implements.
+- **[CurrencyService](../CurrencyService.md)** — Exchange rate configuration and caching.
+- **[Money](../../QuantityType/Money.md)** — The quantity type for currency values.
