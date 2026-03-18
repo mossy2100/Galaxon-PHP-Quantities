@@ -52,7 +52,7 @@ The SI/binary prefix, or null if none.
 public readonly int $exponent
 ```
 
-The exponent (e.g., 2 for m2, -1 for s-1). Must be between -9 and 9, and cannot be 0.
+The exponent (e.g., 2 for *m²*, -1 for *s⁻¹*). Must be between -9 and 9, and cannot be 0.
 
 ### asciiSymbol
 
@@ -261,7 +261,7 @@ Check if this unit term's unit is a base unit (single-dimension, not expandable)
 public function isSiBase(): bool
 ```
 
-Check if this unit term is an SI base unit (with or without exponent). Returns true for kg, m, s, A, K, cd, mol, rad, B, XAU and any of these with exponents (e.g., m2, s-1). Returns false for prefixed units like km or g.
+Check if this unit term is an SI base unit (with or without exponent). Returns true for *kg*, *m*, *s*, *A*, *K*, *cd*, *mol*, *rad*, *B*, *XAU* and any of these with exponents (e.g., *m²*, *s⁻¹*). Returns false for prefixed units like *km* or *g*.
 
 **Returns:**
 - `bool` - True if the unit is an SI base unit
@@ -440,9 +440,11 @@ use Galaxon\Quantities\Internal\UnitTerm;
 
 $km2 = new UnitTerm('m', 'k', 2);
 
+echo $km2;                    // 'km²'
+echo $km2->asciiSymbol;       // 'km2'
 echo $km2->prefix->name;      // 'kilo'
 echo $km2->prefixMultiplier;  // 1000
-echo $km2->multiplier;        // 1000000 (10002)
+echo $km2->multiplier;        // 1000000 (1000²)
 echo $km2->dimension;         // 'L2'
 
 // Remove prefix for conversion

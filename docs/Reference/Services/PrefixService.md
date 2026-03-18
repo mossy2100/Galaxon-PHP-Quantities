@@ -91,7 +91,13 @@ $valid = PrefixService::isValidGroupCode(8);   // true (BINARY)
 ```php
 use Galaxon\Quantities\Services\PrefixService;
 
-// Get all engineering prefixes for a scientific application
+// Get all prefixes (metric + binary)
+$allPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_ALL);
+
+// Get all metric prefixes
+$metricPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_METRIC);
+
+// Get all engineering prefixes for a scientific application, and list them
 $engPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_ENGINEERING);
 foreach ($engPrefixes as $prefix) {
     echo "{$prefix->name}: {$prefix->asciiSymbol} = {$prefix->multiplier}\n";
@@ -108,6 +114,7 @@ if ($prefix !== null) {
 // Find inverse for unit conversion
 $source = PrefixService::getBySymbol('M');   // mega (10⁶)
 $inverse = PrefixService::invert($source);    // micro (10⁻⁶)
+
 ```
 
 ---

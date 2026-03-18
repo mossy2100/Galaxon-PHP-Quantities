@@ -80,3 +80,4 @@ Prefixes are organised into groups using bitwise flags:
 - **[Unit Conversion](../WorkingWithQuantities/UnitConversion.md)** — Auto-prefixing during unit conversion.
 - **[PrefixService](../Reference/Services/PrefixService.md)** — Service class for prefix lookup and matching.
 - **[Prefix](../Reference/Internal/Prefix.md)** — Internal Prefix class reference.
+- **[UnitTerm](../Reference/Internal/UnitTerm.md)** — Represents a unit with optional prefix and exponent.

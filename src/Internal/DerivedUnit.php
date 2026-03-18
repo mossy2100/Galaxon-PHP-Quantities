@@ -109,8 +109,8 @@ class DerivedUnit implements UnitInterface
     /**
      * Construct a new DerivedUnit instance.
      *
-     * @param null|Unit|UnitTerm|list<UnitTerm> $unit The unit, unit term, or array of unit terms to add, or null to
-     * create an empty unit.
+     * @param null|Unit|UnitTerm|list<Unit|UnitTerm> $unit The Unit, UnitTerm, or array of Unit or UnitTerm objects
+     * to add, or null to create an empty unit.
      * @throws DomainException If the provided unit is invalid.
      */
     public function __construct(null|Unit|UnitTerm|array $unit = null)
@@ -120,20 +120,15 @@ class DerivedUnit implements UnitInterface
             return;
         }
 
-        // If the unit is a Unit, convert it to a UnitTerm.
-        if ($unit instanceof Unit) {
-            $unit = new UnitTerm($unit);
+        // If the unit is a Unit or UnitTerm, convert it to an array.
+        if ($unit instanceof Unit || $unit instanceof UnitTerm) {
+            $unit = [$unit];
         }
 
-        // If the unit is a UnitTerm, add it to the unit terms array.
-        if ($unit instanceof UnitTerm) {
-            $this->addUnitTerm($unit);
-            return;
-        }
-
-        // Argument is an array of UnitTerms.
+        // Argument is an array of Unit and/or UnitTerm objects.
         foreach ($unit as $unitTerm) {
-            $this->addUnitTerm($unitTerm);
+            // If we have a Unit, convert it to a UnitTerm.
+            $this->addUnitTerm($unitTerm instanceof Unit ? new UnitTerm($unitTerm) : $unitTerm);
         }
     }
 

@@ -65,7 +65,7 @@ public static function parse(string $symbol): self
 Parse a string representation of a unit into an instance.
 
 **Parameters:**
-- `$symbol` (string) - The unit symbol to parse (e.g., 'm', 'km2', 'kg*m/s2')
+- `$symbol` (string) - The unit symbol to parse (e.g., 'm', 'km2', 'kg\*m/s2')
 
 **Returns:**
 - `UnitInterface` - A new instance of the implementing class

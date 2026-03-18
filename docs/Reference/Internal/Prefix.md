@@ -55,7 +55,7 @@ The numeric multiplier the prefix represents. For example:
 public readonly int $groupCode
 ```
 
-Bitwise flag indicating which prefix group(s) this prefix belongs to. Used for determining which prefixes a unit accepts. See [Prefix Group Constants](../../Concepts/Prefixes.md#prefix-group-constants).
+The prefix group this prefix belongs to. Must be one of the four base group constants (`GROUP_SMALL_METRIC`, `GROUP_MEDIUM_METRIC`, `GROUP_LARGE_METRIC`, or `GROUP_BINARY`), not a combination. See [Prefix Group Constants](../../Concepts/Prefixes.md#prefix-group-constants).
 
 ---
 
@@ -80,7 +80,7 @@ Create a new Prefix instance.
 - `$asciiSymbol` (string) - The ASCII symbol (e.g., 'k')
 - `$unicodeSymbol` (?string) - The Unicode symbol, or null if same as ASCII
 - `$multiplier` (float) - The numeric multiplier (e.g., 1000)
-- `$groupCode` (int) - Bitwise flag for prefix group membership
+- `$groupCode` (int) - One of the four base group constants (1, 2, 4, or 8)
 
 **Examples:**
 ```php
@@ -177,34 +177,6 @@ Convert the prefix to a string using the Unicode symbol.
 
 **Returns:**
 - `string` - The Unicode symbol
-
----
-
-## Usage Examples
-
-### Working with Prefix Groups
-
-```php
-use Galaxon\Quantities\Services\PrefixService;
-
-// Get all metric prefixes
-$metricPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_METRIC);
-
-// Get all prefixes (metric + binary)
-$allPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_ALL);
-```
-
-### Creating Prefixed Units
-
-```php
-use Galaxon\Quantities\Internal\UnitTerm;
-
-// Create a kilometer
-$km = new UnitTerm('m', 'k');
-
-// The multiplier accounts for the prefix
-echo $km->multiplier; // 1000
-```
 
 ---
 
