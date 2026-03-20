@@ -703,40 +703,52 @@ final class DataTest extends TestCase
     }
 
     /**
-     * Test toSi() with autoPrefix on large byte value.
+     * Test toSi() on large byte value returns bytes.
      */
-    public function testToSiWithAutoPrefixLargeBytes(): void
+    public function testToSiLargeBytes(): void
     {
         $data = new Data(5000000, 'B');
         $si = $data->toSi();
+
+        $this->assertSame(5000000.0, $si->value);
+        $this->assertSame('B', $si->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test toSi() then autoPrefix() on large byte value.
+     */
+    public function testToSiThenAutoPrefixLargeBytes(): void
+    {
+        $data = new Data(5000000, 'B');
+        $si = $data->toSi()->autoPrefix();
 
         $this->assertSame(5.0, $si->value);
         $this->assertSame('MB', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() with autoPrefix on gigabytes.
+     * Test toSi() on gigabytes converts to bytes.
      */
-    public function testToSiWithAutoPrefixFromGigabytes(): void
+    public function testToSiFromGigabytes(): void
     {
         $data = new Data(2.5, 'GB');
         $si = $data->toSi();
 
-        $this->assertSame(2.5, $si->value);
-        $this->assertSame('GB', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(2500000000.0, $si->value);
+        $this->assertSame('B', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() with autoPrefix converts gibibytes appropriately.
+     * Test toSi() on gibibytes converts to bytes.
      */
-    public function testToSiWithAutoPrefixFromGibibytes(): void
+    public function testToSiFromGibibytes(): void
     {
         $data = new Data(1, 'GiB');
         $si = $data->toSi();
 
-        // 1 GiB = 1073741824 bytes ≈ 1.074 GB
-        $this->assertApproxEqual(1.073741824, $si->value);
-        $this->assertSame('GB', $si->derivedUnit->asciiSymbol);
+        // 1 GiB = 1073741824 bytes
+        $this->assertSame(1073741824.0, $si->value);
+        $this->assertSame('B', $si->derivedUnit->asciiSymbol);
     }
 
     /**

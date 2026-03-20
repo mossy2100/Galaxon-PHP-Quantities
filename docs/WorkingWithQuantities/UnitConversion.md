@@ -74,13 +74,14 @@ $wavelength = new Length(0.00000055, 'm');
 echo $wavelength->autoPrefix();  // 550 nm
 ```
 
-The `toSi()` method combines conversion to SI base units, simplification, and auto-prefixing in one call:
+The `toSi()` method converts to SI units and simplifies (e.g., kg\*m/s2 becomes N). Chain with `autoPrefix()` to also apply the best engineering prefix:
 
 ```php
 use Galaxon\Quantities\QuantityType\Energy;
 
 $energy = new Energy(1, 'Btu');
-echo $energy->toSi();  // 1.05506 kJ
+echo $energy->toSi();                // 1055.06 J
+echo $energy->toSi()->autoPrefix();  // 1.05506 kJ
 ```
 
 ### Temperature Conversions

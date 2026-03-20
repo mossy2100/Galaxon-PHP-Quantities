@@ -273,14 +273,12 @@ $feet = $meters->to('ft');      // 3280.84 ft
 ### toSi()
 
 ```php
-public function toSi(bool $simplify = true, bool $autoPrefix = true): self
+public function toSi(): self
 ```
 
-Convert this quantity to SI units.
+Convert this quantity to SI units with simplification. Base units are replaced by named units where possible (e.g., kg\*m/s2 becomes N).
 
-**Parameters:**
-- `$simplify` (bool) - If true, use derived units where possible (e.g., N instead of kg\*m/s2).
-- `$autoPrefix` (bool) - If true, apply the best engineering prefix.
+To auto-prefix the result, chain with `autoPrefix()`.
 
 **Returns:**
 - `Quantity` - A new Quantity in SI units.
@@ -288,10 +286,11 @@ Convert this quantity to SI units.
 **Examples:**
 ```php
 $force = new Force(1000, 'N');
-$si = $force->toSi();  // 1 kN (with auto-prefix)
+$si = $force->toSi();  // 1000 N
 
 $energy = Quantity::create(1, 'kW*h');
-$si = $energy->toSi();  // 3.6 MJ
+$si = $energy->toSi();  // 3600000 J
+$si = $energy->toSi()->autoPrefix();  // 3.6 MJ
 ```
 
 ### toSiBase()
@@ -427,13 +426,12 @@ $prefixed = $length->autoPrefix();  // 1000 km
 ### simplify()
 
 ```php
-public function simplify(bool $autoPrefix = true): self
+public function simplify(): self
 ```
 
 Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
 
-**Parameters:**
-- `$autoPrefix` (bool) - If true, apply the best prefix.
+To auto-prefix the result, chain with `autoPrefix()`.
 
 **Returns:**
 - `Quantity` - A new Quantity with simplified units.

@@ -297,37 +297,8 @@ class Quantity implements Stringable
         // Convert the value to the target unit.
         $value = static::convert($this->value, $this->derivedUnit, $destUnit);
 
-        // Return the new object.
+        // Create new object.
         return self::create($value, $destUnit);
-    }
-
-    /**
-     * Convert this quantity to SI units.
-     *
-     * If $simplify is true, base units will be replaced by expandable units where possible, e.g. kg*m/s2 => N
-     * The expandable unit that replaces the largest number of base units will be chosen.
-     *
-     * If $autoPrefix is true, the result will be converted to use the best prefix, defined as:
-     * 1. Is valid for the first unit term.
-     * 2. Represents a multiple of 1000 or 1/1000. This is often called an engineering prefix.
-     * 3. Produces the smallest value greater than or equal to 1.
-     *
-     * @param bool $simplify If true, base units will be replaced by expandable units where possible.
-     * @param bool $autoPrefix If true, the result will be converted to the best SI prefix.
-     * @return static A new Quantity with the value converted to SI units.
-     */
-    public function toSi(bool $simplify = true, bool $autoPrefix = true): static
-    {
-        // Convert to SI base units.
-        $result = $this->toSiBase();
-
-        // Simplify if requested.
-        if ($simplify) {
-            return $result->simplify($autoPrefix);
-        }
-
-        // Auto-prefix if requested.
-        return $autoPrefix ? $result->autoPrefix() : $result;
     }
 
     /**
@@ -336,11 +307,27 @@ class Quantity implements Stringable
      * Unlike toSi(), this method returns purely SI base units (e.g., kg·m·s⁻² instead of N).
      * Useful for calculations or when you need the fundamental SI form.
      *
-     * @return static A new Quantity expressed in SI base units.
+     * @return static The Quantity expressed in SI base units.
      */
     public function toSiBase(): static
     {
         return $this->to($this->derivedUnit->toSiBase());
+    }
+
+    /**
+     * Convert this quantity to SI units.
+     *
+     * Base units will be replaced by expandable units where possible, e.g. kg*m/s2 => N
+     * The expandable unit that replaces the largest number of base units will be chosen.
+     *
+     * To auto-prefix the result, chain with autoPrefix():
+     *   $q->toSi()->autoPrefix()
+     *
+     * @return static The Quantity expressed in SI units.
+     */
+    public function toSi(): static
+    {
+        return $this->toSiBase()->simplify();
     }
 
     /**
@@ -489,9 +476,12 @@ class Quantity implements Stringable
      * 's-1' will not be replaced by 'Hz' unless it's the only unit term.
      * Furthermore, 's-1' is not replaced by 'Bq'. You can call $q->to('Bq') to get that effect.
      *
+     * To auto-prefix the result, chain with autoPrefix():
+     *   $q->simplify()->autoPrefix()
+     *
      * @return static A new Quantity with expandable units substituted for base units.
      */
-    public function simplify(bool $autoPrefix = true): static
+    public function simplify(): static
     {
         // Merge compatible units.
         $qty = $this->merge();
@@ -506,8 +496,7 @@ class Quantity implements Stringable
                 $newUnitTerm = new UnitTerm('Hz', PrefixService::invert($unitTerm->prefix));
                 $result = self::create($qty->value, $newUnitTerm);
 
-                // Auto-prefix if requested.
-                return $autoPrefix ? $result->autoPrefix() : $result;
+                return $result;
             }
         }
 
@@ -522,7 +511,7 @@ class Quantity implements Stringable
 
         // Loop through the units and try to find an expandable unit that matches the quantity.
         foreach (UnitService::getAll() as $unit) {
-            /// Skip any units that don't have an expansion, or that we don't yet know the expansion for.
+            // Skip any units that don't have an expansion, or that we don't yet know the expansion for.
             if ($unit->expansion === null) {
                 continue;
             }
@@ -594,10 +583,7 @@ class Quantity implements Stringable
         }
 
         // Construct the result.
-        $result = self::create($newValue, $newUnit);
-
-        // Auto-prefix if requested.
-        return $autoPrefix ? $result->autoPrefix() : $result;
+        return self::create($newValue, $newUnit);
     }
 
     // endregion

@@ -72,7 +72,7 @@ use Galaxon\Quantities\QuantityType\Velocity;
 
 $m = new Mass(1, 't');
 $v = new Velocity(100, 'km/h');
-$energy = $m->mul($v->pow(2))->div(2)->toSi();
+$energy = $m->mul($v->pow(2))->div(2)->toSi()->autoPrefix();
 // 385.8 kJ (Energy)
 ```
 
@@ -121,7 +121,7 @@ $moonMass = new Mass(7.342e22, 'kg');
 $distance = new Length(3.844e8, 'm');
 
 $force = $G->mul($earthMass)->mul($moonMass)->div($distance->pow(2));
-echo $force->simplify(false)->format('e', 2);
+echo $force->simplify()->format('e', 2);
 // 1.98×10²⁰ N
 ```
 
@@ -568,7 +568,7 @@ $d = new Length(360, 'nmi');
 $t = new Time(1.5, 'h');
 $v = $d->div($t);
 $vSi = $v->toSi();
-// 123.5 m/s ~ 240 knots (Velocity)
+// 123.467 m/s ~ 240 knots (Velocity)
 ```
 
 ### Descent time
@@ -598,7 +598,7 @@ $descentTime = $altitude->div($descentRate);
 $groundSpeed = new Velocity(450, 'kn');
 $distance = $groundSpeed->mul($descentTime);
 $distanceSi = $distance->toSi();
-// 324,100 m ~ 175 nmi (Length)
+// 324100 m ~ 175 nmi (Length)
 ```
 
 ### Fuel burn
@@ -613,7 +613,7 @@ $fuelFlow = new Volume(850, 'US gal')->div(new Time(1, 'h'));
 $flightTime = new Time(3.5, 'h');
 $totalFuel = $fuelFlow->mul($flightTime);
 $totalFuelSi = $totalFuel->toSi();
-// 11.26 m3 ~ 2,975 US gal (Volume)
+// 11.26 m³ ~ 2975 US gal (Volume)
 ```
 
 ---

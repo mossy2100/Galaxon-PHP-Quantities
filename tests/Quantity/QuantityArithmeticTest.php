@@ -510,7 +510,7 @@ final class QuantityArithmeticTest extends TestCase
     public function testChainedOperations(): void
     {
         $length = new Length(10, 'm');
-        $result = $length->mul(2)->addnew Length(5, 'm')->sub(new Length(3, 'm'));
+        $result = $length->mul(2)->add(new Length(5, 'm'))->sub(new Length(3, 'm'));
 
         $this->assertSame(22.0, $result->value);
     }

@@ -53,74 +53,73 @@ final class QuantityUnitTransformTest extends TestCase
     }
 
     /**
-     * Test toSi() on a length in kilometers (autoPrefix keeps it as km).
+     * Test toSi() on a length in kilometers converts to meters.
      */
     public function testToSiKilometers(): void
     {
         $length = new Length(1, 'km');
         $si = $length->toSi();
 
-        $this->assertSame(1.0, $si->value);
-        $this->assertSame('km', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(1000.0, $si->value);
+        $this->assertSame('m', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() on a length in feet (autoPrefix chooses mm).
+     * Test toSi() on a length in feet converts to meters.
      */
     public function testToSiFeet(): void
     {
         $length = new Length(1, 'ft');
         $si = $length->toSi();
 
-        $this->assertSame(304.8, $si->value);
-        $this->assertSame('mm', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(0.3048, $si->value);
+        $this->assertSame('m', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() on mass in pounds (autoPrefix chooses g).
+     * Test toSi() on mass in pounds converts to kilograms.
      */
     public function testToSiPounds(): void
     {
         $mass = new Mass(1, 'lb');
         $si = $mass->toSi();
 
-        $this->assertSame(453.59237, $si->value);
-        $this->assertSame('g', $si->derivedUnit->asciiSymbol);
+        $this->assertSame(0.45359237, $si->value);
+        $this->assertSame('kg', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() without autoPrefix.
+     * Test toSi() then autoPrefix() chooses best prefix.
      */
-    public function testToSiWithoutAutoPrefix(): void
+    public function testToSiWithAutoPrefix(): void
+    {
+        $length = new Length(1, 'ft');
+        $si = $length->toSi()->autoPrefix();
+
+        $this->assertSame(304.8, $si->value);
+        $this->assertSame('mm', $si->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test toSi() does not auto-prefix large values.
+     */
+    public function testToSiLargeValueNoAutoPrefix(): void
     {
         $length = new Length(5000, 'm');
-        $si = $length->toSi(true, false);
+        $si = $length->toSi();
 
         $this->assertSame(5000.0, $si->value);
         $this->assertSame('m', $si->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test toSi() without simplify keeps base units.
+     * Test toSiBase() keeps base units without simplification.
      */
-    public function testToSiWithoutSimplify(): void
+    public function testToSiBaseKeepsBaseUnits(): void
     {
         $force = new Force(1, 'N');
         $si = $force->toSiBase();
 
-        $this->assertSame(1.0, $si->value);
-        $this->assertSame('kg*m/s2', $si->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test toSi() with simplify=false expands but does not compact back to named unit.
-     */
-    public function testToSiWithSimplifyFalse(): void
-    {
-        $force = new Force(1, 'N');
-        $si = $force->toSi(simplify: false);
-
-        // Should remain in base units (not compacted back to N).
         $this->assertSame(1.0, $si->value);
         $this->assertSame('kg*m/s2', $si->derivedUnit->asciiSymbol);
     }
@@ -311,41 +310,54 @@ final class QuantityUnitTransformTest extends TestCase
     }
 
     /**
-     * Test simplify() compacts and auto-prefixes a large value.
+     * Test simplify() compacts to named unit without auto-prefixing.
      */
-    public function testSimplifyCompactsAndPrefixes(): void
+    public function testSimplifyCompactsWithoutPrefix(): void
+    {
+        // 5000 kg⋅m⋅s⁻² → 5000 N (no auto-prefix)
+        $qty = new Force(5000, 'kg*m*s-2');
+        $simplified = $qty->simplify();
+
+        $this->assertSame(5000.0, $simplified->value);
+        $this->assertSame('N', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() then autoPrefix() compacts and prefixes a large value.
+     */
+    public function testSimplifyThenAutoPrefixLargeValue(): void
     {
         // 5000 kg⋅m⋅s⁻² → 5000 N → 5 kN
         $qty = new Force(5000, 'kg*m*s-2');
-        $simplified = $qty->simplify();
+        $simplified = $qty->simplify()->autoPrefix();
 
         $this->assertSame(5.0, $simplified->value);
         $this->assertSame('kN', $simplified->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test simplify() compacts and auto-prefixes a small value.
+     * Test simplify() then autoPrefix() compacts and prefixes a small value.
      */
-    public function testSimplifyCompactsAndPrefixesSmall(): void
+    public function testSimplifyThenAutoPrefixSmallValue(): void
     {
         // 0.005 kg⋅m²⋅s⁻² → 0.005 J → 5 mJ
         $qty = new Energy(0.005, 'kg*m2*s-2');
-        $simplified = $qty->simplify();
+        $simplified = $qty->simplify()->autoPrefix();
 
         $this->assertSame(5.0, $simplified->value);
         $this->assertSame('mJ', $simplified->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test simplify() on a base unit applies auto-prefix only.
+     * Test simplify() on a base unit is a no-op (no auto-prefix).
      */
-    public function testSimplifyBaseUnitAutoPrefixOnly(): void
+    public function testSimplifyBaseUnitNoOp(): void
     {
         $length = new Length(5000, 'm');
         $simplified = $length->simplify();
 
-        $this->assertSame(5.0, $simplified->value);
-        $this->assertSame('km', $simplified->derivedUnit->asciiSymbol);
+        $this->assertSame(5000.0, $simplified->value);
+        $this->assertSame('m', $simplified->derivedUnit->asciiSymbol);
     }
 
     /**
@@ -373,15 +385,27 @@ final class QuantityUnitTransformTest extends TestCase
     }
 
     /**
-     * Test simplify() on large s⁻¹ compacts to Hz with autoPrefix.
+     * Test simplify() on large s⁻¹ compacts to Hz without auto-prefixing.
      */
-    public function testSimplifyInverseSecondsToKilohertz(): void
+    public function testSimplifyLargeInverseSecondsToHertz(): void
     {
-        // 5000 s⁻¹ → 5000 Hz → 5 kHz
+        // 5000 s⁻¹ → 5000 Hz (no auto-prefix)
         $qty = new Frequency(5000, 's-1');
         $simplified = $qty->simplify();
 
-        // Note: Hz special case in simplify() should apply autoPrefix
+        $this->assertSame(5000.0, $simplified->value);
+        $this->assertSame('Hz', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() then autoPrefix() on large s⁻¹ gives kHz.
+     */
+    public function testSimplifyThenAutoPrefixInverseSecondsToKilohertz(): void
+    {
+        // 5000 s⁻¹ → 5000 Hz → 5 kHz
+        $qty = new Frequency(5000, 's-1');
+        $simplified = $qty->simplify()->autoPrefix();
+
         $this->assertSame(5.0, $simplified->value);
         $this->assertSame('kHz', $simplified->derivedUnit->asciiSymbol);
     }
@@ -394,8 +418,8 @@ final class QuantityUnitTransformTest extends TestCase
         $qty = new Force(-3000, 'kg*m*s-2');
         $simplified = $qty->simplify();
 
-        $this->assertSame(-3.0, $simplified->value);
-        $this->assertSame('kN', $simplified->derivedUnit->asciiSymbol);
+        $this->assertSame(-3000.0, $simplified->value);
+        $this->assertSame('N', $simplified->derivedUnit->asciiSymbol);
     }
 
     /**
