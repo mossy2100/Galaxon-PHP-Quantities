@@ -29,7 +29,78 @@ $time = Time::parse('1h 1min 1s');          // Time(3661, 's')
 $time = Time::parse('-1h 30min 45s');       // Time(-5445, 's')
 ```
 
-When `parse()` encounters a multi-part string (e.g. `"1h 30min 45s"`), it automatically delegates to `parseParts()`, which reconstructs the quantity from its component parts. In this case, spaces between values and units are *not* allowed.
+When `parse()` encounters a multi-part string (e.g. `"1h 30min 45s"`), it automatically delegates to `parseParts()`, which reconstructs the quantity from its component parts. In this case, spaces between values and units are *not* allowed, because spaces are used to separate parts.
+
+---
+
+## Unit Syntax
+
+When writing unit strings — whether for `Quantity::create()`, `parse()`, or any method that
+accepts a unit — the following syntax rules apply.
+
+### Simple Units
+
+A simple unit is a prefix (optional) followed by a unit symbol, e.g. `km`, `mg`, `Hz`, `degC`.
+
+### Derived Units
+
+Derived units combine multiple unit terms using multiplication and division operators.
+
+**Multiplication operators** — the parser accepts four characters:
+
+| Character | Name | Unicode |
+|-----------|------|---------|
+| `*` | Asterisk | U+002A |
+| `.` | Period | U+002E |
+| `⋅` | Dot operator | U+22C5 |
+| `·` | Middle dot | U+00B7 |
+
+When formatting output, `*` is used in ASCII mode and `⋅` (dot operator) in Unicode mode. On macOS, the middle dot `·` can be typed with **Option+Shift+9**, but as a general rule it's expected that `*` will be used in code.
+
+**Division operator** — only the forward slash `/` is supported.
+
+Examples:
+
+```php
+// These are all equivalent
+$force = Quantity::create(10, 'kg*m/s2');
+$force = Quantity::create(10, 'kg.m/s2');
+$force = Quantity::create(10, 'kg⋅m/s2');
+$force = Quantity::create(10, 'kg·m/s2');
+```
+
+### Exponents
+
+Exponents are written directly after the unit symbol — do not use an exponentiation operator
+such as `^`. Valid exponents are in the range -9..9, excluding 0. The parser accepts both plain digits and Unicode superscript characters:
+
+```php
+// Plain digits
+$energy = Quantity::create(100, 'kg*m2/s2');
+$accel = Quantity::create(9.8, 'm/s2');
+$inv = Quantity::create(5000, 's-1');
+
+// Unicode superscripts (also accepted)
+$energy = Quantity::create(100, 'kg⋅m²/s²');
+$inv = Quantity::create(5000, 's⁻¹');
+```
+
+### Bracket Form
+
+When the denominator contains multiple unit terms, it's acceptable to use parentheses to group them:
+
+```php
+// Without brackets — s2 and A are separate denominator terms
+$quantity = Quantity::create(1, 'kg*m2/s2/A');
+
+// With brackets — equivalent, but clearer
+$quantity = Quantity::create(1, 'kg*m2/(s2*A)');
+
+// Useful for readability
+$heatCapacity = Quantity::create(1, 'J/(mol*K)');
+```
+
+Parentheses are only permitted around the denominator, in the form `<numerator>/(<denominator>)`.
 
 ---
 

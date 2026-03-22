@@ -156,7 +156,7 @@ Parse a string into a DerivedUnit.
 - `LogicException` - If there was a parsing error
 
 **Behavior:**
-- Supports multiplication: `kg*m`, `kg.m`, `kg*m`
+- Supports multiplication: `kg⋅m`, `kg.m`, `kg*m`
 - Supports division: `m/s`, `kg*m/s2`
 - Supports parentheses in denominator: `J/(mol*K)`
 - Empty string returns dimensionless unit

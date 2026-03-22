@@ -500,6 +500,46 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame('m2/s2', $result->derivedUnit->asciiSymbol);
     }
 
+    /**
+     * Test sqr() squares the value and units.
+     */
+    public function testSqr(): void
+    {
+        $length = new Length(5, 'm');
+        $result = $length->sqr();
+
+        $this->assertSame(25.0, $result->value);
+        $this->assertSame('m2', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test sqr() with a compound unit.
+     */
+    public function testSqrWithCompoundUnit(): void
+    {
+        $velocity = Quantity::create(3, 'm/s');
+        $result = $velocity->sqr();
+
+        $this->assertSame(9.0, $result->value);
+        $this->assertSame('m2/s2', $result->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test sqr() is equivalent to pow(2).
+     */
+    public function testSqrEqualsPowTwo(): void
+    {
+        $q = Quantity::create(7, 'kg');
+        $sqr = $q->sqr();
+        $pow2 = $q->pow(2);
+
+        $this->assertSame($sqr->value, $pow2->value);
+        $this->assertSame(
+            $sqr->derivedUnit->asciiSymbol,
+            $pow2->derivedUnit->asciiSymbol
+        );
+    }
+
     // endregion
 
     // region Chained operations tests

@@ -77,7 +77,7 @@ class ElectromagnetismTest extends TestCase
     {
         $cap = new Capacitance(10e-6, 'F');
         $voltage = new Voltage(12, 'V');
-        $energy = $cap->mul($voltage->pow(2))->mul(0.5);
+        $energy = $cap->mul($voltage->sqr())->mul(0.5);
 
         $this->assertInstanceOf(Energy::class, $energy);
         // ½ × 10×10⁻⁶ × 144 = 7.2 × 10⁻⁴ J

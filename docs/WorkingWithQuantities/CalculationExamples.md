@@ -44,7 +44,7 @@ use Galaxon\Quantities\QuantityType\Time;
 
 $a = new Acceleration(2, 'm/s2');
 $t = new Time(10, 's');
-$d = $a->mul($t->pow(2))->div(2);
+$d = $a->mul($t->sqr())->div(2);
 // 100 m (Length)
 ```
 
@@ -58,7 +58,7 @@ use Galaxon\Quantities\QuantityType\Time;
 
 $g = PhysicalConstant::earthGravity();
 $t = new Time(3, 's');
-$d = $g->mul($t->pow(2))->div(2);
+$d = $g->mul($t->sqr())->div(2);
 // 44.13 m (Length)
 ```
 
@@ -72,7 +72,7 @@ use Galaxon\Quantities\QuantityType\Velocity;
 
 $m = new Mass(1, 't');
 $v = new Velocity(100, 'km/h');
-$energy = $m->mul($v->pow(2))->div(2)->toSi()->autoPrefix();
+$energy = $m->mul($v->sqr())->div(2)->toSi()->autoPrefix();
 // 385.8 kJ (Energy)
 ```
 
@@ -120,7 +120,7 @@ $earthMass = new Mass(5.972e24, 'kg');
 $moonMass = new Mass(7.342e22, 'kg');
 $distance = new Length(3.844e8, 'm');
 
-$force = $G->mul($earthMass)->mul($moonMass)->div($distance->pow(2));
+$force = $G->mul($earthMass)->mul($moonMass)->div($distance->sqr());
 echo $force->simplify()->format('e', 2);
 // 1.98×10²⁰ N
 ```
@@ -189,7 +189,7 @@ $sunMass = new Mass(1.989e30, 'kg');
 $earthMass = new Mass(5.972e24, 'kg');
 $distance = new Length(1, 'au');
 
-$force = $G->mul($sunMass)->mul($earthMass)->div($distance->pow(2));
+$force = $G->mul($sunMass)->mul($earthMass)->div($distance->sqr());
 // 3.54 x 10²² N (Force)
 ```
 
@@ -200,7 +200,7 @@ $G = PhysicalConstant::gravitational();
 $marsMass = new Mass(6.417e23, 'kg');
 $marsRadius = new Length(3.3895e6, 'm');
 
-$g = $G->mul($marsMass)->div($marsRadius->pow(2));
+$g = $G->mul($marsMass)->div($marsRadius->sqr());
 // 3.73 m/s2 (Acceleration) — about 38% of Earth's gravity
 ```
 
@@ -240,7 +240,7 @@ Energy contained in 1 gram of matter.
 ```php
 $m = new Mass(1, 'g');
 $c = PhysicalConstant::speedOfLight();
-$energy = $m->mul($c->pow(2));
+$energy = $m->mul($c->sqr());
 // 8.99 x 10¹³ J ~ 21.5 kilotons of TNT (Energy)
 ```
 
@@ -324,7 +324,7 @@ use Galaxon\Quantities\QuantityType\Voltage;
 
 $cap = new Capacitance(10e-6, 'F');
 $voltage = new Voltage(12, 'V');
-$energy = $cap->mul($voltage->pow(2))->div(2);
+$energy = $cap->mul($voltage->sqr())->div(2);
 // 7.2 x 10^-4 J (Energy)
 ```
 
@@ -455,7 +455,7 @@ $circumference = $r->mul(2 * M_PI);
 
 ```php
 $r = new Length(5, 'm');
-$area = $r->pow(2)->mul(M_PI);
+$area = $r->sqr()->mul(M_PI);
 // 78.54 m2 (Area)
 ```
 
@@ -463,7 +463,7 @@ $area = $r->pow(2)->mul(M_PI);
 
 ```php
 $r = new Length(5, 'm');
-$area = $r->pow(2)->mul(4 * M_PI);
+$area = $r->sqr()->mul(4 * M_PI);
 // 314.16 m2 (Area)
 ```
 

@@ -653,8 +653,25 @@ Raise this Quantity to an integer power.
 **Examples:**
 ```php
 $length = new Length(10, 'm');
-$area = $length->pow(2);    // 100 m2
+$area = $length->sqr();     // 100 m2
 $volume = $length->pow(3);  // 1000 m3
+```
+
+### sqr()
+
+```php
+public function sqr(): self
+```
+
+Square this Quantity. Equivalent to `pow(2)`, but more efficient and readable.
+
+**Returns:**
+- `Quantity` - Result with squared value and units.
+
+**Example:**
+```php
+$velocity = Quantity::create(3, 'm/s');
+$result = $velocity->sqr();  // 9 m2/s2
 ```
 
 ### inv()

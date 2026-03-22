@@ -822,7 +822,7 @@ class Quantity implements Stringable
      * @throws DomainException If the exponent is 0.
      * @example
      *   $length = new Length(10, 'm');
-     *   $squared = $length->pow(2);  // Length(100, 'm^2')
+     *   $squared = $length->sqr();  // Length(100, 'm^2')
      */
     public function pow(int $exponent): self
     {
@@ -837,6 +837,18 @@ class Quantity implements Stringable
 
         // Construct the result Quantity.
         return self::create($value, new DerivedUnit($unitTerms));
+    }
+
+    /**
+     * Square this Quantity.
+     *
+     * Equivalent to pow(2), but more efficient and readable.
+     *
+     * @return self A new Quantity representing the square of this Quantity.
+     */
+    public function sqr(): self
+    {
+        return $this->mul($this);
     }
 
     // endregion

@@ -35,7 +35,7 @@ class GeometryTest extends TestCase
     public function testCircleArea(): void
     {
         $r = new Length(5, 'm');
-        $area = $r->pow(2)->mul(M_PI);
+        $area = $r->sqr()->mul(M_PI);
 
         $this->assertInstanceOf(Area::class, $area);
         $this->assertApproxEqual(78.53981633974483, $area->value);
@@ -47,7 +47,7 @@ class GeometryTest extends TestCase
     public function testSphereSurfaceArea(): void
     {
         $r = new Length(5, 'm');
-        $area = $r->pow(2)->mul(4 * M_PI);
+        $area = $r->sqr()->mul(4 * M_PI);
 
         $this->assertInstanceOf(Area::class, $area);
         $this->assertApproxEqual(314.1592653589793, $area->value);

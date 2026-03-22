@@ -61,7 +61,7 @@ class LightAndWavesTest extends TestCase
     {
         $m = new Mass(0.001, 'kg');
         $c = PhysicalConstant::speedOfLight();
-        $energy = $m->mul($c->pow(2));
+        $energy = $m->mul($c->sqr());
 
         $this->assertInstanceOf(Energy::class, $energy);
         // 0.001 × (299,792,458)² ≈ 8.988 × 10¹³ J (≈ 21.5 kilotons of TNT)

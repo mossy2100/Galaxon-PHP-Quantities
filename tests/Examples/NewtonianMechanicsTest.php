@@ -65,7 +65,7 @@ class NewtonianMechanicsTest extends TestCase
         $moonMass = new Mass(7.342e22, 'kg');
         $distance = new Length(3.844e8, 'm');
 
-        $force = $gravConst->mul($earthMass)->mul($moonMass)->div($distance->pow(2));
+        $force = $gravConst->mul($earthMass)->mul($moonMass)->div($distance->sqr());
 
         $this->assertInstanceOf(Force::class, $force);
         // ≈ 1.98 × 10²⁰ N

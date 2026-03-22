@@ -48,7 +48,7 @@ class AstronomyTest extends TestCase
         $earthMass = new Mass(5.972e24, 'kg');
         $distance = new Length(1.496e11, 'm');
 
-        $force = $gravConst->mul($sunMass)->mul($earthMass)->div($distance->pow(2));
+        $force = $gravConst->mul($sunMass)->mul($earthMass)->div($distance->sqr());
 
         $this->assertInstanceOf(Force::class, $force);
         // ≈ 3.54 × 10²² N
@@ -67,7 +67,7 @@ class AstronomyTest extends TestCase
         $marsMass = new Mass(6.417e23, 'kg');
         $marsRadius = new Length(3.3895e6, 'm');
 
-        $g = $gravConst->mul($marsMass)->div($marsRadius->pow(2));
+        $g = $gravConst->mul($marsMass)->div($marsRadius->sqr());
 
         $this->assertInstanceOf(Acceleration::class, $g);
         // ≈ 3.73 m/s² (about 38% of Earth's gravity)

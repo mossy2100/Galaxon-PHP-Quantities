@@ -82,7 +82,7 @@ $G = PhysicalConstant::gravitational();
 $earthMass = new Mass(5.972e24, 'kg');  
 $moonMass = new Mass(7.342e22, 'kg');  
 $distance = new Length(3.844e8, 'm');  
-$force = $G->mul($earthMass)->mul($moonMass)->div($distance->pow(2));
+$force = $G->mul($earthMass)->mul($moonMass)->div($distance->sqr());
 echo $force->to('N')->format('e', 2), "\n"; // 1.98×10²⁰ N
 
 // Parse from strings

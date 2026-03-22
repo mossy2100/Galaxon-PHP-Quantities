@@ -39,11 +39,11 @@ All units normally expressed with non-ASCII characters are assigned an ASCII sym
 
 ### Notes on specific symbols
 
-In some cases a conventional unit symbol may not be supported. The main reason is because the package relies on unit symbols being unique. It could also be necessary for prefixes to work properly (e.g. 'kcal'); or it could be a stylistic choice (e.g. 'L').
+In some cases a conventional unit symbol may not be supported. The main reason is because the package relies on unit symbols being unique. It could also be necessary for prefixes or conversions to work properly (e.g. `kcal` instead of `Cal`, `lbf/in2` instead of `psi`); or it could be a stylistic choice (e.g. `L` instead of `l`).
 
 1. Use `p` (lower-case) for picas, not `pc`, which means parsec.
 2. Don't use `pt` for pint, which means point, a typographical unit. For pints, use either `imp pt` for imperial pints, or `US pt` for US pints.
-3. Use `arcsec` for arcsecond, not `as`, which means attosecond.
+3. Use `arcsec` for arcsecond, not `as`, which means attosecond. For milliarcsecond, use `marcsec`, not `mas`.
 4. Use `ft` for feet, not `′` (the prime symbol), which means arcminutes.
 5. Use `in` for inches, not `″` (the double prime symbol), which means arcseconds.
 6. Use `°C` or `degC` for degrees Celsius, not `C`, which means coulomb, the unit for electric charge.
@@ -63,7 +63,7 @@ In some cases a conventional unit symbol may not be supported. The main reason i
 
 ### Unit system codes
 
-When it comes to volume units, certain units represent different amounts in different unit systems. For example an imperial pint is approximately equal to 568 mL, whereas a US pint is approximately 473 mL. These are disambiguated by a unit system code of either "imp" or "US" where needed, e.g. "imp pt" vs. "US pt". Refer to the section on Volume units, below.
+When it comes to volume units, certain units represent different amounts in different unit systems. For example an imperial pint is approximately equal to 568 mL, whereas a US pint is approximately 473 mL. These are disambiguated by a unit system code of either "imp" or "US" where needed, e.g. `imp pt` vs. `US pt`. Refer to the section on Volume units, below.
 
 ---
 

@@ -60,7 +60,7 @@ class KinematicsTest extends TestCase
     {
         $a = new Acceleration(2, 'm/s2');
         $t = new Time(10, 's');
-        $d = $a->mul($t->pow(2))->mul(0.5);
+        $d = $a->mul($t->sqr())->mul(0.5);
 
         $this->assertInstanceOf(Length::class, $d);
         $this->assertApproxEqual(100.0, $d->value);
@@ -75,7 +75,7 @@ class KinematicsTest extends TestCase
     {
         $g = PhysicalConstant::earthGravity();
         $t = new Time(3, 's');
-        $d = $g->mul($t->pow(2))->mul(0.5);
+        $d = $g->mul($t->sqr())->mul(0.5);
 
         $this->assertInstanceOf(Length::class, $d);
         // ½ × 9.80665 × 9 = 44.12993 m
@@ -91,7 +91,7 @@ class KinematicsTest extends TestCase
     {
         $m = new Mass(1000, 'kg');
         $v = new Velocity(30, 'm/s');
-        $energy = $m->mul($v->pow(2))->mul(0.5);
+        $energy = $m->mul($v->sqr())->mul(0.5);
 
         $this->assertInstanceOf(Energy::class, $energy);
         // ½ × 1000 × 900 = 450,000 J = 450 kJ

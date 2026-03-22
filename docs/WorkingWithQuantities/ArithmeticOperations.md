@@ -128,7 +128,7 @@ Raise a quantity to an integer exponent. Both the value and unit are exponentiat
 use Galaxon\Quantities\QuantityType\Length;
 
 $side = new Length(3, 'm');
-$area = $side->pow(2);    // 9 m2 (Area)
+$area = $side->sqr();     // 9 m2 (Area)
 $volume = $side->pow(3);  // 27 m3 (Volume)
 ```
 

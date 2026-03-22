@@ -1,12 +1,12 @@
 # Customization
 
-This guide explains how to work with quantities beyond what the package provides by default. Using entropy as an example, we'll cover four progressively more integrated approaches.
+This guide explains how to work with quantities beyond what the package provides by default. Using entropy as an example, we'll cover four progressively more integrated approaches. Additional examples are provided.
 
 ---
 
 ## 1. Using Derived Units Directly
 
-You don't need a dedicated class for every quantity type. The package can work with any combination of units through derived unit expressions. For example, entropy has units of *J/K* (energy per unit temperature):
+You don't need a dedicated class for every quantity type. The package can work with any combination of known units through derived unit expressions. For example, entropy has units of `J/K` (energy per unit temperature):
 
 ```php
 use Galaxon\Quantities\QuantityType\Energy;
@@ -50,14 +50,12 @@ class Entropy extends Quantity
 
 That's it — some built-in quantity types like `Acceleration` and `Density` are exactly this: empty classes that extend `Quantity`. Most Quantity subclasses define units and conversions specific to the quantity type by overriding `getUnitDefinitions()` and `getConversionDefinitions()` respectively, but this isn't required.
 
-The class itself needs no methods; it inherits everything from `Quantity`.
-
-To make the package use your class automatically, register it with the `QuantityTypeService`:
+**Important:** You must also register your class with `QuantityTypeService` so that the package knows it exists. Without this step, `Quantity::create()` and arithmetic operations cannot return objects of your custom class. They have no way to discover it automatically, because PHP's autoloader only loads classes when they are explicitly referenced.
 
 ```php
 use Galaxon\Quantities\Services\QuantityTypeService;
 
-// Register the Entropy class for the entropy dimension (M·L²·T⁻²·K⁻¹).
+// Register the Entropy class for the entropy dimension.
 QuantityTypeService::add('entropy', 'ML2T-2H-1', Entropy::class);
 ```
 
@@ -150,36 +148,56 @@ use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
-$pptUnit = new Unit(
-    name: 'parts per trillion',
-    asciiSymbol: 'ppT',
-    dimension: '',        // Dimensionless
-    systems: [UnitSystem::Common],
-);
-UnitService::add($pptUnit);
+// Create and add the unit (dimensionless).
+UnitService::add(new Unit('parts per trillion', 'ppT', ''));
+
+// Add a conversion linking it to an existing unit.
 ConversionService::add(new Conversion('ppb', 'ppT', 1000));
 
+// Do stuff.
 $concentration = new Dimensionless(5, 'ppT');
 echo $concentration->to('ppb');  // 0.005 ppb
 echo $concentration->to('ppm');  // 0.000005 ppm
 ```
 
+**Person unit** — A "person" unit lets you do per-person calculations with quantities. Since "person" isn't a physical unit, we use the amount-of-substance dimension (`N`) as a convenient stand-in for counting. In this example, we don't need to add a conversion linking the new unit to existing ones as we don't need to convert `pers` to `mol` or anything else. You could do something similar with an `ea` unit (for "each") if needed.
+
+```php
+use Galaxon\Quantities\Currencies\CurrencyService;
+use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
+use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\Services\UnitService;
+
+// Set up currency support.
+CurrencyService::init(new FrankfurterService());
+
+// Register a "person" unit.
+UnitService::add(new Unit('person', 'pers', 'N'));
+
+// Calculate the venue cost per person.
+$venueHire = Quantity::create(10000, 'AUD');
+$attendees = Quantity::create(400, 'pers');
+$costPerPerson = $venueHire->div($attendees);
+echo $costPerPerson;  // 25 AUD/pers
+```
+
 ### Unit constructor parameters
 
-| Parameter         | Description                                                                          |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| `name`            | The unit name (e.g. `'chaos'`).                                                      |
-| `asciiSymbol`     | The ASCII symbol used for parsing and display (e.g. `'ch'`).                         |
-| `dimension`       | The dimension code (e.g. `'ML2T-2H-1'`).                                             |
-| `systems`         | Array of `UnitSystem` values this unit belongs to.                                   |
-| `prefixGroup`     | Bitwise flags for allowed prefixes. 0 = no prefixes.                                 |
-| `unicodeSymbol`   | Optional Unicode symbol for display (e.g. `'Ω'`). Null if same as ASCII.             |
-| `alternateSymbol` | An additional symbol accepted by the parser. This symbol cannot accept prefixes.     |
+| Parameter         | Required | Description                                                                      |
+| ----------------- | -------- | -------------------------------------------------------------------------------- |
+| `name`            | ✅       | The unit name (e.g. `'chaos'`).                                                  |
+| `asciiSymbol`     | ✅       | The ASCII symbol used for parsing and display (e.g. `'ch'`).                     |
+| `dimension`       | ✅       | The [dimension code](../Concepts/DimensionsAndBaseUnits.md) (e.g. `'N'`, `'ML2T-2H-1'`). |
+| `systems`         |          | Array of `UnitSystem` values. Default: `[UnitSystem::Custom]`.                   |
+| `prefixGroup`     |          | Bitwise flags for allowed [prefixes](../Concepts/Prefixes.md). Default: `0` (none). |
+| `unicodeSymbol`   |          | Unicode symbol for display (e.g. `'Ω'`). Default: `null` (uses ASCII symbol).    |
+| `alternateSymbol` |          | An additional symbol accepted by the parser. Cannot accept prefixes. Default: `null`. |
 
 ### Key points
 
-- The `dimension` parameter must match the quantity type you intend the unit for. Use `'L3'` for volume, `''` (empty string) for dimensionless, `'M'` for mass, etc.
-- You must add at least one `Conversion` connecting your new unit to an existing unit; otherwise the conversion system won't know how to reach it.
+- The `dimension` parameter must match the quantity type you intend the unit for. For example `'L3'` for volume, `''` (empty string) for dimensionless, `'M'` for mass, etc.
+- For interoperability with existing units you must add a `Conversion` connecting your new unit to an existing unit; otherwise the conversion system won't know how to reach it. This isn't always required (see the above example employing a 'person' unit).
 - The conversion factor means: 1 of the source unit equals *n* of the destination unit. So `new Conversion('US legal cup', 'mL', 240)` means 1 US legal cup = 240 mL.
 - Unit symbols must be unique across all registered units. `UnitService::add()` will throw a `DomainException` if a symbol conflict is detected.
 
@@ -243,3 +261,4 @@ The built-in quantity type classes demonstrate various patterns for extending th
 - **[ConversionService](../Reference/Services/ConversionService.md)** — Conversion registration.
 - **[QuantityTypeService](../Reference/Services/QuantityTypeService.md)** — Quantity type registration.
 - **[Units](../Concepts/Units.md)** — Complete list of built-in units.
+- **[Dimensions and Base Units](../Concepts/DimensionsAndBaseUnits.md)** — Dimension codes and how they work.

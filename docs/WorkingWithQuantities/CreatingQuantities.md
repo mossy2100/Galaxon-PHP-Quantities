@@ -2,9 +2,12 @@
 
 You can create quantities using either the base `Quantity` class or a dedicated subclass. Both approaches give you full access to arithmetic, conversion, comparison, and formatting.
 
-There are two ways to create new Quantity objects:
+There are three ways to create new Quantity objects:
 1. `new QuantitySubclass()`
 2. `Quantity::create()`
+3. `Quantity::parse()` or `QuantitySubclass::parse()`
+
+Both constructors and `create()` accept a unit string — see [Unit Syntax](StringFunctions.md#unit-syntax) for the rules on writing unit expressions.
 
 ---
 
@@ -51,6 +54,30 @@ If you need a dedicated class for a quantity type, see [Customization](Customiza
 
 ---
 
+## Using `parse()`
+
+Use `parse()` to create a quantity from a string containing both a value and a unit:
+
+```php
+use Galaxon\Quantities\Quantity;
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Time;
+
+// Parse with a subclass for type safety
+$distance = Length::parse('42.195 km');
+$wavelength = Length::parse('5.5e-7 m');
+
+// Parse with the base class (infers the quantity type)
+$force = Quantity::parse('9.8 kg*m/s2');
+
+// Multi-part strings are supported for Angle and Time
+$duration = Time::parse('1h 30min 45s');
+```
+
+When called on a subclass, `parse()` validates that the parsed unit matches the expected dimension. For full details on parsing, including unit syntax, multi-part strings and formatting output, see [String Functions](StringFunctions.md).
+
+---
+
 ## Questions
 ### Why subclasses are provided for only some quantity types
 
@@ -68,7 +95,7 @@ Thus, subclasses are provided when at least one of the following applies:
 
 It isn't permitted to call `new Quantity()` directly. This limitation is included to reduce code fragility, in case a dedicated class is added for a quantity type later, which should have been instantiated instead.
 
-For example, if `new Quantity(42, 'J/K')` was used to create an entropy quantity, and an `Entropy` class is added to the application later, that call to `new Quantity()` would return a `Quantity` object rather than an `Entropy` object. Constructors can only return an instance of the class being instantiated; not a derived class or any other class. The `Quantity::create()` factory method addresses this problem.
+For example, if `new Quantity(42, 'J/K')` was used to create an entropy quantity, and an `Entropy` class is added to the application later, that call to `new Quantity()` would return a `Quantity` object rather than an `Entropy` object, since constructors can only return an instance of the class being instantiated, not a derived class or any other class. The `Quantity::create()` factory method addresses this problem. Just make sure, if you add a dedicated class for a quantity type, you register it via `QuantityTypeService::add()`.
 
 ---
 

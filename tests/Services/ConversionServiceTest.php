@@ -67,8 +67,8 @@ final class ConversionServiceTest extends TestCase
     public function testHasChecksDirection(): void
     {
         // Use an isolated dimension to avoid interference from loaded conversions.
-        $srcUnit = new Unit('test conv src a', 'Xcsa', 'L7', UnitSystem::Custom);
-        $destUnit = new Unit('test conv dest a', 'Xcda', 'L7', UnitSystem::Custom);
+        $srcUnit = new Unit('test conv src a', 'Xcsa', 'L7');
+        $destUnit = new Unit('test conv dest a', 'Xcda', 'L7');
         UnitService::add($srcUnit);
         UnitService::add($destUnit);
 
@@ -133,8 +133,8 @@ final class ConversionServiceTest extends TestCase
     public function testGetChecksDirection(): void
     {
         // Use an isolated dimension to avoid interference from loaded conversions.
-        $srcUnit = new Unit('test conv src b', 'Xcsb', 'L7', UnitSystem::Custom);
-        $destUnit = new Unit('test conv dest b', 'Xcdb', 'L7', UnitSystem::Custom);
+        $srcUnit = new Unit('test conv src b', 'Xcsb', 'L7');
+        $destUnit = new Unit('test conv dest b', 'Xcdb', 'L7');
         UnitService::add($srcUnit);
         UnitService::add($destUnit);
 
@@ -303,9 +303,9 @@ final class ConversionServiceTest extends TestCase
     public function testRemoveByUnitRemovesAllConversions(): void
     {
         // Create isolated units.
-        $unitA = new Unit('test rbu a', 'Xrua', 'L7', UnitSystem::Custom);
-        $unitB = new Unit('test rbu b', 'Xrub', 'L7', UnitSystem::Custom);
-        $unitC = new Unit('test rbu c', 'Xruc', 'L7', UnitSystem::Custom);
+        $unitA = new Unit('test rbu a', 'Xrua', 'L7');
+        $unitB = new Unit('test rbu b', 'Xrub', 'L7');
+        $unitC = new Unit('test rbu c', 'Xruc', 'L7');
         UnitService::add($unitA);
         UnitService::add($unitB);
         UnitService::add($unitC);
@@ -445,8 +445,8 @@ final class ConversionServiceTest extends TestCase
     public function testFindReturnsNullForNoPath(): void
     {
         // Create isolated units with no conversions between them.
-        $unitD = new Unit('test find d', 'Xfnd', 'L7', UnitSystem::Custom);
-        $unitE = new Unit('test find e', 'Xfne', 'L7', UnitSystem::Custom);
+        $unitD = new Unit('test find d', 'Xfnd', 'L7');
+        $unitE = new Unit('test find e', 'Xfne', 'L7');
         UnitService::add($unitD);
         UnitService::add($unitE);
 
@@ -500,8 +500,8 @@ final class ConversionServiceTest extends TestCase
     public function testFindFactorReturnsNullForNoConversion(): void
     {
         // Create isolated units with no conversions.
-        $unitF = new Unit('test ff f', 'Xfff', 'L7', UnitSystem::Custom);
-        $unitG = new Unit('test ff g', 'Xffg', 'L7', UnitSystem::Custom);
+        $unitF = new Unit('test ff f', 'Xfff', 'L7');
+        $unitG = new Unit('test ff g', 'Xffg', 'L7');
         UnitService::add($unitF);
         UnitService::add($unitG);
 

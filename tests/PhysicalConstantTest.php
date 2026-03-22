@@ -417,7 +417,7 @@ final class PhysicalConstantTest extends TestCase
         $m2 = new Mass(1, 'kg');
         $r = new Length(1, 'm');
 
-        $force = $gravConst->mul($m1)->mul($m2)->div($r->pow(2));
+        $force = $gravConst->mul($m1)->mul($m2)->div($r->sqr());
         $newtons = $force->to('N');
 
         // F = 6.67430e-11 N

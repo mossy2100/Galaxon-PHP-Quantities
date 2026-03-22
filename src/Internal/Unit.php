@@ -171,7 +171,7 @@ class Unit implements UnitInterface
         string $name,
         string $asciiSymbol,
         string $dimension,
-        UnitSystem|array $systems = UnitSystem::Custom,
+        array $systems = [UnitSystem::Custom],
         int $prefixGroup = 0,
         ?string $unicodeSymbol = null,
         ?string $alternateSymbol = null
@@ -190,10 +190,6 @@ class Unit implements UnitInterface
             );
         }
 
-        // Convert a single UnitSystem value to an array.
-        if ($systems instanceof UnitSystem) {
-            $systems = [$systems];
-        }
         // Make sure the $systems array is a non-empty array of UnitSystem values.
         if (empty($systems)) {
             throw new DomainException('Unit must belong to at least one measurement system.');
