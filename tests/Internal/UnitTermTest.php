@@ -24,16 +24,6 @@ use stdClass;
 #[CoversClass(UnitTerm::class)]
 final class UnitTermTest extends TestCase
 {
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-    }
-
-    // endregion
-
     // region Constructor tests
 
     /**

@@ -13,8 +13,6 @@ use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\QuantityPartsService;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -26,12 +24,6 @@ use PHPUnit\Framework\TestCase;
 final class QuantityPartsServiceTest extends TestCase
 {
     // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-    }
 
     protected function setUp(): void
     {

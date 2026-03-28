@@ -15,7 +15,7 @@ use Override;
  */
 class Money extends Quantity
 {
-    // region Overridden methods
+    // region Static methods
 
     /**
      * Unit definitions for currencies.
@@ -32,7 +32,15 @@ class Money extends Quantity
     public static function getUnitDefinitions(): array
     {
         $unitData = CurrencyService::loadUnitData();
-        return $unitData['definitions'] ?? [];
+        $currencies = $unitData['currencies'] ?? [];
+        $definitions = [];
+        foreach ($currencies as $name => $code) {
+            $definitions[$name] = [
+                'asciiSymbol' => $code,
+                'systems'     => [UnitSystem::Financial],
+            ];
+        }
+        return $definitions;
     }
 
     /**
@@ -46,6 +54,10 @@ class Money extends Quantity
         $conversionData = CurrencyService::loadConversionData();
         return $conversionData['definitions'] ?? [];
     }
+
+    // endregion
+
+    // region Conversion methods
 
     /**
      * Convert the currency value to a string.

@@ -177,28 +177,7 @@ class UnitTerm implements UnitInterface
 
     // endregion
 
-    // region Static public methods
-
-    /**
-     * Look up a unit or prefixed unit by its symbol.
-     *
-     * Symbol uniqueness is enforced by UnitService, so at most one match is possible.
-     *
-     * @param string $symbol The prefixed unit symbol to search for. Empty string matches the scalar unit.
-     * @return ?self The matching unit term, or null if not found.
-     */
-    public static function getBySymbol(string $symbol): ?self
-    {
-        // Look for any matching units.
-        foreach (UnitService::getAll() as $unit) {
-            if (array_key_exists($symbol, $unit->symbols)) {
-                [$unitSymbol, $prefixSymbol] = $unit->symbols[$symbol];
-                return new self($unitSymbol, $prefixSymbol);
-            }
-        }
-
-        return null;
-    }
+    // region Factory methods
 
     /**
      * Convert the argument to a UnitTerm if necessary.
@@ -222,10 +201,6 @@ class UnitTerm implements UnitInterface
         // Otherwise, construct a new UnitTerm.
         return new self($value);
     }
-
-    // endregion
-
-    // region String methods
 
     /**
      * Parses the given symbol to extract the unit, prefix, and exponent.
@@ -278,45 +253,29 @@ class UnitTerm implements UnitInterface
         return $match->pow($exp);
     }
 
+    // endregion
+
+    // region Static accessor methods
+
     /**
-     * Format the unit term as a string.
+     * Look up a unit or prefixed unit by its symbol.
      *
-     * If $ascii is false (default), the Unicode symbol is used (if set), and exponents are converted to superscript
-     * (e.g. 'm²').
+     * Symbol uniqueness is enforced by UnitService, so at most one match is possible.
      *
-     * If $ascii is true, then the primary (ASCII) symbol will be used, and the exponent will not be converted to
-     * superscript.
-     *
-     * @param bool $ascii If true, return the ASCII format; if false (default), return the Unicode format.
-     * @return string The formatted unit term.
+     * @param string $symbol The prefixed unit symbol to search for. Empty string matches the scalar unit.
+     * @return ?self The matching unit term, or null if not found.
      */
-    public function format(bool $ascii = false): string
+    public static function getBySymbol(string $symbol): ?self
     {
-        if ($ascii) {
-            // Get the ASCII parts.
-            $prefix = $this->prefix?->asciiSymbol;
-            $symbol = $this->unit->asciiSymbol;
-            $exp = $this->exponent === 1 ? '' : $this->exponent;
-        } else {
-            // Get the Unicode parts.
-            $prefix = $this->prefix?->unicodeSymbol;
-            $symbol = $this->unit->unicodeSymbol;
-            $exp = $this->exponent === 1 ? '' : Integers::toSuperscript($this->exponent);
+        // Look for any matching units.
+        foreach (UnitService::getAll() as $unit) {
+            if (array_key_exists($symbol, $unit->symbols)) {
+                [$unitSymbol, $prefixSymbol] = $unit->symbols[$symbol];
+                return new self($unitSymbol, $prefixSymbol);
+            }
         }
 
-        // Construct the full unit term symbol.
-        return $prefix . $symbol . $exp;
-    }
-
-    /**
-     * Convert the unit term to a string. This will use the format version, which may include non-ASCII characters.
-     * For the ASCII version, use format(true).
-     *
-     * @return string The unit term as a string.
-     */
-    public function __toString(): string
-    {
-        return $this->format();
+        return null;
     }
 
     // endregion
@@ -346,7 +305,23 @@ class UnitTerm implements UnitInterface
 
     // endregion
 
-    // region Transformation methods
+    // region Comparison methods
+
+    /**
+     * Check if this UnitTerm is equal to another.
+     *
+     * @param mixed $other The other value to compare.
+     * @return bool True if equal, false otherwise.
+     */
+    #[Override]
+    public function equal(mixed $other): bool
+    {
+        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
+    }
+
+    // endregion
+
+    // region Unary arithmetic methods
 
     /**
      * Return a new UnitTerm with the exponent negated.
@@ -357,6 +332,25 @@ class UnitTerm implements UnitInterface
     {
         return new self($this->unit, $this->prefix, -$this->exponent);
     }
+
+    // endregion
+
+    // region Power methods
+
+    /**
+     * Return a new UnitTerm with the exponent multiplied by the given value.
+     *
+     * @param int $exponent The exponent to raise the unit term to.
+     * @return self A new instance with the multiplied exponent (e.g. m² with exp=3 → m⁶).
+     */
+    public function pow(int $exponent): self
+    {
+        return $this->withExponent($this->exponent * $exponent);
+    }
+
+    // endregion
+
+    // region Transformation methods
 
     /**
      * Return a new UnitTerm with a different exponent.
@@ -382,17 +376,6 @@ class UnitTerm implements UnitInterface
     public function removeExponent(): self
     {
         return $this->withExponent(1);
-    }
-
-    /**
-     * Return a new UnitTerm with the exponent multiplied by the given value.
-     *
-     * @param int $exponent The exponent to raise the unit term to.
-     * @return self A new instance with the multiplied exponent (e.g. m² with exp=3 → m⁶).
-     */
-    public function pow(int $exponent): self
-    {
-        return $this->withExponent($this->exponent * $exponent);
     }
 
     /**
@@ -448,18 +431,47 @@ class UnitTerm implements UnitInterface
 
     // endregion
 
-    // region Comparison methods
+    // region Conversion methods
 
     /**
-     * Check if this UnitTerm is equal to another.
+     * Format the unit term as a string.
      *
-     * @param mixed $other The other value to compare.
-     * @return bool True if equal, false otherwise.
+     * If $ascii is false (default), the Unicode symbol is used (if set), and exponents are converted to superscript
+     * (e.g. 'm²').
+     *
+     * If $ascii is true, then the primary (ASCII) symbol will be used, and the exponent will not be converted to
+     * superscript.
+     *
+     * @param bool $ascii If true, return the ASCII format; if false (default), return the Unicode format.
+     * @return string The formatted unit term.
      */
-    #[Override]
-    public function equal(mixed $other): bool
+    public function format(bool $ascii = false): string
     {
-        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
+        if ($ascii) {
+            // Get the ASCII parts.
+            $prefix = $this->prefix?->asciiSymbol;
+            $symbol = $this->unit->asciiSymbol;
+            $exp = $this->exponent === 1 ? '' : $this->exponent;
+        } else {
+            // Get the Unicode parts.
+            $prefix = $this->prefix?->unicodeSymbol;
+            $symbol = $this->unit->unicodeSymbol;
+            $exp = $this->exponent === 1 ? '' : Integers::toSuperscript($this->exponent);
+        }
+
+        // Construct the full unit term symbol.
+        return $prefix . $symbol . $exp;
+    }
+
+    /**
+     * Convert the unit term to a string. This will use the format version, which may include non-ASCII characters.
+     * For the ASCII version, use format(true).
+     *
+     * @return string The unit term as a string.
+     */
+    public function __toString(): string
+    {
+        return $this->format();
     }
 
     // endregion

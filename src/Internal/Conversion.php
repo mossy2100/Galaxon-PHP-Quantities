@@ -283,7 +283,7 @@ class Conversion implements Stringable
 
     // endregion
 
-    // region String methods
+    // region Conversion methods
 
     /**
      * Format as "1 srcUnit = 9.999999 destUnit".

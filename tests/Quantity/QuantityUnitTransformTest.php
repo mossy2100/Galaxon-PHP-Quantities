@@ -14,8 +14,6 @@ use Galaxon\Quantities\QuantityType\Frequency;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -26,17 +24,6 @@ use PHPUnit\Framework\TestCase;
 final class QuantityUnitTransformTest extends TestCase
 {
     use FloatAssertions;
-
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial/US units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-    }
-
-    // endregion
 
     // region toSi() tests
 

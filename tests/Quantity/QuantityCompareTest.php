@@ -21,17 +21,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityCompareTest extends TestCase
 {
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial/US units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-    }
-
-    // endregion
-
     // region compare() tests - same units
 
     /**

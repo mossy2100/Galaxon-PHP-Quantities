@@ -21,18 +21,6 @@ class AviationTest extends TestCase
 {
     use FloatAssertions;
 
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial/US units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-        UnitService::loadSystem(UnitSystem::Nautical);
-    }
-
-    // endregion
-
     // region Tests
 
     /**

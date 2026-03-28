@@ -232,6 +232,35 @@ class Unit implements UnitInterface
 
     // endregion
 
+    // region Factory methods
+
+    /**
+     * Parse a unit symbol and return the matching Unit.
+     *
+     * @param string $symbol The unit symbol to parse (e.g. 'm', 'kg', 'Hz').
+     * @return self The matching Unit.
+     * @throws FormatException If the symbol contains invalid characters.
+     * @throws UnknownUnitException If the symbol is not recognized.
+     */
+    #[Override]
+    public static function parse(string $symbol): self
+    {
+        // Validate the symbol format.
+        if ($symbol !== '' && !RegexService::isValidUnitSymbol($symbol)) {
+            throw new FormatException(
+                "Unit symbol '$symbol' can only contain letters and special characters (e.g. °′″'\")."
+            );
+        }
+
+        // Get the unit from the registry.
+        $unit = UnitService::getBySymbol($symbol);
+
+        // If not found, throw an exception.
+        return $unit ?? throw new UnknownUnitException($symbol);
+    }
+
+    // endregion
+
     // region Inspection methods
 
     /**
@@ -297,32 +326,7 @@ class Unit implements UnitInterface
 
     // endregion
 
-    // region String methods
-
-    /**
-     * Parse a unit symbol and return the matching Unit.
-     *
-     * @param string $symbol The unit symbol to parse (e.g. 'm', 'kg', 'Hz').
-     * @return self The matching Unit.
-     * @throws FormatException If the symbol contains invalid characters.
-     * @throws UnknownUnitException If the symbol is not recognized.
-     */
-    #[Override]
-    public static function parse(string $symbol): self
-    {
-        // Validate the symbol format.
-        if ($symbol !== '' && !RegexService::isValidUnitSymbol($symbol)) {
-            throw new FormatException(
-                "Unit symbol '$symbol' can only contain letters and special characters (e.g. °′″'\")."
-            );
-        }
-
-        // Get the unit from the registry.
-        $unit = UnitService::getBySymbol($symbol);
-
-        // If not found, throw an exception.
-        return $unit ?? throw new UnknownUnitException($symbol);
-    }
+    // region Conversion methods
 
     /**
      * Format the unit as a string.

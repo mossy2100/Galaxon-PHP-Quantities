@@ -8,9 +8,7 @@ use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Area;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Volume;
-use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -22,17 +20,6 @@ final class VolumeTest extends TestCase
 {
     use ArrayShapeTrait;
     use FloatAssertions;
-
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial/US units.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-    }
-
-    // endregion
 
     // region Overridden methods
 

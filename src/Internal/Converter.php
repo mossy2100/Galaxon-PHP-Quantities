@@ -12,6 +12,7 @@ use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\QuantityTypeService;
+use Galaxon\Quantities\UnitSystem;
 use LogicException;
 
 /**
@@ -109,8 +110,7 @@ class Converter
         // Store the dimension code.
         $this->dimension = $dimension;
 
-        // Load the conversions for known units.
-        $this->loadConversionDefinitions();
+        $this->loadConversions();
     }
 
     // endregion
@@ -162,6 +162,54 @@ class Converter
     public static function removeAllInstances(): void
     {
         self::$instances = [];
+    }
+
+    // endregion
+
+    // region Unit methods
+
+    /**
+     * Check if a unit is in the list.
+     *
+     * @param DerivedUnit $unit The unit to check.
+     * @return bool True if the unit is in the list.
+     */
+    public function hasUnit(DerivedUnit $unit): bool
+    {
+        return isset($this->units[$unit->asciiSymbol]);
+    }
+
+    /**
+     * Add the unit to the list.
+     *
+     * @param DerivedUnit $unit The unit to add.
+     */
+    public function addUnit(DerivedUnit $unit): void
+    {
+        if ($this->hasUnit($unit)) {
+            return;
+        }
+
+        // Add the unit.
+        $this->units[$unit->asciiSymbol] = $unit;
+    }
+
+    /**
+     * Remove a unit from the list.
+     *
+     * @param DerivedUnit $derivedUnit The unit to remove.
+     */
+    public function removeUnit(DerivedUnit $derivedUnit): void
+    {
+        unset($this->units[$derivedUnit->asciiSymbol]);
+    }
+
+    /**
+     * Remove all units from the list.
+     */
+    public function removeAllUnits(): void
+    {
+        $this->units = [];
     }
 
     // endregion
@@ -335,66 +383,16 @@ class Converter
         return $this->getConversion($srcUnit, $destUnit) !== null;
     }
 
-    // endregion
-
-    // region Unit methods
-
-    /**
-     * Check if a unit is in the list.
-     *
-     * @param DerivedUnit $unit The unit to check.
-     * @return bool True if the unit is in the list.
-     */
-    public function hasUnit(DerivedUnit $unit): bool
-    {
-        return isset($this->units[$unit->asciiSymbol]);
-    }
-
-    /**
-     * Add the unit to the list.
-     *
-     * @param DerivedUnit $unit The unit to add.
-     */
-    public function addUnit(DerivedUnit $unit): void
-    {
-        if ($this->hasUnit($unit)) {
-            return;
-        }
-
-        // Add the unit.
-        $this->units[$unit->asciiSymbol] = $unit;
-    }
-
-    /**
-     * Remove a unit from the list.
-     *
-     * @param DerivedUnit $derivedUnit The unit to remove.
-     */
-    public function removeUnit(DerivedUnit $derivedUnit): void
-    {
-        unset($this->units[$derivedUnit->asciiSymbol]);
-    }
-
-    /**
-     * Remove all units from the list.
-     */
-    public function removeAllUnits(): void
-    {
-        $this->units = [];
-    }
-
-    // endregion
-
-    // region Methods for modifying conversion matrix
-
     /**
      * Load conversion definitions for this Converter's dimension from the appropriate QuantityType class.
      *
+     * @param bool $replaceExisting If true, replace any existing conversions between the same units; otherwise, the
+     * existing conversions are kept and the method returns false.
      * @throws FormatException If a unit symbol cannot be parsed.
      * @throws DomainException If the dimensions don't match or the factor is invalid.
      * @throws LogicException If a conversion's dimension doesn't match this Converter.
      */
-    public function loadConversionDefinitions(): void
+    public function loadConversions(bool $replaceExisting = false): void
     {
         if ($this->quantityType === null) {
             return;
@@ -405,22 +403,12 @@ class Converter
 
         // Initialize the Converter with all conversion definitions for this dimension.
         foreach ($conversionDefinitions as [$srcSymbol, $destSymbol, $factor]) {
-            // Try to get the units as DerivedUnit objects.
-            try {
-                $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
-                $destUnit = DerivedUnit::toDerivedUnit($destSymbol);
-            } catch (DomainException) {
-                // The symbol contains an unknown unit. Skip this conversion definition.
-                continue;
-            }
+            // Construct the Conversion. This will throw for invalid definitions.
+            $conversion = new Conversion($srcSymbol, $destSymbol, $factor);
 
-            // Construct the Conversion.
-            // This will throw if the dimensions don't match or the conversion factor is invalid.
-            $conversion = new Conversion($srcUnit, $destUnit, $factor);
-
-            // Add the conversion to the matrix. Don't replace existing.
+            // Add the conversion to the matrix.
             // This will throw if the Conversion dimension doesn't match the Converter.
-            $this->addConversion($conversion);
+            $this->addConversion($conversion, $replaceExisting);
         }
     }
 
@@ -443,16 +431,17 @@ class Converter
             );
         }
 
-        // Add the units to the list.
-        $this->addUnit($conversion->srcUnit);
-        $this->addUnit($conversion->destUnit);
-
         // Get the array keys.
         $srcSymbol = $conversion->srcUnit->asciiSymbol;
         $destSymbol = $conversion->destUnit->asciiSymbol;
 
         // Add the conversion if it doesn't exist, or update it if it does, and we want to replace it.
         if (!$this->hasConversion($srcSymbol, $destSymbol) || $replaceExisting) {
+            // Add the units to the list.
+            $this->addUnit($conversion->srcUnit);
+            $this->addUnit($conversion->destUnit);
+
+            // Add the conversion to the matrix.
             $this->conversionMatrix[$srcSymbol][$destSymbol] = $conversion;
             return true;
         }

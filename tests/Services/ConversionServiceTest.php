@@ -23,18 +23,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(ConversionService::class)]
 final class ConversionServiceTest extends TestCase
 {
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial/US units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-        UnitService::loadSystem(UnitSystem::Nautical);
-    }
-
-    // endregion
-
     // region has() tests
 
     /**
@@ -333,9 +321,6 @@ final class ConversionServiceTest extends TestCase
      */
     public function testUnloadBySystemRemovesConversions(): void
     {
-        // Ensure Nautical units are loaded.
-        UnitService::loadSystem(UnitSystem::Nautical);
-
         // Verify a nautical conversion exists (nmi to m, or similar).
         // nmi should have conversions after loading.
         $converter = Converter::getInstance('L');
@@ -350,8 +335,6 @@ final class ConversionServiceTest extends TestCase
         $hasConversionsAfter = !empty($converter->conversionMatrix[$nmiUnit->asciiSymbol] ?? []);
         $this->assertFalse($hasConversionsAfter);
 
-        // Reload nautical units so other tests aren't affected.
-        UnitService::loadSystem(UnitSystem::Nautical);
     }
 
     // endregion

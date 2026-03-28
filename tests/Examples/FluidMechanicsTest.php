@@ -12,8 +12,6 @@ use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Pressure;
 use Galaxon\Quantities\QuantityType\Volume;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -22,12 +20,6 @@ use PHPUnit\Framework\TestCase;
 class FluidMechanicsTest extends TestCase
 {
     use FloatAssertions;
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial units for lbf and in².
-        UnitService::loadSystem(UnitSystem::Imperial);
-    }
 
     /**
      * Pressure from force and area: P = F/A.

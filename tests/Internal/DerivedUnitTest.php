@@ -12,7 +12,6 @@ use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -22,16 +21,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DerivedUnit::class)]
 class DerivedUnitTest extends TestCase
 {
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-    }
-
-    // endregion
-
     // region Constructor tests
 
     public function testConstructorWithNull(): void

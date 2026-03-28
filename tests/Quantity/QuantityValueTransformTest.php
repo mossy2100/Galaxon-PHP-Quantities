@@ -9,8 +9,6 @@ use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RoundingMode;
@@ -22,17 +20,6 @@ use RoundingMode;
 final class QuantityValueTransformTest extends TestCase
 {
     use FloatAssertions;
-
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial/US units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-    }
-
-    // endregion
 
     // region withValue() tests
 

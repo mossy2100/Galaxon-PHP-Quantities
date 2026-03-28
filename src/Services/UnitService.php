@@ -210,7 +210,7 @@ class UnitService
      *        } $definition The unit definition.
      * @param bool $replaceExisting Determines action to take if a unit with this name already exists in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
-     * @throws DomainException
+     * @throws DomainException If any of the new unit's symbols are equal to any existing unit's symbol.
      */
     public static function addFromDefinition(string $name, array $definition, bool $replaceExisting = false): void
     {
@@ -293,9 +293,6 @@ class UnitService
         if (!in_array($system, self::$loadedSystems, true)) {
             self::$loadedSystems[] = $system;
         }
-
-        // Update conversion definitions in the Converters. With new units, more conversion definitions will be valid.
-        ConversionService::loadDefinitions();
     }
 
     /**
@@ -304,7 +301,7 @@ class UnitService
      * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
      * @return void
-     * @throws DomainException
+     * @throws DomainException If any of the new units' symbols are equal to any existing unit's symbol.
      */
     public static function loadAll(bool $replaceExisting = false): void
     {
@@ -316,9 +313,6 @@ class UnitService
 
         // Note all systems have been loaded.
         self::$loadedSystems = UnitSystem::cases();
-
-        // Update conversion definitions in the Converters. With new units, more conversion definitions will be valid.
-        ConversionService::loadDefinitions();
     }
 
     // endregion
@@ -378,11 +372,7 @@ class UnitService
     {
         if (self::$units === null) {
             self::removeAll();
-
-            // Load the default units.
-            foreach (UnitSystem::DEFAULTS as $system) {
-                self::loadSystem($system);
-            }
+            self::loadAll();
         }
     }
 

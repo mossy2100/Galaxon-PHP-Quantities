@@ -93,7 +93,52 @@ class FloatWithError implements Stringable
 
     // endregion
 
-    // region Arithmetic methods
+    // region Unary arithmetic methods
+
+    /**
+     * Negate this number.
+     *
+     * Error propagation: error magnitude unchanged.
+     *
+     * @return self A new FloatWithError with negated value and same error.
+     */
+    public function neg(): self
+    {
+        return new self(-$this->value, $this->absoluteError);
+    }
+
+    /**
+     * Calculate the multiplicative inverse (1/x).
+     *
+     * Error propagation: relative error unchanged.
+     *
+     * @return self A new FloatWithError with the inverse and propagated error.
+     * @throws DivisionByZeroError If attempting to invert zero.
+     */
+    public function inv(): self
+    {
+        if ($this->value === 0.0) {
+            throw new DivisionByZeroError('Cannot invert zero.');
+        }
+
+        $newValue = 1.0 / $this->value;
+
+        // For 1/x, relative error is same as input.
+        $relError = $this->relativeError;
+        $newError = abs($newValue) * $relError;
+
+        // If no error results from the operation (meaning the operand had zero error), and the result is an exact
+        // integer, don't add any rounding error. Otherwise, add half the ULP of the result.
+        if ($newError > 0 || !Floats::isExactInt($newValue)) {
+            $newError += Floats::ulp($newValue) * self::HALF;
+        }
+
+        return new self($newValue, $newError);
+    }
+
+    // endregion
+
+    // region Binary arithmetic methods
 
     /**
      * Add another FloatWithError to this one.
@@ -153,18 +198,6 @@ class FloatWithError implements Stringable
         }
 
         return new self($newValue, $newError);
-    }
-
-    /**
-     * Negate this number.
-     *
-     * Error propagation: error magnitude unchanged.
-     *
-     * @return self A new FloatWithError with negated value and same error.
-     */
-    public function neg(): self
-    {
-        return new self(-$this->value, $this->absoluteError);
     }
 
     /**
@@ -235,34 +268,9 @@ class FloatWithError implements Stringable
         return new self($newValue, $newError);
     }
 
-    /**
-     * Calculate the multiplicative inverse (1/x).
-     *
-     * Error propagation: relative error unchanged.
-     *
-     * @return self A new FloatWithError with the inverse and propagated error.
-     * @throws DivisionByZeroError If attempting to invert zero.
-     */
-    public function inv(): self
-    {
-        if ($this->value === 0.0) {
-            throw new DivisionByZeroError('Cannot invert zero.');
-        }
+    // endregion
 
-        $newValue = 1.0 / $this->value;
-
-        // For 1/x, relative error is same as input.
-        $relError = $this->relativeError;
-        $newError = abs($newValue) * $relError;
-
-        // If no error results from the operation (meaning the operand had zero error), and the result is an exact
-        // integer, don't add any rounding error. Otherwise, add half the ULP of the result.
-        if ($newError > 0 || !Floats::isExactInt($newValue)) {
-            $newError += Floats::ulp($newValue) * self::HALF;
-        }
-
-        return new self($newValue, $newError);
-    }
+    // region Power methods
 
     /**
      * Raise this FloatWithError to an integer power.
@@ -299,7 +307,7 @@ class FloatWithError implements Stringable
 
     // endregion
 
-    // region String methods
+    // region Conversion methods
 
     /**
      * Convert to string representation showing value and absolute error.

@@ -783,7 +783,7 @@ Length::parse('123 kg');  // DimensionMismatchException
 ```php
 public static function formatValue(
     float $value,
-    string $specifier = 'f',
+    string $specifier = 'g',
     ?int $precision = null,
     ?bool $trimZeros = null,
     bool $ascii = false
@@ -794,20 +794,20 @@ Format a numeric value as a string. This is a static utility method used interna
 
 **Parameters:**
 
-- `$specifier` (string) - The format specifier. Precision means decimal places for `e`/`E`/`f`/`F` and significant digits for `g`/`G`/`h`/`H`.
+- `$specifier` (string) - The format specifier.
 
 | Specifier | Description                                                                    |
-| --------- | ------------------------------------------------------------------------------ |
+| --------- |--------------------------------------------------------------------------------|
 | `'e'`     | Scientific notation with lowercase `e`.                                        |
 | `'E'`     | Scientific notation with uppercase `E`.                                        |
-| `'f'`     | Fixed-point notation (locale-aware). **Default.**                              |
+| `'f'`     | Fixed-point notation (locale-aware).                                           |
 | `'F'`     | Fixed-point notation (non-locale-aware, always uses `.` as decimal separator). |
-| `'g'`     | Shortest of `e` or `f` (lower-case `e`, locale-aware).                         |
+| `'g'`     | Shortest of `e` or `f` (lower-case `e`, locale-aware). **Default.**            |
 | `'G'`     | Shortest of `E` or `f` (upper-case `E`, locale-aware).                         |
 | `'h'`     | Shortest of `e` or `F` (lower-case `e`, non-locale-aware).                     |
 | `'H'`     | Shortest of `E` or `F` (upper-case `E`, non-locale-aware).                     |
 
-- `$precision` (?int) - Number of digits. `null` uses the `sprintf` default (usually 6).
+- `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. `null` uses the `sprintf` default (usually 6).
 - `$trimZeros` (?bool) - Controls trailing zero trimming:
   - `null` (default) — auto: trims when `$precision` is null, preserves when `$precision` is explicit.
   - `true` — always trim trailing zeros (and trailing decimal point).
@@ -833,7 +833,7 @@ Quantity::formatValue(1500.0, 'e', 2, ascii: true); // "1.50e+3"
 
 ```php
 public function format(
-    string $specifier = 'f',
+    string $specifier = 'g',
     ?int $precision = null,
     ?bool $trimZeros = null,
     ?bool $includeSpace = null,
@@ -847,7 +847,7 @@ See `formatValue()` for details on the `$specifier`, `$precision`, `$trimZeros`,
 
 **Parameters:**
 - `$specifier` (string) - The format specifier (see `formatValue()` for the table).
-- `$precision` (?int) - Number of digits. `null` uses the `sprintf` default (usually 6).
+- `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. `null` uses the `sprintf` default (usually 6).
 - `$trimZeros` (?bool) - Controls trailing zero trimming. `null` (default) trims when precision is null, preserves when explicit. `true` always trims, `false` never trims.
 - `$includeSpace` (?bool) - Space between value and unit. `null` = auto (no space for symbol-only units like `°`). `true` = always. `false` = never.
 - `$ascii` (bool) - If `true`, use ASCII symbols and `e` notation. If `false` (default), use Unicode symbols and superscript notation.

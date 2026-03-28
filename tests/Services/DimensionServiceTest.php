@@ -8,8 +8,6 @@ use DomainException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Services\DimensionService;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -19,16 +17,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DimensionService::class)]
 final class DimensionServiceTest extends TestCase
 {
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial units for English base unit tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-    }
-
-    // endregion
-
     // region isValid() tests
 
     /**

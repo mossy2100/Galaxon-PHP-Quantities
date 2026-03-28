@@ -6,9 +6,7 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Dimensionless;
-use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -20,16 +18,6 @@ final class DimensionlessTest extends TestCase
 {
     use ArrayShapeTrait;
     use FloatAssertions;
-
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Common units for dimensionless quantities.
-        UnitService::loadSystem(UnitSystem::Common);
-    }
-
-    // endregion
 
     // region Overridden methods
 

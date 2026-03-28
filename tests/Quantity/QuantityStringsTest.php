@@ -13,8 +13,6 @@ use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -24,17 +22,6 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityStringsTest extends TestCase
 {
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial/US units for cross-system tests.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-    }
-
-    // endregion
-
     // region Parse tests - basic
 
     /**
@@ -270,11 +257,11 @@ final class QuantityStringsTest extends TestCase
     {
         $length = new Length(1234567.89, 'm');
 
-        // Default specifier is 'f', which shows the full fixed-point value.
-        $this->assertSame('1234567.89 m', $length->format());
+        // Default specifier is 'g', which uses scientific notation for large values.
+        $this->assertSame('1.23457×10⁶ m', $length->format());
 
-        // Use 'g' specifier for automatic scientific notation.
-        $this->assertSame('1.23457×10⁶ m', $length->format('g'));
+        // Use 'f' specifier for full fixed-point value.
+        $this->assertSame('1234567.89 m', $length->format('f'));
     }
 
     // endregion

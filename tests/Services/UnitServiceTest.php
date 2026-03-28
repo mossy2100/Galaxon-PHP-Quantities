@@ -249,8 +249,6 @@ final class UnitServiceTest extends TestCase
      */
     public function testGetBySystemReturnsImperialUnits(): void
     {
-        UnitService::loadSystem(UnitSystem::Imperial);
-
         $result = UnitService::getBySystem(UnitSystem::Imperial);
         $symbols = array_map(static fn (Unit $u) => $u->asciiSymbol, $result);
 
@@ -264,8 +262,6 @@ final class UnitServiceTest extends TestCase
      */
     public function testGetBySystemReturnsDifferentResultsPerSystem(): void
     {
-        UnitService::loadSystem(UnitSystem::Imperial);
-
         $si = UnitService::getBySystem(UnitSystem::Si);
         $imperial = UnitService::getBySystem(UnitSystem::Imperial);
 
@@ -770,19 +766,14 @@ final class UnitServiceTest extends TestCase
      */
     public function testResetRestoresDefaults(): void
     {
-        // Load Imperial so the registry has more than defaults.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        $this->assertContains(UnitSystem::Imperial, UnitService::getLoadedSystems());
-
         UnitService::reset();
 
-        // After reset, the registry re-initializes with only defaults.
-        $systems = UnitService::getLoadedSystems();
-        $this->assertContains(UnitSystem::Si, $systems);
-        $this->assertContains(UnitSystem::SiAccepted, $systems);
-        $this->assertContains(UnitSystem::Common, $systems);
-        // Imperial should no longer be loaded.
-        $this->assertNotContains(UnitSystem::Imperial, $systems);
+        // After reset, all unit systems are reloaded.
+        $loadedSystems = UnitService::getLoadedSystems();
+        $systems = UnitSystem::cases();
+        foreach ($systems as $system) {
+            $this->assertContains($system, $loadedSystems);
+        }
     }
 
     /**
@@ -937,18 +928,23 @@ final class UnitServiceTest extends TestCase
      */
     public function testIsLoadedSystemReturnsFalseForNonLoaded(): void
     {
-        UnitService::reset();
+        try {
+            UnitService::removeAll();
 
-        $this->assertFalse(UnitService::isLoadedSystem(UnitSystem::Imperial));
-        $this->assertFalse(UnitService::isLoadedSystem(UnitSystem::UsCustomary));
+            $this->assertFalse(UnitService::isLoadedSystem(UnitSystem::Imperial));
+            $this->assertFalse(UnitService::isLoadedSystem(UnitSystem::UsCustomary));
+        } finally {
+            UnitService::reset();
+        }
     }
 
     /**
-     * Test isLoadedSystem() returns true after loading a system.
+     * Test isLoadedSystem() returns true when all units are loaded.
      */
     public function testIsLoadedSystemReturnsTrueAfterLoad(): void
     {
-        UnitService::loadSystem(UnitSystem::Imperial);
+        // Ensure the registry is initialized.
+        UnitService::has('meter');
 
         $this->assertTrue(UnitService::isLoadedSystem(UnitSystem::Imperial));
     }
@@ -977,10 +973,15 @@ final class UnitServiceTest extends TestCase
      */
     public function testLoadSystemAddsUnits(): void
     {
-        UnitService::loadSystem(UnitSystem::Imperial);
+        try {
+            UnitService::removeAll();
+            UnitService::loadSystem(UnitSystem::Imperial);
 
-        $this->assertTrue(UnitService::has('foot'));
-        $this->assertTrue(UnitService::has('mile'));
+            $this->assertTrue(UnitService::has('foot'));
+            $this->assertTrue(UnitService::has('mile'));
+        } finally {
+            UnitService::reset();
+        }
     }
 
     /**
@@ -1015,9 +1016,14 @@ final class UnitServiceTest extends TestCase
      */
     public function testLoadSystemTracksSystem(): void
     {
-        UnitService::loadSystem(UnitSystem::Nautical);
+        try {
+            UnitService::removeAll();
+            UnitService::loadSystem(UnitSystem::Nautical);
 
-        $this->assertContains(UnitSystem::Nautical, UnitService::getLoadedSystems());
+            $this->assertContains(UnitSystem::Nautical, UnitService::getLoadedSystems());
+        } finally {
+            UnitService::reset();
+        }
     }
 
     // endregion
@@ -1080,8 +1086,6 @@ final class UnitServiceTest extends TestCase
      */
     public function testGetLoadedSystemsIncludesManuallyLoadedSystem(): void
     {
-        UnitService::loadSystem(UnitSystem::Imperial);
-
         $this->assertContains(UnitSystem::Imperial, UnitService::getLoadedSystems());
     }
 

@@ -101,7 +101,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Constructor and factory method
+    // region Constructor
 
     /**
      * Constructor.
@@ -159,6 +159,10 @@ class Quantity implements Stringable
         $this->derivedUnit = $derivedUnit;
     }
 
+    // endregion
+
+    // region Factory method
+
     /**
      * Create a Quantity of the appropriate type for the given unit.
      *
@@ -196,6 +200,57 @@ class Quantity implements Stringable
         } finally {
             self::$allowConstruct = false;
         }
+    }
+
+    /**
+     * Parse a string representation into a Quantity object.
+     *
+     * Accepts formats like "123.45 km", "90deg", "1.5e3 ms".
+     * Whitespace between value and unit is optional.
+     *
+     * @param string $input The string to parse.
+     * @return self A new Quantity parsed from the string.
+     * @throws FormatException If the input string format is invalid.
+     * @throws DomainException If the string contains unknown units, or the string contains multiple parts and either
+     * the quantity type is unregistered or the result unit symbol is invalid.
+     * @throws DimensionMismatchException If called on a subclass and the parsed unit's dimension doesn't match.
+     * @throws UnexpectedValueException If there's an unexpected error during parsing.
+     * @throws InvalidArgumentException If the string contains multiple parts, and any of the part unit symbols are not
+     * strings.
+     * @example
+     *   Length::parse("123.45 km")  // Length(123.45, 'km')
+     *   Angle::parse("90deg")       // Angle(90.0, 'deg')
+     *   Time::parse("1.5e3 ms")     // Time(1500.0, 'ms')
+     */
+    public static function parse(string $input): self
+    {
+        // Prepare an error message with the original value.
+        $qtyType = static::getQuantityType();
+        $name = $qtyType === null ? '' : (' ' . $qtyType->name);
+        $err = "The provided string '$input' does not represent a valid$name quantity.";
+
+        // Reject empty input.
+        $input = trim($input);
+        if ($input === '') {
+            throw new FormatException($err);
+        }
+
+        // Try to parse as <num><unit>. Whitespace between the number and unit is permitted. The unit is optional, as
+        // for a dimensionless quantity.
+        if (RegexService::isValidQuantity($input, $m)) {
+            assert(isset($m[1]));
+            $result = self::create((float)$m[1], $m[2] ?? null);
+        } else {
+            // Try to parse the string as multiple parts, as if output from formatParts().
+            $result = self::parseParts($input);
+        }
+
+        // If this method is not called from Quantity, check the result class is the same as the calling class.
+        if (self::class !== static::class && $result::class !== static::class) {
+            throw new DimensionMismatchException(static::getDimension(), $result->dimension);
+        }
+
+        return $result;
     }
 
     // endregion
@@ -277,7 +332,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Conversion methods
+    // region Unit conversion methods
 
     /**
      * Convert this Quantity to a different unit.
@@ -358,7 +413,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Unit transformation methods
+    // region Transformation methods
 
     /**
      * Substitute expandable units for base units, e.g. N => kg*m/s2
@@ -586,10 +641,6 @@ class Quantity implements Stringable
         return self::create($newValue, $newUnit);
     }
 
-    // endregion
-
-    // region Value transformation methods
-
     /**
      * Create a new Quantity with the same unit but a different value.
      *
@@ -600,6 +651,10 @@ class Quantity implements Stringable
     {
         return self::create($value, $this->derivedUnit);
     }
+
+    // endregion
+
+    // region Unary arithmetic methods
 
     /**
      * Get the absolute value of this Quantity.
@@ -615,42 +670,6 @@ class Quantity implements Stringable
     }
 
     /**
-     * Round the value to the given precision.
-     *
-     * @param int $precision The number of decimal places to round to (default 0).
-     * @param RoundingMode $mode The rounding mode (default RoundingMode::HalfAwayFromZero).
-     * @return static A new Quantity with the rounded value in the same unit.
-     */
-    public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): static
-    {
-        return $this->withValue(round($this->value, $precision, $mode));
-    }
-
-    /**
-     * Round the value down (towards negative infinity).
-     *
-     * @return static A new Quantity with the value rounded down, in the same unit.
-     */
-    public function floor(): static
-    {
-        return $this->withValue(floor($this->value));
-    }
-
-    /**
-     * Round the value up (towards positive infinity).
-     *
-     * @return static A new Quantity with the value rounded up, in the same unit.
-     */
-    public function ceil(): static
-    {
-        return $this->withValue(ceil($this->value));
-    }
-
-    // endregion
-
-    // region Arithmetic methods
-
-    /**
      * Negate a Quantity.
      *
      * @return self A new Quantity containing the negative of this Quantity's unit.
@@ -662,6 +681,30 @@ class Quantity implements Stringable
     {
         return $this->withValue(-$this->value);
     }
+
+    /**
+     * Invert this Quantity (1/x) or divide a scalar by this Quantity (n/x).
+     *
+     * @return self A new Quantity with the value and unit inverted.
+     * @throws DivisionByZeroError If the value is zero.
+     * @example
+     *   $length = new Length(10, 'm');
+     *   $inv = $length->inv();  // Length(0.1, 'm^-1')
+     */
+    public function inv(): self
+    {
+        // Guards.
+        if ($this->value === 0.0) {
+            throw new DivisionByZeroError('Cannot invert a quantity with a value of 0.');
+        }
+
+        // Invert the value and unit.
+        return self::create(1.0 / $this->value, $this->derivedUnit->inv());
+    }
+
+    // endregion
+
+    // region Binary arithmetic methods
 
     /**
      * Add another Quantity to this one. Units must be compatible, i.e. have the same dimension.
@@ -712,26 +755,6 @@ class Quantity implements Stringable
 
         // Subtract the values.
         return $this->withValue($this->value - $otherValue);
-    }
-
-    /**
-     * Invert this Quantity (1/x) or divide a scalar by this Quantity (n/x).
-     *
-     * @return self A new Quantity with the value and unit inverted.
-     * @throws DivisionByZeroError If the value is zero.
-     * @example
-     *   $length = new Length(10, 'm');
-     *   $inv = $length->inv();  // Length(0.1, 'm^-1')
-     */
-    public function inv(): self
-    {
-        // Guards.
-        if ($this->value === 0.0) {
-            throw new DivisionByZeroError('Cannot invert a quantity with a value of 0.');
-        }
-
-        // Invert the value and unit.
-        return self::create(1.0 / $this->value, $this->derivedUnit->inv());
     }
 
     /**
@@ -814,6 +837,10 @@ class Quantity implements Stringable
         return $this->mul($other->inv());
     }
 
+    // endregion
+
+    // region Power methods
+
     /**
      * Raise the Quantity to an exponent.
      *
@@ -849,6 +876,42 @@ class Quantity implements Stringable
     public function sqr(): self
     {
         return $this->mul($this);
+    }
+
+    // endregion
+
+    // region Rounding methods
+
+    /**
+     * Round the value to the given precision.
+     *
+     * @param int $precision The number of decimal places to round to (default 0).
+     * @param RoundingMode $mode The rounding mode (default RoundingMode::HalfAwayFromZero).
+     * @return static A new Quantity with the rounded value in the same unit.
+     */
+    public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): static
+    {
+        return $this->withValue(round($this->value, $precision, $mode));
+    }
+
+    /**
+     * Round the value down (towards negative infinity).
+     *
+     * @return static A new Quantity with the value rounded down, in the same unit.
+     */
+    public function floor(): static
+    {
+        return $this->withValue(floor($this->value));
+    }
+
+    /**
+     * Round the value up (towards positive infinity).
+     *
+     * @return static A new Quantity with the value rounded up, in the same unit.
+     */
+    public function ceil(): static
+    {
+        return $this->withValue(ceil($this->value));
     }
 
     // endregion
@@ -903,58 +966,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region String methods
-
-    /**
-     * Parse a string representation into a Quantity object.
-     *
-     * Accepts formats like "123.45 km", "90deg", "1.5e3 ms".
-     * Whitespace between value and unit is optional.
-     *
-     * @param string $input The string to parse.
-     * @return self A new Quantity parsed from the string.
-     * @throws FormatException If the input string format is invalid.
-     * @throws DomainException If the string contains unknown units, or the string contains multiple parts and either
-     * the quantity type is unregistered or the result unit symbol is invalid.
-     * @throws DimensionMismatchException If called on a subclass and the parsed unit's dimension doesn't match.
-     * @throws UnexpectedValueException If there's an unexpected error during parsing.
-     * @throws InvalidArgumentException If the string contains multiple parts, and any of the part unit symbols are not
-     * strings.
-     * @example
-     *   Length::parse("123.45 km")  // Length(123.45, 'km')
-     *   Angle::parse("90deg")       // Angle(90.0, 'deg')
-     *   Time::parse("1.5e3 ms")     // Time(1500.0, 'ms')
-     */
-    public static function parse(string $input): self
-    {
-        // Prepare an error message with the original value.
-        $qtyType = static::getQuantityType();
-        $name = $qtyType === null ? '' : (' ' . $qtyType->name);
-        $err = "The provided string '$input' does not represent a valid$name quantity.";
-
-        // Reject empty input.
-        $input = trim($input);
-        if ($input === '') {
-            throw new FormatException($err);
-        }
-
-        // Try to parse as <num><unit>. Whitespace between the number and unit is permitted. The unit is optional, as
-        // for a dimensionless quantity.
-        if (RegexService::isValidQuantity($input, $m)) {
-            assert(isset($m[1]));
-            $result = self::create((float)$m[1], $m[2] ?? null);
-        } else {
-            // Try to parse the string as multiple parts, as if output from formatParts().
-            $result = self::parseParts($input);
-        }
-
-        // If this method is not called from Quantity, check the result class is the same as the calling class.
-        if (self::class !== static::class && $result::class !== static::class) {
-            throw new DimensionMismatchException(static::getDimension(), $result->dimension);
-        }
-
-        return $result;
-    }
+    // region Conversion methods
 
     /**
      * Format a numeric value as a string.
@@ -962,9 +974,9 @@ class Quantity implements Stringable
      * Format specifiers:
      *   - 'e': Scientific notation with lowercase 'e'.
      *   - 'E': Scientific notation with uppercase 'E'.
-     *   - 'f': Fixed-point notation (locale-aware). [default]
+     *   - 'f': Fixed-point notation (locale-aware).
      *   - 'F': Fixed-point notation (non-locale-aware, always uses '.' as decimal separator).
-     *   - 'g': Shortest of 'e' or 'f' (lower-case 'e'/locale-aware).
+     *   - 'g': Shortest of 'e' or 'f' (lower-case 'e'/locale-aware). [default]
      *   - 'G': Shortest of 'E' or 'f' (upper-case 'E'/locale-aware).
      *   - 'h': Shortest of 'e' or 'F' (lower-case 'e'/non-locale-aware).
      *   - 'H': Shortest of 'E' or 'F' (upper-case 'E'/non-locale-aware).
@@ -974,10 +986,10 @@ class Quantity implements Stringable
      *   - For e/E/f/F, precision means the number of digits after the decimal point.
      *   - For g/G/h/H, precision means the number of significant digits.
      *
-     * If $trimZeros is true, trailing zeros (and if necessary a trailing decimal point) are automatically
+     * If $trimZeros is true, trailing zeros (and if necessary, a trailing decimal point) are automatically
      * removed. For a value string with an exponent, this applies only to the mantissa (the part before the 'e').
      * If $trimZeros is false, all digits are preserved.
-     * If $trimZeros is null (default), the behavior will depend on whether a precision was provided or not.
+     * If $trimZeros is null (default), the behavior will depend on whether precision was specified or not.
      * If $precision is null, zeros will be trimmed; if the $precision is specified, zeros will not be trimmed.
      *
      * When $ascii is false and scientific notation is used, the exponent is rendered as ×10 with
@@ -985,7 +997,7 @@ class Quantity implements Stringable
      *
      * @param float $value The numeric value to format.
      * @param string $specifier The format specifier (default 'f').
-     * @param ?int $precision Number of digits (default null = sprintf default, usually 6).
+     * @param ?int $precision Number of decimal places for e/f, or significant digits for g/h (default null = 6).
      * @param ?bool $trimZeros If trailing zeros should be trimmed (default null for auto).
      * @param bool $ascii If true, use ASCII e notation. If false (default), use ×10 with superscript exponents.
      * @return string The formatted value string.
@@ -993,7 +1005,7 @@ class Quantity implements Stringable
      */
     public static function formatValue(
         float $value,
-        string $specifier = 'f',
+        string $specifier = 'g',
         ?int $precision = null,
         ?bool $trimZeros = null,
         bool $ascii = false
@@ -1067,7 +1079,7 @@ class Quantity implements Stringable
      * for units that start with a non-letter such as °C.
      *
      * @param string $specifier The format specifier.
-     * @param ?int $precision Number of digits (default null = sprintf default, usually 6).
+     * @param ?int $precision Number of decimal places for e/f, or significant digits for g/h (default null = 6).
      * @param ?bool $trimZeros If trailing zeros should be trimmed (default null for auto).
      * @param ?bool $includeSpace Space between value and unit (null = auto, true = always, false = never).
      * @param bool $ascii If true, use ASCII symbols and e notation. If false, use Unicode symbols and ×10 notation.
@@ -1075,7 +1087,7 @@ class Quantity implements Stringable
      * @throws DomainException If the specifier or precision is invalid.
      */
     public function format(
-        string $specifier = 'f',
+        string $specifier = 'g',
         ?int $precision = null,
         ?bool $trimZeros = null,
         ?bool $includeSpace = null,

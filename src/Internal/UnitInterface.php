@@ -34,7 +34,7 @@ interface UnitInterface extends Stringable
 
     // endregion
 
-    // region String methods
+    // region Factory methods
 
     /**
      * Parse a string into the unit type.
@@ -45,6 +45,10 @@ interface UnitInterface extends Stringable
      * @throws DomainException If the symbol contains unknown units.
      */
     public static function parse(string $symbol): self;
+
+    // endregion
+
+    // region Conversion methods
 
     /**
      * Format the unit as a string.

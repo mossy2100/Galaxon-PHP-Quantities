@@ -386,6 +386,41 @@ final class PhysicalConstantTest extends TestCase
 
     // endregion
 
+    // region getAll() method tests
+
+    /**
+     * Test getAll() returns a non-empty array of Quantity objects keyed by symbol.
+     */
+    public function testGetAllReturnsQuantitiesKeyedBySymbol(): void
+    {
+        $all = PhysicalConstant::getAll();
+
+        $this->assertNotEmpty($all);
+        $this->assertContainsOnlyInstancesOf(Quantity::class, $all);
+
+        foreach (array_keys($all) as $key) {
+            $this->assertIsString($key);
+        }
+    }
+
+    /**
+     * Test getAll() values match those from get() method.
+     */
+    public function testGetAllValuesMatchGetMethod(): void
+    {
+        $all = PhysicalConstant::getAll();
+
+        foreach (array_keys($all) as $symbol) {
+            $this->assertSame(
+                PhysicalConstant::get($symbol),
+                $all[$symbol],
+                "getAll()['$symbol'] should match get('$symbol')."
+            );
+        }
+    }
+
+    // endregion
+
     // region Practical usage tests
 
     /**

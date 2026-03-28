@@ -26,17 +26,6 @@ final class TemperatureTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Setup
-
-    public static function setUpBeforeClass(): void
-    {
-        // Load Imperial/US units for Fahrenheit and Rankine.
-        UnitService::loadSystem(UnitSystem::Imperial);
-        UnitService::loadSystem(UnitSystem::UsCustomary);
-    }
-
-    // endregion
-
     // region Overridden methods
 
     /**

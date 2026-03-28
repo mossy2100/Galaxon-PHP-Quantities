@@ -133,7 +133,7 @@ class Prefix
 
     // endregion
 
-    // region String methods
+    // region Conversion methods
 
     /**
      * Format the prefix for display.

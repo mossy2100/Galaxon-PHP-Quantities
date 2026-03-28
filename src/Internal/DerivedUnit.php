@@ -134,7 +134,7 @@ class DerivedUnit implements UnitInterface
 
     // endregion
 
-    // region Static public methods
+    // region Factory methods
 
     /**
      * Convert the argument to a DerivedUnit if necessary.
@@ -161,10 +161,6 @@ class DerivedUnit implements UnitInterface
         assert($value === null || $value instanceof Unit || $value instanceof UnitTerm);
         return new self($value);
     }
-
-    // endregion
-
-    // region String methods
 
     /**
      * Parse a string into a new DerivedUnit.
@@ -201,120 +197,6 @@ class DerivedUnit implements UnitInterface
         }
 
         throw new FormatException("Invalid derived unit symbol: '$symbol'");
-    }
-
-    /**
-     * Parse a sequence of unit terms separated by multiplication and/or division operators.
-     *
-     * @param string $symbol The derived unit symbol.
-     * @return self The new DerivedUnit instance.
-     * @throws UnknownUnitException If any units are unknown.
-     * @throws FormatException If the symbol format is invalid.
-     * @throws UnexpectedValueException If an unexpected error occurs.
-     * @throws DomainException If an exponent is zero.
-     */
-    private static function parseHelper(string $symbol): self
-    {
-        // Initialize a new object.
-        $new = new self();
-
-        // Get the parts of the compound unit.
-        $parts = preg_split(
-            '/(' . RegexService::RX_CLASS_MUL_DIV_OPS . ')/iu',
-            $symbol,
-            flags: PREG_SPLIT_DELIM_CAPTURE
-        );
-        if ($parts === false) {
-            // @codeCoverageIgnoreStart
-            throw new UnexpectedValueException('Error splitting string into parts.');
-            // @codeCoverageIgnoreEnd
-        }
-
-        // Convert the substrings to unit terms.
-        $nParts = count($parts);
-        for ($i = 0; $i < $nParts; $i += 2) {
-            // Parse the unit term. This could throw an UnknownUnitException if the symbol is invalid.
-            $unitTerm = UnitTerm::parse($parts[$i]);
-
-            if ($i > 0 && $parts[$i - 1] === '/') {
-                // If dividing, invert and add the unit term.
-                $new->addUnitTerm($unitTerm->inv());
-            } else {
-                // If multiplying, add the unit term.
-                $new->addUnitTerm($unitTerm);
-            }
-        }
-
-        // Return the new object.
-        return $new;
-    }
-
-    /**
-     * Format the derived unit as a string.
-     *
-     * If $ascii is false (default), Unicode symbols are used (if set), exponents are converted to superscript
-     * (e.g. 'm²'), and the unit terms will be separated by a '⋅' character.
-     *
-     * If $ascii is true, then the primary (ASCII) symbol will be used, exponents will not be converted to superscript,
-     * and the unit terms will be separated by a '*' character.
-     *
-     * @param bool $ascii If true, return the ASCII version; if false (default), return the Unicode version.
-     * @return string The derived unit symbol.
-     */
-    public function format(bool $ascii = false): string
-    {
-        // Collection the unit terms with positive and negative exponents.
-        $posTerms = [];
-        $negTerms = [];
-        foreach ($this->unitTerms as $unitTerm) {
-            if ($unitTerm->exponent > 0) {
-                $posTerms[] = $unitTerm;
-            } elseif ($unitTerm->exponent < 0) {
-                $negTerms[] = $unitTerm;
-            }
-        }
-
-        // If there are no positive terms, don't use a divide symbol, just show exponents as negative.
-        if (count($posTerms) === 0) {
-            return implode(
-                $ascii ? '*' : '⋅',
-                array_map(static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii), $negTerms)
-            );
-        }
-
-        // Get the positive terms as a string.
-        $posTermsStr = implode(
-            $ascii ? '*' : '⋅',
-            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii), $posTerms)
-        );
-
-        // Get the negative terms as a string.
-        $negTermsStr = implode(
-            $ascii ? '*' : '⋅',
-            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->inv()->format($ascii), $negTerms)
-        );
-        if (count($negTerms) > 1) {
-            $negTermsStr = "($negTermsStr)";
-        }
-
-        // Combine the positive and negative terms.
-        $result = $posTermsStr;
-        if (count($negTerms) > 0) {
-            $result .= '/' . $negTermsStr;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Convert the derived unit to a string. This will use the Unicode format, which may include non-ASCII characters.
-     * For the ASCII version, use format(true).
-     *
-     * @return string The derived unit as a string.
-     */
-    public function __toString(): string
-    {
-        return $this->format();
     }
 
     // endregion
@@ -520,7 +402,7 @@ class DerivedUnit implements UnitInterface
 
     // endregion
 
-    // region Arithmetic methods
+    // region Unary arithmetic methods
 
     /**
      * Return a new DerivedUnit with all exponents negated.
@@ -534,6 +416,10 @@ class DerivedUnit implements UnitInterface
         /** @var list<UnitTerm> $unitTerms */
         return new self($unitTerms);
     }
+
+    // endregion
+
+    // region Power methods
 
     /**
      * Return a new DerivedUnit raised to a given power.
@@ -712,7 +598,125 @@ class DerivedUnit implements UnitInterface
 
     // endregion
 
+    // region Conversion methods
+
+    /**
+     * Format the derived unit as a string.
+     *
+     * If $ascii is false (default), Unicode symbols are used (if set), exponents are converted to superscript
+     * (e.g. 'm²'), and the unit terms will be separated by a '⋅' character.
+     *
+     * If $ascii is true, then the primary (ASCII) symbol will be used, exponents will not be converted to superscript,
+     * and the unit terms will be separated by a '*' character.
+     *
+     * @param bool $ascii If true, return the ASCII version; if false (default), return the Unicode version.
+     * @return string The derived unit symbol.
+     */
+    public function format(bool $ascii = false): string
+    {
+        // Collection the unit terms with positive and negative exponents.
+        $posTerms = [];
+        $negTerms = [];
+        foreach ($this->unitTerms as $unitTerm) {
+            if ($unitTerm->exponent > 0) {
+                $posTerms[] = $unitTerm;
+            } elseif ($unitTerm->exponent < 0) {
+                $negTerms[] = $unitTerm;
+            }
+        }
+
+        // If there are no positive terms, don't use a divide symbol, just show exponents as negative.
+        if (count($posTerms) === 0) {
+            return implode(
+                $ascii ? '*' : '⋅',
+                array_map(static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii), $negTerms)
+            );
+        }
+
+        // Get the positive terms as a string.
+        $posTermsStr = implode(
+            $ascii ? '*' : '⋅',
+            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->format($ascii), $posTerms)
+        );
+
+        // Get the negative terms as a string.
+        $negTermsStr = implode(
+            $ascii ? '*' : '⋅',
+            array_map(static fn (UnitTerm $unitTerm) => $unitTerm->inv()->format($ascii), $negTerms)
+        );
+        if (count($negTerms) > 1) {
+            $negTermsStr = "($negTermsStr)";
+        }
+
+        // Combine the positive and negative terms.
+        $result = $posTermsStr;
+        if (count($negTerms) > 0) {
+            $result .= '/' . $negTermsStr;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Convert the derived unit to a string. This will use the Unicode format, which may include non-ASCII characters.
+     * For the ASCII version, use format(true).
+     *
+     * @return string The derived unit as a string.
+     */
+    public function __toString(): string
+    {
+        return $this->format();
+    }
+
+    // endregion
+
     // region Private helper methods
+
+    /**
+     * Parse a sequence of unit terms separated by multiplication and/or division operators.
+     *
+     * @param string $symbol The derived unit symbol.
+     * @return self The new DerivedUnit instance.
+     * @throws UnknownUnitException If any units are unknown.
+     * @throws FormatException If the symbol format is invalid.
+     * @throws UnexpectedValueException If an unexpected error occurs.
+     * @throws DomainException If an exponent is zero.
+     */
+    private static function parseHelper(string $symbol): self
+    {
+        // Initialize a new object.
+        $new = new self();
+
+        // Get the parts of the compound unit.
+        $parts = preg_split(
+            '/(' . RegexService::RX_CLASS_MUL_DIV_OPS . ')/iu',
+            $symbol,
+            flags: PREG_SPLIT_DELIM_CAPTURE
+        );
+        if ($parts === false) {
+            // @codeCoverageIgnoreStart
+            throw new UnexpectedValueException('Error splitting string into parts.');
+            // @codeCoverageIgnoreEnd
+        }
+
+        // Convert the substrings to unit terms.
+        $nParts = count($parts);
+        for ($i = 0; $i < $nParts; $i += 2) {
+            // Parse the unit term. This could throw an UnknownUnitException if the symbol is invalid.
+            $unitTerm = UnitTerm::parse($parts[$i]);
+
+            if ($i > 0 && $parts[$i - 1] === '/') {
+                // If dividing, invert and add the unit term.
+                $new->addUnitTerm($unitTerm->inv());
+            } else {
+                // If multiplying, add the unit term.
+                $new->addUnitTerm($unitTerm);
+            }
+        }
+
+        // Return the new object.
+        return $new;
+    }
 
     /**
      * Compare two unit terms for sorting purposes.

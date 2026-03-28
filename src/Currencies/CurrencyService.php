@@ -9,6 +9,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Stringify;
 use Galaxon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
+use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
@@ -138,7 +139,7 @@ class CurrencyService
         }
 
         // Get the current unit definitions.
-        $unitDefinitions = $unitData['definitions'] ?? null;
+        $unitDefinitions = $unitData['currencies'] ?? null;
 
         // Get the timestamp when the data was last fetched.
         $whenFetched = isset($unitData['whenFetched']) ? strtotime($unitData['whenFetched']) : false;
@@ -192,17 +193,14 @@ class CurrencyService
                 continue;
             }
 
-            $unitDefinitions[$name] = [
-                'asciiSymbol' => $code,
-                'systems'     => [UnitSystem::Financial],
-            ];
+            $unitDefinitions[$name] = $code;
         }
 
         // Construct the data array.
         ksort($unitDefinitions);
         $unitData = [
             'whenFetched' => date(self::DATETIME_FORMAT),
-            'definitions' => $unitDefinitions,
+            'currencies' => $unitDefinitions,
         ];
 
         // Build the PHP file content.
@@ -214,7 +212,7 @@ class CurrencyService
             <?php
 
             /**
-             * Unit definitions for currencies, based off ISO 4217 currency data.
+             * Currencies, based off ISO 4217 currency data.
              *
              * Fetched from
              * $url
@@ -226,13 +224,7 @@ class CurrencyService
              *
              * @return array{
              *     whenFetched: string,
-             *     definitions: array<string, array{
-             *         asciiSymbol: string,
-             *         unicodeSymbol?: string,
-             *         prefixGroup?: int,
-             *         alternateSymbol?: string,
-             *         systems: list<UnitSystem>
-             *     }>
+             *     currencies: array<string, string>
              * }
              */
 
@@ -246,9 +238,9 @@ class CurrencyService
         // Refresh the currency units.
         UnitService::loadSystem(UnitSystem::Financial, true);
 
-        // Loading any missing conversions. If new currency codes have been added, some conversion definitions that were
-        // not loaded before, due to unknown units, may now be loadable.
-        ConversionService::loadDefinitions();
+        // Loading any missing conversions. If new currency codes have been added, some conversion definitions not
+        // loaded before, due to unknown units, may now be loadable.
+        Converter::getInstance('C')->loadConversions();
 
         return true;
     }
@@ -335,9 +327,12 @@ class CurrencyService
         // Save it.
         file_put_contents(self::getConversionsFilePath(), $output);
 
-        // Refresh currency conversions.
+        // Remove all conversions involving currencies. We can't just overwrite the conversions between currencies
+        // because conversions involving currencies may have been created for dimensions other than 'C'.
         ConversionService::removeBySystem(UnitSystem::Financial);
-        ConversionService::loadDefinitions();
+
+        // Reload currency conversions.
+        Converter::getInstance('C')->loadConversions(true);
 
         return true;
     }
@@ -559,9 +554,6 @@ class CurrencyService
         self::setLocale($locale);
         self::setRatesTtl($ratesTtl);
         self::setCurrenciesTtl($currenciesTtl);
-
-        // Load currencies.
-        UnitService::loadSystem(UnitSystem::Financial);
 
         // Refresh units and conversions as needed.
         self::refresh();

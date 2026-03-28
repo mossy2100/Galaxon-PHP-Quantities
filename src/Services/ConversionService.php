@@ -20,7 +20,7 @@ use LogicException;
  * Services for unit conversions.
  *
  * Stores and retrieves conversions between units, organized by dimension.
- * Conversions are loaded per-system via loadSystem().
+ * Conversions are loaded on Converter construction.
  */
 class ConversionService
 {
@@ -257,14 +257,12 @@ class ConversionService
      */
     public static function findFactor(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?float
     {
-        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
-        $converter = Converter::getInstance($srcUnit->dimension);
-        return $converter->findConversionFactor($srcUnit, $destUnit);
+        return self::find($srcUnit, $destUnit)?->factor->value;
     }
 
     // endregion
 
-    // region Validation methods
+    // region Private static helper methods
 
     /**
      * Validate and convert both units to DerivedUnit objects, ensuring they share the same dimension.

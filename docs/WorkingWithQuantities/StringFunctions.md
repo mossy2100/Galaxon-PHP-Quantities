@@ -72,7 +72,7 @@ $force = Quantity::create(10, 'kg·m/s2');
 ### Exponents
 
 Exponents are written directly after the unit symbol — do not use an exponentiation operator
-such as `^`. Valid exponents are in the range -9..9, excluding 0. The parser accepts both plain digits and Unicode superscript characters:
+such as `^` or `**`. Valid exponents are in the range -9..9, excluding 0. The parser accepts both plain digits and Unicode superscript characters:
 
 ```php
 // Plain digits
@@ -128,26 +128,29 @@ For more control, use `format()` with a specifier, precision, and ASCII mode:
 ```php
 $length = new Length(1234.5678, 'm');
 
-// Fixed-point notation (default)
+// Significant figures (default)
+echo $length->format();           // 1234.57 m
+echo $length->format('g', 4);    // 1235 m
+
+// Fixed-point notation
 echo $length->format('f');        // 1234.5678 m
 echo $length->format('f', 2);    // 1234.57 m
 
 // Scientific notation
 echo $length->format('e', 3);    // 1.235×10³ m
-
-// Significant figures
-echo $length->format('g', 4);    // 1235 m
 ```
 
 **Specifiers:**
 
-| Specifier | Description | Precision means |
-|-----------|-------------|-----------------|
-| `f` / `F` | Fixed-point | Decimal places |
-| `e` / `E` | Scientific | Decimal places in mantissa |
-| `g` / `G` / `h` / `H` | Shortest | Significant figures |
+| Specifier             | Description | Precision means            |
+| --------------------- | ----------- | -------------------------- |
+| `f` / `F`             | Fixed-point | Decimal places             |
+| `e` / `E`             | Scientific  | Decimal places in mantissa |
+| `g` / `G` / `h` / `H` | Shortest    | Significant figures        |
 
 When `$precision` is `null` (the default), trailing zeros are automatically trimmed. When an explicit precision is given, digits are preserved. This behavior can be overridden with the `$trimZeros` parameter (`true` = always trim, `false` = never trim, `null` = auto).
+
+See: [formatValue()](Quantity.md#formatValue())
 
 ### ASCII vs. Unicode
 
