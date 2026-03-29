@@ -282,9 +282,6 @@ use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
-// Load Imperial units first
-UnitService::loadSystem(UnitSystem::Imperial);
-
 // Now convert
 $volume = Converter::getInstance('L3');
 $liters = $volume->convert(1, 'imp gal', 'L');

@@ -48,7 +48,7 @@ class Energy extends Quantity
             ],
             'British thermal unit' => [
                 'asciiSymbol' => 'Btu',
-                'systems'     => [UnitSystem::UsCustomary],
+                'systems'     => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
         ];
     }

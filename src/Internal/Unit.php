@@ -285,19 +285,6 @@ class Unit implements UnitInterface
     }
 
     /**
-     * Check if this is an Imperial or US customary unit.
-     *
-     * I'm calling these "English" units for want of a better term.
-     *
-     * @return bool True if the unit is Imperial or US customary.
-     */
-    public function isEnglish(): bool
-    {
-        return $this->belongsToSystem(UnitSystem::Imperial) ||
-            $this->belongsToSystem(UnitSystem::UsCustomary);
-    }
-
-    /**
      * Check if this unit is a base unit.
      *
      * @return bool True if the unit is a base unit.

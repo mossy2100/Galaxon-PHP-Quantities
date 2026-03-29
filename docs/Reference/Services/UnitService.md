@@ -10,38 +10,9 @@ Registry of known units organized by measurement system.
 
 The `UnitService` manages the collection of known units in the system. It provides:
 
-- Lazy loading of units by measurement system
-- Lookup methods for finding units by symbol or dimension
-- Methods for adding custom units
-- Integration with `ConversionService` for automatic conversion loading
-
-By default, SI, SI Accepted, and Common units are loaded automatically on first access.
-
----
-
-## Loading Systems
-
-### Default Behavior
-
-On first access, the registry automatically loads:
-- `UnitSystem::Si` - SI base and derived units
-- `UnitSystem::SiAccepted` - Units accepted for use with SI
-- `UnitSystem::Common` - Common units (percentages, data, etc.)
-
-### Loading Additional Systems
-
-```php
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
-
-// Load Imperial and US Customary units
-UnitService::loadSystem(UnitSystem::Imperial);
-UnitService::loadSystem(UnitSystem::UsCustomary);
-
-// Load other systems as needed
-UnitService::loadSystem(UnitSystem::Scientific);
-UnitService::loadSystem(UnitSystem::Nautical);
-```
+- Creating units from definitions.
+- Lookup methods for finding units by symbol or dimension.
+- Methods for adding custom units.
 
 ---
 
@@ -75,7 +46,6 @@ use Galaxon\Quantities\UnitSystem;
 $siUnits = UnitService::getBySystem(UnitSystem::Si);
 // Returns all SI units (meter, kilogram, second, etc.)
 
-UnitService::loadSystem(UnitSystem::Imperial);
 $imperialUnits = UnitService::getBySystem(UnitSystem::Imperial);
 // Returns all Imperial units (foot, pound, etc.)
 ```
@@ -197,20 +167,6 @@ $systems = UnitService::getLoadedSystems();
 
 ---
 
-## Integration with ConversionService
-
-When a system is loaded via `loadSystem()`, the `ConversionService` is automatically updated with relevant conversions:
-
-```php
-// This loads both units AND conversions
-UnitService::loadSystem(UnitSystem::Imperial);
-
-// Conversions involving Imperial units are now available
-$feet = Length::convert(1, 'm', 'ft');
-```
-
----
-
 ## Usage Examples
 
 ```php
@@ -220,9 +176,6 @@ use Galaxon\Quantities\UnitSystem;
 // Check what's loaded by default
 $systems = UnitService::getLoadedSystems();
 // [UnitSystem::Si, UnitSystem::SiAccepted, UnitSystem::Common]
-
-// Load Imperial for feet, pounds, etc.
-UnitService::loadSystem(UnitSystem::Imperial);
 
 // Find a unit
 $foot = UnitService::getBySymbol('ft');

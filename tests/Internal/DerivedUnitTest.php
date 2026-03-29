@@ -1645,7 +1645,7 @@ class DerivedUnitTest extends TestCase
     {
         $du = DerivedUnit::parse('kg');
 
-        $this->assertTrue($du->siExpansionPreferred());
+        $this->assertTrue($du->siPreferred());
     }
 
     /**
@@ -1655,7 +1655,7 @@ class DerivedUnitTest extends TestCase
     {
         $du = DerivedUnit::parse('lb');
 
-        $this->assertFalse($du->siExpansionPreferred());
+        $this->assertFalse($du->siPreferred());
     }
 
     /**
@@ -1666,7 +1666,7 @@ class DerivedUnitTest extends TestCase
         // kg (SI) and ft (English) — has both, but at least one unambiguous SI unit.
         $du = DerivedUnit::parse('kg*ft');
 
-        $this->assertTrue($du->siExpansionPreferred());
+        $this->assertTrue($du->siPreferred());
     }
 
     /**
@@ -1678,7 +1678,7 @@ class DerivedUnitTest extends TestCase
         // With no English units and no unambiguous SI units, nEnglishUnits === 0 → true.
         $du = DerivedUnit::parse('s');
 
-        $this->assertTrue($du->siExpansionPreferred());
+        $this->assertTrue($du->siPreferred());
     }
 
     /**
@@ -1689,7 +1689,7 @@ class DerivedUnitTest extends TestCase
         // lb*ft/s2 — lb and ft are English, s is ambiguous.
         $du = DerivedUnit::parse('lb*ft/s2');
 
-        $this->assertFalse($du->siExpansionPreferred());
+        $this->assertFalse($du->siPreferred());
     }
 
     // endregion

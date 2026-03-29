@@ -174,7 +174,7 @@ All quantity type classes extend `Quantity` and define their specific units and 
 
 ### Services
 
-These classes are predominantly internal, except for loading new systems of units via `UnitService::loadSystem()`, adding custom units via `UnitService::add()`, or registering new quantity types via `QuantityTypeService::add()`.
+These classes are predominantly internal, except for adding custom units via `UnitService::add()`, or registering new quantity types via `QuantityTypeService::add()`.
 
 | Class                                                         | Description                                                               |
 |---------------------------------------------------------------|---------------------------------------------------------------------------|

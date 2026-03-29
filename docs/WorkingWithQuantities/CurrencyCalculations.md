@@ -58,7 +58,6 @@ Convert a metal price from one mass unit and currency to another. For example, c
 
 ```php
 CurrencyService::init(new OpenExchangeRatesService('your-api-key'));
-UnitService::loadSystem(UnitSystem::Imperial);
 
 $silverPerOz = Quantity::create(1, 'XAG/oz t');
 $silverPerKg = $silverPerOz->to('USD/kg');
@@ -72,8 +71,6 @@ echo $silverPerKg->format(precision: 2);  // e.g. 1044.97 USD/kg
 Compare prices of products sold in different quantities:
 
 ```php
-UnitService::loadSystem(UnitSystem::UsCustomary);
-
 // Olive oil: $8.99 for 500 mL vs $15.49 for 1 litre.
 $priceA = Quantity::create(8.99 / 500, 'USD/mL');
 $priceB = Quantity::create(15.49 / 1000, 'USD/mL');

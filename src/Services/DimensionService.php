@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Services;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\UnitTerm;
 use LogicException;
@@ -344,5 +345,50 @@ class DimensionService
         return new DerivedUnit($unitTerms);
     }
 
+    public static function countUnits(string $dimension): int
+    {
+        $dimTerms = self::decompose($dimension);
+        return array_reduce($dimTerms, static fn (int $count, int $exp) => $count + abs($exp), 0);
+    }
+
+    // endregion
+
+    // region Inspection methods
+
+    public static function lessThanOrEqual(string $dimension1, string $dimension2): bool
+    {
+        $dimTerms1 = self::decompose($dimension1);
+        $dimTerms2 = self::decompose($dimension2);
+
+        foreach ($dimTerms1 as $code => $exp) {
+            if (!isset($dimTerms2[$code])) {
+                return false;
+            }
+            if (Numbers::sign($exp) !== Numbers::sign($dimTerms2[$code])) {
+                return false;
+            }
+            if (abs($dimTerms2[$code]) < abs($exp)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static function sub(string $dimension1, string $dimension2): string
+    {
+        $dimTerms1 = self::decompose($dimension1);
+        $dimTerms2 = self::decompose($dimension2);
+        $dimTerms3 = [];
+
+        foreach ($dimTerms1 as $code => $exp) {
+            $newExp = $exp - ($dimTerms2[$code] ?? 0);
+            if ($newExp !== 0) {
+                $dimTerms3[$code] = $newExp;
+            }
+        }
+
+        return self::compose($dimTerms3);
+    }
     // endregion
 }

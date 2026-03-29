@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Currencies;
 
 use DateTime;
+use DateTimeInterface;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Stringify;
@@ -139,14 +140,14 @@ class CurrencyService
         }
 
         // Get the current unit definitions.
-        $unitDefinitions = $unitData['currencies'] ?? null;
+        $currencies = $unitData['currencies'] ?? null;
 
         // Get the timestamp when the data was last fetched.
         $whenFetched = isset($unitData['whenFetched']) ? strtotime($unitData['whenFetched']) : false;
         $expired = !$whenFetched || time() > $whenFetched + self::$currenciesTtl;
 
         // See if we can skip the download.
-        if (!$bypassCache && !empty($unitDefinitions) && !$expired) {
+        if (!$bypassCache && !empty($currencies) && !$expired) {
             return false;
         }
 
@@ -172,7 +173,7 @@ class CurrencyService
             // @codeCoverageIgnoreEnd
         }
 
-        $unitDefinitions = [];
+        $currencies = [];
 
         // Parse currencies from the XML.
         // Silence PHPCS temporarily here because of the properties that aren't in lowerCamelCase.
@@ -189,23 +190,23 @@ class CurrencyService
             }
 
             // Skip if already added (multiple countries can share a currency).
-            if (isset($unitDefinitions[$name])) {
+            if (isset($currencies[$name])) {
                 continue;
             }
 
-            $unitDefinitions[$name] = $code;
+            $currencies[$name] = $code;
         }
 
         // Construct the data array.
-        ksort($unitDefinitions);
+        ksort($currencies);
         $unitData = [
             'whenFetched' => date(self::DATETIME_FORMAT),
-            'currencies' => $unitDefinitions,
+            'currencies' => $currencies,
         ];
 
         // Build the PHP file content.
         $url = self::ISO_4217_URL;
-        $datetime = date(DateTime::COOKIE);
+        $datetime = date(DateTimeInterface::COOKIE);
         $className = self::class;
         $methodName = __FUNCTION__;
         $output = <<<PHP

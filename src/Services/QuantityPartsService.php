@@ -352,14 +352,13 @@ class QuantityPartsService
         if (empty($resultUnitSymbol)) {
             throw new DomainException('No result unit symbol configured for this quantity type.');
         }
-        $name = ' ' . $quantityType->name;
-        $err = "The provided string '$input' does not represent a valid$name quantity.";
 
         // Allow for a string with multiple parts, e.g. "12h 34min 56.789s"
-        // In this format there can be no spaces between values and units.
+        // It's acceptable to have spaces between numbers and units, or units with spaces.
+        // e.g. "12 h 34 min 56.789 s" or "1US gal 2US pt"
         $parts = [];
-        $stringParts = preg_split('/\s+/', $input);
-        if ($stringParts === false) {
+        $words = preg_split('/\s+/', $input);
+        if ($words === false) {
             // @codeCoverageIgnoreStart
             throw new UnexpectedValueException('Error splitting string into parts.');
             // @codeCoverageIgnoreEnd
@@ -368,38 +367,59 @@ class QuantityPartsService
         // Collect the parts.
         $sign = 1;
         $firstPartSeen = false;
-        foreach ($stringParts as $stringPart) {
-            // Check the part looks like a quantity.
-            if (!RegexService::isValidQuantity($stringPart, $m) || empty($m[2])) {
-                throw new FormatException($err);
-            }
-
-            // Check the sign.
-            $partValue = (float)$m[1];
-            if ($partValue < 0) {
-                if (!$firstPartSeen) {
-                    $sign = -1;
-                } else {
-                    throw new FormatException(
-                        'In a string with multiple quantity parts, only the first may be negative.'
-                    );
+        $currentPartSymbol = null;
+        foreach ($words as $i => $word) {
+            // Check the part looks like a quantity. It can be dimensionless.
+            if (RegexService::isValidQuantity($word, $m)) {
+                // Check the sign.
+                $partValue = (float)$m[1];
+                if ($partValue < 0) {
+                    if (!$firstPartSeen) {
+                        $sign = -1;
+                    } else {
+                        throw new FormatException(
+                            'In a string with multiple quantity parts, only the first may be negative.'
+                        );
+                    }
                 }
+
+                // Add the part to the result array.
+                $partValue = abs($partValue);
+                $partSymbol = $m[2] ?? '';
+                $parts[$partSymbol] = $partValue;
+
+                // Note we've seen the first part. No further parts may have a minus sign.
+                if (!$firstPartSeen) {
+                    $firstPartSeen = true;
+                }
+
+                // Note the symbol of the new current part.
+                $currentPartSymbol = $partSymbol;
             }
+            elseif (RegexService::isValidUnitSymbol($word)) {
+                // Check we have a current part.
+                if ($currentPartSymbol === null) {
+                    throw new FormatException('Cannot have a unit not preceded by a number.');
+                }
 
-            // Add the part to the result array.
-            $partValue = abs($partValue);
-            $partSymbol = $m[2];
-            $parts[$partSymbol] = $partValue;
-
-            if (!$firstPartSeen) {
-                $firstPartSeen = true;
+                // Append the unit symbol to the current part unit symbol.
+                $oldPartSymbol = $currentPartSymbol;
+                $currentPartSymbol .= ($currentPartSymbol === '' ? '' : ' ' ) . $word;
+                $partValue = $parts[$oldPartSymbol];
+                unset($parts[$oldPartSymbol]);
+                $parts[$currentPartSymbol] = $partValue;
+            }
+            else {
+                throw new FormatException(
+                    "The provided string '$input' does not represent a valid $quantityType->name quantity."
+                );
             }
         }
 
         // Add the sign part.
         $parts['sign'] = $sign;
 
-        // Construct the new Quantity from the extracted parts.
+        // Construct the new Quantity from the extracted parts. This will catch any invalid units.
         return self::fromParts($quantityType, $parts);
     }
 

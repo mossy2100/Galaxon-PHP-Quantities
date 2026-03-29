@@ -139,4 +139,26 @@ class Volume extends Quantity
     }
 
     // endregion
+
+    // region Part-related methods
+
+    /**
+     * Set the part units for imperial volume quantities.
+     */
+    public static function setImperialParts(): void
+    {
+        static::setPartUnitSymbols(['imp gal', 'imp qt', 'imp pt', 'imp fl oz', 'imp tbsp', 'imp tsp']);
+        static::setResultUnitSymbol('imp gal');
+    }
+
+    /**
+     * Set the part units for US customary volume quantities.
+     */
+    public static function setUsCustomaryParts(): void
+    {
+        static::setPartUnitSymbols(['US gal', 'US qt', 'US pt', 'US cup', 'US fl oz', 'US tbsp', 'US tsp']);
+        static::setResultUnitSymbol('US gal');
+    }
+
+    // endregion
 }

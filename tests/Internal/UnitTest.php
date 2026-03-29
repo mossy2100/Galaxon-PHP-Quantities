@@ -987,54 +987,6 @@ final class UnitTest extends TestCase
 
     // endregion
 
-    // region isEnglish() tests
-
-    /**
-     * Test isEnglish returns true for an Imperial unit.
-     */
-    public function testIsEnglishReturnsTrueForImperialUnit(): void
-    {
-        $unit = UnitService::getBySymbol('ft');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertTrue($unit->isEnglish());
-    }
-
-    /**
-     * Test isEnglish returns true for a US Customary unit.
-     */
-    public function testIsEnglishReturnsTrueForUsCustomaryUnit(): void
-    {
-        $unit = UnitService::getBySymbol('lb');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertTrue($unit->isEnglish());
-    }
-
-    /**
-     * Test isEnglish returns false for an SI unit.
-     */
-    public function testIsEnglishReturnsFalseForSiUnit(): void
-    {
-        $unit = UnitService::getBySymbol('m');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertFalse($unit->isEnglish());
-    }
-
-    /**
-     * Test isEnglish returns false for a unit that is only SI-accepted.
-     */
-    public function testIsEnglishReturnsFalseForSiAcceptedUnit(): void
-    {
-        $unit = UnitService::getBySymbol('min');
-
-        $this->assertInstanceOf(Unit::class, $unit);
-        $this->assertFalse($unit->isEnglish());
-    }
-
-    // endregion
-
     // region tryExpand() tests
 
     /**

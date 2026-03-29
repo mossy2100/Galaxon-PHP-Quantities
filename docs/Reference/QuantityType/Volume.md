@@ -36,9 +36,6 @@ use Galaxon\Quantities\QuantityType\Volume;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
-UnitService::loadSystem(UnitSystem::Imperial);
-UnitService::loadSystem(UnitSystem::UsCustomary);
-
 $impPint = new Volume(1, 'imp pt');
 $usPint = new Volume(1, 'US pt');
 
@@ -78,8 +75,6 @@ echo $usPint->to('mL');   // 473.18 mL
 The metric cup (250 mL), tablespoon (15 mL), and teaspoon (5 mL) are available in the `Metric` unit system. These use unprefixed symbols (`cup`, `tbsp`, `tsp`) since metric is the international standard for these units.
 
 ```php
-UnitService::loadSystem(UnitSystem::Metric);
-
 $recipe = new Volume(2, 'cup');
 echo $recipe->to('mL');  // 500 mL
 

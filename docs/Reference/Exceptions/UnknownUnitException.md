@@ -9,7 +9,7 @@ Exception thrown when a unit symbol cannot be resolved to a known unit.
 
 ## Overview
 
-`UnknownUnitException` is thrown when a string is provided as a unit symbol but no matching unit is found in the unit registry. This may indicate a typo, an unsupported unit, or that the required system of units has not been loaded via `UnitService::loadSystem()`.
+`UnknownUnitException` is thrown when a string is provided as a unit symbol but no matching unit is found in the unit registry. This may indicate a typo, an unsupported unit, or that the required unit has not been loaded.
 
 Because it extends `DomainException`, existing code that catches `DomainException` will continue to work. The specific exception type allows callers to distinguish unknown-unit errors from other domain errors.
 
@@ -78,4 +78,4 @@ try {
 - **[DimensionMismatchException](DimensionMismatchException.md)** — Related exception for dimension mismatches.
 - **[Unit](../Internal/Unit.md)** — Unit class with `parse()` method.
 - **[UnitTerm](../Internal/UnitTerm.md)** — UnitTerm class with `parse()` method.
-- **[UnitService](../Services/UnitService.md)** — Unit registry and system loading.
+- **[UnitService](../Services/UnitService.md)** — Unit registry and loading.

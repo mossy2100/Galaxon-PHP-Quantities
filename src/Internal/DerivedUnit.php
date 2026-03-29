@@ -13,6 +13,7 @@ use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\RegexService;
+use Galaxon\Quantities\UnitSystem;
 use LogicException;
 use UnexpectedValueException;
 
@@ -272,14 +273,14 @@ class DerivedUnit implements UnitInterface
     }
 
     /**
-     * Determine if a compound unit should ideally be expanded to SI or English base units.
+     * Determine if a unit should ideally be expanded or simplified to SI or English base units.
      *
-     * @return bool True if the derived unit should be expanded to SI base units, false otherwise.
+     * @return bool True if the derived unit should be expanded or simplified to SI base units, false otherwise.
      */
-    public function siExpansionPreferred(): bool
+    public function siPreferred(): bool
     {
         // These SI units can't be used to determine SI compatibility, as they can be used with English units.
-        $commonBaseUnits = ['s', 'mol', 'A', 'cd', 'rad', 'B', 'XAU'];
+        $commonBaseUnits = ['s', 'mol', 'A', 'cd', 'B', 'XAU'];
 
         // Count the number of unambiguously SI vs. English units.
         $nSiUnits = 0;
@@ -293,13 +294,16 @@ class DerivedUnit implements UnitInterface
             }
 
             // Check if the unit is imperial or US customary.
-            if ($unitTerm->unit->isEnglish()) {
+            if (
+                $unitTerm->unit->belongsToSystem(UnitSystem::Imperial) ||
+                $unitTerm->unit->belongsToSystem(UnitSystem::UsCustomary)
+            ) {
                 $nEnglishUnits++;
             }
         }
 
-        // If there are no English units, or if there's at least one unambiguously SI unit, we would prefer to expand to
-        // SI base units.
+        // If there are no English units, or if there's at least one unambiguously SI unit, it would be preferable to
+        // expand to SI base units.
         return $nEnglishUnits === 0 || $nSiUnits > 0;
     }
 
@@ -415,6 +419,19 @@ class DerivedUnit implements UnitInterface
 
         /** @var list<UnitTerm> $unitTerms */
         return new self($unitTerms);
+    }
+
+    // endregion
+
+    // region Binary arithmetic methods
+
+    public function mul(self $other): self
+    {
+        $result = clone $this;
+        foreach ($other->unitTerms as $symbol => $unitTerm) {
+            $result->addUnitTerm($unitTerm);
+        }
+        return $result;
     }
 
     // endregion

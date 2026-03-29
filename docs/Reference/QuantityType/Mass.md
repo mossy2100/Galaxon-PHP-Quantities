@@ -27,7 +27,7 @@ For the complete list of mass units, see [Units: Mass](../../Concepts/Units.md#m
 public static function setImperialParts(): void
 ```
 
-Set the part units for Imperial mass quantities. Configures long ton, stone, pound, and ounce as part units, with pound as the result unit. Also loads Imperial units via `UnitService::loadSystem()`.
+Set the part units for Imperial mass quantities. Configures long ton, stone, pound, and ounce as part units, with pound as the result unit.
 
 ```php
 Mass::setImperialParts();
@@ -45,7 +45,7 @@ echo $cargo->formatParts();   // 2LT 37st 2lb
 public static function setUsCustomaryParts(): void
 ```
 
-Set the part units for US Customary mass quantities. Configures short ton, pound, ounce, and grain as part units, with pound as the result unit. Also loads US Customary units via `UnitService::loadSystem()`.
+Set the part units for US Customary mass quantities. Configures short ton, pound, ounce, and grain as part units, with pound as the result unit.
 
 ```php
 Mass::setUsCustomaryParts();

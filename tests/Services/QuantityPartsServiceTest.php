@@ -12,6 +12,7 @@ use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
+use Galaxon\Quantities\QuantityType\Volume;
 use Galaxon\Quantities\Services\QuantityPartsService;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -323,6 +324,101 @@ final class QuantityPartsServiceTest extends TestCase
         $this->expectExceptionMessage('only the first may be negative');
 
         QuantityPartsService::parseParts(Time::getQuantityType(), '1h -30min');
+    }
+
+    /**
+     * Test parseParts() with spaces between values and units.
+     */
+    public function testParsePartsSpacesBetweenValueAndUnit(): void
+    {
+        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '1 h 30 min 45 s');
+
+        $this->assertInstanceOf(Time::class, $qty);
+        $this->assertEqualsWithDelta(5445.0, $qty->value, 1e-10);
+    }
+
+    /**
+     * Test parseParts() with mixed spacing — some parts with spaces, some without.
+     */
+    public function testParsePartsMixedSpacing(): void
+    {
+        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '1h 30 min 45s');
+
+        $this->assertInstanceOf(Time::class, $qty);
+        $this->assertEqualsWithDelta(5445.0, $qty->value, 1e-10);
+    }
+
+    /**
+     * Test parseParts() with a single part with space between value and unit.
+     */
+    public function testParseParseSinglePartWithSpace(): void
+    {
+        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '90 min');
+
+        $this->assertEqualsWithDelta(5400.0, $qty->value, 1e-10);
+    }
+
+    /**
+     * Test parseParts() with a negative value and space between value and unit.
+     */
+    public function testParsePartsNegativeWithSpace(): void
+    {
+        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '-2 h 15 min');
+
+        $this->assertEqualsWithDelta(-8100.0, $qty->value, 1e-10);
+    }
+
+    /**
+     * Test parseParts() with two-word imperial unit symbol.
+     */
+    public function testParsePartsImperialTwoWordUnit(): void
+    {
+        $originalParts = Volume::getPartUnitSymbols();
+        $originalResult = Volume::getResultUnitSymbol();
+        Volume::setImperialParts();
+        try {
+            $qty = QuantityPartsService::parseParts(Volume::getQuantityType(), '1 imp gal 2 imp pt');
+
+            $this->assertInstanceOf(Volume::class, $qty);
+            $this->assertSame('imp gal', $qty->derivedUnit->asciiSymbol);
+            // 1 imp gal + 2 imp pt = 1 + 2/8 = 1.25 imp gal
+            $this->assertEqualsWithDelta(1.25, $qty->value, 1e-6);
+        } finally {
+            Volume::setPartUnitSymbols($originalParts);
+            Volume::setResultUnitSymbol($originalResult);
+        }
+    }
+
+    /**
+     * Test parseParts() with three-word US customary unit symbol.
+     */
+    public function testParsePartsUsCustomaryThreeWordUnit(): void
+    {
+        $originalParts = Volume::getPartUnitSymbols();
+        $originalResult = Volume::getResultUnitSymbol();
+        Volume::setUsCustomaryParts();
+        try {
+            $qty = QuantityPartsService::parseParts(Volume::getQuantityType(), '1 US gal 4 US fl oz');
+
+            $this->assertInstanceOf(Volume::class, $qty);
+            $this->assertSame('US gal', $qty->derivedUnit->asciiSymbol);
+            // 1 US gal + 4 US fl oz = 1 + 4/128 = 1.03125 US gal
+            $this->assertEqualsWithDelta(1.03125, $qty->value, 1e-6);
+        } finally {
+            Volume::setPartUnitSymbols($originalParts);
+            Volume::setResultUnitSymbol($originalResult);
+        }
+    }
+
+    /**
+     * Test parseParts() throws when a unit word appears without a preceding number.
+     */
+    public function testParsePartsThrowsForUnitWithoutNumber(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('not preceded by a number');
+
+        QuantityPartsService::parseParts(Time::getQuantityType(), 'h 30min');
     }
 
     // endregion

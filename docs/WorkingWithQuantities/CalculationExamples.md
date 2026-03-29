@@ -526,13 +526,11 @@ $force = $rho->mul($volume)->mul($g);
 
 ### Pressure in Imperial units
 
-100 lbf distributed over 10 in². Requires loading Imperial units.
+100 lbf distributed over 10 in².
 
 ```php
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
-
-UnitService::loadSystem(UnitSystem::Imperial);
 
 $force = new Force(100, 'lbf');
 $area = new Area(10, 'in2');
@@ -545,16 +543,7 @@ $psi = $pressure->to('lbf/in2');
 
 ## Aviation
 
-These examples use mixed Imperial, Nautical, and SI units. Load the required systems first:
-
-```php
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
-
-UnitService::loadSystem(UnitSystem::Imperial);
-UnitService::loadSystem(UnitSystem::UsCustomary);
-UnitService::loadSystem(UnitSystem::Nautical);
-```
+These examples use mixed Imperial, Nautical, and SI units.
 
 ### Ground speed: v = d/t
 

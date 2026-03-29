@@ -108,7 +108,6 @@ echo $s;             // 37.5 ch
 echo $s->to('J/K');  // 37.5 J/K
 
 // Example: convert to US customary units.
-UnitService::loadSystem(UnitSystem::UsCustomary);
 echo $s->to('Btu/degR');  // 0.019746 Btu/°R
 ```
 

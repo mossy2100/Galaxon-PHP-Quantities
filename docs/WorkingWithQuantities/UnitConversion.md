@@ -19,10 +19,6 @@ use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 
-// Load Imperial/US units (SI units are loaded by default)
-UnitService::loadSystem(UnitSystem::Imperial);
-UnitService::loadSystem(UnitSystem::UsCustomary);
-
 // Length
 $height = new Length(1.83, 'm');
 echo $height->to('ft');   // 6.003937... ft

@@ -8,12 +8,15 @@ use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
+use Galaxon\Quantities\QuantityType\Area;
+
 use Galaxon\Quantities\QuantityType\Energy;
 use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Frequency;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
+use Galaxon\Quantities\QuantityType\Volume;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -421,6 +424,58 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame('J', $simplified->derivedUnit->asciiSymbol);
     }
 
+    /**
+     * Test simplify() compacts English base units to lbf.
+     */
+    public function testSimplifyEnglishBaseUnitsToLbf(): void
+    {
+        // 1 lbf = 1 lb * g (standard gravity in ft/s2).
+        $qty = Quantity::create(1, 'lb*ft/s2');
+        $simplified = $qty->simplify();
+
+        $this->assertSame('lbf', $simplified->derivedUnit->asciiSymbol);
+        // 1 lb*ft/s2 ≈ 0.031081 lbf
+        $this->assertApproxEqual(0.031081, $simplified->value, 1e-4);
+    }
+
+    /**
+     * Test simplify() on lbf is a no-op.
+     */
+    public function testSimplifyLbfAlreadySimple(): void
+    {
+        $force = new Force(10, 'lbf');
+        $simplified = $force->simplify();
+
+        $this->assertSame(10.0, $simplified->value);
+        $this->assertSame('lbf', $simplified->derivedUnit->asciiSymbol);
+    }
+
+    /**
+     * Test simplify() compacts English area to acres.
+     */
+    public function testSimplifyEnglishAreaToAcres(): void
+    {
+        // 1 acre = 43560 ft2.
+        $area = new Area(43560, 'ft2');
+        $simplified = $area->simplify();
+
+        $this->assertSame('ac', $simplified->derivedUnit->asciiSymbol);
+        $this->assertApproxEqual(1.0, $simplified->value);
+    }
+
+    /**
+     * Test simplify() on English volume produces ac*ft, not gallons.
+     */
+    public function testSimplifyEnglishVolumeAvoidsGallons(): void
+    {
+        $volume = new Volume(1, 'ft3');
+        $simplified = $volume->simplify();
+
+        // Volume should not simplify to US gal or imp gal.
+        // Instead, ac (L2) fits inside L3, leaving ft as remainder.
+        $this->assertSame('ac*ft', $simplified->derivedUnit->asciiSymbol);
+    }
+
     // endregion
 
     // region Round-trip tests
@@ -531,6 +586,84 @@ final class QuantityUnitTransformTest extends TestCase
 
         $this->assertSame('ft', $english->derivedUnit->asciiSymbol);
         $this->assertSame(10.0, $english->value);
+    }
+
+    // endregion
+
+    // region toEnglish() tests
+
+    /**
+     * Test toEnglish() on force simplifies to lbf.
+     */
+    public function testToEnglishForce(): void
+    {
+        $force = new Force(1, 'N');
+        $english = $force->toEnglish();
+
+        $this->assertSame('lbf', $english->derivedUnit->asciiSymbol);
+        // 1 N = 0.224809... lbf
+        $this->assertApproxEqual(0.224809, $english->value, 1e-3);
+    }
+
+    /**
+     * Test toEnglish() on length in meters converts to feet.
+     */
+    public function testToEnglishLength(): void
+    {
+        $length = new Length(1, 'm');
+        $english = $length->toEnglish();
+
+        $this->assertSame('ft', $english->derivedUnit->asciiSymbol);
+        $this->assertApproxEqual(3.28084, $english->value, 1e-3);
+    }
+
+    /**
+     * Test toEnglish() on mass in kilograms converts to pounds.
+     */
+    public function testToEnglishMass(): void
+    {
+        $mass = new Mass(1, 'kg');
+        $english = $mass->toEnglish();
+
+        $this->assertSame('lb', $english->derivedUnit->asciiSymbol);
+        $this->assertApproxEqual(2.20462262, $english->value, 1e-5);
+    }
+
+    /**
+     * Test toEnglish() when already in English units.
+     */
+    public function testToEnglishAlreadyEnglish(): void
+    {
+        $length = new Length(10, 'ft');
+        $english = $length->toEnglish();
+
+        $this->assertSame('ft', $english->derivedUnit->asciiSymbol);
+        $this->assertSame(10.0, $english->value);
+    }
+
+    /**
+     * Test toEnglish() on energy simplifies to Btu.
+     */
+    public function testToEnglishEnergy(): void
+    {
+        $energy = new Energy(1, 'J');
+        $english = $energy->toEnglish();
+
+        // 1 J ≈ 0.000947817 Btu.
+        $this->assertSame('Btu', $english->derivedUnit->asciiSymbol);
+        $this->assertApproxEqual(0.000947817, $english->value, 1e-6);
+    }
+
+    /**
+     * Test toEnglish() on miles simplifies to feet (base English length).
+     */
+    public function testToEnglishMiles(): void
+    {
+        $length = new Length(1, 'mi');
+        $english = $length->toEnglish();
+
+        $this->assertSame('ft', $english->derivedUnit->asciiSymbol);
+        $this->assertSame(5280.0, $english->value);
     }
 
     // endregion
