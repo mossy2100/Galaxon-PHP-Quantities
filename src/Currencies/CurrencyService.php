@@ -83,7 +83,7 @@ class CurrencyService
      *
      * @return ?array{
      *     whenFetched: string,
-     *     definitions: array<string, array{asciiSymbol: string, systems: list<UnitSystem>}>
+     *     currencies: array<string, string>
      * }
      */
     public static function loadUnitData(): ?array

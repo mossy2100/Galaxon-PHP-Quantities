@@ -17,7 +17,7 @@ As with units, prefixes have both ASCII and Unicode symbol representations. Thes
 ### name
 
 ```php
-public readonly string $name
+private(set) string $name
 ```
 
 The full name of the prefix (e.g., 'kilo', 'mega', 'micro').
@@ -25,7 +25,7 @@ The full name of the prefix (e.g., 'kilo', 'mega', 'micro').
 ### asciiSymbol
 
 ```php
-public readonly string $asciiSymbol
+private(set) string $asciiSymbol
 ```
 
 The ASCII symbol for the prefix (e.g., 'k' for kilo, 'u' for micro). Used for parsing and code compatibility.
@@ -33,7 +33,7 @@ The ASCII symbol for the prefix (e.g., 'k' for kilo, 'u' for micro). Used for pa
 ### unicodeSymbol
 
 ```php
-public readonly string $unicodeSymbol
+private(set) string $unicodeSymbol
 ```
 
 The Unicode symbol for the prefix (e.g., 'μ' for micro). Used for display purposes.
@@ -41,7 +41,7 @@ The Unicode symbol for the prefix (e.g., 'μ' for micro). Used for display purpo
 ### multiplier
 
 ```php
-public readonly float $multiplier
+private(set) float $multiplier
 ```
 
 The numeric multiplier the prefix represents. For example:
@@ -52,7 +52,7 @@ The numeric multiplier the prefix represents. For example:
 ### groupCode
 
 ```php
-public readonly int $groupCode
+private(set) int $groupCode
 ```
 
 The prefix group this prefix belongs to. Must be one of the four base group constants (`GROUP_SMALL_METRIC`, `GROUP_MEDIUM_METRIC`, `GROUP_LARGE_METRIC`, or `GROUP_BINARY`), not a combination. See [Prefix Group Constants](../../Concepts/Prefixes.md#prefix-group-constants).
@@ -106,7 +106,7 @@ Check if this prefix is an "engineering" prefix, meaning its multiplier is a pow
 Engineering prefixes are those commonly used in engineering notation: kilo, mega, giga, etc., and milli, micro, nano, etc. Non-engineering prefixes like centi, deci, deca, and hecto, and binary prefixes like kibi and mibi return false.
 
 **Returns:**
-- `bool` - True if the prefix represents a power of 1000 (or 1/1000)
+- `bool` - True if the prefix represents a power of 1000 (or ¹⁄₁₀₀₀)
 
 **Examples:**
 ```php

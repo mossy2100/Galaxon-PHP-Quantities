@@ -229,7 +229,7 @@ Load the currency unit data from the generated PHP cache file.
 **Returns:**
 - `?array` - The cached data array, or `null` if the file does not exist. The array contains:
   - `whenFetched` (string) - Timestamp of when the data was fetched.
-  - `definitions` (array) - Currency definitions keyed by name, each with `asciiSymbol` and `systems`.
+  - `currencies` (array<string, string>) - Currency names mapped to their ISO 4217 codes.
 
 ### loadConversionData()
 

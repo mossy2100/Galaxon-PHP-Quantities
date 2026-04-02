@@ -394,16 +394,6 @@ class DerivedUnit implements UnitInterface
         }
     }
 
-    /**
-     * Sort the unit terms into canonical order.
-     *
-     * @return void
-     */
-    public function sortUnitTerms(): void
-    {
-        uasort($this->unitTerms, self::compareUnitTerms(...));
-    }
-
     // endregion
 
     // region Unary arithmetic methods
@@ -741,6 +731,16 @@ class DerivedUnit implements UnitInterface
 
         // Return the new object.
         return $new;
+    }
+
+    /**
+     * Sort the unit terms into canonical order.
+     *
+     * @return void
+     */
+    private function sortUnitTerms(): void
+    {
+        uasort($this->unitTerms, self::compareUnitTerms(...));
     }
 
     /**

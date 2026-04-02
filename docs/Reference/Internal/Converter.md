@@ -9,20 +9,24 @@ Manages unit conversions for a measurement dimension.
 The `Converter` class is responsible for finding and computing conversions between units of the same physical dimension. It uses the multiton pattern to maintain one instance per dimension (e.g., one for length, one for mass, etc.).
 
 The conversion system works by:
-1. Storing direct conversions from the ConversionService
+1. Storing direct conversions provided by quantity type definitions
 2. Automatically discovering indirect conversion paths via graph traversal
 3. Applying prefix adjustments when converting between prefixed units
 4. Tracking numerical precision to prefer shorter, more accurate paths
 
 All conversions use the linear transformation formula: `destValue = srcValue * factor`
 
-### Key Features
+### Path Discovery Strategies
 
-- Automatic path discovery through conversion graph
-- Precision-aware path selection via error tracking
-- Prefix algebra for prefixed unit conversions
-- Unit expansion (e.g., N → kg\*m\*s⁻²)
-- Unit merging (e.g., m\*ft → m²)
+When `findConversion()` is called, the converter tries these strategies in order (cheapest first), stopping as soon as an exact conversion is found:
+
+1. **Inverse** — if dest->src exists, invert it
+2. **Prefix** — if the units share the same base, compute the prefix ratio
+3. **Exponentiation** — if both units are single-term with the same exponent > 1 (e.g., m2 -> ft2), find the base conversion and raise it to the power
+4. **Unit term pairs** — for compound units with matching term counts, convert each pair individually
+5. **Combination** — compose two known conversions via an intermediate unit (sequential, convergent, divergent, or opposite)
+
+If no exact conversion is found, the converter generates batches of new conversions between all known unit pairs and repeats until the target conversion is discovered or no further progress can be made.
 
 ---
 
@@ -34,7 +38,7 @@ All conversions use the linear transformation formula: `destValue = srcValue * f
 private(set) string $dimension
 ```
 
-The dimension code for this converter (e.g., 'L' for length, 'MLT-2' for force).
+The dimension code for this converter (e.g., `'L'` for length, `'MLT-2'` for force).
 
 ### units
 
@@ -42,103 +46,155 @@ The dimension code for this converter (e.g., 'L' for length, 'MLT-2' for force).
 private(set) array $units
 ```
 
-Array of unprefixed units registered with this converter, keyed by ASCII symbol.
+Units registered with this converter, keyed by ASCII symbol.
+
+Type: `array<string, DerivedUnit>`
+
+### conversionMatrix
+
+```php
+private(set) array $conversionMatrix
+```
+
+Conversion matrix storing known conversions between units.
+
+Type: `array<string, array<string, Conversion>>`
+
+Structure: `$conversionMatrix[$srcSymbol][$destSymbol] = Conversion`
+
+### quantityType
+
+```php
+public ?QuantityType $quantityType { get; }
+```
+
+The quantity type this converter is for (e.g., the `QuantityType` for length), or `null` if the dimension has no registered quantity type. Resolved via `QuantityTypeService::getByDimension()`.
 
 ---
 
-## Factory Methods
+## Instance Management
 
-### getByDimension()
+The `Converter` uses the multiton pattern. The constructor is private; use `getInstance()` to obtain instances.
+
+### getInstance()
 
 ```php
-public static function getByDimension(string $dimension): self
+public static function getInstance(string $dimension): self
 ```
 
-Get the Converter instance for a given dimension.
+Get the Converter instance for a given dimension. Creates a new instance on first access, loading conversion definitions from the registered quantity type.
 
 **Parameters:**
-- `$dimension` (string) - Dimension code (e.g., 'L', 'M', 'MLT-2')
+- `$dimension` (string) - Dimension code (e.g., `'L'`, `'M'`, `'MLT-2'`).
 
-**Returns:**
-- `Converter` - The Converter for this dimension
+**Returns:** `Converter`
 
 **Throws:**
-- `FormatException` - If the dimension code is invalid
+- `FormatException` - If the dimension code is invalid.
 
-**Examples:**
-```php
-$lengthConverter = Converter::getByDimension('L');
-$forceConverter = Converter::getByDimension('MLT-2');
-```
-
-### clear()
+### getInstances()
 
 ```php
-public static function clear(): void
+public static function getInstances(): array
 ```
 
-Clear all Converter instances. Resets the multiton cache, forcing new instances to be created on next access. Primarily intended for test isolation.
+Get all Converter instances created so far.
+
+**Returns:** `array<string, Converter>` - Keyed by dimension code.
+
+### removeInstance()
+
+```php
+public static function removeInstance(string $dimension): void
+```
+
+Remove the cached Converter instance for a given dimension.
+
+### removeAllInstances()
+
+```php
+public static function removeAllInstances(): void
+```
+
+Clear all cached Converter instances. Forces new instances to be created on next access. Primarily intended for test isolation.
 
 ---
 
-## Conversion Methods
+## Unit Methods
 
-### getConversion()
+### hasUnit()
 
 ```php
-public function getConversion(
+public function hasUnit(DerivedUnit $unit): bool
+```
+
+Check if a unit is registered with this converter.
+
+### addUnit()
+
+```php
+public function addUnit(DerivedUnit $unit): void
+```
+
+Add a unit to the converter's unit list. Does nothing if the unit is already present.
+
+### removeUnit()
+
+```php
+public function removeUnit(DerivedUnit $derivedUnit): void
+```
+
+Remove a unit from the unit list.
+
+### removeAllUnits()
+
+```php
+public function removeAllUnits(): void
+```
+
+Remove all units from the unit list.
+
+---
+
+## Conversion Lookup Methods
+
+### findConversion()
+
+```php
+public function findConversion(
     string|UnitInterface $srcUnit,
     string|UnitInterface $destUnit
 ): ?Conversion
 ```
 
-Find the conversion between two units.
+Find the conversion between two units, discovering new paths if necessary.
+
+Returns a cached conversion if available, otherwise discovers a path using the strategies described in the overview. Discovered conversions are cached for future use.
+
+For dimensions containing `'C'` (currency), automatically calls `CurrencyService::refresh()` to ensure fresh exchange rate data.
 
 **Parameters:**
-- `$srcUnit` (string|UnitInterface) - The source unit
-- `$destUnit` (string|UnitInterface) - The destination unit
+- `$srcUnit` (string|UnitInterface) - The source unit.
+- `$destUnit` (string|UnitInterface) - The destination unit.
 
-**Returns:**
-- `?Conversion` - The conversion, or null if no path exists
+**Returns:** `?Conversion` - The conversion, or `null` if no path exists.
 
 **Throws:**
-- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension for this converter
+- `FormatException` - If a unit string cannot be parsed.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension for this converter.
 
-**Behavior:**
-- Returns cached conversion if available
-- Discovers new paths via graph traversal
-- Handles prefix adjustments automatically
-
-**Examples:**
-```php
-$converter = Converter::getByDimension('L');
-$conversion = $converter->getConversion('m', 'ft');
-echo $conversion->factor->value; // 3.28084...
-```
-
-### getConversionFactor()
+### findConversionFactor()
 
 ```php
-public function getConversionFactor(
+public function findConversionFactor(
     string|UnitInterface $srcUnit,
     string|UnitInterface $destUnit
 ): ?float
 ```
 
-Get just the conversion factor between two units.
+Get just the conversion factor between two units. Convenience wrapper around `findConversion()`.
 
-**Parameters:**
-- `$srcUnit` (string|UnitInterface) - The source unit
-- `$destUnit` (string|UnitInterface) - The destination unit
-
-**Returns:**
-- `?float` - The conversion factor, or null if no path exists
-
-**Examples:**
-```php
-$converter = Converter::getByDimension('L');
-$factor = $converter->getConversionFactor('km', 'm'); // 1000.0
-```
+**Returns:** `?float` - The conversion factor, or `null` if no path exists.
 
 ### convert()
 
@@ -153,97 +209,102 @@ public function convert(
 Convert a numeric value from one unit to another.
 
 **Parameters:**
-- `$value` (float) - The value to convert
-- `$srcUnit` (string|UnitInterface) - The source unit
-- `$destUnit` (string|UnitInterface) - The destination unit
+- `$value` (float) - The value to convert.
+- `$srcUnit` (string|UnitInterface) - The source unit.
+- `$destUnit` (string|UnitInterface) - The destination unit.
 
-**Returns:**
-- `float` - The converted value
+**Returns:** `float` - The converted value.
 
 **Throws:**
-- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension
-- `LogicException` - If no conversion path exists
+- `FormatException` - If a unit string cannot be parsed.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension.
+- `LogicException` - If no conversion path exists between the units.
 
-**Examples:**
+### getConversion()
+
 ```php
-$converter = Converter::getByDimension('L');
-$meters = $converter->convert(100, 'ft', 'm'); // 30.48
+public function getConversion(
+    string|DerivedUnit $srcUnit,
+    string|DerivedUnit $destUnit
+): ?Conversion
 ```
+
+Look up a conversion directly from the matrix. Does **not** discover new paths — returns `null` if the conversion is not already cached. Use `findConversion()` for path discovery.
+
+### hasConversion()
+
+```php
+public function hasConversion(
+    string|DerivedUnit $srcUnit,
+    string|DerivedUnit $destUnit
+): bool
+```
+
+Check whether a conversion between two units is already cached in the matrix.
 
 ---
 
-## Static Conversion Methods
+## Conversion Management Methods
 
-### expand()
+### loadConversions()
 
 ```php
-public static function expand(float $value, DerivedUnit $unit): array
+public function loadConversions(bool $replaceExisting = false): void
 ```
 
-Expand named units to their base unit components.
+Load conversion definitions for this converter's dimension from the registered quantity type class.
 
 **Parameters:**
-- `$value` (float) - The value
-- `$unit` (DerivedUnit) - The unit to expand
+- `$replaceExisting` (bool) - If `true`, replace existing conversions between the same units. Default: `false`.
 
-**Returns:**
-- `array{float, DerivedUnit}` - The adjusted value and expanded unit
+**Throws:**
+- `FormatException` - If a unit symbol cannot be parsed.
+- `DomainException` - If the dimensions don't match or the factor is invalid.
+- `LogicException` - If a conversion's dimension doesn't match this converter.
 
-**Behavior:**
-- Converts units like N → kg\*m\*s⁻²
-- Adjusts the value by the expansion factor
-- Recursively expands nested units
-- Merges compatible units after expansion
-
-**Examples:**
-```php
-$unit = DerivedUnit::parse('N');
-[$value, $expanded] = Converter::expand(1.0, $unit);
-echo $expanded->asciiSymbol; // 'kg*m/s2'
-```
-
-### merge()
+### addConversion()
 
 ```php
-public static function merge(float $value, DerivedUnit $unit): array
+public function addConversion(
+    Conversion $conversion,
+    bool $replaceExisting = false
+): bool
 ```
 
-Merge unit terms that share the same dimension.
+Add a conversion to the matrix. Also registers both units.
 
 **Parameters:**
-- `$value` (float) - The value
-- `$unit` (DerivedUnit) - The unit to merge
+- `$conversion` (Conversion) - The conversion to add.
+- `$replaceExisting` (bool) - If `true`, replace any existing conversion between the same units. Default: `false`.
 
-**Returns:**
-- `array{float, DerivedUnit}` - The adjusted value and merged unit
+**Returns:** `bool` - `true` if the conversion was added, `false` if it already existed and was not replaced.
 
-**Behavior:**
-- Converts mixed units like m\*ft → m²
-- Adjusts the value by the conversion factor
-- First unit of each dimension is kept
+**Throws:**
+- `LogicException` - If the conversion's dimension doesn't match this converter.
 
-**Examples:**
-```php
-$unit = DerivedUnit::parse('m*ft');
-[$value, $merged] = Converter::merge(1.0, $unit);
-echo $merged->asciiSymbol; // 'm2'
-echo $value; // 0.3048
-```
-
----
-
-## Modification Methods
-
-### addUnit()
+### removeConversion()
 
 ```php
-public function addUnit(DerivedUnit $derivedUnit): void
+public function removeConversion(Conversion $conversion): void
 ```
 
-Add a unit to this converter. Strips prefixes, and also adds merged and expanded variants if applicable.
+Remove a specific conversion from the matrix.
 
-**Parameters:**
-- `$derivedUnit` (DerivedUnit) - The unit to add
+### removeAllConversions()
+
+```php
+public function removeAllConversions(): void
+```
+
+Remove all conversions from the matrix.
+
+### removeConversionsByUnit()
+
+```php
+public function removeConversionsByUnit(Unit $unit): void
+```
+
+Remove all conversions involving a given unit. Used when unloading a unit from the registry.
 
 ---
 
@@ -268,7 +329,6 @@ echo "$km km"; // 1 km
 
 ```php
 use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\Internal\DerivedUnit;
 
 // Force conversion
 $force = Converter::getInstance('MLT-2');
@@ -279,10 +339,7 @@ $newtons = $force->convert(1, 'lbf', 'N');
 
 ```php
 use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 
-// Now convert
 $volume = Converter::getInstance('L3');
 $liters = $volume->convert(1, 'imp gal', 'L');
 echo "$liters L"; // ~4.546 L (Imperial gallon)
@@ -292,7 +349,8 @@ echo "$liters L"; // ~4.546 L (Imperial gallon)
 
 ## See Also
 
-- **[Conversion](Conversion.md)** - Represents a single unit conversion
-- **[ConversionService](../Services/ConversionService.md)** - Stores registered conversions
-- **[DerivedUnit](DerivedUnit.md)** - Compound unit representation
-- **[Quantity](../Quantity.md)** - Uses Converter for unit conversion
+- **[Conversion](Conversion.md)** - Represents a single unit conversion.
+- **[FloatWithError](FloatWithError.md)** - Tracks precision through operations.
+- **[ConversionService](../Services/ConversionService.md)** - Stores registered conversions.
+- **[DerivedUnit](DerivedUnit.md)** - Compound unit representation.
+- **[Quantity](../Quantity.md)** - Uses Converter for unit conversion.

@@ -14,6 +14,28 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(FrankfurterService::class)]
 class FrankfurterServiceTest extends TestCase
 {
+    /**
+     * Cached conversion definitions from a single API call.
+     *
+     * @var ?list<array{string, string, float}>
+     */
+    private static ?array $definitions = null;
+
+    /**
+     * Lazily fetch conversion definitions, caching the result.
+     *
+     * @return list<array{string, string, float}>
+     */
+    private function getDefinitions(): array
+    {
+        if (self::$definitions === null) {
+            $service = new FrankfurterService();
+            self::$definitions = $service->getConversionDefinitions();
+        }
+
+        return self::$definitions;
+    }
+
     // region getName
 
     public function testGetName(): void
@@ -28,16 +50,13 @@ class FrankfurterServiceTest extends TestCase
 
     public function testGetConversionDefinitionsReturnsArray(): void
     {
-        $service = new FrankfurterService();
-        $definitions = $service->getConversionDefinitions();
-
+        $definitions = $this->getDefinitions();
         self::assertNotEmpty($definitions);
     }
 
     public function testGetConversionDefinitionsStructure(): void
     {
-        $service = new FrankfurterService();
-        $definitions = $service->getConversionDefinitions();
+        $definitions = $this->getDefinitions();
 
         foreach ($definitions as $definition) {
             self::assertCount(3, $definition);
@@ -55,8 +74,7 @@ class FrankfurterServiceTest extends TestCase
 
     public function testGetConversionDefinitionsBaseCurrencyIsEur(): void
     {
-        $service = new FrankfurterService();
-        $definitions = $service->getConversionDefinitions();
+        $definitions = $this->getDefinitions();
 
         // All definitions should have EUR as the base currency.
         foreach ($definitions as $definition) {
@@ -66,8 +84,7 @@ class FrankfurterServiceTest extends TestCase
 
     public function testGetConversionDefinitionsContainsCommonCurrencies(): void
     {
-        $service = new FrankfurterService();
-        $definitions = $service->getConversionDefinitions();
+        $definitions = $this->getDefinitions();
 
         $targetCurrencies = array_map(static fn (array $def) => $def[1], $definitions);
 

@@ -31,7 +31,7 @@ All operations return new instances, maintaining immutability.
 ### srcUnit
 
 ```php
-public readonly DerivedUnit $srcUnit
+private(set) DerivedUnit $srcUnit
 ```
 
 The source unit for the conversion.
@@ -39,7 +39,7 @@ The source unit for the conversion.
 ### destUnit
 
 ```php
-public readonly DerivedUnit $destUnit
+private(set) DerivedUnit $destUnit
 ```
 
 The destination unit for the conversion.
@@ -47,7 +47,7 @@ The destination unit for the conversion.
 ### factor
 
 ```php
-public readonly FloatWithError $factor
+private(set) FloatWithError $factor
 ```
 
 The conversion factor with error tracking. To convert from source to destination, multiply by this factor.
@@ -74,7 +74,9 @@ Create a new Conversion instance.
 - `$factor` (float|FloatWithError) - The conversion factor
 
 **Throws:**
-- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the source and destination units have different dimensions
+- `FormatException` - If either unit is provided as a string that cannot be parsed.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the source and destination units have different dimensions.
+- `DomainException` - If the factor is not positive.
 
 **Examples:**
 ```php

@@ -1718,12 +1718,12 @@ class DerivedUnitTest extends TestCase
 
     // endregion
 
-    // region siExpansionPreferred() tests
+    // region siPreferred() tests
 
     /**
-     * Test siExpansionPreferred returns true for pure SI unit.
+     * Test siPreferred returns true for pure SI unit.
      */
-    public function testSiExpansionPreferredForPureSiUnit(): void
+    public function testSiPreferredForPureSiUnit(): void
     {
         $du = DerivedUnit::parse('kg');
 
@@ -1731,9 +1731,9 @@ class DerivedUnitTest extends TestCase
     }
 
     /**
-     * Test siExpansionPreferred returns false for pure English unit.
+     * Test siPreferred returns false for pure English unit.
      */
-    public function testSiExpansionPreferredReturnsFalseForEnglishUnit(): void
+    public function testSiPreferredReturnsFalseForEnglishUnit(): void
     {
         $du = DerivedUnit::parse('lb');
 
@@ -1741,9 +1741,9 @@ class DerivedUnitTest extends TestCase
     }
 
     /**
-     * Test siExpansionPreferred returns true for mixed SI and English units.
+     * Test siPreferred returns true for mixed SI and English units.
      */
-    public function testSiExpansionPreferredReturnsTrueForMixedUnits(): void
+    public function testSiPreferredReturnsTrueForMixedUnits(): void
     {
         // kg (SI) and ft (English) — has both, but at least one unambiguous SI unit.
         $du = DerivedUnit::parse('kg*ft');
@@ -1752,9 +1752,9 @@ class DerivedUnitTest extends TestCase
     }
 
     /**
-     * Test siExpansionPreferred returns true for common base unit that is ambiguous.
+     * Test siPreferred returns true for common base unit that is ambiguous.
      */
-    public function testSiExpansionPreferredForAmbiguousBaseUnit(): void
+    public function testSiPreferredForAmbiguousBaseUnit(): void
     {
         // 's' is used with both SI and English systems, so it's in the common list.
         // With no English units and no unambiguous SI units, nEnglishUnits === 0 → true.
@@ -1764,9 +1764,9 @@ class DerivedUnitTest extends TestCase
     }
 
     /**
-     * Test siExpansionPreferred returns false for English compound unit.
+     * Test siPreferred returns false for English compound unit.
      */
-    public function testSiExpansionPreferredReturnsFalseForEnglishCompound(): void
+    public function testSiPreferredReturnsFalseForEnglishCompound(): void
     {
         // lb*ft/s2 — lb and ft are English, s is ambiguous.
         $du = DerivedUnit::parse('lb*ft/s2');

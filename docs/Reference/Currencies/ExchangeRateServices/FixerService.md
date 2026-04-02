@@ -51,8 +51,6 @@ Returns the service name: `'Fixer.io'`.
 
 **Returns:** `string`
 
----
-
 ### getConversionDefinitions()
 
 ```php

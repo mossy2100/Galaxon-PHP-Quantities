@@ -522,7 +522,7 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The inverse conversion, or null if not found.
      */
-    public function findConversionByInverse(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByInverse(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         return $this->getConversion($destUnit, $srcUnit)?->inv();
     }
@@ -534,7 +534,7 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The prefixed conversion, or null if not applicable.
      */
-    public function findConversionByPrefix(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByPrefix(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         // Make sure both derived units have only one unit term.
         if (count($srcUnit->unitTerms) !== 1 || count($destUnit->unitTerms) !== 1) {
@@ -552,8 +552,11 @@ class Converter
         }
 
         // Make sure they have the same exponent.
+        // Note, this can't ever happen due to other checks, but we'll leave this here as a defensive guard.
         if ($srcUnitTerm->exponent !== $destUnitTerm->exponent) {
+            // @codeCoverageIgnoreStart
             return null;
+            // @codeCoverageIgnoreEnd
         }
 
         // Calculate the factor and return the conversion.
@@ -570,7 +573,7 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The exponentiated conversion, or null if not applicable.
      */
-    public function findConversionByExponentiation(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByExponentiation(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         // Make sure both derived units have only one unit term.
         if (count($srcUnit->unitTerms) !== 1 || count($destUnit->unitTerms) !== 1) {
@@ -613,7 +616,7 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The combined conversion, or null if not applicable or no path exists.
      */
-    public function findConversionByUnitTermPairs(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByUnitTermPairs(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         // Check the number of unit terms match.
         if (count($srcUnit->unitTerms) !== count($destUnit->unitTerms)) {
@@ -663,7 +666,7 @@ class Converter
      * @param DerivedUnit $destUnit The destination unit.
      * @return ?Conversion The conversion, or null if no conversion by this method is found.
      */
-    public function findConversionByCombination(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByCombination(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
     {
         $src = $srcUnit->asciiSymbol;
         $dest = $destUnit->asciiSymbol;

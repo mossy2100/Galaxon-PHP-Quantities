@@ -935,25 +935,6 @@ class ConverterTest extends TestCase
 
     // endregion
 
-    // region findConversionByPrefix() tests
-
-    /**
-     * Test findConversionByPrefix returns null when exponents differ.
-     */
-    public function testFindConversionByPrefixReturnsNullForDifferentExponents(): void
-    {
-        $converter = Converter::getInstance('L2');
-
-        $m2 = DerivedUnit::parse('m2');
-        $m3 = DerivedUnit::parse('m3');
-
-        $result = $converter->findConversionByPrefix($m2, $m3);
-
-        $this->assertNull($result);
-    }
-
-    // endregion
-
     // region addConversion() tests
 
     /**

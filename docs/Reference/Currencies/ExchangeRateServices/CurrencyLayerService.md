@@ -49,8 +49,6 @@ Returns the service name: `'CurrencyLayer'`.
 
 **Returns:** `string`
 
----
-
 ### getConversionDefinitions()
 
 ```php

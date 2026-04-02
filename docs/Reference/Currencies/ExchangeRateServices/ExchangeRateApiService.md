@@ -49,8 +49,6 @@ Returns the service name: `'ExchangeRate-API'`.
 
 **Returns:** `string`
 
----
-
 ### getConversionDefinitions()
 
 ```php

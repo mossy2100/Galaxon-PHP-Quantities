@@ -19,7 +19,7 @@ Key behaviors:
 - Automatic term combination for like units
 - Multiple parsing formats (multiplication, division, parentheses)
 - Dimension code calculation from component terms
-- Immutable transformations (inv, pow, toSiBase)
+- Immutable transformations (inv, mul, pow, toSiBase, toEnglishBase)
 - Equatable via the `Equatable` trait
 
 ---
@@ -34,13 +34,23 @@ private(set) array $unitTerms
 
 Array of unit terms the DerivedUnit comprises, keyed by the unit symbol without exponent. Unit terms with the same base are automatically combined.
 
+Type: `array<string, UnitTerm>`
+
 ### dimension
 
 ```php
 private(set) string $dimension
 ```
 
-The dimension code of the derived unit. Calculated from the component unit terms. Defaults to '' (empty string) for dimensionless units (i.e. scalars).
+The dimension code of the derived unit. Calculated from the component unit terms. Defaults to `''` (empty string) for dimensionless units (i.e. scalars).
+
+### expansion
+
+```php
+private(set) ?Quantity $expansion
+```
+
+The cached expansion quantity from `tryExpand()`, or `null` if not yet computed or no expansion exists.
 
 ### asciiSymbol
 
@@ -72,7 +82,15 @@ The combined multiplier from all unit term prefixes, accounting for exponents. F
 public ?UnitTerm $firstUnitTerm { get; }
 ```
 
-The first unit term in the derived unit, or null if empty. Useful for applying prefixes or checking unit properties.
+The first unit term in the derived unit, or `null` if empty.
+
+### quantityType
+
+```php
+public ?QuantityType $quantityType { get; }
+```
+
+The quantity type this derived unit is for (e.g., the `QuantityType` for length), or `null` if the dimension has no registered quantity type. Resolved via `QuantityTypeService::getByDimension()`.
 
 ---
 
@@ -87,10 +105,10 @@ public function __construct(null|Unit|UnitTerm|array $unit = null)
 Construct a new DerivedUnit instance.
 
 **Parameters:**
-- `$unit` (null|Unit|UnitTerm|array) - The unit, unit term, or array of unit terms, or null for empty
+- `$unit` (null|Unit|UnitTerm|list\<Unit|UnitTerm\>) - The unit, unit term, or array of unit terms, or `null` for empty.
 
 **Throws:**
-- `DomainException` - If the provided unit is invalid
+- `DomainException` - If the provided unit is invalid.
 
 **Examples:**
 ```php
@@ -117,24 +135,17 @@ $velocity = new DerivedUnit([
 public static function toDerivedUnit(null|string|UnitInterface $value): self
 ```
 
-Convert any unit representation to a DerivedUnit.
+Convert any unit representation to a DerivedUnit. Returns the same instance if already a DerivedUnit.
 
 **Parameters:**
-- `$value` (null|string|UnitInterface) - The value to convert
+- `$value` (null|string|UnitInterface) - The value to convert.
 
-**Returns:**
-- `DerivedUnit` - The equivalent DerivedUnit
+**Returns:** `DerivedUnit`
 
 **Throws:**
-- `FormatException` - If a string cannot be parsed
-- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a string contains unknown units
-
-**Examples:**
-```php
-$unit = DerivedUnit::toDerivedUnit('m/s');
-$unit = DerivedUnit::toDerivedUnit($unitTerm);
-$unit = DerivedUnit::toDerivedUnit(null); // Empty unit
-```
+- `FormatException` - If a string cannot be parsed.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a string contains unknown units.
+- `DomainException` - If a string contains a zero exponent.
 
 ### parse()
 
@@ -145,15 +156,14 @@ public static function parse(string $symbol): self
 Parse a string into a DerivedUnit.
 
 **Parameters:**
-- `$symbol` (string) - The unit symbol (e.g., 'm', 'kg\*m/s2', 'J/(mol\*K)')
+- `$symbol` (string) - The unit symbol (e.g., `'m'`, `'kg*m/s2'`, `'J/(mol*K)'`).
 
-**Returns:**
-- `DerivedUnit` - The parsed DerivedUnit
+**Returns:** `DerivedUnit`
 
 **Throws:**
-- `FormatException` - If the format is invalid
-- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If any units are unknown
-- `LogicException` - If there was a parsing error
+- `FormatException` - If the format is invalid.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If any units are unknown.
+- `DomainException` - If an exponent is zero.
 
 **Behavior:**
 - Supports multiplication: `kg⋅m`, `kg.m`, `kg*m`
@@ -180,19 +190,13 @@ public function isDimensionless(): bool
 
 Check if this derived unit is dimensionless (has no unit terms).
 
-**Returns:**
-- `bool` - True if dimensionless
-
 ### isSi()
 
 ```php
 public function isSi(): bool
 ```
 
-Check if all unit terms belong to the SI system.
-
-**Returns:**
-- `bool` - True if all units are SI units
+Check if all unit terms belong to the SI system. Dimensionless units are not considered SI.
 
 ### isBase()
 
@@ -200,10 +204,7 @@ Check if all unit terms belong to the SI system.
 public function isBase(): bool
 ```
 
-Check if all unit terms are base units (single-dimension units, not expandable).
-
-**Returns:**
-- `bool` - True if all units are base units. Also true if dimensionless (empty unit terms).
+Check if all unit terms are base units (single-dimension units, not expandable). Also true if dimensionless (empty unit terms).
 
 ### isSiBase()
 
@@ -211,10 +212,7 @@ Check if all unit terms are base units (single-dimension units, not expandable).
 public function isSiBase(): bool
 ```
 
-Check if this derived unit is equivalent to its SI base form. Compares the unit with the result of `toSiBase()`.
-
-**Returns:**
-- `bool` - True if the unit equals its SI base equivalent. Also true if dimensionless.
+Check if this derived unit is equivalent to its SI base form. Compares the unit with the result of `toSiBase()`. Also true if dimensionless.
 
 ### isMergeable()
 
@@ -222,19 +220,17 @@ Check if this derived unit is equivalent to its SI base form. Compares the unit 
 public function isMergeable(): bool
 ```
 
-Check if any two unit terms share the same dimension and could be merged.
+Check if any two unit terms share the same unit dimension and could be merged. For example, a derived unit containing both `'m'` and `'ft'` returns true since both have dimension `'L'`.
 
-**Returns:**
-- `bool` - True if at least two terms share a dimension
+### siPreferred()
 
-**Examples:**
 ```php
-$mixed = DerivedUnit::parse('m*ft');
-$mixed->isMergeable(); // true (both are length)
-
-$velocity = DerivedUnit::parse('m/s');
-$velocity->isMergeable(); // false (different dimensions)
+public function siPreferred(): bool
 ```
+
+Determine whether SI or English base units are preferred for expansion/simplification.
+
+Returns `true` if the unit contains no unambiguously English units, or if it contains at least one unambiguously SI unit. Units like `s`, `mol`, `A`, `cd`, `B`, and `XAU` are considered ambiguous (used with both systems) and are excluded from the count.
 
 ### hasPrefixes()
 
@@ -244,88 +240,33 @@ public function hasPrefixes(): bool
 
 Check if any unit term has a prefix.
 
-**Returns:**
-- `bool` - True if at least one term has a prefix
+### includesUnit()
+
+```php
+public function includesUnit(Unit $unit): bool
+```
+
+Check if the DerivedUnit includes the given unit in any of its terms.
+
+**Parameters:**
+- `$unit` (Unit) - The unit to check.
 
 ---
 
-## Transformation Methods
+## Comparison Methods
 
-### inv()
-
-```php
-public function inv(): self
-```
-
-Return a new DerivedUnit with all exponents negated.
-
-**Returns:**
-- `DerivedUnit` - A new instance with inverted exponents
-
-**Examples:**
-```php
-$velocity = DerivedUnit::parse('m/s');
-$invVelocity = $velocity->inv(); // s/m
-```
-
-### pow()
+### equal()
 
 ```php
-public function pow(int $exponent): self
+public function equal(mixed $other): bool
 ```
 
-Return a new DerivedUnit raised to a power.
+Check if this derived unit equals another. Compares by ASCII symbol.
 
 **Parameters:**
-- `$exponent` (int) - The power to raise to
+- `$other` (mixed) - The value to compare.
 
-**Returns:**
-- `DerivedUnit` - A new instance with multiplied exponents
-
-**Examples:**
-```php
-$length = DerivedUnit::parse('m');
-$area = $length->pow(2);  // m2
-$volume = $length->pow(3); // m3
-```
-
-### toSiBase()
-
-```php
-public function toSiBase(): self
-```
-
-Convert the DerivedUnit to its SI base unit equivalent. This includes the special units designated as SI base for this system: rad, B, and XAU.
-
-**Returns:**
-- `DerivedUnit` - A new DerivedUnit with SI base units
-
-**Throws:**
-- `DomainException` - If any dimension codes are invalid
-- `LogicException` - If any dimension codes lack SI base units
-
-**Examples:**
-```php
-$force = DerivedUnit::parse('N');
-$base = $force->toSiBase(); // kg⋅m⋅s⁻²
-```
-
-### removePrefixes()
-
-```php
-public function removePrefixes(): self
-```
-
-Return a new DerivedUnit with all prefixes removed.
-
-**Returns:**
-- `DerivedUnit` - A new instance without prefixes
-
-**Examples:**
-```php
-$prefixed = DerivedUnit::parse('km/ms');
-$unprefixed = $prefixed->removePrefixes(); // m/s
-```
+**Returns:** `bool` - True if both are `DerivedUnit` instances with the same ASCII symbol.
 
 ---
 
@@ -340,12 +281,12 @@ public function addUnitTerm(UnitTerm $newUnitTerm): void
 Add a unit term, combining exponents with any existing term of the same unit.
 
 **Parameters:**
-- `$newUnitTerm` (UnitTerm) - The unit term to add
+- `$newUnitTerm` (UnitTerm) - The unit term to add.
 
 **Behavior:**
-- If a term with the same base exists, exponents are added
-- If the resulting exponent is zero, the term is removed
-- Terms are automatically sorted into canonical order
+- If a term with the same base exists, exponents are added.
+- If the resulting exponent is zero, the term is removed.
+- Terms are automatically sorted into canonical order.
 
 ### removeUnitTerm()
 
@@ -356,33 +297,153 @@ public function removeUnitTerm(UnitTerm $unitTermToRemove): void
 Remove a unit term.
 
 **Parameters:**
-- `$unitTermToRemove` (UnitTerm) - The unit term to remove
-
-### sortUnitTerms()
-
-```php
-public function sortUnitTerms(): void
-```
-
-Sort the unit terms into canonical order. Called automatically by `addUnitTerm()`.
+- `$unitTermToRemove` (UnitTerm) - The unit term to remove.
 
 ---
 
-## Comparison Methods
+## Unary Arithmetic Methods
 
-### equal()
+### inv()
 
 ```php
-public function equal(mixed $other): bool
+public function inv(): self
 ```
 
-Check if this derived unit equals another.
+Return a new DerivedUnit with all exponents negated.
+
+**Returns:** `DerivedUnit` - A new instance with inverted exponents.
+
+**Examples:**
+```php
+$velocity = DerivedUnit::parse('m/s');
+$invVelocity = $velocity->inv(); // s/m
+```
+
+---
+
+## Binary Arithmetic Methods
+
+### mul()
+
+```php
+public function mul(self $other): self
+```
+
+Multiply this DerivedUnit by another, combining unit terms. Same-unit exponents are added (e.g., m⋅m² = m³), and terms that cancel to zero are removed.
 
 **Parameters:**
-- `$other` (mixed) - The value to compare
+- `$other` (DerivedUnit) - The DerivedUnit to multiply by.
 
-**Returns:**
-- `bool` - True if both have the same unit terms with same exponents
+**Returns:** `DerivedUnit` - A new instance representing the product.
+
+**Examples:**
+```php
+$length = DerivedUnit::parse('m');
+$time = DerivedUnit::parse('s');
+$velocity = $length->mul($time->inv()); // m/s
+```
+
+---
+
+## Power Methods
+
+### pow()
+
+```php
+public function pow(int $exponent): self
+```
+
+Return a new DerivedUnit raised to a power. Each unit term's exponent is multiplied by the given value.
+
+**Parameters:**
+- `$exponent` (int) - The power to raise to.
+
+**Returns:** `DerivedUnit` - A new instance with multiplied exponents.
+
+**Examples:**
+```php
+$length = DerivedUnit::parse('m');
+$area = $length->pow(2);  // m2
+$volume = $length->pow(3); // m3
+```
+
+---
+
+## Transformation Methods
+
+### toSiBase()
+
+```php
+public function toSiBase(): self
+```
+
+Convert the DerivedUnit to its SI base unit equivalent. This includes the special units designated as SI base for this system: rad, B, and XAU.
+
+**Returns:** `DerivedUnit`
+
+**Throws:**
+- `DomainException` - If any dimension codes are invalid.
+- `LogicException` - If any dimension codes lack SI base units.
+
+**Examples:**
+```php
+$force = DerivedUnit::parse('N');
+$base = $force->toSiBase(); // kg⋅m⋅s⁻²
+```
+
+### toEnglishBase()
+
+```php
+public function toEnglishBase(): self
+```
+
+Convert the DerivedUnit to its English base unit equivalent. For dimensions without an English base unit (e.g., time), falls back to the SI base unit.
+
+**Returns:** `DerivedUnit`
+
+**Throws:**
+- `DomainException` - If any dimension codes are invalid.
+- `LogicException` - If any dimension codes lack a base unit.
+
+**Examples:**
+```php
+$force = DerivedUnit::parse('lbf');
+$base = $force->toEnglishBase(); // lb⋅ft⋅s⁻²
+```
+
+### removePrefixes()
+
+```php
+public function removePrefixes(): self
+```
+
+Return a new DerivedUnit with all prefixes removed from all unit terms.
+
+**Returns:** `DerivedUnit`
+
+**Examples:**
+```php
+$prefixed = DerivedUnit::parse('km/ms');
+$unprefixed = $prefixed->removePrefixes(); // m/s
+```
+
+### merge()
+
+```php
+public function merge(): Quantity
+```
+
+Merge unit terms that share the same unit dimension (e.g., `'m'` and `'ft'`). The first unit encountered of a given dimension is kept; subsequent units of the same dimension are converted to it.
+
+**Returns:** `Quantity` - A new Quantity with the merged derived unit and the conversion factor as the value.
+
+**Examples:**
+```php
+$mixed = DerivedUnit::parse('m*ft');
+$merged = $mixed->merge();
+echo $merged->derivedUnit; // m²
+echo $merged->value;       // 0.3048
+```
 
 ---
 
@@ -397,16 +458,15 @@ public function format(bool $ascii = false): string
 Format the derived unit as a string.
 
 **Parameters:**
-- `$ascii` (bool) - If true, return ASCII format; if false (default), return Unicode format
+- `$ascii` (bool) - If `true`, return ASCII format; if `false` (default), return Unicode format.
 
-**Returns:**
-- `string` - The formatted unit symbol
+**Returns:** `string` - The formatted unit symbol.
 
 **Behavior:**
-- ASCII uses '*' for multiplication and digit exponents
-- Unicode uses dot operator (⋅) for multiplication and superscript exponents
-- Negative exponents in denominator are shown as positive after '/'
-- Multiple denominator terms use parentheses: `J/(mol*K)`
+- ASCII uses `'*'` for multiplication and digit exponents.
+- Unicode uses dot operator (`⋅`) for multiplication and superscript exponents.
+- Negative exponents in denominator are shown as positive after `'/'`.
+- Multiple denominator terms use parentheses: `J/(mol*K)`.
 
 ### \_\_toString()
 
@@ -415,9 +475,6 @@ public function __toString(): string
 ```
 
 Convert to string using Unicode format.
-
-**Returns:**
-- `string` - The Unicode representation
 
 ---
 
@@ -465,21 +522,21 @@ use Galaxon\Quantities\Internal\DerivedUnit;
 $length = DerivedUnit::parse('m');
 $time = DerivedUnit::parse('s');
 
-// Calculate velocity unit: m * s-1
-$velocity = new DerivedUnit();
-foreach ($length->unitTerms as $term) {
-    $velocity->addUnitTerm($term);
-}
-$velocity->addUnitTerm($time->firstUnitTerm->inv());
-
+// Calculate velocity unit: m/s
+$velocity = $length->mul($time->inv());
 echo $velocity->asciiSymbol; // 'm/s'
+
+// Square it for area
+$area = $length->pow(2);
+echo $area->asciiSymbol; // 'm2'
 ```
 
 ---
 
 ## See Also
 
-- **[Unit](Unit.md)** - Simple unit representation
-- **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent
-- **[UnitInterface](UnitInterface.md)** - Interface implemented by all unit types
-- **[Quantity](../Quantity.md)** - Uses DerivedUnit for unit representation
+- **[Unit](Unit.md)** - Simple unit representation.
+- **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent.
+- **[UnitInterface](UnitInterface.md)** - Interface implemented by all unit types.
+- **[Quantity](../Quantity.md)** - Uses DerivedUnit for unit representation.
+- **[Converter](Converter.md)** - Uses DerivedUnit for conversion path discovery.

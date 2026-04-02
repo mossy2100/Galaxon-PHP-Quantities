@@ -60,7 +60,7 @@ This property is useful for comparing the precision of different conversion path
 public function __construct(float $value, ?float $error = null)
 ```
 
-Create a new FloatWithError instance.
+Create a new `FloatWithError` instance.
 
 **Parameters:**
 - `$value` (float) - The numeric value
@@ -112,7 +112,36 @@ $float->isExactInt(); // false
 
 ---
 
-## Arithmetic Methods
+## Unary Arithmetic Methods
+
+### neg()
+
+```php
+public function neg(): self
+```
+
+Negate this value. Error magnitude is unchanged.
+
+**Returns:**
+- `FloatWithError` - A new instance with the negated value and the same error.
+
+### inv()
+
+```php
+public function inv(): self
+```
+
+Return the multiplicative inverse (1/value). Relative error is preserved.
+
+**Returns:**
+- `FloatWithError` - A new instance with the inverted value and propagated error.
+
+**Throws:**
+- `DivisionByZeroError` - If the value is zero.
+
+---
+
+## Binary Arithmetic Methods
 
 ### add()
 
@@ -148,17 +177,6 @@ Subtract another value from this one, accumulating errors.
 
 **Behavior:**
 - Absolute errors add directly (subtraction has the same error propagation as addition)
-
-### neg()
-
-```php
-public function neg(): self
-```
-
-Negate this value. Error magnitude is unchanged.
-
-**Returns:**
-- `FloatWithError` - A new instance with the negated value and the same error
 
 ### mul()
 
@@ -215,26 +233,9 @@ $speed = $distance->div($time);
 echo $speed->value; // 16.666...
 ```
 
-### inv()
+---
 
-```php
-public function inv(): self
-```
-
-Return the multiplicative inverse (1/value).
-
-**Returns:**
-- `FloatWithError` - A new instance with the inverted value and propagated error
-
-**Throws:**
-- `DivisionByZeroError` - If the value is zero
-
-**Examples:**
-```php
-$factor = new FloatWithError(2.54);  // inches to cm
-$inverse = $factor->inv();           // cm to inches
-echo $inverse->value; // 0.3937...
-```
+## Power Methods
 
 ### pow()
 
@@ -256,7 +257,7 @@ Raise this value to an integer power.
 **Behavior:**
 - Relative error multiplies by |exponent|
 - Negative exponents are supported (equivalent to 1/value^|exponent|)
-- Exponent of 0 returns 1.0 with propagated error
+- Exponent of 0 returns 1.0 with zero error
 - Exponent of 1 returns same value with propagated error
 
 **Examples:**

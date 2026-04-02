@@ -18,6 +18,12 @@ services.
 
 ---
 
+## Constructor
+
+This class has no constructor parameters. Simply instantiate with `new FrankfurterService()`.
+
+---
+
 ## Methods
 
 ### getName()

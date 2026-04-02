@@ -8,7 +8,7 @@ Represents a unit of measurement.
 
 The `Unit` class represents a single unit of measurement such as meter, gram, or hertz. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
 
-Units can be "expandable", meaning they can be decomposed into more fundamental units. For example, the newton (N) expands to kg\*m/s2. Expansion information is stored directly on the Unit via the `expansionUnitSymbol` and `expansionValue` properties.
+Units can be "expandable", meaning they can be decomposed into more fundamental base units. For example, the newton (N) expands to kg\*m/s2. Expansion is discovered at runtime via the conversion graph.
 
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality comparisons.
 
@@ -18,7 +18,7 @@ The class implements `UnitInterface` and uses the `Equatable` trait for value-ba
 - Optional alternate symbol for parser compatibility
 - Configurable prefix acceptance via group codes
 - Measurement system classification
-- Expansion support for derived SI units
+- Expansion discovery for derived units via conversion graph
 - Validation of symbol formats
 
 ---
@@ -31,7 +31,7 @@ The class implements `UnitInterface` and uses the `Equatable` trait for value-ba
 private(set) string $name
 ```
 
-The unit name (e.g., 'meter', 'gram', 'hertz').
+The unit name (e.g., `'meter'`, `'gram'`, `'hertz'`).
 
 ### asciiSymbol
 
@@ -39,7 +39,7 @@ The unit name (e.g., 'meter', 'gram', 'hertz').
 private(set) string $asciiSymbol
 ```
 
-The ASCII unit symbol (e.g., 'm', 'g', 'Hz'). Used for parsing and code compatibility.
+The ASCII unit symbol (e.g., `'m'`, `'g'`, `'Hz'`). Used for parsing and code compatibility.
 
 ### unicodeSymbol
 
@@ -47,7 +47,7 @@ The ASCII unit symbol (e.g., 'm', 'g', 'Hz'). Used for parsing and code compatib
 private(set) string $unicodeSymbol
 ```
 
-The Unicode symbol (e.g., 'Ω' for ohm, '°' for degree). Used for display purposes. Defaults to the ASCII symbol if not provided.
+The Unicode symbol (e.g., `'Ω'` for ohm, `'°'` for degree). Used for display purposes. Defaults to the ASCII symbol if not provided.
 
 ### alternateSymbol
 
@@ -55,7 +55,7 @@ The Unicode symbol (e.g., 'Ω' for ohm, '°' for degree). Used for display purpo
 private(set) ?string $alternateSymbol
 ```
 
-An additional symbol accepted by the parser. This can only be a single ASCII letter or special character, and cannot accept prefixes. Examples are ' for arcminutes (alternate to the prime symbol ′) and " for arcseconds (alternate to the double-prime symbol ″). Not used for output.
+An additional symbol accepted by the parser. This can only be a single ASCII letter or special character, and cannot accept prefixes. Examples: `'` for arcminutes (alternate to the prime symbol `′`) and `"` for arcseconds (alternate to the double-prime symbol `″`). Not used for output. Default: `null`.
 
 ### dimension
 
@@ -63,7 +63,7 @@ An additional symbol accepted by the parser. This can only be a single ASCII let
 private(set) string $dimension
 ```
 
-The dimension code (e.g., 'L', 'M', 'T-1'). See [DimensionService](DimensionService.md).
+The dimension code (e.g., `'L'`, `'M'`, `'T-1'`). Normalized via `DimensionService::normalize()` at construction time.
 
 ### prefixGroup
 
@@ -71,7 +71,7 @@ The dimension code (e.g., 'L', 'M', 'T-1'). See [DimensionService](DimensionServ
 private(set) int $prefixGroup
 ```
 
-Bitwise flags indicating which prefixes are allowed (0 if none).
+Bitwise flags indicating which prefixes are allowed (0 if none). See `PrefixService::GROUP_*` constants.
 
 ### systems
 
@@ -79,37 +79,17 @@ Bitwise flags indicating which prefixes are allowed (0 if none).
 private(set) array $systems
 ```
 
-The measurement systems this unit belongs to (list of UnitSystem enum values).
+The measurement systems this unit belongs to.
 
-### expansionUnitSymbol
+Type: `list<UnitSystem>`
 
-```php
-private(set) ?string $expansionUnitSymbol
-```
-
-The unit symbol this unit expands to (e.g., 'kg\*m/s2' for newton). Null for non-expandable units.
-
-### expansionValue
+### expansion
 
 ```php
-private(set) ?float $expansionValue
+private(set) ?Quantity $expansion
 ```
 
-The conversion factor for the expansion (e.g., 1.0 for newton to kg\*m/s2). Defaults to 1.0 when `expansionUnitSymbol` is set. Null for non-expandable units.
-
----
-
-## Property Hooks
-
-### expansionUnit
-
-```php
-public ?DerivedUnit $expansionUnit { get; }
-```
-
-The derived unit for the expansion, lazily parsed from `expansionUnitSymbol`. Returns `null` for non-expandable units.
-
-For example, for newton this returns a DerivedUnit object representing `kg*m/s2`.
+The cached expansion quantity if known, or `null` if no expansion exists. Populated internally when the conversion graph discovers a path from this unit to base units.
 
 ### allowedPrefixes
 
@@ -117,15 +97,29 @@ For example, for newton this returns a DerivedUnit object representing `kg*m/s2`
 public array $allowedPrefixes { get; }
 ```
 
-List of Prefix objects allowed for this unit, based on the `prefixGroup` flags.
+List of `Prefix` objects allowed for this unit, based on the `prefixGroup` flags. Retrieved via `PrefixService::getPrefixes()`.
+
+Type: `list<Prefix>`
 
 ### symbols
 
 ```php
-public array $symbols { get; }
+private(set) array $symbols { get; }
 ```
 
-All symbol variants for the unit, including ASCII, Unicode, alternate, and all prefixed versions.
+All symbol variants for the unit, including ASCII, Unicode, alternate, and all prefixed versions. Lazy-loaded and cached on first access.
+
+Keyed by the full symbol string (e.g., `'km'`, `'μm'`, `'°C'`). Each value is a tuple of `[unitSymbol, prefixSymbol]` where `prefixSymbol` is `null` for unprefixed variants.
+
+Type: `array<string, array{string, ?string}>`
+
+### quantityType
+
+```php
+public ?QuantityType $quantityType { get; }
+```
+
+The quantity type this unit is for (e.g., the `QuantityType` for length), or `null` if the dimension has no registered quantity type. Resolved via `QuantityTypeService::getByDimension()`.
 
 ---
 
@@ -137,35 +131,31 @@ All symbol variants for the unit, including ASCII, Unicode, alternate, and all p
 public function __construct(
     string $name,
     string $asciiSymbol,
-    ?string $unicodeSymbol,
     string $dimension,
+    array $systems = [UnitSystem::Custom],
     int $prefixGroup = 0,
-    ?string $alternateSymbol = null,
-    array $systems = [],
-    ?string $expansionUnitSymbol = null,
-    ?float $expansionValue = null
+    ?string $unicodeSymbol = null,
+    ?string $alternateSymbol = null
 )
 ```
 
 Create a new Unit instance.
 
 **Parameters:**
-- `$name` (string) - The unit name (e.g., 'meter')
-- `$asciiSymbol` (string) - The ASCII symbol (e.g., 'm')
-- `$unicodeSymbol` (?string) - The Unicode symbol, or null if same as ASCII
-- `$dimension` (string) - The dimension code (e.g., 'L')
-- `$prefixGroup` (int) - Bitwise flags for allowed prefixes (default: 0)
-- `$alternateSymbol` (?string) - Additional accepted symbol (default: null)
-- `$systems` (array) - List of UnitSystem enum values (default: [])
-- `$expansionUnitSymbol` (?string) - The unit symbol this unit expands to (default: null)
-- `$expansionValue` (?float) - The expansion conversion factor, defaults to 1.0 when expansionUnitSymbol is set (default: null)
+- `$name` (string) - The unit name (e.g., `'meter'`). Must be 1-3 words of ASCII letters.
+- `$asciiSymbol` (string) - The ASCII symbol (e.g., `'m'`). Must be ASCII letters only (empty allowed for dimensionless).
+- `$dimension` (string) - The dimension code (e.g., `'L'`). Normalized via `DimensionService::normalize()`.
+- `$systems` (list\<UnitSystem\>) - The measurement systems. Default: `[UnitSystem::Custom]`.
+- `$prefixGroup` (int) - Bitwise flags for allowed prefixes. Default: `0`.
+- `$unicodeSymbol` (?string) - The Unicode symbol, or `null` to use the ASCII symbol. Default: `null`.
+- `$alternateSymbol` (?string) - Additional accepted symbol. Default: `null`.
 
 **Throws:**
-- `FormatException` - If unit symbols contain invalid characters
-- `DomainException` - If the dimension code is invalid
+- `FormatException` - If any symbol or name contains invalid characters.
+- `DomainException` - If the systems array is empty or the prefix group is out of range.
+- `InvalidArgumentException` - If the systems array contains non-UnitSystem values.
 
 **Examples:**
-
 ```php
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Services\PrefixService;
@@ -175,21 +165,19 @@ use Galaxon\Quantities\UnitSystem;
 $meter = new Unit(
     name: 'meter',
     asciiSymbol: 'm',
-    unicodeSymbol: null,
     dimension: 'L',
-    prefixGroup: PrefixService::GROUP_METRIC,
-    systems: [UnitSystem::Si]
+    systems: [UnitSystem::Si],
+    prefixGroup: PrefixService::GROUP_METRIC
 );
 
-// Expandable derived unit
-$newton = new Unit(
-    name: 'newton',
-    asciiSymbol: 'N',
-    unicodeSymbol: null,
-    dimension: 'MLT-2',
-    prefixGroup: PrefixService::GROUP_METRIC,
+// Unit with Unicode symbol
+$ohm = new Unit(
+    name: 'ohm',
+    asciiSymbol: 'ohm',
+    dimension: 'T-3L2MI-2',
     systems: [UnitSystem::Si],
-    expansionUnitSymbol: 'kg*m/s2'
+    prefixGroup: PrefixService::GROUP_METRIC,
+    unicodeSymbol: 'Ω'
 );
 ```
 
@@ -203,24 +191,16 @@ $newton = new Unit(
 public static function parse(string $symbol): self
 ```
 
-Parse a unit symbol and return the matching Unit.
+Parse a unit symbol and return the matching Unit from the registry.
 
 **Parameters:**
-- `$symbol` (string) - The unit symbol to parse
+- `$symbol` (string) - The unit symbol to parse (e.g., `'m'`, `'kg'`, `'Hz'`, `'Ω'`).
 
-**Returns:**
-- `Unit` - The matching Unit
+**Returns:** `Unit`
 
 **Throws:**
-- `FormatException` - If the symbol contains invalid characters
-- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the symbol is not recognized
-
-**Examples:**
-```php
-$meter = Unit::parse('m');
-$newton = Unit::parse('N');
-$degree = Unit::parse('deg');
-```
+- `FormatException` - If the symbol contains invalid characters.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the symbol is not recognized.
 
 ---
 
@@ -235,10 +215,7 @@ public function belongsToSystem(UnitSystem $system): bool
 Check if this unit belongs to a specific measurement system.
 
 **Parameters:**
-- `$system` (UnitSystem) - The system to check
-
-**Returns:**
-- `bool` - True if the unit belongs to the system
+- `$system` (UnitSystem) - The system to check.
 
 ### isSi()
 
@@ -248,19 +225,13 @@ public function isSi(): bool
 
 Check if this unit belongs to the SI system.
 
-**Returns:**
-- `bool` - True if the unit is an SI unit
-
 ### isBase()
 
 ```php
 public function isBase(): bool
 ```
 
-Check if this unit is a base unit. A base unit has a single-character dimension code (e.g., 'L', 'M', 'T').
-
-**Returns:**
-- `bool` - True if the unit is a base unit
+Check if this unit is a base unit. A base unit has a dimension code of at most one character (e.g., `'L'`, `'M'`, `'T'`, or `''` for dimensionless).
 
 ### acceptsPrefix()
 
@@ -271,16 +242,13 @@ public function acceptsPrefix(string|Prefix $prefix): bool
 Check if a specific prefix is allowed for this unit.
 
 **Parameters:**
-- `$prefix` (string|Prefix) - The prefix to check
-
-**Returns:**
-- `bool` - True if the prefix is allowed
+- `$prefix` (string|Prefix) - The prefix symbol or object to check.
 
 **Examples:**
 ```php
 $meter = Unit::parse('m');
-$meter->acceptsPrefix('k'); // true (kilo)
-$meter->acceptsPrefix('c'); // true (centi)
+$meter->acceptsPrefix('k');  // true (kilo)
+$meter->acceptsPrefix('Ki'); // false (binary prefix)
 ```
 
 ---
@@ -293,13 +261,12 @@ $meter->acceptsPrefix('c'); // true (centi)
 public function equal(mixed $other): bool
 ```
 
-Check if this unit equals another.
+Check if this unit equals another. Compares by ASCII symbol.
 
 **Parameters:**
-- `$other` (mixed) - The value to compare
+- `$other` (mixed) - The value to compare.
 
-**Returns:**
-- `bool` - True if both units have the same ASCII symbol
+**Returns:** `bool` - True if both are `Unit` instances with the same ASCII symbol.
 
 ---
 
@@ -314,10 +281,9 @@ public function format(bool $ascii = false): string
 Format the unit as a string.
 
 **Parameters:**
-- `$ascii` (bool) - If true, return ASCII symbol; if false (default), return Unicode symbol
+- `$ascii` (bool) - If `true`, return ASCII symbol; if `false` (default), return Unicode symbol.
 
-**Returns:**
-- `string` - The formatted unit symbol
+**Returns:** `string` - The formatted unit symbol.
 
 ### \_\_toString()
 
@@ -326,9 +292,6 @@ public function __toString(): string
 ```
 
 Convert the unit to a string using the Unicode symbol.
-
-**Returns:**
-- `string` - The Unicode symbol
 
 ---
 
@@ -347,7 +310,7 @@ echo $unit->isSi();     // true
 
 // Check expansion
 if ($unit->expansion !== null) {
-    echo $unit->expansionUnit->asciiSymbol; // 'kg*m/s2'
+    echo $unit->expansion->derivedUnit->asciiSymbol; // 'kg*m/s2'
 }
 ```
 
@@ -367,16 +330,17 @@ foreach ($prefixes as $prefix) {
 
 // Get all symbol variants
 $symbols = $meter->symbols;
-// ['m', 'km', 'mm', 'um', 'nm', ...]
+// ['m' => [...], 'km' => [...], 'mm' => [...], ...]
 ```
 
 ---
 
 ## See Also
 
-- **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent
-- **[DerivedUnit](DerivedUnit.md)** - Compound unit representation
-- **[UnitInterface](UnitInterface.md)** - Interface for all unit types
-- **[RegexService](RegexService.md)** - Centralised regex patterns and validation
-- **[UnitService](../Services/UnitService.md)** - Registry for looking up units
-- **[UnitSystem](../UnitSystem.md)** - Measurement system classification
+- **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent.
+- **[DerivedUnit](DerivedUnit.md)** - Compound unit representation.
+- **[UnitInterface](UnitInterface.md)** - Interface for all unit types.
+- **[Prefix](Prefix.md)** - SI and binary prefix representation.
+- **[UnitService](../Services/UnitService.md)** - Registry for looking up units.
+- **[DimensionService](../Services/DimensionService.md)** - Utilities for working with dimension codes.
+- **[UnitSystem](../UnitSystem.md)** - Measurement system classification.
