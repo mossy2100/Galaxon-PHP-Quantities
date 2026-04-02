@@ -44,14 +44,6 @@ private(set) string $dimension
 
 The dimension code of the derived unit. Calculated from the component unit terms. Defaults to `''` (empty string) for dimensionless units (i.e. scalars).
 
-### expansion
-
-```php
-private(set) ?Quantity $expansion
-```
-
-The cached expansion quantity from `tryExpand()`, or `null` if not yet computed or no expansion exists.
-
 ### asciiSymbol
 
 ```php
@@ -106,9 +98,6 @@ Construct a new DerivedUnit instance.
 
 **Parameters:**
 - `$unit` (null|Unit|UnitTerm|list\<Unit|UnitTerm\>) - The unit, unit term, or array of unit terms, or `null` for empty.
-
-**Throws:**
-- `DomainException` - If the provided unit is invalid.
 
 **Examples:**
 ```php
@@ -180,6 +169,37 @@ $frequency = DerivedUnit::parse('s-1');
 
 ---
 
+## Construction Methods
+
+### addUnitTerm()
+
+```php
+public function addUnitTerm(UnitTerm $newUnitTerm): void
+```
+
+Add a unit term, combining exponents with any existing term of the same unit.
+
+**Parameters:**
+- `$newUnitTerm` (UnitTerm) - The unit term to add.
+
+**Behavior:**
+- If a term with the same base exists, exponents are added.
+- If the resulting exponent is zero, the term is removed.
+- Terms are automatically sorted into canonical order.
+
+### removeUnitTerm()
+
+```php
+public function removeUnitTerm(UnitTerm $unitTermToRemove): void
+```
+
+Remove a unit term.
+
+**Parameters:**
+- `$unitTermToRemove` (UnitTerm) - The unit term to remove.
+
+---
+
 ## Inspection Methods
 
 ### isDimensionless()
@@ -206,14 +226,6 @@ public function isBase(): bool
 
 Check if all unit terms are base units (single-dimension units, not expandable). Also true if dimensionless (empty unit terms).
 
-### isSiBase()
-
-```php
-public function isSiBase(): bool
-```
-
-Check if this derived unit is equivalent to its SI base form. Compares the unit with the result of `toSiBase()`. Also true if dimensionless.
-
 ### isMergeable()
 
 ```php
@@ -228,7 +240,7 @@ Check if any two unit terms share the same unit dimension and could be merged. F
 public function siPreferred(): bool
 ```
 
-Determine whether SI or English base units are preferred for expansion/simplification.
+Determine whether SI or English base units are preferred for expansion or simplification.
 
 Returns `true` if the unit contains no unambiguously English units, or if it contains at least one unambiguously SI unit. Units like `s`, `mol`, `A`, `cd`, `B`, and `XAU` are considered ambiguous (used with both systems) and are excluded from the count.
 
@@ -267,37 +279,6 @@ Check if this derived unit equals another. Compares by ASCII symbol.
 - `$other` (mixed) - The value to compare.
 
 **Returns:** `bool` - True if both are `DerivedUnit` instances with the same ASCII symbol.
-
----
-
-## Manipulation Methods
-
-### addUnitTerm()
-
-```php
-public function addUnitTerm(UnitTerm $newUnitTerm): void
-```
-
-Add a unit term, combining exponents with any existing term of the same unit.
-
-**Parameters:**
-- `$newUnitTerm` (UnitTerm) - The unit term to add.
-
-**Behavior:**
-- If a term with the same base exists, exponents are added.
-- If the resulting exponent is zero, the term is removed.
-- Terms are automatically sorted into canonical order.
-
-### removeUnitTerm()
-
-```php
-public function removeUnitTerm(UnitTerm $unitTermToRemove): void
-```
-
-Remove a unit term.
-
-**Parameters:**
-- `$unitTermToRemove` (UnitTerm) - The unit term to remove.
 
 ---
 
@@ -370,6 +351,14 @@ $volume = $length->pow(3); // m3
 ---
 
 ## Transformation Methods
+
+### \_\_clone()
+
+```php
+public function __clone(): void
+```
+
+Deep-clone the DerivedUnit, including all unit terms. The underlying `Unit` objects are not cloned as they are immutable.
 
 ### toSiBase()
 

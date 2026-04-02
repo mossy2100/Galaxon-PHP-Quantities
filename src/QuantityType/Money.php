@@ -15,7 +15,7 @@ use Override;
  */
 class Money extends Quantity
 {
-    // region Static methods
+    // region Overridden methods
 
     /**
      * Unit definitions for currencies.
@@ -54,10 +54,6 @@ class Money extends Quantity
         $conversionData = CurrencyService::loadConversionData();
         return $conversionData['definitions'] ?? [];
     }
-
-    // endregion
-
-    // region Conversion methods
 
     /**
      * Convert the currency value to a string.

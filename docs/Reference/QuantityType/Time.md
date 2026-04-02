@@ -64,7 +64,7 @@ echo $time->toDateIntervalSpecifier();  // P0D
 public function toDateInterval(): DateInterval
 ```
 
-Convert to a PHP DateInterval object.
+Convert to a PHP DateInterval object. More accurate than `toDateIntervalSpecifier()` because fractional seconds are preserved via the DateInterval's `$f` (microseconds) property, rather than rounding to the nearest second.
 
 ```php
 $time = new Time(3661, 's');  // 1 hour, 1 minute, 1 second

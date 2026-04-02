@@ -8,8 +8,6 @@ Represents a unit of measurement.
 
 The `Unit` class represents a single unit of measurement such as meter, gram, or hertz. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
 
-Units can be "expandable", meaning they can be decomposed into more fundamental base units. For example, the newton (N) expands to kg\*m/s2. Expansion is discovered at runtime via the conversion graph.
-
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality comparisons.
 
 ### Key Features
@@ -18,7 +16,6 @@ The class implements `UnitInterface` and uses the `Equatable` trait for value-ba
 - Optional alternate symbol for parser compatibility
 - Configurable prefix acceptance via group codes
 - Measurement system classification
-- Expansion discovery for derived units via conversion graph
 - Validation of symbol formats
 
 ---
@@ -82,14 +79,6 @@ private(set) array $systems
 The measurement systems this unit belongs to.
 
 Type: `list<UnitSystem>`
-
-### expansion
-
-```php
-private(set) ?Quantity $expansion
-```
-
-The cached expansion quantity if known, or `null` if no expansion exists. Populated internally when the conversion graph discovers a path from this unit to base units.
 
 ### allowedPrefixes
 
@@ -304,14 +293,9 @@ use Galaxon\Quantities\Services\UnitService;
 
 $unit = UnitService::getBySymbol('N');
 
-echo $unit->name;       // 'newton'
-echo $unit->dimension;  // 'MLT-2'
-echo $unit->isSi();     // true
-
-// Check expansion
-if ($unit->expansion !== null) {
-    echo $unit->expansion->derivedUnit->asciiSymbol; // 'kg*m/s2'
-}
+echo $unit->name;        // 'newton'
+echo $unit->asciiSymbol; // 'N'
+echo $unit->dimension;   // 'MLT-2'
 ```
 
 ### Working with Prefixes

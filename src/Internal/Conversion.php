@@ -122,7 +122,7 @@ class Conversion implements Stringable
 
     // endregion
 
-    // region Arithmetic methods
+    // region Unary arithmetic methods
 
     /**
      * Invert this conversion to go from destination unit back to source unit.
@@ -142,6 +142,10 @@ class Conversion implements Stringable
         // Swap the units when inverting.
         return new self($this->destUnit, $this->srcUnit, $m);
     }
+
+    // endregion
+
+    // region Power methods
 
     /**
      * Create a new conversion by applying an exponent.

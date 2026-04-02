@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use DateInterval;
 use DateMalformedIntervalStringException;
+use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
@@ -91,7 +92,7 @@ class Time extends Quantity
 
     // endregion
 
-    // region DateInterval-related methods
+    // region DateInterval methods
 
     /**
      * Create a Time from a PHP DateInterval object.
@@ -171,18 +172,21 @@ class Time extends Quantity
      */
     public function toDateInterval(): DateInterval
     {
-        // Get the specifier string using absolute value to avoid floor() sign issues.
-        $spec = $this->abs()->to('s')->floor()->toDateIntervalSpecifier();
+        // Get the absolute value to avoid sign issues.
+        $abs = $this->abs();
+
+        // Get the specifier string. Use floor() to omit microseconds, which must be added separately.
+        $spec = $abs->to('s')->floor()->toDateIntervalSpecifier();
 
         // Construct the DateInterval.
         $dateInterval = new DateInterval($spec);
 
         // Add microseconds from the fractional part of seconds.
-        $parts = $this->toParts();
+        $parts = $abs->toParts();
         $seconds = $parts['s'] ?? 0;
-        $fraction = $seconds - floor($seconds);
-        if ($fraction > 0) {
-            $dateInterval->f = $fraction;
+        $frac = Floats::frac($seconds);
+        if ($frac > 0) {
+            $dateInterval->f = $frac;
         }
 
         // If the time value is negative, invert the DateInterval.

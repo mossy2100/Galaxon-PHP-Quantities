@@ -171,7 +171,7 @@ Length::parse('123 kg');  // DimensionMismatchException
 
 ---
 
-## Static Methods
+## Utility Methods
 ### convert()
 
 ```php
@@ -206,79 +206,6 @@ $celsius = Quantity::convert(100, 'degF', 'degC');
 
 // Convert 5 miles to kilometres.
 $km = Quantity::convert(5, 'mi', 'km');
-```
-
-### getUnitDefinitions()
-
-```php
-public static function getUnitDefinitions(): array
-```
-
-Get the unit definitions for this quantity type.
-
-Returns an empty array in the base `Quantity` class. Overridden in subclasses (e.g. `Length`, `Mass`, `Force`) to define the units specific to that quantity type. Each entry specifies the unit's ASCII symbol, optional Unicode symbol, prefix group, and unit systems.
-
-These definitions are loaded by `UnitService` when a unit system is initialised.
-
-**Returns:**
-- `array` - An associative array of unit definitions keyed by unit name.
-
-### getConversionDefinitions()
-
-```php
-public static function getConversionDefinitions(): array
-```
-
-Get the conversion definitions for this quantity type.
-
-Returns an empty array in the base `Quantity` class. Overridden in subclasses to define conversion factors between units. Each entry is a tuple of `[sourceUnit, destUnit, factor]`.
-
-These definitions are loaded by `ConversionService` when a unit system is initialised.
-
-**Returns:**
-- `list<array{string, string, float}>` - A list of conversion definition tuples.
-
-### getQuantityType()
-
-```php
-public static function getQuantityType(): ?QuantityType
-```
-
-Get the quantity type metadata for the calling class.
-
-Returns the registered `QuantityType` for the calling subclass, or null if called on `Quantity` itself or an unregistered subclass.
-
-**Returns:**
-- `?QuantityType` - The quantity type, or null if not registered.
-
-**Examples:**
-```php
-$type = Length::getQuantityType();
-$type->name;       // 'length'
-$type->dimension;  // 'L'
-
-Quantity::getQuantityType();  // null
-```
-
-### getDimension()
-
-```php
-public static function getDimension(): ?string
-```
-
-Get the dimension code for the calling class.
-
-Returns the dimension code (e.g. `'L'` for Length, `'M'` for Mass) if the calling class is a registered quantity type subclass. Returns null if called on `Quantity` itself or an unregistered subclass.
-
-**Returns:**
-- `?string` - The dimension code, or null if not registered.
-
-**Examples:**
-```php
-Length::getDimension();       // 'L'
-Mass::getDimension();         // 'M'
-Temperature::getDimension();  // 'H'
-Quantity::getDimension();     // null
 ```
 
 ---
@@ -405,79 +332,56 @@ $base = $force->toBase();  // lb*ft/s2
 
 ---
 
-## Unit Transformation Methods
+## Comparison Methods
 
-### merge()
-
-```php
-public function merge(): self
-```
-
-Merge units with the same dimension (e.g., m\*ft -> m2).
-
-The first unit encountered of a given dimension will be the one any others are converted to.
-
-**Returns:**
-- `Quantity` - A new Quantity with merged units.
-
-### autoPrefix()
+### compare()
 
 ```php
-public function autoPrefix(): self
+public function compare(mixed $other): int
 ```
 
-Apply the best engineering prefix to the first unit term.
+Compare two Quantities for ordering.
 
-The best prefix is the one that produces the smallest value greater than or equal to 1. Only engineering prefixes (multiples of 1000) are considered.
+**Parameters:**
+- `$other` (mixed) - The value to compare with.
 
 **Returns:**
-- `Quantity` - A new Quantity with optimal prefix.
+- `int` - -1 if less, 0 if equal, 1 if greater.
+
+**Throws:**
+- `IncomparableTypesException` - If other is not a Quantity.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If quantities have different dimensions.
+
+### approxEqual()
+
+```php
+public function approxEqual(
+    mixed $other,
+    float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
+    float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
+): bool
+```
+
+Check if two Quantities are approximately equal within tolerances.
+
+**Parameters:**
+- `$other` (mixed) - The value to compare with.
+- `$relTol` (float) - Relative tolerance.
+- `$absTol` (float) - Absolute tolerance.
+
+**Returns:**
+- `bool` - True if approximately equal.
 
 **Examples:**
 ```php
-$length = new Length(0.001, 'm');
-$prefixed = $length->autoPrefix();  // 1 mm
-
-$length = new Length(1000000, 'm');
-$prefixed = $length->autoPrefix();  // 1000 km
+$a = new Length(1, 'km');
+$b = new Length(1000.0001, 'm');
+$a->approxEqual($b);  // true
 ```
-
-### simplify()
-
-```php
-public function simplify(): self
-```
-
-Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
-
-To auto-prefix the result, chain with `autoPrefix()`.
-
-**Returns:**
-- `Quantity` - A new Quantity with simplified units.
 
 ---
 
-## Value Transformation Methods
-
-### withValue()
-
-```php
-public function withValue(float $value): self
-```
-
-Create a new Quantity with the same unit but a different value.
-
-**Parameters:**
-- `$value` (float) - The new numeric value.
-
-**Returns:**
-- `Quantity` - A new Quantity with the given value in the same unit.
-
-**Examples:**
-```php
-$length = new Length(10, 'm');
-$doubled = $length->withValue(20);  // 20 m
-```
+## Unary Arithmetic Methods
 
 ### abs()
 
@@ -490,65 +394,6 @@ Get the absolute value of this measurement.
 **Returns:**
 - `Quantity` - A new Quantity with non-negative value.
 
-### round()
-
-```php
-public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): self
-```
-
-Round the value to a given number of decimal places.
-
-**Parameters:**
-- `$precision` (int) - Number of decimal places. Default: `0`.
-- `$mode` (RoundingMode) - The rounding mode. Default: `RoundingMode::HalfAwayFromZero`.
-
-**Returns:**
-- `Quantity` - A new Quantity with the rounded value in the same unit.
-
-**Examples:**
-```php
-$length = new Length(1.5678, 'm');
-$rounded = $length->round(2);  // 1.57 m
-```
-
-### floor()
-
-```php
-public function floor(): self
-```
-
-Round the value down to the nearest integer.
-
-**Returns:**
-- `Quantity` - A new Quantity with the value rounded down, in the same unit.
-
-**Examples:**
-```php
-$length = new Length(1.9, 'm');
-$floored = $length->floor();  // 1 m
-```
-
-### ceil()
-
-```php
-public function ceil(): self
-```
-
-Round the value up to the nearest integer.
-
-**Returns:**
-- `Quantity` - A new Quantity with the value rounded up, in the same unit.
-
-**Examples:**
-```php
-$length = new Length(1.1, 'm');
-$ceiled = $length->ceil();  // 2 m
-```
-
----
-
-## Arithmetic Methods
-
 ### neg()
 
 ```php
@@ -559,6 +404,24 @@ Negate this measurement.
 
 **Returns:**
 - `Quantity` - A new Quantity with negated value.
+
+### inv()
+
+```php
+public function inv(): self
+```
+
+Invert this quantity (1/x).
+
+**Returns:**
+- `Quantity` - A new Quantity with inverted value and unit.
+
+**Throws:**
+- `DivisionByZeroError` - If value is zero.
+
+---
+
+## Binary Arithmetic Methods
 
 ### add()
 
@@ -655,6 +518,10 @@ When dividing by a scalar, the unit is preserved. When dividing by a Quantity or
 **Throws:**
 - `DivisionByZeroError` - If dividing by zero.
 
+---
+
+## Power Methods
+
 ### pow()
 
 ```php
@@ -693,68 +560,136 @@ $velocity = Quantity::create(3, 'm/s');
 $result = $velocity->sqr();  // 9 m2/s2
 ```
 
-### inv()
-
-```php
-public function inv(): self
-```
-
-Invert this quantity (1/x).
-
-**Returns:**
-- `Quantity` - A new Quantity with inverted value and unit.
-
-**Throws:**
-- `DivisionByZeroError` - If value is zero.
-
 ---
 
-## Comparison Methods
+## Rounding Methods
 
-### compare()
-
-```php
-public function compare(mixed $other): int
-```
-
-Compare two Quantities for ordering.
-
-**Parameters:**
-- `$other` (mixed) - The value to compare with.
-
-**Returns:**
-- `int` - -1 if less, 0 if equal, 1 if greater.
-
-**Throws:**
-- `IncomparableTypesException` - If other is not a Quantity.
-- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If quantities have different dimensions.
-
-### approxEqual()
+### round()
 
 ```php
-public function approxEqual(
-    mixed $other,
-    float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
-    float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
-): bool
+public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): self
 ```
 
-Check if two Quantities are approximately equal within tolerances.
+Round the value to a given number of decimal places.
 
 **Parameters:**
-- `$other` (mixed) - The value to compare with.
-- `$relTol` (float) - Relative tolerance.
-- `$absTol` (float) - Absolute tolerance.
+- `$precision` (int) - Number of decimal places. Default: `0`.
+- `$mode` (RoundingMode) - The rounding mode. Default: `RoundingMode::HalfAwayFromZero`.
 
 **Returns:**
-- `bool` - True if approximately equal.
+- `Quantity` - A new Quantity with the rounded value in the same unit.
 
 **Examples:**
 ```php
-$a = new Length(1, 'km');
-$b = new Length(1000.0001, 'm');
-$a->approxEqual($b);  // true
+$length = new Length(1.5678, 'm');
+$rounded = $length->round(2);  // 1.57 m
 ```
+
+### floor()
+
+```php
+public function floor(): self
+```
+
+Round the value down to the nearest integer.
+
+**Returns:**
+- `Quantity` - A new Quantity with the value rounded down, in the same unit.
+
+**Examples:**
+```php
+$length = new Length(1.9, 'm');
+$floored = $length->floor();  // 1 m
+```
+
+### ceil()
+
+```php
+public function ceil(): self
+```
+
+Round the value up to the nearest integer.
+
+**Returns:**
+- `Quantity` - A new Quantity with the value rounded up, in the same unit.
+
+**Examples:**
+```php
+$length = new Length(1.1, 'm');
+$ceiled = $length->ceil();  // 2 m
+```
+
+---
+
+## Transformation Methods
+
+### withValue()
+
+```php
+public function withValue(float $value): self
+```
+
+Create a new Quantity with the same unit but a different value.
+
+**Parameters:**
+- `$value` (float) - The new numeric value.
+
+**Returns:**
+- `Quantity` - A new Quantity with the given value in the same unit.
+
+**Examples:**
+```php
+$length = new Length(10, 'm');
+$doubled = $length->withValue(20);  // 20 m
+```
+
+### merge()
+
+```php
+public function merge(): self
+```
+
+Merge units with the same dimension (e.g., m\*ft -> m2).
+
+The first unit encountered of a given dimension will be the one any others are converted to.
+
+**Returns:**
+- `Quantity` - A new Quantity with merged units.
+
+### autoPrefix()
+
+```php
+public function autoPrefix(): self
+```
+
+Apply the best engineering prefix to the first unit term.
+
+The best prefix is the one that produces the smallest value greater than or equal to 1. Only engineering prefixes (multiples of 1000) are considered.
+
+**Returns:**
+- `Quantity` - A new Quantity with optimal prefix.
+
+**Examples:**
+```php
+$length = new Length(0.001, 'm');
+$prefixed = $length->autoPrefix();  // 1 mm
+
+$length = new Length(1000000, 'm');
+$prefixed = $length->autoPrefix();  // 1000 km
+```
+
+### simplify()
+
+```php
+public function simplify(): self
+```
+
+Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
+
+To auto-prefix the result, chain with `autoPrefix()`.
+
+**Returns:**
+- `Quantity` - A new Quantity with simplified units.
 
 ---
 
@@ -867,6 +802,85 @@ Convert to string using default formatting.
 
 ---
 
+## Subclass Methods
+
+These methods provide information from or about Quantity subclasses (e.g. `Angle`, `Time`, etc.).
+
+### getUnitDefinitions()
+
+```php
+public static function getUnitDefinitions(): array
+```
+
+Get the unit definitions for this quantity type.
+
+Returns an empty array in the base `Quantity` class. Overridden in subclasses (e.g. `Length`, `Mass`, `Force`) to define the units specific to that quantity type. Each entry specifies the unit's ASCII symbol, optional Unicode symbol, prefix group, and unit systems.
+
+These definitions are loaded by `UnitService` when a unit system is initialised.
+
+**Returns:**
+- `array` - An associative array of unit definitions keyed by unit name.
+
+### getConversionDefinitions()
+
+```php
+public static function getConversionDefinitions(): array
+```
+
+Get the conversion definitions for this quantity type.
+
+Returns an empty array in the base `Quantity` class. Overridden in subclasses to define conversion factors between units. Each entry is a tuple of `[sourceUnit, destUnit, factor]`.
+
+These definitions are loaded by `ConversionService` when a unit system is initialised.
+
+**Returns:**
+- `list<array{string, string, float}>` - A list of conversion definition tuples.
+
+### getQuantityType()
+
+```php
+public static function getQuantityType(): ?QuantityType
+```
+
+Get the quantity type metadata for the calling class.
+
+Returns the registered `QuantityType` for the calling subclass, or null if called on `Quantity` itself or an unregistered subclass.
+
+**Returns:**
+- `?QuantityType` - The quantity type, or null if not registered.
+
+**Examples:**
+```php
+$type = Length::getQuantityType();
+$type->name;       // 'length'
+$type->dimension;  // 'L'
+
+Quantity::getQuantityType();  // null
+```
+
+### getDimension()
+
+```php
+public static function getDimension(): ?string
+```
+
+Get the dimension code for the calling class.
+
+Returns the dimension code (e.g. `'L'` for Length, `'M'` for Mass) if the calling class is a registered quantity type subclass. Returns null if called on `Quantity` itself or an unregistered subclass.
+
+**Returns:**
+- `?string` - The dimension code, or null if not registered.
+
+**Examples:**
+```php
+Length::getDimension();       // 'L'
+Mass::getDimension();         // 'M'
+Temperature::getDimension();  // 'H'
+Quantity::getDimension();     // null
+```
+
+---
+
 ## Parts Methods
 
 Parts methods allow decomposing a quantity into multiple unit components (e.g. hours, minutes, seconds) and reconstructing from them.
@@ -877,7 +891,7 @@ Parts methods allow decomposing a quantity into multiple unit components (e.g. h
 public static function getDefaultPartUnitSymbols(): array
 ```
 
-Get the default part unit symbols for output methods.
+Get the default part unit symbols for `toParts()` and `formatParts()`.
 
 **Returns:**
 - `list<string>` - The default unit symbols.
@@ -888,7 +902,7 @@ Get the default part unit symbols for output methods.
 public static function setDefaultPartUnitSymbols(array $symbols): void
 ```
 
-Set the default part unit symbols for output methods.
+Set the default part unit symbols for `toParts()` and `formatParts()`.
 
 **Parameters:**
 - `$symbols` (list\<string\>) - The unit symbols from largest to smallest.
@@ -904,7 +918,7 @@ Set the default part unit symbols for output methods.
 public static function getDefaultResultUnitSymbol(): string
 ```
 
-Get the default result unit symbol for input methods.
+Get the default result unit symbol for `fromParts()` and `parseParts()`.
 
 **Returns:**
 - `string` - The default result unit symbol.
@@ -915,7 +929,7 @@ Get the default result unit symbol for input methods.
 public static function setDefaultResultUnitSymbol(string $symbol): void
 ```
 
-Set the default result unit symbol for input methods.
+Set the default result unit symbol for `fromParts()` and `parseParts()`.
 
 **Parameters:**
 - `$symbol` (string) - The unit symbol.

@@ -327,6 +327,8 @@ final class UnitTest extends TestCase
 
     // endregion
 
+    // region acceptsPrefix() and allowedPrefixes tests
+
     /**
      * Test acceptsPrefix returns true for valid metric prefix with string.
      */
@@ -1086,34 +1088,6 @@ final class UnitTest extends TestCase
         $this->assertInstanceOf(Quantity::class, $expansion);
         $this->assertEqualsWithDelta(9.80665 / 0.3048, $expansion->value, 1e-4);
         $this->assertSame('lb*ft/s2', $expansion->derivedUnit->asciiSymbol);
-    }
-
-    /**
-     * Test expansion property is null before tryExpand and populated after.
-     */
-    public function testExpansionPropertyPopulatedAfterTryExpand(): void
-    {
-        $unit = UnitService::getBySymbol('J');
-        $this->assertInstanceOf(Unit::class, $unit);
-
-        // Calling tryExpand populates the expansion property.
-        $expansion = $unit->tryExpand();
-
-        $this->assertNotNull($expansion);
-        $this->assertSame($expansion, $unit->expansion);
-    }
-
-    /**
-     * Test expansion property remains null for base unit after tryExpand.
-     */
-    public function testExpansionPropertyRemainsNullForBaseUnit(): void
-    {
-        $unit = UnitService::getBySymbol('m');
-        $this->assertInstanceOf(Unit::class, $unit);
-
-        $unit->tryExpand();
-
-        $this->assertNull($unit->expansion);
     }
 
     // endregion

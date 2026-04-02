@@ -69,7 +69,7 @@ class Unit implements UnitInterface
     /**
      * The expansion quantity, if one exists and is known.
      */
-    private(set) ?Quantity $expansion = null;
+    private ?Quantity $expansion = null;
 
     // endregion
 
@@ -310,6 +310,22 @@ class Unit implements UnitInterface
 
     // endregion
 
+    // region Comparison methods
+
+    /**
+     * Check if this Unit is equal to another.
+     *
+     * @param mixed $other The other value to compare.
+     * @return bool True if equal, false otherwise.
+     */
+    #[Override]
+    public function equal(mixed $other): bool
+    {
+        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
+    }
+
+    // endregion
+
     // region Conversion methods
 
     /**
@@ -341,32 +357,15 @@ class Unit implements UnitInterface
 
     // endregion
 
-    // region Comparison methods
+    // region Helper methods
 
     /**
-     * Check if this Unit is equal to another.
+     * Attempt to expand this unit into base units.
      *
-     * @param mixed $other The other value to compare.
-     * @return bool True if equal, false otherwise.
-     */
-    #[Override]
-    public function equal(mixed $other): bool
-    {
-        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
-    }
-
-    // endregion
-
-    // region Transformation methods
-
-    /**
-     * Look for an expansion conversion for this unit.
-     *
-     * That means a conversion from a non-base unit to a base unit.
-     * If the provided unit is a base unit, or if no expansion conversion is found, return null.
-     *
-     * A conversion with a factor of 1 is a direct expansion and is returned first.
-     * If not found, the conversion with the least relative error will be returned.
+     * That relies on a conversion from a non-base unit to a base unit.
+     * If the provided unit is a base unit, or if no expansion quantity is found, return null.
+     * A conversion with a factor of 1 is a direct expansion and is preferred.
+     * If not found, the conversion with the least relative error will be used.
      *
      * Note, new expansion conversions can be discovered. For example, an expansion of eV is not defined, but there is a
      * conversion from eV to J, which has an expansion to kg*m2/s2. Therefore, even though the first time this method is
@@ -413,17 +412,13 @@ class Unit implements UnitInterface
             }
         }
 
-        // If an expansion conversion was found, convert it to a Quantity and remember it.
+        // If an expansion conversion was found, convert it to a Quantity and cache it in the private property.
         if ($bestConversion !== null) {
             $this->expansion = Quantity::create($bestConversion->factor->value, $bestConversion->destUnit);
         }
 
         return $this->expansion;
     }
-
-    // endregion
-
-    // region Private static helper methods
 
     /**
      * Helper method to add a symbol to the unit's symbol list.

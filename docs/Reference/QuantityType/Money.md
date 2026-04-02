@@ -26,9 +26,17 @@ See [CurrencyService](../Currencies/CurrencyService.md) for setup details.
 
 ---
 
-## Currency Formatting
+## Overridden Methods
 
-`Money` overrides `__toString()` to produce locale-specific currency formatting using PHP's `NumberFormatter`:
+### \_\_toString()
+
+```php
+public function __toString(): string
+```
+
+Convert the currency value to a locale-specific formatted string using PHP's `NumberFormatter`. Falls back to `format()` if no locale is available.
+
+The locale can be set via `CurrencyService::init()` or changed later with `CurrencyService::setLocale()`. If no locale is set, it is auto-detected from the HTTP `Accept-Language` header or PHP's default locale.
 
 ```php
 CurrencyService::setLocale('en_US');
@@ -39,8 +47,6 @@ CurrencyService::setLocale('de_DE');
 $price = new Money(1234.56, 'EUR');
 echo $price;  // 1.234,56 €
 ```
-
-The locale can be set via `CurrencyService::init()` or changed later with `CurrencyService::setLocale()`. If no locale is set, it is auto-detected from the HTTP `Accept-Language` header or PHP's default locale. If none can be determined, the standard `format()` method is used as a fallback.
 
 ---
 

@@ -90,7 +90,7 @@ $ftToM = new Conversion('ft', 'm', $factor);
 
 ---
 
-## Transformation Methods
+## Unary Arithmetic Methods
 
 ### inv()
 
@@ -110,6 +110,9 @@ $mToFt = $ftToM->inv();
 echo $mToFt->factor->value; // 3.28084...
 ```
 
+---
+
+## Power Methods
 ### pow()
 
 ```php

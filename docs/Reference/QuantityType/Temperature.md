@@ -41,7 +41,7 @@ The package supports four temperature scales:
 
 ---
 
-## Methods
+## Overridden Methods
 
 ### convert()
 

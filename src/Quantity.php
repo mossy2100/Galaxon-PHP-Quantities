@@ -256,7 +256,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Static methods
+    // region Utility methods
 
     /**
      * Convert a value from a source unit to a destination unit.
@@ -273,62 +273,6 @@ class Quantity implements Stringable
     {
         // Delegate to the ConversionService.
         return ConversionService::convert($value, $srcUnit, $destUnit);
-    }
-
-    /**
-     * Unit definitions.
-     *
-     * This method should be overridden in subclasses to specify the units relevant to that quantity type.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
-     */
-    public static function getUnitDefinitions(): array
-    {
-        return [];
-    }
-
-    /**
-     * Conversion definitions.
-     *
-     * This method should be overridden in subclasses to specify the conversions relevant to that quantity type.
-     *
-     * @return list<array{string, string, float}>
-     */
-    public static function getConversionDefinitions(): array
-    {
-        return [];
-    }
-
-    /**
-     * Get the quantity type corresponding to the calling class, if known.
-     *
-     * Static equivalent to the $quantityType property.
-     * This method will return null if called on Quantity itself or if the subclass is not registered.
-     *
-     * @return ?QuantityType The quantity type, or null if not registered.
-     */
-    public static function getQuantityType(): ?QuantityType
-    {
-        return QuantityTypeService::getByClass(static::class);
-    }
-
-    /**
-     * Get the dimension code corresponding to the calling class, if known.
-     *
-     * Returns the dimension code (e.g. 'L' for Length, 'M' for Mass) if the calling class is a registered
-     * quantity type subclass. Returns null if called on Quantity itself or if the subclass is not registered.
-     *
-     * @return ?string The dimension code, or null if not registered.
-     */
-    public static function getDimension(): ?string
-    {
-        return static::getQuantityType()?->dimension;
     }
 
     // endregion
@@ -427,193 +371,52 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Transformation methods
+    // region Comparison methods
 
     /**
-     * Merge units that have the same dimension, e.g. 'm' and 'ft', or 's' and 'h', or 'lb' and 'kg'.
+     * Compare two Quantities.
      *
-     * The first unit encountered of a given dimension will be the one any others are converted to.
+     * This method will only return 0 for *exactly* equal.
+     * It's usually preferable to use approxCompare() instead, which allows for user-defined tolerances.
      *
-     * @return static A new Quantity with compatible units merged.
+     * Automatically converts the other measurement to this one's unit before comparing.
+     *
+     * @param mixed $other The measurement to compare with.
+     * @return int -1 if this < other, 0 if equal, 1 if this > other.
+     * @throws IncomparableTypesException If the other Quantity has a different type.
+     * @throws InvalidArgumentException If the Quantities have different dimensions.
+     * @throws LogicException If no conversion path exists between the units.
      */
-    public function merge(): static
+    #[Override]
+    public function compare(mixed $other): int
     {
-        if (!$this->derivedUnit->isMergeable()) {
-            return $this;
-        }
-
-        // Merge the derived unit.
-        $mergeQty = $this->derivedUnit->merge();
-
-        // Multiply the merged Quantity by this Quantity's value.
-        return $mergeQty->mul($this->value);
+        $otherValue = $this->preCompare($other);
+        return Numbers::sign($this->value <=> $otherValue);
     }
 
     /**
-     * Find the best SI prefix and construct a new Quantity equal to this one, but with the prefix applied.
+     * Compare this Quantity with another and determine if they are equal, within user-defined tolerances.
      *
-     * @return static A new Quantity with the best SI prefix applied.
+     * @param mixed $other The value to compare with (can be any type).
+     * @return bool True if the values are equal, false otherwise.
      */
-    public function autoPrefix(): static
-    {
-        // See what prefixes are available for the first unit term.
-        $firstUnitTerm = $this->derivedUnit->firstUnitTerm;
-        if ($firstUnitTerm === null || $firstUnitTerm->unit->prefixGroup === 0) {
-            // There is no first unit (dimensionless), or no prefixes are available for the first unit, so we can't add
-            // one.
-            return $this;
+    #[Override]
+    public function approxEqual(
+        mixed $other,
+        float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
+        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
+    ): bool {
+        try {
+            // Get the other Quantity's value in the same unit.
+            // This will throw the other Quantity has a different type or dimension.
+            $otherValue = $this->preCompare($other);
+        } catch (DomainException | IncomparableTypesException) {
+            // If the other Quantity has a different type or dimension to this one.
+            return false;
         }
 
-        // Initialize the new value and derived unit by removing all current prefixes.
-        $newValue = $this->value * $this->derivedUnit->multiplier;
-        $newDerivedUnit = $this->derivedUnit->removePrefixes();
-
-        // Get the new first unit term.
-        $firstUnitTerm = $newDerivedUnit->firstUnitTerm;
-        assert($firstUnitTerm instanceof UnitTerm);
-
-        // Choose the prefix that produces the smallest value greater than or equal to 1.
-        // Start with the current situation, which is no prefix.
-        $absValue = abs($newValue);
-        $sign = Numbers::sign($newValue);
-        $bestPrefix = null;
-        $bestValue = $absValue;
-
-        // Try each allowed prefix to see if it's better. We want the prefix that produces the smallest value greater
-        // than or equal to 1.
-        foreach ($firstUnitTerm->unit->allowedPrefixes as $prefix) {
-            // We only want to consider engineering prefixes for this. The middle metric prefixes (c, d, da, h) are
-            // rarely used for most units. We also don't want binary prefixes (e.g. 'kB' is usually preferred to 'KiB').
-            if (!$prefix->isEngineering()) {
-                continue;
-            }
-
-            // Compute the value we'd have if we use this prefix.
-            $prefixedValue = $absValue / ($prefix->multiplier ** $firstUnitTerm->exponent);
-
-            // Check if it's an improvement.
-            if (
-                ($bestValue < 1.0 && $prefixedValue > $bestValue) ||
-                ($prefixedValue >= 1.0 && $prefixedValue < $bestValue)
-            ) {
-                $bestPrefix = $prefix;
-                $bestValue = $prefixedValue;
-            }
-        }
-
-        // If we found a better prefix than none at all, apply it if it's different.
-        if ($bestPrefix !== null) {
-            // Remove the first unit term.
-            $newDerivedUnit->removeUnitTerm($firstUnitTerm);
-            // Create a new one with the prefix applied.
-            $newUnitTerm = new UnitTerm($firstUnitTerm->unit, $bestPrefix, $firstUnitTerm->exponent);
-            // Add it.
-            $newDerivedUnit->addUnitTerm($newUnitTerm);
-        }
-
-        // Create the result object.
-        return self::create($bestValue * $sign, $newDerivedUnit);
-    }
-
-    /**
-     * Substitute base units for expandable units, e.g. kg*m/s2 => N
-     *
-     * The expandable unit that replaces the largest number of base units will be chosen.
-     *
-     * 's-1' will not be replaced by 'Hz' unless it's the only unit term.
-     * Furthermore, 's-1' is not replaced by 'Bq'. You can call $q->to('Bq') to get that effect.
-     *
-     * To auto-prefix the result, chain with autoPrefix():
-     *   $q->simplify()->autoPrefix()
-     *
-     * @return static A new Quantity with expandable units substituted for base units.
-     */
-    public function simplify(): static
-    {
-        // Merge compatible units.
-        $qty = $this->merge();
-
-        // Handle Hertz separately. We only want to swap 's-1' for 'Hz' if it's the only unit term.
-        if (count($qty->derivedUnit->unitTerms) === 1) {
-            $unitTerm = $qty->derivedUnit->firstUnitTerm;
-
-            // Check if we have s-1.
-            if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
-                // Create the Hz unit term.
-                $newUnitTerm = new UnitTerm('Hz', PrefixService::invert($unitTerm->prefix));
-                return self::create($qty->value, $newUnitTerm);
-            }
-        }
-
-        // Check if we should simplify to SI or English base units.
-        $si = $qty->derivedUnit->siPreferred();
-
-        // Get the units to check.
-        $units = $si
-            ? UnitService::getBySystem(UnitSystem::Si)
-            : UnitService::getBySystem(UnitSystem::Imperial);
-
-        // Initialize tracking variables.
-        $maxUnitsReplaced = 0;
-        $bestExpandableUnit = null;
-
-        // Loop through all the units and try to find an expandable unit that matches the quantity.
-        foreach ($units as $unit) {
-            // Skip base (non-expandable) units.
-            if ($unit->isBase()) {
-                continue;
-            }
-
-            // If English preferred, check the unit is also US customary.
-            if (!$si && !$unit->belongsToSystem(UnitSystem::UsCustomary)) {
-                continue;
-            }
-
-            // Expand the unit to SI or English base units.
-            $expansionUnit = DimensionService::getBaseDerivedUnit($unit->dimension, $si);
-
-            // Skip units that expand to s-1 (i.e. 'Hz' or 'Bq'), since we already handled these.
-            if (count($expansionUnit->unitTerms) === 1 && $expansionUnit->firstUnitTerm?->asciiSymbol === 's-1') {
-                continue;
-            }
-
-            // Check if it's a candidate for substitution.
-            if (!DimensionService::lessThanOrEqual($expansionUnit->dimension, $qty->dimension)) {
-                continue;
-            }
-
-            // Count the number of units that will be replaced.
-            $nUnitsReplaced = DimensionService::countUnits($expansionUnit->dimension);
-
-            // If it's an improvement, remember it.
-            if ($nUnitsReplaced > $maxUnitsReplaced) {
-                $maxUnitsReplaced = $nUnitsReplaced;
-                $bestExpandableUnit = $unit;
-            }
-        }
-
-        // If we found a match, substitute the necessary unit terms for the expandable unit.
-        if ($bestExpandableUnit !== null) {
-            // Get the remaining base units not replaced by the expandable unit.
-            $rem = DimensionService::sub($qty->dimension, $bestExpandableUnit->dimension);
-            $remUnit = DimensionService::getBaseDerivedUnit($rem, $si);
-            $newUnit = new DerivedUnit($bestExpandableUnit)->mul($remUnit);
-            return $qty->to($newUnit);
-        }
-
-        // No replacements found; return a copy.
-        return clone $qty;
-    }
-
-    /**
-     * Create a new Quantity with the same unit but a different value.
-     *
-     * @param float $value The new numeric value.
-     * @return static A new Quantity with the given value in the same unit.
-     */
-    public function withValue(float $value): static
-    {
-        return self::create($value, $this->derivedUnit);
+        // Now we have the other Quantity in the same unit, compare the values.
+        return Floats::approxEqual($this->value, $otherValue, $relTol, $absTol);
     }
 
     // endregion
@@ -880,52 +683,193 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Comparison methods
+    // region Transformation methods
 
     /**
-     * Compare two Quantities.
+     * Create a new Quantity with the same unit but a different value.
      *
-     * This method will only return 0 for *exactly* equal.
-     * It's usually preferable to use approxCompare() instead, which allows for user-defined tolerances.
-     *
-     * Automatically converts the other measurement to this one's unit before comparing.
-     *
-     * @param mixed $other The measurement to compare with.
-     * @return int -1 if this < other, 0 if equal, 1 if this > other.
-     * @throws IncomparableTypesException If the other Quantity has a different type.
-     * @throws InvalidArgumentException If the Quantities have different dimensions.
-     * @throws LogicException If no conversion path exists between the units.
+     * @param float $value The new numeric value.
+     * @return static A new Quantity with the given value in the same unit.
      */
-    #[Override]
-    public function compare(mixed $other): int
+    public function withValue(float $value): static
     {
-        $otherValue = $this->preCompare($other);
-        return Numbers::sign($this->value <=> $otherValue);
+        return self::create($value, $this->derivedUnit);
     }
 
     /**
-     * Compare this Quantity with another and determine if they are equal, within user-defined tolerances.
+     * Merge units that have the same dimension, e.g. 'm' and 'ft', or 's' and 'h', or 'lb' and 'kg'.
      *
-     * @param mixed $other The value to compare with (can be any type).
-     * @return bool True if the values are equal, false otherwise.
+     * The first unit encountered of a given dimension will be the one any others are converted to.
+     *
+     * @return static A new Quantity with compatible units merged.
      */
-    #[Override]
-    public function approxEqual(
-        mixed $other,
-        float $relTol = Floats::DEFAULT_RELATIVE_TOLERANCE,
-        float $absTol = Floats::DEFAULT_ABSOLUTE_TOLERANCE
-    ): bool {
-        try {
-            // Get the other Quantity's value in the same unit.
-            // This will throw the other Quantity has a different type or dimension.
-            $otherValue = $this->preCompare($other);
-        } catch (DomainException | IncomparableTypesException) {
-            // If the other Quantity has a different type or dimension to this one.
-            return false;
+    public function merge(): static
+    {
+        if (!$this->derivedUnit->isMergeable()) {
+            return $this;
         }
 
-        // Now we have the other Quantity in the same unit, compare the values.
-        return Floats::approxEqual($this->value, $otherValue, $relTol, $absTol);
+        // Merge the derived unit.
+        $mergeQty = $this->derivedUnit->merge();
+
+        // Multiply the merged Quantity by this Quantity's value.
+        return $mergeQty->mul($this->value);
+    }
+
+    /**
+     * Find the best SI prefix and construct a new Quantity equal to this one, but with the prefix applied.
+     *
+     * @return static A new Quantity with the best SI prefix applied.
+     */
+    public function autoPrefix(): static
+    {
+        // See what prefixes are available for the first unit term.
+        $firstUnitTerm = $this->derivedUnit->firstUnitTerm;
+        if ($firstUnitTerm === null || $firstUnitTerm->unit->prefixGroup === 0) {
+            // There is no first unit (dimensionless), or no prefixes are available for the first unit, so we can't add
+            // one.
+            return $this;
+        }
+
+        // Initialize the new value and derived unit by removing all current prefixes.
+        $newValue = $this->value * $this->derivedUnit->multiplier;
+        $newDerivedUnit = $this->derivedUnit->removePrefixes();
+
+        // Get the new first unit term.
+        $firstUnitTerm = $newDerivedUnit->firstUnitTerm;
+        assert($firstUnitTerm instanceof UnitTerm);
+
+        // Choose the prefix that produces the smallest value greater than or equal to 1.
+        // Start with the current situation, which is no prefix.
+        $absValue = abs($newValue);
+        $sign = Numbers::sign($newValue);
+        $bestPrefix = null;
+        $bestValue = $absValue;
+
+        // Try each allowed prefix to see if it's better. We want the prefix that produces the smallest value greater
+        // than or equal to 1.
+        foreach ($firstUnitTerm->unit->allowedPrefixes as $prefix) {
+            // We only want to consider engineering prefixes for this. The middle metric prefixes (c, d, da, h) are
+            // rarely used for most units. We also don't want binary prefixes (e.g. 'kB' is usually preferred to 'KiB').
+            if (!$prefix->isEngineering()) {
+                continue;
+            }
+
+            // Compute the value we'd have if we use this prefix.
+            $prefixedValue = $absValue / ($prefix->multiplier ** $firstUnitTerm->exponent);
+
+            // Check if it's an improvement.
+            if (
+                ($bestValue < 1.0 && $prefixedValue > $bestValue) ||
+                ($prefixedValue >= 1.0 && $prefixedValue < $bestValue)
+            ) {
+                $bestPrefix = $prefix;
+                $bestValue = $prefixedValue;
+            }
+        }
+
+        // If we found a better prefix than none at all, apply it if it's different.
+        if ($bestPrefix !== null) {
+            // Remove the first unit term.
+            $newDerivedUnit->removeUnitTerm($firstUnitTerm);
+            // Create a new one with the prefix applied.
+            $newUnitTerm = new UnitTerm($firstUnitTerm->unit, $bestPrefix, $firstUnitTerm->exponent);
+            // Add it.
+            $newDerivedUnit->addUnitTerm($newUnitTerm);
+        }
+
+        // Create the result object.
+        return self::create($bestValue * $sign, $newDerivedUnit);
+    }
+
+    /**
+     * Substitute base units for expandable units, e.g. kg*m/s2 => N
+     *
+     * The expandable unit that replaces the largest number of base units will be chosen.
+     *
+     * 's-1' will not be replaced by 'Hz' unless it's the only unit term.
+     * Furthermore, 's-1' is not replaced by 'Bq'. You can call $q->to('Bq') to get that effect.
+     *
+     * To auto-prefix the result, chain with autoPrefix():
+     *   $q->simplify()->autoPrefix()
+     *
+     * @return static A new Quantity with expandable units substituted for base units.
+     */
+    public function simplify(): static
+    {
+        // Merge compatible units.
+        $qty = $this->merge();
+
+        // Handle Hertz separately. We only want to swap 's-1' for 'Hz' if it's the only unit term.
+        if (count($qty->derivedUnit->unitTerms) === 1) {
+            $unitTerm = $qty->derivedUnit->firstUnitTerm;
+
+            // Check if we have s-1.
+            if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
+                // Create the Hz unit term.
+                $newUnitTerm = new UnitTerm('Hz', PrefixService::invert($unitTerm->prefix));
+                return self::create($qty->value, $newUnitTerm);
+            }
+        }
+
+        // Check if we should simplify to SI or English base units.
+        $si = $qty->derivedUnit->siPreferred();
+
+        // Get the units to check.
+        $units = $si
+            ? UnitService::getBySystem(UnitSystem::Si)
+            : UnitService::getBySystem(UnitSystem::Imperial);
+
+        // Initialize tracking variables.
+        $maxUnitsReplaced = 0;
+        $bestExpandableUnit = null;
+
+        // Loop through all the units and try to find an expandable unit that matches the quantity.
+        foreach ($units as $unit) {
+            // Skip base (non-expandable) units.
+            if ($unit->isBase()) {
+                continue;
+            }
+
+            // If English preferred, check the unit is also US customary.
+            if (!$si && !$unit->belongsToSystem(UnitSystem::UsCustomary)) {
+                continue;
+            }
+
+            // Expand the unit to SI or English base units.
+            $expansionUnit = DimensionService::getBaseDerivedUnit($unit->dimension, $si);
+
+            // Skip units that expand to s-1 (i.e. 'Hz' or 'Bq'), since we already handled these.
+            if (count($expansionUnit->unitTerms) === 1 && $expansionUnit->firstUnitTerm?->asciiSymbol === 's-1') {
+                continue;
+            }
+
+            // Check if it's a candidate for substitution.
+            if (!DimensionService::lessThanOrEqual($expansionUnit->dimension, $qty->dimension)) {
+                continue;
+            }
+
+            // Count the number of units that will be replaced.
+            $nUnitsReplaced = DimensionService::countUnits($expansionUnit->dimension);
+
+            // If it's an improvement, remember it.
+            if ($nUnitsReplaced > $maxUnitsReplaced) {
+                $maxUnitsReplaced = $nUnitsReplaced;
+                $bestExpandableUnit = $unit;
+            }
+        }
+
+        // If we found a match, substitute the necessary unit terms for the expandable unit.
+        if ($bestExpandableUnit !== null) {
+            // Get the remaining base units not replaced by the expandable unit.
+            $rem = DimensionService::sub($qty->dimension, $bestExpandableUnit->dimension);
+            $remUnit = DimensionService::getBaseDerivedUnit($rem, $si);
+            $newUnit = new DerivedUnit($bestExpandableUnit)->mul($remUnit);
+            return $qty->to($newUnit);
+        }
+
+        // No replacements found; return a copy.
+        return clone $qty;
     }
 
     // endregion
@@ -1093,7 +1037,67 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Parts-related methods
+    // region Subclass methods
+
+    /**
+     * Unit definitions.
+     *
+     * This method should be overridden in subclasses to specify the units relevant to that quantity type.
+     *
+     * @return array<string, array{
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     prefixGroup?: int,
+     *     alternateSymbol?: string,
+     *     systems: list<UnitSystem>
+     * }>
+     */
+    public static function getUnitDefinitions(): array
+    {
+        return [];
+    }
+
+    /**
+     * Conversion definitions.
+     *
+     * This method should be overridden in subclasses to specify the conversions relevant to that quantity type.
+     *
+     * @return list<array{string, string, float}>
+     */
+    public static function getConversionDefinitions(): array
+    {
+        return [];
+    }
+
+    /**
+     * Get the quantity type corresponding to the calling class, if known.
+     *
+     * Static equivalent to the $quantityType property.
+     * This method will return null if called on Quantity itself or if the subclass is not registered.
+     *
+     * @return ?QuantityType The quantity type, or null if not registered.
+     */
+    public static function getQuantityType(): ?QuantityType
+    {
+        return QuantityTypeService::getByClass(static::class);
+    }
+
+    /**
+     * Get the dimension code corresponding to the calling class, if known.
+     *
+     * Returns the dimension code (e.g. 'L' for Length, 'M' for Mass) if the calling class is a registered
+     * quantity type subclass. Returns null if called on Quantity itself or if the subclass is not registered.
+     *
+     * @return ?string The dimension code, or null if not registered.
+     */
+    public static function getDimension(): ?string
+    {
+        return static::getQuantityType()?->dimension;
+    }
+
+    // endregion
+
+    // region Parts methods
 
     /**
      * Get the part unit symbols for this quantity type.
@@ -1220,7 +1224,7 @@ class Quantity implements Stringable
      * @throws IncomparableTypesException If the other value is not a Quantity.
      * @throws DimensionMismatchException If the two Quantities have different dimensions.
      */
-    protected function preCompare(mixed $other): float
+    private function preCompare(mixed $other): float
     {
         // Check the two values are both Quantity objects.
         if (!$other instanceof self) {

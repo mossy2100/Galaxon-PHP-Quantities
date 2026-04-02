@@ -94,10 +94,6 @@ class Angle extends Quantity
         ];
     }
 
-    // endregion
-
-    // region Comparison methods
-
     /**
      * Check if this Angle is approximately equal to another.
      *
@@ -119,58 +115,6 @@ class Angle extends Quantity
 
         // Compare the values as radians.
         return Floats::approxEqual($this->toRadians(), $other->toRadians(), $relTol, $absTol);
-    }
-
-    // endregion
-
-    // region Transformation methods
-
-    /**
-     * Get the size of the angle in radians.
-     *
-     * @return float
-     */
-    public function toRadians(): float
-    {
-        if ($this->derivedUnit->asciiSymbol === 'rad') {
-            return $this->value;
-        }
-
-        return $this->to('rad')->value;
-    }
-
-    /**
-     * Normalize an angle to a standard range.
-     *
-     * The range of values varies depending on the $unitsPerTurn parameter *and* the $signed flag.
-     *
-     * If $signed is true (default), the range is (-$unitsPerTurn/2, $unitsPerTurn/2]
-     * This means the minimum value is *excluded* in the range, while the maximum value is *included*.
-     * For radians, this is (-π, π]
-     * For degrees, this is (-180, 180]
-     *
-     * If $signed is false, the range is [0, $unitsPerTurn)
-     * This means the minimum value is *included* in the range, while the maximum value is *excluded*.
-     * For radians, this is [0, τ)
-     * For degrees, this is [0, 360)
-     *
-     * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
-     * @return Quantity A new angle with the wrapped value.
-     *
-     * @example
-     * $alpha = new Angle(270, 'deg');
-     * $wrapped = $alpha->wrap(); // now $wrapped->value == -90
-     */
-    public function wrap(bool $signed = true): Quantity
-    {
-        // Get the units per turn for the current unit.
-        $unitsPerTurn = self::convert(1, 'turn', $this->derivedUnit);
-
-        // Wrap the value.
-        $r = Floats::wrap($this->value, $unitsPerTurn, $signed);
-
-        // Return a new Angle with the wrapped value.
-        return self::create($r, $this->derivedUnit);
     }
 
     // endregion
@@ -269,6 +213,62 @@ class Angle extends Quantity
         }
 
         return fdiv($c, $s);
+    }
+
+    // endregion
+
+    // region Transformation methods
+
+    /**
+     * Normalize an angle to a standard range.
+     *
+     * The range of values varies depending on the $unitsPerTurn parameter *and* the $signed flag.
+     *
+     * If $signed is true (default), the range is (-$unitsPerTurn/2, $unitsPerTurn/2]
+     * This means the minimum value is *excluded* in the range, while the maximum value is *included*.
+     * For radians, this is (-π, π]
+     * For degrees, this is (-180, 180]
+     *
+     * If $signed is false, the range is [0, $unitsPerTurn)
+     * This means the minimum value is *included* in the range, while the maximum value is *excluded*.
+     * For radians, this is [0, τ)
+     * For degrees, this is [0, 360)
+     *
+     * @param bool $signed If true, wrap to the signed range; otherwise wrap to the unsigned range.
+     * @return Quantity A new angle with the wrapped value.
+     *
+     * @example
+     * $alpha = new Angle(270, 'deg');
+     * $wrapped = $alpha->wrap(); // now $wrapped->value == -90
+     */
+    public function wrap(bool $signed = true): Quantity
+    {
+        // Get the units per turn for the current unit.
+        $unitsPerTurn = self::convert(1, 'turn', $this->derivedUnit);
+
+        // Wrap the value.
+        $r = Floats::wrap($this->value, $unitsPerTurn, $signed);
+
+        // Return a new Angle with the wrapped value.
+        return self::create($r, $this->derivedUnit);
+    }
+
+    // endregion
+
+    // region Conversion methods
+
+    /**
+     * Get the size of the angle in radians.
+     *
+     * @return float
+     */
+    public function toRadians(): float
+    {
+        if ($this->derivedUnit->asciiSymbol === 'rad') {
+            return $this->value;
+        }
+
+        return $this->to('rad')->value;
     }
 
     // endregion

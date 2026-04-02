@@ -38,16 +38,15 @@ $length = Length::fromParts([
 
 | From              | To         | Factor                |
 |-------------------|------------|-----------------------|
-| yard              | meter      | 0.9144 (exact)        |
-| foot              | meter      | 0.3048 (exact)        |
-| inch              | millimeter | 25.4 (exact)          |
+| yard              | meter      | 0.9144                |
+| foot              | meter      | 0.3048                |
+| inch              | millimeter | 25.4                  |
 | mile              | yard       | 1760                  |
 | nautical mile     | meter      | 1852                  |
 | astronomical unit | meter      | 149,597,870,700       |
 | light year        | meter      | 9,460,730,472,580,800 |
 
-The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines
-the exact metric equivalents for US Customary and Imperial length units.
+The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines the exact metric equivalents for US Customary and Imperial length units.
 
 ---
 

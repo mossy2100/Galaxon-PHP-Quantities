@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Internal;
 
-use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Stringable;
 
 /**
@@ -42,7 +42,7 @@ interface UnitInterface extends Stringable
      * @param string $symbol The unit symbol to parse.
      * @return static The parsed unit.
      * @throws FormatException If the symbol has the wrong format.
-     * @throws DomainException If the symbol contains unknown units.
+     * @throws UnknownUnitException If the symbol contains unknown units.
      */
     public static function parse(string $symbol): self;
 

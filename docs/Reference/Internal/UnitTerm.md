@@ -6,7 +6,7 @@ Represents a decomposed unit symbol with prefix and exponent.
 
 ## Overview
 
-The `UnitTerm` class represents a unit symbol like 'km2' decomposed into its components:
+The `UnitTerm` class represents a unit symbol like 'km²' decomposed into its components:
 - **unit**: The base Unit object (e.g., meter)
 - **prefix**: The SI/binary prefix (e.g., kilo)
 - **exponent**: The power (e.g., 2)
@@ -52,7 +52,7 @@ The SI/binary prefix, or null if none.
 public readonly int $exponent
 ```
 
-The exponent (e.g., 2 for *m²*, -1 for *s⁻¹*). Must be between -9 and 9, and cannot be 0.
+The exponent (e.g., 2 for *m²*, -1 for *s⁻¹*). Must be between -9 and 9, and cannot be 0. Defaults to 1.
 
 ### asciiSymbol
 
@@ -60,7 +60,7 @@ The exponent (e.g., 2 for *m²*, -1 for *s⁻¹*). Must be between -9 and 9, and
 public string $asciiSymbol { get; }
 ```
 
-The full unit symbol with prefix and exponent in ASCII format (e.g., 'km2', 'ms-1').
+The full unit symbol with prefix and exponent in ASCII format (e.g., `'km2'`, `'ms-1'`).
 
 ### unicodeSymbol
 
@@ -68,7 +68,7 @@ The full unit symbol with prefix and exponent in ASCII format (e.g., 'km2', 'ms-
 public string $unicodeSymbol { get; }
 ```
 
-The full unit symbol with superscript exponent in Unicode format (e.g., 'km²', 'ms⁻¹').
+The full unit symbol with superscript exponent in Unicode format (e.g., `'km²'`, `'ms⁻¹'`).
 
 ### unprefixedAsciiSymbol
 
@@ -76,7 +76,7 @@ The full unit symbol with superscript exponent in Unicode format (e.g., 'km²', 
 public string $unprefixedAsciiSymbol { get; }
 ```
 
-The unit symbol with exponent but without prefix (e.g., 'm2', 's-1').
+The unit symbol with exponent but without prefix (e.g., `'m2'`, `'s-1'`).
 
 ### unexponentiatedAsciiSymbol
 
@@ -84,7 +84,7 @@ The unit symbol with exponent but without prefix (e.g., 'm2', 's-1').
 public string $unexponentiatedAsciiSymbol { get; }
 ```
 
-The unit symbol with prefix but without exponent (e.g., 'km', 'ms').
+The unit symbol with prefix but without exponent (e.g., `'km'`, `'ms'`).
 
 ### prefixMultiplier
 
@@ -108,7 +108,15 @@ The prefix multiplier raised to the exponent (e.g., 1000² = 1e6 for km²).
 public string $dimension { get; }
 ```
 
-The dimension code with exponent applied (e.g., 'L2' for m²).
+The dimension code with exponent applied (e.g., `'L2'` for m²). Computed via `DimensionService::applyExponent()`.
+
+### quantityType
+
+```php
+public ?QuantityType $quantityType { get; }
+```
+
+The quantity type this unit term is for (e.g., the `QuantityType` for length), or `null` if the dimension has no registered quantity type.
 
 ---
 
@@ -127,13 +135,13 @@ public function __construct(
 Create a new UnitTerm instance.
 
 **Parameters:**
-- `$unit` (string|Unit) - The unit or its symbol (default: empty string for dimensionless)
-- `$prefix` (null|string|Prefix) - The prefix symbol or object (default: null)
-- `$exponent` (int) - The exponent (default: 1)
+- `$unit` (string|Unit) - The unit or its symbol (default: empty string for dimensionless).
+- `$prefix` (null|string|Prefix) - The prefix symbol or object (default: `null` for none).
+- `$exponent` (int) - The exponent (default: `1`).
 
 **Throws:**
-- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the unit symbol is not recognized
-- `DomainException` - If the prefix is invalid for the unit, or the exponent is invalid
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the unit symbol is not recognized.
+- `DomainException` - If the prefix is unknown or invalid for the unit, or the exponent is zero or outside the range -9 to 9.
 
 **Examples:**
 ```php
@@ -154,48 +162,23 @@ $perSecond = new UnitTerm('s', null, -1);
 
 ## Factory Methods
 
-### getBySymbol()
-
-```php
-public static function getBySymbol(string $symbol): ?self
-```
-
-Look up a unit or prefixed unit by its symbol. Symbol uniqueness is enforced by `UnitService`, so at most one match is possible.
-
-**Parameters:**
-- `$symbol` (string) - The prefixed unit symbol to search for
-
-**Returns:**
-- `?self` - The matching UnitTerm, or null if not found
-
-**Examples:**
-```php
-$km = UnitTerm::getBySymbol('km');
-// UnitTerm(meter, kilo)
-
-$m = UnitTerm::getBySymbol('m');
-// UnitTerm(meter)
-
-$unknown = UnitTerm::getBySymbol('xyz');
-// null
-```
-
 ### toUnitTerm()
 
 ```php
 public static function toUnitTerm(string|Unit|self $value): self
 ```
 
-Convert any unit representation to a UnitTerm.
+Convert any unit representation to a UnitTerm. Returns the same instance if already a UnitTerm.
 
 **Parameters:**
-- `$value` (string|Unit|self) - The value to convert
+- `$value` (string|Unit|self) - The value to convert.
 
-**Returns:**
-- `UnitTerm` - The equivalent UnitTerm
+**Returns:** `UnitTerm`
 
 **Throws:**
-- `DomainException` - If a string cannot be parsed
+- `FormatException` - If a string has an invalid format.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a string or Unit symbol is not recognized.
+- `DomainException` - If the exponent or prefix is invalid.
 
 ### parse()
 
@@ -206,28 +189,20 @@ public static function parse(string $symbol): self
 Parse a string into a UnitTerm.
 
 **Parameters:**
-- `$symbol` (string) - The unit symbol (e.g., 'm2', 'km', 's-1')
+- `$symbol` (string) - The unit symbol (e.g., `'m2'`, `'km'`, `'s-1'`).
 
-**Returns:**
-- `UnitTerm` - The parsed UnitTerm
+**Returns:** `UnitTerm`
 
 **Throws:**
-- `FormatException` - If the format is invalid
-- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the unit symbol is not recognized
-- `DomainException` - If the exponent is zero
+- `FormatException` - If the format is invalid.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the unit symbol is not recognized.
+- `DomainException` - If the exponent is zero.
 
 **Behavior:**
-- Accepts ASCII exponents (m2, s-1)
-- Accepts Unicode superscript exponents (m², s⁻¹)
+- Accepts ASCII exponents (`m2`, `s-1`)
+- Accepts Unicode superscript exponents (`m²`, `s⁻¹`)
 - Recognises all registered units and prefixes
-
-**Examples:**
-```php
-$m2 = UnitTerm::parse('m2');
-$km = UnitTerm::parse('km');
-$perSecond = UnitTerm::parse('s-1');
-$perSecondUnicode = UnitTerm::parse('s-1');
-```
+- Empty string returns dimensionless unit
 
 ---
 
@@ -239,10 +214,7 @@ $perSecondUnicode = UnitTerm::parse('s-1');
 public function isSi(): bool
 ```
 
-Check if this unit term's base unit belongs to the SI system.
-
-**Returns:**
-- `bool` - True if the base unit is an SI unit
+Check if this unit term's unit belongs to the SI system.
 
 ### isBase()
 
@@ -252,23 +224,26 @@ public function isBase(): bool
 
 Check if this unit term's unit is a base unit (single-dimension, not expandable).
 
-**Returns:**
-- `bool` - True if the unit is a base unit
+---
 
-### isSiBase()
+## Comparison Methods
+
+### equal()
 
 ```php
-public function isSiBase(): bool
+public function equal(mixed $other): bool
 ```
 
-Check if this unit term is an SI base unit (with or without exponent). Returns true for *kg*, *m*, *s*, *A*, *K*, *cd*, *mol*, *rad*, *B*, *XAU* and any of these with exponents (e.g., *m²*, *s⁻¹*). Returns false for prefixed units like *km* or *g*.
+Check if this UnitTerm equals another. Compares by ASCII symbol.
 
-**Returns:**
-- `bool` - True if the unit is an SI base unit
+**Parameters:**
+- `$other` (mixed) - The value to compare.
+
+**Returns:** `bool` - True if both are `UnitTerm` instances with the same ASCII symbol.
 
 ---
 
-## Transformation Methods
+## Unary Arithmetic Methods
 
 ### inv()
 
@@ -278,8 +253,7 @@ public function inv(): self
 
 Return a new UnitTerm with the exponent negated.
 
-**Returns:**
-- `UnitTerm` - A new instance with inverted exponent
+**Returns:** `UnitTerm` - A new instance with inverted exponent (e.g., m² → m⁻²).
 
 **Examples:**
 ```php
@@ -288,33 +262,9 @@ $second = $perSecond->inv();
 echo $second->exponent; // 1
 ```
 
-### withExponent()
+---
 
-```php
-public function withExponent(int $exp): self
-```
-
-Return a new UnitTerm with a different exponent.
-
-**Parameters:**
-- `$exp` (int) - The new exponent
-
-**Returns:**
-- `UnitTerm` - A new instance with the specified exponent
-
-**Throws:**
-- `DomainException` - If exponent is 0 or outside -9 to 9
-
-### removeExponent()
-
-```php
-public function removeExponent(): self
-```
-
-Return a new UnitTerm with exponent set to 1.
-
-**Returns:**
-- `UnitTerm` - A new instance with exponent 1
+## Power Methods
 
 ### pow()
 
@@ -322,13 +272,12 @@ Return a new UnitTerm with exponent set to 1.
 public function pow(int $exponent): self
 ```
 
-Return a new UnitTerm with the exponent multiplied.
+Return a new UnitTerm with the exponent multiplied by the given value.
 
 **Parameters:**
-- `$exponent` (int) - The exponent to raise to
+- `$exponent` (int) - The exponent to raise to.
 
-**Returns:**
-- `UnitTerm` - A new instance with multiplied exponent
+**Returns:** `UnitTerm` - A new instance with multiplied exponent (e.g., m² with exp=3 → m⁶).
 
 **Examples:**
 ```php
@@ -338,6 +287,34 @@ $m6 = $m2->pow(3);
 echo $m6->exponent; // 6
 ```
 
+---
+
+## Transformation Methods
+
+### withExponent()
+
+```php
+public function withExponent(int $exp): self
+```
+
+Return a new UnitTerm with the same unit and prefix as the calling object, but with the given exponent.
+
+**Parameters:**
+- `$exp` (int) - The new exponent.
+
+**Returns:** `UnitTerm`
+
+**Throws:**
+- `DomainException` - If the exponent is 0 or outside -9 to 9.
+
+### removeExponent()
+
+```php
+public function removeExponent(): self
+```
+
+Return a new UnitTerm with exponent set to 1.
+
 ### removePrefix()
 
 ```php
@@ -345,9 +322,6 @@ public function removePrefix(): self
 ```
 
 Return a new UnitTerm with the prefix removed.
-
-**Returns:**
-- `UnitTerm` - A new instance without prefix
 
 **Examples:**
 ```php
@@ -369,17 +343,13 @@ public function format(bool $ascii = false): string
 Format the unit term as a string.
 
 **Parameters:**
-- `$ascii` (bool) - If true, return ASCII format; if false (default), return Unicode format
+- `$ascii` (bool) - If `true`, return ASCII format; if `false` (default), return Unicode format.
 
-**Returns:**
-- `string` - The formatted unit term symbol
+**Returns:** `string` - The formatted unit term symbol.
 
-**Examples:**
-```php
-$term = new UnitTerm('m', 'k', 2);
-$term->format(true);  // 'km2'
-$term->format(false); // 'km²'
-```
+**Behavior:**
+- ASCII: uses digit exponents and ASCII symbols (e.g., `'km2'`).
+- Unicode: uses superscript exponents and Unicode symbols (e.g., `'km²'`).
 
 ### \_\_toString()
 
@@ -388,27 +358,6 @@ public function __toString(): string
 ```
 
 Convert to string using Unicode format.
-
-**Returns:**
-- `string` - The Unicode representation
-
----
-
-## Comparison Methods
-
-### equal()
-
-```php
-public function equal(mixed $other): bool
-```
-
-Check if this UnitTerm equals another.
-
-**Parameters:**
-- `$other` (mixed) - The value to compare
-
-**Returns:**
-- `bool` - True if unit, prefix, and exponent all match
 
 ---
 
@@ -471,8 +420,8 @@ echo $term2->dimension; // 'T-1'
 
 ## See Also
 
-- **[Unit](Unit.md)** - The base unit representation
-- **[DerivedUnit](DerivedUnit.md)** - Compound unit using UnitTerms
-- **[Prefix](Prefix.md)** - SI and binary prefixes
-- **[UnitInterface](UnitInterface.md)** - Interface for all unit types
-- **[RegexService](RegexService.md)** - Centralised regex patterns and validation
+- **[Unit](Unit.md)** - The base unit representation.
+- **[DerivedUnit](DerivedUnit.md)** - Compound unit using UnitTerms.
+- **[Prefix](Prefix.md)** - SI and binary prefixes.
+- **[UnitInterface](UnitInterface.md)** - Interface for all unit types.
+- **[RegexService](../Services/RegexService.md)** - Centralised regex patterns and validation.

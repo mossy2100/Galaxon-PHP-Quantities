@@ -29,40 +29,20 @@ For the complete list of angular units, see [Units: Angle](../../Concepts/Units.
 
 ---
 
-## Transformation methods
+## Overridden Methods
 
-### toRadians()
+### approxEqual()
 
 ```php
-public function toRadians(): float
+public function approxEqual(mixed $other, float $relTol = 0, float $absTol = self::RAD_EPSILON): bool
 ```
 
-Get the angle value in radians.
+Compare angles with tolerances appropriate for angular measurements. Comparison is performed in radians.
 
 ```php
-$angle = new Angle(180, 'deg');
-$radians = $angle->toRadians(); // 3.14159...
-```
-
-### wrap()
-
-```php
-public function wrap(bool $signed = true): Quantity
-```
-
-Normalize an angle to a standard range.
-
-- **Signed (default):** The result will be > -180° and <= 180° (or > -π and <= π for radians).
-- **Unsigned:** The result will be >= 0° and < 360° (or >= 0 and < 2π for radians).
-
-```php
-$angle = new Angle(270, 'deg');
-echo $angle->wrap();          // -90 deg
-echo $angle->wrap(false);     // 270 deg
-
-$angle2 = new Angle(720, 'deg');
-echo $angle2->wrap();         // 0 deg
-echo $angle2->wrap(false);    // 0 deg
+$a1 = new Angle(180, 'deg');
+$a2 = new Angle(M_PI, 'rad');
+$a1->approxEqual($a2);  // true
 ```
 
 ---
@@ -119,7 +99,7 @@ $angle->csc();   // 1.4142135623731...
 $angle->cot();   // 1.0
 ```
 
-These methods also improve on PHP's handling of singularities: PHP's tan(M_PI / 2) returns a large finite number (~1.6e16) rather than INF, because the floating-point representation of π/2 is not exact. The `Angle` trig methods detect when the denominator is within floating-point precision of zero and return ±INF with the correct sign, giving mathematically consistent results for tan(), sec(), csc(), and cot() at their singularities.
+These methods also improve on PHP's handling of singularities: PHP's `tan(M_PI/2)` returns a large finite number (~1.6e16) rather than INF, because the floating-point representation of π/2 is not exact. The `Angle` trig methods detect when the denominator is within floating-point precision of zero and return ±INF with the correct sign, giving mathematically consistent results for tan(), sec(), csc(), and cot() at their singularities.
 
 ```php
 // Singularities return ±INF with the correct sign.
@@ -134,25 +114,49 @@ $zero->cot();    // INF
 
 ---
 
-## Comparison methods
+## Transformation Methods
 
-### approxEqual()
+### wrap()
 
 ```php
-public function approxEqual(mixed $other, float $relTol = 0, float $absTol = self::RAD_EPSILON): bool
+public function wrap(bool $signed = true): Quantity
 ```
 
-Compare angles with tolerances appropriate for angular measurements. Comparison is performed in radians.
+Normalize an angle to a standard range.
+
+- **Signed (default):** The result will be > -180° and <= 180° (or > -π and <= π for radians).
+- **Unsigned:** The result will be >= 0° and < 360° (or >= 0 and < 2π for radians).
 
 ```php
-$a1 = new Angle(180, 'deg');
-$a2 = new Angle(M_PI, 'rad');
-$a1->approxEqual($a2);  // true
+$angle = new Angle(270, 'deg');
+echo $angle->wrap();          // -90 deg
+echo $angle->wrap(false);     // 270 deg
+
+$angle2 = new Angle(720, 'deg');
+echo $angle2->wrap();         // 0 deg
+echo $angle2->wrap(false);    // 0 deg
 ```
 
 ---
 
-## DMS Parts
+## Conversion Methods
+
+### toRadians()
+
+```php
+public function toRadians(): float
+```
+
+Get the angle value in radians.
+
+```php
+$angle = new Angle(180, 'deg');
+$radians = $angle->toRadians(); // 3.14159...
+```
+
+---
+
+## Degrees, Arcminutes, and Arcseconds
 
 Angles support part decomposition into degrees, arcminutes, and arcseconds by default:
 

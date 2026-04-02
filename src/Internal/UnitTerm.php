@@ -56,7 +56,7 @@ class UnitTerm implements UnitInterface
     /**
      * The expansion quantity, if one exists and is known.
      */
-    private(set) ?Quantity $expansion = null;
+    private ?Quantity $expansion = null;
 
     // endregion
 
@@ -184,7 +184,9 @@ class UnitTerm implements UnitInterface
      *
      * @param string|Unit|self $value The value to convert.
      * @return self The equivalent UnitTerm object.
-     * @throws DomainException If a string is provided that cannot be parsed into a UnitTerm.
+     * @throws FormatException If a string is provided with an invalid format.
+     * @throws UnknownUnitException If a string or Unit symbol is not recognized.
+     * @throws DomainException If the exponent or prefix is invalid.
      */
     public static function toUnitTerm(string|Unit|self $value): self
     {
@@ -227,7 +229,7 @@ class UnitTerm implements UnitInterface
 
         // Get the prefixed unit symbol.
         assert(isset($matches[1]));
-        $prefixedSymbol = $matches[1];
+        $prefixedUnitSymbol = $matches[1];
 
         // Get the exponent, handling both ASCII and superscript formats.
         $exp = 1;
@@ -242,40 +244,15 @@ class UnitTerm implements UnitInterface
         }
 
         // Search for a matching unit symbol.
-        $match = self::getBySymbol($prefixedSymbol);
-
-        // Check we found a match.
-        if ($match === null) {
-            throw new UnknownUnitException($prefixedSymbol);
-        }
-
-        // Create the new object.
-        return $match->pow($exp);
-    }
-
-    // endregion
-
-    // region Static accessor methods
-
-    /**
-     * Look up a unit or prefixed unit by its symbol.
-     *
-     * Symbol uniqueness is enforced by UnitService, so at most one match is possible.
-     *
-     * @param string $symbol The prefixed unit symbol to search for. Empty string matches the scalar unit.
-     * @return ?self The matching unit term, or null if not found.
-     */
-    public static function getBySymbol(string $symbol): ?self
-    {
-        // Look for any matching units.
         foreach (UnitService::getAll() as $unit) {
-            if (array_key_exists($symbol, $unit->symbols)) {
-                [$unitSymbol, $prefixSymbol] = $unit->symbols[$symbol];
-                return new self($unitSymbol, $prefixSymbol);
+            if (array_key_exists($prefixedUnitSymbol, $unit->symbols)) {
+                [$unitSymbol, $prefixSymbol] = $unit->symbols[$prefixedUnitSymbol];
+                return new self($unitSymbol, $prefixSymbol, $exp);
             }
         }
 
-        return null;
+        // No match was found; the unit is invalid or unknown.
+        throw new UnknownUnitException($symbol);
     }
 
     // endregion
@@ -357,14 +334,10 @@ class UnitTerm implements UnitInterface
      *
      * @param int $exp The new exponent.
      * @return self A new instance with the specified exponent.
+     * @throws DomainException If the exponent is invalid.
      */
     public function withExponent(int $exp): self
     {
-        // Return the same instance if the exponent is already set.
-        if ($this->exponent === $exp) {
-            return $this;
-        }
-
         return new self($this->unit, $this->prefix, $exp);
     }
 
@@ -385,48 +358,7 @@ class UnitTerm implements UnitInterface
      */
     public function removePrefix(): self
     {
-        // Return the same instance if there is no prefix.
-        if ($this->prefix === null) {
-            return $this;
-        }
-
         return new self($this->unit, null, $this->exponent);
-    }
-
-    /**
-     * Attempt to expand this unit term into base units.
-     *
-     * Delegates to the underlying Unit's expansion and adjusts the result for this term's prefix multiplier and
-     * exponent.
-     *
-     * @return ?Quantity The expansion as a Quantity with base units, or null if none found.
-     */
-    public function tryExpand(): ?Quantity
-    {
-        // Check if we found the expansion already.
-        if ($this->expansion !== null) {
-            return $this->expansion;
-        }
-
-        // Check if there's anything to do.
-        if ($this->isBase()) {
-            return null;
-        }
-
-        // Try to find the expansion for this unit.
-        $unitExpansion = $this->unit->tryExpand();
-
-        // If none found, the expansion doesn't exist for this unit term.
-        if ($unitExpansion === null) {
-            return null;
-        }
-
-        // Multiply by the conversion factor modified by prefix and exponent.
-        $resultValue = ($unitExpansion->value * $this->prefixMultiplier) ** $this->exponent;
-
-        // Construct the expanded quantity.
-        $this->expansion = Quantity::create($resultValue, $unitExpansion->derivedUnit->pow($this->exponent));
-        return $this->expansion;
     }
 
     // endregion
@@ -472,6 +404,46 @@ class UnitTerm implements UnitInterface
     public function __toString(): string
     {
         return $this->format();
+    }
+
+    // endregion
+
+    // region Helper methods
+
+    /**
+     * Attempt to expand this unit term into base units.
+     *
+     * Delegates to the underlying Unit's expansion and adjusts the result for this term's prefix multiplier and
+     * exponent.
+     *
+     * @return ?Quantity The expansion as a Quantity with base units, or null if none found.
+     */
+    public function tryExpand(): ?Quantity
+    {
+        // Check if we found the expansion already.
+        if ($this->expansion !== null) {
+            return $this->expansion;
+        }
+
+        // Check if there's anything to do.
+        if ($this->isBase()) {
+            return null;
+        }
+
+        // Try to find the expansion for this unit.
+        $unitExpansion = $this->unit->tryExpand();
+
+        // If none found, the expansion doesn't exist for this unit term.
+        if ($unitExpansion === null) {
+            return null;
+        }
+
+        // Multiply by the conversion factor modified by prefix and exponent.
+        $resultValue = ($unitExpansion->value * $this->prefixMultiplier) ** $this->exponent;
+
+        // Construct the expansion Quantity and cache it in the private property.
+        $this->expansion = Quantity::create($resultValue, $unitExpansion->derivedUnit->pow($this->exponent));
+        return $this->expansion;
     }
 
     // endregion

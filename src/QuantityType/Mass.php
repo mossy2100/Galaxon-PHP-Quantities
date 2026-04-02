@@ -105,7 +105,7 @@ class Mass extends Quantity
 
     // endregion
 
-    // region Part-related methods
+    // region Parts methods
 
     /**
      * Set the part units for imperial mass quantities.

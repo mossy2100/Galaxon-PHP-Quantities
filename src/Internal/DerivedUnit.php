@@ -49,7 +49,7 @@ class DerivedUnit implements UnitInterface
     /**
      * The expansion quantity, if one exists and is known.
      */
-    private(set) ?Quantity $expansion = null;
+    private ?Quantity $expansion = null;
 
     // endregion
 
@@ -112,7 +112,6 @@ class DerivedUnit implements UnitInterface
      *
      * @param null|Unit|UnitTerm|list<Unit|UnitTerm> $unit The Unit, UnitTerm, or array of Unit or UnitTerm objects
      * to add, or null to create an empty unit.
-     * @throws DomainException If the provided unit is invalid.
      */
     public function __construct(null|Unit|UnitTerm|array $unit = null)
     {
@@ -202,6 +201,57 @@ class DerivedUnit implements UnitInterface
 
     // endregion
 
+    // region Construction methods
+
+    /**
+     * Add a unit term, combining exponents with any existing term of the same unit.
+     *
+     * If a term with the same base unit already exists, their exponents are added.
+     * If the resulting exponent is zero, the term is removed entirely.
+     *
+     * @param UnitTerm $newUnitTerm The unit term to add.
+     */
+    public function addUnitTerm(UnitTerm $newUnitTerm): void
+    {
+        $symbol = $newUnitTerm->unexponentiatedAsciiSymbol;
+        $existingUnitTerm = $this->unitTerms[$symbol] ?? null;
+        if ($existingUnitTerm === null) {
+            // Add the new unit term.
+            $this->unitTerms[$symbol] = $newUnitTerm;
+        } else {
+            // Add the exponent of the new unit term to that of the existing term.
+            $exp = $existingUnitTerm->exponent + $newUnitTerm->exponent;
+            if ($exp === 0) {
+                unset($this->unitTerms[$symbol]);
+            } else {
+                $this->unitTerms[$symbol] = $existingUnitTerm->withExponent($exp);
+            }
+        }
+
+        // Keep the unit terms sorted. This is important for multiplying quantities.
+        $this->sortUnitTerms();
+
+        // Update the dimension.
+        $this->updateDimension();
+    }
+
+    /**
+     * Remove a unit term.
+     *
+     * @param UnitTerm $unitTermToRemove The unit term to remove.
+     */
+    public function removeUnitTerm(UnitTerm $unitTermToRemove): void
+    {
+        foreach ($this->unitTerms as $symbol => $unitTerm) {
+            if ($unitTerm->equal($unitTermToRemove)) {
+                unset($this->unitTerms[$symbol]);
+                break;
+            }
+        }
+    }
+
+    // endregion
+
     // region Inspection methods
 
     /**
@@ -237,16 +287,6 @@ class DerivedUnit implements UnitInterface
     public function isBase(): bool
     {
         return array_all($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->isBase());
-    }
-
-    /**
-     * Check that this derived unit is expressed in SI base units.
-     *
-     * @return bool True if this derived unit is expressed in SI base units only.
-     */
-    public function isSiBase(): bool
-    {
-        return $this->equal($this->toSiBase());
     }
 
     /**
@@ -341,57 +381,6 @@ class DerivedUnit implements UnitInterface
     public function equal(mixed $other): bool
     {
         return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
-    }
-
-    // endregion
-
-    // region Manipulation methods
-
-    /**
-     * Add a unit term, combining exponents with any existing term of the same unit.
-     *
-     * If a term with the same base unit already exists, their exponents are added.
-     * If the resulting exponent is zero, the term is removed entirely.
-     *
-     * @param UnitTerm $newUnitTerm The unit term to add.
-     */
-    public function addUnitTerm(UnitTerm $newUnitTerm): void
-    {
-        $symbol = $newUnitTerm->unexponentiatedAsciiSymbol;
-        $existingUnitTerm = $this->unitTerms[$symbol] ?? null;
-        if ($existingUnitTerm === null) {
-            // Add the new unit term.
-            $this->unitTerms[$symbol] = $newUnitTerm;
-        } else {
-            // Add the exponent of the new unit term to that of the existing term.
-            $exp = $existingUnitTerm->exponent + $newUnitTerm->exponent;
-            if ($exp === 0) {
-                unset($this->unitTerms[$symbol]);
-            } else {
-                $this->unitTerms[$symbol] = $existingUnitTerm->withExponent($exp);
-            }
-        }
-
-        // Keep the unit terms sorted. This is important for multiplying quantities.
-        $this->sortUnitTerms();
-
-        // Update the dimension.
-        $this->updateDimension();
-    }
-
-    /**
-     * Remove a unit term.
-     *
-     * @param UnitTerm $unitTermToRemove The unit term to remove.
-     */
-    public function removeUnitTerm(UnitTerm $unitTermToRemove): void
-    {
-        foreach ($this->unitTerms as $symbol => $unitTerm) {
-            if ($unitTerm->equal($unitTermToRemove)) {
-                unset($this->unitTerms[$symbol]);
-                break;
-            }
-        }
     }
 
     // endregion
@@ -506,61 +495,6 @@ class DerivedUnit implements UnitInterface
             array_map(static fn (UnitTerm $unitTerm) => $unitTerm->removePrefix(), $this->unitTerms)
         );
         return new self($unitTerms);
-    }
-
-    /**
-     * Attempt to expand this derived unit into base units.
-     *
-     * Expands each unit term individually and combines the results. All terms must be expandable for the expansion to
-     * succeed.
-     *
-     * @return ?Quantity The expansion as a Quantity with base units, or null if any term cannot be expanded.
-     */
-    public function tryExpand(): ?Quantity
-    {
-        // Check if we found the expansion already.
-        if ($this->expansion !== null) {
-            return $this->expansion;
-        }
-
-        // Check if there's anything to do.
-        if ($this->isBase()) {
-            return null;
-        }
-
-        // Initialize result components.
-        $resultValue = 1;
-        $resultUnit = new self();
-
-        // Expand any unit terms with expansions.
-        foreach ($this->unitTerms as $unitTerm) {
-            // Skip base units.
-            if ($unitTerm->isBase()) {
-                $resultUnit->addUnitTerm($unitTerm);
-                continue;
-            }
-
-            // Try to get the expansion for this unit.
-            $unitTermExpansion = $unitTerm->tryExpand();
-
-            // If none found, the expansion for the full derived unit isn't discoverable yet either.
-            if ($unitTermExpansion === null) {
-                return null; // @codeCoverageIgnore
-            }
-
-            // Multiply by the conversion factor.
-            $resultValue *= $unitTermExpansion->value;
-
-            // Add the unit terms from the expansion.
-            foreach ($unitTermExpansion->derivedUnit->unitTerms as $expansionUnitTerm) {
-                $resultUnit->addUnitTerm($expansionUnitTerm);
-            }
-        }
-
-        // Since a unit expansion can add different and new unit terms, we can end up with unmerged compatible units.
-        // Merge compatible units if necessary.
-        $this->expansion = Quantity::create($resultValue, $resultUnit)->merge();
-        return $this->expansion;
     }
 
     /**
@@ -685,7 +619,7 @@ class DerivedUnit implements UnitInterface
 
     // endregion
 
-    // region Private helper methods
+    // region Helper methods
 
     /**
      * Parse a sequence of unit terms separated by multiplication and/or division operators.
@@ -831,6 +765,62 @@ class DerivedUnit implements UnitInterface
 
         // Generate the full dimension code.
         $this->dimension = DimensionService::compose($dimCodes);
+    }
+
+    /**
+     * Attempt to expand this derived unit into base units.
+     *
+     * Expands each unit term individually and combines the results. All terms must be expandable for the expansion to
+     * succeed.
+     *
+     * @return ?Quantity The expansion as a Quantity with base units, or null if any term cannot be expanded.
+     */
+    public function tryExpand(): ?Quantity
+    {
+        // Check if we found the expansion already.
+        if ($this->expansion !== null) {
+            return $this->expansion;
+        }
+
+        // Check if there's anything to do.
+        if ($this->isBase()) {
+            return null;
+        }
+
+        // Initialize result components.
+        $resultValue = 1;
+        $resultUnit = new self();
+
+        // Expand any unit terms with expansions.
+        foreach ($this->unitTerms as $unitTerm) {
+            // Skip base units.
+            if ($unitTerm->isBase()) {
+                $resultUnit->addUnitTerm($unitTerm);
+                continue;
+            }
+
+            // Try to get the expansion for this unit.
+            $unitTermExpansion = $unitTerm->tryExpand();
+
+            // If none found, the expansion for the full derived unit isn't discoverable yet either.
+            if ($unitTermExpansion === null) {
+                return null; // @codeCoverageIgnore
+            }
+
+            // Multiply by the conversion factor.
+            $resultValue *= $unitTermExpansion->value;
+
+            // Add the unit terms from the expansion.
+            foreach ($unitTermExpansion->derivedUnit->unitTerms as $expansionUnitTerm) {
+                $resultUnit->addUnitTerm($expansionUnitTerm);
+            }
+        }
+
+        // Construct the expansion Quantity and cache it in the private property.
+        // Since a derived unit expansion can add different and new unit terms, we can end up with unmerged compatible
+        // units. So, we also merge compatible units.
+        $this->expansion = Quantity::create($resultValue, $resultUnit)->merge();
+        return $this->expansion;
     }
 
     // endregion

@@ -19,7 +19,7 @@ For the complete list of mass units, see [Units: Mass](../../Concepts/Units.md#m
 
 ---
 
-## Part-Related Methods
+## Parts Methods
 
 ### setImperialParts()
 
@@ -63,8 +63,8 @@ echo $cargo->formatParts();   // 2tn 1000lb
 
 | From      | To        | Factor              |
 | --------- | --------- | ------------------- |
-| pound     | kilogram  | 0.45359237 (exact)  |
-| grain     | milligram | 64.79891 (exact)    |
+| pound     | kilogram  | 0.45359237          |
+| grain     | milligram | 64.79891            |
 | tonne     | kilogram  | 1000                |
 | dalton    | kilogram  | 1.66053906892×10⁻²⁷ |
 | pound     | ounce     | 16                  |
@@ -72,7 +72,7 @@ echo $cargo->formatParts();   // 2tn 1000lb
 | short ton | pound     | 2000                |
 | long ton  | pound     | 2240                |
 
-The International Yard and Pound Agreement (1959) defines the exact metric equivalent for the pound.
+The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines the exact metric equivalent for the pound.
 
 ---
 
