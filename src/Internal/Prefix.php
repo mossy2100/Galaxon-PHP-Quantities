@@ -71,25 +71,25 @@ class Prefix
     ) {
         // Validate the ASCII symbol. Max two ASCII letters.
         if (!RegexService::isValidAsciiPrefix($asciiSymbol)) {
-            throw new FormatException("Invalid ASCII symbol: $asciiSymbol");
+            throw new FormatException("Invalid ASCII prefix symbol: '$asciiSymbol'.");
         }
 
         // Validate the Unicode symbol. Max one Unicode letter.
         if ($unicodeSymbol !== null && !RegexService::isValidUnicodePrefix($unicodeSymbol)) {
-            throw new FormatException("Invalid Unicode symbol: $unicodeSymbol");
+            throw new FormatException("Invalid Unicode prefix symbol: '$unicodeSymbol'.");
         }
 
         // Validate multiplier.
         if ($multiplier <= 0) {
-            throw new DomainException("Multiplier must be positive: $multiplier");
+            throw new DomainException("Cannot create prefix with non-positive multiplier, got $multiplier.");
         }
         if ($multiplier === 1.0) {
-            throw new DomainException("Multiplier must not be equal to 1: $multiplier");
+            throw new DomainException('Cannot create prefix with multiplier equal to one.');
         }
 
         // Validate group code.
         if (!PrefixService::isValidGroupCode($groupCode)) {
-            throw new DomainException("Invalid group code: $groupCode");
+            throw new DomainException("Invalid prefix group code: $groupCode.");
         }
 
         // Set properties.

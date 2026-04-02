@@ -30,16 +30,16 @@ echo $weight->to('lb');   // 154.32358... lb
 echo $weight->to('st');   // 11.023113... st
 ```
 
-### Expansion and Simplification
+### Base Units and Simplification
 
-Named (expandable) units like newtons, joules, and watts are shorthand for combinations of base SI units. You can expand them to see the underlying base units, or simplify base units back into named units.
+Named units like newtons, joules, and watts are shorthand for combinations of base units. You can convert to base units with `toBase()`, or simplify base units back into named units with `simplify()`.
 
 ```php
 use Galaxon\Quantities\QuantityType\Force;
 
-// Expand: named unit -> base units
+// Convert to base units
 $force = new Force(100, 'N');
-echo $force->expand();  // 100 kg*m/s2
+echo $force->toBase();  // 100 kg*m/s2
 
 // Simplify: base units -> named unit
 $base = Quantity::create(100, 'kg*m/s2');
@@ -47,7 +47,7 @@ echo $base->simplify();  // 100 N
 
 // Works with imperial units too
 $lbf = new Force(1, 'lbf');
-echo $lbf->expand();  // 32.174049... lb*ft/s2
+echo $lbf->toBase();  // 32.174049... lb*ft/s2
 ```
 
 ### Auto-Prefixing
@@ -100,7 +100,7 @@ echo $fahrenheit->to('degC');  // 100 degC
 ## See Also
 
 - **[Quantity](../Reference/Quantity.md#conversion-methods)** — Full reference for `to()`, `toSi()`, `toSiBase()`, `toEnglishBase()`, and `toBase()`.
-- **[Quantity — Unit Transformation Methods](../Reference/Quantity.md#unit-transformation-methods)** — `expand()`, `merge()`, `autoPrefix()`, and `simplify()`.
+- **[Quantity — Unit Transformation Methods](../Reference/Quantity.md#unit-transformation-methods)** — `merge()`, `autoPrefix()`, and `simplify()`.
 - **[Units](../Concepts/Units.md)** — Complete list of built-in units by quantity type.
 - **[Systems of Units](../Concepts/SystemsOfUnits.md)** — SI, Imperial, US Customary, and other unit systems.
 - **[Arithmetic Operations](ArithmeticOperations.md)** — Multiply and divide to create compound units.

@@ -101,11 +101,11 @@ echo $angle->formatParts(precision: 1);
 
 1. **Concepts**
 	1. **[Terminology](docs/Concepts/Terminology.md)** — Key terms and definitions used throughout the library.
-	2. **[Dimensions and Base Units](docs/Concepts/DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
-	3. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
-	4. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
-	5. **[Systems of Units](docs/Concepts/SystemsOfUnits.md)** — SI, imperial, US customary, and other unit systems.
-	6. **[Units](docs/Concepts/Units.md)** — Complete reference of all built-in units organised by quantity type.
+	2. **[Units](docs/Concepts/Units.md)** — Complete reference of all built-in units organised by quantity type.
+	3. **[Dimensions and Base Units](docs/Concepts/DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
+	4. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
+	5. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
+	6. **[Systems of Units](docs/Concepts/SystemsOfUnits.md)** — SI, imperial, US customary, and other unit systems.
 	7. **[Physical Constants](docs/Concepts/PhysicalConstants.md)** — Built-in physical constants as Quantity objects.
 2. **Working with Quantities**
 	1. **[Creating Quantities](docs/WorkingWithQuantities/CreatingQuantities.md)** — Creating new quantities with constructors and the factory method.
@@ -244,22 +244,12 @@ composer test
 
 MIT License - see [LICENSE](LICENSE) for details
 
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
-
-For questions or suggestions, please [open an issue](https://github.com/mossy2100/PHP-Quantities/issues).
-
 ## Support
 
 - **Issues**: https://github.com/mossy2100/PHP-Quantities/issues
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
+
+For questions or suggestions, please [open an issue](https://github.com/mossy2100/PHP-Quantities/issues).
 
 ## Changelog
 

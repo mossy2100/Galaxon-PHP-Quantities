@@ -55,13 +55,13 @@ final class RegexService
     /**
      * Pattern for a temperature symbol (degree sign followed by a single letter).
      */
-    private const string RX_TEMP_SYMBOL = '°[a-z]';
+    private const string RX_TEMPERATURE_SYMBOL = '°[a-z]';
 
     /**
-     * Pattern for a valid Unicode unit symbol: Unicode letter, special character, or temperature symbol.
+     * Pattern for a valid Unicode unit symbol: Letter, special character, or temperature symbol.
      */
     private const string RX_UNICODE_SYMBOL =
-        self::RX_UNICODE_LETTER . '|' . self::RX_UNICODE_SPECIAL_CHR . '|' . self::RX_TEMP_SYMBOL;
+        self::RX_UNICODE_LETTER . '|' . self::RX_UNICODE_SPECIAL_CHR . '|' . self::RX_TEMPERATURE_SYMBOL;
 
     /**
      * Pattern for a valid prefix symbol: 1-2 ASCII letters or 1 Unicode letter.
@@ -69,7 +69,7 @@ final class RegexService
     private const string RX_PREFIX = self::RX_ASCII_LETTER . '{1,2}|' . self::RX_UNICODE_LETTER;
 
     /**
-     * Pattern for a valid unit symbol: ASCII words or Unicode letter or special character.
+     * Pattern for a valid unit symbol: ASCII words or Unicode letter or symbol.
      */
     private const string RX_UNIT = self::RX_ASCII_WORDS . '|' . self::RX_UNICODE_SYMBOL;
 

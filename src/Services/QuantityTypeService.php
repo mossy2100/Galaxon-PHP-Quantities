@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Services;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Acceleration;
@@ -250,6 +251,7 @@ class QuantityTypeService
      *
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2').
      * @return ?QuantityType The quantity type, or null if not found.
+     * @throws FormatException If the dimension code is invalid.
      */
     public static function getByDimension(string $dimension): ?QuantityType
     {
@@ -333,7 +335,7 @@ class QuantityTypeService
         // Check we have a quantity type with the specified name.
         $qt = self::$quantityTypes[$name] ?? null;
         if ($qt === null) {
-            throw new DomainException("Quantity type '$name' not found. Use add() to register a new quantity type.");
+            throw new DomainException("Unknown quantity type: '$name'.");
         }
 
         // Update the class.
@@ -349,6 +351,7 @@ class QuantityTypeService
      * @param string $name The name of the physical quantity (e.g. 'length', 'velocity').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2', 'LT-1').
      * @param class-string<Quantity> $class The Quantity subclass to use for this dimension.
+     * @throws FormatException If the dimension code is invalid.
      */
     public static function add(string $name, string $dimension, string $class): void
     {

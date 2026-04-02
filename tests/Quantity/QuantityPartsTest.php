@@ -6,11 +6,13 @@ namespace Galaxon\Quantities\Tests\Quantity;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\QuantityPartsService;
+use LengthException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -152,7 +154,7 @@ final class QuantityPartsTest extends TestCase
     public function testFromPartsInvalidSignThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid sign: 0. Must be -1 or 1.');
+        $this->expectExceptionMessage('Invalid sign: 0.');
 
         Time::fromParts([
             'h'    => 1,
@@ -170,7 +172,7 @@ final class QuantityPartsTest extends TestCase
     public function testToPartsNegativePrecisionThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid precision specified; -1. Must be null or a non-negative integer.');
+        $this->expectExceptionMessage('Invalid precision: -1.');
 
         $time = new Time(3661, 's');
         $time->toParts(precision: -1);
@@ -182,7 +184,7 @@ final class QuantityPartsTest extends TestCase
     public function testFormatPartsNegativePrecisionThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid precision specified');
+        $this->expectExceptionMessage('Invalid precision: -1.');
 
         $time = new Time(3661, 's');
         $time->formatParts(precision: -1);
@@ -197,8 +199,8 @@ final class QuantityPartsTest extends TestCase
      */
     public function testToPartsOnBaseQuantityThrowsException(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('The array of part unit symbols must not be empty.');
+        $this->expectException(LengthException::class);
+        $this->expectExceptionMessage('Cannot use an empty array');
 
         // Base Quantity class has no default part unit symbols.
         $qty = Quantity::create(100, 'kg*m/s2');
@@ -381,6 +383,16 @@ final class QuantityPartsTest extends TestCase
         $this->expectExceptionMessage('only the first may be negative');
 
         Time::parseParts('1h -30min 45s');
+    }
+
+    /**
+     * Test parseParts() throws DimensionMismatchException when a part has the wrong dimension.
+     */
+    public function testParsePartsMixedDimensionsThrowsException(): void
+    {
+        $this->expectException(DimensionMismatchException::class);
+
+        Time::parseParts('1h 45mi 34s');
     }
 
     /**

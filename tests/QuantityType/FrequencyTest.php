@@ -295,30 +295,30 @@ final class FrequencyTest extends TestCase
 
     // endregion
 
-    // region expand() tests
+    // region toBase() tests
 
     /**
-     * Test expanding hertz to per-second.
+     * Test toBase() converts hertz to per-second.
      */
-    public function testExpandHertz(): void
+    public function testToBaseHertz(): void
     {
         $freq = new Frequency(50, 'Hz');
-        $expanded = $freq->expand();
+        $base = $freq->toBase();
 
-        $this->assertSame(50.0, $expanded->value);
-        $this->assertSame('s-1', $expanded->derivedUnit->asciiSymbol);
+        $this->assertSame(50.0, $base->value);
+        $this->assertSame('s-1', $base->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test expanding kilohertz to per-second.
+     * Test toBase() converts kilohertz to per-second.
      */
-    public function testExpandKilohertz(): void
+    public function testToBaseKilohertz(): void
     {
         $freq = new Frequency(1, 'kHz');
-        $expanded = $freq->expand();
+        $base = $freq->toBase();
 
-        $this->assertSame(1000.0, $expanded->value);
-        $this->assertSame('s-1', $expanded->derivedUnit->asciiSymbol);
+        $this->assertSame(1000.0, $base->value);
+        $this->assertSame('s-1', $base->derivedUnit->asciiSymbol);
     }
 
     // endregion

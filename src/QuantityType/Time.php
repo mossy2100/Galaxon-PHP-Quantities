@@ -142,7 +142,7 @@ class Time extends Quantity
         // Build the specification string.
         foreach ($parts as $symbol => $value) {
             // Skip sign and 0 values.
-            if ($symbol === 'sign' || Numbers::equal($value, 0)) {
+            if ($symbol === 'sign' || Numbers::isZero($value)) {
                 continue;
             }
 

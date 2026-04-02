@@ -144,7 +144,7 @@ $kilo1->equal($kilo2); // true
 
 ---
 
-## String Methods
+## Conversion Methods
 
 ### format()
 

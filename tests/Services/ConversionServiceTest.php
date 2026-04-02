@@ -334,7 +334,6 @@ final class ConversionServiceTest extends TestCase
         // Conversions involving nmi should be gone.
         $hasConversionsAfter = !empty($converter->conversionMatrix[$nmiUnit->asciiSymbol] ?? []);
         $this->assertFalse($hasConversionsAfter);
-
     }
 
     // endregion

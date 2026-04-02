@@ -630,6 +630,88 @@ class DerivedUnitTest extends TestCase
 
     // endregion
 
+    // region mul() tests
+
+    /**
+     * Test mul() combines two simple units.
+     */
+    public function testMulCombinesSimpleUnits(): void
+    {
+        $a = DerivedUnit::parse('kg');
+        $b = DerivedUnit::parse('m');
+        $result = $a->mul($b);
+
+        $this->assertSame('kg*m', $result->format(true));
+        $this->assertSame('ML', $result->dimension);
+    }
+
+    /**
+     * Test mul() combines exponents of the same unit.
+     */
+    public function testMulCombinesSameUnitExponents(): void
+    {
+        $a = DerivedUnit::parse('m');
+        $b = DerivedUnit::parse('m2');
+        $result = $a->mul($b);
+
+        $this->assertSame('m3', $result->format(true));
+        $this->assertSame('L3', $result->dimension);
+    }
+
+    /**
+     * Test mul() cancels units with opposite exponents.
+     */
+    public function testMulCancelsOppositeExponents(): void
+    {
+        $a = DerivedUnit::parse('m');
+        $b = DerivedUnit::parse('m-1');
+        $result = $a->mul($b);
+
+        $this->assertSame('', $result->format(true));
+        $this->assertTrue($result->isDimensionless());
+    }
+
+    /**
+     * Test mul() with compound units.
+     */
+    public function testMulCompoundUnits(): void
+    {
+        $a = DerivedUnit::parse('kg*m');
+        $b = DerivedUnit::parse('s-2');
+        $result = $a->mul($b);
+
+        $this->assertSame('kg*m/s2', $result->format(true));
+        $this->assertSame('MLT-2', $result->dimension);
+    }
+
+    /**
+     * Test mul() with empty DerivedUnit is identity.
+     */
+    public function testMulWithEmptyIsIdentity(): void
+    {
+        $a = DerivedUnit::parse('m/s');
+        $b = new DerivedUnit();
+        $result = $a->mul($b);
+
+        $this->assertSame('m/s', $result->format(true));
+    }
+
+    /**
+     * Test mul() does not modify the original.
+     */
+    public function testMulDoesNotModifyOriginal(): void
+    {
+        $a = DerivedUnit::parse('m');
+        $b = DerivedUnit::parse('s');
+        $result = $a->mul($b);
+
+        $this->assertSame('m', $a->format(true));
+        $this->assertSame('s', $b->format(true));
+        $this->assertSame('m*s', $result->format(true));
+    }
+
+    // endregion
+
     // region Sorting tests
 
     public function testSortingByDimensionOrderMassLengthTime(): void

@@ -13,6 +13,7 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -120,7 +121,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForInvalidAsciiSymbol(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('must only contain ASCII characters');
+        $this->expectExceptionMessage('Invalid ASCII unit symbol');
 
         new Unit(
             name: 'test',
@@ -136,7 +137,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForInvalidUnicodeSymbol(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('must only contain Unicode letters');
+        $this->expectExceptionMessage('Invalid Unicode unit symbol');
 
         new Unit(
             name: 'test',
@@ -164,7 +165,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForEmptyName(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Unit name must');
+        $this->expectExceptionMessage('Invalid unit name');
 
         new Unit(name: '', asciiSymbol: 'tst', dimension: 'L');
     }
@@ -175,7 +176,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForNameWithDigits(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Unit name must');
+        $this->expectExceptionMessage('Invalid unit name');
 
         new Unit(name: 'unit123', asciiSymbol: 'tst', dimension: 'L');
     }
@@ -196,7 +197,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForEmptySystems(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('at least one measurement system');
+        $this->expectExceptionMessage('Cannot create a unit with no measurement systems');
 
         new Unit(
             name: 'test',
@@ -211,8 +212,8 @@ final class UnitTest extends TestCase
      */
     public function testConstructorThrowsForNonSystemValues(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must be specified as UnitSystem enum values');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot create a unit with non-UnitSystem values');
 
         new Unit(
             name: 'test',
@@ -243,7 +244,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForNegativePrefixGroup(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Prefix group must be in the range');
+        $this->expectExceptionMessage('Invalid prefix group');
 
         new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', prefixGroup: -1);
     }
@@ -254,7 +255,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForPrefixGroupAboveRange(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Prefix group must be in the range');
+        $this->expectExceptionMessage('Invalid prefix group');
 
         new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', prefixGroup: 16);
     }
@@ -723,7 +724,7 @@ final class UnitTest extends TestCase
     public function testConstructorThrowsForNonAsciiAlternateSymbol(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('may only contain');
+        $this->expectExceptionMessage('Invalid alternate unit symbol');
 
         new Unit(
             name: 'liter',

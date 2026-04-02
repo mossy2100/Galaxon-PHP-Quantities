@@ -412,30 +412,29 @@ final class ForceTest extends TestCase
     // region Expansion and derived unit tests
 
     /**
-     * Test expanding newtons to base units.
+     * Test toBase() converts newtons to SI base units.
      */
-    public function testExpandNewtons(): void
+    public function testToBaseNewtons(): void
     {
         $force = new Force(10, 'N');
-        $expanded = $force->expand();
+        $base = $force->toBase();
 
-        // N expands to kg·m·s⁻²
-        $this->assertSame(10.0, $expanded->value);
-        $this->assertSame('kg*m/s2', $expanded->derivedUnit->asciiSymbol);
+        // N → kg·m·s⁻²
+        $this->assertSame(10.0, $base->value);
+        $this->assertSame('kg*m/s2', $base->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test expanding pound force to base units.
+     * Test toBase() converts pound force to English base units.
      */
-    public function testExpandPoundForce(): void
+    public function testToBasePoundForce(): void
     {
         $force = new Force(1, 'lbf');
-        $expanded = $force->expand();
+        $base = $force->toBase();
 
-        // lbf expands to lb·ft·s⁻² with factor g₀/0.3048 ≈ 32.174
-        // 1 lbf = 32.174... lb·ft·s⁻²
-        $this->assertApproxEqual(32.17404855643044, $expanded->value);
-        $this->assertSame('lb*ft/s2', $expanded->derivedUnit->asciiSymbol);
+        // lbf → lb·ft·s⁻² with factor g₀/0.3048 ≈ 32.174
+        $this->assertApproxEqual(32.17404855643044, $base->value);
+        $this->assertSame('lb*ft/s2', $base->derivedUnit->asciiSymbol);
     }
 
     /**

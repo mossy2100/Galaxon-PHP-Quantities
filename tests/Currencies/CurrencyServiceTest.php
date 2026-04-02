@@ -214,9 +214,9 @@ class CurrencyServiceTest extends TestCase
 
         self::assertNotNull($data);
         self::assertArrayHasKey('whenFetched', $data);
-        self::assertArrayHasKey('definitions', $data);
-        self::assertIsArray($data['definitions']);
-        self::assertNotEmpty($data['definitions']);
+        self::assertArrayHasKey('currencies', $data);
+        self::assertIsArray($data['currencies']);
+        self::assertNotEmpty($data['currencies']);
     }
 
     public function testLoadUnitDataContainsCommonCurrencies(): void
@@ -227,10 +227,7 @@ class CurrencyServiceTest extends TestCase
         self::assertNotNull($data);
 
         // Check that some well-known currencies are present by symbol.
-        $symbols = array_map(
-            static fn (array $def) => $def['asciiSymbol'],
-            $data['definitions']
-        );
+        $symbols = array_values($data['currencies']);
 
         self::assertContains('USD', $symbols);
         self::assertContains('EUR', $symbols);
@@ -294,8 +291,8 @@ class CurrencyServiceTest extends TestCase
         $data = CurrencyService::loadUnitData();
         self::assertNotNull($data);
         self::assertArrayHasKey('whenFetched', $data);
-        self::assertArrayHasKey('definitions', $data);
-        self::assertNotEmpty($data['definitions']);
+        self::assertArrayHasKey('currencies', $data);
+        self::assertNotEmpty($data['currencies']);
     }
 
     // endregion

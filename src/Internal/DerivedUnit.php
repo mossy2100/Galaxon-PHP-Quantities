@@ -197,7 +197,7 @@ class DerivedUnit implements UnitInterface
             return $numUnit;
         }
 
-        throw new FormatException("Invalid derived unit symbol: '$symbol'");
+        throw new FormatException("Invalid derived unit symbol: '$symbol'.");
     }
 
     // endregion
@@ -425,10 +425,18 @@ class DerivedUnit implements UnitInterface
 
     // region Binary arithmetic methods
 
+    /**
+     * Multiply this DerivedUnit by another, combining unit terms.
+     *
+     * Same-unit exponents are added (e.g. m⋅m² = m³), and terms that cancel to zero are removed.
+     *
+     * @param self $other The DerivedUnit to multiply by.
+     * @return self A new instance representing the product.
+     */
     public function mul(self $other): self
     {
         $result = clone $this;
-        foreach ($other->unitTerms as $symbol => $unitTerm) {
+        foreach ($other->unitTerms as $unitTerm) {
             $result->addUnitTerm($unitTerm);
         }
         return $result;

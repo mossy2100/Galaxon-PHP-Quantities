@@ -12,6 +12,7 @@ use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
 use InvalidArgumentException;
+use LengthException;
 use UnexpectedValueException;
 
 /**
@@ -100,8 +101,10 @@ class QuantityPartsService
      *
      * @param ?QuantityType $quantityType The quantity type.
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to clear.
-     * @throws DomainException If the quantity type is unregistered or the array is empty.
+     * @throws DomainException If the quantity type is unregistered.
+     * @throws LengthException If the array is empty.
      * @throws InvalidArgumentException If the array contains non-string values.
+     * @throws FormatException If any of the symbols are invalid.
      */
     public static function setPartUnitSymbols(?QuantityType $quantityType, ?array $partUnitSymbols): void
     {
@@ -113,13 +116,19 @@ class QuantityPartsService
         if ($partUnitSymbols !== null) {
             // Check value is not empty.
             if (empty($partUnitSymbols)) {
-                throw new DomainException('The array of part unit symbols must not be empty.');
+                throw new LengthException('Cannot set an empty array of part unit symbols.');
             }
 
             // Check all the symbols are strings.
             foreach ($partUnitSymbols as $symbol) {
+                // Check the symbol is a string.
                 if (!is_string($symbol)) {
                     throw new InvalidArgumentException('The array of part unit symbols must contain only strings.');
+                }
+
+                // Check the symbol is valid.
+                if ($symbol === '' || !RegexService::isValidUnitSymbol($symbol)) {
+                    throw new FormatException("Invalid part unit symbol, found: '$symbol'.");
                 }
             }
 
@@ -166,7 +175,7 @@ class QuantityPartsService
         assert(self::$partsConfigs !== null);
 
         if ($resultUnitSymbol === '') {
-            throw new DomainException('The result unit symbol must be null or a unit symbol.');
+            throw new DomainException('Cannot set an empty string as result unit symbol.');
         }
 
         $name = $quantityType->name;
@@ -207,13 +216,14 @@ class QuantityPartsService
         if (empty($resultUnitSymbol)) {
             throw new DomainException('No result unit symbol configured for this quantity type.');
         }
+
         $resultUnit = UnitService::getBySymbol($resultUnitSymbol);
+
         if ($resultUnit === null) {
-            throw new DomainException(
-                "Unknown result unit '$resultUnitSymbol'. Ensure you have loaded the necessary system of " .
-                'units using `UnitService::loadBySystem()`.'
-            );
+            throw new DomainException("Unknown result unit '$resultUnitSymbol'.");
         }
+
+        // Check the result unit is compatible with the quantity type.
         if ($quantityType->dimension !== $resultUnit->dimension) {
             throw new DomainException(
                 "Result unit '$resultUnitSymbol' is incompatible with " . $quantityType->name . ' quantities.'
@@ -264,6 +274,7 @@ class QuantityPartsService
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws DomainException If any arguments are invalid.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
+     * @throws LengthException If the array is empty.
      */
     public static function toParts(Quantity $quantity, ?int $precision = null): array
     {
@@ -323,6 +334,11 @@ class QuantityPartsService
     /**
      * Parse a string of quantity parts.
      *
+     * Parts must be separated by spaces.
+     * There cannot be spaces between values and units.
+     * Units containing spaces (e.g. 'US gal') are not supported.
+     * Dimensionless quantities (e.g. '1000') are not supported.
+     *
      * Examples:
      *    - "4y 5mo 6d 12h 34min 56.789s"
      *    - "12° 34′ 56.789″"
@@ -352,13 +368,13 @@ class QuantityPartsService
         if (empty($resultUnitSymbol)) {
             throw new DomainException('No result unit symbol configured for this quantity type.');
         }
+        $err = "The provided string '$input' does not represent a valid $quantityType->name quantity.";
 
         // Allow for a string with multiple parts, e.g. "12h 34min 56.789s"
-        // It's acceptable to have spaces between numbers and units, or units with spaces.
-        // e.g. "12 h 34 min 56.789 s" or "1US gal 2US pt"
+        // In this format there can be no spaces between values and units.
         $parts = [];
-        $words = preg_split('/\s+/', $input);
-        if ($words === false) {
+        $stringParts = preg_split('/\s+/', $input);
+        if ($stringParts === false) {
             // @codeCoverageIgnoreStart
             throw new UnexpectedValueException('Error splitting string into parts.');
             // @codeCoverageIgnoreEnd
@@ -367,59 +383,38 @@ class QuantityPartsService
         // Collect the parts.
         $sign = 1;
         $firstPartSeen = false;
-        $currentPartSymbol = null;
-        foreach ($words as $i => $word) {
-            // Check the part looks like a quantity. It can be dimensionless.
-            if (RegexService::isValidQuantity($word, $m)) {
-                // Check the sign.
-                $partValue = (float)$m[1];
-                if ($partValue < 0) {
-                    if (!$firstPartSeen) {
-                        $sign = -1;
-                    } else {
-                        throw new FormatException(
-                            'In a string with multiple quantity parts, only the first may be negative.'
-                        );
-                    }
-                }
+        foreach ($stringParts as $stringPart) {
+            // Check the part looks like a quantity.
+            if (!RegexService::isValidQuantity($stringPart, $m) || empty($m[2])) {
+                throw new FormatException($err);
+            }
 
-                // Add the part to the result array.
-                $partValue = abs($partValue);
-                $partSymbol = $m[2] ?? '';
-                $parts[$partSymbol] = $partValue;
-
-                // Note we've seen the first part. No further parts may have a minus sign.
+            // Check the sign.
+            $partValue = (float)$m[1];
+            if ($partValue < 0) {
                 if (!$firstPartSeen) {
-                    $firstPartSeen = true;
+                    $sign = -1;
+                } else {
+                    throw new FormatException(
+                        'In a string with multiple quantity parts, only the first may be negative.'
+                    );
                 }
-
-                // Note the symbol of the new current part.
-                $currentPartSymbol = $partSymbol;
             }
-            elseif (RegexService::isValidUnitSymbol($word)) {
-                // Check we have a current part.
-                if ($currentPartSymbol === null) {
-                    throw new FormatException('Cannot have a unit not preceded by a number.');
-                }
 
-                // Append the unit symbol to the current part unit symbol.
-                $oldPartSymbol = $currentPartSymbol;
-                $currentPartSymbol .= ($currentPartSymbol === '' ? '' : ' ' ) . $word;
-                $partValue = $parts[$oldPartSymbol];
-                unset($parts[$oldPartSymbol]);
-                $parts[$currentPartSymbol] = $partValue;
-            }
-            else {
-                throw new FormatException(
-                    "The provided string '$input' does not represent a valid $quantityType->name quantity."
-                );
+            // Add the part to the result array.
+            $partValue = abs($partValue);
+            $partSymbol = $m[2];
+            $parts[$partSymbol] = $partValue;
+
+            if (!$firstPartSeen) {
+                $firstPartSeen = true;
             }
         }
 
         // Add the sign part.
         $parts['sign'] = $sign;
 
-        // Construct the new Quantity from the extracted parts. This will catch any invalid units.
+        // Construct the new Quantity from the extracted parts.
         return self::fromParts($quantityType, $parts);
     }
 
@@ -471,7 +466,7 @@ class QuantityPartsService
             $value = $parts[$symbol] ?? 0;
 
             // Skip zeros if requested.
-            if (Numbers::equal($value, 0) && !$showZeros) {
+            if (Numbers::isZero($value) && !$showZeros) {
                 continue;
             }
 
@@ -525,9 +520,7 @@ class QuantityPartsService
     private static function validatePrecision(?int $precision): void
     {
         if ($precision !== null && $precision < 0) {
-            throw new DomainException(
-                "Invalid precision specified; $precision. Must be null or a non-negative integer."
-            );
+            throw new DomainException("Invalid precision: $precision. Must be null or a non-negative integer.");
         }
     }
 
@@ -537,15 +530,15 @@ class QuantityPartsService
      * @param ?list<string> $symbols The part unit symbols to validate and transform.
      * @param-out list<string> $symbols The validated and transformed part unit symbols.
      * @return list<Unit> The part units.
+     * @throws LengthException If the array is empty.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
      * @throws UnknownUnitException If a unit symbol is not recognized.
-     * @throws DomainException If the array is empty.
      */
     private static function validatePartUnitSymbols(?array &$symbols): array
     {
         // Ensure we have some part units.
         if (empty($symbols)) {
-            throw new DomainException('The array of part unit symbols must not be empty.');
+            throw new LengthException('Cannot use an empty array of part unit symbols.');
         }
 
         // Ignore keys and duplicates.

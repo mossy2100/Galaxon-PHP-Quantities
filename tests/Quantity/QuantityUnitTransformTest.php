@@ -9,7 +9,6 @@ use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Area;
-
 use Galaxon\Quantities\QuantityType\Energy;
 use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Frequency;
@@ -116,55 +115,55 @@ final class QuantityUnitTransformTest extends TestCase
 
     // endregion
 
-    // region expand() tests
+    // region toBase() tests
 
     /**
-     * Test expand() on newton to base units.
+     * Test toBase() on newton converts to SI base units.
      */
-    public function testExpandNewton(): void
+    public function testToBaseNewton(): void
     {
         $force = new Force(1, 'N');
-        $expanded = $force->expand();
+        $base = $force->toBase();
 
         // N = kg⋅m⋅s⁻²
-        $this->assertSame(1.0, $expanded->value);
-        $this->assertSame('kg*m/s2', $expanded->derivedUnit->asciiSymbol);
+        $this->assertSame(1.0, $base->value);
+        $this->assertSame('kg*m/s2', $base->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test expand() on joule to base units.
+     * Test toBase() on joule converts to SI base units.
      */
-    public function testExpandJoule(): void
+    public function testToBaseJoule(): void
     {
         $energy = new Energy(1, 'J');
-        $expanded = $energy->expand();
+        $base = $energy->toBase();
 
         // J = kg⋅m²⋅s⁻²
-        $this->assertSame(1.0, $expanded->value);
-        $this->assertSame('kg*m2/s2', $expanded->derivedUnit->asciiSymbol);
+        $this->assertSame(1.0, $base->value);
+        $this->assertSame('kg*m2/s2', $base->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test expand() on unit without expansion (already base).
+     * Test toBase() on unit already in base units is a no-op.
      */
-    public function testExpandAlreadyBase(): void
+    public function testToBaseAlreadyBase(): void
     {
         $length = new Length(10, 'm');
-        $expanded = $length->expand();
+        $base = $length->toBase();
 
-        $this->assertSame(10.0, $expanded->value);
-        $this->assertSame('m', $expanded->derivedUnit->asciiSymbol);
+        $this->assertSame(10.0, $base->value);
+        $this->assertSame('m', $base->derivedUnit->asciiSymbol);
     }
 
     /**
-     * Test expand() on English unit falls back to English base units.
+     * Test toBase() on English unit converts to English base units.
      */
-    public function testExpandEnglishUnitFallsBackToEnglishBase(): void
+    public function testToBaseEnglishUnit(): void
     {
         $force = new Force(1, 'lbf');
-        $expanded = $force->expand();
+        $base = $force->toBase();
 
-        $this->assertSame('lb*ft/s2', $expanded->derivedUnit->asciiSymbol);
+        $this->assertSame('lb*ft/s2', $base->derivedUnit->asciiSymbol);
     }
 
     // endregion
@@ -481,12 +480,12 @@ final class QuantityUnitTransformTest extends TestCase
     // region Round-trip tests
 
     /**
-     * Test expand() then simplify() returns equivalent value.
+     * Test toBase() then simplify() returns equivalent value.
      */
-    public function testExpandCompactRoundTrip(): void
+    public function testBaseSimplifyRoundTrip(): void
     {
         $force = new Force(10, 'N');
-        $expanded = $force->expand();
+        $expanded = $force->toBase();
         $simplified = $expanded->simplify();
 
         $this->assertTrue($force->approxEqual($simplified));

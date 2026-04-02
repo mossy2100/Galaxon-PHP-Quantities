@@ -195,6 +195,35 @@ $newton = new Unit(
 
 ---
 
+## Factory Methods
+
+### parse()
+
+```php
+public static function parse(string $symbol): self
+```
+
+Parse a unit symbol and return the matching Unit.
+
+**Parameters:**
+- `$symbol` (string) - The unit symbol to parse
+
+**Returns:**
+- `Unit` - The matching Unit
+
+**Throws:**
+- `FormatException` - If the symbol contains invalid characters
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the symbol is not recognized
+
+**Examples:**
+```php
+$meter = Unit::parse('m');
+$newton = Unit::parse('N');
+$degree = Unit::parse('deg');
+```
+
+---
+
 ## Inspection Methods
 
 ### belongsToSystem()
@@ -256,32 +285,25 @@ $meter->acceptsPrefix('c'); // true (centi)
 
 ---
 
-## String Methods
+## Comparison Methods
 
-### parse()
+### equal()
 
 ```php
-public static function parse(string $symbol): self
+public function equal(mixed $other): bool
 ```
 
-Parse a unit symbol and return the matching Unit.
+Check if this unit equals another.
 
 **Parameters:**
-- `$symbol` (string) - The unit symbol to parse
+- `$other` (mixed) - The value to compare
 
 **Returns:**
-- `Unit` - The matching Unit
+- `bool` - True if both units have the same ASCII symbol
 
-**Throws:**
-- `FormatException` - If the symbol contains invalid characters
-- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the symbol is not recognized
+---
 
-**Examples:**
-```php
-$meter = Unit::parse('m');
-$newton = Unit::parse('N');
-$degree = Unit::parse('deg');
-```
+## Conversion Methods
 
 ### format()
 
@@ -307,24 +329,6 @@ Convert the unit to a string using the Unicode symbol.
 
 **Returns:**
 - `string` - The Unicode symbol
-
----
-
-## Comparison Methods
-
-### equal()
-
-```php
-public function equal(mixed $other): bool
-```
-
-Check if this unit equals another.
-
-**Parameters:**
-- `$other` (mixed) - The value to compare
-
-**Returns:**
-- `bool` - True if both units have the same ASCII symbol
 
 ---
 

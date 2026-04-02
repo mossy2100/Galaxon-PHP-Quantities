@@ -108,7 +108,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorThrowsForExponentZero(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("can't be zero");
+        $this->expectExceptionMessage('Cannot have a zero exponent');
 
         new UnitTerm('m', null, 0);
     }
@@ -119,7 +119,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorThrowsForExponentTooLarge(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must be between -9 and 9');
+        $this->expectExceptionMessage('outside the valid range -9 to 9');
 
         new UnitTerm('m', null, 10);
     }
@@ -130,7 +130,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorThrowsForExponentTooSmall(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must be between -9 and 9');
+        $this->expectExceptionMessage('outside the valid range -9 to 9');
 
         new UnitTerm('m', null, -10);
     }
@@ -525,7 +525,7 @@ final class UnitTermTest extends TestCase
     public function testParseThrowsForExponentZero(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid exponent 0');
+        $this->expectExceptionMessage('Cannot have a zero exponent');
 
         UnitTerm::parse('m0');
     }

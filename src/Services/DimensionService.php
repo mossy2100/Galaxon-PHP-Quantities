@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Services;
 
-use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Internal\DerivedUnit;
@@ -264,7 +263,7 @@ class DimensionService
 
         // If not found, throw an exception.
         if ($x === false) {
-            throw new DomainException("Invalid dimension code letter '$letter'.");
+            throw new FormatException("Invalid dimension code letter: '$letter'.");
         }
 
         return $x;
@@ -279,12 +278,13 @@ class DimensionService
      * @param bool $si Whether to return the SI base unit symbol (true) or the English base unit symbol (false).
      * @return string The unit term symbol.
      * @throws DomainException If the dimension code is invalid.
+     * @throws LogicException If no base unit is defined for the dimension.
      */
     public static function getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string
     {
         // Validate the code.
         if (strlen($dimensionLetterCode) !== 1 || !array_key_exists($dimensionLetterCode, self::DIMENSION_CODES)) {
-            throw new DomainException("Invalid dimension code letter: '$dimensionLetterCode'.");
+            throw new FormatException("Invalid dimension code letter: '$dimensionLetterCode'.");
         }
 
         // If not SI and has an English base unit, return it.
@@ -345,6 +345,16 @@ class DimensionService
         return new DerivedUnit($unitTerms);
     }
 
+    /**
+     * Count the total number of base unit slots in a dimension code.
+     *
+     * Each dimension term contributes the absolute value of its exponent. For example, 'MLT-2' has
+     * M (1) + L (1) + T (2) = 4 unit slots.
+     *
+     * @param string $dimension The dimension code (e.g. 'MLT-2').
+     * @return int The total unit count.
+     * @throws FormatException If the dimension code is invalid.
+     */
     public static function countUnits(string $dimension): int
     {
         $dimTerms = self::decompose($dimension);
@@ -355,6 +365,18 @@ class DimensionService
 
     // region Inspection methods
 
+    /**
+     * Check if dimension1 is a subset of dimension2.
+     *
+     * Returns true if every dimension term in dimension1 exists in dimension2 with the same sign
+     * and an equal or smaller absolute exponent. This is used by simplify() to determine whether
+     * a unit's dimension fits inside a quantity's dimension.
+     *
+     * @param string $dimension1 The candidate subset dimension (e.g. 'MLT-2').
+     * @param string $dimension2 The containing dimension (e.g. 'ML2T-2').
+     * @return bool True if dimension1 is a subset of dimension2.
+     * @throws FormatException If either of the dimension codes are invalid.
+     */
     public static function lessThanOrEqual(string $dimension1, string $dimension2): bool
     {
         $dimTerms1 = self::decompose($dimension1);
@@ -375,6 +397,18 @@ class DimensionService
         return true;
     }
 
+    /**
+     * Subtract dimension2 from dimension1.
+     *
+     * Subtracts each exponent in dimension2 from the corresponding exponent in dimension1.
+     * Terms that cancel to zero are removed. Terms in dimension2 that are not in dimension1
+     * are ignored.
+     *
+     * @param string $dimension1 The dimension to subtract from (e.g. 'ML2T-2').
+     * @param string $dimension2 The dimension to subtract (e.g. 'MLT-2').
+     * @return string The resulting dimension code (e.g. 'L').
+     * @throws FormatException If either of the dimension codes are invalid.
+     */
     public static function sub(string $dimension1, string $dimension2): string
     {
         $dimTerms1 = self::decompose($dimension1);
@@ -390,5 +424,6 @@ class DimensionService
 
         return self::compose($dimTerms3);
     }
+
     // endregion
 }

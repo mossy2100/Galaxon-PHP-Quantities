@@ -12,7 +12,6 @@ use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\UnitSystem;
 use LogicException;
 
 /**

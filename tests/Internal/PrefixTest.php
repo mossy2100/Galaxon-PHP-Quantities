@@ -75,7 +75,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForEmptyAsciiSymbol(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid ASCII symbol');
+        $this->expectExceptionMessage('Invalid ASCII prefix symbol');
 
         new Prefix('test', '', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -86,7 +86,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForAsciiSymbolWithNumbers(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid ASCII symbol');
+        $this->expectExceptionMessage('Invalid ASCII prefix symbol');
 
         new Prefix('test', 'k2', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -97,7 +97,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForAsciiSymbolTooLong(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid ASCII symbol');
+        $this->expectExceptionMessage('Invalid ASCII prefix symbol');
 
         new Prefix('test', 'abc', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -108,7 +108,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForAsciiSymbolWithSpecialChars(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid ASCII symbol');
+        $this->expectExceptionMessage('Invalid ASCII prefix symbol');
 
         new Prefix('test', 'k!', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -119,7 +119,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForInvalidUnicodeSymbol(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid Unicode symbol');
+        $this->expectExceptionMessage('Invalid Unicode prefix symbol');
 
         new Prefix('test', 'k', '123', 1000.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -130,7 +130,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForUnicodeSymbolTooLong(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid Unicode symbol');
+        $this->expectExceptionMessage('Invalid Unicode prefix symbol');
 
         new Prefix('test', 'k', 'abc', 1000.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -141,7 +141,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForZeroMultiplier(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Multiplier must be positive');
+        $this->expectExceptionMessage('Cannot create prefix with non-positive multiplier');
 
         new Prefix('test', 'k', null, 0.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -152,7 +152,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForNegativeMultiplier(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Multiplier must be positive');
+        $this->expectExceptionMessage('Cannot create prefix with non-positive multiplier');
 
         new Prefix('test', 'k', null, -1000.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -163,7 +163,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForMultiplierOfOne(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Multiplier must not be equal to 1');
+        $this->expectExceptionMessage('Cannot create prefix with multiplier equal to one');
 
         new Prefix('test', 'k', null, 1.0, PrefixService::GROUP_LARGE_METRIC);
     }
@@ -174,7 +174,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForInvalidGroupCode(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid group code');
+        $this->expectExceptionMessage('Invalid prefix group code');
 
         new Prefix('test', 'k', null, 1000.0, 0);
     }
@@ -185,7 +185,7 @@ final class PrefixTest extends TestCase
     public function testConstructorThrowsForCombinedGroupCode(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid group code');
+        $this->expectExceptionMessage('Invalid prefix group code');
 
         // Combined codes are not valid for individual prefixes
         new Prefix('test', 'k', null, 1000.0, PrefixService::GROUP_METRIC);

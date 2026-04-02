@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f1c4c4814a9d5f3fb3e56141dc34568d",
+    "content-hash": "dfbd3e8ff199ce4ce851f9e6d1b9d7e1",
     "packages": [
         {
             "name": "galaxon/core",
-            "version": "v1.4.0",
+            "version": "v1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mossy2100/Galaxon-PHP-Core.git",
-                "reference": "eea31f514003252566cb7e0c9bd18a6e4ed66e17"
+                "reference": "07cf2f9c4c4b618ec8c35b6e8f621148485065d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Core/zipball/eea31f514003252566cb7e0c9bd18a6e4ed66e17",
-                "reference": "eea31f514003252566cb7e0c9bd18a6e4ed66e17",
+                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Core/zipball/07cf2f9c4c4b618ec8c35b6e8f621148485065d2",
+                "reference": "07cf2f9c4c4b618ec8c35b6e8f621148485065d2",
                 "shasum": ""
             },
             "require": {
@@ -35,6 +35,9 @@
                 "phpcodesniffer-search-depth": 3
             },
             "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
                 "psr-4": {
                     "Galaxon\\Core\\": "src/"
                 }
@@ -70,7 +73,7 @@
                 "issues": "https://github.com/mossy2100/Galaxon-PHP-Core/issues",
                 "source": "https://github.com/mossy2100/Galaxon-PHP-Core"
             },
-            "time": "2026-02-25T05:03:54+00:00"
+            "time": "2026-04-01T20:54:58+00:00"
         }
     ],
     "packages-dev": [
@@ -172,11 +175,17 @@
         },
         {
             "name": "galaxon/coding-standard",
-            "version": "dev-main",
+            "version": "v1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard.git",
+                "reference": "4480f084bff8a06a061069f68462b1d4836d43f3"
+            },
             "dist": {
-                "type": "path",
-                "url": "../CodingStandard",
-                "reference": "fb877bbc0879e732a14830037aeb27755707d7db"
+                "type": "zip",
+                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Coding-Standard/zipball/4480f084bff8a06a061069f68462b1d4836d43f3",
+                "reference": "4480f084bff8a06a061069f68462b1d4836d43f3",
+                "shasum": ""
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
@@ -185,31 +194,14 @@
                 "squizlabs/php_codesniffer": "^4.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^2.1"
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^11.0"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
                 "phpcodesniffer-search-depth": 3
             },
-            "scripts": {
-                "fix": [
-                    "vendor/bin/phpcbf -vp"
-                ],
-                "check": [
-                    "vendor/bin/phpcs -s"
-                ],
-                "report": [
-                    "vendor/bin/phpcs -q --report=summary"
-                ],
-                "analyze": [
-                    "vendor/bin/phpstan analyze -l 9"
-                ],
-                "quality": [
-                    "@fix",
-                    "@check",
-                    "@analyze"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -234,9 +226,7 @@
                 "issues": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard/issues",
                 "source": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2026-03-30T03:53:16+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -523,11 +513,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.40",
+            "version": "2.1.46",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
-                "reference": "9b2c7aeb83a75d8680ea5e7c9b7fca88052b766b",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/a193923fc2d6325ef4e741cf3af8c3e8f54dbf25",
+                "reference": "a193923fc2d6325ef4e741cf3af8c3e8f54dbf25",
                 "shasum": ""
             },
             "require": {
@@ -572,7 +562,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-02-23T15:04:35+00:00"
+            "time": "2026-04-01T09:25:14+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -922,16 +912,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.14",
+            "version": "12.5.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "47283cfd98d553edcb1353591f4e255dc1bb61f0"
+                "reference": "aeb6899ffdbbf4b4ff5e6b6ebb77b35c51bb6d9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/47283cfd98d553edcb1353591f4e255dc1bb61f0",
-                "reference": "47283cfd98d553edcb1353591f4e255dc1bb61f0",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/aeb6899ffdbbf4b4ff5e6b6ebb77b35c51bb6d9a",
+                "reference": "aeb6899ffdbbf4b4ff5e6b6ebb77b35c51bb6d9a",
                 "shasum": ""
             },
             "require": {
@@ -953,7 +943,7 @@
                 "sebastian/cli-parser": "^4.2.0",
                 "sebastian/comparator": "^7.1.4",
                 "sebastian/diff": "^7.0.0",
-                "sebastian/environment": "^8.0.3",
+                "sebastian/environment": "^8.0.4",
                 "sebastian/exporter": "^7.0.2",
                 "sebastian/global-state": "^8.0.2",
                 "sebastian/object-enumerator": "^7.0.0",
@@ -1000,31 +990,15 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.14"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.15"
             },
             "funding": [
                 {
-                    "url": "https://phpunit.de/sponsors.html",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/sebastianbergmann",
-                    "type": "github"
-                },
-                {
-                    "url": "https://liberapay.com/sebastianbergmann",
-                    "type": "liberapay"
-                },
-                {
-                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
-                    "type": "thanks_dev"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/phpunit/phpunit",
-                    "type": "tidelift"
+                    "url": "https://phpunit.de/sponsoring.html",
+                    "type": "other"
                 }
             ],
-            "time": "2026-02-18T12:38:40+00:00"
+            "time": "2026-03-31T06:41:33+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -1314,16 +1288,16 @@
         },
         {
             "name": "sebastian/environment",
-            "version": "8.0.3",
+            "version": "8.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "24a711b5c916efc6d6e62aa65aa2ec98fef77f68"
+                "reference": "7b8842c2d8e85d0c3a5831236bf5869af6ab2a11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/24a711b5c916efc6d6e62aa65aa2ec98fef77f68",
-                "reference": "24a711b5c916efc6d6e62aa65aa2ec98fef77f68",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/7b8842c2d8e85d0c3a5831236bf5869af6ab2a11",
+                "reference": "7b8842c2d8e85d0c3a5831236bf5869af6ab2a11",
                 "shasum": ""
             },
             "require": {
@@ -1366,7 +1340,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/environment/issues",
                 "security": "https://github.com/sebastianbergmann/environment/security/policy",
-                "source": "https://github.com/sebastianbergmann/environment/tree/8.0.3"
+                "source": "https://github.com/sebastianbergmann/environment/tree/8.0.4"
             },
             "funding": [
                 {
@@ -1386,7 +1360,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-08-12T14:11:56+00:00"
+            "time": "2026-03-15T07:05:40+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -1925,16 +1899,16 @@
         },
         {
             "name": "slevomat/coding-standard",
-            "version": "8.28.0",
+            "version": "8.28.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slevomat/coding-standard.git",
-                "reference": "0cd4b30cc1037eca54091c188d260d570e61770c"
+                "reference": "66151cfbd25b50e8becd9f809fb704f01fd4d6f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/0cd4b30cc1037eca54091c188d260d570e61770c",
-                "reference": "0cd4b30cc1037eca54091c188d260d570e61770c",
+                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/66151cfbd25b50e8becd9f809fb704f01fd4d6f2",
+                "reference": "66151cfbd25b50e8becd9f809fb704f01fd4d6f2",
                 "shasum": ""
             },
             "require": {
@@ -1946,7 +1920,7 @@
             "require-dev": {
                 "phing/phing": "3.0.1|3.1.2",
                 "php-parallel-lint/php-parallel-lint": "1.4.0",
-                "phpstan/phpstan": "2.1.40",
+                "phpstan/phpstan": "2.1.42",
                 "phpstan/phpstan-deprecation-rules": "2.0.4",
                 "phpstan/phpstan-phpunit": "2.0.16",
                 "phpstan/phpstan-strict-rules": "2.0.10",
@@ -1974,7 +1948,7 @@
             ],
             "support": {
                 "issues": "https://github.com/slevomat/coding-standard/issues",
-                "source": "https://github.com/slevomat/coding-standard/tree/8.28.0"
+                "source": "https://github.com/slevomat/coding-standard/tree/8.28.1"
             },
             "funding": [
                 {
@@ -1986,7 +1960,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-23T21:35:24+00:00"
+            "time": "2026-03-22T17:22:38+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -2172,9 +2146,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "galaxon/coding-standard": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

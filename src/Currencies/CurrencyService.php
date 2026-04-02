@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Currencies;
 
-use DateTime;
 use DateTimeInterface;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
@@ -201,7 +200,7 @@ class CurrencyService
         ksort($currencies);
         $unitData = [
             'whenFetched' => date(self::DATETIME_FORMAT),
-            'currencies' => $currencies,
+            'currencies'  => $currencies,
         ];
 
         // Build the PHP file content.
@@ -298,7 +297,7 @@ class CurrencyService
         ];
 
         // Build the PHP file content.
-        $datetime = date(DateTime::COOKIE);
+        $datetime = date(DateTimeInterface::COOKIE);
         $className = self::class;
         $methodName = __FUNCTION__;
         $output = <<<PHP

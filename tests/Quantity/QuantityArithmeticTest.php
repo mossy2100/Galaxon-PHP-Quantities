@@ -521,10 +521,7 @@ final class QuantityArithmeticTest extends TestCase
         $pow2 = $q->pow(2);
 
         $this->assertSame($sqr->value, $pow2->value);
-        $this->assertSame(
-            $sqr->derivedUnit->asciiSymbol,
-            $pow2->derivedUnit->asciiSymbol
-        );
+        $this->assertSame($sqr->derivedUnit->asciiSymbol, $pow2->derivedUnit->asciiSymbol);
     }
 
     // endregion

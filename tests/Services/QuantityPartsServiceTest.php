@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\Services;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
@@ -15,6 +16,7 @@ use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Volume;
 use Galaxon\Quantities\Services\QuantityPartsService;
 use InvalidArgumentException;
+use LengthException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -103,7 +105,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFromPartsThrowsForInvalidSign(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Invalid sign: 2. Must be -1 or 1.');
+        $this->expectExceptionMessage('Invalid sign: 2.');
 
         QuantityPartsService::fromParts(Time::getQuantityType(), [
             'h'    => 1,
@@ -327,98 +329,61 @@ final class QuantityPartsServiceTest extends TestCase
     }
 
     /**
-     * Test parseParts() with spaces between values and units.
+     * Test parseParts() throws for dimensionless part (number without unit).
      */
-    public function testParsePartsSpacesBetweenValueAndUnit(): void
-    {
-        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '1 h 30 min 45 s');
-
-        $this->assertInstanceOf(Time::class, $qty);
-        $this->assertEqualsWithDelta(5445.0, $qty->value, 1e-10);
-    }
-
-    /**
-     * Test parseParts() with mixed spacing — some parts with spaces, some without.
-     */
-    public function testParsePartsMixedSpacing(): void
-    {
-        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '1h 30 min 45s');
-
-        $this->assertInstanceOf(Time::class, $qty);
-        $this->assertEqualsWithDelta(5445.0, $qty->value, 1e-10);
-    }
-
-    /**
-     * Test parseParts() with a single part with space between value and unit.
-     */
-    public function testParseParseSinglePartWithSpace(): void
-    {
-        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '90 min');
-
-        $this->assertEqualsWithDelta(5400.0, $qty->value, 1e-10);
-    }
-
-    /**
-     * Test parseParts() with a negative value and space between value and unit.
-     */
-    public function testParsePartsNegativeWithSpace(): void
-    {
-        $qty = QuantityPartsService::parseParts(Time::getQuantityType(), '-2 h 15 min');
-
-        $this->assertEqualsWithDelta(-8100.0, $qty->value, 1e-10);
-    }
-
-    /**
-     * Test parseParts() with two-word imperial unit symbol.
-     */
-    public function testParsePartsImperialTwoWordUnit(): void
-    {
-        $originalParts = Volume::getPartUnitSymbols();
-        $originalResult = Volume::getResultUnitSymbol();
-        Volume::setImperialParts();
-        try {
-            $qty = QuantityPartsService::parseParts(Volume::getQuantityType(), '1 imp gal 2 imp pt');
-
-            $this->assertInstanceOf(Volume::class, $qty);
-            $this->assertSame('imp gal', $qty->derivedUnit->asciiSymbol);
-            // 1 imp gal + 2 imp pt = 1 + 2/8 = 1.25 imp gal
-            $this->assertEqualsWithDelta(1.25, $qty->value, 1e-6);
-        } finally {
-            Volume::setPartUnitSymbols($originalParts);
-            Volume::setResultUnitSymbol($originalResult);
-        }
-    }
-
-    /**
-     * Test parseParts() with three-word US customary unit symbol.
-     */
-    public function testParsePartsUsCustomaryThreeWordUnit(): void
-    {
-        $originalParts = Volume::getPartUnitSymbols();
-        $originalResult = Volume::getResultUnitSymbol();
-        Volume::setUsCustomaryParts();
-        try {
-            $qty = QuantityPartsService::parseParts(Volume::getQuantityType(), '1 US gal 4 US fl oz');
-
-            $this->assertInstanceOf(Volume::class, $qty);
-            $this->assertSame('US gal', $qty->derivedUnit->asciiSymbol);
-            // 1 US gal + 4 US fl oz = 1 + 4/128 = 1.03125 US gal
-            $this->assertEqualsWithDelta(1.03125, $qty->value, 1e-6);
-        } finally {
-            Volume::setPartUnitSymbols($originalParts);
-            Volume::setResultUnitSymbol($originalResult);
-        }
-    }
-
-    /**
-     * Test parseParts() throws when a unit word appears without a preceding number.
-     */
-    public function testParsePartsThrowsForUnitWithoutNumber(): void
+    public function testParsePartsThrowsForDimensionlessPart(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('not preceded by a number');
 
-        QuantityPartsService::parseParts(Time::getQuantityType(), 'h 30min');
+        QuantityPartsService::parseParts(Time::getQuantityType(), '42');
+    }
+
+    /**
+     * Test parseParts() throws for multi-word unit with space.
+     */
+    public function testParsePartsThrowsForMultiWordUnit(): void
+    {
+        $this->expectException(FormatException::class);
+
+        $volumeType = Volume::getQuantityType();
+        $originalResult = QuantityPartsService::getResultUnitSymbol($volumeType);
+        QuantityPartsService::setResultUnitSymbol($volumeType, 'L');
+        try {
+            // "10imp" parses as value=10 unit="imp", then "gal" fails as a quantity.
+            QuantityPartsService::parseParts($volumeType, '10imp gal');
+        } finally {
+            QuantityPartsService::setResultUnitSymbol($volumeType, $originalResult);
+        }
+    }
+
+    /**
+     * Test parseParts() throws UnknownUnitException for unrecognised unit.
+     */
+    public function testParsePartsThrowsForUnknownUnit(): void
+    {
+        $this->expectException(UnknownUnitException::class);
+
+        QuantityPartsService::parseParts(Time::getQuantityType(), '10xyz');
+    }
+
+    /**
+     * Test parseParts() throws DimensionMismatchException for wrong dimension.
+     */
+    public function testParsePartsThrowsForDimensionMismatch(): void
+    {
+        $this->expectException(DimensionMismatchException::class);
+
+        QuantityPartsService::parseParts(Time::getQuantityType(), '10mi 25ft');
+    }
+
+    /**
+     * Test parseParts() throws for space between value and unit.
+     */
+    public function testParsePartsThrowsForSpaceBetweenValueAndUnit(): void
+    {
+        $this->expectException(FormatException::class);
+
+        QuantityPartsService::parseParts(Time::getQuantityType(), '1 h 30 min');
     }
 
     // endregion
@@ -600,8 +565,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testSetPartUnitSymbolsThrowsForEmptyArray(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must not be empty');
+        $this->expectException(LengthException::class);
+        $this->expectExceptionMessage('Cannot set an empty array');
 
         QuantityPartsService::setPartUnitSymbols(
             Time::getQuantityType(),
@@ -620,6 +585,34 @@ final class QuantityPartsServiceTest extends TestCase
         QuantityPartsService::setPartUnitSymbols(
             Time::getQuantityType(),
             ['h', 42] // @phpstan-ignore argument.type
+        );
+    }
+
+    /**
+     * Test setPartUnitSymbols() throws for empty string symbol.
+     */
+    public function testSetPartUnitSymbolsThrowsForEmptyStringSymbol(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid part unit symbol');
+
+        QuantityPartsService::setPartUnitSymbols(
+            Time::getQuantityType(),
+            ['h', '']
+        );
+    }
+
+    /**
+     * Test setPartUnitSymbols() throws for invalid unit symbol.
+     */
+    public function testSetPartUnitSymbolsThrowsForInvalidSymbol(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid part unit symbol');
+
+        QuantityPartsService::setPartUnitSymbols(
+            Time::getQuantityType(),
+            ['h', '123']
         );
     }
 
@@ -675,7 +668,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testSetResultUnitSymbolThrowsForEmptyString(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must be null or a unit symbol');
+        $this->expectExceptionMessage('Cannot set an empty string as result unit symbol');
 
         QuantityPartsService::setResultUnitSymbol(
             Time::getQuantityType(),
@@ -840,8 +833,8 @@ final class QuantityPartsServiceTest extends TestCase
         // Mass has no partUnitSymbols configured.
         $qty = new Mass(100, 'kg');
 
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('must not be empty');
+        $this->expectException(LengthException::class);
+        $this->expectExceptionMessage('Cannot use an empty array');
 
         QuantityPartsService::toParts($qty);
     }

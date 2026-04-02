@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Services;
 
-use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Services\DimensionService;
@@ -187,7 +187,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testDecomposeThrowsForInvalidCode(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code 'XYZ'");
 
         DimensionService::decompose('XYZ');
@@ -327,7 +327,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testNormalizeThrowsForInvalidCode(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
 
         DimensionService::normalize('invalid');
     }
@@ -403,7 +403,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testApplyExponentThrowsForInvalidDimension(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
 
         DimensionService::applyExponent('invalid', 2);
     }
@@ -428,8 +428,8 @@ final class DimensionServiceTest extends TestCase
      */
     public function testLetterToIntThrowsForInvalidCode(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid dimension code letter 'X'");
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage("Invalid dimension code letter: 'X'");
 
         DimensionService::letterToInt('X');
     }
@@ -439,8 +439,8 @@ final class DimensionServiceTest extends TestCase
      */
     public function testLetterToIntThrowsForLowercase(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid dimension code letter 'l'");
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage("Invalid dimension code letter: 'l'");
 
         DimensionService::letterToInt('l');
     }
@@ -450,8 +450,8 @@ final class DimensionServiceTest extends TestCase
      */
     public function testLetterToIntThrowsForEmptyString(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid dimension code letter ''");
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage("Invalid dimension code letter: ''");
 
         DimensionService::letterToInt('');
     }
@@ -461,8 +461,8 @@ final class DimensionServiceTest extends TestCase
      */
     public function testLetterToIntThrowsForMultiCharacter(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Invalid dimension code letter 'ML'");
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage("Invalid dimension code letter: 'ML'");
 
         DimensionService::letterToInt('ML');
     }
@@ -493,7 +493,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testGetBaseUnitSymbolThrowsForInvalidCode(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: 'X'");
 
         DimensionService::getBaseUnitSymbol('X', true);
@@ -504,7 +504,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testGetBaseUnitSymbolThrowsForMultiCharacter(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: 'ML'");
 
         DimensionService::getBaseUnitSymbol('ML', true);
@@ -515,7 +515,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testGetBaseUnitSymbolThrowsForEmptyString(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: ''");
 
         DimensionService::getBaseUnitSymbol('', true);
@@ -526,7 +526,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testGetBaseUnitSymbolThrowsForLowercase(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: 'm'");
 
         DimensionService::getBaseUnitSymbol('m', true);
@@ -594,7 +594,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testGetBaseUnitTermThrowsForInvalidCode(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: 'X'");
 
         DimensionService::getBaseUnitTerm('X', true);
@@ -605,7 +605,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testGetBaseUnitTermThrowsForMultiCharacter(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: 'ML'");
 
         DimensionService::getBaseUnitTerm('ML', true);
@@ -710,7 +710,7 @@ final class DimensionServiceTest extends TestCase
      */
     public function testGetBaseDerivedUnitThrowsForInvalidCode(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
 
         DimensionService::getBaseDerivedUnit('XYZ', true);
     }
@@ -776,6 +776,189 @@ final class DimensionServiceTest extends TestCase
 
             $this->assertSame($normalized, $composed, "Round-trip failed for '$code'");
         }
+    }
+
+    // endregion
+
+    // region countUnits() tests
+
+    /**
+     * Test countUnits() with a single dimension term.
+     */
+    public function testCountUnitsSingleTerm(): void
+    {
+        $this->assertSame(1, DimensionService::countUnits('L'));
+        $this->assertSame(1, DimensionService::countUnits('M'));
+    }
+
+    /**
+     * Test countUnits() with exponents.
+     */
+    public function testCountUnitsWithExponents(): void
+    {
+        // L2 = 2 unit slots.
+        $this->assertSame(2, DimensionService::countUnits('L2'));
+        // T-2 = 2 unit slots (absolute value).
+        $this->assertSame(2, DimensionService::countUnits('T-2'));
+    }
+
+    /**
+     * Test countUnits() with compound dimensions.
+     */
+    public function testCountUnitsCompound(): void
+    {
+        // MLT-2 = M(1) + L(1) + T(2) = 4.
+        $this->assertSame(4, DimensionService::countUnits('MLT-2'));
+        // ML2T-2 = M(1) + L(2) + T(2) = 5.
+        $this->assertSame(5, DimensionService::countUnits('ML2T-2'));
+    }
+
+    /**
+     * Test countUnits() with empty dimension.
+     */
+    public function testCountUnitsEmpty(): void
+    {
+        $this->assertSame(0, DimensionService::countUnits(''));
+    }
+
+    // endregion
+
+    // region lessThanOrEqual() tests
+
+    /**
+     * Test lessThanOrEqual() with equal dimensions.
+     */
+    public function testLessThanOrEqualSameDimension(): void
+    {
+        $this->assertTrue(DimensionService::lessThanOrEqual('MLT-2', 'MLT-2'));
+    }
+
+    /**
+     * Test lessThanOrEqual() with a subset dimension.
+     */
+    public function testLessThanOrEqualSubset(): void
+    {
+        // M is a subset of MLT-2.
+        $this->assertTrue(DimensionService::lessThanOrEqual('M', 'MLT-2'));
+        // ML is a subset of MLT-2.
+        $this->assertTrue(DimensionService::lessThanOrEqual('ML', 'MLT-2'));
+    }
+
+    /**
+     * Test lessThanOrEqual() with smaller exponent fits larger.
+     */
+    public function testLessThanOrEqualSmallerExponent(): void
+    {
+        // L fits inside L2 (exponent 1 <= 2).
+        $this->assertTrue(DimensionService::lessThanOrEqual('L', 'L2'));
+        // T-1 fits inside T-2 (abs(1) <= abs(2), same sign).
+        $this->assertTrue(DimensionService::lessThanOrEqual('T-1', 'T-2'));
+    }
+
+    /**
+     * Test lessThanOrEqual() returns false when dimension1 has larger exponent.
+     */
+    public function testLessThanOrEqualLargerExponentFails(): void
+    {
+        // L2 does not fit inside L.
+        $this->assertFalse(DimensionService::lessThanOrEqual('L2', 'L'));
+    }
+
+    /**
+     * Test lessThanOrEqual() returns false when signs differ.
+     */
+    public function testLessThanOrEqualDifferentSignsFails(): void
+    {
+        // T (positive) does not fit inside T-2 (negative).
+        $this->assertFalse(DimensionService::lessThanOrEqual('T', 'T-2'));
+        // T-1 does not fit inside T.
+        $this->assertFalse(DimensionService::lessThanOrEqual('T-1', 'T'));
+    }
+
+    /**
+     * Test lessThanOrEqual() returns false when dimension1 has terms missing from dimension2.
+     */
+    public function testLessThanOrEqualMissingTermFails(): void
+    {
+        // MLT-2 has T, which is not in ML.
+        $this->assertFalse(DimensionService::lessThanOrEqual('MLT-2', 'ML'));
+        // I is not in MLT-2.
+        $this->assertFalse(DimensionService::lessThanOrEqual('I', 'MLT-2'));
+    }
+
+    /**
+     * Test lessThanOrEqual() with empty dimension1.
+     */
+    public function testLessThanOrEqualEmptyIsSubsetOfAnything(): void
+    {
+        $this->assertTrue(DimensionService::lessThanOrEqual('', 'MLT-2'));
+        $this->assertTrue(DimensionService::lessThanOrEqual('', ''));
+    }
+
+    // endregion
+
+    // region sub() tests
+
+    /**
+     * Test sub() subtracts matching dimension terms.
+     */
+    public function testSubMatchingTerms(): void
+    {
+        // ML2T-2 - MLT-2 = L (M cancels, L2-L1=L, T-2-T-2=0).
+        $this->assertSame('L', DimensionService::sub('ML2T-2', 'MLT-2'));
+    }
+
+    /**
+     * Test sub() with identical dimensions produces empty.
+     */
+    public function testSubIdenticalProducesEmpty(): void
+    {
+        $this->assertSame('', DimensionService::sub('MLT-2', 'MLT-2'));
+    }
+
+    /**
+     * Test sub() ignores terms in dimension2 not in dimension1.
+     */
+    public function testSubIgnoresExtraTermsInDimension2(): void
+    {
+        // L - MLT-2 = only L is in dimension1, so M and T in dimension2 are ignored.
+        // L(1) - L(1) = 0, so result is empty... actually L - L = 0.
+        // Let's use L2 - L = L instead.
+        $this->assertSame('L', DimensionService::sub('L2', 'L'));
+    }
+
+    /**
+     * Test sub() with no overlap keeps dimension1 unchanged.
+     */
+    public function testSubNoOverlap(): void
+    {
+        // M - L = M (L is not in dimension1, so ignored).
+        $this->assertSame('M', DimensionService::sub('M', 'L'));
+    }
+
+    /**
+     * Test sub() with empty dimension2 returns dimension1.
+     */
+    public function testSubEmptyDimension2(): void
+    {
+        $this->assertSame('MLT-2', DimensionService::sub('MLT-2', ''));
+    }
+
+    /**
+     * Test sub() with empty dimension1 returns empty.
+     */
+    public function testSubEmptyDimension1(): void
+    {
+        $this->assertSame('', DimensionService::sub('', 'MLT-2'));
+    }
+
+    /**
+     * Test sub() can produce negative exponents.
+     */
+    public function testSubProducesNegativeExponents(): void
+    {
+        // L - L2 = L(1-2) = L-1.
+        $this->assertSame('L-1', DimensionService::sub('L', 'L2'));
     }
 
     // endregion

@@ -508,7 +508,7 @@ final class QuantityStringsTest extends TestCase
     public function testFormatInvalidSpecifierThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("The specifier must be 'e', 'E', 'f', 'F', 'g', 'G', 'h', or 'H'.");
+        $this->expectExceptionMessage("Invalid format specifier: 'x'.");
 
         $length = new Length(10, 'm');
         $length->format('x');
@@ -520,7 +520,7 @@ final class QuantityStringsTest extends TestCase
     public function testFormatNegativePrecisionThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('The precision must be null or an integer between 0 and 17.');
+        $this->expectExceptionMessage('Invalid precision: -1.');
 
         $length = new Length(10, 'm');
         $length->format('f', -1);
@@ -532,7 +532,7 @@ final class QuantityStringsTest extends TestCase
     public function testFormatPrecisionTooHighThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('The precision must be null or an integer between 0 and 17.');
+        $this->expectExceptionMessage('Invalid precision: 18.');
 
         $length = new Length(10, 'm');
         $length->format('f', 18);

@@ -15,6 +15,7 @@ use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
+use InvalidArgumentException;
 use Override;
 
 /**
@@ -166,6 +167,7 @@ class Unit implements UnitInterface
      * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.
      * @throws FormatException If the unit symbols contain invalid characters.
      * @throws DomainException If the dimension code or systems are invalid.
+     * @throws InvalidArgumentException If the systems array contains non-UnitSystem values.
      */
     public function __construct(
         string $name,
@@ -179,45 +181,40 @@ class Unit implements UnitInterface
         // Check the name is non-empty, ASCII, and up to 3 words.
         $name = trim($name);
         if (!RegexService::isValidUnitName($name)) {
-            throw new FormatException('Unit name must be given in Unicode words, e.g. "joule", "US fluid ounce".');
+            throw new FormatException("Invalid unit name: '$name'.");
         }
 
         // Check ASCII symbol contains ASCII letters only (empty is allowed for dimensionless/scalar).
         if ($asciiSymbol !== '' && !RegexService::isValidAsciiSymbol($asciiSymbol)) {
-            throw new FormatException(
-                "Unit symbol '$asciiSymbol' must only contain ASCII characters. " .
-                'Up to three words are allowed, separated by single spaces, or a single valid unit symbol (e.g. \'"%).'
-            );
+            throw new FormatException("Invalid ASCII unit symbol: '$asciiSymbol'.");
         }
 
         // Make sure the $systems array is a non-empty array of UnitSystem values.
         if (empty($systems)) {
-            throw new DomainException('Unit must belong to at least one measurement system.');
+            throw new DomainException('Cannot create a unit with no measurement systems.');
         }
         $systems = array_values(array_unique($systems, SORT_REGULAR));
         foreach ($systems as $system) {
             if (!$system instanceof UnitSystem) {
-                throw new DomainException('Systems of units must be specified as UnitSystem enum values.');
+                throw new InvalidArgumentException(
+                    'Cannot create a unit with non-UnitSystem values in the systems array.'
+                );
             }
         }
 
         // Validate prefix group.
         if ($prefixGroup < 0 || $prefixGroup > PrefixService::GROUP_ALL) {
-            throw new DomainException('Prefix group must be in the range 0-' . PrefixService::GROUP_ALL . '.');
+            throw new DomainException("Invalid prefix group: $prefixGroup.");
         }
 
         // Validate Unicode symbol.
         if (isset($unicodeSymbol) && !RegexService::isValidUnicodeSymbol($unicodeSymbol)) {
-            throw new FormatException(
-                "Unit symbol '$unicodeSymbol' must only contain Unicode letters and/or symbols (e.g. °′″%)."
-            );
+            throw new FormatException("Invalid Unicode unit symbol: '$unicodeSymbol'.");
         }
 
         // Check if the alternate symbol contains a single ASCII non-letter symbol only.
         if (isset($alternateSymbol) && !RegexService::isValidAlternateSymbol($alternateSymbol)) {
-            throw new FormatException(
-                "Unit symbol '$alternateSymbol' may only contain a single ASCII unit symbol (e.g. ' or \")."
-            );
+            throw new FormatException("Invalid alternate unit symbol: '$alternateSymbol'.");
         }
 
         // Set the properties.

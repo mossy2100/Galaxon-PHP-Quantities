@@ -163,10 +163,10 @@ class UnitTerm implements UnitInterface
 
         // Validate exponent.
         if ($exponent < -9 || $exponent > 9) {
-            throw new DomainException('Exponent must be between -9 and 9.');
+            throw new DomainException("Exponent $exponent is outside the valid range -9 to 9.");
         }
         if ($exponent === 0) {
-            throw new DomainException("Exponent can't be zero.");
+            throw new DomainException('Cannot have a zero exponent.');
         }
 
         // Set properties.
@@ -238,7 +238,7 @@ class UnitTerm implements UnitInterface
 
         // Make sure the exponent isn't 0.
         if ($exp === 0) {
-            throw new DomainException('Invalid exponent 0. A unit must have a no exponent or a non-zero exponent.');
+            throw new DomainException('Cannot have a zero exponent.');
         }
 
         // Search for a matching unit symbol.

@@ -226,7 +226,7 @@ final class QuantityCreateTest extends TestCase
     public function testCreateWithInfinityThrowsException(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Value cannot be ±INF or NAN.');
+        $this->expectExceptionMessage('Cannot create a quantity with a non-finite value.');
 
         Quantity::create(INF, 'm');
     }

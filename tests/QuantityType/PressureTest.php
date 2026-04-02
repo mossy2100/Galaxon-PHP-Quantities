@@ -593,19 +593,19 @@ final class PressureTest extends TestCase
 
     // endregion
 
-    // region Expansion tests
+    // region toBase() tests
 
     /**
-     * Test expanding pascals to base units.
+     * Test toBase() converts pascals to SI base units.
      */
-    public function testExpandPascals(): void
+    public function testToBasePascals(): void
     {
         $pressure = new Pressure(1000, 'Pa');
-        $expanded = $pressure->expand();
+        $base = $pressure->toBase();
 
-        // Pa expands to kg·m⁻¹·s⁻²
-        $this->assertSame(1000.0, $expanded->value);
-        $this->assertSame('kg/(m*s2)', $expanded->derivedUnit->asciiSymbol);
+        // Pa → kg·m⁻¹·s⁻²
+        $this->assertSame(1000.0, $base->value);
+        $this->assertSame('kg/(m*s2)', $base->derivedUnit->asciiSymbol);
     }
 
     // endregion

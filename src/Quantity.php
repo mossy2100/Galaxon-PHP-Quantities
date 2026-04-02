@@ -135,7 +135,7 @@ class Quantity implements Stringable
 
         // Check the value is finite.
         if (!is_finite($value)) {
-            throw new DomainException('Quantity value cannot be ±INF or NAN.');
+            throw new DomainException('Cannot create a quantity with a non-finite value.');
         }
 
         // Convert the provided unit argument into an object if it isn't already.
@@ -182,7 +182,7 @@ class Quantity implements Stringable
     {
         // Check the value is finite.
         if (!is_finite($value)) {
-            throw new DomainException('Value cannot be ±INF or NAN.');
+            throw new DomainException('Cannot create a quantity with a non-finite value.');
         }
 
         // Get unit as DerivedUnit.
@@ -430,26 +430,6 @@ class Quantity implements Stringable
     // region Transformation methods
 
     /**
-     * Substitute expandable units for base units, e.g. N => kg*m/s2
-     *
-     * @return static A new Quantity with expandable (named) units expanded.
-     */
-    public function expand(): static
-    {
-        // Try to expand the derived unit.
-        $expansion = $this->derivedUnit->tryExpand();
-
-        // Return if we found an expansion.
-        if ($expansion !== null) {
-            // Multiply the expansion Quantity by this Quantity's value.
-            return $expansion->mul($this->value);
-        }
-
-        // If no expansion was found, fall back to SI or English base units, whichever is more suitable.
-        return $this->toBase();
-    }
-
-    /**
      * Merge units that have the same dimension, e.g. 'm' and 'ft', or 's' and 'h', or 'lb' and 'kg'.
      *
      * The first unit encountered of a given dimension will be the one any others are converted to.
@@ -593,10 +573,7 @@ class Quantity implements Stringable
             $expansionUnit = DimensionService::getBaseDerivedUnit($unit->dimension, $si);
 
             // Skip units that expand to s-1 (i.e. 'Hz' or 'Bq'), since we already handled these.
-            if (
-                count($expansionUnit->unitTerms) === 1
-                && $expansionUnit->firstUnitTerm?->asciiSymbol === 's-1'
-            ) {
+            if (count($expansionUnit->unitTerms) === 1 && $expansionUnit->firstUnitTerm?->asciiSymbol === 's-1') {
                 continue;
             }
 
@@ -682,7 +659,7 @@ class Quantity implements Stringable
     {
         // Guards.
         if ($this->value === 0.0) {
-            throw new DivisionByZeroError('Cannot invert a quantity with a value of 0.');
+            throw new DivisionByZeroError('Cannot invert zero.');
         }
 
         // Invert the value and unit.
@@ -809,7 +786,7 @@ class Quantity implements Stringable
         // Check for simple division by a scalar.
         if (is_float($other)) {
             if ($other === 0.0) {
-                throw new DivisionByZeroError('Cannot divide a quantity by 0.');
+                throw new DivisionByZeroError('Cannot divide by zero.');
             }
 
             return $this->withValue($this->value / $other);
@@ -1001,12 +978,12 @@ class Quantity implements Stringable
         $validFormats = ['e', 'E', 'f', 'F', 'g', 'G', 'h', 'H'];
         if (!in_array($specifier, $validFormats, true)) {
             $formatsString = Arrays::toSerialList(Arrays::quoteValues($validFormats), 'or');
-            throw new DomainException("The specifier must be $formatsString.");
+            throw new DomainException("Invalid format specifier: '$specifier'. Must be $formatsString.");
         }
 
         // Validate the precision.
         if ($precision !== null && ($precision < 0 || $precision > 17)) {
-            throw new DomainException('The precision must be null or an integer between 0 and 17.');
+            throw new DomainException("Invalid precision: $precision. Must be between 0 and 17.");
         }
 
         // Set $trimZeros if not set.

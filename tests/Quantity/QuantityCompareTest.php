@@ -10,8 +10,6 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

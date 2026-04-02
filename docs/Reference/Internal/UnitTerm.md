@@ -358,7 +358,7 @@ echo $m->asciiSymbol; // 'm'
 
 ---
 
-## String Methods
+## Conversion Methods
 
 ### format()
 

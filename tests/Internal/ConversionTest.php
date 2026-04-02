@@ -11,7 +11,6 @@ use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\FloatWithError;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

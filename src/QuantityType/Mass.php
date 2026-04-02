@@ -6,7 +6,6 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use Override;
 

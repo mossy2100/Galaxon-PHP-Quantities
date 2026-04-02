@@ -386,7 +386,7 @@ Check if this derived unit equals another.
 
 ---
 
-## String Methods
+## Conversion Methods
 
 ### format()
 

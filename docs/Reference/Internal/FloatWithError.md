@@ -268,7 +268,7 @@ echo $squared->value; // 1000000.0
 
 ---
 
-## String Methods
+## Conversion Methods
 
 ### \_\_toString()
 

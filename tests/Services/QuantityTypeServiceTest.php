@@ -411,7 +411,7 @@ final class QuantityTypeServiceTest extends TestCase
     public function testSetClassThrowsForNonExistentDimension(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Quantity type 'coolness' not found");
+        $this->expectExceptionMessage("Unknown quantity type: 'coolness'.");
 
         QuantityTypeService::setClass('coolness', Length::class);
     }

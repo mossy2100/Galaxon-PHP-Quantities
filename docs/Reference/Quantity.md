@@ -61,7 +61,7 @@ The quantity type metadata, or null if not registered.
 
 ---
 
-## Constructor and Factory Method
+## Constructor
 
 ### \_\_construct()
 
@@ -91,6 +91,10 @@ use Galaxon\Quantities\QuantityType\Mass;
 $length = new Length(100, 'm');
 $mass = new Mass(5.5, 'kg');
 ```
+
+---
+
+## Factory Methods
 
 ### create()
 
@@ -126,6 +130,43 @@ $force = Quantity::create(10, 'N');
 
 // Creates a generic Quantity for unregistered dimensions.
 $custom = Quantity::create(5, 'kg*m2/s3');
+```
+
+### parse()
+
+```php
+public static function parse(string $input): self
+```
+
+Parse a string representation into a Quantity.
+
+Supports single-value strings (e.g. "123.45 km") and multi-part strings (e.g. "5h 30min 45s"). Subclasses may override this to support additional formats.
+
+When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimension must match the subclass's dimension. When called as `Quantity::parse()`, any valid unit is accepted.
+
+**Parameters:**
+- `$input` (string) - The string to parse.
+
+**Returns:**
+- `Quantity` - The parsed Quantity.
+
+**Throws:**
+- `FormatException` - If the format is invalid.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If units are unknown.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If called on a subclass and the parsed unit has a different dimension.
+
+**Examples:**
+```php
+$length = Length::parse('123.45 km');
+$angle = Angle::parse('90deg');
+$time = Time::parse('1.5e3 ms');
+$duration = Time::parse('5h 30min 45s');
+
+// Quantity::parse() accepts any unit.
+$mass = Quantity::parse('50 kg');  // Mass object
+
+// Subclass parse rejects wrong dimensions.
+Length::parse('123 kg');  // DimensionMismatchException
 ```
 
 ---
@@ -242,7 +283,7 @@ Quantity::getDimension();     // null
 
 ---
 
-## Conversion Methods
+## Unit Conversion Methods
 
 ### to()
 
@@ -365,28 +406,6 @@ $base = $force->toBase();  // lb*ft/s2
 ---
 
 ## Unit Transformation Methods
-
-### expand()
-
-```php
-public function expand(): self
-```
-
-Expand named units to base units (e.g., N -> kg*m/s2).
-
-If no registered expansion exists, falls back to SI or English base units depending on whether the unit terms are SI or English.
-
-**Returns:**
-- `Quantity` - A new Quantity with expanded units.
-
-**Examples:**
-```php
-$force = new Force(1, 'N');
-$expanded = $force->expand();  // 1 kg*m/s2
-
-$force = new Force(1, 'lbf');
-$expanded = $force->expand();  // lb*ft/s2
-```
 
 ### merge()
 
@@ -739,44 +758,7 @@ $a->approxEqual($b);  // true
 
 ---
 
-## String Methods
-
-### parse()
-
-```php
-public static function parse(string $input): self
-```
-
-Parse a string representation into a Quantity.
-
-Supports single-value strings (e.g. "123.45 km") and multi-part strings (e.g. "5h 30min 45s"). Subclasses may override this to support additional formats.
-
-When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimension must match the subclass's dimension. When called as `Quantity::parse()`, any valid unit is accepted.
-
-**Parameters:**
-- `$input` (string) - The string to parse.
-
-**Returns:**
-- `Quantity` - The parsed Quantity.
-
-**Throws:**
-- `FormatException` - If the format is invalid.
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If units are unknown.
-- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If called on a subclass and the parsed unit has a different dimension.
-
-**Examples:**
-```php
-$length = Length::parse('123.45 km');
-$angle = Angle::parse('90deg');
-$time = Time::parse('1.5e3 ms');
-$duration = Time::parse('5h 30min 45s');
-
-// Quantity::parse() accepts any unit.
-$mass = Quantity::parse('50 kg');  // Mass object
-
-// Subclass parse rejects wrong dimensions.
-Length::parse('123 kg');  // DimensionMismatchException
-```
+## Conversion Methods
 
 ### formatValue()
 
