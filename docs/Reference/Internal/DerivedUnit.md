@@ -132,7 +132,7 @@ Convert any unit representation to a DerivedUnit. Returns the same instance if a
 **Returns:** `DerivedUnit`
 
 **Throws:**
-- `FormatException` - If a string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a string cannot be parsed.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a string contains unknown units.
 - `DomainException` - If a string contains a zero exponent.
 
@@ -150,7 +150,7 @@ Parse a string into a DerivedUnit.
 **Returns:** `DerivedUnit`
 
 **Throws:**
-- `FormatException` - If the format is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If any units are unknown.
 - `DomainException` - If an exponent is zero.
 
@@ -425,6 +425,9 @@ public function merge(): Quantity
 Merge unit terms that share the same unit dimension (e.g., `'m'` and `'ft'`). The first unit encountered of a given dimension is kept; subsequent units of the same dimension are converted to it.
 
 **Returns:** `Quantity` - A new Quantity with the merged derived unit and the conversion factor as the value.
+
+**Throws:**
+- `LogicException` - If no conversion path exists between two units of the same dimension.
 
 **Examples:**
 ```php

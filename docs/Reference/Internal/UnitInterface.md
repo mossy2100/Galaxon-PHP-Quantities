@@ -65,7 +65,7 @@ Parse a string representation of a unit into an instance.
 **Returns:** `UnitInterface` - A new instance of the implementing class.
 
 **Throws:**
-- `FormatException` - If the symbol format is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the symbol format is invalid.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the symbol contains unknown units.
 
 ---

@@ -503,6 +503,7 @@ class DerivedUnit implements UnitInterface
      * The first unit encountered of a given dimension will be the one any others are converted to.
      *
      * @return Quantity A new Quantity with the merged derived unit.
+     * @throws LogicException If no conversion path exists between two units of the same dimension.
      */
     public function merge(): Quantity
     {
@@ -525,11 +526,20 @@ class DerivedUnit implements UnitInterface
                 $unexponentiatedThisUnitTerm = $unitTerm->removeExponent();
                 $unexponentiatedNewUnitTerm1 = $newUnitTerm1->removeExponent();
                 if (!$unexponentiatedThisUnitTerm->equal($unexponentiatedNewUnitTerm1)) {
-                    // Get the conversion factor from the existing to the new unit term.
-                    $factor = ConversionService::findFactor($unexponentiatedThisUnitTerm, $unexponentiatedNewUnitTerm1);
+                    // Get the conversion from the existing to the new unit term.
+                    $conversion = ConversionService::find($unexponentiatedThisUnitTerm, $unexponentiatedNewUnitTerm1);
+
+                    if ($conversion === null) {
+                        // @codeCoverageIgnoreStart
+                        throw new LogicException(
+                            "No conversion path found between '$unexponentiatedThisUnitTerm' and " .
+                            "'$unexponentiatedNewUnitTerm1' (dimension: $unexponentiatedThisUnitTerm->dimension)."
+                        );
+                        // @codeCoverageIgnoreEnd
+                    }
 
                     // Multiply by the conversion factor raised to the exponent of the second unit term.
-                    $resultValue *= $factor ** $unitTerm->exponent;
+                    $resultValue *= $conversion->factor->value ** $unitTerm->exponent;
                 }
 
                 // Create a second term with the same unit as the first, but the exponent of the second term.

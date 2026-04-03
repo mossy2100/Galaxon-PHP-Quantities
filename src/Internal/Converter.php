@@ -96,8 +96,8 @@ class Converter
      *
      * @param string $dimension Dimension code (e.g. 'L', 'MLT-2').
      * @throws FormatException If the dimension code or any unit codes are invalid.
-     * @throws DomainException If units have mismatched dimensions or the factor is non-positive.
-     * @throws LogicException If any conversion definition units have the wrong dimension.
+     * @throws DomainException If the factor is non-positive.
+     * @throws DimensionMismatchException If any conversion definition units have the wrong dimension.
      */
     private function __construct(string $dimension)
     {
@@ -388,8 +388,8 @@ class Converter
      * @param bool $replaceExisting If true, replace any existing conversions between the same units; otherwise, the
      * existing conversions are kept and the method returns false.
      * @throws FormatException If a unit symbol cannot be parsed.
-     * @throws DomainException If the dimensions don't match or the factor is invalid.
-     * @throws LogicException If a conversion's dimension doesn't match this Converter.
+     * @throws DomainException If the factor is invalid.
+     * @throws DimensionMismatchException If a conversion's dimension doesn't match this Converter.
      */
     public function loadConversions(bool $replaceExisting = false): void
     {
@@ -418,16 +418,13 @@ class Converter
      * @param bool $replaceExisting If true, replace any existing conversion between the same units; otherwise, the
      * existing conversion is kept and the method returns false.
      * @return bool True if the conversion was added, false if it already existed and was not replaced.
-     * @throws LogicException If the conversion's dimension doesn't match this Converter.
+     * @throws DimensionMismatchException If the conversion's dimension doesn't match this Converter.
      */
     public function addConversion(Conversion $conversion, bool $replaceExisting = false): bool
     {
         // Verify dimension.
         if ($conversion->dimension !== $this->dimension) {
-            throw new LogicException(
-                "Cannot add conversion with dimension '$conversion->dimension' to a Converter with dimension " .
-                "'{$this->dimension}'."
-            );
+            throw new DimensionMismatchException($this->dimension, $conversion->dimension);
         }
 
         // Get the array keys.
@@ -909,12 +906,16 @@ class Converter
         // Work out which is the exact conversion, prefixed => unprefixed or vice versa.
         // This depends on whether the multiplier is less than or greater than 1.
         if ($multiplier >= 1) {
+            // If it's greater than or equal to 1, it should be an integer, but just in case it's slightly off due to
+            // floating-point error, we'll round it off.
             if (Floats::isApproxInt($multiplier)) {
                 $multiplier = round($multiplier);
             }
             $newConversion = new Conversion($derivedUnit, $unprefixedUnit, $multiplier);
         } else {
             $multiplier = 1.0 / $multiplier;
+            // The multiplier should now be greater than 1 and thus an integer, but just in case it's slightly off due
+            // to floating-point error, we'll round it off.
             if (Floats::isApproxInt($multiplier)) {
                 $multiplier = round($multiplier);
             }

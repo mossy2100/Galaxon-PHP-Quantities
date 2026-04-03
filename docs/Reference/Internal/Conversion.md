@@ -74,7 +74,7 @@ Create a new Conversion instance.
 - `$factor` (float|FloatWithError) - The conversion factor
 
 **Throws:**
-- `FormatException` - If either unit is provided as a string that cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If either unit is provided as a string that cannot be parsed.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the source and destination units have different dimensions.
 - `DomainException` - If the factor is not positive.
 

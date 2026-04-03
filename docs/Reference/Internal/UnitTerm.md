@@ -108,7 +108,7 @@ The prefix multiplier raised to the exponent (e.g., 1000² = 1e6 for km²).
 public string $dimension { get; }
 ```
 
-The dimension code with exponent applied (e.g., `'L2'` for m²). Computed via `DimensionService::applyExponent()`.
+The dimension code with exponent applied (e.g., `'L2'` for m²). Computed via `DimensionService::pow()`.
 
 ### quantityType
 
@@ -176,7 +176,7 @@ Convert any unit representation to a UnitTerm. Returns the same instance if alre
 **Returns:** `UnitTerm`
 
 **Throws:**
-- `FormatException` - If a string has an invalid format.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a string has an invalid format.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a string or Unit symbol is not recognized.
 - `DomainException` - If the exponent or prefix is invalid.
 
@@ -194,7 +194,7 @@ Parse a string into a UnitTerm.
 **Returns:** `UnitTerm`
 
 **Throws:**
-- `FormatException` - If the format is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the unit symbol is not recognized.
 - `DomainException` - If the exponent is zero.
 

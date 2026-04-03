@@ -183,7 +183,7 @@ final class DimensionServiceTest extends TestCase
     }
 
     /**
-     * Test decompose() throws DomainException for invalid code.
+     * Test decompose() throws FormatException for invalid code.
      */
     public function testDecomposeThrowsForInvalidCode(): void
     {
@@ -334,78 +334,78 @@ final class DimensionServiceTest extends TestCase
 
     // endregion
 
-    // region applyExponent() tests
+    // region pow() tests
 
     /**
-     * Test applyExponent() with exponent of 1 returns unchanged.
+     * Test pow() with exponent of 1 returns unchanged.
      */
-    public function testApplyExponentOne(): void
+    public function testPowOne(): void
     {
-        $this->assertSame('L', DimensionService::applyExponent('L', 1));
-        $this->assertSame('MLT-2', DimensionService::applyExponent('MLT-2', 1));
+        $this->assertSame('L', DimensionService::pow('L', 1));
+        $this->assertSame('MLT-2', DimensionService::pow('MLT-2', 1));
     }
 
     /**
-     * Test applyExponent() squares a simple dimension.
+     * Test pow() squares a simple dimension.
      */
-    public function testApplyExponentSquare(): void
+    public function testPowSquare(): void
     {
-        $this->assertSame('L2', DimensionService::applyExponent('L', 2));
+        $this->assertSame('L2', DimensionService::pow('L', 2));
     }
 
     /**
-     * Test applyExponent() cubes a simple dimension.
+     * Test pow() cubes a simple dimension.
      */
-    public function testApplyExponentCube(): void
+    public function testPowCube(): void
     {
-        $this->assertSame('L3', DimensionService::applyExponent('L', 3));
+        $this->assertSame('L3', DimensionService::pow('L', 3));
     }
 
     /**
-     * Test applyExponent() with negative exponent.
+     * Test pow() with negative exponent.
      */
-    public function testApplyExponentNegative(): void
+    public function testPowNegative(): void
     {
-        $this->assertSame('T-2', DimensionService::applyExponent('T-1', 2));
+        $this->assertSame('T-2', DimensionService::pow('T-1', 2));
     }
 
     /**
-     * Test applyExponent() with compound dimension (force squared).
+     * Test pow() with compound dimension (force squared).
      */
-    public function testApplyExponentCompound(): void
+    public function testPowCompound(): void
     {
         // Force (MLT-2) squared = M2L2T-4
-        $this->assertSame('M2L2T-4', DimensionService::applyExponent('MLT-2', 2));
+        $this->assertSame('M2L2T-4', DimensionService::pow('MLT-2', 2));
     }
 
     /**
-     * Test applyExponent() with zero exponent.
+     * Test pow() with zero exponent.
      */
-    public function testApplyExponentZero(): void
+    public function testPowZero(): void
     {
         // L^0 = dimensionless (all exponents become 0)
-        $result = DimensionService::applyExponent('L', 0);
+        $result = DimensionService::pow('L', 0);
 
         $this->assertSame('L0', $result);
     }
 
     /**
-     * Test applyExponent() with negative multiplier (inverse).
+     * Test pow() with negative multiplier (inverse).
      */
-    public function testApplyExponentInverse(): void
+    public function testPowInverse(): void
     {
         // Inverse of velocity (LT-1) = L-1T
-        $this->assertSame('L-1T', DimensionService::applyExponent('LT-1', -1));
+        $this->assertSame('L-1T', DimensionService::pow('LT-1', -1));
     }
 
     /**
-     * Test applyExponent() throws for invalid dimension.
+     * Test pow() throws for invalid dimension.
      */
-    public function testApplyExponentThrowsForInvalidDimension(): void
+    public function testPowThrowsForInvalidDimension(): void
     {
         $this->expectException(FormatException::class);
 
-        DimensionService::applyExponent('invalid', 2);
+        DimensionService::pow('invalid', 2);
     }
 
     // endregion

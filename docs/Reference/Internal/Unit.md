@@ -140,7 +140,7 @@ Create a new Unit instance.
 - `$alternateSymbol` (?string) - Additional accepted symbol. Default: `null`.
 
 **Throws:**
-- `FormatException` - If any symbol or name contains invalid characters.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If any symbol or name contains invalid characters.
 - `DomainException` - If the systems array is empty or the prefix group is out of range.
 - `InvalidArgumentException` - If the systems array contains non-UnitSystem values.
 
@@ -188,7 +188,7 @@ Parse a unit symbol and return the matching Unit from the registry.
 **Returns:** `Unit`
 
 **Throws:**
-- `FormatException` - If the symbol contains invalid characters.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the symbol contains invalid characters.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the symbol is not recognized.
 
 ---

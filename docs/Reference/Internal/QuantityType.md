@@ -113,7 +113,7 @@ Create a new QuantityType instance.
 - `$class` (class-string\<Quantity\>) - The fully-qualified Quantity subclass name.
 
 **Throws:**
-- `FormatException` - If the dimension code is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the dimension code is invalid.
 - `InvalidArgumentException` - If the class is not a subclass of `Quantity`.
 
 **Examples:**

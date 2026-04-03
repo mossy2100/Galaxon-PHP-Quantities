@@ -108,26 +108,6 @@ class DimensionService
     // region Validation methods
 
     /**
-     * Get the valid dimension code letters for use in regex patterns.
-     *
-     * @return list<string> The valid dimension code letters.
-     */
-    private static function getLetterCodes(): array
-    {
-        return array_keys(self::DIMENSION_CODES);
-    }
-
-    /**
-     * Get the valid dimension code letters as a string for use in regex patterns.
-     *
-     * @return string The valid dimension code letters concatenated (e.g. 'MLADCTINHJ').
-     */
-    private static function getLetterCodesString(): string
-    {
-        return implode('', self::getLetterCodes());
-    }
-
-    /**
      * Check if a dimension code string is valid.
      *
      * @param string $dimension The dimension code to validate (e.g. 'L', 'MLT-2', '' for dimensionless).
@@ -141,7 +121,7 @@ class DimensionService
 
     // endregion
 
-    // region Decompose/compose methods
+    // region Composition methods
 
     /**
      * Decompose a dimension code string into an array of dimension codes and exponents.
@@ -197,23 +177,74 @@ class DimensionService
 
     // endregion
 
-    // region Transformation methods
+    // region Comparison methods
 
     /**
-     * Normalize a dimension code string.
+     * Check if dimension1 is a subset of dimension2.
      *
-     * @param string $dimension The dimension code string to normalize.
-     * @return string The normalized dimension code.
-     * @throws FormatException If the dimension code is invalid.
+     * Returns true if every dimension term in dimension1 exists in dimension2 with the same sign and an equal or
+     * smaller absolute exponent. This is used by simplify() to determine whether a unit's dimension fits inside a
+     * quantity's dimension.
+     *
+     * @param string $dimension1 The candidate subset dimension (e.g. 'MLT-2').
+     * @param string $dimension2 The containing dimension (e.g. 'ML2T-2').
+     * @return bool True if dimension1 is a subset of dimension2.
+     * @throws FormatException If either of the dimension codes are invalid.
      */
-    public static function normalize(string $dimension): string
+    public static function lessThanOrEqual(string $dimension1, string $dimension2): bool
     {
-        // Disassemble it.
-        $dimTerms = self::decompose($dimension);
+        $dimTerms1 = self::decompose($dimension1);
+        $dimTerms2 = self::decompose($dimension2);
 
-        // Reassemble it.
-        return self::compose($dimTerms);
+        foreach ($dimTerms1 as $code => $exp) {
+            if (!isset($dimTerms2[$code])) {
+                return false;
+            }
+            if (Numbers::sign($exp) !== Numbers::sign($dimTerms2[$code])) {
+                return false;
+            }
+            if (abs($dimTerms2[$code]) < abs($exp)) {
+                return false;
+            }
+        }
+
+        return true;
     }
+
+    // endregion
+
+    // region Binary arithmetic methods
+
+    /**
+     * Subtract dimension2 from dimension1.
+     *
+     * Subtracts each exponent in dimension2 from the corresponding exponent in dimension1.
+     * Terms that cancel to zero are removed. Terms in dimension2 that are not in dimension1 are ignored.
+     *
+     * @param string $dimension1 The dimension to subtract from (e.g. 'ML2T-2').
+     * @param string $dimension2 The dimension to subtract (e.g. 'MLT-2').
+     * @return string The resulting dimension code (e.g. 'L').
+     * @throws FormatException If either of the dimension codes are invalid.
+     */
+    public static function sub(string $dimension1, string $dimension2): string
+    {
+        $dimTerms1 = self::decompose($dimension1);
+        $dimTerms2 = self::decompose($dimension2);
+        $dimTerms3 = [];
+
+        foreach ($dimTerms1 as $code => $exp) {
+            $newExp = $exp - ($dimTerms2[$code] ?? 0);
+            if ($newExp !== 0) {
+                $dimTerms3[$code] = $newExp;
+            }
+        }
+
+        return self::compose($dimTerms3);
+    }
+
+    // endregion
+
+    // region Power methods
 
     /**
      * Apply an exponent to a dimension code.
@@ -226,9 +257,9 @@ class DimensionService
      * @param string $dimension The base dimension code (e.g. 'L', 'T-1', 'MLT-2').
      * @param int $exponent The exponent to apply.
      * @return string The resulting dimension code.
-     * @throws DomainException If the dimension code is invalid.
+     * @throws FormatException If the dimension code is invalid.
      */
-    public static function applyExponent(string $dimension, int $exponent): string
+    public static function pow(string $dimension, int $exponent): string
     {
         // If the exponent is 1, return dimension unchanged.
         if ($exponent === 1) {
@@ -247,6 +278,26 @@ class DimensionService
 
     // endregion
 
+    // region Transformation methods
+
+    /**
+     * Normalize a dimension code string.
+     *
+     * @param string $dimension The dimension code string to normalize.
+     * @return string The normalized dimension code.
+     * @throws FormatException If the dimension code is invalid.
+     */
+    public static function normalize(string $dimension): string
+    {
+        // Disassemble it.
+        $dimTerms = self::decompose($dimension);
+
+        // Reassemble it.
+        return self::compose($dimTerms);
+    }
+
+    // endregion
+
     // region Utility methods
 
     /**
@@ -254,7 +305,7 @@ class DimensionService
      *
      * @param string $letter The dimension letter code.
      * @return int The int value.
-     * @throws DomainException If the letter is invalid.
+     * @throws FormatException If the letter is invalid.
      */
     public static function letterToInt(string $letter): int
     {
@@ -270,6 +321,26 @@ class DimensionService
     }
 
     /**
+     * Count the total number of base unit slots in a dimension code.
+     *
+     * Each dimension term contributes the absolute value of its exponent. For example, 'MLT-2' has
+     * M (1) + L (1) + T (2) = 4 unit slots.
+     *
+     * @param string $dimension The dimension code (e.g. 'MLT-2').
+     * @return int The total unit count.
+     * @throws FormatException If the dimension code is invalid.
+     */
+    public static function countUnits(string $dimension): int
+    {
+        $dimTerms = self::decompose($dimension);
+        return array_reduce($dimTerms, static fn (int $count, int $exp) => $count + abs($exp), 0);
+    }
+
+    // endregion
+
+    // region Base unit methods
+
+    /**
      * Get the SI or English base unit term symbol for the given dimension letter code.
      *
      * The unit may be prefixed (e.g. 'kg' for 'M').
@@ -277,7 +348,7 @@ class DimensionService
      * @param string $dimensionLetterCode Single-letter dimension code.
      * @param bool $si Whether to return the SI base unit symbol (true) or the English base unit symbol (false).
      * @return string The unit term symbol.
-     * @throws DomainException If the dimension code is invalid.
+     * @throws FormatException If the dimension code is invalid.
      * @throws LogicException If no base unit is defined for the dimension.
      */
     public static function getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string
@@ -316,7 +387,7 @@ class DimensionService
      * @param string $dimensionLetterCode Single-letter dimension code.
      * @param bool $si Whether to return the SI base unit term (true) or the English base unit term (false).
      * @return UnitTerm The unit term.
-     * @throws DomainException If the dimension code is invalid.
+     * @throws FormatException If the dimension code is invalid.
      */
     public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm
     {
@@ -333,7 +404,7 @@ class DimensionService
      * @param string $dimension The dimension code (e.g. 'MLT-2').
      * @param bool $si Whether to return the SI derived unit (true) or the English derived unit (false).
      * @return DerivedUnit The new DerivedUnit.
-     * @throws DomainException If the dimension code is invalid.
+     * @throws FormatException If the dimension code is invalid.
      */
     public static function getBaseDerivedUnit(string $dimension, bool $si): DerivedUnit
     {
@@ -345,84 +416,28 @@ class DimensionService
         return new DerivedUnit($unitTerms);
     }
 
-    /**
-     * Count the total number of base unit slots in a dimension code.
-     *
-     * Each dimension term contributes the absolute value of its exponent. For example, 'MLT-2' has
-     * M (1) + L (1) + T (2) = 4 unit slots.
-     *
-     * @param string $dimension The dimension code (e.g. 'MLT-2').
-     * @return int The total unit count.
-     * @throws FormatException If the dimension code is invalid.
-     */
-    public static function countUnits(string $dimension): int
-    {
-        $dimTerms = self::decompose($dimension);
-        return array_reduce($dimTerms, static fn (int $count, int $exp) => $count + abs($exp), 0);
-    }
-
     // endregion
 
-    // region Inspection methods
+    // region Helper methods
 
     /**
-     * Check if dimension1 is a subset of dimension2.
+     * Get the valid dimension code letters for use in regex patterns.
      *
-     * Returns true if every dimension term in dimension1 exists in dimension2 with the same sign
-     * and an equal or smaller absolute exponent. This is used by simplify() to determine whether
-     * a unit's dimension fits inside a quantity's dimension.
-     *
-     * @param string $dimension1 The candidate subset dimension (e.g. 'MLT-2').
-     * @param string $dimension2 The containing dimension (e.g. 'ML2T-2').
-     * @return bool True if dimension1 is a subset of dimension2.
-     * @throws FormatException If either of the dimension codes are invalid.
+     * @return list<string> The valid dimension code letters.
      */
-    public static function lessThanOrEqual(string $dimension1, string $dimension2): bool
+    private static function getLetterCodes(): array
     {
-        $dimTerms1 = self::decompose($dimension1);
-        $dimTerms2 = self::decompose($dimension2);
-
-        foreach ($dimTerms1 as $code => $exp) {
-            if (!isset($dimTerms2[$code])) {
-                return false;
-            }
-            if (Numbers::sign($exp) !== Numbers::sign($dimTerms2[$code])) {
-                return false;
-            }
-            if (abs($dimTerms2[$code]) < abs($exp)) {
-                return false;
-            }
-        }
-
-        return true;
+        return array_keys(self::DIMENSION_CODES);
     }
 
     /**
-     * Subtract dimension2 from dimension1.
+     * Get the valid dimension code letters as a string for use in regex patterns.
      *
-     * Subtracts each exponent in dimension2 from the corresponding exponent in dimension1.
-     * Terms that cancel to zero are removed. Terms in dimension2 that are not in dimension1
-     * are ignored.
-     *
-     * @param string $dimension1 The dimension to subtract from (e.g. 'ML2T-2').
-     * @param string $dimension2 The dimension to subtract (e.g. 'MLT-2').
-     * @return string The resulting dimension code (e.g. 'L').
-     * @throws FormatException If either of the dimension codes are invalid.
+     * @return string The valid dimension code letters concatenated (e.g. 'MLADCTINHJ').
      */
-    public static function sub(string $dimension1, string $dimension2): string
+    private static function getLetterCodesString(): string
     {
-        $dimTerms1 = self::decompose($dimension1);
-        $dimTerms2 = self::decompose($dimension2);
-        $dimTerms3 = [];
-
-        foreach ($dimTerms1 as $code => $exp) {
-            $newExp = $exp - ($dimTerms2[$code] ?? 0);
-            if ($newExp !== 0) {
-                $dimTerms3[$code] = $newExp;
-            }
-        }
-
-        return self::compose($dimTerms3);
+        return implode('', self::getLetterCodes());
     }
 
     // endregion

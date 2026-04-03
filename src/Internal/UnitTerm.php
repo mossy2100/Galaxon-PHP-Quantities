@@ -113,7 +113,7 @@ class UnitTerm implements UnitInterface
      */
     public string $dimension
     {
-        get => DimensionService::applyExponent($this->unit->dimension, $this->exponent);
+        get => DimensionService::pow($this->unit->dimension, $this->exponent);
     }
 
     /**

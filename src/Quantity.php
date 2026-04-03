@@ -702,6 +702,7 @@ class Quantity implements Stringable
      * The first unit encountered of a given dimension will be the one any others are converted to.
      *
      * @return static A new Quantity with compatible units merged.
+     * @throws LogicException If no conversion path exists between two units of the same dimension.
      */
     public function merge(): static
     {
@@ -794,6 +795,7 @@ class Quantity implements Stringable
      *   $q->simplify()->autoPrefix()
      *
      * @return static A new Quantity with expandable units substituted for base units.
+     * @throws LogicException If no conversion path exists between two units of the same dimension.
      */
     public function simplify(): static
     {

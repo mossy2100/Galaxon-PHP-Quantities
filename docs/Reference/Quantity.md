@@ -81,7 +81,7 @@ The `Quantity` constructor cannot be called directly — use a specific subclass
 - `LogicException` - If `new Quantity()` is called directly or the wrong subclass constructor is called for the unit's dimension.
 - `DomainException` - If the value is non-finite (INF or NAN).
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the unit string contains unknown units.
-- `FormatException` - If the unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the unit string cannot be parsed.
 
 **Examples:**
 ```php
@@ -116,7 +116,7 @@ Determines the quantity dimension from the unit, and refers to [QuantityTypeServ
 **Throws:**
 - `DomainException` - If the value is non-finite (INF or NAN).
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the unit string contains unknown units.
-- `FormatException` - If the unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the unit string cannot be parsed.
 
 **Examples:**
 ```php
@@ -151,7 +151,7 @@ When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimensio
 - `Quantity` - The parsed Quantity.
 
 **Throws:**
-- `FormatException` - If the format is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If units are unknown.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If called on a subclass and the parsed unit has a different dimension.
 
@@ -195,7 +195,7 @@ A convenience method for converting a raw numeric value without creating Quantit
 - `float` - The converted value.
 
 **Throws:**
-- `FormatException` - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
 - `LogicException` - If no conversion path exists between the units.
 
@@ -656,6 +656,9 @@ The first unit encountered of a given dimension will be the one any others are c
 **Returns:**
 - `Quantity` - A new Quantity with merged units.
 
+**Throws:**
+- `LogicException` - If no conversion path exists between two units of the same dimension.
+
 ### autoPrefix()
 
 ```php
@@ -690,6 +693,9 @@ To auto-prefix the result, chain with `autoPrefix()`.
 
 **Returns:**
 - `Quantity` - A new Quantity with simplified units.
+
+**Throws:**
+- `LogicException` - If no conversion path exists between two units of the same dimension.
 
 ---
 
@@ -991,7 +997,7 @@ Parses strings like "4y 5mo 6d 12h 34min 56.789s" where each part is a value imm
 - `Quantity` - A new Quantity representing the sum of the parts.
 
 **Throws:**
-- `FormatException` - If the input string is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is invalid.
 - `DomainException` - If no result unit symbol is provided and no default is set.
 
 **Examples:**

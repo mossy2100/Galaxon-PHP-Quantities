@@ -733,15 +733,15 @@ final class UnitTermTest extends TestCase
     }
 
     /**
-     * Test removePrefix returns same instance when no prefix exists.
+     * Test removePrefix returns different instance when no prefix exists.
      */
-    public function testRemovePrefixReturnsSameInstanceWhenNoPrefix(): void
+    public function testRemovePrefixReturnsDifferentInstanceWhenNoPrefix(): void
     {
         $term = new UnitTerm('m', null, 2);
 
         $newTerm = $term->removePrefix();
 
-        $this->assertSame($term, $newTerm);
+        $this->assertNotSame($term, $newTerm);
     }
 
     // endregion

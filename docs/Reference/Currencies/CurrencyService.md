@@ -79,7 +79,7 @@ Initialize the currency service. This is the primary entry point for setting up 
 - `$currenciesTtl` (int) - Cache lifetime for currency unit data in seconds. Default: 2592000 (30 days).
 
 **Throws:**
-- `FormatException` - If the locale string is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the locale string is invalid.
 - `DomainException` - If either TTL argument is negative.
 
 ### getExchangeRateService()
@@ -123,7 +123,7 @@ public static function setLocale(?string $locale): void
 Set the locale used for currency formatting. Pass `null` to clear an explicitly set locale and revert to auto-detection.
 
 **Throws:**
-- `FormatException` - If the locale string is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the locale string is invalid.
 
 ### getCurrenciesTtl()
 

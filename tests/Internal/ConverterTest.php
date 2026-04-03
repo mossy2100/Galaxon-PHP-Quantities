@@ -938,7 +938,7 @@ class ConverterTest extends TestCase
     // region addConversion() tests
 
     /**
-     * Test addConversion throws LogicException when conversion dimension doesn't match Converter.
+     * Test addConversion throws DimensionMismatchException when conversion dimension doesn't match Converter.
      */
     public function testAddConversionThrowsForDimensionMismatch(): void
     {
@@ -947,8 +947,8 @@ class ConverterTest extends TestCase
         // Create a mass conversion (dimension M).
         $conversion = new Conversion('kg', 'g', 1000);
 
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage("Cannot add conversion with dimension 'M'");
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('Dimension mismatch');
 
         $converter->addConversion($conversion);
     }

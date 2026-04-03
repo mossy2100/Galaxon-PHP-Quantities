@@ -200,7 +200,7 @@ Parse a multi-unit string into a `Quantity`. Each part in the string must have n
 
 **Throws:**
 - `DomainException` - If the quantity type is unregistered or no result unit is configured.
-- `FormatException` - If the input string is empty or invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty or invalid.
 - `UnexpectedValueException` - If there is an unexpected error during parsing.
 - `InvalidArgumentException` - If any of the unit symbols are not strings.
 

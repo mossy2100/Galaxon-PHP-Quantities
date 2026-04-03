@@ -1,6 +1,6 @@
 # ConversionService
 
-Registry for unit conversions organized by dimension.
+Static service for managing unit conversions across all dimensions.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
@@ -8,60 +8,32 @@ Registry for unit conversions organized by dimension.
 
 ## Overview
 
-The `ConversionService` stores and retrieves conversions between units. Conversions are:
+The `ConversionService` provides a static interface for adding, removing, finding, and performing conversions between units. It delegates to the appropriate `Converter` instance based on the units' dimension.
 
-- Organized by dimension code (e.g., 'L' for length, 'M' for mass)
-- Loaded automatically when measurement systems are loaded via `UnitService`
-- Used by the `Converter` class to find conversion paths
+Key responsibilities:
+- Loading conversion definitions from all registered quantity types
+- Adding and removing conversions
+- Finding conversions between units (with or without path discovery)
+- Converting values between units
+- Removing conversions by unit or unit system
 
----
-
-## Lookup Methods
-
-### get()
-
-```php
-public static function get(string $dimension, string $srcSymbol, string $destSymbol): ?Conversion
-```
-
-Get a specific conversion between two units.
-
-```php
-$conversion = ConversionService::get('L', 'm', 'ft');
-if ($conversion !== null) {
-    $feet = 10 * $conversion->factor->value;  // Convert 10 meters to feet
-}
-```
-
-### getByDimension()
-
-```php
-public static function getByDimension(string $dimension): array
-```
-
-Get all conversions for a dimension.
-
-```php
-$lengthConversions = ConversionService::getByDimension('L');
-// Returns nested array: [$srcSymbol][$destSymbol] => Conversion
-```
+All methods are static. The dimension is inferred from the units provided — there is no explicit dimension parameter.
 
 ---
 
-## Modification Methods
+## Registry Methods
 
 ### add()
 
 ```php
-public static function add(Conversion $conversion): void
+public static function add(Conversion $conversion, bool $replaceExisting = false): void
 ```
 
-Add a Conversion object to the registry. If either unit has prefixes, the unprefixed conversion is also added automatically.
+Add a `Conversion` object to the appropriate `Converter`.
 
-```php
-$conversion = new Conversion($srcUnit, $destUnit, $factor);
-ConversionService::add($conversion);
-```
+**Parameters:**
+- `$conversion` (Conversion) - The conversion to add.
+- `$replaceExisting` (bool) - If `true`, replace any existing conversion between the same units. Default: `false`.
 
 ### remove()
 
@@ -69,133 +41,148 @@ ConversionService::add($conversion);
 public static function remove(Conversion $conversion): void
 ```
 
-Remove a conversion from the registry.
+Remove a specific conversion from the appropriate `Converter`.
+
+### removeByUnit()
 
 ```php
-ConversionService::remove($conversion);
+public static function removeByUnit(Unit $unit): void
 ```
 
-### loadSystem()
+Remove all conversions involving a given unit from all `Converter` instances.
+
+### removeBySystem()
 
 ```php
-public static function loadSystem(UnitSystem $system): void
+public static function removeBySystem(UnitSystem $system): void
 ```
 
-Load conversions for a measurement system. Iterates through all conversion definitions and adds any where at least one unit belongs to the specified system. Also loads expansion conversions for expandable units in the system.
+Remove all conversions involving units from a specific measurement system.
+
+**Parameters:**
+- `$system` (UnitSystem) - The unit system whose conversions should be removed.
+
+### get()
 
 ```php
-ConversionService::loadSystem(UnitSystem::Imperial);
+public static function get(
+    string|UnitInterface $srcUnit,
+    string|UnitInterface $destUnit
+): ?Conversion
 ```
 
-### reset()
+Get a known conversion from the matrix without attempting to discover new paths.
 
-```php
-public static function reset(): void
-```
+**Parameters:**
+- `$srcUnit` (string|UnitInterface) - The source unit.
+- `$destUnit` (string|UnitInterface) - The destination unit.
 
-Reset the registry to its default initial state. Triggers re-initialization on next access.
+**Returns:** `?Conversion` - The conversion, or `null` if not in the matrix.
 
-```php
-ConversionService::reset();
-```
-
-### clear()
-
-```php
-public static function clear(): void
-```
-
-Remove all conversions. Does not trigger re-initialization on next access.
-
-```php
-ConversionService::clear();
-```
-
-### removeByDimension()
-
-```php
-public static function removeByDimension(string $dimension): void
-```
-
-Remove all conversions for a specific dimension.
-
-```php
-ConversionService::removeByDimension('L');
-```
-
----
-
-## Inspection Methods
+**Throws:**
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
 
 ### has()
 
 ```php
-public static function has(string $dimension, string $srcSymbol, string $destSymbol): bool
+public static function has(
+    string|UnitInterface $srcUnit,
+    string|UnitInterface $destUnit
+): bool
 ```
 
-Check if a conversion exists.
+Check whether a conversion exists in the matrix.
 
-```php
-if (ConversionService::has('L', 'm', 'ft')) {
-    // Direct conversion available
-}
-```
+**Throws:**
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
 
 ---
 
-## How Conversions Are Stored
+## Computation Methods
 
-Conversions are stored in a three-dimensional array:
-
-```
-$conversions[$dimension][$srcSymbol][$destSymbol] = Conversion
-```
-
-For example:
-- `$conversions['L']['m']['ft']` = conversion from meters to feet
-- `$conversions['M']['kg']['lb']` = conversion from kilograms to pounds
-
----
-
-## Automatic Prefix Handling
-
-When adding a conversion with prefixed units, the unprefixed conversion is also added:
+### convert()
 
 ```php
-// Adding km → mi also adds m → mi (adjusted for prefix)
-ConversionService::add('km', 'mi', 0.621371);
+public static function convert(
+    float $value,
+    string|UnitInterface $srcUnit,
+    string|UnitInterface $destUnit
+): float
 ```
+
+Convert a value from one unit to another. Discovers conversion paths if necessary.
+
+**Parameters:**
+- `$value` (float) - The numeric value to convert.
+- `$srcUnit` (string|UnitInterface) - The source unit.
+- `$destUnit` (string|UnitInterface) - The destination unit.
+
+**Returns:** `float` - The converted value.
+
+**Throws:**
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
+- `LogicException` - If no conversion path exists between the units.
+
+### find()
+
+```php
+public static function find(
+    string|UnitInterface $srcUnit,
+    string|UnitInterface $destUnit
+): ?Conversion
+```
+
+Find a conversion between two units, discovering new paths if necessary. Unlike `get()`, this method will attempt path-finding if no direct conversion exists.
+
+**Returns:** `?Conversion` - The conversion, or `null` if no path exists.
+
+**Throws:**
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
 
 ---
 
 ## Usage Examples
 
 ```php
+use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Services\ConversionService;
 
-// Check for a direct conversion
-if (ConversionService::has('m', 'in')) {
-    $conv = ConversionService::lookupConversion('m', 'in');
-    echo "1 m = {$conv->factor->value} in";
+// Check for a known conversion
+if (ConversionService::has('m', 'ft')) {
+    $conv = ConversionService::get('m', 'ft');
+    echo "1 m = {$conv->factor->value} ft";
 }
 
-// Get all length conversions
-$lengthConv = ConversionService::getByDimension('L');
-foreach ($lengthConv as $src => $destinations) {
-    foreach ($destinations as $dest => $conv) {
-        echo "$src → $dest: {$conv->factor->value}\n";
-    }
-}
+// Find a conversion (with path discovery)
+$conv = ConversionService::find('mi', 'km');
+echo "1 mi = {$conv->factor->value} km";
 
-// Add custom conversion
-ConversionService::add(new Conversion('league', 'mi', 3));
+// Convert a value directly
+$feet = ConversionService::convert(100, 'm', 'ft');
+
+// Get just the factor
+$factor = ConversionService::find('kg', 'lb')?->factor->value;
+
+// Add a custom conversion
+ConversionService::add(new Conversion('m', 'ft', 3.28084));
+
+// Remove all conversions for a unit system
+ConversionService::removeBySystem(UnitSystem::Financial);
 ```
 
 ---
 
 ## See Also
 
-- **[Conversion](../Internal/Conversion.md)** - Conversion class documentation
-- **[Converter](../Internal/Converter.md)** - Converter class that uses this registry
-- **[UnitService](UnitService.md)** - Unit registry
-- **[UnitSystem](../UnitSystem.md)** - Measurement system enum
+- **[Conversion](../Internal/Conversion.md)** - Conversion class documentation.
+- **[Converter](../Internal/Converter.md)** - Manages conversion paths for a single dimension.
+- **[UnitService](UnitService.md)** - Unit registry.
+- **[UnitSystem](../UnitSystem.md)** - Measurement system enum.

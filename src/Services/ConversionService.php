@@ -24,75 +24,7 @@ use LogicException;
  */
 class ConversionService
 {
-    // region Static methods for loading conversions
-
-    /**
-     * Load all conversions from definitions.
-     *
-     * Iterates through all conversion definitions and adds any new ones.
-     * Both units must be known (in the registry).
-     * This process will create and initialize all necessary Converters.
-     *
-     * By default, this method does not replace any existing conversions, making it useful for adding any now-valid
-     * conversion definitions to the Converters' conversion matrixes after new units are loaded.
-     *
-     * @param bool $replaceExisting Determines action to take if a conversion already exists in the registry.
-     * If true, the existing conversion will be replaced; otherwise, the operation will be terminated.
-     * @throws FormatException If either unit in a conversion definition is provided as a string that cannot be parsed.
-     * @throws DomainException If the dimensions of the units in a conversion definition don't match or the factor is
-     * not positive.
-     */
-    public static function loadDefinitions(bool $replaceExisting = false): void
-    {
-        // Scan all existing definitions for any that match the specified system.
-        foreach (self::getAllDefinitions() as [$srcSymbol, $destSymbol, $factor]) {
-            // Try to get the source unit as a DerivedUnit object. This will validate the provided value.
-            try {
-                $srcUnit = DerivedUnit::toDerivedUnit($srcSymbol);
-                // @codeCoverageIgnoreStart
-            } catch (DomainException | FormatException) {
-                // The symbol represents an unknown unit or is otherwise invalid; ignore this definition.
-                continue;
-                // @codeCoverageIgnoreEnd
-            }
-
-            // Try to get the destination unit as a DerivedUnit object. This will validate the provided value.
-            try {
-                $destUnit = DerivedUnit::toDerivedUnit($destSymbol);
-                // @codeCoverageIgnoreStart
-            } catch (DomainException | FormatException) {
-                // The symbol represents an unknown unit or is otherwise invalid; ignore this definition.
-                continue;
-                // @codeCoverageIgnoreEnd
-            }
-
-            // Add the conversion (replacing any existing if specified).
-            self::addFromDefinition($srcUnit, $destUnit, $factor, $replaceExisting);
-        }
-    }
-
-    /**
-     * Get all conversion definitions from all QuantityType classes.
-     *
-     * @return list<array{string, string, float}> Array of [srcSymbol, destSymbol, factor] tuples.
-     */
-    public static function getAllDefinitions(): array
-    {
-        $definitions = [];
-
-        // Collect conversion definitions.
-        foreach (QuantityTypeService::getAll() as $qtyType) {
-            foreach ($qtyType->conversionDefinitions as $definition) {
-                $definitions[] = $definition;
-            }
-        }
-
-        return $definitions;
-    }
-
-    // endregion
-
-    // region Static methods for adding/removing conversions to/from the Converters
+    // region Registry methods
 
     /**
      * Add a conversion to the appropriate Converter.
@@ -104,26 +36,6 @@ class ConversionService
     {
         $converter = Converter::getInstance($conversion->dimension);
         $converter->addConversion($conversion, $replaceExisting);
-    }
-
-    /**
-     * Add a conversion to the appropriate Converter.
-     *
-     * @param string|UnitInterface $srcUnit The source unit.
-     * @param string|UnitInterface $destUnit The destination unit.
-     * @param float $factor The scale factor (must be positive).
-     * @param bool $replaceExisting If true, replace any existing conversion between the same units.
-     * @throws FormatException If either unit is provided as a string that cannot be parsed.
-     * @throws DomainException If dimensions don't match or the factor is not positive.
-     */
-    public static function addFromDefinition(
-        string|UnitInterface $srcUnit,
-        string|UnitInterface $destUnit,
-        float $factor,
-        bool $replaceExisting = false
-    ): void {
-        $conversion = new Conversion($srcUnit, $destUnit, $factor);
-        self::add($conversion, $replaceExisting);
     }
 
     /**
@@ -166,10 +78,6 @@ class ConversionService
         }
     }
 
-    // endregion
-
-    // region Static methods for retrieving and querying conversions
-
     /**
      * Get a known conversion from the matrix without attempting to discover new paths.
      *
@@ -204,7 +112,7 @@ class ConversionService
 
     // endregion
 
-    // region Static methods for conversions
+    // region Computation methods
 
     /**
      * Convert a value from one unit to another.
@@ -213,6 +121,7 @@ class ConversionService
      * @param string|UnitInterface $srcUnit The source unit.
      * @param string|UnitInterface $destUnit The destination unit.
      * @return float The converted value.
+     * @throws DomainException If a string is provided, and an exponent is zero.
      * @throws FormatException If a unit string cannot be parsed.
      * @throws UnknownUnitException If a unit string contains unknown units.
      * @throws DimensionMismatchException If the dimensions don't match.
@@ -234,6 +143,7 @@ class ConversionService
      * @param string|UnitInterface $srcUnit The source unit.
      * @param string|UnitInterface $destUnit The destination unit.
      * @return ?Conversion The conversion, or null if no path exists.
+     * @throws DomainException If a string is provided, and an exponent is zero.
      * @throws FormatException If a unit string cannot be parsed.
      * @throws UnknownUnitException If a unit string contains unknown units.
      * @throws DimensionMismatchException If the dimensions don't match.
@@ -245,24 +155,9 @@ class ConversionService
         return $converter->findConversion($srcUnit, $destUnit);
     }
 
-    /**
-     * Find the conversion factor between two units, discovering new paths if necessary.
-     *
-     * @param string|UnitInterface $srcUnit The source unit.
-     * @param string|UnitInterface $destUnit The destination unit.
-     * @return ?float The conversion factor, or null if no path exists.
-     * @throws FormatException If a unit string cannot be parsed.
-     * @throws UnknownUnitException If a unit string contains unknown units.
-     * @throws DimensionMismatchException If the dimensions don't match.
-     */
-    public static function findFactor(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?float
-    {
-        return self::find($srcUnit, $destUnit)?->factor->value;
-    }
-
     // endregion
 
-    // region Private static helper methods
+    // region Helper methods
 
     /**
      * Validate and convert both units to DerivedUnit objects, ensuring they share the same dimension.
@@ -273,6 +168,7 @@ class ConversionService
      * @throws FormatException If a unit string cannot be parsed.
      * @throws UnknownUnitException If a unit string contains unknown units.
      * @throws DimensionMismatchException If the dimensions don't match.
+     * @throws DomainException If a string is provided, and an exponent is zero.
      */
     private static function validateUnits(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): array
     {

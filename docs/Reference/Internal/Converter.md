@@ -90,7 +90,7 @@ Get the Converter instance for a given dimension. Creates a new instance on firs
 **Returns:** `Converter`
 
 **Throws:**
-- `FormatException` - If the dimension code is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the dimension code is invalid.
 
 ### getInstances()
 
@@ -180,7 +180,7 @@ For dimensions containing `'C'` (currency), automatically calls `CurrencyService
 **Returns:** `?Conversion` - The conversion, or `null` if no path exists.
 
 **Throws:**
-- `FormatException` - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension for this converter.
 
 ### findConversionFactor()
@@ -216,7 +216,7 @@ Convert a numeric value from one unit to another.
 **Returns:** `float` - The converted value.
 
 **Throws:**
-- `FormatException` - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension.
 - `LogicException` - If no conversion path exists between the units.
 
@@ -258,9 +258,9 @@ Load conversion definitions for this converter's dimension from the registered q
 - `$replaceExisting` (bool) - If `true`, replace existing conversions between the same units. Default: `false`.
 
 **Throws:**
-- `FormatException` - If a unit symbol cannot be parsed.
-- `DomainException` - If the dimensions don't match or the factor is invalid.
-- `LogicException` - If a conversion's dimension doesn't match this converter.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit symbol cannot be parsed.
+- `DomainException` - If the factor is invalid.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If a conversion's dimension doesn't match this converter.
 
 ### addConversion()
 
@@ -280,7 +280,7 @@ Add a conversion to the matrix. Also registers both units.
 **Returns:** `bool` - `true` if the conversion was added, `false` if it already existed and was not replaced.
 
 **Throws:**
-- `LogicException` - If the conversion's dimension doesn't match this converter.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the conversion's dimension doesn't match this converter.
 
 ### removeConversion()
 
