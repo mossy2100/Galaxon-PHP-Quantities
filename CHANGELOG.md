@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **QuantityPartsService** — Uses `NullArgumentException` (from Core) instead of `DomainException` when the quantity type is null.
+- **QuantityPartsService** — Config methods (`getPartUnitSymbols`, `setPartUnitSymbols`, `getResultUnitSymbol`, `setResultUnitSymbol`) removed from `Quantity`; use `QuantityPartsService` directly.
+- **Mass** — `setImperialParts()` and `setUsCustomaryParts()` call `QuantityPartsService` directly.
+- **DimensionService** — Renamed `applyExponent()` to `pow()` for consistency.
+
+### Fixed
+
+- **Documentation** — Rewrote PrefixService.md, QuantityTypeService.md, QuantityPartsService.md, DimensionService.md with correct exception types, section names, missing methods, and return types.
+- **PrefixService** — Fixed PHPDoc typo listing 16 as a valid group code.
+- **QuantityTypeService** — Fixed class PHPDoc description.
+
+---
+
 ## [0.2.0] - 2026-02-14
 
 ### Added
