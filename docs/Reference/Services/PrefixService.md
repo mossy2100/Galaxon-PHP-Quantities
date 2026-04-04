@@ -1,8 +1,8 @@
 # PrefixService
 
-Registry for SI and binary prefixes.
+Utility class for working with SI and binary prefixes.
 
-**Namespace:** `Galaxon\Quantities`
+**Namespace:** `Galaxon\Quantities\Services`
 
 ---
 
@@ -10,33 +10,64 @@ Registry for SI and binary prefixes.
 
 The `PrefixService` provides access to metric prefixes (milli, kilo, mega, etc.) and binary prefixes (kibi, mebi, etc.) organized by group codes for flexible filtering.
 
+All methods are static. The class uses lazy initialization to build the prefix list on first access.
+
 ---
 
-## Methods
+## Constants
+
+### Group Codes
+
+Base group codes identify individual prefix groups. These can be combined with bitwise OR for flexible filtering.
+
+| Constant | Value | Description |
+|---|---|---|
+| `GROUP_SMALL_METRIC` | 1 | Small metric prefixes (quecto through milli). |
+| `GROUP_MEDIUM_METRIC` | 2 | Medium metric prefixes (centi, deci, deca, hecto). |
+| `GROUP_LARGE_METRIC` | 4 | Large metric prefixes (kilo through quetta). |
+| `GROUP_BINARY` | 8 | Binary prefixes (kibi through quebi). |
+
+### Combined Group Codes
+
+| Constant | Value | Description |
+|---|---|---|
+| `GROUP_METRIC` | 7 | All metric prefixes (small + medium + large). |
+| `GROUP_ENGINEERING` | 5 | Engineering prefixes (small + large metric, i.e. powers of 1000). |
+| `GROUP_LARGE` | 12 | Large metric + binary. |
+| `GROUP_ALL` | 15 | All prefixes (metric + binary). |
+
+---
+
+## Static Public Methods
 
 ### getPrefixes()
 
 ```php
-public static function getPrefixes(int $prefixGroup = GROUP_ALL): array
+public static function getPrefixes(int $prefixGroup = self::GROUP_ALL): array
 ```
 
-Get prefixes matching a group code.
+Return an array of prefixes matching a group code comprising bitwise flags. Results are sorted by multiplier in ascending order.
+
+**Returns:** `list<Prefix>`
 
 ```php
-// All prefixes
+// All prefixes.
 $all = PrefixService::getPrefixes();
 
-// Only metric prefixes
+// Only metric prefixes.
 $metric = PrefixService::getPrefixes(PrefixService::GROUP_METRIC);
 
-// Only engineering prefixes (powers of 1000)
+// Only engineering prefixes (powers of 1000).
 $eng = PrefixService::getPrefixes(PrefixService::GROUP_ENGINEERING);
 
-// Binary prefixes only
+// Binary prefixes only.
 $binary = PrefixService::getPrefixes(PrefixService::GROUP_BINARY);
 
-// Large metric + binary (for data units)
+// Large metric + binary (for data units).
 $large = PrefixService::getPrefixes(PrefixService::GROUP_LARGE);
+
+// No prefixes.
+$none = PrefixService::getPrefixes(0);  // []
 ```
 
 ### getBySymbol()
@@ -45,13 +76,18 @@ $large = PrefixService::getPrefixes(PrefixService::GROUP_LARGE);
 public static function getBySymbol(string $symbol): ?Prefix
 ```
 
-Find a prefix by its symbol (ASCII or Unicode).
+Get a prefix by its symbol. Supports both ASCII and Unicode symbols. Case-sensitive.
+
+**Returns:** `?Prefix` — The matching prefix, or null if not found.
 
 ```php
-$kilo = PrefixService::getBySymbol('k');
-$micro = PrefixService::getBySymbol('μ');
-$micro = PrefixService::getBySymbol('u');  // ASCII alternative
-$kibi = PrefixService::getBySymbol('Ki');
+$kilo = PrefixService::getBySymbol('k');    // kilo (1e3)
+$micro = PrefixService::getBySymbol('μ');   // micro (1e-6)
+$micro = PrefixService::getBySymbol('u');   // micro (ASCII alternative)
+$kibi = PrefixService::getBySymbol('Ki');   // kibi (2^10)
+$mega = PrefixService::getBySymbol('M');    // mega (1e6)
+$milli = PrefixService::getBySymbol('m');   // milli (1e-3)
+PrefixService::getBySymbol('X');            // null (not found)
 ```
 
 ### invert()
@@ -60,14 +96,23 @@ $kibi = PrefixService::getBySymbol('Ki');
 public static function invert(?Prefix $prefix): ?Prefix
 ```
 
-Get the inverse of a prefix (opposite exponent).
+Get the inverse of a prefix (the prefix with the reciprocal multiplier). Returns null if null is passed.
+
+**Returns:** `?Prefix`
+
+**Throws:** `DomainException` if no inverse could be found (e.g. binary prefixes have no inverse).
 
 ```php
-$kilo = PrefixService::getBySymbol('k');   // 10³
-$milli = PrefixService::invert($kilo);      // 10⁻³
+$kilo = PrefixService::getBySymbol('k');    // 10^3
+$milli = PrefixService::invert($kilo);       // 10^-3
 
-$mega = PrefixService::getBySymbol('M');   // 10⁶
-$micro = PrefixService::invert($mega);      // 10⁻⁶
+$mega = PrefixService::getBySymbol('M');    // 10^6
+$micro = PrefixService::invert($mega);       // 10^-6
+
+PrefixService::invert(null);                 // null
+
+$kibi = PrefixService::getBySymbol('Ki');
+PrefixService::invert($kibi);               // throws DomainException
 ```
 
 ### isValidGroupCode()
@@ -76,13 +121,30 @@ $micro = PrefixService::invert($mega);      // 10⁻⁶
 public static function isValidGroupCode(int $groupCode): bool
 ```
 
-Check if a group code is one of the base codes.
+Check if a group code is one of the base codes (1, 2, 4, 8). Combined codes return false.
 
 ```php
-$valid = PrefixService::isValidGroupCode(1);   // true (SMALL_METRIC)
-$valid = PrefixService::isValidGroupCode(3);   // false (combined code)
-$valid = PrefixService::isValidGroupCode(8);   // true (BINARY)
+PrefixService::isValidGroupCode(PrefixService::GROUP_SMALL_METRIC);  // true
+PrefixService::isValidGroupCode(PrefixService::GROUP_BINARY);        // true
+PrefixService::isValidGroupCode(PrefixService::GROUP_METRIC);        // false (combined)
+PrefixService::isValidGroupCode(0);                                   // false
 ```
+
+### reset()
+
+```php
+public static function reset(): void
+```
+
+Reset the prefixes cache. The next access will trigger re-initialization. Primarily useful for testing.
+
+### removeAll()
+
+```php
+public static function removeAll(): void
+```
+
+Clear the prefixes cache. Unlike `reset()`, the next access will NOT trigger re-initialization — `init()` must be called manually. Used internally during initialization.
 
 ---
 
@@ -91,19 +153,19 @@ $valid = PrefixService::isValidGroupCode(8);   // true (BINARY)
 ```php
 use Galaxon\Quantities\Services\PrefixService;
 
-// Get all prefixes (metric + binary)
+// Get all prefixes (metric + binary).
 $allPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_ALL);
 
-// Get all metric prefixes
+// Get all metric prefixes.
 $metricPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_METRIC);
 
-// Get all engineering prefixes for a scientific application, and list them
+// Get all engineering prefixes for a scientific application, and list them.
 $engPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_ENGINEERING);
 foreach ($engPrefixes as $prefix) {
     echo "{$prefix->name}: {$prefix->asciiSymbol} = {$prefix->multiplier}\n";
 }
 
-// Parse a prefixed symbol
+// Parse a prefixed symbol.
 $symbol = 'km';
 $prefix = PrefixService::getBySymbol('k');
 if ($prefix !== null) {
@@ -111,10 +173,9 @@ if ($prefix !== null) {
     $multiplier = $prefix->multiplier;
 }
 
-// Find inverse for unit conversion
-$source = PrefixService::getBySymbol('M');   // mega (10⁶)
-$inverse = PrefixService::invert($source);    // micro (10⁻⁶)
-
+// Find inverse for unit conversion.
+$source = PrefixService::getBySymbol('M');   // mega (10^6)
+$inverse = PrefixService::invert($source);    // micro (10^-6)
 ```
 
 ---

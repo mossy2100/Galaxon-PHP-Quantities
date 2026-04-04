@@ -97,26 +97,33 @@ echo $angle->formatParts(precision: 1);
 ```
 
 ---
-## Developer Guide
+## Concepts
 
-1. **Concepts**
-	1. **[Terminology](docs/Concepts/Terminology.md)** — Key terms and definitions used throughout the library.
-	2. **[Units](docs/Concepts/Units.md)** — Complete reference of all built-in units organised by quantity type.
-	3. **[Dimensions and Base Units](docs/Concepts/DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
-	4. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
-	5. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
-	6. **[Systems of Units](docs/Concepts/SystemsOfUnits.md)** — SI, imperial, US customary, and other unit systems.
-	7. **[Physical Constants](docs/Concepts/PhysicalConstants.md)** — Built-in physical constants as Quantity objects.
-2. **Working with Quantities**
-	1. **[Creating Quantities](docs/WorkingWithQuantities/CreatingQuantities.md)** — Creating new quantities with constructors and the factory method.
-	2. **[Unit Conversion](docs/WorkingWithQuantities/UnitConversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
-	3. **[Arithmetic Operations](docs/WorkingWithQuantities/ArithmeticOperations.md)** — Add, subtract, multiply, and divide quantities.
-	4. **[Calculation Examples](docs/WorkingWithQuantities/CalculationExamples.md)** — Real-world physics and engineering calculations.
-	5. **[Currency Calculations](docs/WorkingWithQuantities/CurrencyCalculations.md)** — Example conversions and calculations involving currencies.
-	6. **[Comparison Functions](docs/WorkingWithQuantities/ComparisonFunctions.md)** — Exact and approximate equality, ordering, and tolerances.
-	7. **[String Functions](docs/WorkingWithQuantities/StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
-	8. **[Part Decomposition](docs/WorkingWithQuantities/PartDecomposition.md)** — Working with quantities as parts (e.g. 45° 30′ 15″ or 1h 30min 45s).
-	9. **[Customization](docs/WorkingWithQuantities/Customization.md)** — Adding custom units, conversions, and quantity type classes.
+Background on the domain model and how the library represents physical measurements.
+
+1. **[Terminology](docs/Concepts/Terminology.md)** — Key terms and definitions used throughout the library.
+2. **[Units](docs/Concepts/Units.md)** — Complete reference of all built-in units organised by quantity type.
+3. **[Dimensions and Base Units](docs/Concepts/DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
+4. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
+5. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
+6. **[Systems of Units](docs/Concepts/SystemsOfUnits.md)** — SI, imperial, US customary, and other unit systems.
+7. **[Physical Constants](docs/Concepts/PhysicalConstants.md)** — Built-in physical constants as Quantity objects.
+
+---
+
+## Working with Quantities
+
+Practical guides for using the library in your code.
+
+1. **[Creating Quantities](docs/WorkingWithQuantities/CreatingQuantities.md)** — Creating new quantities with constructors and the factory method.
+2. **[Unit Conversion](docs/WorkingWithQuantities/UnitConversion.md)** — Converting between units, expansion, simplification, and auto-prefixing.
+3. **[Arithmetic Operations](docs/WorkingWithQuantities/ArithmeticOperations.md)** — Add, subtract, multiply, and divide quantities.
+4. **[Calculation Examples](docs/WorkingWithQuantities/CalculationExamples.md)** — Real-world physics and engineering calculations.
+5. **[Currency Calculations](docs/WorkingWithQuantities/CurrencyCalculations.md)** — Example conversions and calculations involving currencies.
+6. **[Comparison Functions](docs/WorkingWithQuantities/ComparisonFunctions.md)** — Exact and approximate equality, ordering, and tolerances.
+7. **[String Functions](docs/WorkingWithQuantities/StringFunctions.md)** — Parsing strings into quantities and formatting output (ASCII and Unicode).
+8. **[Part Decomposition](docs/WorkingWithQuantities/PartDecomposition.md)** — Working with quantities as parts (e.g. 45° 30′ 15″ or 1h 30min 45s).
+9. **[Customization](docs/WorkingWithQuantities/Customization.md)** — Adding custom units, conversions, and quantity type classes.
 
 ---
 ## Reference

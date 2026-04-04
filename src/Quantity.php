@@ -9,6 +9,7 @@ use DomainException;
 use Galaxon\Core\Arrays;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Exceptions\IncomparableTypesException;
+use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Numbers;
@@ -1102,62 +1103,14 @@ class Quantity implements Stringable
     // region Parts methods
 
     /**
-     * Get the part unit symbols for this quantity type.
-     *
-     * Subclasses can override this to provide hardcoded defaults.
-     *
-     * @return ?list<string> The part unit symbols, or null if none configured.
-     * @throws DomainException If the quantity type is unregistered.
-     */
-    public static function getPartUnitSymbols(): ?array
-    {
-        return QuantityPartsService::getPartUnitSymbols(static::getQuantityType());
-    }
-
-    /**
-     * Set the part unit symbols for this quantity type.
-     *
-     * @param ?list<string> $partUnitSymbols The part unit symbols, or null to clear.
-     * @throws DomainException If the quantity type is unregistered or the array is empty.
-     * @throws InvalidArgumentException If the array contains non-string values.
-     */
-    public static function setPartUnitSymbols(?array $partUnitSymbols): void
-    {
-        QuantityPartsService::setPartUnitSymbols(static::getQuantityType(), $partUnitSymbols);
-    }
-
-    /**
-     * Get the result unit symbol for this quantity type.
-     *
-     * Subclasses can override this to provide hardcoded defaults.
-     *
-     * @return ?string The result unit symbol, or null if none configured.
-     * @throws DomainException If the quantity type is unregistered.
-     */
-    public static function getResultUnitSymbol(): ?string
-    {
-        return QuantityPartsService::getResultUnitSymbol(static::getQuantityType());
-    }
-
-    /**
-     * Set the result unit symbol for this quantity type.
-     *
-     * @param ?string $resultUnitSymbol The result unit symbol, or null to clear.
-     * @throws DomainException If the quantity type is unregistered or the value is an empty string.
-     */
-    public static function setResultUnitSymbol(?string $resultUnitSymbol): void
-    {
-        QuantityPartsService::setResultUnitSymbol(static::getQuantityType(), $resultUnitSymbol);
-    }
-
-    /**
      * Create a new Quantity object as a sum of measurements of different units.
      *
      * @param array<string, int|float> $parts The parts.
      * @return static A new Quantity representing the sum of the parts.
+     * @throws NullArgumentException If the quantity type is null (unregistered).
      * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
      * numbers.
-     * @throws DomainException If the quantity type is unregistered, or the result unit symbol or sign is invalid.
+     * @throws DomainException If the result unit symbol or sign is invalid.
      * @see QuantityPartsService::fromParts()
      */
     public static function fromParts(array $parts): static
@@ -1170,8 +1123,8 @@ class Quantity implements Stringable
      *
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
-     * @throws DomainException If the quantity type is unregistered, precision is negative, or part unit symbols are
-     * invalid.
+     * @throws NullArgumentException If the quantity type is null (unregistered).
+     * @throws DomainException If precision is negative or part unit symbols are not configured.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::toParts()
      */
@@ -1185,9 +1138,10 @@ class Quantity implements Stringable
      *
      * @param string $input The string to parse.
      * @return static A new Quantity representing the sum of the parts.
+     * @throws NullArgumentException If the quantity type is null (unregistered).
      * @throws FormatException If the input string is invalid.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
-     * @throws DomainException If the quantity type is unregistered or the result unit symbol is invalid.
+     * @throws DomainException If the result unit symbol is invalid.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::parseParts()
      */
@@ -1203,7 +1157,8 @@ class Quantity implements Stringable
      * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
      * @return string The formatted string.
-     * @throws DomainException If the quantity type is unregistered.
+     * @throws NullArgumentException If the quantity type is null (unregistered).
+     * @throws DomainException If part unit symbols are not configured or precision is negative.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::formatParts()
      */

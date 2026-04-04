@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\Quantity;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
@@ -139,8 +140,8 @@ final class QuantityPartsTest extends TestCase
      */
     public function testFromPartsUnregisteredQuantityTypeThrowsException(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('unregistered');
+        $this->expectException(NullArgumentException::class);
+        $this->expectExceptionMessage('must not be null');
 
         // Base Quantity class has no registered quantity type.
         Quantity::fromParts([
@@ -213,8 +214,9 @@ final class QuantityPartsTest extends TestCase
     public function testToPartsWithUnknownUnitInDefaultThrowsException(): void
     {
         // Temporarily set bad partUnitSymbols on the time quantity type.
-        $original = Time::getPartUnitSymbols();
-        Time::setPartUnitSymbols(['h', 'min', 'xyz']);
+        $quantityType = Time::getQuantityType();
+        $original = QuantityPartsService::getPartUnitSymbols($quantityType);
+        QuantityPartsService::setPartUnitSymbols($quantityType, ['h', 'min', 'xyz']);
 
         try {
             $this->expectException(UnknownUnitException::class);
@@ -223,7 +225,7 @@ final class QuantityPartsTest extends TestCase
             $time = new Time(100, 's');
             $time->toParts();
         } finally {
-            Time::setPartUnitSymbols($original);
+            QuantityPartsService::setPartUnitSymbols($quantityType, $original);
         }
     }
 
@@ -232,25 +234,14 @@ final class QuantityPartsTest extends TestCase
     // region getPartUnitSymbols() / setPartUnitSymbols() tests
 
     /**
-     * Test getPartUnitSymbols() returns null on base Quantity (no registered type).
+     * Test parts methods throw on base Quantity (no registered type).
      */
-    public function testGetPartUnitSymbolsThrowsOnBaseQuantity(): void
+    public function testPartsMethodsThrowOnBaseQuantity(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('unregistered');
+        $this->expectException(NullArgumentException::class);
+        $this->expectExceptionMessage('must not be null');
 
-        Quantity::getPartUnitSymbols();
-    }
-
-    /**
-     * Test setPartUnitSymbols() throws on base Quantity (no registered type).
-     */
-    public function testSetPartUnitSymbolsThrowsOnBaseQuantity(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('unregistered');
-
-        Quantity::setPartUnitSymbols(['m', 'cm']);
+        QuantityPartsService::getPartUnitSymbols(Quantity::getQuantityType());
     }
 
     // endregion
@@ -258,40 +249,19 @@ final class QuantityPartsTest extends TestCase
     // region getResultUnitSymbol() / setResultUnitSymbol() tests
 
     /**
-     * Test getResultUnitSymbol() returns null on base Quantity (no registered type).
-     */
-    public function testGetResultUnitSymbolThrowsOnBaseQuantity(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('unregistered');
-
-        Quantity::getResultUnitSymbol();
-    }
-
-    /**
      * Test setResultUnitSymbol() changes the symbol on a registered type.
      */
     public function testSetResultUnitSymbolChangesSymbol(): void
     {
-        $original = Time::getResultUnitSymbol();
+        $quantityType = Time::getQuantityType();
+        $original = QuantityPartsService::getResultUnitSymbol($quantityType);
 
         try {
-            Time::setResultUnitSymbol('min');
-            $this->assertSame('min', Time::getResultUnitSymbol());
+            QuantityPartsService::setResultUnitSymbol($quantityType, 'min');
+            $this->assertSame('min', QuantityPartsService::getResultUnitSymbol($quantityType));
         } finally {
-            Time::setResultUnitSymbol($original);
+            QuantityPartsService::setResultUnitSymbol($quantityType, $original);
         }
-    }
-
-    /**
-     * Test setResultUnitSymbol() throws on base Quantity (no registered type).
-     */
-    public function testSetResultUnitSymbolThrowsOnBaseQuantity(): void
-    {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('unregistered');
-
-        Quantity::setResultUnitSymbol('m');
     }
 
     // endregion
@@ -400,8 +370,8 @@ final class QuantityPartsTest extends TestCase
      */
     public function testParsePartsUnregisteredQuantityTypeThrowsException(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('unregistered');
+        $this->expectException(NullArgumentException::class);
+        $this->expectExceptionMessage('must not be null');
 
         Quantity::parseParts('100m 50cm');
     }

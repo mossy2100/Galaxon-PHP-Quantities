@@ -168,7 +168,7 @@ class PrefixService
     /**
      * Check if a group code is valid.
      *
-     * Valid group codes are the base codes (1, 2, 4, 8, 16) that represent individual prefix groups.
+     * Valid group codes are the base codes (1, 2, 4, 8) that represent individual prefix groups.
      *
      * @param int $groupCode The group code to validate.
      * @return bool True if the group code is valid.

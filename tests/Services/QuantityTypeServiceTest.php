@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\Services;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Area;
@@ -140,7 +141,7 @@ final class QuantityTypeServiceTest extends TestCase
      */
     public function testGetByDimensionThrowsForInvalidDimension(): void
     {
-        $this->expectException(DomainException::class);
+        $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code 'X9Y9Z9'");
 
         QuantityTypeService::getByDimension('X9Y9Z9');
@@ -366,7 +367,7 @@ final class QuantityTypeServiceTest extends TestCase
         $refClass = new ReflectionClass(QuantityTypeService::class);
         $this->assertNull($refClass->getStaticPropertyValue('quantityTypes'));
 
-        // Call remove() and verify the interna; array is still null, and no exception was thrown.
+        // Call remove() and verify the internal array is still null, and no exception was thrown.
         QuantityTypeService::remove('coolness');
         $this->assertNull($refClass->getStaticPropertyValue('quantityTypes'));
     }
@@ -460,7 +461,7 @@ final class QuantityTypeServiceTest extends TestCase
     {
         $classes = QuantityTypeService::getClasses();
 
-        // Currency quantity type has no class, so null should not be in the list.
+        // All quantity types have classes, so null should not be in the list.
         foreach ($classes as $class) {
             $this->assertNotNull($class);
         }

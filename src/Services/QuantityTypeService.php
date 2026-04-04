@@ -45,10 +45,10 @@ use Galaxon\Quantities\QuantityType\Volume;
 use LogicException;
 
 /**
- * Services of quantity types keyed by dimension code.
+ * Registry of quantity types keyed by dimension code.
  *
  * Provides mapping between dimension codes (e.g. 'L', 'M', 'L2') and their associated quantity information including
- * name, SI unit, and (optional) PHP class.
+ * name and PHP class.
  */
 class QuantityTypeService
 {

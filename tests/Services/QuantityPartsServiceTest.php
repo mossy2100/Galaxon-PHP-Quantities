@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\Services;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
@@ -122,8 +123,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testToPartsThrowsForUnregisteredQuantityType(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('unregistered');
+        $this->expectException(NullArgumentException::class);
+        $this->expectExceptionMessage('must not be null');
 
         $entropy = Quantity::create(42, 'J/K');
         QuantityPartsService::toParts($entropy);
@@ -515,7 +516,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testSetPartUnitSymbolsChangesSymbols(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getPartUnitSymbols($qtyType);
 
         try {
@@ -532,7 +533,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testSetPartUnitSymbolsDeduplicates(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getPartUnitSymbols($qtyType);
 
         try {
@@ -549,7 +550,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testSetPartUnitSymbolsNullClearsSymbols(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getPartUnitSymbols($qtyType);
 
         try {
@@ -634,7 +635,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testSetResultUnitSymbolChangesSymbol(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getResultUnitSymbol($qtyType);
 
         try {
@@ -651,7 +652,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testSetResultUnitSymbolNullClearsSymbol(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getResultUnitSymbol($qtyType);
 
         try {
@@ -682,7 +683,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testResetRestoresDefaults(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
 
         // Change something.
         QuantityPartsService::setPartUnitSymbols($qtyType, ['h', 'min', 's']);
@@ -706,7 +707,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFromPartsThrowsForNoResultUnit(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getResultUnitSymbol($qtyType);
 
         try {
@@ -729,7 +730,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFromPartsThrowsForUnknownResultUnit(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getResultUnitSymbol($qtyType);
 
         try {
@@ -752,7 +753,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testFromPartsThrowsForIncompatibleResultUnit(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getResultUnitSymbol($qtyType);
 
         try {
@@ -780,7 +781,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testParsePartsThrowsForNoResultUnit(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getResultUnitSymbol($qtyType);
 
         try {
@@ -845,7 +846,7 @@ final class QuantityPartsServiceTest extends TestCase
     public function testToPartsThrowsForUnknownPartUnitSymbol(): void
     {
         $qtyType = Time::getQuantityType();
-        assert($qtyType !== null);
+
         $original = QuantityPartsService::getPartUnitSymbols($qtyType);
 
         try {

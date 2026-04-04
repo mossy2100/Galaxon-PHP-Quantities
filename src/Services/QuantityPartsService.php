@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Services;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
+use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\QuantityType;
@@ -30,10 +31,10 @@ class QuantityPartsService
      *
      * @var array<string, array{
      *     partUnitSymbols?: list<string>,
-     *     resultUnitSymbol?: string}
-     * >
+     *     resultUnitSymbol?: string
+     * }>
      */
-    private const array PARTS_CONFIGS = [
+    private const array DEFAULT_PARTS_CONFIGS = [
         'length' => [
             'partUnitSymbols'  => ['mi', 'yd', 'ft', 'in'],
             'resultUnitSymbol' => 'ft',
@@ -84,7 +85,7 @@ class QuantityPartsService
      *
      * @param ?QuantityType $quantityType The quantity type.
      * @return ?list<string> The part unit symbols, or null if none configured.
-     * @throws DomainException If the quantity type is unregistered.
+     * @throws NullArgumentException If the quantity type is null.
      */
     public static function getPartUnitSymbols(?QuantityType $quantityType): ?array
     {
@@ -101,7 +102,7 @@ class QuantityPartsService
      *
      * @param ?QuantityType $quantityType The quantity type.
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to clear.
-     * @throws DomainException If the quantity type is unregistered.
+     * @throws NullArgumentException If the quantity type is null.
      * @throws LengthException If the array is empty.
      * @throws InvalidArgumentException If the array contains non-string values.
      * @throws FormatException If any of the symbols are invalid.
@@ -148,7 +149,7 @@ class QuantityPartsService
      *
      * @param ?QuantityType $quantityType The quantity type.
      * @return ?string The result unit symbol, or null if none configured.
-     * @throws DomainException If the quantity type is unregistered.
+     * @throws NullArgumentException If the quantity type is null.
      */
     public static function getResultUnitSymbol(?QuantityType $quantityType): ?string
     {
@@ -165,7 +166,8 @@ class QuantityPartsService
      *
      * @param ?QuantityType $quantityType The quantity type.
      * @param ?string $resultUnitSymbol The result unit symbol, or null to clear.
-     * @throws DomainException If the quantity type is unregistered or the value is an empty string.
+     * @throws NullArgumentException If the quantity type is null.
+     * @throws DomainException If the value is an empty string.
      */
     public static function setResultUnitSymbol(?QuantityType $quantityType, ?string $resultUnitSymbol): void
     {
@@ -188,7 +190,7 @@ class QuantityPartsService
 
     // endregion
 
-    // region Part operations
+    // region Parts methods
 
     /**
      * Create a new Quantity object as a sum of measurements of different units.
@@ -201,9 +203,10 @@ class QuantityPartsService
      * @param ?QuantityType $quantityType The quantity type.
      * @param array<string, int|float> $parts The parts.
      * @return Quantity A new Quantity representing the sum of the parts.
+     * @throws NullArgumentException If the quantity type is null.
      * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
      * numbers.
-     * @throws DomainException If the quantity type is unregistered, or the result unit symbol or sign is invalid.
+     * @throws DomainException If the result unit symbol or sign is invalid.
      */
     public static function fromParts(?QuantityType $quantityType, array $parts): Quantity
     {
@@ -272,9 +275,10 @@ class QuantityPartsService
      * @param Quantity $quantity The quantity to decompose.
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
-     * @throws DomainException If any arguments are invalid.
+     * @throws NullArgumentException If the quantity type is null.
+     * @throws DomainException If precision is negative or part unit symbols are not configured.
+     * @throws LengthException If the part unit symbols array is empty.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
-     * @throws LengthException If the array is empty.
      */
     public static function toParts(Quantity $quantity, ?int $precision = null): array
     {
@@ -346,7 +350,8 @@ class QuantityPartsService
      * @param ?QuantityType $quantityType The quantity type.
      * @param string $input The string to parse.
      * @return Quantity A new Quantity representing the sum of the parts.
-     * @throws DomainException If the quantity type is unregistered.
+     * @throws NullArgumentException If the quantity type is null.
+     * @throws DomainException If the result unit symbol is invalid.
      * @throws FormatException If the input string is invalid.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
@@ -435,7 +440,8 @@ class QuantityPartsService
      * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
      * @return string The formatted string.
-     * @throws DomainException If the quantity type is unregistered.
+     * @throws NullArgumentException If the quantity type is null.
+     * @throws DomainException If part unit symbols are not configured or precision is negative.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
      */
     public static function formatParts(
@@ -500,12 +506,12 @@ class QuantityPartsService
      *
      * @param ?QuantityType $quantityType The quantity type to validate.
      * @return QuantityType The validated quantity type.
-     * @throws DomainException If the quantity type is null.
+     * @throws NullArgumentException If the quantity type is null.
      */
     private static function validateQuantityType(?QuantityType $quantityType): QuantityType
     {
         if ($quantityType === null) {
-            throw new DomainException('Cannot call parts methods on an unregistered quantity type.');
+            throw new NullArgumentException('quantityType');
         }
 
         return $quantityType;
@@ -574,7 +580,7 @@ class QuantityPartsService
 
     // endregion
 
-    // region Private methods
+    // region Helper methods
 
     /**
      * Initialize the parts configurations from the constant.
@@ -584,7 +590,7 @@ class QuantityPartsService
     private static function init(): void
     {
         if (self::$partsConfigs === null) {
-            self::$partsConfigs = self::PARTS_CONFIGS;
+            self::$partsConfigs = self::DEFAULT_PARTS_CONFIGS;
         }
     }
 

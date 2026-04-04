@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
+use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\UnitSystem;
 use Override;
 
@@ -113,7 +114,7 @@ class Mass extends Quantity
     public static function setImperialParts(): void
     {
         // The long ton and stone are in use, but the grain is not.
-        static::setPartUnitSymbols(['LT', 'st', 'lb', 'oz']);
+        QuantityPartsService::setPartUnitSymbols(self::getQuantityType(), ['LT', 'st', 'lb', 'oz']);
     }
 
     /**
@@ -122,7 +123,7 @@ class Mass extends Quantity
     public static function setUsCustomaryParts(): void
     {
         // The short ton and grain are in use, but the stone is not.
-        static::setPartUnitSymbols(['tn', 'lb', 'oz', 'gr']);
+        QuantityPartsService::setPartUnitSymbols(self::getQuantityType(), ['tn', 'lb', 'oz', 'gr']);
     }
 
     // endregion

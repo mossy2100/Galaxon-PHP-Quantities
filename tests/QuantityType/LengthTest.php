@@ -6,6 +6,7 @@ namespace Galaxon\Quantities\Tests\QuantityType;
 
 use Galaxon\Core\Traits\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -650,8 +651,9 @@ final class LengthTest extends TestCase
      */
     public function testToPartsCarry(): void
     {
-        $original = Length::getPartUnitSymbols();
-        Length::setPartUnitSymbols(['yd', 'ft']);
+        $quantityType = Length::getQuantityType();
+        $original = QuantityPartsService::getPartUnitSymbols($quantityType);
+        QuantityPartsService::setPartUnitSymbols($quantityType, ['yd', 'ft']);
         try {
             $length = new Length(2.99999999, 'ft');  // Just under 3 feet = 1 yard
             $parts = $length->toParts(precision: 0);
@@ -660,7 +662,7 @@ final class LengthTest extends TestCase
             $this->assertSame(1, $parts['yd']);
             $this->assertSame(0.0, $parts['ft']);
         } finally {
-            Length::setPartUnitSymbols($original);
+            QuantityPartsService::setPartUnitSymbols($quantityType, $original);
         }
     }
 
