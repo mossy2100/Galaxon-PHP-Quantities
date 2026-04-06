@@ -1061,6 +1061,9 @@ final class UnitTest extends TestCase
      */
     public function testTryExpandPrefersUnityFactor(): void
     {
+        // Reset to ensure fresh Unit objects with no cached expansions.
+        UnitService::reset();
+
         // J (joule) has a unity conversion to kg*m2/s2 (factor = 1).
         $unit = UnitService::getBySymbol('J');
         $this->assertInstanceOf(Unit::class, $unit);

@@ -19,7 +19,7 @@ use Override;
  */
 class Temperature extends Quantity
 {
-    // region Constants
+    // region Public constants
 
     /**
      * Offset to convert Celsius to Kelvin.

@@ -6,13 +6,12 @@ namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Traits\Equatable;
+use Galaxon\Core\Traits\Comparison\Equatable;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use InvalidArgumentException;
@@ -25,7 +24,38 @@ class Unit implements UnitInterface
 {
     use Equatable;
 
-    // region Properties
+    // region Private constants
+
+    private const string RX_ASCII_LETTER = '[a-z]';
+
+    private const string RX_ASCII_WORD = self::RX_ASCII_LETTER . '+';
+
+    private const string RX_ASCII_WORDS = self::RX_ASCII_WORD . '(?: ' . self::RX_ASCII_WORD . '){0,2}';
+
+    private const string RX_ASCII_SPECIAL_CHR = "[!-'?@`]";
+
+    private const string RX_ASCII_SYMBOL = self::RX_ASCII_WORDS . '|' . self::RX_ASCII_SPECIAL_CHR;
+
+    private const string RX_UNICODE_LETTER = '\p{L}';
+
+    private const string RX_TEMPERATURE_SYMBOL = '°[a-z]';
+
+    private const string RX_UNICODE_SYMBOL =
+        self::RX_UNICODE_LETTER . '|' . self::RX_UNICODE_SPECIAL_CHR . '|' . self::RX_TEMPERATURE_SYMBOL;
+
+    // endregion
+
+    // region Public constants
+
+    public const string RX_UNICODE_SPECIAL_CHR = "[!-'?@`′″‰\p{So}\p{Sc}]";
+
+    public const string RX_UNIT = self::RX_ASCII_WORDS . '|' . self::RX_UNICODE_SYMBOL;
+
+    public const string RX_PREFIX = '[a-z]{1,2}|' . self::RX_UNICODE_LETTER;
+
+    // endregion
+
+    // region Public properties
 
     /**
      * The unit name (e.g. 'meter', 'gram', 'hertz').
@@ -65,6 +95,10 @@ class Unit implements UnitInterface
      * @var list<UnitSystem>
      */
     private(set) array $systems;
+
+    // endregion
+
+    // region Private properties
 
     /**
      * The expansion quantity, if one exists and is known.
@@ -180,12 +214,12 @@ class Unit implements UnitInterface
     ) {
         // Check the name is non-empty, ASCII, and up to 3 words.
         $name = trim($name);
-        if (!RegexService::isValidUnitName($name)) {
+        if (!self::isValidUnitName($name)) {
             throw new FormatException("Invalid unit name: '$name'.");
         }
 
         // Check ASCII symbol contains ASCII letters only (empty is allowed for dimensionless/scalar).
-        if ($asciiSymbol !== '' && !RegexService::isValidAsciiSymbol($asciiSymbol)) {
+        if ($asciiSymbol !== '' && !self::isValidAsciiSymbol($asciiSymbol)) {
             throw new FormatException("Invalid ASCII unit symbol: '$asciiSymbol'.");
         }
 
@@ -208,12 +242,12 @@ class Unit implements UnitInterface
         }
 
         // Validate Unicode symbol.
-        if (isset($unicodeSymbol) && !RegexService::isValidUnicodeSymbol($unicodeSymbol)) {
+        if (isset($unicodeSymbol) && !self::isValidUnicodeSymbol($unicodeSymbol)) {
             throw new FormatException("Invalid Unicode unit symbol: '$unicodeSymbol'.");
         }
 
         // Check if the alternate symbol contains a single ASCII non-letter symbol only.
-        if (isset($alternateSymbol) && !RegexService::isValidAlternateSymbol($alternateSymbol)) {
+        if (isset($alternateSymbol) && !self::isValidAlternateSymbol($alternateSymbol)) {
             throw new FormatException("Invalid alternate unit symbol: '$alternateSymbol'.");
         }
 
@@ -243,7 +277,7 @@ class Unit implements UnitInterface
     public static function parse(string $symbol): self
     {
         // Validate the symbol format.
-        if ($symbol !== '' && !RegexService::isValidUnitSymbol($symbol)) {
+        if ($symbol !== '' && !self::isValidUnitSymbol($symbol)) {
             throw new FormatException(
                 "Unit symbol '$symbol' can only contain letters and special characters (e.g. °′″'\")."
             );
@@ -353,6 +387,67 @@ class Unit implements UnitInterface
     public function __toString(): string
     {
         return $this->format();
+    }
+
+    // endregion
+
+    // region Validation methods
+
+    /**
+     * Check if a string is a valid unit name.
+     *
+     * @param string $name The string to check.
+     * @return bool True if the string is a valid unit name.
+     */
+    private static function isValidUnitName(string $name): bool
+    {
+        return $name !== '' && preg_match('/^[\p{L}\p{P} ]+$/iu', $name);
+    }
+
+    /**
+     * Check if a string is a valid ASCII unit symbol.
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a valid ASCII unit symbol.
+     */
+    private static function isValidAsciiSymbol(string $symbol): bool
+    {
+        return (bool)preg_match('/^(' . self::RX_ASCII_SYMBOL . ')$/i', $symbol);
+    }
+
+    /**
+     * Check if a string is a valid Unicode unit symbol.
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a valid Unicode unit symbol.
+     */
+    private static function isValidUnicodeSymbol(string $symbol): bool
+    {
+        return (bool)preg_match('/^(' . self::RX_UNICODE_SYMBOL . ')$/iu', $symbol);
+    }
+
+    /**
+     * Check if a string is a single ASCII character valid for use as an alternate unit symbol.
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a valid alternate unit symbol.
+     */
+    private static function isValidAlternateSymbol(string $symbol): bool
+    {
+        return (bool)preg_match('/^(' . self::RX_ASCII_LETTER . '|' . self::RX_ASCII_SPECIAL_CHR . ')$/i', $symbol);
+    }
+
+    /**
+     * Check if a string is a valid unit symbol (ASCII, Unicode, or alternate).
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a valid unit symbol.
+     */
+    public static function isValidUnitSymbol(string $symbol): bool
+    {
+        return self::isValidAsciiSymbol($symbol) ||
+            self::isValidUnicodeSymbol($symbol) ||
+            self::isValidAlternateSymbol($symbol);
     }
 
     // endregion

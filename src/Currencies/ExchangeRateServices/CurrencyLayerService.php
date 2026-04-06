@@ -17,7 +17,7 @@ use RuntimeException;
  */
 class CurrencyLayerService implements ExchangeRateServiceInterface
 {
-    // region Constants
+    // region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
@@ -34,7 +34,7 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
 
     // endregion
 
-    // region Properties
+    // region Public properties
 
     /**
      * The access key for CurrencyLayer.

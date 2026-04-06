@@ -35,7 +35,7 @@ enum UnitSystem
 
     // endregion
 
-    // region Constants
+    // region Public constants
 
     /**
      * The default unit systems that will be lazy-loaded on first use of the UnitService.

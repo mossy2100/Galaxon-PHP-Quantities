@@ -1,6 +1,6 @@
 # UnitService
 
-Registry of known units organized by measurement system.
+Registry of units with lookup, filtering, and loading by system.
 
 **Namespace:** `Galaxon\Quantities\Services`
 
@@ -8,15 +8,30 @@ Registry of known units organized by measurement system.
 
 ## Overview
 
-The `UnitService` manages the collection of known units in the system. It provides:
+The `UnitService` manages the collection of known units. It provides methods to look up units by name, symbol, system, or quantity type; register custom units; load units from built-in systems; and inspect the registry state.
 
-- Creating units from definitions.
-- Lookup methods for finding units by symbol or dimension.
-- Methods for adding custom units.
+All methods are static. The class uses lazy initialization to build the registry on first access, loading all default units from all systems.
 
 ---
 
 ## Lookup Methods
+
+### getByName()
+
+```php
+public static function getByName(string $name): ?Unit
+```
+
+Get a unit by its name (case-sensitive). Only base unit names are registered — prefixed forms like `'kilogram'` or `'millimeter'` are not resolved by this method. Use `getBySymbol()` to look up prefixed units.
+
+**Returns:** `?Unit` — The matching unit, or null if not found.
+
+```php
+$meter = UnitService::getByName('meter');
+$gram = UnitService::getByName('gram');
+UnitService::getByName('kilogram');     // null — use getBySymbol('kg') instead
+UnitService::getByName('nonexistent');  // null
+```
 
 ### getBySymbol()
 
@@ -24,12 +39,17 @@ The `UnitService` manages the collection of known units in the system. It provid
 public static function getBySymbol(string $symbol): ?Unit
 ```
 
-Find a unit by its symbol (ASCII, Unicode, or alternate).
+Get a unit by its symbol. Supports ASCII, Unicode, and alternate symbols, with or without prefixes. Since unit symbols are unique, this returns at most one unit.
+
+Note: prefixed symbols resolve to the underlying base `Unit` — the prefix information is discarded. For example, `getBySymbol('km')` returns the `Unit` object for meter. To work with a prefixed unit as a distinct entity (retaining the prefix and multiplier), use `UnitTerm::parse()`.
+
+**Returns:** `?Unit` — The matching unit, or null if not found.
 
 ```php
 $meter = UnitService::getBySymbol('m');
-$ohm = UnitService::getBySymbol('Ω');  // Unicode
-$ohm = UnitService::getBySymbol('ohm');  // ASCII
+$meter = UnitService::getBySymbol('km');      // also returns the meter Unit
+$ohm = UnitService::getBySymbol('Ω');         // Unicode
+$ohm = UnitService::getBySymbol('ohm');       // ASCII alternative
 ```
 
 ### getBySystem()
@@ -38,16 +58,30 @@ $ohm = UnitService::getBySymbol('ohm');  // ASCII
 public static function getBySystem(UnitSystem $system): array
 ```
 
-Get all units belonging to a given measurement system.
+Get all units belonging to the given measurement system.
+
+**Returns:** `list<Unit>`
 
 ```php
 use Galaxon\Quantities\UnitSystem;
 
-$siUnits = UnitService::getBySystem(UnitSystem::Si);
-// Returns all SI units (meter, kilogram, second, etc.)
-
+$siUnits = UnitService::getBySystem(UnitSystem::SI);
 $imperialUnits = UnitService::getBySystem(UnitSystem::Imperial);
-// Returns all Imperial units (foot, pound, etc.)
+```
+
+### getByQuantityType()
+
+```php
+public static function getByQuantityType(QuantityType $quantityType): array
+```
+
+Get all units compatible with the given quantity type.
+
+**Returns:** `list<Unit>`
+
+```php
+$lengthType = QuantityTypeService::getByName('length');
+$lengthUnits = UnitService::getByQuantityType($lengthType);
 ```
 
 ### getAll()
@@ -56,10 +90,15 @@ $imperialUnits = UnitService::getBySystem(UnitSystem::Imperial);
 public static function getAll(): array
 ```
 
-Get all registered units.
+Get all registered units, keyed by unit name.
+
+**Returns:** `array<string, Unit>`
 
 ```php
 $allUnits = UnitService::getAll();
+foreach ($allUnits as $name => $unit) {
+    echo "$name: {$unit->asciiSymbol}\n";
+}
 ```
 
 ### getAllSymbols()
@@ -68,58 +107,87 @@ $allUnits = UnitService::getAll();
 public static function getAllSymbols(): array
 ```
 
-Get all valid unit symbols, including prefixed variants.
+Get all valid unit symbols across all registered units, including base, prefixed, Unicode, and alternate variants.
+
+**Returns:** `list<string>`
 
 ```php
 $symbols = UnitService::getAllSymbols();
-// Includes: 'm', 'km', 'mm', 'nm', 'Hz', 'kHz', 'MHz', etc.
+// Includes: 'm', 'km', 'mm', 'nm', 'Hz', 'kHz', 'MHz', 'Ω', 'ohm', etc.
 ```
 
 ---
 
-## Modification Methods
+## Registry Methods
 
 ### add()
 
 ```php
-public static function add(...): Unit
+public static function add(Unit $unit, bool $replaceExisting = false): bool
 ```
 
-Add a custom unit to the registry.
+Add a unit to the registry. By default, returns `false` if a unit with the same name already exists. Pass `$replaceExisting = true` to overwrite.
+
+**Returns:** `bool` — True if the unit was added, false if it already existed and was not replaced.
+
+**Throws:** `DomainException` if any of the new unit's symbols conflict with an existing unit's symbols.
 
 ```php
-$unit = UnitService::add(
+use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\UnitSystem;
+
+$furlong = new Unit(
     name: 'furlong',
     asciiSymbol: 'fur',
-    unicodeSymbol: null,
     dimension: 'L',
     systems: [UnitSystem::Imperial]
 );
+
+UnitService::add($furlong);
+```
+
+### addFromDefinition()
+
+```php
+public static function addFromDefinition(
+    string $name,
+    array $definition,
+    bool $replaceExisting = false
+): void
+```
+
+Add a unit from an associative array definition (the same format used by built-in quantity types).
+
+**Throws:** `DomainException` if any of the new unit's symbols conflict with an existing unit's symbols.
+
+```php
+UnitService::addFromDefinition('furlong', [
+    'asciiSymbol' => 'fur',
+    'dimension'   => 'L',
+    'systems'     => [UnitSystem::Imperial],
+]);
 ```
 
 ### remove()
 
 ```php
-public static function remove(string $name): void
+public static function remove(string|Unit $unit): void
 ```
 
-Remove a unit from the registry.
+Remove a unit from the registry by name or by Unit object. Does nothing if the registry is not initialized or the unit doesn't exist.
 
 ```php
 UnitService::remove('furlong');
+UnitService::remove($furlong);  // also works with Unit object
 ```
 
-### loadSystem()
+### removeAll()
 
 ```php
-public static function loadSystem(UnitSystem $system): void
+public static function removeAll(): void
 ```
 
-Load all units belonging to a measurement system.
-
-```php
-UnitService::loadSystem(UnitSystem::Imperial);
-```
+Remove all units from the registry and clear the loaded-systems list. Unlike `reset()`, the next access will NOT trigger re-initialization.
 
 ### reset()
 
@@ -127,11 +195,36 @@ UnitService::loadSystem(UnitSystem::Imperial);
 public static function reset(): void
 ```
 
-Reset the registry to an empty state.
+Reset the registry to its default initial state. The next access will trigger re-initialization with all default units from all systems.
+
+---
+
+## Loading Methods
+
+### loadSystem()
 
 ```php
-UnitService::reset();
-// Services is now empty - use loadSystem() or add() to populate
+public static function loadSystem(UnitSystem $system, bool $replaceExisting = false): void
+```
+
+Load all units belonging to a specific system of units.
+
+```php
+UnitService::loadSystem(UnitSystem::Imperial);
+```
+
+### loadAll()
+
+```php
+public static function loadAll(bool $replaceExisting = false): void
+```
+
+Load all units from all systems.
+
+**Throws:** `DomainException` if any symbol conflicts arise.
+
+```php
+UnitService::loadAll();
 ```
 
 ---
@@ -141,56 +234,34 @@ UnitService::reset();
 ### has()
 
 ```php
-public static function has(string $name): bool
+public static function has(string|Unit $unit): bool
 ```
 
-Check if a unit exists in the registry.
+Check if a unit is in the registry by name or by Unit object.
 
 ```php
-if (UnitService::has('meter')) {
-    // Unit exists
-}
+UnitService::has('meter');   // true
+UnitService::has($furlong);  // true/false
 ```
 
-### getLoadedSystems()
+### count()
 
 ```php
-public static function getLoadedSystems(): array
+public static function count(): int
 ```
 
-Get the list of measurement systems that have been loaded.
+Get the number of units in the registry.
 
 ```php
-$systems = UnitService::getLoadedSystems();
-// Returns: [UnitSystem::Si, UnitSystem::SiAccepted, UnitSystem::Common]
-```
-
----
-
-## Usage Examples
-
-```php
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
-
-// Check what's loaded by default
-$systems = UnitService::getLoadedSystems();
-// [UnitSystem::Si, UnitSystem::SiAccepted, UnitSystem::Common]
-
-// Find a unit
-$foot = UnitService::getBySymbol('ft');
-echo $foot->name;  // 'foot'
-
-// Custom unit
-UnitService::add(new Unit('cubit', 'cbt', 'L', [UnitSystem::Common]));
+$n = UnitService::count();
 ```
 
 ---
 
 ## See Also
 
-- **[Unit](../Internal/Unit.md)** - Unit class documentation
-- **[ConversionService](ConversionService.md)** - Conversion registry
-- **[QuantityTypeService](QuantityTypeService.md)** - Quantity type registry
-- **[UnitSystem](../UnitSystem.md)** - Measurement system enum
-- **[Units](../../Concepts/Units.md)** - Complete unit reference
+- **[Unit](../Internal/Unit.md)** — Unit class documentation
+- **[ConversionService](ConversionService.md)** — Conversion registry
+- **[QuantityTypeService](QuantityTypeService.md)** — Quantity type registry
+- **[UnitSystem](../UnitSystem.md)** — Measurement system enum
+- **[Units](../../Concepts/Units.md)** — Complete unit reference

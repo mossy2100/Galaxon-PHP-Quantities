@@ -16,7 +16,7 @@ use Override;
  */
 class Angle extends Quantity
 {
-    // region Constants
+    // region Public constants
 
     /**
      * Epsilons for comparisons.

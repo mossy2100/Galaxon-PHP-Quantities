@@ -24,7 +24,7 @@ use UnexpectedValueException;
  */
 class QuantityPartsService
 {
-    // region Constants
+    // region Private constants
 
     /**
      * Default parts configurations keyed by quantity type name.
@@ -128,7 +128,7 @@ class QuantityPartsService
                 }
 
                 // Check the symbol is valid.
-                if ($symbol === '' || !RegexService::isValidUnitSymbol($symbol)) {
+                if ($symbol === '' || !Unit::isValidUnitSymbol($symbol)) {
                     throw new FormatException("Invalid part unit symbol, found: '$symbol'.");
                 }
             }
@@ -390,7 +390,7 @@ class QuantityPartsService
         $firstPartSeen = false;
         foreach ($stringParts as $stringPart) {
             // Check the part looks like a quantity.
-            if (!RegexService::isValidQuantity($stringPart, $m) || empty($m[2])) {
+            if (!Quantity::isValidQuantity($stringPart, $m) || empty($m[2])) {
                 throw new FormatException($err);
             }
 

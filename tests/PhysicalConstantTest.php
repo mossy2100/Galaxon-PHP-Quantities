@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests;
 
 use DomainException;
-use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Core\Traits\Asserts\FloatAssertions;
 use Galaxon\Quantities\PhysicalConstant;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Length;

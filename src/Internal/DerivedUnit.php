@@ -6,13 +6,12 @@ namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Traits\Equatable;
+use Galaxon\Core\Traits\Comparison\Equatable;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\UnitSystem;
 use LogicException;
 use UnexpectedValueException;
@@ -28,7 +27,17 @@ class DerivedUnit implements UnitInterface
 {
     use Equatable;
 
-    // region Properties
+    // region Private constants
+
+    private const string RX_MUL_OPS = '*.\x{22C5}\x{00B7}';
+
+    private const string RX_CLASS_MUL_OPS = '[' . self::RX_MUL_OPS . ']';
+
+    private const string RX_CLASS_MUL_DIV_OPS = '[' . self::RX_MUL_OPS . '\/]';
+
+    // endregion
+
+    // region Public properties
 
     /**
      * Array of unit terms the DerivedUnit comprises, keyed by the unit symbol without the exponent.
@@ -45,6 +54,10 @@ class DerivedUnit implements UnitInterface
      * Defaults to empty string '' (dimensionless).
      */
     private(set) string $dimension = '';
+
+    // endregion
+
+    // region Private properties
 
     /**
      * The expansion quantity, if one exists and is known.
@@ -178,13 +191,13 @@ class DerivedUnit implements UnitInterface
         }
 
         // Check for a series of unit terms separated by multiplication and/or division operators.
-        if (RegexService::isValidDerivedUnitForm1($symbol)) {
+        if (self::isValidDerivedUnitForm1($symbol)) {
             return self::parseHelper($symbol);
         }
 
         // Check for parentheses. The only permitted use of parentheses is "<terms>/(<terms>)", where <terms> is a
         // sequence of one or more multiplied unit terms. Examples: 'J/(mol*K)', 'W/(m2*K4)'.
-        if (RegexService::isValidDerivedUnitForm2($symbol, $matches)) {
+        if (self::isValidDerivedUnitForm2($symbol, $matches)) {
             assert(isset($matches['num']) && isset($matches['den']));
             $numerator = $matches['num'];
             $denominator = $matches['den'];
@@ -629,6 +642,70 @@ class DerivedUnit implements UnitInterface
 
     // endregion
 
+    // region Regex methods
+
+    /**
+     * Get the regex pattern for form 1 of a derived unit: unit terms separated by multiply/divide operators.
+     *
+     * @return string The regex pattern (without delimiters or anchors).
+     */
+    private static function derivedUnitRegexForm1(): string
+    {
+        $rxUnitTerm = UnitTerm::unitTermRegex();
+        return "$rxUnitTerm(?:" . self::RX_CLASS_MUL_DIV_OPS . "$rxUnitTerm)*";
+    }
+
+    /**
+     * Get the regex pattern for form 2 of a derived unit: numerator / (denominator).
+     *
+     * @return string The regex pattern (without delimiters or anchors).
+     */
+    private static function derivedUnitRegexForm2(): string
+    {
+        $rxUnitTerm = UnitTerm::unitTermRegex();
+        $mulTerms = "$rxUnitTerm(?:" . self::RX_CLASS_MUL_OPS . "$rxUnitTerm)*";
+        return "(?<num>$mulTerms)\/\\((?<den>$mulTerms)\\)";
+    }
+
+    /**
+     * Get the regex pattern for matching a derived unit (either form).
+     *
+     * @return string The regex pattern (without delimiters or anchors).
+     */
+    public static function derivedUnitRegex(): string
+    {
+        return '(?:' . self::derivedUnitRegexForm1() . ')|(?:' . self::derivedUnitRegexForm2() . ')';
+    }
+
+    // endregion
+
+    // region Validation methods
+
+    /**
+     * Check if a string matches form 1 of a derived unit.
+     *
+     * @param string $symbol The symbol to validate.
+     * @return bool True if the symbol matches form 1.
+     */
+    private static function isValidDerivedUnitForm1(string $symbol): bool
+    {
+        return (bool)preg_match('/^' . self::derivedUnitRegexForm1() . '$/iu', $symbol);
+    }
+
+    /**
+     * Check if a string matches form 2 of a derived unit.
+     *
+     * @param string $symbol The symbol to validate.
+     * @param ?array<array-key, string> $matches Output array for match results.
+     * @return bool True if the symbol matches form 2.
+     */
+    private static function isValidDerivedUnitForm2(string $symbol, ?array &$matches): bool
+    {
+        return (bool)preg_match('/^' . self::derivedUnitRegexForm2() . '$/iu', $symbol, $matches);
+    }
+
+    // endregion
+
     // region Helper methods
 
     /**
@@ -647,11 +724,7 @@ class DerivedUnit implements UnitInterface
         $new = new self();
 
         // Get the parts of the compound unit.
-        $parts = preg_split(
-            '/(' . RegexService::RX_CLASS_MUL_DIV_OPS . ')/iu',
-            $symbol,
-            flags: PREG_SPLIT_DELIM_CAPTURE
-        );
+        $parts = preg_split('/(' . self::RX_CLASS_MUL_DIV_OPS . ')/iu', $symbol, flags: PREG_SPLIT_DELIM_CAPTURE);
         if ($parts === false) {
             // @codeCoverageIgnoreStart
             throw new UnexpectedValueException('Error splitting string into parts.');

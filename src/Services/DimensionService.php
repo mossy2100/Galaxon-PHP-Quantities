@@ -21,7 +21,7 @@ use LogicException;
  */
 class DimensionService
 {
-    // region Constants
+    // region Public constants
 
     /**
      * Dimension codes are based on ISQ (International System of Quantities) dimensional symbols, with a few

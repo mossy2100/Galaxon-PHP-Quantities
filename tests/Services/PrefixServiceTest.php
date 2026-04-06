@@ -471,43 +471,6 @@ final class PrefixServiceTest extends TestCase
 
     // endregion
 
-    // region isValidGroupCode() tests
-
-    /**
-     * Test isValidGroupCode() returns true for base group codes.
-     */
-    public function testIsValidGroupCodeReturnsTrueForBaseGroups(): void
-    {
-        $this->assertTrue(PrefixService::isValidGroupCode(PrefixService::GROUP_SMALL_METRIC));
-        $this->assertTrue(PrefixService::isValidGroupCode(PrefixService::GROUP_MEDIUM_METRIC));
-        $this->assertTrue(PrefixService::isValidGroupCode(PrefixService::GROUP_LARGE_METRIC));
-        $this->assertTrue(PrefixService::isValidGroupCode(PrefixService::GROUP_BINARY));
-    }
-
-    /**
-     * Test isValidGroupCode() returns false for combined group codes.
-     */
-    public function testIsValidGroupCodeReturnsFalseForCombinedGroups(): void
-    {
-        // Combined codes are not "valid" base codes.
-        $this->assertFalse(PrefixService::isValidGroupCode(PrefixService::GROUP_METRIC));
-        $this->assertFalse(PrefixService::isValidGroupCode(PrefixService::GROUP_LARGE));
-        $this->assertFalse(PrefixService::isValidGroupCode(PrefixService::GROUP_ALL));
-    }
-
-    /**
-     * Test isValidGroupCode() returns false for invalid values.
-     */
-    public function testIsValidGroupCodeReturnsFalseForInvalidValues(): void
-    {
-        $this->assertFalse(PrefixService::isValidGroupCode(0));
-        $this->assertFalse(PrefixService::isValidGroupCode(-1));
-        $this->assertFalse(PrefixService::isValidGroupCode(32));
-        $this->assertFalse(PrefixService::isValidGroupCode(100));
-    }
-
-    // endregion
-
     // region Prefix object property tests
 
     /**

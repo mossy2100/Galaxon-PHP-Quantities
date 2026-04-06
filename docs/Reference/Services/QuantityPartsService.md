@@ -188,5 +188,4 @@ If `$showZeros` is `false`, parts with zero values are omitted. However, if the 
 ## See Also
 
 - **[Quantity](../Quantity.md)** — Core quantity value type
-- **[RegexService](RegexService.md)** — Regex patterns and validation
 - **[UnitService](UnitService.md)** — Unit lookup and registration

@@ -21,6 +21,32 @@ All methods are static. The dimension is inferred from the units provided — th
 
 ---
 
+## Lookup Methods
+
+### get()
+
+```php
+public static function get(
+    string|UnitInterface $srcUnit,
+    string|UnitInterface $destUnit
+): ?Conversion
+```
+
+Get a known conversion from the matrix without attempting to discover new paths.
+
+**Parameters:**
+- `$srcUnit` (string|UnitInterface) - The source unit.
+- `$destUnit` (string|UnitInterface) - The destination unit.
+
+**Returns:** `?Conversion` - The conversion, or `null` if not in the matrix.
+
+**Throws:**
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
+- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
+
+---
+
 ## Registry Methods
 
 ### add()
@@ -62,27 +88,9 @@ Remove all conversions involving units from a specific measurement system.
 **Parameters:**
 - `$system` (UnitSystem) - The unit system whose conversions should be removed.
 
-### get()
+---
 
-```php
-public static function get(
-    string|UnitInterface $srcUnit,
-    string|UnitInterface $destUnit
-): ?Conversion
-```
-
-Get a known conversion from the matrix without attempting to discover new paths.
-
-**Parameters:**
-- `$srcUnit` (string|UnitInterface) - The source unit.
-- `$destUnit` (string|UnitInterface) - The destination unit.
-
-**Returns:** `?Conversion` - The conversion, or `null` if not in the matrix.
-
-**Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
-- [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
-- [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
+## Inspection Methods
 
 ### has()
 

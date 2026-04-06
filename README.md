@@ -191,7 +191,6 @@ These classes are predominantly internal, except for adding custom units via `Un
 | [PrefixService](docs/Reference/Services/PrefixService.md)             | Manages SI and binary prefixes (lookup, filtering by group).              |
 | [DimensionService](docs/Reference/Services/DimensionService.md)         | Utilities for working with physical dimension codes (validation, composition, transformation). |
 | [QuantityPartsService](docs/Reference/Services/QuantityPartsService.md) | Decomposes quantities into parts (e.g. hours, minutes, seconds).                             |
-| [RegexService](docs/Reference/Services/RegexService.md)       | Centralised regex patterns and validation for unit symbols.                                    |
 
 ### Internal Classes
 

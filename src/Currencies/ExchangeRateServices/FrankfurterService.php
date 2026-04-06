@@ -16,7 +16,7 @@ use RuntimeException;
  */
 class FrankfurterService implements ExchangeRateServiceInterface
 {
-    // region Constants
+    // region Private constants
 
     /**
      * The API endpoint for latest exchange rates.

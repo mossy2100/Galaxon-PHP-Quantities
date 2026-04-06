@@ -16,7 +16,7 @@ use InvalidArgumentException;
  */
 class QuantityType
 {
-    // region Properties
+    // region Public properties
 
     /**
      * The human-readable name of the quantity type (e.g. 'length', 'force').

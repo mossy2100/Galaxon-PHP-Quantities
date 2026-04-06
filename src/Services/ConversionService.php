@@ -24,6 +24,27 @@ use LogicException;
  */
 class ConversionService
 {
+    // region Lookup methods
+
+    /**
+     * Get a known conversion from the matrix without attempting to discover new paths.
+     *
+     * @param string|UnitInterface $srcUnit The source unit.
+     * @param string|UnitInterface $destUnit The destination unit.
+     * @return ?Conversion The conversion, or null if not in the matrix.
+     * @throws FormatException If a unit string cannot be parsed.
+     * @throws UnknownUnitException If a unit string contains unknown units.
+     * @throws DimensionMismatchException If the dimensions don't match.
+     */
+    public static function get(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
+    {
+        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
+        $converter = Converter::getInstance($srcUnit->dimension);
+        return $converter->getConversion($srcUnit, $destUnit);
+    }
+
+    // endregion
+
     // region Registry methods
 
     /**
@@ -78,22 +99,9 @@ class ConversionService
         }
     }
 
-    /**
-     * Get a known conversion from the matrix without attempting to discover new paths.
-     *
-     * @param string|UnitInterface $srcUnit The source unit.
-     * @param string|UnitInterface $destUnit The destination unit.
-     * @return ?Conversion The conversion, or null if not in the matrix.
-     * @throws FormatException If a unit string cannot be parsed.
-     * @throws UnknownUnitException If a unit string contains unknown units.
-     * @throws DimensionMismatchException If the dimensions don't match.
-     */
-    public static function get(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
-    {
-        [$srcUnit, $destUnit] = self::validateUnits($srcUnit, $destUnit);
-        $converter = Converter::getInstance($srcUnit->dimension);
-        return $converter->getConversion($srcUnit, $destUnit);
-    }
+    // endregion
+
+    // region Inspection methods
 
     /**
      * Check whether a conversion exists in the matrix.

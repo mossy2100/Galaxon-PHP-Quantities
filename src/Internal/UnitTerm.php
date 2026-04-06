@@ -7,13 +7,12 @@ namespace Galaxon\Quantities\Internal;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Integers;
-use Galaxon\Core\Traits\Equatable;
+use Galaxon\Core\Traits\Comparison\Equatable;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use Override;
 
@@ -36,7 +35,7 @@ class UnitTerm implements UnitInterface
 {
     use Equatable;
 
-    // region Properties
+    // region Public properties
 
     /**
      * The unit.
@@ -52,6 +51,10 @@ class UnitTerm implements UnitInterface
      * The exponent (e.g. 2 for m², -1 for s⁻¹).
      */
     public readonly int $exponent;
+
+    // endregion
+
+    // region Private properties
 
     /**
      * The expansion quantity, if one exists and is known.
@@ -221,7 +224,7 @@ class UnitTerm implements UnitInterface
         }
 
         // Validate the format.
-        if (!RegexService::isValidUnitTerm($symbol, $matches)) {
+        if (!self::isValidUnitTerm($symbol, $matches)) {
             throw new FormatException(
                 "Invalid unit '$symbol'. A unit must comprise one or more letters optionally followed by an exponent."
             );
@@ -404,6 +407,41 @@ class UnitTerm implements UnitInterface
     public function __toString(): string
     {
         return $this->format();
+    }
+
+    // endregion
+
+    // region Regex methods
+
+    /**
+     * Get the regex pattern for matching a unit term.
+     *
+     * @return string The regex pattern (without delimiters or anchors).
+     */
+    public static function unitTermRegex(): string
+    {
+        $superscriptChars = Integers::SUPERSCRIPT_CHARACTERS;
+        $superscriptMinus = $superscriptChars['-'];
+        unset($superscriptChars['-']);
+        $superscriptDigits = implode('', $superscriptChars);
+        return '((?:' . Unit::RX_PREFIX . ')?(?:' . Unit::RX_UNIT .
+            "))((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
+    }
+
+    // endregion
+
+    // region Validation methods
+
+    /**
+     * Check if a string is a valid unit term symbol.
+     *
+     * @param string $symbol The symbol to validate.
+     * @param ?array<array-key, string> $matches Output array for match results.
+     * @return bool True if the symbol is a valid unit term.
+     */
+    private static function isValidUnitTerm(string $symbol, ?array &$matches): bool
+    {
+        return (bool)preg_match('/^' . self::unitTermRegex() . '$/iu', $symbol, $matches);
     }
 
     // endregion

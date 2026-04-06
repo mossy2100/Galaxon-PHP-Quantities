@@ -11,7 +11,6 @@ use Galaxon\Core\Stringify;
 use Galaxon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use Locale;
@@ -25,15 +24,7 @@ use SimpleXMLElement;
  */
 class CurrencyService
 {
-    // region Constants
-
-    /**
-     * The URL for the official ISO 4217 XML published by SIX Group.
-     *
-     * Note: "currrency" with three r's is SIX Group's actual URL, not a typo in our code.
-     */
-    private const string ISO_4217_URL =
-        'https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml';
+    // region Public constants
 
     /**
      * The default data directory path.
@@ -44,6 +35,23 @@ class CurrencyService
      * The date format used for timestamps in generated data files.
      */
     private const string DATETIME_FORMAT = 'Y-m-d H:i:s T';
+
+    // endregion
+
+    // region Private constants
+
+    /**
+     * The URL for the official ISO 4217 XML published by SIX Group.
+     *
+     * Note: "currrency" with three r's is SIX Group's actual URL, not a typo in our code.
+     */
+    private const string ISO_4217_URL =
+        'https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml';
+
+    /**
+     * The regular expression for matching a locale string.
+     */
+    private const string RX_LOCALE = '[a-z]{2,4}([-_][A-Z][a-z]{3})?([-_]([A-Z]{2}|[0-9]{3}))?';
 
     // endregion
 
@@ -421,7 +429,7 @@ class CurrencyService
      */
     public static function setLocale(?string $locale): void
     {
-        if ($locale !== null && !preg_match(RegexService::RX_LOCALE, $locale)) {
+        if ($locale !== null && !preg_match('/^' . self::RX_LOCALE . '$/', $locale)) {
             throw new FormatException("Invalid locale string: '$locale'.");
         }
         self::$locale = $locale;

@@ -22,14 +22,14 @@ All methods are static. The class uses lazy initialization to build the registry
 
 ## Constants
 
-### `QUANTITY_TYPES`
+### `DEFAULT_QUANTITY_TYPES`
 
 Built-in quantity type definitions keyed by name. Each entry contains a dimension code and PHP class. The registry includes all standard physical quantities:
 
 | Name | Dimension | Class |
 |---|---|---|
 | dimensionless | *(empty)* | `Dimensionless` |
-| length | M | `Length` |
+| length | L | `Length` |
 | mass | M | `Mass` |
 | time | T | `Time` |
 | electric current | I | `ElectricCurrent` |
@@ -65,7 +65,7 @@ Built-in quantity type definitions keyed by name. Each entry contains a dimensio
 
 ---
 
-## Static Public Methods
+## Lookup Methods
 
 ### getAll()
 
@@ -162,6 +162,10 @@ Get all registered quantity type classes.
 $classes = QuantityTypeService::getClasses();
 // [Dimensionless::class, Length::class, Mass::class, ...]
 ```
+
+---
+
+## Registry Methods
 
 ### add()
 

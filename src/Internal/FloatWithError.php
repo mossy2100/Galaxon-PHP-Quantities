@@ -16,13 +16,13 @@ use Stringable;
  */
 class FloatWithError implements Stringable
 {
-    // region Constants
+    // region Private constants
 
     private const float HALF = 0.5;
 
     // endregion
 
-    // region Properties
+    // region Public properties
 
     /**
      * The numeric value.

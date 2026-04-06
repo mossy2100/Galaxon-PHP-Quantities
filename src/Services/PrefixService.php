@@ -16,7 +16,7 @@ use Galaxon\Quantities\Internal\Prefix;
  */
 class PrefixService
 {
-    // region Constants
+    // region Public constants
 
     public const int GROUP_SMALL_METRIC = 1;
     public const int GROUP_MEDIUM_METRIC = 2;
@@ -27,6 +27,10 @@ class PrefixService
     public const int GROUP_ENGINEERING = self::GROUP_SMALL_METRIC | self::GROUP_LARGE_METRIC;
     public const int GROUP_LARGE = self::GROUP_LARGE_METRIC | self::GROUP_BINARY;
     public const int GROUP_ALL = self::GROUP_METRIC | self::GROUP_BINARY;
+
+    // endregion
+
+    // region Private constants
 
     /**
      * Prefix definitions.
@@ -78,7 +82,7 @@ class PrefixService
 
     // endregion
 
-    // region Static properties
+    // region Private static properties
 
     /**
      * List of all prefixes, ordered by multiplier.
@@ -89,7 +93,7 @@ class PrefixService
 
     // endregion
 
-    // region Static public methods
+    // region Lookup methods
 
     /**
      * Return an array of prefixes given an integer group code comprising bitwise flags.
@@ -132,12 +136,42 @@ class PrefixService
         );
     }
 
+    // endregion
+
+    // region Registry methods
+
+    /**
+     * Reset the prefixes cache.
+     *
+     * After calling this method, the next access will trigger re-initialization.
+     * Primarily useful for testing.
+     */
+    public static function reset(): void
+    {
+        self::$prefixes = null;
+    }
+
+    /**
+     * Clear the prefixes cache.
+     *
+     * After calling this method, the next access will NOT trigger re-initialization.
+     * It will be necessary to call init() manually to re-initialize the prefixes array.
+     */
+    public static function removeAll(): void
+    {
+        self::$prefixes = [];
+    }
+
+    // endregion
+
+    // region Transformation methods
+
     /**
      * Invert a prefix.
      *
      * Returns the prefix with the opposite exponent, e.g. 'k' (10³) → 'm' (10⁻³).
      *
-     * @param ?Prefix $prefix The prefix to invert.
+     * @param ?Prefix $prefix The prefix to invert. Can be null.
      * @return ?Prefix The inverted prefix, or null if null was passed.
      * @throws DomainException If no inverse could be found for the given prefix.
      */
@@ -163,41 +197,6 @@ class PrefixService
         }
 
         return $inversePrefix;
-    }
-
-    /**
-     * Check if a group code is valid.
-     *
-     * Valid group codes are the base codes (1, 2, 4, 8) that represent individual prefix groups.
-     *
-     * @param int $groupCode The group code to validate.
-     * @return bool True if the group code is valid.
-     */
-    public static function isValidGroupCode(int $groupCode): bool
-    {
-        return in_array($groupCode, self::getValidGroupCodes(), true);
-    }
-
-    /**
-     * Reset the prefixes cache.
-     *
-     * After calling this method, the next access will trigger re-initialization.
-     * Primarily useful for testing.
-     */
-    public static function reset(): void
-    {
-        self::$prefixes = null;
-    }
-
-    /**
-     * Clear the prefixes cache.
-     *
-     * After calling this method, the next access will NOT trigger re-initialization.
-     * It will be necessary to call init() manually to re-initialize the prefixes array.
-     */
-    public static function removeAll(): void
-    {
-        self::$prefixes = [];
     }
 
     // endregion
@@ -226,16 +225,6 @@ class PrefixService
             // Sort the prefixes by multiplier.
             usort(self::$prefixes, static fn (Prefix $a, Prefix $b) => $a->multiplier <=> $b->multiplier);
         }
-    }
-
-    /**
-     * Get the list of valid base group codes.
-     *
-     * @return list<int> The valid group codes.
-     */
-    private static function getValidGroupCodes(): array
-    {
-        return [self::GROUP_SMALL_METRIC, self::GROUP_MEDIUM_METRIC, self::GROUP_LARGE_METRIC, self::GROUP_BINARY];
     }
 
     // endregion

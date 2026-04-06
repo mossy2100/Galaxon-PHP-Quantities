@@ -38,7 +38,7 @@ Base group codes identify individual prefix groups. These can be combined with b
 
 ---
 
-## Static Public Methods
+## Lookup Methods
 
 ### getPrefixes()
 
@@ -90,6 +90,30 @@ $milli = PrefixService::getBySymbol('m');   // milli (1e-3)
 PrefixService::getBySymbol('X');            // null (not found)
 ```
 
+---
+
+## Registry Methods
+
+### reset()
+
+```php
+public static function reset(): void
+```
+
+Reset the prefixes cache. The next access will trigger re-initialization. Primarily useful for testing.
+
+### removeAll()
+
+```php
+public static function removeAll(): void
+```
+
+Clear the prefixes cache. Unlike `reset()`, the next access will NOT trigger re-initialization — `init()` must be called manually. Used internally during initialization.
+
+---
+
+## Transformation Methods
+
 ### invert()
 
 ```php
@@ -114,37 +138,6 @@ PrefixService::invert(null);                 // null
 $kibi = PrefixService::getBySymbol('Ki');
 PrefixService::invert($kibi);               // throws DomainException
 ```
-
-### isValidGroupCode()
-
-```php
-public static function isValidGroupCode(int $groupCode): bool
-```
-
-Check if a group code is one of the base codes (1, 2, 4, 8). Combined codes return false.
-
-```php
-PrefixService::isValidGroupCode(PrefixService::GROUP_SMALL_METRIC);  // true
-PrefixService::isValidGroupCode(PrefixService::GROUP_BINARY);        // true
-PrefixService::isValidGroupCode(PrefixService::GROUP_METRIC);        // false (combined)
-PrefixService::isValidGroupCode(0);                                   // false
-```
-
-### reset()
-
-```php
-public static function reset(): void
-```
-
-Reset the prefixes cache. The next access will trigger re-initialization. Primarily useful for testing.
-
-### removeAll()
-
-```php
-public static function removeAll(): void
-```
-
-Clear the prefixes cache. Unlike `reset()`, the next access will NOT trigger re-initialization — `init()` must be called manually. Used internally during initialization.
 
 ---
 

@@ -17,7 +17,7 @@ use RuntimeException;
  */
 class OpenExchangeRatesService implements ExchangeRateServiceInterface
 {
-    // region Constants
+    // region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
@@ -26,7 +26,7 @@ class OpenExchangeRatesService implements ExchangeRateServiceInterface
 
     // endregion
 
-    // region Properties
+    // region Public properties
 
     /**
      * The App ID for Open Exchange Rates.

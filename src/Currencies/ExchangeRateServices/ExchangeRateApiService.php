@@ -17,7 +17,7 @@ use RuntimeException;
  */
 class ExchangeRateApiService implements ExchangeRateServiceInterface
 {
-    // region Constants
+    // region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
@@ -28,7 +28,7 @@ class ExchangeRateApiService implements ExchangeRateServiceInterface
 
     // endregion
 
-    // region Properties
+    // region Public properties
 
     /**
      * The API key for ExchangeRate-API.

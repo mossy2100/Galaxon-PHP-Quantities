@@ -6,9 +6,8 @@ namespace Galaxon\Quantities\Internal;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Traits\Equatable;
+use Galaxon\Core\Traits\Comparison\Equatable;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\Services\RegexService;
 
 /**
  * Represents an SI prefix.
@@ -17,7 +16,7 @@ class Prefix
 {
     use Equatable;
 
-    // region Properties
+    // region Public properties
 
     /**
      * The prefix name (e.g. 'milli', 'kilo').
@@ -70,12 +69,12 @@ class Prefix
         int $groupCode
     ) {
         // Validate the ASCII symbol. Max two ASCII letters.
-        if (!RegexService::isValidAsciiPrefix($asciiSymbol)) {
+        if (!self::isValidAsciiPrefix($asciiSymbol)) {
             throw new FormatException("Invalid ASCII prefix symbol: '$asciiSymbol'.");
         }
 
         // Validate the Unicode symbol. Max one Unicode letter.
-        if ($unicodeSymbol !== null && !RegexService::isValidUnicodePrefix($unicodeSymbol)) {
+        if ($unicodeSymbol !== null && !self::isValidUnicodePrefix($unicodeSymbol)) {
             throw new FormatException("Invalid Unicode prefix symbol: '$unicodeSymbol'.");
         }
 
@@ -88,7 +87,13 @@ class Prefix
         }
 
         // Validate group code.
-        if (!PrefixService::isValidGroupCode($groupCode)) {
+        $validGroupCodes = [
+            PrefixService::GROUP_SMALL_METRIC,
+            PrefixService::GROUP_MEDIUM_METRIC,
+            PrefixService::GROUP_LARGE_METRIC,
+            PrefixService::GROUP_BINARY
+        ];
+        if (!in_array($groupCode, $validGroupCodes, true)) {
             throw new DomainException("Invalid prefix group code: $groupCode.");
         }
 
@@ -154,6 +159,32 @@ class Prefix
     public function __toString(): string
     {
         return $this->format();
+    }
+
+    // endregion
+
+    // region Validation methods
+
+    /**
+     * Check if a string is a valid ASCII prefix symbol (1-2 ASCII letters).
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a valid ASCII prefix symbol.
+     */
+    private static function isValidAsciiPrefix(string $symbol): bool
+    {
+        return (bool)preg_match('/^[a-z]{1,2}$/i', $symbol);
+    }
+
+    /**
+     * Check if a string is a valid Unicode prefix symbol (1 Unicode letter).
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a valid Unicode prefix symbol.
+     */
+    private static function isValidUnicodePrefix(string $symbol): bool
+    {
+        return (bool)preg_match('/^\p{L}$/iu', $symbol);
     }
 
     // endregion

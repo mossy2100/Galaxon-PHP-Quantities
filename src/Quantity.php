@@ -13,10 +13,11 @@ use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Integers;
 use Galaxon\Core\Numbers;
-use Galaxon\Core\Traits\ApproxComparable;
+use Galaxon\Core\Traits\Comparison\ApproxComparable;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\QuantityType;
+use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Services\ConversionService;
@@ -24,7 +25,6 @@ use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use InvalidArgumentException;
 use LogicException;
@@ -59,7 +59,7 @@ class Quantity implements Stringable
 {
     use ApproxComparable;
 
-    // region Static properties
+    // region Private static properties
 
     /**
      * Flag to permit call to new Quantity().
@@ -69,7 +69,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Instance properties
+    // region Public instance properties
 
     /**
      * The numeric value of the measurement in the specified unit.
@@ -239,7 +239,7 @@ class Quantity implements Stringable
 
         // Try to parse as <num><unit>. Whitespace between the number and unit is permitted. The unit is optional, as
         // for a dimensionless quantity.
-        if (RegexService::isValidQuantity($input, $m)) {
+        if (self::isValidQuantity($input, $m)) {
             assert(isset($m[1]));
             $result = self::create((float)$m[1], $m[2] ?? null);
         } else {
@@ -1018,7 +1018,7 @@ class Quantity implements Stringable
         // If $includeSpace is not specified, do not insert a space between the value and unit if the unit is a single
         // non-letter unit symbol (e.g. °, %, "). Otherwise, insert one space.
         if ($includeSpace === null) {
-            $includeSpace = !RegexService::isValidUnicodeSpecialChar($unitSymbol);
+            $includeSpace = !self::isValidUnicodeSpecialChar($unitSymbol);
         }
 
         // Return the formatted string.
@@ -1165,6 +1165,35 @@ class Quantity implements Stringable
     public function formatParts(?int $precision = null, bool $showZeros = false, bool $ascii = false): string
     {
         return QuantityPartsService::formatParts($this, $precision, $showZeros, $ascii);
+    }
+
+    // endregion
+
+    // region Validation methods
+
+    /**
+     * Check if a string is a valid quantity representation (number optionally followed by a unit).
+     *
+     * @param string $qty The quantity string to validate.
+     * @param ?array<array-key, string> $matches Output array for match results.
+     * @return bool True if the quantity string is valid.
+     */
+    public static function isValidQuantity(string $qty, ?array &$matches): bool
+    {
+        $rxNum = Numbers::REGEX;
+        $rxDerivedUnit = DerivedUnit::derivedUnitRegex();
+        return (bool)preg_match("/^($rxNum)\s*($rxDerivedUnit)?$/iu", $qty, $matches);
+    }
+
+    /**
+     * Check if a string is a Unicode special character (used for formatting decisions).
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a single Unicode special character.
+     */
+    private static function isValidUnicodeSpecialChar(string $symbol): bool
+    {
+        return (bool)preg_match('/^' . Unit::RX_UNICODE_SPECIAL_CHR . '$/iu', $symbol);
     }
 
     // endregion

@@ -8,13 +8,14 @@ use DomainException;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\UnitSystem;
+use InvalidArgumentException;
 
 /**
- * Service to support management of units used by the package.
+ * Registry of units with lookup, filtering, and loading by system.
  */
 class UnitService
 {
-    // region Static properties
+    // region Private static properties
 
     /**
      * All known/supported units including defaults and custom.
@@ -24,31 +25,9 @@ class UnitService
      */
     private static ?array $units = null;
 
-    /**
-     * The systems of units that have been loaded so far.
-     *
-     * @var list<UnitSystem>
-     */
-    private static array $loadedSystems = [];
-
     // endregion
 
-    // region Static accessors
-
-    /**
-     * Get the systems of units that have been loaded so far.
-     *
-     * @return list<UnitSystem>
-     */
-    public static function getLoadedSystems(): array
-    {
-        self::init();
-        return self::$loadedSystems;
-    }
-
-    // endregion
-
-    // region Static methods for unit lookup
+    // region Lookup methods
 
     /**
      * Get a unit by its name, or null if not found.
@@ -136,20 +115,23 @@ class UnitService
         self::init();
         assert(self::$units !== null);
 
-        $allSymbols = [];
-
-        // Loop through the units, adding all its valid symbols.
-        foreach (self::$units as $unit) {
-            $allSymbols = array_merge($allSymbols, array_keys($unit->symbols));
+        if (empty(self::$units)) {
+            return [];
         }
 
-        /** @var list<string> $allSymbols */
-        return $allSymbols;
+        // Gather symbol keys from each unit.
+        $symbolLists = [];
+        foreach (self::$units as $unit) {
+            $symbolLists[] = array_keys($unit->symbols);
+        }
+
+        /** @var list<string> */
+        return array_merge(...$symbolLists);
     }
 
     // endregion
 
-    // region Static methods for adding/removing units to/from the registry
+    // region Registry methods
 
     /**
      * Add a unit to the system.
@@ -162,10 +144,8 @@ class UnitService
      */
     public static function add(Unit $unit, bool $replaceExisting = false): bool
     {
-        // Ensure the registry is initialized (unless we're in the middle of init).
-        if (self::$units === null) {
-            self::init();
-        }
+        self::init();
+        assert(self::$units !== null);
 
         // Check if we already have a unit with this name.
         if (isset(self::$units[$unit->name])) {
@@ -211,6 +191,7 @@ class UnitService
      * @param bool $replaceExisting Determines action to take if a unit with this name already exists in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
      * @throws DomainException If any of the new unit's symbols are equal to any existing unit's symbol.
+     * @throws InvalidArgumentException If the systems array contains non-UnitSystem values.
      */
     public static function addFromDefinition(string $name, array $definition, bool $replaceExisting = false): void
     {
@@ -254,7 +235,6 @@ class UnitService
     public static function removeAll(): void
     {
         self::$units = [];
-        self::$loadedSystems = [];
     }
 
     /**
@@ -265,8 +245,11 @@ class UnitService
     public static function reset(): void
     {
         self::$units = null;
-        self::$loadedSystems = [];
     }
+
+    // endregion
+
+    // region Loading methods
 
     /**
      * Load all units belonging to a specific system of units.
@@ -274,6 +257,7 @@ class UnitService
      * @param UnitSystem $system The system of units to load units for.
      * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
+     * @throws DomainException If any of the new units' symbols are equal to any existing unit's symbol.
      */
     public static function loadSystem(UnitSystem $system, bool $replaceExisting = false): void
     {
@@ -285,13 +269,8 @@ class UnitService
                 continue;
             }
 
-            // Add the unit if not already there.
+            // Add the unit, replacing any existing one if requested.
             self::addFromDefinition($name, $definition, $replaceExisting);
-        }
-
-        // Keep track of which systems have been loaded.
-        if (!in_array($system, self::$loadedSystems, true)) {
-            self::$loadedSystems[] = $system;
         }
     }
 
@@ -300,7 +279,6 @@ class UnitService
      *
      * @param bool $replaceExisting Determines action to take if any units are found with the same name in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
-     * @return void
      * @throws DomainException If any of the new units' symbols are equal to any existing unit's symbol.
      */
     public static function loadAll(bool $replaceExisting = false): void
@@ -310,14 +288,11 @@ class UnitService
             // Add the unit if not already there.
             self::addFromDefinition($name, $definition, $replaceExisting);
         }
-
-        // Note all systems have been loaded.
-        self::$loadedSystems = UnitSystem::cases();
     }
 
     // endregion
 
-    // region Static inspection methods
+    // region Inspection methods
 
     /**
      * Check if a unit is in the registry.
@@ -348,20 +323,9 @@ class UnitService
         return count(self::$units);
     }
 
-    /**
-     * Check if a specific system of units has been loaded.
-     *
-     * @param UnitSystem $system The system to check.
-     * @return bool True if the system has been loaded.
-     */
-    public static function isLoadedSystem(UnitSystem $system): bool
-    {
-        return in_array($system, self::$loadedSystems, true);
-    }
-
     // endregion
 
-    // region Private static helper methods
+    // region Helper methods
 
     /**
      * Initialize the units array from the QuantityType classes and default UnitSystems.

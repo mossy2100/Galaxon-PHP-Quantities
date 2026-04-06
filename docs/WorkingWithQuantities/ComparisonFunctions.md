@@ -1,6 +1,6 @@
 # Comparison Functions
 
-Quantity objects implement the [`Comparable`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparable.md) and [`ApproxComparable`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/ApproxComparable.md) traits from the Core package, providing both exact and approximate comparison methods.
+Quantity objects implement the [`Comparable`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparison/Comparable.md) and [`ApproxComparable`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparison/ApproxComparable.md) traits from the Core package, providing both exact and approximate comparison methods.
 
 ---
 
@@ -68,6 +68,6 @@ $length->approxEqual($time);  // false (no exception)
 
 ## See Also
 
-- **[Comparable](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparable.md)** — Core trait providing `compare()`, `equal()`, `lessThan()`, `greaterThan()`, and related methods.
-- **[ApproxComparable](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/ApproxComparable.md)** — Core trait providing `approxEqual()` and `approxCompare()` with tolerance support.
+- **[Comparable](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparison/Comparable.md)** — Core trait providing `compare()`, `equal()`, `lessThan()`, `greaterThan()`, and related methods.
+- **[ApproxComparable](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparison/ApproxComparable.md)** — Core trait providing `approxEqual()` and `approxCompare()` with tolerance support.
 - **[Quantity](../Reference/Quantity.md)** — Full reference for comparison method signatures and exceptions.

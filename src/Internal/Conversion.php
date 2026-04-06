@@ -23,7 +23,7 @@ use Stringable;
  */
 class Conversion implements Stringable
 {
-    // region Properties
+    // region Public properties
 
     /**
      * The source unit.

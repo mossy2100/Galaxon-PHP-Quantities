@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Examples;
 
-use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Core\Traits\Asserts\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Capacitance;
 use Galaxon\Quantities\QuantityType\ElectricCharge;
 use Galaxon\Quantities\QuantityType\ElectricCurrent;

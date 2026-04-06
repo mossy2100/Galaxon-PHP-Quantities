@@ -424,4 +424,3 @@ echo $term2->dimension; // 'T-1'
 - **[DerivedUnit](DerivedUnit.md)** - Compound unit using UnitTerms.
 - **[Prefix](Prefix.md)** - SI and binary prefixes.
 - **[UnitInterface](UnitInterface.md)** - Interface for all unit types.
-- **[RegexService](../Services/RegexService.md)** - Centralised regex patterns and validation.

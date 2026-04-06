@@ -6,7 +6,7 @@ namespace Galaxon\Quantities\Tests\Quantity;
 
 use DivisionByZeroError;
 use DomainException;
-use Galaxon\Core\Traits\FloatAssertions;
+use Galaxon\Core\Traits\Asserts\FloatAssertions;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Force;

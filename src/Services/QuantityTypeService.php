@@ -52,10 +52,10 @@ use LogicException;
  */
 class QuantityTypeService
 {
-    // region Constants
+    // region Private constants
 
     /**
-     * Quantity types keyed by name (e.g. 'time', 'length').
+     * Default (built-in) quantity types keyed by name (e.g. 'time', 'length').
      *
      * Each entry contains:
      * - 'dimension': The dimension of the physical quantity
@@ -63,7 +63,7 @@ class QuantityTypeService
      *
      * @see DimensionService
      */
-    private const array QUANTITY_TYPES = [
+    private const array DEFAULT_QUANTITY_TYPES = [
         // Dimensionless
         'dimensionless'         => [
             'dimension' => '',
@@ -209,7 +209,7 @@ class QuantityTypeService
 
     // endregion
 
-    // region Static properties
+    // region Private static properties
 
     /**
      * All known/supported quantity types, including defaults and custom. Keyed by name.
@@ -220,18 +220,7 @@ class QuantityTypeService
 
     // endregion
 
-    // region Static public methods
-
-    /**
-     * Reset the registry to its initial state.
-     *
-     * Clears all cached quantity types, forcing re-initialization from the constant on next access.
-     * Useful for test isolation.
-     */
-    public static function reset(): void
-    {
-        self::$quantityTypes = null;
-    }
+    // region Lookup methods
 
     /**
      * Get all registered quantity types.
@@ -262,7 +251,7 @@ class QuantityTypeService
 
         return array_find(
             self::$quantityTypes,
-            static fn (QuantityType $qtyType): bool => strtolower($qtyType->dimension) === strtolower($dimension)
+            static fn (QuantityType $qtyType): bool => $qtyType->dimension === $dimension
         );
     }
 
@@ -315,6 +304,21 @@ class QuantityTypeService
         return $classes;
     }
 
+    // endregion
+
+    // region Registry methods
+
+    /**
+     * Reset the registry to its initial state.
+     *
+     * Clears all cached quantity types, forcing re-initialization from the constant on next access.
+     * Useful for test isolation.
+     */
+    public static function reset(): void
+    {
+        self::$quantityTypes = null;
+    }
+
     /**
      * Set or update the class for an existing quantity type.
      *
@@ -323,7 +327,7 @@ class QuantityTypeService
      *
      * @param string $name The quantity type name.
      * @param class-string<Quantity> $class The Quantity subclass to use for this dimension.
-     * @throws DomainException If the dimension is not registered, or the class is invalid.
+     * @throws DomainException If the name is not registered.
      */
     public static function setClass(string $name, string $class): void
     {
@@ -352,6 +356,7 @@ class QuantityTypeService
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'L2', 'LT-1').
      * @param class-string<Quantity> $class The Quantity subclass to use for this dimension.
      * @throws FormatException If the dimension code is invalid.
+     * @throws LogicException If a name, dimension, or class is provided that conflicts with an existing quantity type.
      */
     public static function add(string $name, string $dimension, string $class): void
     {
@@ -412,7 +417,7 @@ class QuantityTypeService
 
     // endregion
 
-    // region Static private helper methods
+    // region Helper methods
 
     /**
      * Initialize the quantity types array from the constant.
@@ -425,7 +430,7 @@ class QuantityTypeService
             self::$quantityTypes = [];
 
             // Convert info in constant into an array of objects.
-            foreach (self::QUANTITY_TYPES as $name => $info) {
+            foreach (self::DEFAULT_QUANTITY_TYPES as $name => $info) {
                 self::$quantityTypes[$name] = new QuantityType($name, $info['dimension'], $info['class']);
             }
         }

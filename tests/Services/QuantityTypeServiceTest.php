@@ -45,8 +45,8 @@ final class QuantityTypeServiceTest extends TestCase
     {
         $result = QuantityTypeService::getAll();
 
-        foreach ($result as $dimension => $qtyType) {
-            $this->assertIsString($dimension);
+        foreach ($result as $name => $qtyType) {
+            $this->assertIsString($name);
             $this->assertInstanceOf(QuantityType::class, $qtyType);
         }
     }
@@ -128,12 +128,12 @@ final class QuantityTypeServiceTest extends TestCase
      */
     public function testGetByDimensionNormalizesDimension(): void
     {
-        // 'LT-1' should be normalized to 'LT-1' (canonical order)
-        $result = QuantityTypeService::getByDimension('LT-1');
+        // 'T-1L' is the non-canonical form; it should be normalized to 'LT-1' for lookup.
+        $result = QuantityTypeService::getByDimension('T-1L');
 
         $this->assertInstanceOf(QuantityType::class, $result);
-        $this->assertSame('LT-1', $result->dimension);
         $this->assertSame('velocity', $result->name);
+        $this->assertSame('LT-1', $result->dimension);
     }
 
     /**
@@ -381,7 +381,7 @@ final class QuantityTypeServiceTest extends TestCase
      */
     public function testSetClassUpdatesClass(): void
     {
-        // First add a quantity type without a class.
+        // Add a quantity type with TestQuantity as its class.
         $dimension = 'L5';
         $existing = QuantityTypeService::getByDimension($dimension);
         if ($existing !== null) {
@@ -390,26 +390,26 @@ final class QuantityTypeServiceTest extends TestCase
 
         QuantityTypeService::add('pentavolume', $dimension, TestQuantity::class);
 
-        // Verify it has no class.
+        // Verify initial class.
         $result = QuantityTypeService::getByDimension($dimension);
         $this->assertInstanceOf(QuantityType::class, $result);
         $this->assertSame(TestQuantity::class, $result->class);
 
-        // Now set the class using our test fixture.
-        QuantityTypeService::setClass('pentavolume', TestQuantity::class);
+        // Update the class to Length using setClass().
+        QuantityTypeService::setClass('pentavolume', Length::class);
 
-        // Verify the class was set.
+        // Verify the class was updated.
         $result = QuantityTypeService::getByDimension($dimension);
-        $this->assertSame(TestQuantity::class, $result?->class);
+        $this->assertSame(Length::class, $result?->class);
 
         // Tidy up.
         QuantityTypeService::remove('pentavolume');
     }
 
     /**
-     * Test setClass() throws for non-existent dimension.
+     * Test setClass() throws for non-existent name.
      */
-    public function testSetClassThrowsForNonExistentDimension(): void
+    public function testSetClassThrowsForNonExistentName(): void
     {
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("Unknown quantity type: 'coolness'.");
@@ -469,12 +469,12 @@ final class QuantityTypeServiceTest extends TestCase
 
     // endregion
 
-    // region clear() and reset() tests
+    // region removeAll() and reset() tests
 
     /**
-     * Test clear() removes all quantity types.
+     * Test removeAll() removes all quantity types.
      */
-    public function testClearRemovesAllQuantityTypes(): void
+    public function testRemoveAllRemovesAllQuantityTypes(): void
     {
         // Ensure registry is initialized with default types.
         $before = QuantityTypeService::getAll();
@@ -492,9 +492,9 @@ final class QuantityTypeServiceTest extends TestCase
     }
 
     /**
-     * Test clear() does not trigger re-initialization.
+     * Test removeAll() does not trigger re-initialization.
      */
-    public function testClearDoesNotReinitialize(): void
+    public function testRemoveAllDoesNotReinitialize(): void
     {
         // Clear the registry.
         QuantityTypeService::removeAll();

@@ -11,7 +11,6 @@ use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\Services\RegexService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -349,7 +348,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesSimpleUnit(): void
     {
-        $pattern = '/^' . RegexService::unitTermRegex() . '$/iu';
+        $pattern = '/^' . UnitTerm::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm'));
         $this->assertSame(1, preg_match($pattern, 'km'));
@@ -361,7 +360,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithAsciiExponent(): void
     {
-        $pattern = '/^' . RegexService::unitTermRegex() . '$/iu';
+        $pattern = '/^' . UnitTerm::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm2'));
         $this->assertSame(1, preg_match($pattern, 's-2'));
@@ -373,7 +372,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithSuperscriptExponent(): void
     {
-        $pattern = '/^' . RegexService::unitTermRegex() . '$/iu';
+        $pattern = '/^' . UnitTerm::unitTermRegex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm²'));
         $this->assertSame(1, preg_match($pattern, 's⁻²'));
@@ -385,7 +384,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexDoesNotMatchInvalidFormats(): void
     {
-        $pattern = '/^' . RegexService::unitTermRegex() . '$/iu';
+        $pattern = '/^' . UnitTerm::unitTermRegex() . '$/iu';
 
         $this->assertSame(0, preg_match($pattern, '123'));
     }

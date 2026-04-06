@@ -729,20 +729,6 @@ final class UnitServiceTest extends TestCase
     }
 
     /**
-     * Test removeAll() clears loaded systems.
-     */
-    public function testRemoveAllClearsLoadedSystems(): void
-    {
-        try {
-            UnitService::removeAll();
-
-            $this->assertEmpty(UnitService::getLoadedSystems());
-        } finally {
-            UnitService::reset();
-        }
-    }
-
-    /**
      * Test removeAll() does not trigger re-initialization on next access.
      */
     public function testRemoveAllDoesNotReinitialize(): void
@@ -760,21 +746,6 @@ final class UnitServiceTest extends TestCase
     // endregion
 
     // region reset() tests
-
-    /**
-     * Test reset() causes re-initialization with defaults on next access.
-     */
-    public function testResetRestoresDefaults(): void
-    {
-        UnitService::reset();
-
-        // After reset, all unit systems are reloaded.
-        $loadedSystems = UnitService::getLoadedSystems();
-        $systems = UnitSystem::cases();
-        foreach ($systems as $system) {
-            $this->assertContains($system, $loadedSystems);
-        }
-    }
 
     /**
      * Test reset() followed by access still includes default units.
@@ -908,64 +879,6 @@ final class UnitServiceTest extends TestCase
 
     // endregion
 
-    // region isLoadedSystem() tests
-
-    /**
-     * Test isLoadedSystem() returns true for default systems after initialization.
-     */
-    public function testIsLoadedSystemReturnsTrueForDefaults(): void
-    {
-        // Trigger lazy initialization so defaults are loaded.
-        UnitService::getAll();
-
-        $this->assertTrue(UnitService::isLoadedSystem(UnitSystem::Si));
-        $this->assertTrue(UnitService::isLoadedSystem(UnitSystem::SiAccepted));
-        $this->assertTrue(UnitService::isLoadedSystem(UnitSystem::Common));
-    }
-
-    /**
-     * Test isLoadedSystem() returns false for non-loaded system.
-     */
-    public function testIsLoadedSystemReturnsFalseForNonLoaded(): void
-    {
-        try {
-            UnitService::removeAll();
-
-            $this->assertFalse(UnitService::isLoadedSystem(UnitSystem::Imperial));
-            $this->assertFalse(UnitService::isLoadedSystem(UnitSystem::UsCustomary));
-        } finally {
-            UnitService::reset();
-        }
-    }
-
-    /**
-     * Test isLoadedSystem() returns true when all units are loaded.
-     */
-    public function testIsLoadedSystemReturnsTrueAfterLoad(): void
-    {
-        // Ensure the registry is initialized.
-        UnitService::has('meter');
-
-        $this->assertTrue(UnitService::isLoadedSystem(UnitSystem::Imperial));
-    }
-
-    /**
-     * Test isLoadedSystem() returns false after removeAll().
-     */
-    public function testIsLoadedSystemReturnsFalseAfterRemoveAll(): void
-    {
-        try {
-            UnitService::removeAll();
-
-            $this->assertFalse(UnitService::isLoadedSystem(UnitSystem::Si));
-            $this->assertFalse(UnitService::isLoadedSystem(UnitSystem::Common));
-        } finally {
-            UnitService::reset();
-        }
-    }
-
-    // endregion
-
     // region loadSystem() tests
 
     /**
@@ -998,29 +911,15 @@ final class UnitServiceTest extends TestCase
     }
 
     /**
-     * Test loadSystem() does not duplicate the system in getLoadedSystems().
+     * Test loadSystem() loads units from an unloaded system.
      */
-    public function testLoadSystemDoesNotDuplicateInLoadedSystems(): void
-    {
-        // SI is already loaded by default.
-        UnitService::loadSystem(UnitSystem::Si);
-
-        $systems = UnitService::getLoadedSystems();
-        $siCount = count(array_filter($systems, static fn ($s) => $s === UnitSystem::Si));
-
-        $this->assertSame(1, $siCount);
-    }
-
-    /**
-     * Test loadSystem() tracks the system in getLoadedSystems().
-     */
-    public function testLoadSystemTracksSystem(): void
+    public function testLoadSystemLoadsUnitsFromSystem(): void
     {
         try {
             UnitService::removeAll();
             UnitService::loadSystem(UnitSystem::Nautical);
 
-            $this->assertContains(UnitSystem::Nautical, UnitService::getLoadedSystems());
+            $this->assertTrue(UnitService::has('nautical mile'));
         } finally {
             UnitService::reset();
         }
@@ -1029,24 +928,6 @@ final class UnitServiceTest extends TestCase
     // endregion
 
     // region loadAll() tests
-
-    /**
-     * Test loadAll() loads all unit systems.
-     */
-    public function testLoadAllLoadsAllSystems(): void
-    {
-        try {
-            UnitService::removeAll();
-            UnitService::loadAll();
-
-            $systems = UnitService::getLoadedSystems();
-            foreach (UnitSystem::cases() as $system) {
-                $this->assertContains($system, $systems, "System $system->name not loaded.");
-            }
-        } finally {
-            UnitService::reset();
-        }
-    }
 
     /**
      * Test loadAll() makes Imperial and US Customary units available.
@@ -1060,43 +941,6 @@ final class UnitServiceTest extends TestCase
             $this->assertTrue(UnitService::has('foot'));
             $this->assertTrue(UnitService::has('mile'));
             $this->assertTrue(UnitService::has('meter'));
-        } finally {
-            UnitService::reset();
-        }
-    }
-
-    // endregion
-
-    // region getLoadedSystems() tests
-
-    /**
-     * Test getLoadedSystems() returns default systems after initialization.
-     */
-    public function testGetLoadedSystemsReturnsDefaultSystems(): void
-    {
-        $systems = UnitService::getLoadedSystems();
-
-        $this->assertContains(UnitSystem::Si, $systems);
-        $this->assertContains(UnitSystem::SiAccepted, $systems);
-        $this->assertContains(UnitSystem::Common, $systems);
-    }
-
-    /**
-     * Test getLoadedSystems() includes manually loaded system.
-     */
-    public function testGetLoadedSystemsIncludesManuallyLoadedSystem(): void
-    {
-        $this->assertContains(UnitSystem::Imperial, UnitService::getLoadedSystems());
-    }
-
-    /**
-     * Test getLoadedSystems() is empty after removeAll().
-     */
-    public function testGetLoadedSystemsEmptyAfterRemoveAll(): void
-    {
-        try {
-            UnitService::removeAll();
-            $this->assertEmpty(UnitService::getLoadedSystems());
         } finally {
             UnitService::reset();
         }

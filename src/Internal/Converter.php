@@ -38,7 +38,7 @@ use LogicException;
  */
 class Converter
 {
-    // region Properties
+    // region Public properties
 
     /**
      * Dimension code for the converter.
@@ -65,7 +65,7 @@ class Converter
 
     // endregion
 
-    // region Static properties
+    // region Private static properties
 
     /**
      * All the Converters created so far, keyed by dimension.

@@ -15,7 +15,7 @@ use Galaxon\Core\Floats;
  */
 class PhysicalConstant
 {
-    // region Constants
+    // region Private constants
 
     /**
      * Map of symbols to their static method names.
@@ -53,7 +53,7 @@ class PhysicalConstant
 
     // endregion
 
-    // region Static properties
+    // region Private static properties
 
     /**
      * Cache of instantiated constant Quantity objects, keyed by symbol.

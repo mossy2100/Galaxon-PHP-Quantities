@@ -17,7 +17,7 @@ use RuntimeException;
  */
 class FixerService implements ExchangeRateServiceInterface
 {
-    // region Constants
+    // region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
@@ -26,7 +26,7 @@ class FixerService implements ExchangeRateServiceInterface
 
     // endregion
 
-    // region Properties
+    // region Public properties
 
     /**
      * The access key for Fixer.io.
