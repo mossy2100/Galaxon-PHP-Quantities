@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **UnitSystem** — Moved from `Galaxon\Quantities` to `Galaxon\Quantities\Internal` namespace.
+- **README** — Reordered Concepts section so ideas build logically: Terminology → Dimensions → QuantityTypes → Prefixes → Units → PhysicalConstants. Removed `SystemsOfUnits.md` (information available in the Reference doc; all systems now load by default).
+- **PhysicalConstants.md (Concepts)** — Added "Usual symbol" column with proper Unicode/`<sub>` notation; switched exponents to Unicode (×10ⁿ); removed redundant Method column; normalised heading hierarchy.
+- **PartDecomposition.md** — Rewrote `toParts()`/`formatParts()`/`fromParts()` examples to match the actual API. Non-default part units are now configured via `QuantityPartsService::setPartUnitSymbols()`.
+- **WorkingWithQuantities docs** — Added missing `## Overview` headings, fixed broken heading hierarchies, split stacked `use` statements, added missing imports in code snippets, normalised scientific notation in CalculationExamples to `× 10ⁿ`.
+- **Terminology.md** — Completed truncated intro sentence.
 - **QuantityPartsService** — Uses `NullArgumentException` (from Core) instead of `DomainException` when the quantity type is null.
 - **QuantityPartsService** — Config methods (`getPartUnitSymbols`, `setPartUnitSymbols`, `getResultUnitSymbol`, `setResultUnitSymbol`) removed from `Quantity`; use `QuantityPartsService` directly.
 - **Mass** — `setImperialParts()` and `setUsCustomaryParts()` call `QuantityPartsService` directly.

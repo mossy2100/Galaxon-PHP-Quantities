@@ -11,7 +11,7 @@ Both constructors and `create()` accept a unit string — see [Unit Syntax](Stri
 
 ---
 
-## `new QuantitySubclass()`
+## Using `new QuantitySubclass()`
 
 Use this method when a class exists for the relevant quantity type.
 

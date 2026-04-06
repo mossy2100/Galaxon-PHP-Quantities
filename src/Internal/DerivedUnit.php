@@ -12,7 +12,6 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\UnitSystem;
 use LogicException;
 use UnexpectedValueException;
 

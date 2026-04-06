@@ -18,6 +18,7 @@ use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\DimensionService;

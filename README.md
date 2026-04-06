@@ -47,9 +47,14 @@ composer require galaxon/quantities
 ## Quick Start
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Temperature;
+use Galaxon\Quantities\PhysicalConstant;
 use Galaxon\Quantities\QuantityType\Angle;
+use Galaxon\Quantities\QuantityType\Force;
+use Galaxon\Quantities\QuantityType\Frequency;
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Mass;
+use Galaxon\Quantities\QuantityType\Money;
+use Galaxon\Quantities\QuantityType\Temperature;
 
 // Create measurements
 $distance = new Length(5, 'km');
@@ -65,12 +70,12 @@ $dollars = $price->to('USD');        // e.g. 4621 USD
 
 // Convert to SI units
 $force = new Force(28000, 'lbf');
-$force = $force->toSi(); // 124... kN
-$force = $force->toSiBase(); // 124550... kg⋅m/s²
+$force = $force->toSi();      // 124... kN
+$force = $force->toSiBase();  // 124550... kg⋅m/s²
 
 // Arithmetic operations
-$total = $distance->add(new Length(500, 'm'));  // 5.5 km
-$doubled = $distance->mul(2.0);                // 10 km
+$total = $distance->add(new Length(500, 'm'));      // 5.5 km
+$doubled = $distance->mul(2.0);                     // 10 km
 $period = new Frequency(2.4, 'GHz')->inv()->toSi(); // 416.7... ps
 
 // Physical constants
@@ -78,12 +83,12 @@ $h = PhysicalConstant::planck();
 $c = PhysicalConstant::speedOfLight();
 
 // Scientific and engineering calculations
-$G = PhysicalConstant::gravitational();  
-$earthMass = new Mass(5.972e24, 'kg');  
-$moonMass = new Mass(7.342e22, 'kg');  
-$distance = new Length(3.844e8, 'm');  
-$force = $G->mul($earthMass)->mul($moonMass)->div($distance->sqr());
-echo $force->to('N')->format('e', 2), "\n"; // 1.98×10²⁰ N
+$G = PhysicalConstant::gravitational();
+$earthMass = new Mass(5.972e24, 'kg');
+$moonMass = new Mass(7.342e22, 'kg');
+$earthMoonDistance = new Length(3.844e8, 'm');
+$gravity = $G->mul($earthMass)->mul($moonMass)->div($earthMoonDistance->sqr());
+echo $gravity->to('N')->format('e', 2), "\n"; // 1.98×10²⁰ N
 
 // Parse from strings
 $length = Length::parse('123.45 km');
@@ -102,12 +107,11 @@ echo $angle->formatParts(precision: 1);
 Background on the domain model and how the library represents physical measurements.
 
 1. **[Terminology](docs/Concepts/Terminology.md)** — Key terms and definitions used throughout the library.
-2. **[Units](docs/Concepts/Units.md)** — Complete reference of all built-in units organised by quantity type.
-3. **[Dimensions and Base Units](docs/Concepts/DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
-4. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
-5. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
-6. **[Systems of Units](docs/Concepts/SystemsOfUnits.md)** — SI, imperial, US customary, and other unit systems.
-7. **[Physical Constants](docs/Concepts/PhysicalConstants.md)** — Built-in physical constants as Quantity objects.
+2. **[Dimensions and Base Units](docs/Concepts/DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
+3. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
+4. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
+5. **[Units](docs/Concepts/Units.md)** — Complete reference of all built-in units organised by quantity type.
+6. **[Physical Constants](docs/Concepts/PhysicalConstants.md)** — Built-in physical constants as Quantity objects.
 
 ---
 
@@ -133,14 +137,13 @@ Practical guides for using the library in your code.
 Other than the quantity type classes (below), these are the main classes you'll use.
 
 | Class                                                  | Description                                                                                                                                     |
-|--------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Quantity](docs/Reference/Quantity.md)                 | Abstract base class for all measurement types. Provides unit conversion, arithmetic operations, comparison, formatting, and part decomposition. |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Quantity](docs/Reference/Quantity.md)                 | Base class for all measurement types. Provides unit conversion, arithmetic operations, comparison, formatting, and part decomposition.          |
 | [PhysicalConstant](docs/Reference/PhysicalConstant.md) | Access to physical constants (speed of light, Planck constant, etc.) as Quantity objects.                                                       |
-| [UnitSystem](docs/Reference/UnitSystem.md)             | Enum for systems of units (SI, Imperial, US Customary, etc.).                                                                                   |
 
 ### Quantity Types
 
-All quantity type classes extend `Quantity` and define their specific units and conversions. See **[Units](Units.md)** for a complete reference of all built-in units organized by quantity type.
+All quantity type classes extend `Quantity` and define their specific units and conversions. See **[Units](docs/Concepts/Units.md)** for a complete reference of all built-in units organized by quantity type.
 
 | Class                                                                     | Dimension  | SI or common base unit | Description                                      |
 | ------------------------------------------------------------------------- | ---------- | ---------------------- | ------------------------------------------------ |
@@ -183,30 +186,43 @@ All quantity type classes extend `Quantity` and define their specific units and 
 
 These classes are predominantly internal, except for adding custom units via `UnitService::add()`, or registering new quantity types via `QuantityTypeService::add()`.
 
-| Class                                                         | Description                                                               |
-|---------------------------------------------------------------|---------------------------------------------------------------------------|
-| [UnitService](docs/Reference/Services/UnitService.md)                 | Manages units and unit systems. Provides lazy loading and lookup methods. |
-| [ConversionService](docs/Reference/Services/ConversionService.md)     | Manages unit conversions and converters.                                  |
-| [QuantityTypeService](docs/Reference/Services/QuantityTypeService.md) | Manages quantity types with their dimensions and classes.                 |
-| [PrefixService](docs/Reference/Services/PrefixService.md)             | Manages SI and binary prefixes (lookup, filtering by group).              |
+| Class                                                                   | Description                                                                                    |
+|-------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| [ConversionService](docs/Reference/Services/ConversionService.md)       | Manages unit conversions and converters.                                                       |
 | [DimensionService](docs/Reference/Services/DimensionService.md)         | Utilities for working with physical dimension codes (validation, composition, transformation). |
-| [QuantityPartsService](docs/Reference/Services/QuantityPartsService.md) | Decomposes quantities into parts (e.g. hours, minutes, seconds).                             |
+| [PrefixService](docs/Reference/Services/PrefixService.md)               | Manages SI and binary prefixes (lookup, filtering by group).                                   |
+| [QuantityPartsService](docs/Reference/Services/QuantityPartsService.md) | Decomposes quantities into parts (e.g. hours, minutes, seconds).                               |
+| [QuantityTypeService](docs/Reference/Services/QuantityTypeService.md)   | Registry of quantity types keyed by dimension code.                                            |
+| [UnitService](docs/Reference/Services/UnitService.md)                   | Registry of units with lookup, filtering, and loading by system.                               |
 
-### Internal Classes
+### Internal Types
 
-These classes provide the core functionality of the library and will typically not be used directly by end-users.
+These types provide the core functionality of the library and will typically not be used directly by end-users.
 
-| Class                                             | Description                                                                                    |
-|---------------------------------------------------|------------------------------------------------------------------------------------------------|
-| [Unit](docs/Reference/Internal/Unit.md)                     | Represents a single-symbol measurement unit with optional prefix support.                      |
-| [UnitTerm](docs/Reference/Internal/UnitTerm.md)             | A unit with optional prefix and exponent (e.g., km², ms⁻¹).                                    |
-| [DerivedUnit](docs/Reference/Internal/DerivedUnit.md)       | Compound unit expression combining unit terms via multiplication/division.                     |
-| [Prefix](docs/Reference/Internal/Prefix.md)                 | SI metric and binary prefixes (kilo, mega, kibi, etc.).                                        |
-| [Conversion](docs/Reference/Internal/Conversion.md)         | Represents a unit conversion with factor and error tracking.                                   |
-| [Converter](docs/Reference/Internal/Converter.md)           | Graph-based algorithm for finding conversion paths between units.                              |
-| [FloatWithError](docs/Reference/Internal/FloatWithError.md) | Floating-point numbers with tracked error bounds for precision monitoring.                     |
-| [QuantityType](docs/Reference/Internal/QuantityType.md)     | Data class representing a quantity type with its dimension, SI unit, and PHP class.            |
-| [UnitInterface](docs/Reference/Internal/UnitInterface.md)   | Interface implemented by Unit, UnitTerm, and DerivedUnit.                                      |
+#### Classes
+
+| Name                                                        | Description                                                                         |
+|-------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [Unit](docs/Reference/Internal/Unit.md)                     | Represents a single-symbol measurement unit with optional prefix support.           |
+| [UnitTerm](docs/Reference/Internal/UnitTerm.md)             | A unit with optional prefix and exponent (e.g., km², ms⁻¹).                         |
+| [DerivedUnit](docs/Reference/Internal/DerivedUnit.md)       | Compound unit expression combining unit terms via multiplication/division.          |
+| [Prefix](docs/Reference/Internal/Prefix.md)                 | SI metric and binary prefixes (kilo, mega, kibi, etc.).                             |
+| [Conversion](docs/Reference/Internal/Conversion.md)         | Represents a unit conversion with factor and error tracking.                        |
+| [Converter](docs/Reference/Internal/Converter.md)           | Graph-based algorithm for finding conversion paths between units.                   |
+| [FloatWithError](docs/Reference/Internal/FloatWithError.md) | Floating-point numbers with tracked error bounds for precision monitoring.          |
+| [QuantityType](docs/Reference/Internal/QuantityType.md)     | Data class representing a quantity type with its dimension, SI unit, and PHP class. |
+
+#### Interfaces
+
+| Name | Description                                                      |
+|------|------------------------------------------------------------------|
+| [UnitInterface](docs/Reference/Internal/UnitInterface.md)   | Interface implemented by Unit, UnitTerm, and DerivedUnit.        |
+
+#### Enums
+
+| Name                                                 | Description                                                                         |
+|------------------------------------------------------|-------------------------------------------------------------------------------------|
+| [UnitSystem](docs/Reference/Internal/UnitSystem.md) | Enum for systems of units (SI, Imperial, US Customary, etc.).                       |
 
 ### Exceptions
 
@@ -231,6 +247,8 @@ Classes for currency data management and exchange rate integration.
 | [FrankfurterService](docs/Reference/Currencies/ExchangeRateServices/FrankfurterService.md)          | Frankfurter API (ECB data, completely free, no API key).      |
 | [OpenExchangeRatesService](docs/Reference/Currencies/ExchangeRateServices/OpenExchangeRatesService.md) | Open Exchange Rates API (USD-based, free tier available).  |
 
+---
+
 ## Testing
 
 The library includes comprehensive test coverage:
@@ -239,16 +257,23 @@ The library includes comprehensive test coverage:
 # Run all tests
 vendor/bin/phpunit
 
-# Run specific test class
-vendor/bin/phpunit tests/QuantityTest.php
+# Run a specific test file
+vendor/bin/phpunit tests/Quantity/QuantityArithmeticTest.php
+
+# Run tests matching a filter
+vendor/bin/phpunit --filter=testCompare
 
 # Run with coverage (generates HTML report and clover.xml)
 composer test
 ```
 
+---
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details
+
+---
 
 ## Support
 
@@ -256,6 +281,8 @@ MIT License - see [LICENSE](LICENSE) for details
 - **Documentation**: See [docs/](docs/) directory for detailed class documentation
 
 For questions or suggestions, please [open an issue](https://github.com/mossy2100/PHP-Quantities/issues).
+
+---
 
 ## Changelog
 

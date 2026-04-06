@@ -145,10 +145,9 @@ Create a new Unit instance.
 - `InvalidArgumentException` - If the systems array contains non-UnitSystem values.
 
 **Examples:**
+
 ```php
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\UnitSystem;
+use Galaxon\Quantities\Internal\Unit;use Galaxon\Quantities\Internal\UnitSystem;use Galaxon\Quantities\Services\PrefixService;
 
 // Basic SI unit
 $meter = new Unit(
@@ -327,4 +326,4 @@ $symbols = $meter->symbols;
 - **[Prefix](Prefix.md)** - SI and binary prefix representation.
 - **[UnitService](../Services/UnitService.md)** - Registry for looking up units.
 - **[DimensionService](../Services/DimensionService.md)** - Utilities for working with dimension codes.
-- **[UnitSystem](../UnitSystem.md)** - Measurement system classification.
+- **[UnitSystem](UnitSystem.md)** - Measurement system classification.

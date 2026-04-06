@@ -18,37 +18,120 @@ class PhysicalConstant
     // region Private constants
 
     /**
-     * Map of symbols to their static method names.
+     * Map of symbols to their definitions.
      *
-     * @var array<string, string>
+     * Each entry contains:
+     * - 'method' — The static accessor method name.
+     * - 'value' — The numeric value (null for derived constants computed at runtime).
+     * - 'unit' — The unit symbol (null for dimensionless or derived).
+     *
+     * @var array<string, array{method: string, value?: float, unit?: string}>
      */
     private const array SYMBOL_MAP = [
         // SI defining constants.
-        'deltaNuCs' => 'caesiumFrequency',
-        'c'         => 'speedOfLight',
-        'h'         => 'planck',
-        'e'         => 'elementaryCharge',
-        'k'         => 'boltzmann',
-        'NA'        => 'avogadro',
-        'Kcd'       => 'luminousEfficacy',
+        'deltaNuCs' => [
+            'method' => 'caesiumFrequency',
+            'value'  => 9192631770.0,
+            'unit'   => 'Hz',
+        ],
+        'c'         => [
+            'method' => 'speedOfLight',
+            'value'  => 299792458.0,
+            'unit'   => 'm/s',
+        ],
+        'h'         => [
+            'method' => 'planck',
+            'value'  => 6.62607015e-34,
+            'unit'   => 'J*s',
+        ],
+        'e'         => [
+            'method' => 'elementaryCharge',
+            'value'  => 1.602176634e-19,
+            'unit'   => 'C',
+        ],
+        'k'         => [
+            'method' => 'boltzmann',
+            'value'  => 1.380649e-23,
+            'unit'   => 'J/K',
+        ],
+        'NA'        => [
+            'method' => 'avogadro',
+            'value'  => 6.02214076e23,
+            'unit'   => 'mol-1',
+        ],
+        'Kcd'       => [
+            'method' => 'luminousEfficacy',
+            'value'  => 683.0,
+            'unit'   => 'lm/W',
+        ],
         // Gravitational constants.
-        'g'         => 'earthGravity',
-        'G'         => 'gravitational',
+        'g'         => [
+            'method' => 'earthGravity',
+            'value'  => 9.80665,
+            'unit'   => 'm/s2',
+        ],
+        'G'         => [
+            'method' => 'gravitational',
+            'value'  => 6.67430e-11,
+            'unit'   => 'm3/(kg*s2)',
+        ],
         // Electromagnetic constants.
-        'epsilon0'  => 'vacuumPermittivity',
-        'mu0'       => 'vacuumPermeability',
+        'epsilon0'  => [
+            'method' => 'vacuumPermittivity',
+            'value'  => 8.8541878128e-12,
+            'unit'   => 'F/m',
+        ],
+        'mu0'       => [
+            'method' => 'vacuumPermeability',
+            'value'  => 1.25663706212e-6,
+            'unit'   => 'H/m',
+        ],
         // Atomic and nuclear constants.
-        'me'        => 'electronMass',
-        'mp'        => 'protonMass',
-        'mn'        => 'neutronMass',
-        'alpha'     => 'fineStructure',
-        'Rinf'      => 'rydberg',
-        'a0'        => 'bohrRadius',
+        'me'        => [
+            'method' => 'electronMass',
+            'value'  => 9.1093837015e-31,
+            'unit'   => 'kg',
+        ],
+        'mp'        => [
+            'method' => 'protonMass',
+            'value'  => 1.67262192369e-27,
+            'unit'   => 'kg',
+        ],
+        'mn'        => [
+            'method' => 'neutronMass',
+            'value'  => 1.67492749804e-27,
+            'unit'   => 'kg',
+        ],
+        'alpha'     => [
+            'method' => 'fineStructure',
+            'value'  => 7.2973525693e-3,
+            'unit'   => null,
+        ],
+        'Rinf'      => [
+            'method' => 'rydberg',
+            'value'  => 10973731.568160,
+            'unit'   => 'm-1',
+        ],
+        'a0'        => [
+            'method' => 'bohrRadius',
+            'value'  => 5.29177210903e-11,
+            'unit'   => 'm',
+        ],
         // Thermodynamic constants.
-        'R'         => 'molarGas',
-        'sigma'     => 'stefanBoltzmann',
-        // Derived constants.
-        'hbar'      => 'reducedPlanck',
+        'R'         => [
+            'method' => 'molarGas',
+            'value'  => 8.314462618,
+            'unit'   => 'J/(mol*K)',
+        ],
+        'sigma'     => [
+            'method' => 'stefanBoltzmann',
+            'value'  => 5.670374419e-8,
+            'unit'   => 'W/(m2*K4)',
+        ],
+        // Derived constants (value/unit are null — computed at runtime).
+        'hbar'      => [
+            'method' => 'reducedPlanck',
+        ],
     ];
 
     // endregion
@@ -67,16 +150,17 @@ class PhysicalConstant
     // region Helper methods
 
     /**
-     * Get or create a cached constant.
+     * Get or create a cached constant from the SYMBOL_MAP definition.
      *
      * @param string $symbol The constant's symbol (cache key).
-     * @param float $value The constant's value.
-     * @param string|null $unitSymbol The unit symbol (null for dimensionless).
      * @return Quantity The cached Quantity object.
      */
-    private static function cached(string $symbol, float $value, ?string $unitSymbol): Quantity
+    private static function cached(string $symbol): Quantity
     {
-        return self::$cache[$symbol] ??= Quantity::create($value, $unitSymbol);
+        return self::$cache[$symbol] ??= Quantity::create(
+            self::SYMBOL_MAP[$symbol]['value'],
+            self::SYMBOL_MAP[$symbol]['unit']
+        );
     }
 
     // endregion
@@ -98,7 +182,7 @@ class PhysicalConstant
             throw new DomainException("Unknown constant symbol: '$symbol'.");
         }
 
-        $method = self::SYMBOL_MAP[$symbol];
+        $method = self::SYMBOL_MAP[$symbol]['method'];
         return self::$method();
     }
 
@@ -110,7 +194,8 @@ class PhysicalConstant
     public static function getAll(): array
     {
         $constants = [];
-        foreach (self::SYMBOL_MAP as $symbol => $method) {
+        foreach (self::SYMBOL_MAP as $symbol => $info) {
+            $method = $info['method'];
             $constants[$symbol] = self::$method();
         }
         return $constants;
@@ -124,11 +209,10 @@ class PhysicalConstant
      * Hyperfine transition frequency of caesium (ΔνCs).
      *
      * Defines the second: exactly 9,192,631,770 Hz.
-     *
      */
     public static function caesiumFrequency(): Quantity
     {
-        return self::cached('deltaNuCs', 9192631770, 'Hz');
+        return self::cached('deltaNuCs');
     }
 
     /**
@@ -138,7 +222,7 @@ class PhysicalConstant
      */
     public static function speedOfLight(): Quantity
     {
-        return self::cached('c', 299792458, 'm/s');
+        return self::cached('c');
     }
 
     /**
@@ -148,7 +232,7 @@ class PhysicalConstant
      */
     public static function planck(): Quantity
     {
-        return self::cached('h', 6.62607015e-34, 'J*s');
+        return self::cached('h');
     }
 
     /**
@@ -158,7 +242,7 @@ class PhysicalConstant
      */
     public static function elementaryCharge(): Quantity
     {
-        return self::cached('e', 1.602176634e-19, 'C');
+        return self::cached('e');
     }
 
     /**
@@ -168,7 +252,7 @@ class PhysicalConstant
      */
     public static function boltzmann(): Quantity
     {
-        return self::cached('k', 1.380649e-23, 'J/K');
+        return self::cached('k');
     }
 
     /**
@@ -178,7 +262,7 @@ class PhysicalConstant
      */
     public static function avogadro(): Quantity
     {
-        return self::cached('NA', 6.02214076e23, 'mol-1');
+        return self::cached('NA');
     }
 
     /**
@@ -188,7 +272,7 @@ class PhysicalConstant
      */
     public static function luminousEfficacy(): Quantity
     {
-        return self::cached('Kcd', 683, 'lm/W');
+        return self::cached('Kcd');
     }
 
     // endregion
@@ -202,7 +286,7 @@ class PhysicalConstant
      */
     public static function earthGravity(): Quantity
     {
-        return self::cached('g', 9.80665, 'm/s2');
+        return self::cached('g');
     }
 
     /**
@@ -212,7 +296,7 @@ class PhysicalConstant
      */
     public static function gravitational(): Quantity
     {
-        return self::cached('G', 6.67430e-11, 'm3/(kg*s2)');
+        return self::cached('G');
     }
 
     // endregion
@@ -226,7 +310,7 @@ class PhysicalConstant
      */
     public static function vacuumPermittivity(): Quantity
     {
-        return self::cached('epsilon0', 8.8541878128e-12, 'F/m');
+        return self::cached('epsilon0');
     }
 
     /**
@@ -236,7 +320,7 @@ class PhysicalConstant
      */
     public static function vacuumPermeability(): Quantity
     {
-        return self::cached('mu0', 1.25663706212e-6, 'H/m');
+        return self::cached('mu0');
     }
 
     // endregion
@@ -250,7 +334,7 @@ class PhysicalConstant
      */
     public static function electronMass(): Quantity
     {
-        return self::cached('me', 9.1093837015e-31, 'kg');
+        return self::cached('me');
     }
 
     /**
@@ -260,7 +344,7 @@ class PhysicalConstant
      */
     public static function protonMass(): Quantity
     {
-        return self::cached('mp', 1.67262192369e-27, 'kg');
+        return self::cached('mp');
     }
 
     /**
@@ -270,7 +354,7 @@ class PhysicalConstant
      */
     public static function neutronMass(): Quantity
     {
-        return self::cached('mn', 1.67492749804e-27, 'kg');
+        return self::cached('mn');
     }
 
     /**
@@ -280,7 +364,7 @@ class PhysicalConstant
      */
     public static function fineStructure(): Quantity
     {
-        return self::cached('alpha', 7.2973525693e-3, null);
+        return self::cached('alpha');
     }
 
     /**
@@ -290,7 +374,7 @@ class PhysicalConstant
      */
     public static function rydberg(): Quantity
     {
-        return self::cached('Rinf', 10973731.568160, 'm-1');
+        return self::cached('Rinf');
     }
 
     /**
@@ -300,7 +384,7 @@ class PhysicalConstant
      */
     public static function bohrRadius(): Quantity
     {
-        return self::cached('a0', 5.29177210903e-11, 'm');
+        return self::cached('a0');
     }
 
     // endregion
@@ -314,7 +398,7 @@ class PhysicalConstant
      */
     public static function molarGas(): Quantity
     {
-        return self::cached('R', 8.314462618, 'J/(mol*K)');
+        return self::cached('R');
     }
 
     /**
@@ -324,7 +408,7 @@ class PhysicalConstant
      */
     public static function stefanBoltzmann(): Quantity
     {
-        return self::cached('sigma', 5.670374419e-8, 'W/(m2*K4)');
+        return self::cached('sigma');
     }
 
     // endregion
@@ -334,7 +418,8 @@ class PhysicalConstant
     /**
      * Reduced Planck constant (ℏ = h / τ).
      *
-     * Computed from Planck constant for full precision.
+     * Computed from Planck constant for full precision. Not stored in SYMBOL_MAP since it
+     * is derived from another constant rather than defined as a literal value.
      */
     public static function reducedPlanck(): Quantity
     {

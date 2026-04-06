@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\Traits;
 
-use Galaxon\Quantities\UnitSystem;
+use Galaxon\Quantities\Internal\UnitSystem;
 
 /**
  * Trait providing assertions for validating unit and conversion definition array shapes.

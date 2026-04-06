@@ -6,10 +6,10 @@ namespace Galaxon\Quantities\Tests\Services;
 
 use DomainException;
 use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

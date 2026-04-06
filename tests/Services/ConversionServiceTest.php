@@ -11,9 +11,9 @@ use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

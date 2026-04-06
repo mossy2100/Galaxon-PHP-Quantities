@@ -4,21 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfbd3e8ff199ce4ce851f9e6d1b9d7e1",
+    "content-hash": "7698ab55d35c7f6572b99503cb7d69c0",
     "packages": [
         {
             "name": "galaxon/core",
-            "version": "v1.5.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mossy2100/Galaxon-PHP-Core.git",
-                "reference": "07cf2f9c4c4b618ec8c35b6e8f621148485065d2"
-            },
+            "version": "dev-main",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Core/zipball/07cf2f9c4c4b618ec8c35b6e8f621148485065d2",
-                "reference": "07cf2f9c4c4b618ec8c35b6e8f621148485065d2",
-                "shasum": ""
+                "type": "path",
+                "url": "../Core",
+                "reference": "07cf2f9c4c4b618ec8c35b6e8f621148485065d2"
             },
             "require": {
                 "php": "^8.4"
@@ -35,14 +29,45 @@
                 "phpcodesniffer-search-depth": 3
             },
             "autoload": {
-                "files": [
-                    "src/functions.php"
-                ],
                 "psr-4": {
                     "Galaxon\\Core\\": "src/"
+                },
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Galaxon\\Core\\Tests\\": "tests/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "fix": [
+                    "vendor/bin/phpcbf -vp"
+                ],
+                "check": [
+                    "vendor/bin/phpcs -s"
+                ],
+                "report": [
+                    "vendor/bin/phpcs -q --report=summary"
+                ],
+                "analyze": [
+                    "vendor/bin/phpstan analyze -l 9"
+                ],
+                "test": [
+                    "php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/coverage --coverage-clover build/logs/clover.xml --do-not-cache-result"
+                ],
+                "coverage": [
+                    "php scripts/coverage-check.php"
+                ],
+                "quality": [
+                    "@fix",
+                    "@check",
+                    "@analyze",
+                    "@test",
+                    "@coverage"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -73,7 +98,9 @@
                 "issues": "https://github.com/mossy2100/Galaxon-PHP-Core/issues",
                 "source": "https://github.com/mossy2100/Galaxon-PHP-Core"
             },
-            "time": "2026-04-01T20:54:58+00:00"
+            "transport-options": {
+                "relative": true
+            }
         }
     ],
     "packages-dev": [
@@ -175,17 +202,11 @@
         },
         {
             "name": "galaxon/coding-standard",
-            "version": "v1.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard.git",
-                "reference": "4480f084bff8a06a061069f68462b1d4836d43f3"
-            },
+            "version": "dev-main",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Coding-Standard/zipball/4480f084bff8a06a061069f68462b1d4836d43f3",
-                "reference": "4480f084bff8a06a061069f68462b1d4836d43f3",
-                "shasum": ""
+                "type": "path",
+                "url": "../CodingStandard",
+                "reference": "6c20f3043eb18fd66e592d2a9657c8f5292700e3"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
@@ -201,7 +222,29 @@
             "extra": {
                 "phpcodesniffer-search-depth": 3
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "fix": [
+                    "vendor/bin/phpcbf -vp"
+                ],
+                "check": [
+                    "vendor/bin/phpcs -s"
+                ],
+                "report": [
+                    "vendor/bin/phpcs -q --report=summary"
+                ],
+                "analyze": [
+                    "vendor/bin/phpstan analyze -l 9"
+                ],
+                "test": [
+                    "vendor/bin/phpunit"
+                ],
+                "quality": [
+                    "@fix",
+                    "@check",
+                    "@analyze",
+                    "@test"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -226,7 +269,9 @@
                 "issues": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard/issues",
                 "source": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard"
             },
-            "time": "2026-03-30T03:53:16+00:00"
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "myclabs/deep-copy",
@@ -2146,7 +2191,10 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "galaxon/coding-standard": 20,
+        "galaxon/core": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

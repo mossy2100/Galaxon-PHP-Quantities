@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Currencies\CurrencyService;
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\UnitSystem;
 use NumberFormatter;
 use Override;
 

@@ -8,10 +8,10 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\UnitInterface;
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Internal\UnitTerm;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**

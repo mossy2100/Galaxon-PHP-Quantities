@@ -13,7 +13,6 @@ use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\QuantityTypeService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use InvalidArgumentException;
 use Override;
 

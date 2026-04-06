@@ -1,5 +1,9 @@
 # Customization
 
+---
+
+## Overview
+
 This guide explains how to work with quantities beyond what the package provides by default. Using entropy as an example, we'll cover four progressively more integrated approaches. Additional examples are provided.
 
 ---
@@ -91,7 +95,6 @@ use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 
 // 1. Create the unit.
 $chaosUnit = new Unit('chaos', 'ch', 'ML2T-2H-1');
@@ -118,10 +121,10 @@ echo $s->to('Btu/degR');  // 0.019746 Btu/°R
 ```php
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\QuantityType\Volume;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 
 $legalCup = new Unit(
     name: 'US legal cup',
@@ -145,7 +148,6 @@ use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\QuantityType\Dimensionless;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 
 // Create and add the unit (dimensionless).
 UnitService::add(new Unit('parts per trillion', 'ppT', ''));
@@ -207,9 +209,9 @@ echo $costPerPerson;  // 25 AUD/pers
 For a fully integrated custom quantity type, override `getUnitDefinitions()` and `getConversionDefinitions()` in your class. This is how all built-in quantity types with custom units work (e.g. `Force`, `Pressure`, `Length`):
 
 ```php
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\UnitSystem;
 use Override;
 
 class Entropy extends Quantity

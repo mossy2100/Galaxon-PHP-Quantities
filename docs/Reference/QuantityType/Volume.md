@@ -33,8 +33,6 @@ Always use the system prefix to avoid ambiguity:
 
 ```php
 use Galaxon\Quantities\QuantityType\Volume;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 
 $impPint = new Volume(1, 'imp pt');
 $usPint = new Volume(1, 'US pt');

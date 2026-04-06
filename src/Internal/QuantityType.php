@@ -8,7 +8,6 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\DimensionService;
 use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 use InvalidArgumentException;
 
 /**

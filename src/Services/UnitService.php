@@ -7,7 +7,7 @@ namespace Galaxon\Quantities\Services;
 use DomainException;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\UnitSystem;
+use Galaxon\Quantities\Internal\UnitSystem;
 use InvalidArgumentException;
 
 /**

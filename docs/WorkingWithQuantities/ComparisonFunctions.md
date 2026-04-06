@@ -1,5 +1,9 @@
 # Comparison Functions
 
+---
+
+## Overview
+
 Quantity objects implement the [`Comparable`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparison/Comparable.md) and [`ApproxComparable`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparison/ApproxComparable.md) traits from the Core package, providing both exact and approximate comparison methods.
 
 ---
@@ -9,6 +13,8 @@ Quantity objects implement the [`Comparable`](https://github.com/mossy2100/Galax
 The `compare()` method returns `-1`, `0`, or `1`, like PHP's spaceship operator. Units are automatically converted before comparing:
 
 ```php
+use Galaxon\Quantities\QuantityType\Length;
+
 $a = new Length(1000, 'm');
 $b = new Length(1, 'km');
 
@@ -45,6 +51,8 @@ $angle1->approxEqual($angle2);  // true
 The `approxCompare()` method combines approximate equality with ordering — it returns `0` when two values are within tolerance, and `-1` or `1` otherwise:
 
 ```php
+use Galaxon\Quantities\QuantityType\Mass;
+
 $a = new Mass(1, 'kg');
 $b = new Mass(1000, 'g');
 $a->approxCompare($b);  // 0
@@ -57,6 +65,9 @@ $a->approxCompare($b);  // 0
 Comparing quantities with different dimensions throws an exception with `compare()`, and returns `false` with `approxEqual()`:
 
 ```php
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Time;
+
 $length = new Length(100, 'm');
 $time = new Time(100, 's');
 

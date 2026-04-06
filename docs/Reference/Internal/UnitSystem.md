@@ -128,5 +128,5 @@ The default system for user-defined units.
 
 ## See Also
 
-- **[Unit](Internal/Unit.md)** - Units can belong to one or more systems
-- **[UnitService](Services/UnitService.md)** - Load units by measurement system
+- **[Unit](Unit.md)** - Units can belong to one or more systems
+- **[UnitService](../Services/UnitService.md)** - Load units by measurement system

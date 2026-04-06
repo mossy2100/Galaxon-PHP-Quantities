@@ -2,7 +2,7 @@
 
 Real-world physics, engineering, and science calculations can be easily achieved using the Quantities package.
 
-These examples demonstrates derived quantity arithmetic, unit conversions, and physical constants.
+These examples demonstrate derived quantity arithmetic, unit conversions, and physical constants.
 
 ---
 
@@ -190,7 +190,7 @@ $earthMass = new Mass(5.972e24, 'kg');
 $distance = new Length(1, 'au');
 
 $force = $G->mul($sunMass)->mul($earthMass)->div($distance->sqr());
-// 3.54 x 10²² N (Force)
+// 3.54 × 10²² N (Force)
 ```
 
 ### Surface gravity of Mars: g = GM/r²
@@ -219,7 +219,7 @@ use Galaxon\Quantities\QuantityType\Frequency;
 $h = PhysicalConstant::planck();
 $f = new Frequency(5.49e14, 'Hz');
 $energy = $h->mul($f);
-// 3.64 x 10^-19 J (Energy)
+// 3.64 × 10⁻¹⁹ J (Energy)
 ```
 
 ### Wavelength from frequency: λ = c/f
@@ -241,7 +241,7 @@ Energy contained in 1 gram of matter.
 $m = new Mass(1, 'g');
 $c = PhysicalConstant::speedOfLight();
 $energy = $m->mul($c->sqr());
-// 8.99 x 10¹³ J ~ 21.5 kilotons of TNT (Energy)
+// 8.99 × 10¹³ J ~ 21.5 kilotons of TNT (Energy)
 ```
 
 ### De Broglie wavelength: lambda = h/(mv)
@@ -254,7 +254,7 @@ $me = PhysicalConstant::electronMass();
 $v = new Velocity(1e6, 'm/s');
 
 $lambda = $h->div($me->mul($v));
-// 7.27 x 10^-10 m ~ 0.727 nm (Length)
+// 7.27 × 10⁻¹⁰ m ~ 0.727 nm (Length)
 ```
 
 ### Photon energy from wavelength: E = hc/λ
@@ -267,7 +267,7 @@ $c = PhysicalConstant::speedOfLight();
 $lambda = new Length(550, 'nm');
 
 $energy = $h->mul($c)->div($lambda);
-$j = $energy->to('J');    // 3.61 x 10^-19 J
+$j = $energy->to('J');    // 3.61 × 10⁻¹⁹ J
 $ev = $energy->to('eV');  // 2.25 eV
 ```
 
@@ -325,7 +325,7 @@ use Galaxon\Quantities\QuantityType\Voltage;
 $cap = new Capacitance(10e-6, 'F');
 $voltage = new Voltage(12, 'V');
 $energy = $cap->mul($voltage->sqr())->div(2);
-// 7.2 x 10^-4 J (Energy)
+// 7.2 × 10⁻⁴ J (Energy)
 ```
 
 ### AC mains period: T = 1/f
@@ -381,7 +381,7 @@ $area = new Area(1, 'm2');
 $temp = new Temperature(5778, 'K');
 
 $power = $sigma->mul($area)->mul($temp->pow(4));
-// 6.32 x 10⁷ W = 63.2 MW per m2 (Power)
+// 6.32 × 10⁷ W = 63.2 MW per m2 (Power)
 ```
 
 ### Thermal energy: E = 3/2 kT
@@ -392,7 +392,7 @@ Average thermal energy of a particle at room temperature (300 K).
 $k = PhysicalConstant::boltzmann();
 $temp = new Temperature(300, 'K');
 $energy = $k->mul($temp)->mul(1.5);
-// 6.21 x 10^-21 J (Energy)
+// 6.21 × 10⁻²¹ J (Energy)
 ```
 
 ---
@@ -421,7 +421,7 @@ Number of molecules in 2 moles of a substance.
 $n = new AmountOfSubstance(2, 'mol');
 $Na = PhysicalConstant::avogadro();
 $N = $n->mul($Na);
-// 1.20 x 10²⁴ (dimensionless)
+// 1.20 × 10²⁴ (dimensionless)
 ```
 
 ### Moles from mass and molar mass: n = m/M
@@ -529,9 +529,6 @@ $force = $rho->mul($volume)->mul($g);
 100 lbf distributed over 10 in².
 
 ```php
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
-
 $force = new Force(100, 'lbf');
 $area = new Area(10, 'in2');
 $pressure = $force->div($area);
@@ -609,7 +606,7 @@ $totalFuelSi = $totalFuel->toSi();
 
 ## See Also
 
-- **[README](../../README.md)** - Package overview and quick start
-- **[Units](../Concepts/Units.md)** - Complete unit reference
-- **[Quantity](../Reference/Quantity.md)** - Quantity class documentation
-- **[PhysicalConstant](../Reference/PhysicalConstant.md)** - Available physical constants
+- **[README](../../README.md)** — Package overview and quick start.
+- **[Units](../Concepts/Units.md)** — Complete unit reference.
+- **[Quantity](../Reference/Quantity.md)** — Quantity class documentation.
+- **[PhysicalConstant](../Reference/PhysicalConstant.md)** — Available physical constants.

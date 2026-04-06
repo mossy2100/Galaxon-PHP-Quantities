@@ -1,5 +1,9 @@
 # Unit Conversion
 
+---
+
+## Overview
+
 The conversion system automatically finds paths between units using a graph-based algorithm. Only a minimum number of conversions are defined by the package; others are discovered automatically. All necessary conversions for the supported units are predefined. Great care has been taken to ensure conversions between any two compatible unit pairs are as accurate as possible, within the usual constraints of floating point numbers.
 
 ```php
@@ -11,13 +15,13 @@ $feet = $meters->to('ft');  // 3280.84 ft
 $miles = $meters->to('mi'); // 0.621371 mi
 ```
 
-### SI to Imperial/US
+---
+
+## SI to Imperial/US
 
 ```php
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 
 // Length
 $height = new Length(1.83, 'm');
@@ -30,11 +34,14 @@ echo $weight->to('lb');   // 154.32358... lb
 echo $weight->to('st');   // 11.023113... st
 ```
 
-### Base Units and Simplification
+---
+
+## Base Units and Simplification
 
 Named units like newtons, joules, and watts are shorthand for combinations of base units. You can convert to base units with `toBase()`, or simplify base units back into named units with `simplify()`.
 
 ```php
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Force;
 
 // Convert to base units
@@ -50,7 +57,9 @@ $lbf = new Force(1, 'lbf');
 echo $lbf->toBase();  // 32.174049... lb*ft/s2
 ```
 
-### Auto-Prefixing
+---
+
+## Auto-Prefixing
 
 The `autoPrefix()` method selects the best engineering SI prefix (kilo, mega, milli, etc.) to keep the numeric value readable:
 
@@ -80,7 +89,9 @@ echo $energy->toSi();                // 1055.06 J
 echo $energy->toSi()->autoPrefix();  // 1.05506 kJ
 ```
 
-### Temperature Conversions
+---
+
+## Temperature Conversions
 
 Most conversions involve a simple multiplication. The built-in `Temperature` class uses affine transformations (y = mx + k) to handle offset scales:
 
@@ -102,5 +113,4 @@ echo $fahrenheit->to('degC');  // 100 degC
 - **[Quantity](../Reference/Quantity.md#conversion-methods)** — Full reference for `to()`, `toSi()`, `toSiBase()`, `toEnglishBase()`, and `toBase()`.
 - **[Quantity — Unit Transformation Methods](../Reference/Quantity.md#unit-transformation-methods)** — `merge()`, `autoPrefix()`, and `simplify()`.
 - **[Units](../Concepts/Units.md)** — Complete list of built-in units by quantity type.
-- **[Systems of Units](../Concepts/SystemsOfUnits.md)** — SI, Imperial, US Customary, and other unit systems.
 - **[Arithmetic Operations](ArithmeticOperations.md)** — Multiply and divide to create compound units.

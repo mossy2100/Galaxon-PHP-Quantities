@@ -8,12 +8,12 @@ use Galaxon\Core\Traits\Asserts\FloatAssertions;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Unit;
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\Services\ConversionService;
 use Galaxon\Quantities\Services\UnitService;
 use Galaxon\Quantities\Tests\Traits\ArrayShapeTrait;
-use Galaxon\Quantities\UnitSystem;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

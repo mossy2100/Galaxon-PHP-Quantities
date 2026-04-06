@@ -88,10 +88,8 @@ class Prefix
 
         // Validate group code.
         $validGroupCodes = [
-            PrefixService::GROUP_SMALL_METRIC,
-            PrefixService::GROUP_MEDIUM_METRIC,
-            PrefixService::GROUP_LARGE_METRIC,
-            PrefixService::GROUP_BINARY
+            PrefixService::GROUP_SMALL_METRIC,  PrefixService::GROUP_MEDIUM_METRIC, PrefixService::GROUP_LARGE_METRIC,
+            PrefixService::GROUP_BINARY,
         ];
         if (!in_array($groupCode, $validGroupCodes, true)) {
             throw new DomainException("Invalid prefix group code: $groupCode.");

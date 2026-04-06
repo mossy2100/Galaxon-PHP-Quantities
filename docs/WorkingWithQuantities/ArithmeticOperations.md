@@ -1,5 +1,9 @@
 # Arithmetic Operations
 
+---
+
+## Overview
+
 Quantities support a full set of arithmetic operations. All operations return new Quantity objects — the original is never modified.
 
 ```php
@@ -166,9 +170,11 @@ The result type of `mul()`, `div()`, `inv()`, or `pow()` is determined automatic
 ```php
 use Galaxon\Quantities\PhysicalConstant;
 use Galaxon\Quantities\QuantityType\Acceleration;
+use Galaxon\Quantities\QuantityType\Energy;
 use Galaxon\Quantities\QuantityType\Frequency;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
+use Galaxon\Quantities\QuantityType\Temperature;
 use Galaxon\Quantities\QuantityType\Time;
 
 // Force = Mass × Acceleration (F = ma)

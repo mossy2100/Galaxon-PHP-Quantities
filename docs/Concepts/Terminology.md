@@ -1,6 +1,6 @@
 # Terminology
 
-Understanding certain terms used by the 
+Understanding certain terms used by the Quantities package will help you make sense of the documentation and API.
 
 | Term               | Definition                                                                                                                                                                                                                                      |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -27,5 +27,4 @@ Understanding certain terms used by the
 - **[Dimensions and Base Units](DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
 - **[Quantity Types](QuantityTypes.md)** — Typed quantity classes and how they map to dimensions.
 - **[Prefixes](Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
-- **[Systems of Units](SystemsOfUnits.md)** — SI, Imperial, US Customary, and other unit systems.
 - **[Units](Units.md)** — Complete reference of all built-in units.

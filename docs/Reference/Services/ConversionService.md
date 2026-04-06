@@ -193,4 +193,4 @@ ConversionService::removeBySystem(UnitSystem::Financial);
 - **[Conversion](../Internal/Conversion.md)** - Conversion class documentation.
 - **[Converter](../Internal/Converter.md)** - Manages conversion paths for a single dimension.
 - **[UnitService](UnitService.md)** - Unit registry.
-- **[UnitSystem](../UnitSystem.md)** - Measurement system enum.
+- **[UnitSystem](../Internal/UnitSystem.md)** - Measurement system enum.

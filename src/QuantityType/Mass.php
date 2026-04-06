@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\QuantityPartsService;
-use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**

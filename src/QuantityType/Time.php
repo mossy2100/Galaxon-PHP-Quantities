@@ -8,9 +8,9 @@ use DateInterval;
 use DateMalformedIntervalStringException;
 use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
+use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\UnitSystem;
 use Override;
 
 /**

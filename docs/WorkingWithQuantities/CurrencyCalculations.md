@@ -11,10 +11,6 @@ All examples on this page assume the currency service has been initialised:
 ```php
 use Galaxon\Quantities\Currencies\CurrencyService;
 use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Money;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\UnitSystem;
 
 CurrencyService::init(new FrankfurterService());
 ```
@@ -26,6 +22,8 @@ CurrencyService::init(new FrankfurterService());
 Convert a money value from one currency to another:
 
 ```php
+use Galaxon\Quantities\QuantityType\Money;
+
 $price = new Money(12.99, 'USD');
 echo $price->to('AUD');  // e.g. 20.58 AUD
 echo $price->to('EUR');  // e.g. 11.99 EUR
@@ -39,6 +37,8 @@ echo $price->to('JPY');  // e.g. 1955 JPY
 Divide an annual salary by a work capacity to get an hourly rate, then convert currencies:
 
 ```php
+use Galaxon\Quantities\Quantity;
+
 $salary = Quantity::create(120000, 'USD/y');
 $capacity = Quantity::create(40, 'h/w');
 
@@ -57,6 +57,8 @@ Convert a metal price from one mass unit and currency to another. For example, c
 (NB: This example won't work with the Frankfurter service, which doesn't provide rates for precious metals.)
 
 ```php
+use Galaxon\Quantities\Currencies\ExchangeRateServices\OpenExchangeRatesService;
+
 CurrencyService::init(new OpenExchangeRatesService('your-api-key'));
 
 $silverPerOz = Quantity::create(1, 'XAG/oz t');

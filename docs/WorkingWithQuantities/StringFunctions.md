@@ -2,6 +2,12 @@
 
 ---
 
+## Overview
+
+Quantities can be created from strings using `parse()` and rendered as strings via `__toString()` or `format()`. This page covers the unit syntax accepted by the parser and the formatting options available for output.
+
+---
+
 ## Parsing strings
 
 Use `parse()` to create a Quantity from a string. Whitespace between the value and unit is allowed:
@@ -106,7 +112,7 @@ Parentheses are only permitted around the denominator, in the form `<numerator>/
 
 ## Formatting output
 
-#### Default Formatting with `echo`
+### Default Formatting with `echo`
 
 Using a Quantity in a string context calls `__toString()`, which uses default formatting:
 
@@ -121,7 +127,7 @@ $resistance = Quantity::create(4700, 'ohm');
 echo $resistance;  // 4700 Ω
 ```
 
-#### The `format()` Method
+### The `format()` Method
 
 For more control, use `format()` with a specifier, precision, and ASCII mode:
 
@@ -149,8 +155,6 @@ echo $length->format('e', 3);    // 1.235×10³ m
 | `g` / `G` / `h` / `H` | Shortest    | Significant figures        |
 
 When `$precision` is `null` (the default), trailing zeros are automatically trimmed. When an explicit precision is given, digits are preserved. This behavior can be overridden with the `$trimZeros` parameter (`true` = always trim, `false` = never trim, `null` = auto).
-
-See: [formatValue()](Quantity.md#formatValue())
 
 ### ASCII vs. Unicode
 
@@ -215,6 +219,6 @@ echo $length->format(includeSpace: false); // 100m
 
 ## See Also
 
-- **[Quantity](../Reference/Quantity.md)** — Full reference for `format()`, `formatValue()`, `parse()`, and `__toString()`.
+- **[Quantity](../Reference/Quantity.md)** — Full reference for `format()`, `parse()`, and `__toString()`.
 - **[Part Decomposition](PartDecomposition.md)** — Multi-part formatting and parsing (e.g. `"5h 30min 45s"`).
 - **[Money](../Reference/QuantityType/Money.md)** — Currency-specific formatting with locale support.

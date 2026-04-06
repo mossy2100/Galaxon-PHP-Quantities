@@ -13,7 +13,7 @@ use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
-use Galaxon\Quantities\UnitSystem;
+use Galaxon\Quantities\Internal\UnitSystem;
 use LogicException;
 
 /**
