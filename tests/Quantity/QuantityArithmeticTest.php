@@ -25,6 +25,43 @@ final class QuantityArithmeticTest extends TestCase
 {
     use FloatAssertions;
 
+    // region abs() tests
+
+    /**
+     * Test abs() on positive value.
+     */
+    public function testAbsPositive(): void
+    {
+        $length = new Length(5, 'm');
+        $abs = $length->abs();
+
+        $this->assertSame(5.0, $abs->value);
+    }
+
+    /**
+     * Test abs() on negative value.
+     */
+    public function testAbsNegative(): void
+    {
+        $temp = new Temperature(-10, 'degC');
+        $abs = $temp->abs();
+
+        $this->assertSame(10.0, $abs->value);
+    }
+
+    /**
+     * Test abs() on zero.
+     */
+    public function testAbsZero(): void
+    {
+        $length = new Length(0, 'm');
+        $abs = $length->abs();
+
+        $this->assertSame(0.0, $abs->value);
+    }
+
+    // endregion
+
     // region neg() tests
 
     /**

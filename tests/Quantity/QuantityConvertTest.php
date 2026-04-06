@@ -16,6 +16,8 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityConvertTest extends TestCase
 {
+    // region convert() tests
+
     /**
      * Test basic unit conversion.
      */
@@ -90,4 +92,6 @@ final class QuantityConvertTest extends TestCase
 
         Quantity::convert(1, 'm', 's');
     }
+
+    // endregion
 }

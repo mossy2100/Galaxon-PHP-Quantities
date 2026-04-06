@@ -7,6 +7,7 @@ namespace Galaxon\Quantities\Services;
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Exceptions\NullArgumentException;
+use Galaxon\Core\Floats;
 use Galaxon\Core\Numbers;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\QuantityType;
@@ -489,7 +490,7 @@ class QuantityPartsService
 
         // Skip unless we're showing zeros or the value is non-zero.
         if ($showZeros || $roundedValue !== 0.0 || empty($result)) {
-            $valueStr = Quantity::formatValue($value, 'f', $precision, null, $ascii);
+            $valueStr = Floats::format($value, 'f', $precision, null, $ascii);
             $result[] = $valueStr . $unit->format($ascii);
         }
 

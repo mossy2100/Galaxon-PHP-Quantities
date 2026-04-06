@@ -64,7 +64,7 @@ class PhysicalConstant
 
     // endregion
 
-    // region Private helper
+    // region Helper methods
 
     /**
      * Get or create a cached constant.
@@ -81,7 +81,7 @@ class PhysicalConstant
 
     // endregion
 
-    // region Accessor methods
+    // region Lookup methods
 
     /**
      * Get a physical constant by its symbol.
@@ -105,13 +105,13 @@ class PhysicalConstant
     /**
      * Get all the physical constants as an array of Quantity objects, keyed by symbol.
      *
-     * @return list<Quantity>
+     * @return array<string, Quantity>
      */
     public static function getAll(): array
     {
         $constants = [];
         foreach (self::SYMBOL_MAP as $symbol => $method) {
-            $constants[$symbol] = self::$method($symbol);
+            $constants[$symbol] = self::$method();
         }
         return $constants;
     }

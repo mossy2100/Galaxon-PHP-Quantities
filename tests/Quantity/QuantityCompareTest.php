@@ -221,7 +221,6 @@ final class QuantityCompareTest extends TestCase
     {
         $pos = new Length(1, 'm');
         $zero = new Length(0, 'm');
-        $neg = new Temperature(-10, 'degC');
 
         $this->assertSame(1, $pos->compare($zero));
         $this->assertSame(-1, $zero->compare($pos));

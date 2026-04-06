@@ -36,9 +36,9 @@ final class QuantityValueTransformTest extends TestCase
     }
 
     /**
-     * Test withValue() returns a new instance when the value is unchanged.
+     * Test withValue() always returns a new instance, even when the value is unchanged.
      */
-    public function testWithValueSameValueReturnsNewInstance(): void
+    public function testWithValueAlwaysReturnsNewInstance(): void
     {
         $length = new Length(10, 'm');
         $length2 = $length->withValue(10);
@@ -92,41 +92,24 @@ final class QuantityValueTransformTest extends TestCase
         $length->withValue(NAN);
     }
 
-    // endregion
-
-    // region abs() tests
-
     /**
-     * Test abs() on positive value.
+     * Test withValue() on a base Quantity with an unregistered dimension.
+     *
+     * Exercises the new() path in withValue(), which bypasses the direct-instantiation guard
+     * so that `new Quantity()` can be called for unregistered dimensions.
      */
-    public function testAbsPositive(): void
+    public function testWithValueOnUnregisteredDimension(): void
     {
-        $length = new Length(5, 'm');
-        $abs = $length->abs();
+        // kg*m3 has dimension ML3, which is not registered as any quantity type.
+        $qty = Quantity::create(5, 'kg*m3');
+        $this->assertSame(Quantity::class, $qty::class);
 
-        $this->assertSame(5.0, $abs->value);
-    }
+        $newQty = $qty->withValue(10);
 
-    /**
-     * Test abs() on negative value.
-     */
-    public function testAbsNegative(): void
-    {
-        $temp = new Temperature(-10, 'degC');
-        $abs = $temp->abs();
-
-        $this->assertSame(10.0, $abs->value);
-    }
-
-    /**
-     * Test abs() on zero.
-     */
-    public function testAbsZero(): void
-    {
-        $length = new Length(0, 'm');
-        $abs = $length->abs();
-
-        $this->assertSame(0.0, $abs->value);
+        $this->assertSame(Quantity::class, $newQty::class);
+        $this->assertSame(10.0, $newQty->value);
+        $this->assertSame('kg*m3', $newQty->derivedUnit->asciiSymbol);
+        $this->assertNotSame($qty, $newQty);
     }
 
     // endregion

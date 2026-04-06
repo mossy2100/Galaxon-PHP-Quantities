@@ -13,12 +13,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **QuantityPartsService** — Config methods (`getPartUnitSymbols`, `setPartUnitSymbols`, `getResultUnitSymbol`, `setResultUnitSymbol`) removed from `Quantity`; use `QuantityPartsService` directly.
 - **Mass** — `setImperialParts()` and `setUsCustomaryParts()` call `QuantityPartsService` directly.
 - **DimensionService** — Renamed `applyExponent()` to `pow()` for consistency.
+- **DimensionMismatchException** — `$dimension1` and `$dimension2` properties are now nullable (`?string`). Null dimensions render as `null` in the default message.
+- **Quantity::formatValue()** — Moved to `Floats::format()` in Core. `Quantity::format()` now delegates to it.
+- **Quantity::neg()** — Now returns `static` instead of `self` (dimension preserved).
+- **Quantity::abs()** — Returns `static` (unchanged behaviour, was already `static`).
+- **Quantity::merge()** — Always returns a new object (previously returned `$this` when not mergeable).
+- **Quantity::compare()** — Fixed `@throws` PHPDoc: `InvalidArgumentException` → `DimensionMismatchException`.
+- **Quantity::approxEqual()** — Catches `DimensionMismatchException` explicitly (was catching `DomainException`).
+- **Quantity::inv()** and **Quantity::div()** — Use `Numbers::isZero()` instead of strict comparison for zero checks.
+- **Quantity::create()** — Removed redundant finite-value check (the constructor validates).
+- **PhysicalConstant::getAll()** — Fixed `@return` type annotation (`list<Quantity>` → `array<string, Quantity>`).
+- **PhysicalConstant** — Renamed region `Accessor methods` → `Lookup methods` to match convention.
+- **Quantity** — Split `Subclass methods` region into `Subclass methods` (for overridable methods) and `Lookup methods` (for `getQuantityType()` and `getDimension()`).
+- **Quantity** — `convert()` moved into `Unit conversion methods` region; `Utility methods` region removed.
+
+### Added
+
+- **Quantity::new()** — Private helper that encapsulates the `$allowConstruct` flag hack for constructing generic Quantity objects.
+- **Quantity::withValue()** — Now uses `new static()` directly for subclasses (skipping the dimension→class lookup), and the `new()` helper for base Quantity instances.
+- **DimensionMismatchException** — Constructor now accepts null dimensions.
 
 ### Fixed
 
-- **Documentation** — Rewrote PrefixService.md, QuantityTypeService.md, QuantityPartsService.md, DimensionService.md with correct exception types, section names, missing methods, and return types.
+- **Documentation** — Rewrote PrefixService.md, QuantityTypeService.md, QuantityPartsService.md, DimensionService.md, Quantity.md, PhysicalConstant.md, DimensionMismatchException.md with correct exception types, section names, signatures, return types, and missing/removed methods.
 - **PrefixService** — Fixed PHPDoc typo listing 16 as a valid group code.
 - **QuantityTypeService** — Fixed class PHPDoc description.
+- **Quantity::pow()** — Fixed misleading example (was using `sqr()` instead of `pow(n)`).
+- **Quantity::sqr()** — Removed dubious "more efficient" claim from PHPDoc.
+- **Quantity::create()** — Fixed critical missing `return` statement in fallback path for unregistered dimensions.
 
 ---
 

@@ -221,9 +221,6 @@ class PrefixService
                     self::$prefixes[] = new Prefix($name, $asciiSymbol, $unicodeSymbol, $multiplier, $groupCode);
                 }
             }
-
-            // Sort the prefixes by multiplier.
-            usort(self::$prefixes, static fn (Prefix $a, Prefix $b) => $a->multiplier <=> $b->multiplier);
         }
     }
 

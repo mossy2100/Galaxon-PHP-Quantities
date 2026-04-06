@@ -667,12 +667,12 @@ final class QuantityUnitTransformTest extends TestCase
 
     // endregion
 
-    // region getType() tests
+    // region getQuantityType() tests
 
     /**
-     * Test getType() returns QuantityType for a registered subclass.
+     * Test getQuantityType() returns QuantityType for a registered subclass.
      */
-    public function testGetTypeReturnsQuantityType(): void
+    public function testGetQuantityTypeReturnsQuantityType(): void
     {
         $type = Length::getQuantityType();
 
@@ -683,17 +683,17 @@ final class QuantityUnitTransformTest extends TestCase
     }
 
     /**
-     * Test getType() returns null for base Quantity class.
+     * Test getQuantityType() returns null for base Quantity class.
      */
-    public function testGetTypeReturnsNullForBaseQuantity(): void
+    public function testGetQuantityTypeReturnsNullForBaseQuantity(): void
     {
         $this->assertNull(Quantity::getQuantityType());
     }
 
     /**
-     * Test $type property matches getType() on an instance.
+     * Test $quantityType property matches getQuantityType() on an instance.
      */
-    public function testTypePropertyMatchesGetType(): void
+    public function testQuantityTypePropertyMatchesGetQuantityType(): void
     {
         $length = new Length(1, 'm');
 
@@ -701,9 +701,9 @@ final class QuantityUnitTransformTest extends TestCase
     }
 
     /**
-     * Test $type property is null for unregistered compound quantity.
+     * Test $quantityType property is null for unregistered compound quantity.
      */
-    public function testTypePropertyNullForUnregisteredDimension(): void
+    public function testQuantityTypePropertyNullForUnregisteredDimension(): void
     {
         // A compound unit with no registered quantity type.
         $qty = Quantity::create(1, 'kg*m3');

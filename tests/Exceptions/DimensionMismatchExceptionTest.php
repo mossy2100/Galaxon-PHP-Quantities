@@ -103,4 +103,40 @@ final class DimensionMismatchExceptionTest extends TestCase
         $exception = new DimensionMismatchException('L', 'M', '', 0, $previous);
         $this->assertSame($previous, $exception->getPrevious());
     }
+
+    /**
+     * Test default message with null first dimension.
+     */
+    public function testDefaultMessageWithNullFirstDimension(): void
+    {
+        $exception = new DimensionMismatchException(null, 'L');
+
+        $this->assertNull($exception->dimension1);
+        $this->assertSame('L', $exception->dimension2);
+        $this->assertSame("Dimension mismatch: null and 'L' (length).", $exception->getMessage());
+    }
+
+    /**
+     * Test default message with null second dimension.
+     */
+    public function testDefaultMessageWithNullSecondDimension(): void
+    {
+        $exception = new DimensionMismatchException('L', null);
+
+        $this->assertSame('L', $exception->dimension1);
+        $this->assertNull($exception->dimension2);
+        $this->assertSame("Dimension mismatch: 'L' (length) and null.", $exception->getMessage());
+    }
+
+    /**
+     * Test default message with both dimensions null.
+     */
+    public function testDefaultMessageWithBothDimensionsNull(): void
+    {
+        $exception = new DimensionMismatchException(null, null);
+
+        $this->assertNull($exception->dimension1);
+        $this->assertNull($exception->dimension2);
+        $this->assertSame('Dimension mismatch: null and null.', $exception->getMessage());
+    }
 }

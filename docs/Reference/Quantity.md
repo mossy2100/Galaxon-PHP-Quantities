@@ -51,10 +51,10 @@ The dimension code of the quantity (e.g., 'L' for length, 'MLT-2' for force).
 
 See [DimensionService](Services/DimensionService.md) for more details about how dimensions work.
 
-### type
+### quantityType
 
 ```php
-public ?QuantityType $type { get; }
+public ?QuantityType $quantityType { get; }
 ```
 
 The quantity type metadata, or null if not registered.
@@ -99,7 +99,7 @@ $mass = new Mass(5.5, 'kg');
 ### create()
 
 ```php
-public static function create(float $value, null|string|UnitInterface $unit): self
+public static function create(float $value, null|string|UnitInterface $unit = null): self
 ```
 
 Create a Quantity of the appropriate type for the given unit.
@@ -171,7 +171,8 @@ Length::parse('123 kg');  // DimensionMismatchException
 
 ---
 
-## Utility Methods
+## Unit Conversion Methods
+
 ### convert()
 
 ```php
@@ -207,10 +208,6 @@ $celsius = Quantity::convert(100, 'degF', 'degC');
 // Convert 5 miles to kilometres.
 $km = Quantity::convert(5, 'mi', 'km');
 ```
-
----
-
-## Unit Conversion Methods
 
 ### to()
 
@@ -386,24 +383,24 @@ $a->approxEqual($b);  // true
 ### abs()
 
 ```php
-public function abs(): self
+public function abs(): static
 ```
 
 Get the absolute value of this measurement.
 
 **Returns:**
-- `Quantity` - A new Quantity with non-negative value.
+- `static` - A new Quantity with non-negative value.
 
 ### neg()
 
 ```php
-public function neg(): self
+public function neg(): static
 ```
 
 Negate this measurement.
 
 **Returns:**
-- `Quantity` - A new Quantity with negated value.
+- `static` - A new Quantity with negated value.
 
 ### inv()
 
@@ -536,11 +533,14 @@ Raise this Quantity to an integer power.
 **Returns:**
 - `Quantity` - Result with exponentiated units.
 
+**Throws:**
+- `DomainException` - If the exponent is 0.
+
 **Examples:**
 ```php
 $length = new Length(10, 'm');
-$area = $length->sqr();     // 100 m2
 $volume = $length->pow(3);  // 1000 m3
+$inverse = $length->pow(-1);  // 0.1 m-1
 ```
 
 ### sqr()
@@ -549,7 +549,7 @@ $volume = $length->pow(3);  // 1000 m3
 public function sqr(): self
 ```
 
-Square this Quantity. Equivalent to `pow(2)`, but more efficient and readable.
+Square this Quantity. Equivalent to `pow(2)`.
 
 **Returns:**
 - `Quantity` - Result with squared value and units.
@@ -567,7 +567,7 @@ $result = $velocity->sqr();  // 9 m2/s2
 ### round()
 
 ```php
-public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): self
+public function round(int $precision = 0, RoundingMode $mode = RoundingMode::HalfAwayFromZero): static
 ```
 
 Round the value to a given number of decimal places.
@@ -588,7 +588,7 @@ $rounded = $length->round(2);  // 1.57 m
 ### floor()
 
 ```php
-public function floor(): self
+public function floor(): static
 ```
 
 Round the value down to the nearest integer.
@@ -605,7 +605,7 @@ $floored = $length->floor();  // 1 m
 ### ceil()
 
 ```php
-public function ceil(): self
+public function ceil(): static
 ```
 
 Round the value up to the nearest integer.
@@ -626,7 +626,7 @@ $ceiled = $length->ceil();  // 2 m
 ### withValue()
 
 ```php
-public function withValue(float $value): self
+public function withValue(float $value): static
 ```
 
 Create a new Quantity with the same unit but a different value.
@@ -635,7 +635,10 @@ Create a new Quantity with the same unit but a different value.
 - `$value` (float) - The new numeric value.
 
 **Returns:**
-- `Quantity` - A new Quantity with the given value in the same unit.
+- `static` - A new Quantity with the given value in the same unit.
+
+**Throws:**
+- `DomainException` - If the value is non-finite (±INF or NAN).
 
 **Examples:**
 ```php
@@ -646,7 +649,7 @@ $doubled = $length->withValue(20);  // 20 m
 ### merge()
 
 ```php
-public function merge(): self
+public function merge(): static
 ```
 
 Merge units with the same dimension (e.g., m\*ft -> m2).
@@ -662,7 +665,7 @@ The first unit encountered of a given dimension will be the one any others are c
 ### autoPrefix()
 
 ```php
-public function autoPrefix(): self
+public function autoPrefix(): static
 ```
 
 Apply the best engineering prefix to the first unit term.
@@ -684,7 +687,7 @@ $prefixed = $length->autoPrefix();  // 1000 km
 ### simplify()
 
 ```php
-public function simplify(): self
+public function simplify(): static
 ```
 
 Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
@@ -701,57 +704,6 @@ To auto-prefix the result, chain with `autoPrefix()`.
 
 ## Conversion Methods
 
-### formatValue()
-
-```php
-public static function formatValue(
-    float $value,
-    string $specifier = 'g',
-    ?int $precision = null,
-    ?bool $trimZeros = null,
-    bool $ascii = false
-): string
-```
-
-Format a numeric value as a string. This is a static utility method used internally by `format()` but also available for standalone use.
-
-**Parameters:**
-
-- `$specifier` (string) - The format specifier.
-
-| Specifier | Description                                                                    |
-| --------- |--------------------------------------------------------------------------------|
-| `'e'`     | Scientific notation with lowercase `e`.                                        |
-| `'E'`     | Scientific notation with uppercase `E`.                                        |
-| `'f'`     | Fixed-point notation (locale-aware).                                           |
-| `'F'`     | Fixed-point notation (non-locale-aware, always uses `.` as decimal separator). |
-| `'g'`     | Shortest of `e` or `f` (lower-case `e`, locale-aware). **Default.**            |
-| `'G'`     | Shortest of `E` or `f` (upper-case `E`, locale-aware).                         |
-| `'h'`     | Shortest of `e` or `F` (lower-case `e`, non-locale-aware).                     |
-| `'H'`     | Shortest of `E` or `F` (upper-case `E`, non-locale-aware).                     |
-
-- `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. `null` uses the `sprintf` default (usually 6).
-- `$trimZeros` (?bool) - Controls trailing zero trimming:
-  - `null` (default) — auto: trims when `$precision` is null, preserves when `$precision` is explicit.
-  - `true` — always trim trailing zeros (and trailing decimal point).
-  - `false` — never trim; preserve all digits.
-- `$ascii` (bool) - If `true`, use ASCII `e` notation. If `false` (default), use `×10` with superscript exponents.
-
-**Returns:**
-- `string` - The formatted value string.
-
-**Throws:**
-- `DomainException` - If the specifier is invalid or precision is outside 0–17.
-
-**Examples:**
-```php
-Quantity::formatValue(5.0);                       // "5"
-Quantity::formatValue(5.0, 'f', 2);               // "5.00"
-Quantity::formatValue(5.0, 'f', 2, true);         // "5"
-Quantity::formatValue(1500.0, 'e', 2);            // "1.50×10³"
-Quantity::formatValue(1500.0, 'e', 2, ascii: true); // "1.50e+3"
-```
-
 ### format()
 
 ```php
@@ -766,10 +718,10 @@ public function format(
 
 Format the measurement as a string with value and unit.
 
-See `formatValue()` for details on the `$specifier`, `$precision`, `$trimZeros`, and `$ascii` parameters.
+See [`Floats::format()`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Floats.md#format) for details on the `$specifier`, `$precision`, `$trimZeros`, and `$ascii` parameters.
 
 **Parameters:**
-- `$specifier` (string) - The format specifier (see `formatValue()` for the table).
+- `$specifier` (string) - The format specifier. See `Floats::format()` for the full list of supported specifiers.
 - `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. `null` uses the `sprintf` default (usually 6).
 - `$trimZeros` (?bool) - Controls trailing zero trimming. `null` (default) trims when precision is null, preserves when explicit. `true` always trims, `false` never trims.
 - `$includeSpace` (?bool) - Space between value and unit. `null` = auto (no space for symbol-only units like `°`). `true` = always. `false` = never.
@@ -810,7 +762,7 @@ Convert to string using default formatting.
 
 ## Subclass Methods
 
-These methods provide information from or about Quantity subclasses (e.g. `Angle`, `Time`, etc.).
+These methods are meant to be overridden in Quantity subclasses (e.g. `Angle`, `Time`, etc.).
 
 ### getUnitDefinitions()
 
@@ -841,6 +793,10 @@ These definitions are loaded by `ConversionService` when a unit system is initia
 
 **Returns:**
 - `list<array{string, string, float}>` - A list of conversion definition tuples.
+
+---
+
+## Lookup Methods
 
 ### getQuantityType()
 
@@ -891,72 +847,26 @@ Quantity::getDimension();     // null
 
 Parts methods allow decomposing a quantity into multiple unit components (e.g. hours, minutes, seconds) and reconstructing from them.
 
-### getDefaultPartUnitSymbols()
-
-```php
-public static function getDefaultPartUnitSymbols(): array
-```
-
-Get the default part unit symbols for `toParts()` and `formatParts()`.
-
-**Returns:**
-- `list<string>` - The default unit symbols.
-
-### setDefaultPartUnitSymbols()
-
-```php
-public static function setDefaultPartUnitSymbols(array $symbols): void
-```
-
-Set the default part unit symbols for `toParts()` and `formatParts()`.
-
-**Parameters:**
-- `$symbols` (list\<string\>) - The unit symbols from largest to smallest.
-
-**Throws:**
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the array contains unknown unit symbols.
-- `DomainException` - If the array is empty.
-- `InvalidArgumentException` - If the array contains non-string items.
-
-### getDefaultResultUnitSymbol()
-
-```php
-public static function getDefaultResultUnitSymbol(): string
-```
-
-Get the default result unit symbol for `fromParts()` and `parseParts()`.
-
-**Returns:**
-- `string` - The default result unit symbol.
-
-### setDefaultResultUnitSymbol()
-
-```php
-public static function setDefaultResultUnitSymbol(string $symbol): void
-```
-
-Set the default result unit symbol for `fromParts()` and `parseParts()`.
-
-**Parameters:**
-- `$symbol` (string) - The unit symbol.
-
-**Throws:**
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the unit is unknown.
+These methods delegate to [`QuantityPartsService`](Services/QuantityPartsService.md), which holds the configurable part unit symbols and result unit symbols for each quantity type. Use `QuantityPartsService` directly to get or set these configurations.
 
 ### fromParts()
 
 ```php
-public static function fromParts(array $parts, ?string $resultUnitSymbol = null): static
+public static function fromParts(array $parts): static
 ```
 
 Create a Quantity from component parts.
 
 **Parameters:**
-- `$parts` (array) - Array of unit symbol => value pairs, optionally with 'sign' key.
-- `$resultUnitSymbol` (?string) - Result unit, or null for class default.
+- `$parts` (`array<string, int|float>`) - Array of unit symbol => value pairs, optionally with a `'sign'` key (1 or -1).
 
 **Returns:**
-- `Quantity` - The combined Quantity.
+- `static` - The combined Quantity.
+
+**Throws:**
+- [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) - If the quantity type is null (called on an unregistered subclass).
+- `DomainException` - If the result unit symbol or sign is invalid.
+- `InvalidArgumentException` - If any of the unit symbols are not strings, or any of the values are not numbers.
 
 **Examples:**
 ```php
@@ -967,42 +877,48 @@ $duration = Time::fromParts(['h' => 2, 'min' => 30, 's' => 45]);
 ### toParts()
 
 ```php
-public function toParts(?array $partUnitSymbols = null, ?int $precision = null): array
+public function toParts(?int $precision = null): array
 ```
 
-Convert to component parts.
+Convert to component parts using the quantity type's configured part unit symbols.
 
 **Parameters:**
-- `$partUnitSymbols` (?array) - Array of unit symbols from largest to smallest, or null for class default.
-- `$precision` (?int) - Decimal places for smallest unit, or null for no rounding.
+- `$precision` (?int) - Decimal places for the smallest unit, or null for no rounding.
 
 **Returns:**
-- `array` - Array with 'sign' key and unit symbol => value pairs.
+- `array<string, int|float>` - Array with a `'sign'` key (1 or -1) and unit symbol => value pairs.
+
+**Throws:**
+- [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) - If the quantity type is null (called on an unregistered subclass).
+- `DomainException` - If precision is negative or part unit symbols are not configured.
+- `InvalidArgumentException` - If any of the part unit symbols are not strings.
 
 ### parseParts()
 
 ```php
-public static function parseParts(string $input, ?string $resultUnitSymbol = null): static
+public static function parseParts(string $input): static
 ```
 
 Parse a multi-part string into a Quantity.
 
-Parses strings like "4y 5mo 6d 12h 34min 56.789s" where each part is a value immediately followed by a unit symbol, separated by whitespace.
+Parses strings like `"4y 5mo 6d 12h 34min 56.789s"` where each part is a value immediately followed by a unit symbol, separated by whitespace.
 
 **Parameters:**
 - `$input` (string) - The string to parse.
-- `$resultUnitSymbol` (?string) - The unit to use for the resulting Quantity, or null for the class default.
 
 **Returns:**
-- `Quantity` - A new Quantity representing the sum of the parts.
+- `static` - A new Quantity representing the sum of the parts.
 
 **Throws:**
+- [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) - If the quantity type is null (called on an unregistered subclass).
 - [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is invalid.
-- `DomainException` - If no result unit symbol is provided and no default is set.
+- `DomainException` - If the result unit symbol is invalid.
+- `UnexpectedValueException` - If there is an unexpected error during parsing.
+- `InvalidArgumentException` - If any of the part unit symbols are not strings.
 
 **Examples:**
 ```php
-$time = Time::parseParts('5h 30min 45s', 's');  // 19845 s
+$time = Time::parseParts('5h 30min 45s');
 $angle = Angle::parseParts("12deg 34arcmin 56.789arcsec");
 ```
 
@@ -1010,25 +926,54 @@ $angle = Angle::parseParts("12deg 34arcmin 56.789arcsec");
 
 ```php
 public function formatParts(
-    ?array $partUnitSymbols = null,
     ?int $precision = null,
     bool $showZeros = false,
     bool $ascii = false
 ): string
 ```
 
-Format as component parts.
+Format as component parts using the quantity type's configured part unit symbols.
 
 Only the smallest unit may have a decimal point. Larger units will be integers. Zero-value components are omitted by default unless `$showZeros` is true.
 
 **Parameters:**
-- `$partUnitSymbols` (?array) - Array of unit symbols from largest to smallest, or null for class default.
-- `$precision` (?int) - Decimal places for smallest unit, or null for no rounding.
+- `$precision` (?int) - Decimal places for the smallest unit, or null for no rounding.
 - `$showZeros` (bool) - Include zero-value components.
 - `$ascii` (bool) - Use ASCII symbols only.
 
 **Returns:**
-- `string` - Formatted string like "5h 30min 45s".
+- `string` - Formatted string like `"5h 30min 45s"`.
+
+**Throws:**
+- [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) - If the quantity type is null (called on an unregistered subclass).
+- `DomainException` - If part unit symbols are not configured or precision is negative.
+- `InvalidArgumentException` - If any of the part unit symbols are not strings.
+
+---
+
+## Validation Methods
+
+### isValidQuantity()
+
+```php
+public static function isValidQuantity(string $qty, ?array &$matches): bool
+```
+
+Check if a string is a valid quantity representation (a number optionally followed by a unit).
+
+**Parameters:**
+- `$qty` (string) - The string to validate.
+- `$matches` (?array) - Output array for match results (`$matches[1]` is the value, `$matches[2]` is the unit).
+
+**Returns:**
+- `bool` - True if the string is a valid quantity.
+
+**Examples:**
+```php
+Quantity::isValidQuantity('123.45 km', $m);  // true, $m[1]='123.45', $m[2]='km'
+Quantity::isValidQuantity('42', $m);          // true (dimensionless)
+Quantity::isValidQuantity('abc', $m);         // false
+```
 
 ---
 

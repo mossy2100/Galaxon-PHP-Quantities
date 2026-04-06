@@ -6,15 +6,14 @@ namespace Galaxon\Quantities;
 
 use DivisionByZeroError;
 use DomainException;
-use Galaxon\Core\Arrays;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Exceptions\IncomparableTypesException;
 use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Core\Floats;
-use Galaxon\Core\Integers;
 use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\Comparison\ApproxComparable;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\DerivedUnit;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
@@ -34,7 +33,7 @@ use Stringable;
 use UnexpectedValueException;
 
 /**
- * Abstract base class for physical measurements with units.
+ * Base class for physical measurements with units.
  *
  * Provides a framework for creating strongly typed measurement classes (Length, Mass, Time, etc.)
  * with automatic unit conversion, arithmetic operations, and comparison capabilities.
@@ -63,7 +62,6 @@ class Quantity implements Stringable
 
     /**
      * Flag to permit call to new Quantity().
-     *
      */
     private static bool $allowConstruct = false;
 
@@ -87,7 +85,6 @@ class Quantity implements Stringable
 
     /**
      * The dimension.
-     *
      */
     public string $dimension {
         get => $this->derivedUnit->dimension;
@@ -95,7 +92,6 @@ class Quantity implements Stringable
 
     /**
      * The quantity type this quantity is for, if known.
-     *
      */
     public ?QuantityType $quantityType {
         get => QuantityTypeService::getByDimension($this->dimension);
@@ -108,29 +104,38 @@ class Quantity implements Stringable
     /**
      * Constructor.
      *
-     * Creates a new measurement with the specified value and unit.
-     * Validates that the value is finite and the unit is valid.
-     * Furthermore, ensures the calling class matches the unit dimension.
-     * If the unit is omitted, the quantity is dimensionless.
+     * Creates a new measurement with the specified value and unit. If the unit is omitted, the quantity is
+     * dimensionless.
+     *
+     * Direct instantiation of the base `Quantity` class is forbidden — use `Quantity::create()` or
+     * `Quantity::parse()` instead. Subclasses (e.g. `Length`, `Mass`) should be instantiated directly with their
+     * respective constructors.
+     *
+     * The constructor validates that:
+     * - The calling class is a subclass of Quantity, or the call is via `Quantity::create()`.
+     * - The value is finite.
+     * - The unit is valid.
+     * - The calling class matches the unit's dimension.
      *
      * @param float $value The numeric value in the given unit.
      * @param null|string|UnitInterface $unit The unit as a symbol string (e.g. 'kg', 'mm', 'hr'),
      * object, or null if dimensionless.
+     * @throws LogicException If called directly on Quantity, or the wrong subclass constructor is being called
+     * for the given unit's dimension.
      * @throws DomainException If the value is non-finite (±INF or NAN).
      * @throws FormatException If the unit is provided as a string, and it cannot be parsed.
-     * @throws DomainException If the unit is provided as a string, and it contains unknown units.
-     * @throws LogicException If the wrong constructor is being called for a quantity with the given unit.
+     * @throws UnknownUnitException If the unit is provided as a string, and it contains unknown units.
      */
     public function __construct(float $value, null|string|UnitInterface $unit = null)
     {
-        // Check they aren't calling `new Quantity()`. We only want them to use `new Angle()` (for example) or
-        // `Quantity::create()`.
+        // Check they aren't calling `new Quantity()`. We only want them to use `new Angle()` (for example),
+        // `Quantity::create()` or `Quantity::parse()`.
         $qtyClass = self::class;
         $callingClass = static::class;
         if ($qtyClass === $callingClass && !self::$allowConstruct) {
             throw new LogicException(
                 'The Quantity constructor should not be called directly. Use `Quantity::create()`, ' .
-                '`Quantity::parse()`, or a specific quantity constructor (e.g. `new Angle(...)`.'
+                '`Quantity::parse()`, or a subclass constructor (e.g. `new Angle(...)`.'
             );
         }
 
@@ -171,21 +176,17 @@ class Quantity implements Stringable
      * This works whether called from Quantity or a subclass.
      * Uses the dimension class registry to instantiate the correct subclass.
      * For example, a unit with dimension 'L2' will create an Area object (assuming Area is registered).
+     * For unregistered dimensions, falls back to a generic Quantity object.
      *
      * @param float $value The numeric value.
-     * @param null|string|UnitInterface $unit The unit.
+     * @param null|string|UnitInterface $unit The unit as a symbol string, a unit object, or null for dimensionless.
      * @return self A Quantity of the appropriate type.
      * @throws DomainException If the value is non-finite (±INF or NAN).
      * @throws FormatException If the unit is provided as a string, and it cannot be parsed.
-     * @throws DomainException If the unit is provided as a string, and it contains unknown units.
+     * @throws UnknownUnitException If the unit is provided as a string, and it contains unknown units.
      */
     public static function create(float $value, null|string|UnitInterface $unit = null): self
     {
-        // Check the value is finite.
-        if (!is_finite($value)) {
-            throw new DomainException('Cannot create a quantity with a non-finite value.');
-        }
-
         // Get unit as DerivedUnit.
         $unit = DerivedUnit::toDerivedUnit($unit);
 
@@ -195,13 +196,8 @@ class Quantity implements Stringable
             return new ($qtyType->class)($value, $unit);
         }
 
-        // Fall back to a generic Quantity object. Temporarily enable calling `new Quantity()`.
-        self::$allowConstruct = true;
-        try {
-            return new self($value, $unit);
-        } finally {
-            self::$allowConstruct = false;
-        }
+        // Fall back to a generic Quantity object.
+        return self::new($value, $unit);
     }
 
     /**
@@ -248,6 +244,8 @@ class Quantity implements Stringable
         }
 
         // If this method is not called from Quantity, check the result class is the same as the calling class.
+        // For example, it's ok to call Quantity::parse() and get an Angle, and it's ok to call Angle::parse() and get
+        // an Angle, but it's not ok to call Length::parse() and get an Angle.
         if (self::class !== static::class && $result::class !== static::class) {
             throw new DimensionMismatchException(static::getDimension(), $result->dimension);
         }
@@ -257,7 +255,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Utility methods
+    // region Unit conversion methods
 
     /**
      * Convert a value from a source unit to a destination unit.
@@ -275,10 +273,6 @@ class Quantity implements Stringable
         // Delegate to the ConversionService.
         return ConversionService::convert($value, $srcUnit, $destUnit);
     }
-
-    // endregion
-
-    // region Unit conversion methods
 
     /**
      * Convert this Quantity to a different unit.
@@ -385,7 +379,7 @@ class Quantity implements Stringable
      * @param mixed $other The measurement to compare with.
      * @return int -1 if this < other, 0 if equal, 1 if this > other.
      * @throws IncomparableTypesException If the other Quantity has a different type.
-     * @throws InvalidArgumentException If the Quantities have different dimensions.
+     * @throws DimensionMismatchException If the Quantities have different dimensions.
      * @throws LogicException If no conversion path exists between the units.
      */
     #[Override]
@@ -409,9 +403,9 @@ class Quantity implements Stringable
     ): bool {
         try {
             // Get the other Quantity's value in the same unit.
-            // This will throw the other Quantity has a different type or dimension.
+            // This will throw if the other Quantity has a different type or dimension.
             $otherValue = $this->preCompare($other);
-        } catch (DomainException | IncomparableTypesException) {
+        } catch (DimensionMismatchException | IncomparableTypesException) {
             // If the other Quantity has a different type or dimension to this one.
             return false;
         }
@@ -440,12 +434,12 @@ class Quantity implements Stringable
     /**
      * Negate a Quantity.
      *
-     * @return self A new Quantity containing the negative of this Quantity's unit.
+     * @return static A new Quantity containing the negative of this Quantity's unit.
      * @example
      *   $length = new Length(10, 'm');
      *   $negated = $length->neg();  // Length(-10, 'm')
      */
-    public function neg(): self
+    public function neg(): static
     {
         return $this->withValue(-$this->value);
     }
@@ -486,8 +480,7 @@ class Quantity implements Stringable
      * @example
      *   $a = new Length(100, 'm');
      *   $b = new Length(2, 'km');
-     *   $sum = $a->add($b);         // Length(2100, 'm')
-     *   $sum2 = $a->add(50, 'cm');  // Length(100.5, 'm')
+     *   $sum = $a->add($b);  // Length(2100, 'm')
      */
     public function add(self $other): self
     {
@@ -535,8 +528,9 @@ class Quantity implements Stringable
      *
      * @param self|float|string|UnitInterface $other The Quantity, number, or unit to multiply.
      * @return self A new Quantity representing the result of the multiplication.
-     * @throws DomainException If a value is non-finite or the unit is unknown.
+     * @throws DomainException If the result value is non-finite.
      * @throws FormatException If a unit string cannot be parsed.
+     * @throws UnknownUnitException If a unit string contains unknown units.
      * @example
      *   $length = new Length(10, 'm');
      *   $doubled = $length->mul(2);  // Length(20, 'm')
@@ -579,8 +573,9 @@ class Quantity implements Stringable
      * @param self|float|string|UnitInterface $other The Quantity, number, or unit to divide.
      * @return self A new Quantity representing the result of the division.
      * @throws DivisionByZeroError If the divisor is zero.
-     * @throws DomainException If a value is non-finite or the unit is unknown.
+     * @throws DomainException If the result value is non-finite.
      * @throws FormatException If a unit string cannot be parsed.
+     * @throws UnknownUnitException If a unit string contains unknown units.
      * @example
      *   $length = new Length(10, 'm');
      *   $half = $length->div(2);  // Length(5, 'm')
@@ -617,7 +612,7 @@ class Quantity implements Stringable
      * @throws DomainException If the exponent is 0.
      * @example
      *   $length = new Length(10, 'm');
-     *   $squared = $length->sqr();  // Length(100, 'm^2')
+     *   $cubed = $length->pow(3);  // Volume(1000, 'm3')
      */
     public function pow(int $exponent): self
     {
@@ -637,7 +632,7 @@ class Quantity implements Stringable
     /**
      * Square this Quantity.
      *
-     * Equivalent to pow(2), but more efficient and readable.
+     * Equivalent to pow(2).
      *
      * @return self A new Quantity representing the square of this Quantity.
      */
@@ -691,10 +686,19 @@ class Quantity implements Stringable
      *
      * @param float $value The new numeric value.
      * @return static A new Quantity with the given value in the same unit.
+     * @throws DomainException If the value is non-finite (±INF or NAN).
      */
     public function withValue(float $value): static
     {
-        return self::create($value, $this->derivedUnit);
+        // If called from Quantity (unregistered dimension), use the new() helper to bypass the
+        // direct-instantiation guard.
+        if (self::class === static::class) {
+            return self::new($value, $this->derivedUnit);
+        }
+
+        // If called from a subclass, construct directly. This skips the dimension→class lookup in
+        // create() since the dimension is unchanged, and we know the class is correct.
+        return new static($value, $this->derivedUnit);
     }
 
     /**
@@ -708,7 +712,7 @@ class Quantity implements Stringable
     public function merge(): static
     {
         if (!$this->derivedUnit->isMergeable()) {
-            return $this;
+            return clone $this;
         }
 
         // Merge the derived unit.
@@ -781,7 +785,7 @@ class Quantity implements Stringable
         }
 
         // Create the result object.
-        return self::create($bestValue * $sign, $newDerivedUnit);
+        return static::create($bestValue * $sign, $newDerivedUnit);
     }
 
     /**
@@ -811,7 +815,7 @@ class Quantity implements Stringable
             if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
                 // Create the Hz unit term.
                 $newUnitTerm = new UnitTerm('Hz', PrefixService::invert($unitTerm->prefix));
-                return self::create($qty->value, $newUnitTerm);
+                return static::create($qty->value, $newUnitTerm);
             }
         }
 
@@ -871,8 +875,8 @@ class Quantity implements Stringable
             return $qty->to($newUnit);
         }
 
-        // No replacements found; return a copy.
-        return clone $qty;
+        // No replacements found; $qty is already a fresh object from merge().
+        return $qty;
     }
 
     // endregion
@@ -880,109 +884,9 @@ class Quantity implements Stringable
     // region Conversion methods
 
     /**
-     * Format a numeric value as a string.
-     *
-     * Format specifiers:
-     *   - 'e': Scientific notation with lowercase 'e'.
-     *   - 'E': Scientific notation with uppercase 'E'.
-     *   - 'f': Fixed-point notation (locale-aware).
-     *   - 'F': Fixed-point notation (non-locale-aware, always uses '.' as decimal separator).
-     *   - 'g': Shortest of 'e' or 'f' (lower-case 'e'/locale-aware). [default]
-     *   - 'G': Shortest of 'E' or 'f' (upper-case 'E'/locale-aware).
-     *   - 'h': Shortest of 'e' or 'F' (lower-case 'e'/non-locale-aware).
-     *   - 'H': Shortest of 'E' or 'F' (upper-case 'E'/non-locale-aware).
-     * For more information, see https://www.php.net/manual/en/function.sprintf.php
-     *
-     * The meaning of the precision argument depends on the format specifier.
-     *   - For e/E/f/F, precision means the number of digits after the decimal point.
-     *   - For g/G/h/H, precision means the number of significant digits.
-     *
-     * If $trimZeros is true, trailing zeros (and if necessary, a trailing decimal point) are automatically
-     * removed. For a value string with an exponent, this applies only to the mantissa (the part before the 'e').
-     * If $trimZeros is false, all digits are preserved.
-     * If $trimZeros is null (default), the behavior will depend on whether precision was specified or not.
-     * If $precision is null, zeros will be trimmed; if the $precision is specified, zeros will not be trimmed.
-     *
-     * When $ascii is false and scientific notation is used, the exponent is rendered as ×10 with
-     * superscript digits (e.g. 1.50×10³) instead of e+3.
-     *
-     * @param float $value The numeric value to format.
-     * @param string $specifier The format specifier (default 'f').
-     * @param ?int $precision Number of decimal places for e/f, or significant digits for g/h (default null = 6).
-     * @param ?bool $trimZeros If trailing zeros should be trimmed (default null for auto).
-     * @param bool $ascii If true, use ASCII e notation. If false (default), use ×10 with superscript exponents.
-     * @return string The formatted value string.
-     * @throws DomainException If the specifier or precision is invalid.
-     */
-    public static function formatValue(
-        float $value,
-        string $specifier = 'g',
-        ?int $precision = null,
-        ?bool $trimZeros = null,
-        bool $ascii = false
-    ): string {
-        // Validate the specifier.
-        $validFormats = ['e', 'E', 'f', 'F', 'g', 'G', 'h', 'H'];
-        if (!in_array($specifier, $validFormats, true)) {
-            $formatsString = Arrays::toSerialList(Arrays::quoteValues($validFormats), 'or');
-            throw new DomainException("Invalid format specifier: '$specifier'. Must be $formatsString.");
-        }
-
-        // Validate the precision.
-        if ($precision !== null && ($precision < 0 || $precision > 17)) {
-            throw new DomainException("Invalid precision: $precision. Must be between 0 and 17.");
-        }
-
-        // Set $trimZeros if not set.
-        if ($trimZeros === null) {
-            $trimZeros = $precision === null;
-        }
-
-        // Canonicalize -0.0 to 0.0.
-        $value = Floats::normalizeZero($value);
-
-        // Format with the desired precision and specifier.
-        // If the precision is null, omit it from the format string to use the sprintf default (usually 6).
-        $formatString = $precision === null ? "%$specifier" : "%.$precision$specifier";
-        $valueStr = sprintf($formatString, $value);
-
-        // Look for an 'e' or 'E'.
-        $ePos = stripos($valueStr, 'e');
-
-        // Check for fixed point format.
-        if ($ePos === false) {
-            // Trim zeros if requested.
-            if ($trimZeros && str_contains($valueStr, '.')) {
-                $valueStr = rtrim(rtrim($valueStr, '0'), '.');
-            }
-
-            return $valueStr;
-        }
-
-        // Disassemble the value string.
-        $mantissa = substr($valueStr, 0, $ePos);
-        $expSeparator = $valueStr[$ePos];
-        $exp = substr($valueStr, $ePos + 1);
-
-        // Trim zeros from the mantissa if requested.
-        if ($trimZeros && str_contains($mantissa, '.')) {
-            $mantissa = rtrim(rtrim($mantissa, '0'), '.');
-        }
-
-        // If we want Unicode format and there's an exponent, replace it with the Unicode version.
-        if (!$ascii) {
-            $expSeparator = '×10';
-            $exp = Integers::toSuperscript((int)$exp);
-        }
-
-        // Reassemble the value string.
-        return $mantissa . $expSeparator . $exp;
-    }
-
-    /**
      * Format the measurement as a string with control over precision and notation.
      *
-     * See formatValue() for details on the $specifier, $precision, and $trimZeros parameters.
+     * See Floats::format() for details on the $specifier, $precision, and $trimZeros parameters.
      *
      * It's usually best to leave $includeSpace as null, which uses common style rules to determine if a
      * space should be placed between the number and the unit. The rule is: if the unit is a single
@@ -1005,7 +909,7 @@ class Quantity implements Stringable
         bool $ascii = false
     ): string {
         // Format the value.
-        $valueStr = self::formatValue($this->value, $specifier, $precision, $trimZeros, $ascii);
+        $valueStr = Floats::format($this->value, $specifier, $precision, $trimZeros, $ascii);
 
         // Get the unit as a string.
         $unitSymbol = $this->derivedUnit->format($ascii);
@@ -1071,6 +975,10 @@ class Quantity implements Stringable
     {
         return [];
     }
+
+    // endregion
+
+    // region Lookup methods
 
     /**
      * Get the quantity type corresponding to the calling class, if known.
@@ -1199,6 +1107,28 @@ class Quantity implements Stringable
     // endregion
 
     // region Helper methods
+
+    /**
+     * Construct a bare Quantity object, bypassing the direct-instantiation guard.
+     *
+     * For internal use only. This is used by create() and withValue() to construct a generic Quantity
+     * for an unregistered dimension code. Always returns a base Quantity, never a subclass.
+     *
+     * @param float $value The numeric value.
+     * @param DerivedUnit $unit The derived unit.
+     * @return self A new base Quantity instance.
+     * @throws DomainException If the value is non-finite (±INF or NAN).
+     */
+    private static function new(float $value, DerivedUnit $unit): self
+    {
+        // Temporarily enable calling `new Quantity()`.
+        self::$allowConstruct = true;
+        try {
+            return new self($value, $unit);
+        } finally {
+            self::$allowConstruct = false;
+        }
+    }
 
     /**
      * Check the $this and $other objects have the same type and get the value of the $other Quantity in the same

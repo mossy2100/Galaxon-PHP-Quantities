@@ -299,6 +299,25 @@ $g = PhysicalConstant::get('g');         // Earth gravity
 $R = PhysicalConstant::get('R');         // Molar gas constant
 ```
 
+### getAll()
+
+```php
+public static function getAll(): array
+```
+
+Get all physical constants as an associative array of `Quantity` objects keyed by symbol.
+
+**Returns:**
+- `array<string, Quantity>` - All constants, keyed by symbol
+
+**Examples:**
+```php
+$all = PhysicalConstant::getAll();
+foreach ($all as $symbol => $quantity) {
+    echo "$symbol = $quantity\n";
+}
+```
+
 ---
 
 ## Usage Examples
@@ -307,7 +326,7 @@ $R = PhysicalConstant::get('R');         // Molar gas constant
 
 ```php
 use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Energy;
+use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Frequency;
 
 // Calculate photon energy: E = h * f

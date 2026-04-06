@@ -121,7 +121,19 @@ final class PhysicalConstantTest extends TestCase
 
     // endregion
 
-    // region Universal constants
+    // region Gravitational constants
+
+    /**
+     * Test getting the standard gravity.
+     */
+    public function testStandardGravity(): void
+    {
+        $g = PhysicalConstant::earthGravity();
+
+        $this->assertInstanceOf(Quantity::class, $g);
+        $this->assertSame(9.80665, $g->value);
+        $this->assertSame('m/s2', $g->derivedUnit->asciiSymbol);
+    }
 
     /**
      * Test getting the gravitational constant.
@@ -269,22 +281,6 @@ final class PhysicalConstantTest extends TestCase
 
     // endregion
 
-    // region Other constants
-
-    /**
-     * Test getting the standard gravity.
-     */
-    public function testStandardGravity(): void
-    {
-        $g = PhysicalConstant::earthGravity();
-
-        $this->assertInstanceOf(Quantity::class, $g);
-        $this->assertSame(9.80665, $g->value);
-        $this->assertSame('m/s2', $g->derivedUnit->asciiSymbol);
-    }
-
-    // endregion
-
     // region Caching tests
 
     /**
@@ -320,6 +316,17 @@ final class PhysicalConstantTest extends TestCase
         $c2 = PhysicalConstant::get('c');
 
         $this->assertSame($c1, $c2);
+    }
+
+    /**
+     * Test that the reduced Planck constant is cached.
+     */
+    public function testReducedPlanckIsCached(): void
+    {
+        $hbar1 = PhysicalConstant::reducedPlanck();
+        $hbar2 = PhysicalConstant::reducedPlanck();
+
+        $this->assertSame($hbar1, $hbar2);
     }
 
     // endregion

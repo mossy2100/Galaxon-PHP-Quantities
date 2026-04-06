@@ -21,8 +21,8 @@ Because it extends `DomainException`, existing code that catches `DomainExceptio
 
 ```php
 public function __construct(
-    public readonly string $dimension1,
-    public readonly string $dimension2,
+    public readonly ?string $dimension1,
+    public readonly ?string $dimension2,
     string $message = '',
     int $code = 0,
     ?Throwable $previous = null,
@@ -30,9 +30,9 @@ public function __construct(
 ```
 
 **Parameters:**
-- `$dimension1` (string) — The first dimension code (e.g. `'L'`, `'M'`, `'LT-2'`).
-- `$dimension2` (string) — The second dimension code.
-- `$message` (string) — Optional custom message. If empty, a default message is generated using `QuantityTypeService::getByDimension()` to resolve human-readable names.
+- `$dimension1` (?string) — The first dimension code (e.g. `'L'`, `'M'`, `'LT-2'`), or null if unknown.
+- `$dimension2` (?string) — The second dimension code, or null if unknown.
+- `$message` (string) — Optional custom message. If empty, a default message is generated using `QuantityTypeService::getByDimension()` to resolve human-readable names. Null dimensions are rendered as `null` in the message.
 - `$code` (int) — The exception code.
 - `$previous` (?Throwable) — The previous throwable for exception chaining.
 
@@ -43,18 +43,18 @@ public function __construct(
 ### dimension1
 
 ```php
-public readonly string $dimension1
+public readonly ?string $dimension1
 ```
 
-The first dimension code.
+The first dimension code, or null if unknown.
 
 ### dimension2
 
 ```php
-public readonly string $dimension2
+public readonly ?string $dimension2
 ```
 
-The second dimension code.
+The second dimension code, or null if unknown.
 
 ---
 
