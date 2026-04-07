@@ -36,7 +36,7 @@ The Quantities package tweaks and expands this system as follows:
 
 Base units are fundamental; they map to a single letter dimension code. Furthermore, there is a single canonical base unit for each dimension in SI; these are known as SI base units, as shown above.
 
-The package diverges slightly from SI in that radians (*rad*) are used as an SI base unit for angles. Technically, they are an SI derived unit, representing a dimensionless quantity.
+The package diverges slightly from SI in that radians (*rad*) are used as an SI base unit for angles. Technically, they are an SI compound unit, representing a dimensionless quantity.
 
 The package also refers to "English" base units, used within the imperial and US customary systems of units. These are shown below.
 
@@ -59,7 +59,7 @@ The resulting dimension codes and base units used within the package are thus:
 | D    | data                | *B*              |              |                   |
 | C    | currency            | *XAU*            |              |                   |
 
-Whenever a Quantity is converted to base units, the resulting derived unit will be a combination of units from the respective set.
+Whenever a Quantity is converted to base units, the resulting compound unit will be a combination of units from the respective set.
 1. If no English unit is defined for a dimension, the algorithm will use the SI base unit.
 2. If no SI base unit is defined for a dimension, it will use the common base unit.
 
@@ -67,7 +67,7 @@ Whenever a Quantity is converted to base units, the resulting derived unit will 
 
 ## See Also
 
-- **[Terminology](Terminology.md)** — Key terms including base units, derived units, and dimensions.
+- **[Terminology](Terminology.md)** — Key terms including base units, compound units, and dimensions.
 - **[Quantity Types](QuantityTypes.md)** — Typed quantity classes and their dimension codes.
 - **[Units](Units.md)** — Complete reference of all built-in units.
 - **[DimensionService](../Reference/Services/DimensionService.md)** — Service for validating, decomposing, composing, and transforming dimension codes.

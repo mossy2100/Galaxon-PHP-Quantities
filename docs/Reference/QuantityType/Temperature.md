@@ -81,7 +81,7 @@ The conversion process:
 
 ### Important Notes
 
-- **Offsets only apply to absolute temperatures** — When converting derived units like `J/°C` to `J/K`, only the scale factor applies, not the offset. This is physically correct because such quantities represent rates of change, not absolute temperatures:
+- **Offsets only apply to absolute temperatures** — When converting compound units like `J/°C` to `J/K`, only the scale factor applies, not the offset. This is physically correct because such quantities represent rates of change, not absolute temperatures:
 
 ```php
 // Absolute temperature — offset is applied.

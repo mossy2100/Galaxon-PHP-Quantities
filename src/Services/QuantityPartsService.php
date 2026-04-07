@@ -203,18 +203,22 @@ class QuantityPartsService
      *
      * @param ?QuantityType $quantityType The quantity type.
      * @param array<string, int|float> $parts The parts.
+     * @param ?string $resultUnitSymbol The result unit symbol, or null to use the default for this quantity type.
      * @return Quantity A new Quantity representing the sum of the parts.
      * @throws NullArgumentException If the quantity type is null.
      * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
      * numbers.
      * @throws DomainException If the result unit symbol or sign is invalid.
+     * @internal Call the method on Quantity, not this one.
      */
-    public static function fromParts(?QuantityType $quantityType, array $parts): Quantity
+    public static function fromParts(?QuantityType $quantityType, array $parts, ?string $resultUnitSymbol = null): Quantity
     {
         $quantityType = self::validateQuantityType($quantityType);
 
-        // Get the default result unit symbol.
-        $resultUnitSymbol = self::getResultUnitSymbol($quantityType);
+        // Get the default result unit symbol if not provided.
+        if ($resultUnitSymbol === null) {
+            $resultUnitSymbol = self::getResultUnitSymbol($quantityType);
+        }
 
         // Validate the result unit.
         if (empty($resultUnitSymbol)) {
@@ -275,18 +279,22 @@ class QuantityPartsService
      *
      * @param Quantity $quantity The quantity to decompose.
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
+     * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws NullArgumentException If the quantity type is null.
      * @throws DomainException If precision is negative or part unit symbols are not configured.
      * @throws LengthException If the part unit symbols array is empty.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
+     * @internal Call the method on Quantity, not this one.
      */
-    public static function toParts(Quantity $quantity, ?int $precision = null): array
+    public static function toParts(Quantity $quantity, ?int $precision = null, ?array $partUnitSymbols = null): array
     {
         $quantityType = self::validateQuantityType($quantity->quantityType);
 
-        // Get the part unit symbols for this quantity type.
-        $partUnitSymbols = self::getPartUnitSymbols($quantityType);
+        // Get the default part unit symbols for this quantity type, if not provided.
+        if ($partUnitSymbols === null) {
+            $partUnitSymbols = self::getPartUnitSymbols($quantityType);
+        }
 
         // Validate args.
         $partUnits = self::validatePartUnitSymbols($partUnitSymbols);
@@ -350,15 +358,20 @@ class QuantityPartsService
      *
      * @param ?QuantityType $quantityType The quantity type.
      * @param string $input The string to parse.
+     * @param ?string $resultUnitSymbol The result unit symbol, or null to use the default for this quantity type.
      * @return Quantity A new Quantity representing the sum of the parts.
      * @throws NullArgumentException If the quantity type is null.
      * @throws DomainException If the result unit symbol is invalid.
      * @throws FormatException If the input string is invalid.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
+     * @internal Call the method on Quantity, not this one.
      */
-    public static function parseParts(?QuantityType $quantityType, string $input): Quantity
-    {
+    public static function parseParts(
+        ?QuantityType $quantityType,
+        string $input,
+        ?string $resultUnitSymbol = null
+    ): Quantity {
         $quantityType = self::validateQuantityType($quantityType);
 
         // Ensure the input string is not empty.
@@ -367,8 +380,10 @@ class QuantityPartsService
             throw new FormatException('The input string is empty.');
         }
 
-        // Get the default result unit symbol.
-        $resultUnitSymbol = self::getResultUnitSymbol($quantityType);
+        // Get the default result unit symbol, if not provided.
+        if ($resultUnitSymbol === null) {
+            $resultUnitSymbol = self::getResultUnitSymbol($quantityType);
+        }
 
         // Validate the result unit.
         if (empty($resultUnitSymbol)) {
@@ -421,7 +436,7 @@ class QuantityPartsService
         $parts['sign'] = $sign;
 
         // Construct the new Quantity from the extracted parts.
-        return self::fromParts($quantityType, $parts);
+        return self::fromParts($quantityType, $parts, $resultUnitSymbol);
     }
 
     /**
@@ -440,25 +455,30 @@ class QuantityPartsService
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
+     * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return string The formatted string.
      * @throws NullArgumentException If the quantity type is null.
      * @throws DomainException If part unit symbols are not configured or precision is negative.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
+     * @internal Call the method on Quantity, not this one.
      */
     public static function formatParts(
         Quantity $quantity,
         ?int $precision = null,
         bool $showZeros = false,
-        bool $ascii = false
+        bool $ascii = false,
+        ?array $partUnitSymbols = null
     ): string {
-
         $quantityType = self::validateQuantityType($quantity->quantityType);
 
         // Get the quantity as parts. This will validate the arguments.
-        $parts = self::toParts($quantity, $precision);
+        $parts = self::toParts($quantity, $precision, $partUnitSymbols);
 
-        // Get the default part unit symbols.
-        $partUnitSymbols = self::getPartUnitSymbols($quantityType);
+        // Get the default part unit symbols, if not provided.
+        if ($partUnitSymbols === null) {
+            $partUnitSymbols = self::getPartUnitSymbols($quantityType);
+        }
+
         assert(is_array($partUnitSymbols));
         $nUnits = count($partUnitSymbols);
 

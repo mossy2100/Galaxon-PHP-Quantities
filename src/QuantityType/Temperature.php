@@ -6,7 +6,7 @@ namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -47,7 +47,7 @@ class Temperature extends Quantity
      * engine used by the package only supports conversion by multiplying.
      *
      * The offset (e.g. 273.15 for Celsius→Kelvin) only applies when converting actual temperatures - that is,
-     * quantities with dimension H and no other unit terms or exponents. For derived units containing temperature
+     * quantities with dimension H and no other unit terms or exponents. For compound units containing temperature
      * (e.g. J/°C → J/K), the standard conversion engine is used, which applies only the conversion factor (1),
      * not the offset. This is correct because such quantities represent rates of change, not absolute temperatures.
      *
@@ -65,9 +65,9 @@ class Temperature extends Quantity
         $srcSymbol = (string)$srcUnit;
         $destSymbol = (string)$destUnit;
 
-        // Get the units as DerivedUnit objects. These calls could throw exceptions.
-        $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
-        $destUnit = DerivedUnit::toDerivedUnit($destUnit);
+        // Get the units as CompoundUnit objects. These calls could throw exceptions.
+        $srcUnit = CompoundUnit::toCompoundUnit($srcUnit);
+        $destUnit = CompoundUnit::toCompoundUnit($destUnit);
 
         // Validate units.
         if ($srcUnit->dimension !== 'H') {
@@ -220,7 +220,7 @@ class Temperature extends Quantity
     /**
      * Check if a unit is a prefixed Kelvin (e.g. mK, μK).
      */
-    private static function isPrefixedKelvin(DerivedUnit $unit): bool
+    private static function isPrefixedKelvin(CompoundUnit $unit): bool
     {
         $unitTerm = $unit->firstUnitTerm;
         assert($unitTerm instanceof UnitTerm);
@@ -234,7 +234,7 @@ class Temperature extends Quantity
      * Custom temperature units are not handled by this class and should be
      * delegated to the parent convert() method.
      */
-    private static function isKnownTemperatureUnit(DerivedUnit $unit): bool
+    private static function isKnownTemperatureUnit(CompoundUnit $unit): bool
     {
         // Check for prefixed Kelvin first.
         if (self::isPrefixedKelvin($unit)) {

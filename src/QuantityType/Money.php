@@ -69,7 +69,7 @@ class Money extends Quantity
         $locale = CurrencyService::getLocale();
         if ($locale !== null) {
             $fmt = new NumberFormatter($locale, NumberFormatter::CURRENCY);
-            $result = $fmt->formatCurrency($this->value, (string)$this->derivedUnit);
+            $result = $fmt->formatCurrency($this->value, (string)$this->compoundUnit);
             if ($result !== false) {
                 return $result;
             }

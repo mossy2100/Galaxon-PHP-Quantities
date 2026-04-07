@@ -9,7 +9,7 @@ use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Stringable;
 
 /**
- * Interface for unit types (Unit, UnitTerm, DerivedUnit).
+ * Interface for unit types (Unit, UnitTerm, CompoundUnit).
  *
  * Defines common properties and methods for all unit representations.
  */

@@ -205,7 +205,7 @@ These types provide the core functionality of the library and will typically not
 |-------------------------------------------------------------|-------------------------------------------------------------------------------------|
 | [Unit](docs/Reference/Internal/Unit.md)                     | Represents a single-symbol measurement unit with optional prefix support.           |
 | [UnitTerm](docs/Reference/Internal/UnitTerm.md)             | A unit with optional prefix and exponent (e.g., km², ms⁻¹).                         |
-| [DerivedUnit](docs/Reference/Internal/DerivedUnit.md)       | Compound unit expression combining unit terms via multiplication/division.          |
+| [CompoundUnit](docs/Reference/Internal/CompoundUnit.md)       | Compound unit expression combining unit terms via multiplication/division.          |
 | [Prefix](docs/Reference/Internal/Prefix.md)                 | SI metric and binary prefixes (kilo, mega, kibi, etc.).                             |
 | [Conversion](docs/Reference/Internal/Conversion.md)         | Represents a unit conversion with factor and error tracking.                        |
 | [Converter](docs/Reference/Internal/Converter.md)           | Graph-based algorithm for finding conversion paths between units.                   |
@@ -216,7 +216,7 @@ These types provide the core functionality of the library and will typically not
 
 | Name | Description                                                      |
 |------|------------------------------------------------------------------|
-| [UnitInterface](docs/Reference/Internal/UnitInterface.md)   | Interface implemented by Unit, UnitTerm, and DerivedUnit.        |
+| [UnitInterface](docs/Reference/Internal/UnitInterface.md)   | Interface implemented by Unit, UnitTerm, and CompoundUnit.        |
 
 #### Enums
 

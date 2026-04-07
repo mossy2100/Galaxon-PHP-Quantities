@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **DerivedUnit → CompoundUnit** — `Internal\DerivedUnit` renamed to `Internal\CompoundUnit`. The term *compound unit* now means "a unit formed by multiplying/dividing unit terms" (e.g. `kg·m/s²`), while *derived unit* means "a named unit that substitutes for a compound unit" (e.g. `N`, `lbf`, `Hz`).
+- **Quantity::simplify() → Quantity::toDerived()** — Method renamed to match the new terminology. Substitutes named derived units (like `N`) for equivalent compound base-unit forms (like `kg·m/s²`).
+- **Quantity (parts methods)** — `fromParts()`, `toParts()`, `parseParts()`, and `formatParts()` now accept optional inline overrides (`$resultUnitSymbol` for `fromParts`/`parseParts`; `$partUnitSymbols` for `toParts`/`formatParts`) so the configured defaults can be bypassed for a single call without mutating service state.
+- **QuantityPartsService (parts methods)** — Same new optional parameters added; the four methods are now marked `@internal` (call the wrappers on `Quantity`).
+- **Floats::format()** — Default precision for `g`/`G`/`h`/`H` is now 7 significant digits (was sprintf's default of 6) so that `g` is genuinely "the shorter of `e` and `f` at matching precision". `e`/`E`/`f`/`F` still default to 6. Format string is now always explicit `%.Nspec`.
 - **UnitSystem** — Moved from `Galaxon\Quantities` to `Galaxon\Quantities\Internal` namespace.
 - **README** — Reordered Concepts section so ideas build logically: Terminology → Dimensions → QuantityTypes → Prefixes → Units → PhysicalConstants. Removed `SystemsOfUnits.md` (information available in the Reference doc; all systems now load by default).
 - **PhysicalConstants.md (Concepts)** — Added "Usual symbol" column with proper Unicode/`<sub>` notation; switched exponents to Unicode (×10ⁿ); removed redundant Method column; normalised heading hierarchy.
@@ -47,6 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Quantity::pow()** — Fixed misleading example (was using `sqr()` instead of `pow(n)`).
 - **Quantity::sqr()** — Removed dubious "more efficient" claim from PHPDoc.
 - **Quantity::create()** — Fixed critical missing `return` statement in fallback path for unregistered dimensions.
+- **QuantityPartsService::formatParts()** — Was ignoring the new `$partUnitSymbols` argument when delegating to `toParts()`; now forwards it correctly.
+- **QuantityPartsService::parseParts()** — Was ignoring the new `$resultUnitSymbol` argument when delegating to `fromParts()`; now forwards it correctly.
+- **Documentation (Concepts + WorkingWithQuantities)** — Reviewed all pages for terminology consistency, code-example correctness, heading hierarchies, and stale API references. All inline code examples verified by execution.
 
 ---
 
@@ -101,7 +109,7 @@ Initial release.
 - Support for several systems of units: SI, SI Accepted, Common, Imperial, US Customary, Scientific, Nautical, and Css.
 - Parsing from strings via `Quantity::parse()` and subclass `parse()` methods.
 - Formatting with `format()` supporting fixed, scientific, and general notation with Unicode ×10 superscript exponents.
-- Derived unit representation via `DerivedUnit` (compound units like kg·m/s²).
+- Derived unit representation via `DerivedUnit` (units like kg·m/s²).
 - Unit expansion system linking named units to their base unit equivalents.
 - Comprehensive documentation in `docs/` directory.
 

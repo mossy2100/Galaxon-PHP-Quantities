@@ -244,13 +244,13 @@ class Angle extends Quantity
     public function wrap(bool $signed = true): Quantity
     {
         // Get the units per turn for the current unit.
-        $unitsPerTurn = self::convert(1, 'turn', $this->derivedUnit);
+        $unitsPerTurn = self::convert(1, 'turn', $this->compoundUnit);
 
         // Wrap the value.
         $r = Floats::wrap($this->value, $unitsPerTurn, $signed);
 
         // Return a new Angle with the wrapped value.
-        return self::create($r, $this->derivedUnit);
+        return self::create($r, $this->compoundUnit);
     }
 
     // endregion
@@ -264,7 +264,7 @@ class Angle extends Quantity
      */
     public function toRadians(): float
     {
-        if ($this->derivedUnit->asciiSymbol === 'rad') {
+        if ($this->compoundUnit->asciiSymbol === 'rad') {
             return $this->value;
         }
 

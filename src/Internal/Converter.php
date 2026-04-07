@@ -48,7 +48,7 @@ class Converter
     /**
      * Units for this converter.
      *
-     * @var array<string, DerivedUnit>
+     * @var array<string, CompoundUnit>
      */
     private(set) array $units = [];
 
@@ -170,10 +170,10 @@ class Converter
     /**
      * Check if a unit is in the list.
      *
-     * @param DerivedUnit $unit The unit to check.
+     * @param CompoundUnit $unit The unit to check.
      * @return bool True if the unit is in the list.
      */
-    public function hasUnit(DerivedUnit $unit): bool
+    public function hasUnit(CompoundUnit $unit): bool
     {
         return isset($this->units[$unit->asciiSymbol]);
     }
@@ -181,9 +181,9 @@ class Converter
     /**
      * Add the unit to the list.
      *
-     * @param DerivedUnit $unit The unit to add.
+     * @param CompoundUnit $unit The unit to add.
      */
-    public function addUnit(DerivedUnit $unit): void
+    public function addUnit(CompoundUnit $unit): void
     {
         if ($this->hasUnit($unit)) {
             return;
@@ -196,11 +196,11 @@ class Converter
     /**
      * Remove a unit from the list.
      *
-     * @param DerivedUnit $derivedUnit The unit to remove.
+     * @param CompoundUnit $compoundUnit The unit to remove.
      */
-    public function removeUnit(DerivedUnit $derivedUnit): void
+    public function removeUnit(CompoundUnit $compoundUnit): void
     {
-        unset($this->units[$derivedUnit->asciiSymbol]);
+        unset($this->units[$compoundUnit->asciiSymbol]);
     }
 
     /**
@@ -237,7 +237,7 @@ class Converter
      */
     public function findConversion(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): ?Conversion
     {
-        // Validate the units and convert to DerivedUnit objects.
+        // Validate the units and convert to CompoundUnit objects.
         $srcUnit = $this->validateUnit($srcUnit);
         $destUnit = $this->validateUnit($destUnit);
 
@@ -359,11 +359,11 @@ class Converter
     /**
      * Get a conversion from the matrix or null if not found.
      *
-     * @param string|DerivedUnit $srcUnit The source unit.
-     * @param string|DerivedUnit $destUnit The destination unit.
+     * @param string|CompoundUnit $srcUnit The source unit.
+     * @param string|CompoundUnit $destUnit The destination unit.
      * @return ?Conversion The conversion or null if not found.
      */
-    public function getConversion(string|DerivedUnit $srcUnit, string|DerivedUnit $destUnit): ?Conversion
+    public function getConversion(string|CompoundUnit $srcUnit, string|CompoundUnit $destUnit): ?Conversion
     {
         $srcSymbol = is_string($srcUnit) ? $srcUnit : $srcUnit->asciiSymbol;
         $destSymbol = is_string($destUnit) ? $destUnit : $destUnit->asciiSymbol;
@@ -373,11 +373,11 @@ class Converter
     /**
      * Check if we already have a conversion between two units.
      *
-     * @param string|DerivedUnit $srcUnit The source unit.
-     * @param string|DerivedUnit $destUnit The destination unit.
+     * @param string|CompoundUnit $srcUnit The source unit.
+     * @param string|CompoundUnit $destUnit The destination unit.
      * @return bool True if we have a conversion, false otherwise.
      */
-    public function hasConversion(string|DerivedUnit $srcUnit, string|DerivedUnit $destUnit): bool
+    public function hasConversion(string|CompoundUnit $srcUnit, string|CompoundUnit $destUnit): bool
     {
         return $this->getConversion($srcUnit, $destUnit) !== null;
     }
@@ -488,17 +488,17 @@ class Converter
     /**
      * Validate a string or object representing a unit.
      *
-     * Returns the validated DerivedUnit object if valid and throws an exception if not.
+     * Returns the validated CompoundUnit object if valid and throws an exception if not.
      *
      * @param string|UnitInterface $value The unit value to validate.
-     * @return DerivedUnit The validated DerivedUnit object equivalent to the provided parameter.
+     * @return CompoundUnit The validated CompoundUnit object equivalent to the provided parameter.
      * @throws FormatException If a unit string cannot be parsed.
      * @throws DimensionMismatchException If the unit has the wrong dimension for this Converter.
      */
-    private function validateUnit(string|UnitInterface $value): DerivedUnit
+    private function validateUnit(string|UnitInterface $value): CompoundUnit
     {
-        // Get the unit term as a DerivedUnit object.
-        $unit = DerivedUnit::toDerivedUnit($value);
+        // Get the unit term as a CompoundUnit object.
+        $unit = CompoundUnit::toCompoundUnit($value);
 
         // Check the unit term has the right dimension.
         if ($unit->dimension !== $this->dimension) {
@@ -515,11 +515,11 @@ class Converter
     /**
      * Look for an inverse conversion between two units.
      *
-     * @param DerivedUnit $srcUnit The source unit.
-     * @param DerivedUnit $destUnit The destination unit.
+     * @param CompoundUnit $srcUnit The source unit.
+     * @param CompoundUnit $destUnit The destination unit.
      * @return ?Conversion The inverse conversion, or null if not found.
      */
-    private function findConversionByInverse(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByInverse(CompoundUnit $srcUnit, CompoundUnit $destUnit): ?Conversion
     {
         return $this->getConversion($destUnit, $srcUnit)?->inv();
     }
@@ -527,13 +527,13 @@ class Converter
     /**
      * Attempt to generate a conversion by multiplying a prefix.
      *
-     * @param DerivedUnit $srcUnit The source unit.
-     * @param DerivedUnit $destUnit The destination unit.
+     * @param CompoundUnit $srcUnit The source unit.
+     * @param CompoundUnit $destUnit The destination unit.
      * @return ?Conversion The prefixed conversion, or null if not applicable.
      */
-    private function findConversionByPrefix(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByPrefix(CompoundUnit $srcUnit, CompoundUnit $destUnit): ?Conversion
     {
-        // Make sure both derived units have only one unit term.
+        // Make sure both compound units have only one unit term.
         if (count($srcUnit->unitTerms) !== 1 || count($destUnit->unitTerms) !== 1) {
             return null;
         }
@@ -566,13 +566,13 @@ class Converter
      * If both units are single-term with the same exponent > 1 (e.g., m² → ft²), finds the conversion between the base
      * units (m → ft) and raises it to the exponent.
      *
-     * @param DerivedUnit $srcUnit The source unit.
-     * @param DerivedUnit $destUnit The destination unit.
+     * @param CompoundUnit $srcUnit The source unit.
+     * @param CompoundUnit $destUnit The destination unit.
      * @return ?Conversion The exponentiated conversion, or null if not applicable.
      */
-    private function findConversionByExponentiation(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByExponentiation(CompoundUnit $srcUnit, CompoundUnit $destUnit): ?Conversion
     {
-        // Make sure both derived units have only one unit term.
+        // Make sure both compound units have only one unit term.
         if (count($srcUnit->unitTerms) !== 1 || count($destUnit->unitTerms) !== 1) {
             return null;
         }
@@ -609,11 +609,11 @@ class Converter
      * For compound units with multiple terms (e.g., kg·m·s⁻² → lb·ft·s⁻²), finds the conversion for each corresponding
      * pair of unit terms and multiplies the factors together.
      *
-     * @param DerivedUnit $srcUnit The source unit.
-     * @param DerivedUnit $destUnit The destination unit.
+     * @param CompoundUnit $srcUnit The source unit.
+     * @param CompoundUnit $destUnit The destination unit.
      * @return ?Conversion The combined conversion, or null if not applicable or no path exists.
      */
-    private function findConversionByUnitTermPairs(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByUnitTermPairs(CompoundUnit $srcUnit, CompoundUnit $destUnit): ?Conversion
     {
         // Check the number of unit terms match.
         if (count($srcUnit->unitTerms) !== count($destUnit->unitTerms)) {
@@ -659,11 +659,11 @@ class Converter
      * - Opposite:    dest→mid + mid→src  → factor = 1 / (m1 × m2)
      * - Divergent:   mid→src + mid→dest  → factor = m2 / m1
      *
-     * @param DerivedUnit $srcUnit The source unit.
-     * @param DerivedUnit $destUnit The destination unit.
+     * @param CompoundUnit $srcUnit The source unit.
+     * @param CompoundUnit $destUnit The destination unit.
      * @return ?Conversion The conversion, or null if no conversion by this method is found.
      */
-    private function findConversionByCombination(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findConversionByCombination(CompoundUnit $srcUnit, CompoundUnit $destUnit): ?Conversion
     {
         $src = $srcUnit->asciiSymbol;
         $dest = $destUnit->asciiSymbol;
@@ -756,11 +756,11 @@ class Converter
      * 4. Unit term conversion
      * 5. Combination of 2 conversions via an intermediate unit
      *
-     * @param DerivedUnit $srcUnit The source unit.
-     * @param DerivedUnit $destUnit The destination unit.
+     * @param CompoundUnit $srcUnit The source unit.
+     * @param CompoundUnit $destUnit The destination unit.
      * @return ?Conversion The conversion, or null if no path exists.
      */
-    private function findNewConversion(DerivedUnit $srcUnit, DerivedUnit $destUnit): ?Conversion
+    private function findNewConversion(CompoundUnit $srcUnit, CompoundUnit $destUnit): ?Conversion
     {
         // Defensive programming. These situations would be a misuse of the function.
         // Check that the conversion doesn't already exist.
@@ -815,12 +815,12 @@ class Converter
      *
      * Return if and when a conversion for the target pair is found.
      *
-     * @param DerivedUnit $srcUnit The source unit of the conversion we're looking for.
-     * @param DerivedUnit $destUnit The destination unit of the conversion we're looking for.
+     * @param CompoundUnit $srcUnit The source unit of the conversion we're looking for.
+     * @param CompoundUnit $destUnit The destination unit of the conversion we're looking for.
      * @param bool $exactOnly Whether to only keep exact conversions.
      * @return int The number of conversions added to the matrix.
      */
-    private function generateConversions(DerivedUnit $srcUnit, DerivedUnit $destUnit, bool $exactOnly = false): int
+    private function generateConversions(CompoundUnit $srcUnit, CompoundUnit $destUnit, bool $exactOnly = false): int
     {
         $nAdded = 0;
 
@@ -865,21 +865,21 @@ class Converter
     /**
      * Attempts to merge compatible unit terms. If successful, adds the new unit and conversion to the Converter.
      *
-     * @param DerivedUnit $derivedUnit The unit to check and potentially add a merged variant for.
+     * @param CompoundUnit $compoundUnit The unit to check and potentially add a merged variant for.
      * @return bool True if a new conversion was added.
      */
-    private function addMerged(DerivedUnit $derivedUnit): bool
+    private function addMerged(CompoundUnit $compoundUnit): bool
     {
         // Check if there's anything to do.
-        if (!$derivedUnit->isMergeable()) {
+        if (!$compoundUnit->isMergeable()) {
             return false;
         }
 
         // Get the merged quantity.
-        $mergedQty = $derivedUnit->merge();
+        $mergedQty = $compoundUnit->merge();
 
         // Add the new conversion to the matrix.
-        $newConversion = new Conversion($derivedUnit, $mergedQty->derivedUnit, $mergedQty->value);
+        $newConversion = new Conversion($compoundUnit, $mergedQty->compoundUnit, $mergedQty->value);
         return $this->addConversion($newConversion);
     }
 
@@ -889,19 +889,19 @@ class Converter
      * Directs the conversion so the conversion factor is an integer, avoiding floating-point error from inexact
      * reciprocals (e.g. 1/1000 for metric prefixes).
      *
-     * @param DerivedUnit $derivedUnit The potentially prefixed unit.
+     * @param CompoundUnit $compoundUnit The potentially prefixed unit.
      * @return bool True if a new conversion was added.
      */
-    private function addUnprefixed(DerivedUnit $derivedUnit): bool
+    private function addUnprefixed(CompoundUnit $compoundUnit): bool
     {
         // Check if there's anything to do.
-        if (!$derivedUnit->hasPrefixes()) {
+        if (!$compoundUnit->hasPrefixes()) {
             return false;
         }
 
         // Get the total prefix multiplier and the unprefixed unit.
-        $multiplier = $derivedUnit->multiplier;
-        $unprefixedUnit = $derivedUnit->removePrefixes();
+        $multiplier = $compoundUnit->multiplier;
+        $unprefixedUnit = $compoundUnit->removePrefixes();
 
         // Work out which is the exact conversion, prefixed => unprefixed or vice versa.
         // This depends on whether the multiplier is less than or greater than 1.
@@ -911,7 +911,7 @@ class Converter
             if (Floats::isApproxInt($multiplier)) {
                 $multiplier = round($multiplier);
             }
-            $newConversion = new Conversion($derivedUnit, $unprefixedUnit, $multiplier);
+            $newConversion = new Conversion($compoundUnit, $unprefixedUnit, $multiplier);
         } else {
             $multiplier = 1.0 / $multiplier;
             // The multiplier should now be greater than 1 and thus an integer, but just in case it's slightly off due
@@ -919,7 +919,7 @@ class Converter
             if (Floats::isApproxInt($multiplier)) {
                 $multiplier = round($multiplier);
             }
-            $newConversion = new Conversion($unprefixedUnit, $derivedUnit, $multiplier);
+            $newConversion = new Conversion($unprefixedUnit, $compoundUnit, $multiplier);
         }
 
         // Add the new conversion to the matrix.
@@ -929,13 +929,13 @@ class Converter
     /**
      * Attempts to expand the unit. If successful, adds the new unit and conversion to the Converter.
      *
-     * @param DerivedUnit $derivedUnit The unit to check and potentially add an expanded variant for.
+     * @param CompoundUnit $compoundUnit The unit to check and potentially add an expanded variant for.
      * @return bool True if a new conversion was added.
      */
-    private function addExpanded(DerivedUnit $derivedUnit): bool
+    private function addExpanded(CompoundUnit $compoundUnit): bool
     {
         // Attempt to compute the expanded quantity.
-        $expansion = $derivedUnit->tryExpand();
+        $expansion = $compoundUnit->tryExpand();
 
         // If no expansion found, return.
         if ($expansion === null) {
@@ -943,7 +943,7 @@ class Converter
         }
 
         // Add the new conversion to the matrix.
-        $newConversion = new Conversion($derivedUnit, $expansion->derivedUnit, $expansion->value);
+        $newConversion = new Conversion($compoundUnit, $expansion->compoundUnit, $expansion->value);
         return $this->addConversion($newConversion);
     }
 

@@ -29,7 +29,7 @@ All seven [SI base units](https://en.wikipedia.org/wiki/SI_base_unit) have a ded
 
 ## Quantity types for SI named units
 
-The quantity types corresponding to all 22 [named SI derived units](https://en.wikipedia.org/wiki/SI_derived_unit#Special_names) have a dedicated class:
+The quantity types corresponding to all 22 [named SI compound units](https://en.wikipedia.org/wiki/SI_derived_unit#Special_names) have a dedicated class:
 
 | Name                  | Dimension  | Class                                                                     | SI named unit |
 | --------------------- | ---------- | ------------------------------------------------------------------------- | ------------- |

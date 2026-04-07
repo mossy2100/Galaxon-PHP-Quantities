@@ -98,7 +98,7 @@ $dim = DimensionService::compose([]);
 public static function lessThanOrEqual(string $dimension1, string $dimension2): bool
 ```
 
-Check if `$dimension1` is a subset of `$dimension2`. Returns true if every dimension term in `$dimension1` exists in `$dimension2` with the same sign and an equal or smaller absolute exponent. Used by `simplify()` to determine whether a unit's dimension fits inside a quantity's dimension.
+Check if `$dimension1` is a subset of `$dimension2`. Returns true if every dimension term in `$dimension1` exists in `$dimension2` with the same sign and an equal or smaller absolute exponent. Used by `toDerived()` to determine whether a unit's dimension fits inside a quantity's dimension.
 
 **Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if either dimension code is invalid.
 
@@ -259,22 +259,22 @@ $term = DimensionService::getBaseUnitTerm('L', false);
 // UnitTerm representing 'ft'
 ```
 
-### getBaseDerivedUnit()
+### getBaseCompoundUnit()
 
 ```php
-public static function getBaseDerivedUnit(string $dimension, bool $si): DerivedUnit
+public static function getBaseCompoundUnit(string $dimension, bool $si): CompoundUnit
 ```
 
-Convert a dimension code to a `DerivedUnit` composed of SI or English base units. Each dimension term is converted to a `UnitTerm` with the appropriate exponent.
+Convert a dimension code to a `CompoundUnit` composed of SI or English base units. Each dimension term is converted to a `UnitTerm` with the appropriate exponent.
 
 **Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
 
 ```php
-$du = DimensionService::getBaseDerivedUnit('MLT-2', true);
-// DerivedUnit representing kg*m/s2
+$du = DimensionService::getBaseCompoundUnit('MLT-2', true);
+// CompoundUnit representing kg*m/s2
 
-$du = DimensionService::getBaseDerivedUnit('MLT-2', false);
-// DerivedUnit representing lb*ft/s2
+$du = DimensionService::getBaseCompoundUnit('MLT-2', false);
+// CompoundUnit representing lb*ft/s2
 ```
 
 ---
@@ -302,9 +302,9 @@ foreach ($terms2 as $code => $exp) {
 $result = DimensionService::compose($terms1);
 // 'ML2T-2' (Energy)
 
-// Build the SI base derived unit for a dimension.
-$du = DimensionService::getBaseDerivedUnit('ML2T-2', true);
-// DerivedUnit representing kg*m2/s2
+// Build the SI base compound unit for a dimension.
+$du = DimensionService::getBaseCompoundUnit('ML2T-2', true);
+// CompoundUnit representing kg*m2/s2
 ```
 
 ---
@@ -312,6 +312,6 @@ $du = DimensionService::getBaseDerivedUnit('ML2T-2', true);
 ## See Also
 
 - **[QuantityTypeService](QuantityTypeService.md)** - Registry using dimension codes
-- **[DerivedUnit](../Internal/DerivedUnit.md)** - Compound unit representation
+- **[CompoundUnit](../Internal/CompoundUnit.md)** - Compound unit representation
 - **[UnitTerm](../Internal/UnitTerm.md)** - Individual unit terms
 - **[Quantity](../Quantity.md)** - Base quantity class

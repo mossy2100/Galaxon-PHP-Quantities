@@ -366,19 +366,19 @@ Convert to string using Unicode format.
 ### Building Compound Units
 
 ```php
-use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Internal\UnitTerm;
 
 // Build velocity: m/s
 $meter = new UnitTerm('m');
 $perSecond = new UnitTerm('s', null, -1);
 
-$velocity = new DerivedUnit([$meter, $perSecond]);
+$velocity = new CompoundUnit([$meter, $perSecond]);
 echo $velocity->asciiSymbol; // 'm/s'
 
 // Build acceleration: m/s2
 $perSecondSquared = new UnitTerm('s', null, -2);
-$acceleration = new DerivedUnit([$meter, $perSecondSquared]);
+$acceleration = new CompoundUnit([$meter, $perSecondSquared]);
 echo $acceleration->asciiSymbol; // 'm/s2'
 ```
 
@@ -421,6 +421,6 @@ echo $term2->dimension; // 'T-1'
 ## See Also
 
 - **[Unit](Unit.md)** - The base unit representation.
-- **[DerivedUnit](DerivedUnit.md)** - Compound unit using UnitTerms.
+- **[CompoundUnit](CompoundUnit.md)** - Compound unit using UnitTerms.
 - **[Prefix](Prefix.md)** - SI and binary prefixes.
 - **[UnitInterface](UnitInterface.md)** - Interface for all unit types.

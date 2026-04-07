@@ -48,7 +48,7 @@ private(set) array $units
 
 Units registered with this converter, keyed by ASCII symbol.
 
-Type: `array<string, DerivedUnit>`
+Type: `array<string, CompoundUnit>`
 
 ### conversionMatrix
 
@@ -125,7 +125,7 @@ Clear all cached Converter instances. Forces new instances to be created on next
 ### hasUnit()
 
 ```php
-public function hasUnit(DerivedUnit $unit): bool
+public function hasUnit(CompoundUnit $unit): bool
 ```
 
 Check if a unit is registered with this converter.
@@ -133,7 +133,7 @@ Check if a unit is registered with this converter.
 ### addUnit()
 
 ```php
-public function addUnit(DerivedUnit $unit): void
+public function addUnit(CompoundUnit $unit): void
 ```
 
 Add a unit to the converter's unit list. Does nothing if the unit is already present.
@@ -141,7 +141,7 @@ Add a unit to the converter's unit list. Does nothing if the unit is already pre
 ### removeUnit()
 
 ```php
-public function removeUnit(DerivedUnit $derivedUnit): void
+public function removeUnit(CompoundUnit $compoundUnit): void
 ```
 
 Remove a unit from the unit list.
@@ -224,8 +224,8 @@ Convert a numeric value from one unit to another.
 
 ```php
 public function getConversion(
-    string|DerivedUnit $srcUnit,
-    string|DerivedUnit $destUnit
+    string|CompoundUnit $srcUnit,
+    string|CompoundUnit $destUnit
 ): ?Conversion
 ```
 
@@ -235,8 +235,8 @@ Look up a conversion directly from the matrix. Does **not** discover new paths â
 
 ```php
 public function hasConversion(
-    string|DerivedUnit $srcUnit,
-    string|DerivedUnit $destUnit
+    string|CompoundUnit $srcUnit,
+    string|CompoundUnit $destUnit
 ): bool
 ```
 
@@ -352,5 +352,5 @@ echo "$liters L"; // ~4.546 L (Imperial gallon)
 - **[Conversion](Conversion.md)** - Represents a single unit conversion.
 - **[FloatWithError](FloatWithError.md)** - Tracks precision through operations.
 - **[ConversionService](../Services/ConversionService.md)** - Stores registered conversions.
-- **[DerivedUnit](DerivedUnit.md)** - Compound unit representation.
+- **[CompoundUnit](CompoundUnit.md)** - Compound unit representation.
 - **[Quantity](../Quantity.md)** - Uses Converter for unit conversion.

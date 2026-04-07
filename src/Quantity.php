@@ -14,7 +14,7 @@ use Galaxon\Core\Numbers;
 use Galaxon\Core\Traits\Comparison\ApproxComparable;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
-use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
@@ -78,7 +78,7 @@ class Quantity implements Stringable
     /**
      * The unit of the measurement.
      */
-    public readonly DerivedUnit $derivedUnit;
+    public readonly CompoundUnit $compoundUnit;
 
     // endregion
 
@@ -88,7 +88,7 @@ class Quantity implements Stringable
      * The dimension.
      */
     public string $dimension {
-        get => $this->derivedUnit->dimension;
+        get => $this->compoundUnit->dimension;
     }
 
     /**
@@ -146,15 +146,15 @@ class Quantity implements Stringable
         }
 
         // Convert the provided unit argument into an object if it isn't already.
-        // This will throw if the unit is provided as a string that doesn't represent a valid DerivedUnit.
-        $derivedUnit = DerivedUnit::toDerivedUnit($unit);
+        // This will throw if the unit is provided as a string that doesn't represent a valid CompoundUnit.
+        $compoundUnit = CompoundUnit::toCompoundUnit($unit);
 
         // Check they are calling the correct constructor.
-        $qtyType = $derivedUnit->quantityType;
+        $qtyType = $compoundUnit->quantityType;
         $correctClass = $qtyType->class ?? $qtyClass;
         if ($callingClass !== $correctClass) {
             $classStr = $qtyType === null
-                ? "quantity with dimension '$derivedUnit->dimension'"
+                ? "quantity with dimension '$compoundUnit->dimension'"
                 : "$qtyType->name quantity";
             throw new LogicException(
                 "A $classStr cannot be instantiated by calling `new $callingClass()`. Instead, " .
@@ -164,7 +164,7 @@ class Quantity implements Stringable
 
         // Set the properties.
         $this->value = Floats::normalizeZero($value);
-        $this->derivedUnit = $derivedUnit;
+        $this->compoundUnit = $compoundUnit;
     }
 
     // endregion
@@ -188,8 +188,8 @@ class Quantity implements Stringable
      */
     public static function create(float $value, null|string|UnitInterface $unit = null): self
     {
-        // Get unit as DerivedUnit.
-        $unit = DerivedUnit::toDerivedUnit($unit);
+        // Get unit as CompoundUnit.
+        $unit = CompoundUnit::toCompoundUnit($unit);
 
         // If there's a registered subclass for this dimension code, create an object of that class.
         $qtyType = $unit->quantityType;
@@ -256,7 +256,7 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Unit conversion methods
+    // region Transformation methods
 
     /**
      * Convert a value from a source unit to a destination unit.
@@ -291,7 +291,7 @@ class Quantity implements Stringable
     public function to(string|UnitInterface $destUnit): static
     {
         // Convert the value to the target unit.
-        $value = static::convert($this->value, $this->derivedUnit, $destUnit);
+        $value = static::convert($this->value, $this->compoundUnit, $destUnit);
 
         // Create new object.
         return self::create($value, $destUnit);
@@ -307,7 +307,7 @@ class Quantity implements Stringable
      */
     public function toSiBase(): static
     {
-        return $this->to($this->derivedUnit->toSiBase());
+        return $this->to($this->compoundUnit->toSiBase());
     }
 
     /**
@@ -323,7 +323,7 @@ class Quantity implements Stringable
      */
     public function toSi(): static
     {
-        return $this->toSiBase()->simplify();
+        return $this->toSiBase()->toDerived();
     }
 
     /**
@@ -335,7 +335,7 @@ class Quantity implements Stringable
      */
     public function toEnglishBase(): static
     {
-        return $this->to($this->derivedUnit->toEnglishBase());
+        return $this->to($this->compoundUnit->toEnglishBase());
     }
 
     /**
@@ -348,21 +348,219 @@ class Quantity implements Stringable
      */
     public function toEnglish(): static
     {
-        return $this->toEnglishBase()->simplify();
+        return $this->toEnglishBase()->toDerived();
     }
 
     /**
      * Convert this Quantity to base units.
      *
      * This method will convert the quantity to SI or English units, depending on what's a better fit with the
-     * existing derived unit. For example, units like lbf, mi, ac, US gal, etc. will be converted to lb, ft, and s.
+     * existing compound unit. For example, units like lbf, mi, ac, US gal, etc. will be converted to lb, ft, and s.
      * But units like km, mg, N, Hz, etc. will be converted to kg, m, and s.
      *
      * @return static A new Quantity expressed in SI or English base units.
      */
     public function toBase(): static
     {
-        return $this->derivedUnit->siPreferred() ? $this->toSiBase() : $this->toEnglishBase();
+        return $this->compoundUnit->siPreferred() ? $this->toSiBase() : $this->toEnglishBase();
+    }
+
+    /**
+     * Substitute base units for derived units, e.g. kg*m/s2 => N
+     *
+     * The derived unit that replaces the largest number of base units will be chosen.
+     *
+     * 's-1' will not be replaced by 'Hz' unless it's the only unit term.
+     * Furthermore, 's-1' is not replaced by 'Bq'. You can call $q->to('Bq') to get that effect.
+     *
+     * To auto-prefix the result, chain with autoPrefix():
+     *   $q->toDerived()->autoPrefix()
+     *
+     * @return static A new Quantity with derived units substituted for base units.
+     * @throws LogicException If no conversion path exists between two units of the same dimension.
+     */
+    public function toDerived(): static
+    {
+        // Merge compatible units.
+        $qty = $this->merge();
+
+        // Handle Hertz separately. We only want to swap 's-1' for 'Hz' if it's the only unit term.
+        if (count($qty->compoundUnit->unitTerms) === 1) {
+            $unitTerm = $qty->compoundUnit->firstUnitTerm;
+
+            // Check if we have s-1.
+            if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
+                // Create the Hz unit term.
+                $newUnitTerm = new UnitTerm('Hz', PrefixService::invert($unitTerm->prefix));
+                return static::create($qty->value, $newUnitTerm);
+            }
+        }
+
+        // Check if we should prefer SI or English units.
+        $si = $qty->compoundUnit->siPreferred();
+
+        // Get the units to check.
+        $units = $si
+            ? UnitService::getBySystem(UnitSystem::Si)
+            : UnitService::getBySystem(UnitSystem::Imperial);
+
+        // Initialize tracking variables.
+        $maxUnitsReplaced = 0;
+        $bestDerivedUnit = null;
+
+        // Loop through all the units and try to find a derived unit that matches the quantity.
+        foreach ($units as $unit) {
+            // Skip base (non-expandable) units.
+            if ($unit->isBase()) {
+                continue;
+            }
+
+            // If English preferred, check the unit is also US customary.
+            if (!$si && !$unit->belongsToSystem(UnitSystem::UsCustomary)) {
+                continue;
+            }
+
+            // Expand the unit to SI or English base units.
+            $expansionUnit = DimensionService::getBaseCompoundUnit($unit->dimension, $si);
+
+            // Skip units that expand to s-1 (i.e. 'Hz' or 'Bq'), since we already handled these.
+            if (count($expansionUnit->unitTerms) === 1 && $expansionUnit->firstUnitTerm?->asciiSymbol === 's-1') {
+                continue;
+            }
+
+            // Check if it's a candidate for substitution.
+            if (!DimensionService::lessThanOrEqual($expansionUnit->dimension, $qty->dimension)) {
+                continue;
+            }
+
+            // Count the number of units that will be replaced.
+            $nUnitsReplaced = DimensionService::countUnits($expansionUnit->dimension);
+
+            // If it's an improvement, remember it.
+            if ($nUnitsReplaced > $maxUnitsReplaced) {
+                $maxUnitsReplaced = $nUnitsReplaced;
+                $bestDerivedUnit = $unit;
+            }
+        }
+
+        // If we found a match, substitute the necessary unit terms for the derived unit.
+        if ($bestDerivedUnit !== null) {
+            // Get the remaining base units not replaced by the derived unit.
+            $rem = DimensionService::sub($qty->dimension, $bestDerivedUnit->dimension);
+            $remUnit = DimensionService::getBaseCompoundUnit($rem, $si);
+            $newUnit = new CompoundUnit($bestDerivedUnit)->mul($remUnit);
+            return $qty->to($newUnit);
+        }
+
+        // No replacements found; $qty is already a fresh object from merge().
+        return $qty;
+    }
+
+    /**
+     * Merge units that have the same dimension, e.g. 'm' and 'ft', or 's' and 'h', or 'lb' and 'kg'.
+     *
+     * The first unit encountered of a given dimension will be the one any others are converted to.
+     *
+     * @return static A new Quantity with compatible units merged.
+     * @throws LogicException If no conversion path exists between two units of the same dimension.
+     */
+    public function merge(): static
+    {
+        if (!$this->compoundUnit->isMergeable()) {
+            return clone $this;
+        }
+
+        // Merge the compound unit.
+        $mergeQty = $this->compoundUnit->merge();
+
+        // Multiply the merged Quantity by this Quantity's value.
+        return $mergeQty->mul($this->value);
+    }
+
+    /**
+     * Find the best SI prefix and construct a new Quantity equal to this one, but with the prefix applied.
+     *
+     * @return static A new Quantity with the best SI prefix applied.
+     */
+    public function autoPrefix(): static
+    {
+        // See what prefixes are available for the first unit term.
+        $firstUnitTerm = $this->compoundUnit->firstUnitTerm;
+        if ($firstUnitTerm === null || $firstUnitTerm->unit->prefixGroup === 0) {
+            // There is no first unit (dimensionless), or no prefixes are available for the first unit, so we can't add
+            // one.
+            return $this;
+        }
+
+        // Initialize the new value and compound unit by removing all current prefixes.
+        $newValue = $this->value * $this->compoundUnit->multiplier;
+        $newCompoundUnit = $this->compoundUnit->removePrefixes();
+
+        // Get the new first unit term.
+        $firstUnitTerm = $newCompoundUnit->firstUnitTerm;
+        assert($firstUnitTerm instanceof UnitTerm);
+
+        // Choose the prefix that produces the smallest value greater than or equal to 1.
+        // Start with the current situation, which is no prefix.
+        $absValue = abs($newValue);
+        $sign = Numbers::sign($newValue);
+        $bestPrefix = null;
+        $bestValue = $absValue;
+
+        // Try each allowed prefix to see if it's better. We want the prefix that produces the smallest value greater
+        // than or equal to 1.
+        foreach ($firstUnitTerm->unit->allowedPrefixes as $prefix) {
+            // We only want to consider engineering prefixes for this. The middle metric prefixes (c, d, da, h) are
+            // rarely used for most units. We also don't want binary prefixes (e.g. 'kB' is usually preferred to 'KiB').
+            if (!$prefix->isEngineering()) {
+                continue;
+            }
+
+            // Compute the value we'd have if we use this prefix.
+            $prefixedValue = $absValue / ($prefix->multiplier ** $firstUnitTerm->exponent);
+
+            // Check if it's an improvement.
+            if (
+                ($bestValue < 1.0 && $prefixedValue > $bestValue) ||
+                ($prefixedValue >= 1.0 && $prefixedValue < $bestValue)
+            ) {
+                $bestPrefix = $prefix;
+                $bestValue = $prefixedValue;
+            }
+        }
+
+        // If we found a better prefix than none at all, apply it if it's different.
+        if ($bestPrefix !== null) {
+            // Remove the first unit term.
+            $newCompoundUnit->removeUnitTerm($firstUnitTerm);
+            // Create a new one with the prefix applied.
+            $newUnitTerm = new UnitTerm($firstUnitTerm->unit, $bestPrefix, $firstUnitTerm->exponent);
+            // Add it.
+            $newCompoundUnit->addUnitTerm($newUnitTerm);
+        }
+
+        // Create the result object.
+        return static::create($bestValue * $sign, $newCompoundUnit);
+    }
+
+    /**
+     * Create a new Quantity with the same unit but a different value.
+     *
+     * @param float $value The new numeric value.
+     * @return static A new Quantity with the given value in the same unit.
+     * @throws DomainException If the value is non-finite (±INF or NAN).
+     */
+    public function withValue(float $value): static
+    {
+        // If called from Quantity (unregistered dimension), use the new() helper to bypass the
+        // direct-instantiation guard.
+        if (self::class === static::class) {
+            return self::new($value, $this->compoundUnit);
+        }
+
+        // If called from a subclass, construct directly. This skips the dimension→class lookup in
+        // create() since the dimension is unchanged, and we know the class is correct.
+        return new static($value, $this->compoundUnit);
     }
 
     // endregion
@@ -462,7 +660,7 @@ class Quantity implements Stringable
         }
 
         // Invert the value and unit.
-        return self::create(1.0 / $this->value, $this->derivedUnit->inv());
+        return self::create(1.0 / $this->value, $this->compoundUnit->inv());
     }
 
     // endregion
@@ -486,9 +684,9 @@ class Quantity implements Stringable
     public function add(self $other): self
     {
         // Get the other Quantity in the same unit as this one.
-        $otherValue = $this->derivedUnit->equal($other->derivedUnit)
+        $otherValue = $this->compoundUnit->equal($other->compoundUnit)
             ? $other->value
-            : $other->to($this->derivedUnit)->value;
+            : $other->to($this->compoundUnit)->value;
 
         // Add the two values.
         return $this->withValue($this->value + $otherValue);
@@ -511,9 +709,9 @@ class Quantity implements Stringable
     public function sub(self $other): self
     {
         // Get the other Quantity in the same unit as this one.
-        $otherValue = $this->derivedUnit->equal($other->derivedUnit)
+        $otherValue = $this->compoundUnit->equal($other->compoundUnit)
             ? $other->value
-            : $other->to($this->derivedUnit)->value;
+            : $other->to($this->compoundUnit)->value;
 
         // Subtract the values.
         return $this->withValue($this->value - $otherValue);
@@ -545,17 +743,17 @@ class Quantity implements Stringable
 
         // Get the other operand as a Quantity object.
         if (!$other instanceof self) {
-            $other = self::create(1, DerivedUnit::toDerivedUnit($other));
+            $other = self::create(1, CompoundUnit::toCompoundUnit($other));
         }
 
         // Start by multiplying the values.
         $newValue = $this->value * $other->value;
 
         // Create a new unit from this unit.
-        $newUnit = clone $this->derivedUnit;
+        $newUnit = clone $this->compoundUnit;
 
         // Add each unit term from the other Quantity.
-        foreach ($other->derivedUnit->unitTerms as $otherUnitTerm) {
+        foreach ($other->compoundUnit->unitTerms as $otherUnitTerm) {
             $newUnit->addUnitTerm($otherUnitTerm);
         }
 
@@ -594,7 +792,7 @@ class Quantity implements Stringable
 
         // Get the other operand as a Quantity object.
         if (!$other instanceof self) {
-            $other = self::create(1, DerivedUnit::toDerivedUnit($other));
+            $other = self::create(1, CompoundUnit::toCompoundUnit($other));
         }
 
         // Multiply by the inverse.
@@ -622,12 +820,12 @@ class Quantity implements Stringable
 
         // Apply the exponent to each unit term.
         $unitTerms = [];
-        foreach ($this->derivedUnit->unitTerms as $unitTerm) {
+        foreach ($this->compoundUnit->unitTerms as $unitTerm) {
             $unitTerms[] = $unitTerm->pow($exponent);
         }
 
         // Construct the result Quantity.
-        return self::create($value, new DerivedUnit($unitTerms));
+        return self::create($value, new CompoundUnit($unitTerms));
     }
 
     /**
@@ -680,208 +878,6 @@ class Quantity implements Stringable
 
     // endregion
 
-    // region Transformation methods
-
-    /**
-     * Create a new Quantity with the same unit but a different value.
-     *
-     * @param float $value The new numeric value.
-     * @return static A new Quantity with the given value in the same unit.
-     * @throws DomainException If the value is non-finite (±INF or NAN).
-     */
-    public function withValue(float $value): static
-    {
-        // If called from Quantity (unregistered dimension), use the new() helper to bypass the
-        // direct-instantiation guard.
-        if (self::class === static::class) {
-            return self::new($value, $this->derivedUnit);
-        }
-
-        // If called from a subclass, construct directly. This skips the dimension→class lookup in
-        // create() since the dimension is unchanged, and we know the class is correct.
-        return new static($value, $this->derivedUnit);
-    }
-
-    /**
-     * Merge units that have the same dimension, e.g. 'm' and 'ft', or 's' and 'h', or 'lb' and 'kg'.
-     *
-     * The first unit encountered of a given dimension will be the one any others are converted to.
-     *
-     * @return static A new Quantity with compatible units merged.
-     * @throws LogicException If no conversion path exists between two units of the same dimension.
-     */
-    public function merge(): static
-    {
-        if (!$this->derivedUnit->isMergeable()) {
-            return clone $this;
-        }
-
-        // Merge the derived unit.
-        $mergeQty = $this->derivedUnit->merge();
-
-        // Multiply the merged Quantity by this Quantity's value.
-        return $mergeQty->mul($this->value);
-    }
-
-    /**
-     * Find the best SI prefix and construct a new Quantity equal to this one, but with the prefix applied.
-     *
-     * @return static A new Quantity with the best SI prefix applied.
-     */
-    public function autoPrefix(): static
-    {
-        // See what prefixes are available for the first unit term.
-        $firstUnitTerm = $this->derivedUnit->firstUnitTerm;
-        if ($firstUnitTerm === null || $firstUnitTerm->unit->prefixGroup === 0) {
-            // There is no first unit (dimensionless), or no prefixes are available for the first unit, so we can't add
-            // one.
-            return $this;
-        }
-
-        // Initialize the new value and derived unit by removing all current prefixes.
-        $newValue = $this->value * $this->derivedUnit->multiplier;
-        $newDerivedUnit = $this->derivedUnit->removePrefixes();
-
-        // Get the new first unit term.
-        $firstUnitTerm = $newDerivedUnit->firstUnitTerm;
-        assert($firstUnitTerm instanceof UnitTerm);
-
-        // Choose the prefix that produces the smallest value greater than or equal to 1.
-        // Start with the current situation, which is no prefix.
-        $absValue = abs($newValue);
-        $sign = Numbers::sign($newValue);
-        $bestPrefix = null;
-        $bestValue = $absValue;
-
-        // Try each allowed prefix to see if it's better. We want the prefix that produces the smallest value greater
-        // than or equal to 1.
-        foreach ($firstUnitTerm->unit->allowedPrefixes as $prefix) {
-            // We only want to consider engineering prefixes for this. The middle metric prefixes (c, d, da, h) are
-            // rarely used for most units. We also don't want binary prefixes (e.g. 'kB' is usually preferred to 'KiB').
-            if (!$prefix->isEngineering()) {
-                continue;
-            }
-
-            // Compute the value we'd have if we use this prefix.
-            $prefixedValue = $absValue / ($prefix->multiplier ** $firstUnitTerm->exponent);
-
-            // Check if it's an improvement.
-            if (
-                ($bestValue < 1.0 && $prefixedValue > $bestValue) ||
-                ($prefixedValue >= 1.0 && $prefixedValue < $bestValue)
-            ) {
-                $bestPrefix = $prefix;
-                $bestValue = $prefixedValue;
-            }
-        }
-
-        // If we found a better prefix than none at all, apply it if it's different.
-        if ($bestPrefix !== null) {
-            // Remove the first unit term.
-            $newDerivedUnit->removeUnitTerm($firstUnitTerm);
-            // Create a new one with the prefix applied.
-            $newUnitTerm = new UnitTerm($firstUnitTerm->unit, $bestPrefix, $firstUnitTerm->exponent);
-            // Add it.
-            $newDerivedUnit->addUnitTerm($newUnitTerm);
-        }
-
-        // Create the result object.
-        return static::create($bestValue * $sign, $newDerivedUnit);
-    }
-
-    /**
-     * Substitute base units for expandable units, e.g. kg*m/s2 => N
-     *
-     * The expandable unit that replaces the largest number of base units will be chosen.
-     *
-     * 's-1' will not be replaced by 'Hz' unless it's the only unit term.
-     * Furthermore, 's-1' is not replaced by 'Bq'. You can call $q->to('Bq') to get that effect.
-     *
-     * To auto-prefix the result, chain with autoPrefix():
-     *   $q->simplify()->autoPrefix()
-     *
-     * @return static A new Quantity with expandable units substituted for base units.
-     * @throws LogicException If no conversion path exists between two units of the same dimension.
-     */
-    public function simplify(): static
-    {
-        // Merge compatible units.
-        $qty = $this->merge();
-
-        // Handle Hertz separately. We only want to swap 's-1' for 'Hz' if it's the only unit term.
-        if (count($qty->derivedUnit->unitTerms) === 1) {
-            $unitTerm = $qty->derivedUnit->firstUnitTerm;
-
-            // Check if we have s-1.
-            if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
-                // Create the Hz unit term.
-                $newUnitTerm = new UnitTerm('Hz', PrefixService::invert($unitTerm->prefix));
-                return static::create($qty->value, $newUnitTerm);
-            }
-        }
-
-        // Check if we should simplify to SI or English base units.
-        $si = $qty->derivedUnit->siPreferred();
-
-        // Get the units to check.
-        $units = $si
-            ? UnitService::getBySystem(UnitSystem::Si)
-            : UnitService::getBySystem(UnitSystem::Imperial);
-
-        // Initialize tracking variables.
-        $maxUnitsReplaced = 0;
-        $bestExpandableUnit = null;
-
-        // Loop through all the units and try to find an expandable unit that matches the quantity.
-        foreach ($units as $unit) {
-            // Skip base (non-expandable) units.
-            if ($unit->isBase()) {
-                continue;
-            }
-
-            // If English preferred, check the unit is also US customary.
-            if (!$si && !$unit->belongsToSystem(UnitSystem::UsCustomary)) {
-                continue;
-            }
-
-            // Expand the unit to SI or English base units.
-            $expansionUnit = DimensionService::getBaseDerivedUnit($unit->dimension, $si);
-
-            // Skip units that expand to s-1 (i.e. 'Hz' or 'Bq'), since we already handled these.
-            if (count($expansionUnit->unitTerms) === 1 && $expansionUnit->firstUnitTerm?->asciiSymbol === 's-1') {
-                continue;
-            }
-
-            // Check if it's a candidate for substitution.
-            if (!DimensionService::lessThanOrEqual($expansionUnit->dimension, $qty->dimension)) {
-                continue;
-            }
-
-            // Count the number of units that will be replaced.
-            $nUnitsReplaced = DimensionService::countUnits($expansionUnit->dimension);
-
-            // If it's an improvement, remember it.
-            if ($nUnitsReplaced > $maxUnitsReplaced) {
-                $maxUnitsReplaced = $nUnitsReplaced;
-                $bestExpandableUnit = $unit;
-            }
-        }
-
-        // If we found a match, substitute the necessary unit terms for the expandable unit.
-        if ($bestExpandableUnit !== null) {
-            // Get the remaining base units not replaced by the expandable unit.
-            $rem = DimensionService::sub($qty->dimension, $bestExpandableUnit->dimension);
-            $remUnit = DimensionService::getBaseDerivedUnit($rem, $si);
-            $newUnit = new DerivedUnit($bestExpandableUnit)->mul($remUnit);
-            return $qty->to($newUnit);
-        }
-
-        // No replacements found; $qty is already a fresh object from merge().
-        return $qty;
-    }
-
-    // endregion
-
     // region Conversion methods
 
     /**
@@ -913,7 +909,7 @@ class Quantity implements Stringable
         $valueStr = Floats::format($this->value, $specifier, $precision, $trimZeros, $ascii);
 
         // Get the unit as a string.
-        $unitSymbol = $this->derivedUnit->format($ascii);
+        $unitSymbol = $this->compoundUnit->format($ascii);
 
         // If the unit is empty, return the value as a string.
         if ($unitSymbol === '') {
@@ -1015,6 +1011,7 @@ class Quantity implements Stringable
      * Create a new Quantity object as a sum of measurements of different units.
      *
      * @param array<string, int|float> $parts The parts.
+     * @param ?string $resultUnitSymbol The result unit symbol, or null to use the default for this quantity type.
      * @return static A new Quantity representing the sum of the parts.
      * @throws NullArgumentException If the quantity type is null (unregistered).
      * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
@@ -1022,30 +1019,32 @@ class Quantity implements Stringable
      * @throws DomainException If the result unit symbol or sign is invalid.
      * @see QuantityPartsService::fromParts()
      */
-    public static function fromParts(array $parts): static
+    public static function fromParts(array $parts, ?string $resultUnitSymbol = null): static
     {
-        return QuantityPartsService::fromParts(static::getQuantityType(), $parts);
+        return QuantityPartsService::fromParts(static::getQuantityType(), $parts, $resultUnitSymbol);
     }
 
     /**
      * Convert the quantity to parts.
      *
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
+     * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws NullArgumentException If the quantity type is null (unregistered).
      * @throws DomainException If precision is negative or part unit symbols are not configured.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::toParts()
      */
-    public function toParts(?int $precision = null): array
+    public function toParts(?int $precision = null, ?array $partUnitSymbols = null): array
     {
-        return QuantityPartsService::toParts($this, $precision);
+        return QuantityPartsService::toParts($this, $precision, $partUnitSymbols);
     }
 
     /**
      * Parse a string of quantity parts.
      *
      * @param string $input The string to parse.
+     * @param ?string $resultUnitSymbol The result unit symbol, or null to use the default for this quantity type.
      * @return static A new Quantity representing the sum of the parts.
      * @throws NullArgumentException If the quantity type is null (unregistered).
      * @throws FormatException If the input string is invalid.
@@ -1054,9 +1053,9 @@ class Quantity implements Stringable
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::parseParts()
      */
-    public static function parseParts(string $input): static
+    public static function parseParts(string $input, ?string $resultUnitSymbol = null): static
     {
-        return QuantityPartsService::parseParts(static::getQuantityType(), $input);
+        return QuantityPartsService::parseParts(static::getQuantityType(), $input, $resultUnitSymbol);
     }
 
     /**
@@ -1065,15 +1064,20 @@ class Quantity implements Stringable
      * @param ?int $precision The number of decimal places for rounding the smallest unit, or null for no rounding.
      * @param bool $showZeros If true, show all parts including zeros; if false, skip zero-value components.
      * @param bool $ascii If true, use ASCII characters only.
+     * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return string The formatted string.
      * @throws NullArgumentException If the quantity type is null (unregistered).
      * @throws DomainException If part unit symbols are not configured or precision is negative.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @see QuantityPartsService::formatParts()
      */
-    public function formatParts(?int $precision = null, bool $showZeros = false, bool $ascii = false): string
-    {
-        return QuantityPartsService::formatParts($this, $precision, $showZeros, $ascii);
+    public function formatParts(
+        ?int $precision = null,
+        bool $showZeros = false,
+        bool $ascii = false,
+        ?array $partUnitSymbols = null
+    ): string {
+        return QuantityPartsService::formatParts($this, $precision, $showZeros, $ascii, $partUnitSymbols);
     }
 
     // endregion
@@ -1090,8 +1094,8 @@ class Quantity implements Stringable
     public static function isValidQuantity(string $qty, ?array &$matches): bool
     {
         $rxNum = Numbers::REGEX;
-        $rxDerivedUnit = DerivedUnit::derivedUnitRegex();
-        return (bool)preg_match("/^($rxNum)\s*($rxDerivedUnit)?$/iu", $qty, $matches);
+        $rxCompoundUnit = CompoundUnit::compoundUnitRegex();
+        return (bool)preg_match("/^($rxNum)\s*($rxCompoundUnit)?$/iu", $qty, $matches);
     }
 
     /**
@@ -1116,11 +1120,11 @@ class Quantity implements Stringable
      * for an unregistered dimension code. Always returns a base Quantity, never a subclass.
      *
      * @param float $value The numeric value.
-     * @param DerivedUnit $unit The derived unit.
+     * @param CompoundUnit $unit The compound unit.
      * @return self A new base Quantity instance.
      * @throws DomainException If the value is non-finite (±INF or NAN).
      */
-    private static function new(float $value, DerivedUnit $unit): self
+    private static function new(float $value, CompoundUnit $unit): self
     {
         // Temporarily enable calling `new Quantity()`.
         self::$allowConstruct = true;
@@ -1149,14 +1153,14 @@ class Quantity implements Stringable
         }
 
         // Check the two Quantities have the same dimension.
-        $dim1 = $this->derivedUnit->dimension;
-        $dim2 = $other->derivedUnit->dimension;
+        $dim1 = $this->compoundUnit->dimension;
+        $dim2 = $other->compoundUnit->dimension;
         if ($dim1 !== $dim2) {
             throw new DimensionMismatchException($dim1, $dim2);
         }
 
         // Get the other Quantity in the same unit as this one.
-        return $this->derivedUnit->equal($other->derivedUnit) ? $other->value : $other->to($this->derivedUnit)->value;
+        return $this->compoundUnit->equal($other->compoundUnit) ? $other->value : $other->to($this->compoundUnit)->value;
     }
 
     // endregion

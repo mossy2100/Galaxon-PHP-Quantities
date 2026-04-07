@@ -480,7 +480,7 @@ class UnitTerm implements UnitInterface
         $resultValue = ($unitExpansion->value * $this->prefixMultiplier) ** $this->exponent;
 
         // Construct the expansion Quantity and cache it in the private property.
-        $this->expansion = Quantity::create($resultValue, $unitExpansion->derivedUnit->pow($this->exponent));
+        $this->expansion = Quantity::create($resultValue, $unitExpansion->compoundUnit->pow($this->exponent));
         return $this->expansion;
     }
 

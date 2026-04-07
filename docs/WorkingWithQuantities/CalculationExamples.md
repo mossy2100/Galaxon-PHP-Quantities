@@ -121,7 +121,7 @@ $moonMass = new Mass(7.342e22, 'kg');
 $distance = new Length(3.844e8, 'm');
 
 $force = $G->mul($earthMass)->mul($moonMass)->div($distance->sqr());
-echo $force->simplify()->format('e', 2);
+echo $force->toDerived()->format('e', 2);
 // 1.98×10²⁰ N
 ```
 

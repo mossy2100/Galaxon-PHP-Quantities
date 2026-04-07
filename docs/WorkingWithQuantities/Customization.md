@@ -8,15 +8,15 @@ This guide explains how to work with quantities beyond what the package provides
 
 ---
 
-## 1. Using Derived Units Directly
+## 1. Using Compound Units Directly
 
-You don't need a dedicated class for every quantity type. The package can work with any combination of known units through derived unit expressions. For example, entropy has units of `J/K` (energy per unit temperature):
+You don't need a dedicated class for every quantity type. The package can work with any combination of known units through compound unit expressions. For example, entropy has units of `J/K` (energy per unit temperature):
 
 ```php
 use Galaxon\Quantities\QuantityType\Energy;
 use Galaxon\Quantities\QuantityType\Temperature;
 
-// Arithmetic automatically produces the correct derived units.
+// Arithmetic automatically produces the correct compound units.
 $energy = new Energy(150, 'J');
 $temp = new Temperature(4, 'K');
 $entropy = $energy->div($temp);
@@ -25,7 +25,7 @@ echo $entropy;           // "37.5 J/K"
 echo get_class($entropy); // "Galaxon\Quantities\Quantity"
 ```
 
-The result is a generic `Quantity` object with the derived unit `J/K`. All arithmetic, conversion, and formatting operations work as normal.
+The result is a generic `Quantity` object with the compound unit `J/K`. All arithmetic, conversion, and formatting operations work as normal.
 
 You can also create entropy values directly using `Quantity::create()`:
 
@@ -66,9 +66,9 @@ QuantityTypeService::add('entropy', 'ML2T-2H-1', Entropy::class);
 If you don't know the dimension code for a quantity type, but you know the units (and they are registered and loaded), try this:
 
 ```php
-use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\CompoundUnit;
 
-$dimension = DerivedUnit::parse('J/K')->dimension;
+$dimension = CompoundUnit::parse('J/K')->dimension;
 ```
 
 Once the new class is registered, `Quantity::create()` and arithmetic operations will return `Entropy` objects when the result has the entropy dimension:

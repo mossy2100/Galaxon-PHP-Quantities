@@ -28,12 +28,12 @@ class Conversion implements Stringable
     /**
      * The source unit.
      */
-    private(set) DerivedUnit $srcUnit;
+    private(set) CompoundUnit $srcUnit;
 
     /**
      * The destination unit.
      */
-    private(set) DerivedUnit $destUnit;
+    private(set) CompoundUnit $destUnit;
 
     /**
      * The scale factor.
@@ -70,9 +70,9 @@ class Conversion implements Stringable
         string|UnitInterface $destUnit,
         float|FloatWithError $factor
     ) {
-        // Ensure the units are DerivedUnit objects.
-        $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
-        $destUnit = DerivedUnit::toDerivedUnit($destUnit);
+        // Ensure the units are CompoundUnit objects.
+        $srcUnit = CompoundUnit::toCompoundUnit($srcUnit);
+        $destUnit = CompoundUnit::toCompoundUnit($destUnit);
 
         // Ensure dimensions match.
         if ($srcUnit->dimension !== $destUnit->dimension) {

@@ -112,7 +112,7 @@ class QuantityTypeService
             'class'     => Money::class,
         ],
 
-        // Derived unit dimensions
+        // Compound unit dimensions
         'solid angle'           => [
             'dimension' => 'A2',
             'class'     => SolidAngle::class,

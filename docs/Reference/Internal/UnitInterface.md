@@ -6,7 +6,7 @@ Interface for unit representations in the Quantities package.
 
 ## Overview
 
-`UnitInterface` defines the contract that all unit representations must follow, including simple units (`Unit`), prefixed units with exponents (`UnitTerm`), and compound units (`DerivedUnit`). This interface ensures consistent behavior for parsing, formatting, and accessing unit symbols across all unit types.
+`UnitInterface` defines the contract that all unit representations must follow, including simple units (`Unit`), prefixed units with exponents (`UnitTerm`), and compound units (`CompoundUnit`). This interface ensures consistent behavior for parsing, formatting, and accessing unit symbols across all unit types.
 
 Extends `Stringable`, so all implementing classes can be cast to string.
 
@@ -97,4 +97,4 @@ Format the unit as a string.
 
 - **[Unit](Unit.md)** — Represents a single unit of measurement.
 - **[UnitTerm](UnitTerm.md)** — Represents a unit with optional prefix and exponent.
-- **[DerivedUnit](DerivedUnit.md)** — Represents a compound unit with zero or more unit terms.
+- **[CompoundUnit](CompoundUnit.md)** — Represents a compound unit with zero or more unit terms.

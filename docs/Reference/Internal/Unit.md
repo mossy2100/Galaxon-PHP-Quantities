@@ -321,7 +321,7 @@ $symbols = $meter->symbols;
 ## See Also
 
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent.
-- **[DerivedUnit](DerivedUnit.md)** - Compound unit representation.
+- **[CompoundUnit](CompoundUnit.md)** - Compound unit representation.
 - **[UnitInterface](UnitInterface.md)** - Interface for all unit types.
 - **[Prefix](Prefix.md)** - SI and binary prefix representation.
 - **[UnitService](../Services/UnitService.md)** - Registry for looking up units.

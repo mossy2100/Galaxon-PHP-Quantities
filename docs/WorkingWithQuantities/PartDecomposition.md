@@ -10,7 +10,7 @@ Some quantities are naturally expressed as a combination of units — angles in 
 
 ## Converting to Parts with `toParts()`
 
-The `toParts()` method breaks a quantity into integer components for each unit configured for its quantity type, with only the smallest unit having a fractional value. The set of parts used is read from `QuantityPartsService` — see [Default Part Units](#default-part-units) below for how to configure them.
+The `toParts()` method breaks a quantity into integer components for each part unit, with only the smallest unit having a fractional value. By default, the set of parts used is read from `QuantityPartsService` — see [Default Part Units](#default-part-units) below for how to configure them.
 
 ```php
 use Galaxon\Quantities\QuantityType\Angle;
@@ -43,6 +43,14 @@ $parts = $time->toParts(precision: 0);
 
 If rounding the smallest unit causes it to overflow (e.g. 59.9 seconds rounds to 60), the larger parts are adjusted automatically.
 
+You can also pass `$partUnitSymbols` to override the configured default for a single call. The configuration is not modified.
+
+```php
+$time = new Time(3661, 's');
+$parts = $time->toParts(partUnitSymbols: ['h', 'min', 's']);
+// ['sign' => 1, 'h' => 1, 'min' => 1, 's' => 1.0]
+```
+
 ---
 
 ## Creating from Parts with `fromParts()`
@@ -63,7 +71,40 @@ $time = Time::fromParts(['h' => 1, 'min' => 30, 'sign' => -1]);
 echo $time;  // -5400 s
 ```
 
-The result unit is determined by the configured result unit symbol for the quantity type (e.g. `'s'` for Time, `'deg'` for Angle). To produce a quantity in a different unit, change the configured result unit via `QuantityPartsService::setResultUnitSymbol()` (see [Default Part Units](#default-part-units) below).
+By default, the result is expressed in the configured result unit for the quantity type (e.g. `'s'` for Time, `'deg'` for Angle). You can pass `$resultUnitSymbol` to override this for a single call without modifying the configured default. To change the default permanently, see [Default Part Units](#default-part-units).
+
+```php
+// Express the assembled result in minutes instead of the configured 's'.
+$time = Time::fromParts(['h' => 1, 'min' => 30], resultUnitSymbol: 'min');
+echo $time;  // 90 min
+```
+
+---
+
+## Parsing Parts with `parseParts()`
+
+The `parseParts()` method parses a multi-unit string into a quantity. Parts are separated by whitespace; there must be no space between a value and its unit symbol. Only the first part may be negative.
+
+```php
+// Time parsed from a multi-unit string.
+$time = Time::parseParts('1h 30min 45s');
+echo $time;  // 5445 s
+
+// Angle parsed from a DMS-style string.
+$angle = Angle::parseParts('45deg 30arcmin');
+echo $angle;  // 45.5°
+
+// Negative quantities — only the first part may carry the sign.
+$time = Time::parseParts('-2h 15min');
+echo $time;  // -8100 s
+```
+
+As with `fromParts()`, the result is expressed in the configured result unit by default. Pass `$resultUnitSymbol` to override for a single call:
+
+```php
+$time = Time::parseParts('1h 30min', resultUnitSymbol: 'min');
+echo $time;  // 90 min
+```
 
 ---
 
@@ -75,7 +116,6 @@ The `formatParts()` method produces a human-readable string, using the configure
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Services\QuantityPartsService;
 
 // Angle (default parts: deg, arcmin, arcsec).
 $angle = new Angle(45.5083333333, 'deg');
@@ -86,16 +126,6 @@ echo $angle->formatParts(precision: 1);    // 45° 30′ 30.0″
 $time = new Time(90061, 's');
 echo $time->formatParts();                 // 1d 1h 1min 1s
 
-// Reconfigure Time to use only h, min, s.
-QuantityPartsService::setPartUnitSymbols(Time::getQuantityType(), ['h', 'min', 's']);
-echo $time->formatParts();                 // 25h 1min 1s
-
-// Configure Length for feet and inches.
-QuantityPartsService::setPartUnitSymbols(Length::getQuantityType(), ['ft', 'in']);
-$height = new Length(68, 'in');
-echo $height->formatParts();               // 5ft 8in
-echo $height->formatParts(precision: 0);   // 5ft 8in
-
 // Zero components are omitted by default.
 $time = new Time(3600, 's');
 echo $time->formatParts();                         // 1h
@@ -104,6 +134,13 @@ echo $time->formatParts(showZeros: true);          // 1h 0min 0s
 // Negative values.
 $time = new Time(-3661, 's');
 echo $time->formatParts();                 // -1h 1min 1s
+```
+
+You can also pass `$partUnitSymbols` to override the configured default for a single call:
+
+```php
+$height = new Length(68, 'in');
+echo $height->formatParts(partUnitSymbols: ['ft', 'in']);  // 5ft 8in
 ```
 
 ---

@@ -10,7 +10,7 @@ use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\Conversion;
 use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitSystem;
@@ -168,11 +168,11 @@ class ConversionService
     // region Helper methods
 
     /**
-     * Validate and convert both units to DerivedUnit objects, ensuring they share the same dimension.
+     * Validate and convert both units to CompoundUnit objects, ensuring they share the same dimension.
      *
      * @param string|UnitInterface $srcUnit The source unit.
      * @param string|UnitInterface $destUnit The destination unit.
-     * @return array{DerivedUnit, DerivedUnit} The validated DerivedUnit pair.
+     * @return array{CompoundUnit, CompoundUnit} The validated CompoundUnit pair.
      * @throws FormatException If a unit string cannot be parsed.
      * @throws UnknownUnitException If a unit string contains unknown units.
      * @throws DimensionMismatchException If the dimensions don't match.
@@ -180,8 +180,8 @@ class ConversionService
      */
     private static function validateUnits(string|UnitInterface $srcUnit, string|UnitInterface $destUnit): array
     {
-        $srcUnit = DerivedUnit::toDerivedUnit($srcUnit);
-        $destUnit = DerivedUnit::toDerivedUnit($destUnit);
+        $srcUnit = CompoundUnit::toCompoundUnit($srcUnit);
+        $destUnit = CompoundUnit::toCompoundUnit($destUnit);
 
         if ($srcUnit->dimension !== $destUnit->dimension) {
             throw new DimensionMismatchException($srcUnit->dimension, $destUnit->dimension);

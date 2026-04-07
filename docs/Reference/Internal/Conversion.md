@@ -31,7 +31,7 @@ All operations return new instances, maintaining immutability.
 ### srcUnit
 
 ```php
-private(set) DerivedUnit $srcUnit
+private(set) CompoundUnit $srcUnit
 ```
 
 The source unit for the conversion.
@@ -39,7 +39,7 @@ The source unit for the conversion.
 ### destUnit
 
 ```php
-private(set) DerivedUnit $destUnit
+private(set) CompoundUnit $destUnit
 ```
 
 The destination unit for the conversion.

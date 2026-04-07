@@ -6,7 +6,7 @@ namespace Galaxon\Quantities\Services;
 
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Numbers;
-use Galaxon\Quantities\Internal\DerivedUnit;
+use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Internal\UnitTerm;
 use LogicException;
 
@@ -30,7 +30,7 @@ class DimensionService
      * The order of the codes determines the canonical ordering of terms within a dimension code, necessary for
      * comparing dimensions.
      *
-     * It also determines the ordering of unit terms in an SI derived unit. This is based on the most common ordering of
+     * It also determines the ordering of unit terms in an SI compound unit. This is based on the most common ordering of
      * base unit terms when writing SI units.
      *
      * The dimension 'A' is not part of the ISQ, being considered a ratio of lengths, but we need it for this system.
@@ -183,7 +183,7 @@ class DimensionService
      * Check if dimension1 is a subset of dimension2.
      *
      * Returns true if every dimension term in dimension1 exists in dimension2 with the same sign and an equal or
-     * smaller absolute exponent. This is used by simplify() to determine whether a unit's dimension fits inside a
+     * smaller absolute exponent. This is used by toDerived() to determine whether a unit's dimension fits inside a
      * quantity's dimension.
      *
      * @param string $dimension1 The candidate subset dimension (e.g. 'MLT-2').
@@ -399,21 +399,21 @@ class DimensionService
     }
 
     /**
-     * Convert a dimension to a DerivedUnit in SI or English base units.
+     * Convert a dimension to a CompoundUnit in SI or English base units.
      *
      * @param string $dimension The dimension code (e.g. 'MLT-2').
-     * @param bool $si Whether to return the SI derived unit (true) or the English derived unit (false).
-     * @return DerivedUnit The new DerivedUnit.
+     * @param bool $si Whether to return the SI compound unit (true) or the English compound unit (false).
+     * @return CompoundUnit The new CompoundUnit.
      * @throws FormatException If the dimension code is invalid.
      */
-    public static function getBaseDerivedUnit(string $dimension, bool $si): DerivedUnit
+    public static function getBaseCompoundUnit(string $dimension, bool $si): CompoundUnit
     {
         $unitTerms = [];
         $dimTerms = self::decompose($dimension);
         foreach ($dimTerms as $code => $exp) {
             $unitTerms[] = self::getBaseUnitTerm($code, $si)->pow($exp);
         }
-        return new DerivedUnit($unitTerms);
+        return new CompoundUnit($unitTerms);
     }
 
     // endregion

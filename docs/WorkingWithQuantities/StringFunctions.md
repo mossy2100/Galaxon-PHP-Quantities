@@ -48,9 +48,9 @@ accepts a unit — the following syntax rules apply.
 
 A simple unit is a prefix (optional) followed by a unit symbol, e.g. `km`, `mg`, `Hz`, `degC`.
 
-### Derived Units
+### Compound Units
 
-Derived units combine multiple unit terms using multiplication and division operators.
+Compound units combine multiple unit terms using multiplication and division operators.
 
 **Multiplication operators** — the parser accepts four characters:
 
@@ -180,7 +180,7 @@ echo $angle->format();               // 90°
 echo $angle->format(ascii: true);    // 90 deg
 ```
 
-**3. Derived unit notation** — multiplication dot vs. asterisk:
+**3. Compound unit notation** — multiplication dot vs. asterisk:
 
 ```php
 $energy = Quantity::create(100, 'kg*m2/s2');

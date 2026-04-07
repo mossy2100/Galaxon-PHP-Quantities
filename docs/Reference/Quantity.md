@@ -33,13 +33,13 @@ public readonly float $value
 
 The numeric value of the measurement in the specified unit.
 
-### derivedUnit
+### compoundUnit
 
 ```php
-public readonly DerivedUnit $derivedUnit
+public readonly CompoundUnit $compoundUnit
 ```
 
-The unit of the measurement as a DerivedUnit object.
+The unit of the measurement as a CompoundUnit object.
 
 ### dimension
 
@@ -171,7 +171,7 @@ Length::parse('123 kg');  // DimensionMismatchException
 
 ---
 
-## Unit Conversion Methods
+## Transformation Methods
 
 ### convert()
 
@@ -313,7 +313,7 @@ public function toBase(): self
 
 Convert to SI or English base units, whichever is the better fit for the current unit.
 
-Units like lbf, mi, and ac will convert to English base units (lb, ft, s), while units like km, N, and Hz will convert to SI base units (kg, m, s). Uses `DerivedUnit::siExpansionPreferred()` to determine the best fit.
+Units like lbf, mi, and ac will convert to English base units (lb, ft, s), while units like km, N, and Hz will convert to SI base units (kg, m, s). Uses `CompoundUnit::siExpansionPreferred()` to determine the best fit.
 
 **Returns:**
 - `Quantity` - A new Quantity in the most appropriate base units.
@@ -325,6 +325,83 @@ $base = $force->toBase();  // 1 kg*m/s2
 
 $force = new Force(1, 'lbf');
 $base = $force->toBase();  // lb*ft/s2
+```
+
+### toDerived()
+
+```php
+public function toDerived(): static
+```
+
+Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
+
+To auto-prefix the result, chain with `autoPrefix()`.
+
+**Returns:**
+- `Quantity` - A new Quantity with derived units, if any substitution was possible.
+
+**Throws:**
+- `LogicException` - If no conversion path exists between two units of the same dimension.
+
+### merge()
+
+```php
+public function merge(): static
+```
+
+Merge units with the same dimension (e.g., m\*ft -> m2).
+
+The first unit encountered of a given dimension will be the one any others are converted to.
+
+**Returns:**
+- `Quantity` - A new Quantity with merged units.
+
+**Throws:**
+- `LogicException` - If no conversion path exists between two units of the same dimension.
+
+### autoPrefix()
+
+```php
+public function autoPrefix(): static
+```
+
+Apply the best engineering prefix to the first unit term.
+
+The best prefix is the one that produces the smallest value greater than or equal to 1. Only engineering prefixes (multiples of 1000) are considered.
+
+**Returns:**
+- `Quantity` - A new Quantity with optimal prefix.
+
+**Examples:**
+```php
+$length = new Length(0.001, 'm');
+$prefixed = $length->autoPrefix();  // 1 mm
+
+$length = new Length(1000000, 'm');
+$prefixed = $length->autoPrefix();  // 1000 km
+```
+
+### withValue()
+
+```php
+public function withValue(float $value): static
+```
+
+Create a new Quantity with the same unit but a different value.
+
+**Parameters:**
+- `$value` (float) - The new numeric value.
+
+**Returns:**
+- `static` - A new Quantity with the given value in the same unit.
+
+**Throws:**
+- `DomainException` - If the value is non-finite (±INF or NAN).
+
+**Examples:**
+```php
+$length = new Length(10, 'm');
+$doubled = $length->withValue(20);  // 20 m
 ```
 
 ---
@@ -621,87 +698,6 @@ $ceiled = $length->ceil();  // 2 m
 
 ---
 
-## Transformation Methods
-
-### withValue()
-
-```php
-public function withValue(float $value): static
-```
-
-Create a new Quantity with the same unit but a different value.
-
-**Parameters:**
-- `$value` (float) - The new numeric value.
-
-**Returns:**
-- `static` - A new Quantity with the given value in the same unit.
-
-**Throws:**
-- `DomainException` - If the value is non-finite (±INF or NAN).
-
-**Examples:**
-```php
-$length = new Length(10, 'm');
-$doubled = $length->withValue(20);  // 20 m
-```
-
-### merge()
-
-```php
-public function merge(): static
-```
-
-Merge units with the same dimension (e.g., m\*ft -> m2).
-
-The first unit encountered of a given dimension will be the one any others are converted to.
-
-**Returns:**
-- `Quantity` - A new Quantity with merged units.
-
-**Throws:**
-- `LogicException` - If no conversion path exists between two units of the same dimension.
-
-### autoPrefix()
-
-```php
-public function autoPrefix(): static
-```
-
-Apply the best engineering prefix to the first unit term.
-
-The best prefix is the one that produces the smallest value greater than or equal to 1. Only engineering prefixes (multiples of 1000) are considered.
-
-**Returns:**
-- `Quantity` - A new Quantity with optimal prefix.
-
-**Examples:**
-```php
-$length = new Length(0.001, 'm');
-$prefixed = $length->autoPrefix();  // 1 mm
-
-$length = new Length(1000000, 'm');
-$prefixed = $length->autoPrefix();  // 1000 km
-```
-
-### simplify()
-
-```php
-public function simplify(): static
-```
-
-Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
-
-To auto-prefix the result, chain with `autoPrefix()`.
-
-**Returns:**
-- `Quantity` - A new Quantity with simplified units.
-
-**Throws:**
-- `LogicException` - If no conversion path exists between two units of the same dimension.
-
----
-
 ## Conversion Methods
 
 ### format()
@@ -722,7 +718,7 @@ See [`Floats::format()`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main
 
 **Parameters:**
 - `$specifier` (string) - The format specifier. See `Floats::format()` for the full list of supported specifiers.
-- `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. `null` uses the `sprintf` default (usually 6).
+- `$precision` (?int) - Number of decimal places for `e`/`E`/`f`/`F` or significant digits for `g`/`G`/`h`/`H`. When `null`, defaults to `6` for `e`/`E`/`f`/`F` and `7` for `g`/`G`/`h`/`H` (matching `e`'s effective precision).
 - `$trimZeros` (?bool) - Controls trailing zero trimming. `null` (default) trims when precision is null, preserves when explicit. `true` always trims, `false` never trims.
 - `$includeSpace` (?bool) - Space between value and unit. `null` = auto (no space for symbol-only units like `°`). `true` = always. `false` = never.
 - `$ascii` (bool) - If `true`, use ASCII symbols and `e` notation. If `false` (default), use Unicode symbols and superscript notation.
@@ -852,13 +848,17 @@ These methods delegate to [`QuantityPartsService`](Services/QuantityPartsService
 ### fromParts()
 
 ```php
-public static function fromParts(array $parts): static
+public static function fromParts(
+    array $parts,
+    ?string $resultUnitSymbol = null
+): static
 ```
 
 Create a Quantity from component parts.
 
 **Parameters:**
 - `$parts` (`array<string, int|float>`) - Array of unit symbol => value pairs, optionally with a `'sign'` key (1 or -1).
+- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the configured default for this quantity type. The override does not modify the configured default.
 
 **Returns:**
 - `static` - The combined Quantity.
@@ -877,13 +877,17 @@ $duration = Time::fromParts(['h' => 2, 'min' => 30, 's' => 45]);
 ### toParts()
 
 ```php
-public function toParts(?int $precision = null): array
+public function toParts(
+    ?int $precision = null,
+    ?array $partUnitSymbols = null
+): array
 ```
 
-Convert to component parts using the quantity type's configured part unit symbols.
+Convert to component parts. Uses the quantity type's configured part unit symbols by default.
 
 **Parameters:**
 - `$precision` (?int) - Decimal places for the smallest unit, or null for no rounding.
+- `$partUnitSymbols` (?list<string>) - Part unit symbols to decompose into, or `null` to use the configured default for this quantity type. The override does not modify the configured default.
 
 **Returns:**
 - `array<string, int|float>` - Array with a `'sign'` key (1 or -1) and unit symbol => value pairs.
@@ -896,7 +900,10 @@ Convert to component parts using the quantity type's configured part unit symbol
 ### parseParts()
 
 ```php
-public static function parseParts(string $input): static
+public static function parseParts(
+    string $input,
+    ?string $resultUnitSymbol = null
+): static
 ```
 
 Parse a multi-part string into a Quantity.
@@ -905,6 +912,7 @@ Parses strings like `"4y 5mo 6d 12h 34min 56.789s"` where each part is a value i
 
 **Parameters:**
 - `$input` (string) - The string to parse.
+- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the configured default for this quantity type. The override does not modify the configured default.
 
 **Returns:**
 - `static` - A new Quantity representing the sum of the parts.
@@ -928,11 +936,12 @@ $angle = Angle::parseParts("12deg 34arcmin 56.789arcsec");
 public function formatParts(
     ?int $precision = null,
     bool $showZeros = false,
-    bool $ascii = false
+    bool $ascii = false,
+    ?array $partUnitSymbols = null
 ): string
 ```
 
-Format as component parts using the quantity type's configured part unit symbols.
+Format as component parts. Uses the quantity type's configured part unit symbols by default.
 
 Only the smallest unit may have a decimal point. Larger units will be integers. Zero-value components are omitted by default unless `$showZeros` is true.
 
@@ -940,6 +949,7 @@ Only the smallest unit may have a decimal point. Larger units will be integers. 
 - `$precision` (?int) - Decimal places for the smallest unit, or null for no rounding.
 - `$showZeros` (bool) - Include zero-value components.
 - `$ascii` (bool) - Use ASCII symbols only.
+- `$partUnitSymbols` (?list<string>) - Part unit symbols to format with, or `null` to use the configured default for this quantity type. The override does not modify the configured default.
 
 **Returns:**
 - `string` - Formatted string like `"5h 30min 45s"`.
@@ -979,7 +989,7 @@ Quantity::isValidQuantity('abc', $m);         // false
 
 ## See Also
 
-- **[DerivedUnit](Internal/DerivedUnit.md)** - Unit representation used by Quantity.
+- **[CompoundUnit](Internal/CompoundUnit.md)** - Unit representation used by Quantity.
 - **[Converter](Internal/Converter.md)** - Handles unit conversions.
 - **[DimensionService](Services/DimensionService.md)** - Dimension codes and base unit mappings.
 - **[QuantityType](Internal/QuantityType.md)** - Quantity type metadata.

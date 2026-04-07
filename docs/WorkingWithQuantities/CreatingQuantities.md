@@ -46,7 +46,7 @@ $torque = Quantity::create(120, 'N*m');
 $viscosity = Quantity::create(1.002e-3, 'Pa*s');
 ```
 
-The package does not provide dedicated `Quantity` subclasses for many quantity types. However, quantities of these types can be created by calling `Quantity::create()` with derived unit expressions (e.g. `'Pa*s'`, `'J/K'`, `'J/(kg*K)'`).
+The package does not provide dedicated `Quantity` subclasses for many quantity types. However, quantities of these types can be created by calling `Quantity::create()` with compound unit expressions (e.g. `'Pa*s'`, `'J/K'`, `'J/(kg*K)'`).
 
 The `Quantity::create()` factory method infers the dimension from the unit and checks the `QuantityTypeService` for an appropriate registered subclass. For example, `Quantity::create(10, 'm')` returns a `Length` object. If no dedicated subclass is registered for the quantity type, then the result will be a `Quantity` object.
 
