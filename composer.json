@@ -39,13 +39,15 @@
         "check": "vendor/bin/phpcs -s",
         "report": "vendor/bin/phpcs -q --report=summary",
         "analyze": "vendor/bin/phpstan analyze -l 9",
-        "test": "php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/coverage --coverage-clover build/logs/clover.xml --do-not-cache-result",
+        "test:unit": "scripts/test unit",
+        "test:currencies": "scripts/test currencies",
+        "test:all": "scripts/test",
         "coverage": "php scripts/coverage-check.php",
         "quality": [
             "@fix",
             "@check",
             "@analyze",
-            "@test",
+            "@test:all",
             "@coverage"
         ]
     },

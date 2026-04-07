@@ -12,9 +12,16 @@
 
     <testsuites>
         <testsuite name="unit">
-            <directory>tests</directory>
+            <directory>tests/NonCurrencies</directory>
+        </testsuite>
+        <testsuite name="currencies">
+            <directory>tests/Currencies</directory>
         </testsuite>
     </testsuites>
+
+    <!-- The default "unit" suite (set via defaultTestSuite above) runs the fast,
+         offline tests. The "currencies" suite hits live exchange rate APIs and
+         consumes quota; run it opt-in via "composer test:currencies". -->
 
     <coverage includeUncoveredFiles="true">
         <report>

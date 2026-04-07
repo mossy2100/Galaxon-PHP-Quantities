@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Tests\NonCurrencies\Internal;
 
 use DomainException;
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Internal\Conversion;
