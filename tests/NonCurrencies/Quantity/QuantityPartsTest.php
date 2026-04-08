@@ -13,7 +13,7 @@ use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\Services\QuantityPartsService;
-use LengthException;
+use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -196,37 +196,16 @@ final class QuantityPartsTest extends TestCase
     // region validatePartUnitSymbols() tests
 
     /**
-     * Test toParts() on base Quantity class without default part unit symbols throws exception.
+     * Test toParts() on a quantity type with no part unit symbols configured throws.
      */
     public function testToPartsOnBaseQuantityThrowsException(): void
     {
-        $this->expectException(LengthException::class);
-        $this->expectExceptionMessage('Cannot use an empty array');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('No part unit symbols specified');
 
-        // Base Quantity class has no default part unit symbols.
+        // The Force quantity type has no default part unit symbols.
         $qty = Quantity::create(100, 'kg*m/s2');
         $qty->toParts();
-    }
-
-    /**
-     * Test toParts() with unknown unit in class default throws exception.
-     */
-    public function testToPartsWithUnknownUnitInDefaultThrowsException(): void
-    {
-        // Temporarily set bad partUnitSymbols on the time quantity type.
-        $quantityType = Time::getQuantityType();
-        $original = QuantityPartsService::getPartUnitSymbols($quantityType);
-        QuantityPartsService::setPartUnitSymbols($quantityType, ['h', 'min', 'xyz']);
-
-        try {
-            $this->expectException(UnknownUnitException::class);
-            $this->expectExceptionMessage("Unknown unit: 'xyz'");
-
-            $time = new Time(100, 's');
-            $time->toParts();
-        } finally {
-            QuantityPartsService::setPartUnitSymbols($quantityType, $original);
-        }
     }
 
     // endregion

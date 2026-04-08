@@ -17,7 +17,7 @@ use Galaxon\Quantities\QuantityType\Time;
 use Galaxon\Quantities\QuantityType\Volume;
 use Galaxon\Quantities\Services\QuantityPartsService;
 use InvalidArgumentException;
-use LengthException;
+use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -562,17 +562,19 @@ final class QuantityPartsServiceTest extends TestCase
     }
 
     /**
-     * Test setPartUnitSymbols() throws for empty array.
+     * Test setPartUnitSymbols() with an empty array clears the configuration.
      */
-    public function testSetPartUnitSymbolsThrowsForEmptyArray(): void
+    public function testSetPartUnitSymbolsEmptyArrayClears(): void
     {
-        $this->expectException(LengthException::class);
-        $this->expectExceptionMessage('Cannot set an empty array');
+        $qtyType = Time::getQuantityType();
+        $original = QuantityPartsService::getPartUnitSymbols($qtyType);
 
-        QuantityPartsService::setPartUnitSymbols(
-            Time::getQuantityType(),
-            []
-        );
+        try {
+            QuantityPartsService::setPartUnitSymbols($qtyType, []);
+            $this->assertNull(QuantityPartsService::getPartUnitSymbols($qtyType));
+        } finally {
+            QuantityPartsService::setPartUnitSymbols($qtyType, $original);
+        }
     }
 
     /**
@@ -590,26 +592,12 @@ final class QuantityPartsServiceTest extends TestCase
     }
 
     /**
-     * Test setPartUnitSymbols() throws for empty string symbol.
+     * Test setPartUnitSymbols() throws for an unknown unit symbol.
      */
-    public function testSetPartUnitSymbolsThrowsForEmptyStringSymbol(): void
+    public function testSetPartUnitSymbolsThrowsForUnknownSymbol(): void
     {
-        $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid part unit symbol');
-
-        QuantityPartsService::setPartUnitSymbols(
-            Time::getQuantityType(),
-            ['h', '']
-        );
-    }
-
-    /**
-     * Test setPartUnitSymbols() throws for invalid unit symbol.
-     */
-    public function testSetPartUnitSymbolsThrowsForInvalidSymbol(): void
-    {
-        $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('Invalid part unit symbol');
+        $this->expectException(UnknownUnitException::class);
+        $this->expectExceptionMessage("Unknown unit: '123'");
 
         QuantityPartsService::setPartUnitSymbols(
             Time::getQuantityType(),
@@ -664,12 +652,15 @@ final class QuantityPartsServiceTest extends TestCase
     }
 
     /**
-     * Test setResultUnitSymbol() throws for empty string.
+     * Test setResultUnitSymbol() throws when the resolved unit is incompatible with the type.
+     *
+     * The empty string resolves to the dimensionless "scalar" unit, so attempting to use it as
+     * the result unit for a Time quantity raises a dimension mismatch.
      */
-    public function testSetResultUnitSymbolThrowsForEmptyString(): void
+    public function testSetResultUnitSymbolThrowsForIncompatibleEmptyString(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot set an empty string as result unit symbol');
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('incompatible');
 
         QuantityPartsService::setResultUnitSymbol(
             Time::getQuantityType(),
@@ -713,8 +704,8 @@ final class QuantityPartsServiceTest extends TestCase
         try {
             QuantityPartsService::setResultUnitSymbol($qtyType, null);
 
-            $this->expectException(DomainException::class);
-            $this->expectExceptionMessage('No result unit symbol configured');
+            $this->expectException(LogicException::class);
+            $this->expectExceptionMessage('No default result unit symbol configured for time quantities');
 
             QuantityPartsService::fromParts($qtyType, [
                 'h' => 1,
@@ -725,50 +716,33 @@ final class QuantityPartsServiceTest extends TestCase
     }
 
     /**
-     * Test fromParts() throws for unknown result unit symbol.
+     * Test fromParts() throws for an unknown inline result unit symbol.
      */
     public function testFromPartsThrowsForUnknownResultUnit(): void
     {
-        $qtyType = Time::getQuantityType();
+        $this->expectException(UnknownUnitException::class);
+        $this->expectExceptionMessage("Unknown result unit 'x'");
 
-        $original = QuantityPartsService::getResultUnitSymbol($qtyType);
-
-        try {
-            QuantityPartsService::setResultUnitSymbol($qtyType, 'x');
-
-            $this->expectException(DomainException::class);
-            $this->expectExceptionMessage("Unknown result unit 'x'");
-
-            QuantityPartsService::fromParts($qtyType, [
-                'h' => 1,
-            ]);
-        } finally {
-            QuantityPartsService::setResultUnitSymbol($qtyType, $original);
-        }
+        QuantityPartsService::fromParts(
+            Time::getQuantityType(),
+            ['h' => 1],
+            resultUnitSymbol: 'x'
+        );
     }
 
     /**
-     * Test fromParts() throws for incompatible result unit.
+     * Test fromParts() throws for an inline result unit incompatible with the quantity type.
      */
     public function testFromPartsThrowsForIncompatibleResultUnit(): void
     {
-        $qtyType = Time::getQuantityType();
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage('incompatible');
 
-        $original = QuantityPartsService::getResultUnitSymbol($qtyType);
-
-        try {
-            // Set a length unit as the result for a time quantity type.
-            QuantityPartsService::setResultUnitSymbol($qtyType, 'm');
-
-            $this->expectException(DomainException::class);
-            $this->expectExceptionMessage('incompatible');
-
-            QuantityPartsService::fromParts($qtyType, [
-                'h' => 1,
-            ]);
-        } finally {
-            QuantityPartsService::setResultUnitSymbol($qtyType, $original);
-        }
+        QuantityPartsService::fromParts(
+            Time::getQuantityType(),
+            ['h' => 1],
+            resultUnitSymbol: 'm'
+        );
     }
 
     // endregion
@@ -787,8 +761,8 @@ final class QuantityPartsServiceTest extends TestCase
         try {
             QuantityPartsService::setResultUnitSymbol($qtyType, null);
 
-            $this->expectException(DomainException::class);
-            $this->expectExceptionMessage('No result unit symbol configured');
+            $this->expectException(LogicException::class);
+            $this->expectExceptionMessage('No default result unit symbol configured for time quantities');
 
             QuantityPartsService::parseParts($qtyType, '1h 30min');
         } finally {
@@ -827,39 +801,29 @@ final class QuantityPartsServiceTest extends TestCase
     // region validatePartUnitSymbols() coverage tests
 
     /**
-     * Test toParts() throws when part unit symbols are not configured (empty).
+     * Test toParts() throws when no part unit symbols are configured for the quantity type.
      */
     public function testToPartsThrowsForEmptyPartUnitSymbols(): void
     {
         // Mass has no partUnitSymbols configured.
         $qty = new Mass(100, 'kg');
 
-        $this->expectException(LengthException::class);
-        $this->expectExceptionMessage('Cannot use an empty array');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('No part unit symbols specified for mass quantities');
 
         QuantityPartsService::toParts($qty);
     }
 
     /**
-     * Test toParts() throws when part unit symbols contain an unknown unit.
+     * Test toParts() throws when an inline part unit symbol is unknown.
      */
     public function testToPartsThrowsForUnknownPartUnitSymbol(): void
     {
-        $qtyType = Time::getQuantityType();
+        $this->expectException(UnknownUnitException::class);
+        $this->expectExceptionMessage("Unknown unit: 'xyz'");
 
-        $original = QuantityPartsService::getPartUnitSymbols($qtyType);
-
-        try {
-            QuantityPartsService::setPartUnitSymbols($qtyType, ['h', 'min', 'xyz']);
-
-            $this->expectException(UnknownUnitException::class);
-            $this->expectExceptionMessage("Unknown unit: 'xyz'");
-
-            $qty = new Time(3661, 's');
-            QuantityPartsService::toParts($qty);
-        } finally {
-            QuantityPartsService::setPartUnitSymbols($qtyType, $original);
-        }
+        $qty = new Time(3661, 's');
+        QuantityPartsService::toParts($qty, partUnitSymbols: ['h', 'min', 'xyz']);
     }
 
     // endregion
@@ -922,7 +886,7 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testToPartsExplicitEmptyArrayThrows(): void
     {
-        $this->expectException(LengthException::class);
+        $this->expectException(LogicException::class);
 
         $qty = new Time(60, 's');
         QuantityPartsService::toParts($qty, partUnitSymbols: []);
@@ -1034,8 +998,8 @@ final class QuantityPartsServiceTest extends TestCase
      */
     public function testFromPartsExplicitIncompatibleResultUnitThrows(): void
     {
-        $this->expectException(DomainException::class);
-        $this->expectExceptionMessage("Result unit 'kg' is incompatible with time quantities.");
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage("Result unit 'kg' (dimension 'M') is incompatible with time quantities (dimension 'T').");
 
         QuantityPartsService::fromParts(
             Time::getQuantityType(),
