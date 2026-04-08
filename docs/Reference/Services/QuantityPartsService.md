@@ -1,6 +1,6 @@
 # QuantityPartsService
 
-Service for decomposing quantities into parts and reassembling them.
+Internal service that powers the parts methods on `Quantity` (`fromParts`, `toParts`, `parseParts`, `formatParts`).
 
 **Namespace:** `Galaxon\Quantities\Services`
 
@@ -8,92 +8,42 @@ Service for decomposing quantities into parts and reassembling them.
 
 ## Overview
 
-The `QuantityPartsService` class maintains a configurable registry of default part unit symbols and result unit symbols for each quantity type. Built-in defaults are provided for length, time, angle, and mass.
+`QuantityPartsService` decomposes quantities into multi-unit parts and reassembles them — operations like turning `1.5 hours` into `"1h 30min 0s"` and back.
 
-To decompose, reassemble, parse, or format quantities as parts, use the corresponding methods on `Quantity` (`fromParts`, `toParts`, `parseParts`, `formatParts`) — see the [Quantity reference](../Quantity.md#parts-methods). Those methods read the configuration set up via this service.
+You generally shouldn't call its methods directly. The four parts methods are marked `@internal` and are exposed via wrapper methods on [`Quantity`](../Quantity.md#parts-methods) (and through to its subclasses such as `Time`, `Angle`, `Length`, `Mass`).
+
+Built-in defaults are baked into a private constant; the service has no mutable state. To use a different set of part units or a different result unit for a single call, pass `$partUnitSymbols` or `$resultUnitSymbol` directly to the parts method — see [Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md) for examples.
 
 ### Built-in Defaults
 
-| Quantity Type | Part Unit Symbols                     | Result Unit Symbol |
-|---------------|---------------------------------------|--------------------|
+| Quantity Type | Part Unit Symbols                    | Result Unit Symbol |
+|---------------|--------------------------------------|--------------------|
 | length        | `mi`, `yd`, `ft`, `in`               | `ft`               |
 | time          | `y`, `mo`, `w`, `d`, `h`, `min`, `s` | `s`                |
-| angle         | `deg`, `arcmin`, `arcsec`             | `deg`              |
-| mass          | *(none)*                              | `lb`               |
+| angle         | `deg`, `arcmin`, `arcsec`            | `deg`              |
+| mass          | *(none)*                             | `lb`               |
 
-All methods are static.
-
----
-
-## Configuration Methods
-
-### reset()
+For mass, the `Mass` class also exposes ready-to-use part-unit lists as constants:
 
 ```php
-public static function reset(): void
+Mass::IMP_PART_UNITS;  // ['LT', 'st', 'lb', 'oz']
+Mass::US_PART_UNITS;   // ['tn', 'lb', 'oz', 'gr']
 ```
 
-Reset the parts configurations to their defaults. Primarily intended for test isolation.
-
-### getPartUnitSymbols()
+Pass either constant inline as the `$partUnitSymbols` argument:
 
 ```php
-public static function getPartUnitSymbols(?QuantityType $quantityType): ?array
+$weight = new Mass(157, 'lb');
+echo $weight->formatParts(partUnitSymbols: Mass::IMP_PART_UNITS);  // "11st 3lb"
 ```
 
-Get the default part unit symbols for a quantity type.
-
-**Returns:** `?list<string>` — The part unit symbols, or `null` if none configured.
-
-**Throws:** [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) if the quantity type is null.
-
-### setPartUnitSymbols()
-
-```php
-public static function setPartUnitSymbols(
-    ?QuantityType $quantityType,
-    ?array $partUnitSymbols
-): void
-```
-
-Set the default part unit symbols for a quantity type. Pass `null` to clear. Duplicates are removed and values are re-indexed.
-
-**Throws:**
-- [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) if the quantity type is null.
-- `LengthException` if the array is empty.
-- `InvalidArgumentException` if the array contains non-string values.
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if any of the symbols are invalid.
-
-### getResultUnitSymbol()
-
-```php
-public static function getResultUnitSymbol(?QuantityType $quantityType): ?string
-```
-
-Get the default result unit symbol for a quantity type.
-
-**Returns:** `?string` — The result unit symbol, or `null` if none configured.
-
-**Throws:** [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) if the quantity type is null.
-
-### setResultUnitSymbol()
-
-```php
-public static function setResultUnitSymbol(
-    ?QuantityType $quantityType,
-    ?string $resultUnitSymbol
-): void
-```
-
-Set the default result unit symbol for a quantity type. Pass `null` to clear.
-
-**Throws:**
-- [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) if the quantity type is null.
-- `DomainException` if the value is an empty string.
+All methods on `QuantityPartsService` are static.
 
 ---
 
 ## See Also
 
-- **[Quantity](../Quantity.md)** — Core quantity value type
-- **[UnitService](UnitService.md)** — Unit lookup and registration
+- **[Quantity (Parts Methods)](../Quantity.md#parts-methods)** — The public API for parts decomposition and reassembly.
+- **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — Usage guide with examples.
+- **[Mass](../QuantityType/Mass.md)** — Includes the `IMP_PART_UNITS` and `US_PART_UNITS` convenience constants.
+- **[UnitService](UnitService.md)** — Unit lookup and registration.

@@ -219,7 +219,7 @@ final class UnitTest extends TestCase
             name: 'test',
             asciiSymbol: 'tst',
             dimension: 'L',
-            systems: ['SI', 'Imperial'] // @phpstan-ignore argument.type
+            systems: ['SI', 'Imperial']
         );
     }
 
@@ -429,7 +429,7 @@ final class UnitTest extends TestCase
 
         $prefixes = $unit->allowedPrefixes;
 
-        $this->assertIsArray($prefixes); // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($prefixes);
         $this->assertNotEmpty($prefixes);
     }
 
@@ -786,7 +786,7 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
-        $this->assertIsArray($symbols); // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($symbols);
         $this->assertArrayHasKey('m', $symbols);
     }
 

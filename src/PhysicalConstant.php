@@ -25,7 +25,7 @@ class PhysicalConstant
      * - 'value' — The numeric value (null for derived constants computed at runtime).
      * - 'unit' — The unit symbol (null for dimensionless or derived).
      *
-     * @var array<string, array{method: string, value?: float, unit?: string}>
+     * @var array<string, array{'method': string, 'value'?: float, 'unit'?: string}>
      */
     private const array SYMBOL_MAP = [
         // SI defining constants.
@@ -105,7 +105,7 @@ class PhysicalConstant
         'alpha'     => [
             'method' => 'fineStructure',
             'value'  => 7.2973525693e-3,
-            'unit'   => null,
+            'unit'   => '',
         ],
         'Rinf'      => [
             'method' => 'rydberg',

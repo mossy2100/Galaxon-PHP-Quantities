@@ -30,8 +30,8 @@ class DimensionService
      * The order of the codes determines the canonical ordering of terms within a dimension code, necessary for
      * comparing dimensions.
      *
-     * It also determines the ordering of unit terms in an SI compound unit. This is based on the most common ordering of
-     * base unit terms when writing SI units.
+     * It also determines the ordering of unit terms in an SI compound unit. This is based on the most common ordering
+     * of base unit terms when writing SI units.
      *
      * The dimension 'A' is not part of the ISQ, being considered a ratio of lengths, but we need it for this system.
      *
@@ -369,13 +369,11 @@ class DimensionService
         }
 
         // Check for a common base unit.
-        // @phpstan-ignore isset.offset
         if (isset(self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'])) {
             return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
         }
 
         // @codeCoverageIgnoreStart
-        // @phpstan-ignore deadCode.unreachable
         $system = $si ? 'SI' : 'English';
         throw new LogicException("No $system base unit is defined for dimension '$dimensionLetterCode'.");
         // @codeCoverageIgnoreEnd

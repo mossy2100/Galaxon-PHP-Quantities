@@ -28,7 +28,7 @@ final class UnitServiceTest extends TestCase
     {
         $result = UnitService::getAll();
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
     }
 
     /**
@@ -360,7 +360,7 @@ final class UnitServiceTest extends TestCase
     {
         $result = UnitService::getAllSymbols();
 
-        $this->assertIsArray($result); // @phpstan-ignore method.alreadyNarrowedType
+        $this->assertIsArray($result);
 
         foreach ($result as $symbol) {
             $this->assertIsString($symbol);

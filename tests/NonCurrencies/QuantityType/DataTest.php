@@ -659,7 +659,7 @@ final class DataTest extends TestCase
     public function testToSiFromKilobytes(): void
     {
         $data = new Data(5, 'kB');
-        $si = $data->toSi(true, false);
+        $si = $data->toSi();
 
         $this->assertSame(5000.0, $si->value);
         $this->assertSame('B', $si->compoundUnit->asciiSymbol);
@@ -671,7 +671,7 @@ final class DataTest extends TestCase
     public function testToSiFromMegabytes(): void
     {
         $data = new Data(2, 'MB');
-        $si = $data->toSi(true, false);
+        $si = $data->toSi();
 
         $this->assertSame(2000000.0, $si->value);
         $this->assertSame('B', $si->compoundUnit->asciiSymbol);
@@ -683,7 +683,7 @@ final class DataTest extends TestCase
     public function testToSiFromKibibytes(): void
     {
         $data = new Data(1, 'KiB');
-        $si = $data->toSi(true, false);
+        $si = $data->toSi();
 
         $this->assertSame(1024.0, $si->value);
         $this->assertSame('B', $si->compoundUnit->asciiSymbol);
@@ -695,7 +695,7 @@ final class DataTest extends TestCase
     public function testToSiFromMegabits(): void
     {
         $data = new Data(1, 'Mb');
-        $si = $data->toSi(true, false);
+        $si = $data->toSi();
 
         // 1 Mb = 1,000,000 bits = 125,000 bytes
         $this->assertSame(125000.0, $si->value);

@@ -41,13 +41,13 @@
         "analyze": "vendor/bin/phpstan analyze -l 9",
         "test:unit": "scripts/test unit",
         "test:currencies": "scripts/test currencies",
-        "test:all": "scripts/test",
+        "test": "scripts/test",
         "coverage": "php scripts/coverage-check.php",
         "quality": [
             "@fix",
             "@check",
             "@analyze",
-            "@test:all",
+            "@test",
             "@coverage"
         ]
     },

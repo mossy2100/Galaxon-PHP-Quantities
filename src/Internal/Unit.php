@@ -194,7 +194,7 @@ class Unit implements UnitInterface
      * @param string $name The unit name (e.g. 'meter', 'gram').
      * @param string $asciiSymbol The ASCII symbol (e.g. 'm', 'g').
      * @param string $dimension The dimension code (e.g. 'L', 'M', 'T-1').
-     * @param UnitSystem|list<UnitSystem> $systems The measurement systems this unit belongs to.
+     * @param list<UnitSystem> $systems The measurement systems this unit belongs to.
      * @param int $prefixGroup Bitwise flags indicating which prefixes are allowed (0 if none).
      * @param ?string $unicodeSymbol The Unicode symbol (e.g. 'Ω'), or null if it's the same as ASCII.
      * @param ?string $alternateSymbol An additional symbol that will be accepted by the parser, or null.

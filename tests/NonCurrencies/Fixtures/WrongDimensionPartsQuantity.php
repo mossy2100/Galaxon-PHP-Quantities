@@ -9,7 +9,7 @@ use Galaxon\Quantities\QuantityType\Time;
 /**
  * A Time subclass with a wrong-dimension unit in its default part unit symbols.
  *
- * Used for testing the "wrong dimension" error path in validatePartUnitSymbols().
+ * Used for testing the "wrong dimension" error path in validatePartUnits().
  */
 class WrongDimensionPartsQuantity extends Time
 {

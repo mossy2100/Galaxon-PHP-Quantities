@@ -843,7 +843,7 @@ Quantity::getDimension();     // null
 
 Parts methods allow decomposing a quantity into multiple unit components (e.g. hours, minutes, seconds) and reconstructing from them.
 
-These methods delegate to [`QuantityPartsService`](Services/QuantityPartsService.md), which holds the configurable part unit symbols and result unit symbols for each quantity type. Use `QuantityPartsService` directly to get or set these configurations.
+These methods delegate to [`QuantityPartsService`](Services/QuantityPartsService.md), which holds the default part unit symbols and result unit symbols for several quantity types.
 
 ### fromParts()
 
@@ -858,15 +858,17 @@ Create a Quantity from component parts.
 
 **Parameters:**
 - `$parts` (`array<string, int|float>`) - Array of unit symbol => value pairs, optionally with a `'sign'` key (1 or -1).
-- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the configured default for this quantity type. The override does not modify the configured default.
+- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the built-in default for this quantity type.
 
 **Returns:**
 - `static` - The combined Quantity.
 
 **Throws:**
 - [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) - If the quantity type is null (called on an unregistered subclass).
-- `DomainException` - If the result unit symbol or sign is invalid.
-- `InvalidArgumentException` - If any of the unit symbols are not strings, or any of the values are not numbers.
+- `DomainException` - If the sign is not -1 or 1.
+- `LogicException` - If `$resultUnitSymbol` is null and no default exists for the quantity type.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If `$resultUnitSymbol` is not a recognized unit, or any of the part unit symbols are not.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If `$resultUnitSymbol` is incompatible with the quantity type.
 
 **Examples:**
 ```php
@@ -883,19 +885,22 @@ public function toParts(
 ): array
 ```
 
-Convert to component parts. Uses the quantity type's configured part unit symbols by default.
+Convert to component parts. Uses the built-in part units for the quantity type by default.
 
 **Parameters:**
 - `$precision` (?int) - Decimal places for the smallest unit, or null for no rounding.
-- `$partUnitSymbols` (?list<string>) - Part unit symbols to decompose into, or `null` to use the configured default for this quantity type. The override does not modify the configured default.
+- `$partUnitSymbols` (?list<string>) - Part unit symbols to decompose into, or `null` to use the built-in default for this quantity type.
 
 **Returns:**
 - `array<string, int|float>` - Array with a `'sign'` key (1 or -1) and unit symbol => value pairs.
 
 **Throws:**
 - [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) - If the quantity type is null (called on an unregistered subclass).
-- `DomainException` - If precision is negative or part unit symbols are not configured.
-- `InvalidArgumentException` - If any of the part unit symbols are not strings.
+- `DomainException` - If precision is negative, or if `$partUnitSymbols` is an empty array.
+- `LogicException` - If `$partUnitSymbols` is null and no default exists for the quantity type.
+- `InvalidArgumentException` - If any of the unit symbols are not strings.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a part unit symbol is not recognized.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If a part unit is incompatible with the quantity's dimension.
 
 ### parseParts()
 
@@ -912,17 +917,18 @@ Parses strings like `"4y 5mo 6d 12h 34min 56.789s"` where each part is a value i
 
 **Parameters:**
 - `$input` (string) - The string to parse.
-- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the configured default for this quantity type. The override does not modify the configured default.
+- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the built-in default for this quantity type.
 
 **Returns:**
 - `static` - A new Quantity representing the sum of the parts.
 
 **Throws:**
 - [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) - If the quantity type is null (called on an unregistered subclass).
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is invalid.
-- `DomainException` - If the result unit symbol is invalid.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty or malformed.
+- `LogicException` - If `$resultUnitSymbol` is null and no default exists for the quantity type.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If `$resultUnitSymbol` is not a recognized unit.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If `$resultUnitSymbol` is incompatible with the quantity type.
 - `UnexpectedValueException` - If there is an unexpected error during parsing.
-- `InvalidArgumentException` - If any of the part unit symbols are not strings.
 
 **Examples:**
 ```php
@@ -941,7 +947,7 @@ public function formatParts(
 ): string
 ```
 
-Format as component parts. Uses the quantity type's configured part unit symbols by default.
+Format as component parts. Uses the built-in part units for the quantity type by default.
 
 Only the smallest unit may have a decimal point. Larger units will be integers. Zero-value components are omitted by default unless `$showZeros` is true.
 
@@ -949,15 +955,18 @@ Only the smallest unit may have a decimal point. Larger units will be integers. 
 - `$precision` (?int) - Decimal places for the smallest unit, or null for no rounding.
 - `$showZeros` (bool) - Include zero-value components.
 - `$ascii` (bool) - Use ASCII symbols only.
-- `$partUnitSymbols` (?list<string>) - Part unit symbols to format with, or `null` to use the configured default for this quantity type. The override does not modify the configured default.
+- `$partUnitSymbols` (?list<string>) - Part unit symbols to format with, or `null` to use the built-in default for this quantity type.
 
 **Returns:**
 - `string` - Formatted string like `"5h 30min 45s"`.
 
 **Throws:**
 - [`NullArgumentException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/NullArgumentException.md) - If the quantity type is null (called on an unregistered subclass).
-- `DomainException` - If part unit symbols are not configured or precision is negative.
-- `InvalidArgumentException` - If any of the part unit symbols are not strings.
+- `DomainException` - If precision is negative, or if `$partUnitSymbols` is an empty array.
+- `LogicException` - If `$partUnitSymbols` is null and no default exists for the quantity type.
+- `InvalidArgumentException` - If any of the unit symbols are not strings.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a part unit symbol is not recognized.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If a part unit is incompatible with the quantity's dimension.
 
 ---
 

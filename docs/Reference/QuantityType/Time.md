@@ -96,6 +96,14 @@ echo $time->formatParts();
 // 1d 1h 1min 1s
 ```
 
+To use a different set of part units, pass `partUnitSymbols` to the parts method. For example, to decompose into hours/minutes/seconds only:
+
+```php
+$time = new Time(90061, 's');
+echo $time->formatParts(partUnitSymbols: ['h', 'min', 's']);
+// 25h 1min 1s
+```
+
 ---
 
 ## Time Conversions
@@ -154,5 +162,5 @@ $total = $hours->add($minutes);  // 4 hours total
 
 - **[Units: Time](../../Concepts/Units.md#time)** — Complete list of time units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
-- **[QuantityPartsService](../Services/QuantityPartsService.md)** — General parts formatting and parsing.
 - **[PHP DateInterval](https://www.php.net/manual/en/class.dateinterval.php)** — Native PHP class.
+- **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — General parts formatting and parsing.

@@ -10,7 +10,7 @@ Some quantities are naturally expressed as a combination of units — angles in 
 
 ## Converting to Parts with `toParts()`
 
-The `toParts()` method breaks a quantity into integer components for each part unit, with only the smallest unit having a fractional value. By default, the set of parts used is read from `QuantityPartsService` — see [Default Part Units](#default-part-units) below for how to configure them.
+The `toParts()` method breaks a quantity into integer components for each part unit, with only the smallest unit having a fractional value. By default it uses the [built-in part units](#built-in-part-units) for the quantity type.
 
 ```php
 use Galaxon\Quantities\QuantityType\Angle;
@@ -27,7 +27,7 @@ $parts = $time->toParts();
 // ['sign' => 1, 'y' => 0, 'mo' => 0, 'w' => 0, 'd' => 0, 'h' => 1, 'min' => 1, 's' => 1.0]
 ```
 
-The result always includes a `sign` key (`1` for positive/zero, `-1` for negative) and an entry for every configured part unit (zero-valued entries are kept). The actual part values are always non-negative.
+The result always includes a `sign` key (`1` for positive/zero, `-1` for negative) and an entry for every part unit used (zero-valued entries are kept). The actual part values are always non-negative.
 
 Use the `precision` parameter to round the smallest unit:
 
@@ -43,7 +43,7 @@ $parts = $time->toParts(precision: 0);
 
 If rounding the smallest unit causes it to overflow (e.g. 59.9 seconds rounds to 60), the larger parts are adjusted automatically.
 
-You can also pass `$partUnitSymbols` to override the configured default for a single call. The configuration is not modified.
+Pass `$partUnitSymbols` to use a different set of part units for this call:
 
 ```php
 $time = new Time(3661, 's');
@@ -71,10 +71,10 @@ $time = Time::fromParts(['h' => 1, 'min' => 30, 'sign' => -1]);
 echo $time;  // -5400 s
 ```
 
-By default, the result is expressed in the configured result unit for the quantity type (e.g. `'s'` for Time, `'deg'` for Angle). You can pass `$resultUnitSymbol` to override this for a single call without modifying the configured default. To change the default permanently, see [Default Part Units](#default-part-units).
+By default, the result is expressed in the [built-in result unit](#built-in-part-units) for the quantity type (e.g. `'s'` for Time, `'deg'` for Angle). Pass `$resultUnitSymbol` to choose a different unit:
 
 ```php
-// Express the assembled result in minutes instead of the configured 's'.
+// Express the assembled result in minutes instead of the default 's'.
 $time = Time::fromParts(['h' => 1, 'min' => 30], resultUnitSymbol: 'min');
 echo $time;  // 90 min
 ```
@@ -99,7 +99,7 @@ $time = Time::parseParts('-2h 15min');
 echo $time;  // -8100 s
 ```
 
-As with `fromParts()`, the result is expressed in the configured result unit by default. Pass `$resultUnitSymbol` to override for a single call:
+As with `fromParts()`, the result is expressed in the built-in result unit by default. Pass `$resultUnitSymbol` to choose a different unit:
 
 ```php
 $time = Time::parseParts('1h 30min', resultUnitSymbol: 'min');
@@ -110,7 +110,7 @@ echo $time;  // 90 min
 
 ## Formatting Parts with `formatParts()`
 
-The `formatParts()` method produces a human-readable string, using the configured part units for the quantity type:
+The `formatParts()` method produces a human-readable string, using the built-in part units for the quantity type:
 
 ```php
 use Galaxon\Quantities\QuantityType\Angle;
@@ -136,7 +136,7 @@ $time = new Time(-3661, 's');
 echo $time->formatParts();                 // -1h 1min 1s
 ```
 
-You can also pass `$partUnitSymbols` to override the configured default for a single call:
+Pass `$partUnitSymbols` to use a different set of part units for this call:
 
 ```php
 $height = new Length(68, 'in');
@@ -145,36 +145,46 @@ echo $height->formatParts(partUnitSymbols: ['ft', 'in']);  // 5ft 8in
 
 ---
 
-## Default Part Units
+## Built-in Part Units
 
-Some quantity types have default part unit symbols and result unit symbols. You can read and customise these at runtime via the `QuantityPartsService`:
+The four parts methods use these baked-in defaults when called without explicit `$partUnitSymbols` or `$resultUnitSymbol`:
+
+| Quantity Type | Part Units                           | Result Unit |
+|---------------|--------------------------------------|-------------|
+| Length        | `mi`, `yd`, `ft`, `in`               | `ft`        |
+| Time          | `y`, `mo`, `w`, `d`, `h`, `min`, `s` | `s`         |
+| Angle         | `deg`, `arcmin`, `arcsec`            | `deg`       |
+| Mass          | *(none — must pass explicitly)*      | `lb`        |
+
+Other quantity types have no built-in part units; calling a parts method on them without an explicit list throws `LogicException`.
+
+To use a different set of units, just pass them inline. There is no global state to configure or reset — every call is independent:
 
 ```php
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\Services\QuantityPartsService;
+// Time as h/min/s instead of the full y/mo/w/d/h/min/s.
+$time = new Time(5400, 's');
+echo $time->formatParts(partUnitSymbols: ['h', 'min', 's']);  // 1h 30min
 
-// Check the defaults
-QuantityPartsService::getPartUnitSymbols(Time::getQuantityType());
-// ['y', 'mo', 'w', 'd', 'h', 'min', 's']
-QuantityPartsService::getPartUnitSymbols(Angle::getQuantityType());
-// ['deg', 'arcmin', 'arcsec']
-
-// Customise for your application
-QuantityPartsService::setPartUnitSymbols(Time::getQuantityType(), ['h', 'min', 's']);
-QuantityPartsService::setResultUnitSymbol(Time::getQuantityType(), 'min');
+// Length as ft/in instead of mi/yd/ft/in.
+$height = new Length(68, 'in');
+echo $height->formatParts(partUnitSymbols: ['ft', 'in']);     // 5ft 8in
 ```
 
-The Mass class provides convenience methods for setting up imperial or US customary parts:
+### Mass: Imperial and US Customary part lists
+
+Mass has no built-in part units (the choice between imperial stones, US customary tons, and so on is application-specific), but the `Mass` class exposes both common lists as constants:
 
 ```php
 use Galaxon\Quantities\QuantityType\Mass;
 
-Mass::setImperialParts();
-// Sets: ['LT', 'st', 'lb', 'oz'] with result unit 'lb'
+Mass::IMP_PART_UNITS;  // ['LT', 'st', 'lb', 'oz']
+Mass::US_PART_UNITS;   // ['tn', 'lb', 'oz', 'gr']
 
 $weight = new Mass(157, 'lb');
-echo $weight->formatParts();  // 11st 3lb
+echo $weight->formatParts(partUnitSymbols: Mass::IMP_PART_UNITS);  // 11st 3lb
+
+$produce = new Mass(52, 'oz');
+echo $produce->formatParts(partUnitSymbols: Mass::US_PART_UNITS);  // 3lb 4oz
 ```
 
 ---

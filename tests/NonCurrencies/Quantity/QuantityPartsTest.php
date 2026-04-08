@@ -8,7 +8,6 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Time;
@@ -193,7 +192,7 @@ final class QuantityPartsTest extends TestCase
 
     // endregion
 
-    // region validatePartUnitSymbols() tests
+    // region toParts() error tests
 
     /**
      * Test toParts() on a quantity type with no part unit symbols configured throws.
@@ -201,46 +200,11 @@ final class QuantityPartsTest extends TestCase
     public function testToPartsOnBaseQuantityThrowsException(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('No part unit symbols specified');
+        $this->expectExceptionMessage('No default part unit symbols configured for force quantities');
 
         // The Force quantity type has no default part unit symbols.
         $qty = Quantity::create(100, 'kg*m/s2');
         $qty->toParts();
-    }
-
-    // endregion
-
-    // region getPartUnitSymbols() / setPartUnitSymbols() tests
-
-    /**
-     * Test parts methods throw on base Quantity (no registered type).
-     */
-    public function testPartsMethodsThrowOnBaseQuantity(): void
-    {
-        $this->expectException(NullArgumentException::class);
-        $this->expectExceptionMessage('must not be null');
-
-        QuantityPartsService::getPartUnitSymbols(Quantity::getQuantityType());
-    }
-
-    // endregion
-
-    // region getResultUnitSymbol() / setResultUnitSymbol() tests
-
-    /**
-     * Test setResultUnitSymbol() changes the symbol on a registered type.
-     */
-    public function testSetResultUnitSymbolChangesSymbol(): void
-    {
-        $quantityType = Time::getQuantityType();
-        $original = QuantityPartsService::getResultUnitSymbol($quantityType);
-
-        try {
-            QuantityPartsService::setResultUnitSymbol($quantityType, 'min');
-            $this->assertSame('min', QuantityPartsService::getResultUnitSymbol($quantityType));
-        } finally {
-            QuantityPartsService::setResultUnitSymbol($quantityType, $original);
-        }
     }
 
     // endregion

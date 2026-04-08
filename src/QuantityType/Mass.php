@@ -7,7 +7,6 @@ namespace Galaxon\Quantities\QuantityType;
 use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\Services\QuantityPartsService;
 use Override;
 
 /**
@@ -15,6 +14,24 @@ use Override;
  */
 class Mass extends Quantity
 {
+    // region Public constants
+
+    /**
+     * Imperial units for mass parts.
+     *
+     * @var list<string>
+     */
+    public const array IMP_PART_UNITS = ['LT', 'st', 'lb', 'oz'];
+
+    /**
+     * US customary units for mass parts.
+     *
+     * @var list<string>
+     */
+    public const array US_PART_UNITS = ['tn', 'lb', 'oz', 'gr'];
+
+    // endregion
+
     // region Overridden methods
 
     /**
@@ -102,28 +119,6 @@ class Mass extends Quantity
             ['lb', 'gr', 7000],
             ['oz t', 'gr', 480],
         ];
-    }
-
-    // endregion
-
-    // region Parts methods
-
-    /**
-     * Set the part units for imperial mass quantities.
-     */
-    public static function setImperialParts(): void
-    {
-        // The long ton and stone are in use, but the grain is not.
-        QuantityPartsService::setPartUnitSymbols(self::getQuantityType(), ['LT', 'st', 'lb', 'oz']);
-    }
-
-    /**
-     * Set the part units for US customary mass quantities.
-     */
-    public static function setUsCustomaryParts(): void
-    {
-        // The short ton and grain are in use, but the stone is not.
-        QuantityPartsService::setPartUnitSymbols(self::getQuantityType(), ['tn', 'lb', 'oz', 'gr']);
     }
 
     // endregion

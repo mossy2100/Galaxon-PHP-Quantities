@@ -13,49 +13,28 @@ The `Mass` class handles mass measurements across SI, Imperial, and US Customary
 
 The SI base unit for mass is the **kilogram** (kg), not the gram. This is the only SI base unit with a prefix. The gram is defined with all metric prefixes, so `kg`, `mg`, `μg`, etc. are all available.
 
-Mass has no default part unit symbols because the choice between Imperial and US Customary units depends on context. Two convenience methods configure the parts system.
-
 For the complete list of mass units, see [Units: Mass](../../Concepts/Units.md#mass).
 
 ---
 
-## Parts Methods
+## Parts
 
-### setImperialParts()
-
-```php
-public static function setImperialParts(): void
-```
-
-Set the part units for Imperial mass quantities. Configures long ton, stone, pound, and ounce as part units, with pound as the result unit.
+Mass has no built-in part unit list because the choice between Imperial and US Customary units depends on context. The `Mass` class exposes both common lists as constants — pass either to a parts method via `partUnitSymbols`:
 
 ```php
-Mass::setImperialParts();
+use Galaxon\Quantities\QuantityType\Mass;
+
+Mass::IMP_PART_UNITS;  // ['LT', 'st', 'lb', 'oz']
+Mass::US_PART_UNITS;   // ['tn', 'lb', 'oz', 'gr']
 
 $weight = new Mass(157, 'lb');
-echo $weight->formatParts();  // 11st 3lb
+echo $weight->formatParts(partUnitSymbols: Mass::IMP_PART_UNITS);  // 11st 3lb
 
-$cargo = new Mass(5000, 'lb');
-echo $cargo->formatParts();   // 2LT 37st 2lb
+$produce = new Mass(52, 'oz');
+echo $produce->formatParts(partUnitSymbols: Mass::US_PART_UNITS);  // 3lb 4oz
 ```
 
-### setUsCustomaryParts()
-
-```php
-public static function setUsCustomaryParts(): void
-```
-
-Set the part units for US Customary mass quantities. Configures short ton, pound, ounce, and grain as part units, with pound as the result unit.
-
-```php
-Mass::setUsCustomaryParts();
-
-$weight = new Mass(157, 'lb');
-echo $weight->formatParts();  // 157lb
-
-$cargo = new Mass(5000, 'lb');
-echo $cargo->formatParts();   // 2tn 1000lb
-```
+The default result unit for `Mass::fromParts()` and `Mass::parseParts()` is `lb`.
 
 ---
 
@@ -119,6 +98,6 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 - **[Units: Mass](../../Concepts/Units.md#mass)** — Complete list of mass units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
-- **[QuantityPartsService](../Services/QuantityPartsService.md)** — General parts formatting and parsing.
 - **[Force](Force.md)** — Related quantity (M·L·T⁻²).
 - **[Density](Density.md)** — Related quantity (M·L⁻³).
+- **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — General parts formatting and parsing.

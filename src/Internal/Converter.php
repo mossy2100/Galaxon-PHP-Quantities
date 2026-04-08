@@ -292,17 +292,15 @@ class Converter
             // Generate all exact conversions.
             do {
                 $nAdded = $this->generateConversions($srcUnit, $destUnit, true);
-                // @phpstan-ignore booleanNot.alwaysTrue
             } while ($nAdded > 0 && !$this->hasConversion($src, $dest));
 
             // Check if we have it.
-            if ($this->hasConversion($src, $dest)) { // @phpstan-ignore if.alwaysFalse
+            if ($this->hasConversion($src, $dest)) {
                 return $this->getConversion($src, $dest);
             }
 
             // Generate a batch of new conversions.
             $nAdded = $this->generateConversions($srcUnit, $destUnit);
-            // @phpstan-ignore booleanNot.alwaysTrue
         } while ($nAdded > 0 && !$this->hasConversion($src, $dest));
 
         // Return the desired conversion, or null if not found.

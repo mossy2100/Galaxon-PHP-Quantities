@@ -21,8 +21,9 @@ use UnexpectedValueException;
 /**
  * Service for decomposing quantities into parts and reassembling them.
  *
- * Handles operations like converting 1.5 hours into "1h 30min 0s" and vice versa.
- * Also stores the default part unit symbols and result unit symbols for each quantity type.
+ * Handles operations like converting 1.5 hours into "1h 30min 0s" and vice versa. Built-in
+ * defaults are baked in for length, time, angle, and mass; callers can override per call by
+ * passing $partUnitSymbols / $resultUnitSymbol arguments.
  */
 class QuantityPartsService
 {
@@ -56,144 +57,6 @@ class QuantityPartsService
 
     // endregion
 
-    // region Static properties
-
-    /**
-     * Mutable parts configurations, initialized from the constant.
-     *
-     * @var ?array<string, array{
-     *     partUnitSymbols?: list<string>,
-     *     resultUnitSymbol?: string}
-     * >
-     */
-    private static ?array $partsConfigs = null;
-
-    // endregion
-
-    // region Configuration methods
-
-    /**
-     * Reset the parts configurations to their defaults.
-     *
-     * Primarily intended for test isolation.
-     */
-    public static function reset(): void
-    {
-        self::$partsConfigs = null;
-    }
-
-    /**
-     * Get the default part unit symbols for a quantity type.
-     *
-     * @param ?QuantityType $quantityType The quantity type.
-     * @return ?list<string> The part unit symbols, or null if none configured.
-     * @throws NullArgumentException If the quantity type is null.
-     */
-    public static function getPartUnitSymbols(?QuantityType $quantityType): ?array
-    {
-        // The quantity type must be registered. A null value here indicates the caller is on a base
-        // or unregistered Quantity subclass.
-        $quantityType = self::validateQuantityType($quantityType);
-
-        // Lazily seed the registry from DEFAULT_PARTS_CONFIGS on first access.
-        self::init();
-        assert(self::$partsConfigs !== null);
-
-        // Returns null when no part units have been configured for this type (e.g. mass, which only
-        // has a result unit by default).
-        return self::$partsConfigs[$quantityType->name]['partUnitSymbols'] ?? null;
-    }
-
-    /**
-     * Set the default part unit symbols for a quantity type.
-     *
-     * @param ?QuantityType $quantityType The quantity type.
-     * @param ?list<string> $partUnitSymbols The part unit symbols, or null/empty to clear.
-     * @throws NullArgumentException If the quantity type is null.
-     * @throws InvalidArgumentException If any of the unit symbols are not strings.
-     * @throws UnknownUnitException If a unit symbol is not recognized.
-     */
-    public static function setPartUnitSymbols(?QuantityType $quantityType, ?array $partUnitSymbols): void
-    {
-        // The quantity type must be registered.
-        $quantityType = self::validateQuantityType($quantityType);
-
-        // Seed defaults BEFORE writing, otherwise auto-vivification of $partsConfigs would clobber
-        // every other quantity type's configuration.
-        self::init();
-        assert(self::$partsConfigs !== null);
-
-        // Passing null or an empty array clears the configured part units for this type. Subsequent
-        // parts calls on this type will throw LogicException unless they pass an explicit list. To
-        // restore the original DEFAULT_PARTS_CONFIGS values, call reset().
-        if (empty($partUnitSymbols)) {
-            unset(self::$partsConfigs[$quantityType->name]['partUnitSymbols']);
-            return;
-        }
-
-        // Validate up front so the registry can never end up containing bad symbols. The validator
-        // also normalises the list (drops duplicates, ignores keys); we re-derive the canonical
-        // string list from the resolved Unit objects to keep storage as plain symbols.
-        $partUnits = self::validatePartUnits($quantityType, $partUnitSymbols);
-        self::$partsConfigs[$quantityType->name]['partUnitSymbols']
-            = array_map(static fn(Unit $unit): string => $unit->asciiSymbol, $partUnits);
-    }
-
-    /**
-     * Get the default result unit symbol for a quantity type.
-     *
-     * @param ?QuantityType $quantityType The quantity type.
-     * @return ?string The result unit symbol, or null if none configured.
-     * @throws NullArgumentException If the quantity type is null.
-     */
-    public static function getResultUnitSymbol(?QuantityType $quantityType): ?string
-    {
-        // The quantity type must be registered.
-        $quantityType = self::validateQuantityType($quantityType);
-
-        // Lazily seed the registry from DEFAULT_PARTS_CONFIGS on first access.
-        self::init();
-        assert(self::$partsConfigs !== null);
-
-        // Returns null when no result unit has been configured for this type. fromParts() and
-        // parseParts() treat that as an error (LogicException) since they need a target unit.
-        return self::$partsConfigs[$quantityType->name]['resultUnitSymbol'] ?? null;
-    }
-
-    /**
-     * Set the default result unit symbol for a quantity type.
-     *
-     * @param ?QuantityType $quantityType The quantity type.
-     * @param ?string $resultUnitSymbol The result unit symbol, or null to clear.
-     * @throws NullArgumentException If the quantity type is null.
-     * @throws UnknownUnitException If the symbol is not a recognized unit.
-     * @throws DimensionMismatchException If the unit is incompatible with the quantity type.
-     */
-    public static function setResultUnitSymbol(?QuantityType $quantityType, ?string $resultUnitSymbol): void
-    {
-        // The quantity type must be registered.
-        $quantityType = self::validateQuantityType($quantityType);
-
-        // Seed defaults BEFORE writing, otherwise auto-vivification of $partsConfigs would clobber
-        // every other quantity type's configuration.
-        self::init();
-        assert(self::$partsConfigs !== null);
-
-        // Passing null clears the configured result unit for this type.
-        if ($resultUnitSymbol === null) {
-            unset(self::$partsConfigs[$quantityType->name]['resultUnitSymbol']);
-            return;
-        }
-
-        // Validate up front so the registry can never end up containing an unknown or
-        // dimension-incompatible symbol. The canonical ASCII symbol from the resolved Unit is
-        // stored, in case the caller passed a Unicode or alternate variant.
-        $resultUnit = self::validateResultUnit($quantityType, $resultUnitSymbol);
-        self::$partsConfigs[$quantityType->name]['resultUnitSymbol'] = $resultUnit->asciiSymbol;
-    }
-
-    // endregion
-
     // region Parts methods
 
     /**
@@ -209,20 +72,18 @@ class QuantityPartsService
      * @param ?string $resultUnitSymbol The result unit symbol, or null to use the default for this quantity type.
      * @return Quantity A new Quantity representing the sum of the parts.
      * @throws NullArgumentException If the quantity type is null.
-     * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
-     * numbers.
      * @throws DomainException If the sign is not -1 or 1.
-     * @throws LogicException If the result unit symbol is null, and no default is configured for the quantity type.
-     * @throws UnknownUnitException If the result unit symbol is not a recognized unit.
-     * @throws DimensionMismatchException If the result unit is incompatible with the quantity type.
+     * @throws LogicException If $resultUnitSymbol is null and no default exists for the quantity type.
+     * @throws UnknownUnitException If $resultUnitSymbol or any of the part unit symbols are not recognized units.
+     * @throws DimensionMismatchException If $resultUnitSymbol is incompatible with the quantity type.
      * @internal Call the Quantity method with the same name, not this one.
      */
-    public static function fromParts(?QuantityType $quantityType, array $parts, ?string $resultUnitSymbol = null): Quantity
-    {
+    public static function fromParts(
+        ?QuantityType $quantityType,
+        array $parts,
+        ?string $resultUnitSymbol = null
+    ): Quantity {
         $quantityType = self::validateQuantityType($quantityType);
-
-        // Get the default result unit symbol if not provided.
-        $resultUnitSymbol ??= self::getResultUnitSymbol($quantityType);
 
         // Validate the result unit symbol and get the Unit.
         $resultUnit = self::validateResultUnit($quantityType, $resultUnitSymbol);
@@ -271,10 +132,11 @@ class QuantityPartsService
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws NullArgumentException If the quantity type is null.
-     * @throws DomainException If precision is negative.
-     * @throws LogicException If the $partUnitSymbols argument is null or an empty array, and no default is configured.
+     * @throws DomainException If precision is negative, or if $partUnitSymbols is an empty array.
+     * @throws LogicException If $partUnitSymbols is null and no default exists for the quantity type.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
-     * @throws UnknownUnitException If a unit symbol is not recognized.
+     * @throws UnknownUnitException If a part unit symbol is not recognized.
+     * @throws DimensionMismatchException If a part unit is incompatible with the quantity's dimension.
      * @internal Call the Quantity method with the same name, not this one.
      */
     public static function toParts(Quantity $quantity, ?int $precision = null, ?array $partUnitSymbols = null): array
@@ -284,10 +146,7 @@ class QuantityPartsService
         // Validate the precision.
         self::validatePrecision($precision);
 
-        // Get the default part units if none were specified.
-        $partUnitSymbols ??= self::getPartUnitSymbols($quantityType);
-
-        // Validate the part units.
+        // Validate the part unit symbols and load the units.
         $partUnits = self::validatePartUnits($quantityType, $partUnitSymbols);
 
         // Initialize the result array.
@@ -354,9 +213,9 @@ class QuantityPartsService
      * @throws NullArgumentException If the quantity type is null.
      * @throws FormatException If the input string is empty or malformed.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
-     * @throws LogicException If the result unit symbol is null, and no default is configured for the quantity type.
-     * @throws UnknownUnitException If the result unit symbol is not a recognized unit.
-     * @throws DimensionMismatchException If the result unit is incompatible with the quantity type.
+     * @throws LogicException If $resultUnitSymbol is null and no default exists for the quantity type.
+     * @throws UnknownUnitException If $resultUnitSymbol is not a recognized unit.
+     * @throws DimensionMismatchException If $resultUnitSymbol is incompatible with the quantity type.
      * @internal Call the Quantity method with the same name, not this one.
      */
     public static function parseParts(
@@ -371,9 +230,6 @@ class QuantityPartsService
         if ($input === '') {
             throw new FormatException('The input string is empty.');
         }
-
-        // Get the default result unit symbol if not provided.
-        $resultUnitSymbol ??= self::getResultUnitSymbol($quantityType);
 
         // Validate the result unit symbol and get the Unit.
         $resultUnit = self::validateResultUnit($quantityType, $resultUnitSymbol);
@@ -448,10 +304,11 @@ class QuantityPartsService
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return string The formatted string.
      * @throws NullArgumentException If the quantity type is null.
-     * @throws DomainException If precision is negative.
-     * @throws LogicException If the $partUnitSymbols argument is null or an empty array, and no default is configured
+     * @throws DomainException If precision is negative, or if $partUnitSymbols is an empty array.
+     * @throws LogicException If $partUnitSymbols is null and no default exists for the quantity type.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
-     * @throws UnknownUnitException If a unit symbol is not recognized.
+     * @throws UnknownUnitException If a part unit symbol is not recognized.
+     * @throws DimensionMismatchException If a part unit is incompatible with the quantity's dimension.
      * @internal Call the Quantity method with the same name, not this one.
      */
     public static function formatParts(
@@ -463,10 +320,7 @@ class QuantityPartsService
     ): string {
         $quantityType = self::validateQuantityType($quantity->quantityType);
 
-        // Get the default part units if none were specified.
-        $partUnitSymbols ??= self::getPartUnitSymbols($quantityType);
-
-        // Validate the part units.
+        // Validate the part unit symbols and load the units.
         $partUnits = self::validatePartUnits($quantityType, $partUnitSymbols);
 
         // Get the quantity as parts.
@@ -541,21 +395,31 @@ class QuantityPartsService
     /**
      * Validate the part unit symbols and resolve them to Unit objects.
      *
-     * Duplicates and string keys are ignored. The caller is responsible for resolving any null
-     * input via {@see self::getPartUnitSymbols()} before calling this method.
+     * If $partUnitSymbols is null, falls back to the default in DEFAULT_PARTS_CONFIGS for the
+     * quantity type. Duplicates and string keys are dropped from the resolved list.
      *
-     * @param QuantityType $quantityType The quantity type the symbols belong to. Used for error messages only.
-     * @param ?list<string> $partUnitSymbols The part unit symbols to validate.
+     * @param QuantityType $quantityType The quantity type the symbols belong to. Used for default lookup and error
+     * messages.
+     * @param ?list<string> $partUnitSymbols The part unit symbols to validate, or null to use the default.
      * @return list<Unit> The corresponding Unit objects, in input order with duplicates removed.
-     * @throws LogicException If the $partUnitSymbols argument is null or an empty array.
+     * @throws DomainException If $partUnitSymbols is an empty array.
+     * @throws LogicException If $partUnitSymbols is null and no default exists for the quantity type.
      * @throws InvalidArgumentException If any of the unit symbols are not strings.
      * @throws UnknownUnitException If a unit symbol is not recognized.
      */
     private static function validatePartUnits(QuantityType $quantityType, ?array $partUnitSymbols): array
     {
+        // An empty array is invalid.
+        if ($partUnitSymbols === []) {
+            throw new DomainException('The array of part unit symbols cannot be empty.');
+        }
+
+        // If null, get the default value if there is one.
+        $partUnitSymbols ??= self::DEFAULT_PARTS_CONFIGS[$quantityType->name]['partUnitSymbols'] ?? null;
+
         // Ensure we have some part units.
-        if (empty($partUnitSymbols)) {
-            throw new LogicException("No part unit symbols specified for $quantityType->name quantities.");
+        if ($partUnitSymbols === null) {
+            throw new LogicException("No default part unit symbols configured for $quantityType->name quantities.");
         }
 
         // Drop string keys and duplicates.
@@ -584,32 +448,30 @@ class QuantityPartsService
     /**
      * Validate the result unit symbol and resolve it to a Unit object.
      *
-     * The caller is responsible for resolving any null input via {@see self::getResultUnitSymbol()}
-     * before calling this method.
+     * If $resultUnitSymbol is null, falls back to the default in DEFAULT_PARTS_CONFIGS for the
+     * quantity type.
      *
      * @param QuantityType $quantityType The quantity type the result unit must belong to.
-     * @param ?string $resultUnitSymbol The result unit symbol.
+     * @param ?string $resultUnitSymbol The result unit symbol, or null to use the default.
      * @return Unit The resolved Unit object.
-     * @throws LogicException If the result unit symbol is null.
+     * @throws LogicException If $resultUnitSymbol is null and no default exists for the quantity type.
      * @throws UnknownUnitException If the symbol is not a recognized unit.
      * @throws DimensionMismatchException If the unit is incompatible with the quantity type.
      */
     private static function validateResultUnit(QuantityType $quantityType, ?string $resultUnitSymbol): Unit
     {
+        // If null, get the default value if there is one.
+        $resultUnitSymbol ??= self::DEFAULT_PARTS_CONFIGS[$quantityType->name]['resultUnitSymbol'] ?? null;
+
         // Ensure we have a result unit symbol.
         if ($resultUnitSymbol === null) {
-            throw new LogicException(
-                "No default result unit symbol configured for $quantityType->name quantities."
-            );
+            throw new LogicException("No default result unit symbol configured for $quantityType->name quantities.");
         }
 
         // Get the unit.
         $resultUnit = UnitService::getBySymbol($resultUnitSymbol);
         if ($resultUnit === null) {
-            throw new UnknownUnitException(
-                $resultUnitSymbol,
-                "Unknown result unit '$resultUnitSymbol'."
-            );
+            throw new UnknownUnitException($resultUnitSymbol, "Unknown result unit '$resultUnitSymbol'.");
         }
 
         // Check the result unit is compatible with the quantity type.
@@ -623,22 +485,6 @@ class QuantityPartsService
         }
 
         return $resultUnit;
-    }
-
-    // endregion
-
-    // region Helper methods
-
-    /**
-     * Initialize the parts configurations from the constant.
-     *
-     * This is called lazily on first access.
-     */
-    private static function init(): void
-    {
-        if (self::$partsConfigs === null) {
-            self::$partsConfigs = self::DEFAULT_PARTS_CONFIGS;
-        }
     }
 
     // endregion

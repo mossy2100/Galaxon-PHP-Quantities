@@ -156,21 +156,25 @@ $radians = $angle->toRadians(); // 3.14159...
 
 ---
 
-## Degrees, Arcminutes, and Arcseconds
+## Parts
 
-Angles support part decomposition into degrees, arcminutes, and arcseconds by default:
+Angles support part decomposition into degrees, arcminutes, and arcseconds by default. To use a different set of part units (e.g. just degrees and arcminutes), pass `partUnitSymbols` to the parts method.
 
 ```php
 $angle = new Angle(45.504200, 'deg');
 
-$parts = $angle->toParts();
+$parts = $angle->toParts(precision: 2);
 // ['sign' => 1, 'deg' => 45, 'arcmin' => 30, 'arcsec' => 15.12]
 
-echo $angle->formatParts();
+echo $angle->formatParts(precision: 2);
 // 45° 30′ 15.12″
 
 $restored = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'arcsec' => 15]);
-echo $restored;  // 45.504167 deg
+echo $restored;  // 45.50417°
+
+// Decompose into degrees and arcminutes only.
+echo $angle->formatParts(precision: 2, partUnitSymbols: ['deg', 'arcmin']);
+// 45° 30.25′
 ```
 
 ---
@@ -198,5 +202,5 @@ $dms = Angle::parse("23° 26' 21\"");  // Earth's axial tilt
 
 - **[Units: Angle](../../Concepts/Units.md#angle)** — Complete list of angular units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
-- **[Part Decomposition](PartDecomposition.md)** — General parts formatting and parsing.
+- **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — General parts formatting and parsing.
 - **[SolidAngle](SolidAngle.md)** — Related quantity for solid angles.

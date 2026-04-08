@@ -7,7 +7,6 @@ namespace Galaxon\Quantities\Tests\NonCurrencies\QuantityType;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Traits\Asserts\FloatAssertions;
 use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\Services\QuantityPartsService;
 use Galaxon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -732,17 +731,10 @@ final class AngleTest extends TestCase
      */
     public function testFormatPartsToArcminutes(): void
     {
-        $quantityType = Angle::getQuantityType();
-        $original = QuantityPartsService::getPartUnitSymbols($quantityType);
-        QuantityPartsService::setPartUnitSymbols($quantityType, ['deg', 'arcmin']);
-        try {
-            $angle = new Angle(45.5, 'deg');
-            $result = $angle->formatParts(precision: 0);
+        $angle = new Angle(45.5, 'deg');
+        $result = $angle->formatParts(precision: 0, partUnitSymbols: ['deg', 'arcmin']);
 
-            $this->assertSame('45° 30′', $result);
-        } finally {
-            QuantityPartsService::setPartUnitSymbols($quantityType, $original);
-        }
+        $this->assertSame('45° 30′', $result);
     }
 
     /**
@@ -761,17 +753,10 @@ final class AngleTest extends TestCase
      */
     public function testFormatPartsNegative(): void
     {
-        $quantityType = Angle::getQuantityType();
-        $original = QuantityPartsService::getPartUnitSymbols($quantityType);
-        QuantityPartsService::setPartUnitSymbols($quantityType, ['deg', 'arcmin']);
-        try {
-            $angle = new Angle(-45.5, 'deg');
-            $result = $angle->formatParts(precision: 0);
+        $angle = new Angle(-45.5, 'deg');
+        $result = $angle->formatParts(precision: 0, partUnitSymbols: ['deg', 'arcmin']);
 
-            $this->assertSame('-45° 30′', $result);
-        } finally {
-            QuantityPartsService::setPartUnitSymbols($quantityType, $original);
-        }
+        $this->assertSame('-45° 30′', $result);
     }
 
     /**

@@ -15,21 +15,32 @@ For the complete list of length units, see [Units: Length](../../Concepts/Units.
 
 ---
 
-## Parts Methods
+## Parts
 
-The `Length` class supports decomposition into miles, yards, feet, and inches (Imperial/US):
+The `Length` class supports decomposition into miles, yards, feet, and inches (Imperial/US) by default. The default result unit for `Length::fromParts()` and `Length::parseParts()` is `ft`.
 
 ```php
 $length = new Length(5.5, 'ft');
 $parts = $length->toParts();
-// ['mi' => 0, 'yd' => 1, 'ft' => 2, 'in' => 6, 'sign' => 1]
+// ['sign' => 1, 'mi' => 0, 'yd' => 1, 'ft' => 2, 'in' => 6.0]
 
-// Create from parts
+echo $length->formatParts();
+// 1yd 2ft 6in
+
+// Create from parts.
 $length = Length::fromParts([
     'ft' => 5,
     'in' => 6,
-    'sign' => 1
 ]);
+echo $length;  // 5.5 ft
+```
+
+To use a different set of part units, pass `partUnitSymbols` to the parts method. For example, to decompose into feet and inches only:
+
+```php
+$height = new Length(68, 'in');
+echo $height->formatParts(partUnitSymbols: ['ft', 'in']);
+// 5ft 8in
 ```
 
 ---
@@ -97,3 +108,4 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Area](Area.md)** - Related quantity (L²)
 - **[Volume](Volume.md)** - Related quantity (L³)
+- **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — General parts formatting and parsing.

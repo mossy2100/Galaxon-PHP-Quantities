@@ -127,7 +127,7 @@ class Quantity implements Stringable
      * @throws FormatException If the unit is provided as a string, and it cannot be parsed.
      * @throws UnknownUnitException If the unit is provided as a string, and it contains unknown units.
      */
-    public function __construct(float $value, null|string|UnitInterface $unit = null)
+    final public function __construct(float $value, null|string|UnitInterface $unit = null)
     {
         // Check they aren't calling `new Quantity()`. We only want them to use `new Angle()` (for example),
         // `Quantity::create()` or `Quantity::parse()`.
@@ -1014,9 +1014,10 @@ class Quantity implements Stringable
      * @param ?string $resultUnitSymbol The result unit symbol, or null to use the default for this quantity type.
      * @return static A new Quantity representing the sum of the parts.
      * @throws NullArgumentException If the quantity type is null (unregistered).
-     * @throws InvalidArgumentException If any of the unit symbols are not strings, or any of the values are not
-     * numbers.
-     * @throws DomainException If the result unit symbol or sign is invalid.
+     * @throws DomainException If the sign is not -1 or 1.
+     * @throws LogicException If $resultUnitSymbol is null and no default exists for the quantity type.
+     * @throws UnknownUnitException If $resultUnitSymbol or any of the part unit symbols are not recognized units.
+     * @throws DimensionMismatchException If $resultUnitSymbol is incompatible with the quantity type.
      * @see QuantityPartsService::fromParts()
      */
     public static function fromParts(array $parts, ?string $resultUnitSymbol = null): static
@@ -1031,8 +1032,11 @@ class Quantity implements Stringable
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws NullArgumentException If the quantity type is null (unregistered).
-     * @throws DomainException If precision is negative or part unit symbols are not configured.
-     * @throws InvalidArgumentException If any of the part unit symbols are not strings.
+     * @throws DomainException If precision is negative, or if $partUnitSymbols is an empty array.
+     * @throws LogicException If $partUnitSymbols is null and no default exists for the quantity type.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings.
+     * @throws UnknownUnitException If a part unit symbol is not recognized.
+     * @throws DimensionMismatchException If a part unit is incompatible with the quantity's dimension.
      * @see QuantityPartsService::toParts()
      */
     public function toParts(?int $precision = null, ?array $partUnitSymbols = null): array
@@ -1047,10 +1051,11 @@ class Quantity implements Stringable
      * @param ?string $resultUnitSymbol The result unit symbol, or null to use the default for this quantity type.
      * @return static A new Quantity representing the sum of the parts.
      * @throws NullArgumentException If the quantity type is null (unregistered).
-     * @throws FormatException If the input string is invalid.
+     * @throws FormatException If the input string is empty or malformed.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
-     * @throws DomainException If the result unit symbol is invalid.
-     * @throws InvalidArgumentException If any of the part unit symbols are not strings.
+     * @throws LogicException If $resultUnitSymbol is null and no default exists for the quantity type.
+     * @throws UnknownUnitException If $resultUnitSymbol is not a recognized unit.
+     * @throws DimensionMismatchException If $resultUnitSymbol is incompatible with the quantity type.
      * @see QuantityPartsService::parseParts()
      */
     public static function parseParts(string $input, ?string $resultUnitSymbol = null): static
@@ -1067,8 +1072,11 @@ class Quantity implements Stringable
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return string The formatted string.
      * @throws NullArgumentException If the quantity type is null (unregistered).
-     * @throws DomainException If part unit symbols are not configured or precision is negative.
-     * @throws InvalidArgumentException If any of the part unit symbols are not strings.
+     * @throws DomainException If precision is negative, or if $partUnitSymbols is an empty array.
+     * @throws LogicException If $partUnitSymbols is null and no default exists for the quantity type.
+     * @throws InvalidArgumentException If any of the unit symbols are not strings.
+     * @throws UnknownUnitException If a part unit symbol is not recognized.
+     * @throws DimensionMismatchException If a part unit is incompatible with the quantity's dimension.
      * @see QuantityPartsService::formatParts()
      */
     public function formatParts(
@@ -1160,7 +1168,9 @@ class Quantity implements Stringable
         }
 
         // Get the other Quantity in the same unit as this one.
-        return $this->compoundUnit->equal($other->compoundUnit) ? $other->value : $other->to($this->compoundUnit)->value;
+        return $this->compoundUnit->equal($other->compoundUnit)
+            ? $other->value
+            : $other->to($this->compoundUnit)->value;
     }
 
     // endregion

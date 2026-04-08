@@ -51,7 +51,7 @@ class AviationTest extends TestCase
 
         $this->assertInstanceOf(Time::class, $t);
         // 35,000 / 1,500 = 23.333 min = 1400 s
-        $tSi = $t->toSi(true, false);
+        $tSi = $t->toSi();
         $this->assertApproxEqual(1400.0, $tSi->value, 1e-3);
     }
 
@@ -74,7 +74,7 @@ class AviationTest extends TestCase
 
         $this->assertInstanceOf(Length::class, $distance);
         // 450 kn × 23.333 min → to SI: 231.5 m/s × 1400 s = 324,100 m
-        $distanceSi = $distance->toSi(true, false);
+        $distanceSi = $distance->toSi();
         $this->assertApproxEqual(324100, $distanceSi->value, 1e-2);
     }
 
