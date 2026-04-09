@@ -292,7 +292,9 @@ class Quantity implements Stringable
         $value = static::convert($this->value, $this->compoundUnit, $destUnit);
 
         // Create new object.
-        return self::create($value, $destUnit);
+        $result = self::create($value, $destUnit);
+        assert($result instanceof static); // keep phpstan happy
+        return $result;
     }
 
     /**
@@ -390,7 +392,9 @@ class Quantity implements Stringable
             if ($unitTerm !== null && $unitTerm->unit->asciiSymbol === 's' && $unitTerm->exponent === -1) {
                 // Create the Hz unit term.
                 $newUnitTerm = new UnitTerm('Hz', PrefixService::invert($unitTerm->prefix));
-                return static::create($qty->value, $newUnitTerm);
+                $result = static::create($qty->value, $newUnitTerm);
+                assert($result instanceof static);
+                return $result;
             }
         }
 
@@ -472,7 +476,9 @@ class Quantity implements Stringable
         $mergeQty = $this->compoundUnit->merge();
 
         // Multiply the merged Quantity by this Quantity's value.
-        return $mergeQty->mul($this->value);
+        $result = $mergeQty->mul($this->value);
+        assert($result instanceof static); // keep phpstan happy
+        return $result;
     }
 
     /**
@@ -538,7 +544,9 @@ class Quantity implements Stringable
         }
 
         // Create the result object.
-        return static::create($bestValue * $sign, $newCompoundUnit);
+        $result = static::create($bestValue * $sign, $newCompoundUnit);
+        assert($result instanceof static); // keep phpstan happy
+        return $result;
     }
 
     /**
@@ -550,10 +558,12 @@ class Quantity implements Stringable
      */
     public function withValue(float $value): static
     {
-        // If called from Quantity (unregistered dimension), use the new() helper to bypass the
+        // If called from Quantity (unregistered quantity type), use the new() helper to bypass the
         // direct-instantiation guard.
         if (self::class === static::class) {
-            return self::new($value, $this->compoundUnit);
+            $result = self::new($value, $this->compoundUnit);
+            assert($result instanceof static); // keep phpstan happy
+            return $result;
         }
 
         // If called from a subclass, construct directly. This skips the dimension→class lookup in
@@ -1003,8 +1013,8 @@ class Quantity implements Stringable
     public static function fromParts(array $parts, ?string $resultUnitSymbol = null): static
     {
         // Ensure we have a QuantityType, and validate the result unit symbol.
-        $quantityType = static::validateQuantityType();
-        $resultUnit = static::validateResultUnit($quantityType, $resultUnitSymbol);
+        $quantityType = self::validateQuantityType();
+        $resultUnit = self::validateResultUnit($quantityType, $resultUnitSymbol);
 
         // Validate the sign.
         $sign = 1;
@@ -1035,6 +1045,7 @@ class Quantity implements Stringable
             $qty = $qty->neg();
         }
 
+        assert($qty instanceof static);
         return $qty;
     }
 
@@ -1058,8 +1069,8 @@ class Quantity implements Stringable
     public function toParts(?int $precision = null, ?array $partUnitSymbols = null): array
     {
         // Ensure we have a QuantityType, and validate the part unit symbols.
-        $quantityType = static::validateQuantityType();
-        $partUnits = static::validatePartUnits($quantityType, $partUnitSymbols);
+        $quantityType = self::validateQuantityType();
+        $partUnits = self::validatePartUnits($quantityType, $partUnitSymbols);
 
         // Validate the precision.
         if ($precision !== null && $precision < 0) {
@@ -1141,8 +1152,8 @@ class Quantity implements Stringable
         }
 
         // Ensure we have a QuantityType, and validate the result unit symbol.
-        $quantityType = static::validateQuantityType();
-        $resultUnit = static::validateResultUnit($quantityType, $resultUnitSymbol);
+        $quantityType = self::validateQuantityType();
+        $resultUnit = self::validateResultUnit($quantityType, $resultUnitSymbol);
 
         // Prepare error message.
         $err = "The provided string '$input' does not represent a valid $quantityType->name quantity.";
@@ -1226,8 +1237,8 @@ class Quantity implements Stringable
         ?array $partUnitSymbols = null
     ): string {
         // Ensure we have a QuantityType, and validate the part unit symbols.
-        $quantityType = static::validateQuantityType();
-        $partUnits = static::validatePartUnits($quantityType, $partUnitSymbols);
+        $quantityType = self::validateQuantityType();
+        $partUnits = self::validatePartUnits($quantityType, $partUnitSymbols);
 
         // Get the quantity as parts.
         $parts = $this->toParts($precision, $partUnitSymbols);

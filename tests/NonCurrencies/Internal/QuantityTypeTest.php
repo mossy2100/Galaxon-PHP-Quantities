@@ -107,6 +107,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('is not a subclass of');
 
+        // @phpstan-ignore assign.propertyType
         $qtyType->class = stdClass::class;
     }
 
@@ -133,6 +134,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('is not a subclass of');
 
+        // @phpstan-ignore assign.propertyType
         $qtyType->class = 'NonExistent\\FakeClass';
     }
 
