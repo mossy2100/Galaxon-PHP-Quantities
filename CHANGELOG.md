@@ -5,9 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-04-09
+
+### Removed
+
+- **`QuantityPartsService`** — Class deleted entirely. All parts functionality (`fromParts`, `toParts`, `parseParts`, `formatParts`) and the supporting validators now live directly on `Quantity` itself in the Parts region. Subclasses provide built-in defaults by overriding `getPartUnitSymbols()` and `getResultUnitSymbol()`. No global state, no service class. The corresponding `QuantityPartsServiceTest`, `docs/Reference/Services/QuantityPartsService.md`, and the row in the README services table were also removed.
+- **`Mass::setImperialParts()` / `setUsCustomaryParts()`** — Replaced with the public constants `Mass::IMP_PART_UNITS` and `Mass::US_PART_UNITS`. Callers now pass these inline via `partUnitSymbols`.
 
 ### Changed
+
+- **`Quantity` parts methods** — `fromParts()` and `parseParts()` return types tightened from `Quantity` to `static`. `validateQuantityType()` now returns the resolved `QuantityType` (non-null) and is passed into the unit validators, eliminating duplicate lookups and PHPStan null-safety issues.
+- **`composer.json`** — Bumped `galaxon/core` constraint to `^1.6` (required for `Floats::format()` and the Core v1.6.0 trait namespace reorganisation). `galaxon/coding-standard` switched from local path repo to `^1.0` from Packagist.
+- **Trait namespace updates** — Updated `use` statements throughout the package to match Core v1.6.0's trait reorganisation (`Galaxon\Core\Traits\Comparison\*`, `Galaxon\Core\Traits\Asserts\*`).
+- **`Quantity::isValidUnicodeSpecialChar()`** — Moved to `Internal\Unit::isValidUnicodeSpecialChar()` (public). `Quantity::format()` calls it directly.
+
+### Fixed
+
+- **`Quantity::to()`, `toDerived()`, `merge()`, `autoPrefix()`, `withValue()`, `fromParts()`** — Return types narrowed to `static` via `assert($result instanceof static)` so PHPStan level 9 can verify the dimension-preserving invariant. No runtime behaviour change.
+
+### Documentation
+
+- **Bulk docblock cleanup** — Replaced the verbose `@return array<string, array{...}>` annotation on every `getUnitDefinitions()` override across the 33 QuantityType subclasses with `@inheritDoc`, then removed `@inheritDoc` entirely (redundant alongside `#[Override]`). Restored minimal one-line docblocks on the 12 methods that were left bare (currency `getName()` overrides plus the parts hooks on `Length`/`Time`/`Angle`/`Mass`).
+- **`Quantity.md`** — Removed "delegates to `QuantityPartsService`" paragraph; updated parts-method exception lists; added entries for the new `getPartUnitSymbols()` / `getResultUnitSymbol()` subclass hooks under Subclass Methods.
+- **`UnknownUnitException.md`** — Table rows for `validatePartUnits()` / `validateResultUnit()` now point at `Quantity` instead of `QuantityPartsService`.
+
+### Code quality
+
+- **`composer quality` passes end-to-end**: PHPCS clean, PHPStan level 9 clean, PHPUnit all green, coverage threshold met. 100% test coverage maintained on the parts machinery after the move from `QuantityPartsService`.
+
+### Earlier work shipped in this release
+
+The entries below describe work done earlier in the 1.0 cycle. Some of them mention `QuantityPartsService`, which was later removed entirely (see the Removed section above) — they accurately record the intermediate state at the time the change was made.
+
+#### Changed
 
 - **DerivedUnit → CompoundUnit** — `Internal\DerivedUnit` renamed to `Internal\CompoundUnit`. The term *compound unit* now means "a unit formed by multiplying/dividing unit terms" (e.g. `kg·m/s²`), while *derived unit* means "a named unit that substitutes for a compound unit" (e.g. `N`, `lbf`, `Hz`).
 - **Quantity::simplify() → Quantity::toDerived()** — Method renamed to match the new terminology. Substitutes named derived units (like `N`) for equivalent compound base-unit forms (like `kg·m/s²`).
@@ -38,13 +68,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Quantity** — Split `Subclass methods` region into `Subclass methods` (for overridable methods) and `Lookup methods` (for `getQuantityType()` and `getDimension()`).
 - **Quantity** — `convert()` moved into `Unit conversion methods` region; `Utility methods` region removed.
 
-### Added
+#### Added
 
 - **Quantity::new()** — Private helper that encapsulates the `$allowConstruct` flag hack for constructing generic Quantity objects.
 - **Quantity::withValue()** — Now uses `new static()` directly for subclasses (skipping the dimension→class lookup), and the `new()` helper for base Quantity instances.
 - **DimensionMismatchException** — Constructor now accepts null dimensions.
 
-### Fixed
+#### Fixed
 
 - **Documentation** — Rewrote PrefixService.md, QuantityTypeService.md, QuantityPartsService.md, DimensionService.md, Quantity.md, PhysicalConstant.md, DimensionMismatchException.md with correct exception types, section names, signatures, return types, and missing/removed methods.
 - **PrefixService** — Fixed PHPDoc typo listing 16 as a valid group code.

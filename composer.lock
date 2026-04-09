@@ -4,15 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f789ac81858b9930ff35dcdd5038352",
+    "content-hash": "51bb8fe84b7ec00480eaca409fb854e2",
     "packages": [
         {
             "name": "galaxon/core",
-            "version": "dev-main",
+            "version": "v1.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mossy2100/Galaxon-PHP-Core.git",
+                "reference": "f7f63931eab6bd5b4fc2eb22d871edd1472ad896"
+            },
             "dist": {
-                "type": "path",
-                "url": "../Core",
-                "reference": "ad3019f4da95fe6e854f38d972c5c0696dfdde76"
+                "type": "zip",
+                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Core/zipball/f7f63931eab6bd5b4fc2eb22d871edd1472ad896",
+                "reference": "f7f63931eab6bd5b4fc2eb22d871edd1472ad896",
+                "shasum": ""
             },
             "require": {
                 "php": "^8.4"
@@ -29,45 +35,14 @@
                 "phpcodesniffer-search-depth": 3
             },
             "autoload": {
-                "psr-4": {
-                    "Galaxon\\Core\\": "src/"
-                },
                 "files": [
                     "src/functions.php"
-                ]
-            },
-            "autoload-dev": {
+                ],
                 "psr-4": {
-                    "Galaxon\\Core\\Tests\\": "tests/"
+                    "Galaxon\\Core\\": "src/"
                 }
             },
-            "scripts": {
-                "fix": [
-                    "vendor/bin/phpcbf -vp"
-                ],
-                "check": [
-                    "vendor/bin/phpcs -s"
-                ],
-                "report": [
-                    "vendor/bin/phpcs -q --report=summary"
-                ],
-                "analyze": [
-                    "vendor/bin/phpstan analyze -l 9"
-                ],
-                "test": [
-                    "php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-html build/coverage --coverage-clover build/logs/clover.xml --do-not-cache-result"
-                ],
-                "coverage": [
-                    "php scripts/coverage-check.php"
-                ],
-                "quality": [
-                    "@fix",
-                    "@check",
-                    "@analyze",
-                    "@test",
-                    "@coverage"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -98,9 +73,7 @@
                 "issues": "https://github.com/mossy2100/Galaxon-PHP-Core/issues",
                 "source": "https://github.com/mossy2100/Galaxon-PHP-Core"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2026-04-09T06:07:44+00:00"
         }
     ],
     "packages-dev": [
@@ -2173,9 +2146,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "galaxon/core": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
