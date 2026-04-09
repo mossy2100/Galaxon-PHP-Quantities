@@ -43,7 +43,6 @@ class FloatWithError implements Stringable
      *
      * Returns INF if value is zero but error is non-zero.
      * Returns 0.0 if both value and error are zero.
-     *
      */
     public float $relativeError {
         get {

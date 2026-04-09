@@ -181,13 +181,13 @@ class UnitService
      *
      * @param string $name The unit name.
      * @param array{
-     *            asciiSymbol: string,
-     *            dimension: string,
-     *            systems?: UnitSystem|list<UnitSystem>,
-     *            prefixGroup?: int,
-     *            unicodeSymbol?: string,
-     *            alternateSymbol?: string
-     *        } $definition The unit definition.
+     *     asciiSymbol: string,
+     *     dimension: string,
+     *     systems?: list<UnitSystem>,
+     *     prefixGroup?: int,
+     *     unicodeSymbol?: string,
+     *     alternateSymbol?: string
+     * } $definition The unit definition.
      * @param bool $replaceExisting Determines action to take if a unit with this name already exists in the registry.
      * If true, the existing unit will be replaced; otherwise, the operation will be terminated.
      * @throws DomainException If any of the new unit's symbols are equal to any existing unit's symbol.

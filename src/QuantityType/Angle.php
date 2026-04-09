@@ -30,14 +30,6 @@ class Angle extends Quantity
 
     /**
      * Unit definitions for angle.
-     *
-     * @return array<string, array{
-     *      asciiSymbol: string,
-     *      unicodeSymbol?: string,
-     *      prefixGroup?: int,
-     *      alternateSymbol?: string,
-     *      systems: list<UnitSystem>
-     *  }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -118,7 +110,7 @@ class Angle extends Quantity
     }
 
     /**
-     * @inheritdoc
+     * Default part units for angle decomposition: degrees, arcminutes, arcseconds.
      */
     #[Override]
     public static function getPartUnitSymbols(): ?array
@@ -127,7 +119,7 @@ class Angle extends Quantity
     }
 
     /**
-     * @inheritdoc
+     * Default result unit for angle parts methods: degrees.
      */
     #[Override]
     public static function getResultUnitSymbol(): ?string

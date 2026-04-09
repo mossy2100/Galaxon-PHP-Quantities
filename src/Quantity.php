@@ -293,7 +293,7 @@ class Quantity implements Stringable
 
         // Create new object.
         $result = self::create($value, $destUnit);
-        assert($result instanceof static); // keep phpstan happy
+        assert($result instanceof static);
         return $result;
     }
 
@@ -477,7 +477,7 @@ class Quantity implements Stringable
 
         // Multiply the merged Quantity by this Quantity's value.
         $result = $mergeQty->mul($this->value);
-        assert($result instanceof static); // keep phpstan happy
+        assert($result instanceof static);
         return $result;
     }
 
@@ -545,7 +545,7 @@ class Quantity implements Stringable
 
         // Create the result object.
         $result = static::create($bestValue * $sign, $newCompoundUnit);
-        assert($result instanceof static); // keep phpstan happy
+        assert($result instanceof static);
         return $result;
     }
 
@@ -562,7 +562,7 @@ class Quantity implements Stringable
         // direct-instantiation guard.
         if (self::class === static::class) {
             $result = self::new($value, $this->compoundUnit);
-            assert($result instanceof static); // keep phpstan happy
+            assert($result instanceof static);
             return $result;
         }
 
@@ -1144,7 +1144,8 @@ class Quantity implements Stringable
      * @throws UnknownUnitException If $resultUnitSymbol is not a recognized unit.
      * @throws DimensionMismatchException If $resultUnitSymbol is incompatible with the quantity type.
      */
-    public static function parseParts(string $input, ?string $resultUnitSymbol = null): static {
+    public static function parseParts(string $input, ?string $resultUnitSymbol = null): static
+    {
         // Ensure the input string is not empty.
         $input = trim($input);
         if ($input === '') {

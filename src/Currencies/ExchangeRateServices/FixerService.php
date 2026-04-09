@@ -56,6 +56,9 @@ class FixerService implements ExchangeRateServiceInterface
 
     // region Overrides
 
+    /**
+     * Human-readable name of this exchange rate service.
+     */
     #[Override]
     public function getName(): string
     {
@@ -92,7 +95,9 @@ class FixerService implements ExchangeRateServiceInterface
         // Check for API error response.
         if (isset($data['success']) && $data['success'] === false) {
             // @codeCoverageIgnoreStart
-            $message = $data['error']['info'] ?? 'Unknown error';
+            $message = is_array($data['error']) && isset($data['error']['info']) && is_string($data['error']['info'])
+                ? $data['error']['info']
+                : 'Unknown error';
             throw new RuntimeException("Fixer.io API error: $message");
             // @codeCoverageIgnoreEnd
         }
@@ -103,7 +108,7 @@ class FixerService implements ExchangeRateServiceInterface
             // @codeCoverageIgnoreEnd
         }
 
-        $base = $data['base'] ?? 'EUR';
+        $base = isset($data['base']) && is_string($data['base']) ? $data['base'] : 'EUR';
 
         /** @var array<string, float> $rates */
         $rates = $data['rates'];

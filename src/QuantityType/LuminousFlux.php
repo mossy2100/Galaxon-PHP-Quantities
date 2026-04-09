@@ -18,14 +18,6 @@ class LuminousFlux extends Quantity
 
     /**
      * Unit definitions for luminous flux.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array

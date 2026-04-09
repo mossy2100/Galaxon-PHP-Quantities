@@ -27,6 +27,9 @@ class FrankfurterService implements ExchangeRateServiceInterface
 
     // region Overrides
 
+    /**
+     * Human-readable name of this exchange rate service.
+     */
     #[Override]
     public function getName(): string
     {
@@ -64,7 +67,7 @@ class FrankfurterService implements ExchangeRateServiceInterface
             // @codeCoverageIgnoreEnd
         }
 
-        $base = $data['base'] ?? 'EUR';
+        $base = isset($data['base']) && is_string($data['base']) ? $data['base'] : 'EUR';
 
         /** @var array<string, float> $rates */
         $rates = $data['rates'];

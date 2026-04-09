@@ -19,14 +19,6 @@ class Money extends Quantity
 
     /**
      * Unit definitions for currencies.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array

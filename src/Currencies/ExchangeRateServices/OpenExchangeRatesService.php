@@ -59,6 +59,9 @@ class OpenExchangeRatesService implements ExchangeRateServiceInterface
 
     // region Overrides
 
+    /**
+     * Human-readable name of this exchange rate service.
+     */
     #[Override]
     public function getName(): string
     {
@@ -93,7 +96,7 @@ class OpenExchangeRatesService implements ExchangeRateServiceInterface
         // Check for API error response.
         if (isset($data['error']) && $data['error'] === true) {
             // @codeCoverageIgnoreStart
-            $message = $data['message'] ?? 'Unknown error';
+            $message = isset($data['message']) && is_string($data['message']) ? $data['message'] : 'Unknown error';
             throw new RuntimeException("Open Exchange Rates API error: $message");
             // @codeCoverageIgnoreEnd
         }

@@ -18,14 +18,6 @@ class Length extends Quantity
 
     /**
      * Unit definitions for length.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -125,7 +117,7 @@ class Length extends Quantity
     }
 
     /**
-     * @inheritdoc
+     * Default part units for length decomposition: miles, yards, feet, inches.
      */
     #[Override]
     public static function getPartUnitSymbols(): ?array
@@ -134,7 +126,7 @@ class Length extends Quantity
     }
 
     /**
-     * @inheritdoc
+     * Default result unit for length parts methods: feet.
      */
     #[Override]
     public static function getResultUnitSymbol(): ?string

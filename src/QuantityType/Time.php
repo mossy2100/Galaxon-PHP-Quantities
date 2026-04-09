@@ -22,14 +22,6 @@ class Time extends Quantity
 
     /**
      * Unit definitions for time.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -91,7 +83,7 @@ class Time extends Quantity
     }
 
     /**
-     * @inheritdoc
+     * Default part units for time decomposition: years, months, weeks, days, hours, minutes, seconds.
      */
     #[Override]
     public static function getPartUnitSymbols(): ?array
@@ -100,7 +92,7 @@ class Time extends Quantity
     }
 
     /**
-     * @inheritdoc
+     * Default result unit for time parts methods: seconds.
      */
     #[Override]
     public static function getResultUnitSymbol(): ?string

@@ -22,14 +22,6 @@ class RadiationDose extends Quantity
      * Gray measures absorbed radiation dose (energy per unit mass).
      * Sievert measures equivalent dose (biological effect of radiation).
      * Both have the same dimension but measure different aspects of radiation.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array

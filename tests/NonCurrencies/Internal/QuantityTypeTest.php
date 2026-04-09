@@ -146,6 +146,7 @@ final class QuantityTypeTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('is not a subclass of');
 
+        // @phpstan-ignore argument.type
         new QuantityType('test', 'L9', stdClass::class);
     }
 

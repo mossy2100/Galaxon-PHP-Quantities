@@ -64,6 +64,9 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
 
     // region Overrides
 
+    /**
+     * Human-readable name of this exchange rate service.
+     */
     #[Override]
     public function getName(): string
     {
@@ -101,7 +104,9 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
         // Check for API error response.
         if (isset($data['success']) && $data['success'] === false) {
             // @codeCoverageIgnoreStart
-            $message = $data['error']['info'] ?? 'Unknown error';
+            $message = is_array($data['error']) && isset($data['error']['info']) && is_string($data['error']['info'])
+                ? $data['error']['info']
+                : 'Unknown error';
             throw new RuntimeException("CurrencyLayer API error: $message");
             // @codeCoverageIgnoreEnd
         }
@@ -112,7 +117,7 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
             // @codeCoverageIgnoreEnd
         }
 
-        $base = $data['source'] ?? 'USD';
+        $base = isset($data['source']) && is_string($data['source']) ? $data['source'] : 'USD';
 
         /** @var array<string, float> $quotes */
         $quotes = $data['quotes'];

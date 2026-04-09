@@ -279,8 +279,9 @@ class Converter
         // Search for the conversion we want until we find it or have run out of options.
         do {
             // Check if we have it.
-            if ($this->hasConversion($src, $dest)) {
-                return $this->getConversion($src, $dest);
+            $conversion = $this->getConversion($src, $dest);
+            if ($conversion !== null) {
+                return $conversion;
             }
 
             // Try to find the conversion using a variety of strategies.
@@ -292,19 +293,21 @@ class Converter
             // Generate all exact conversions.
             do {
                 $nAdded = $this->generateConversions($srcUnit, $destUnit, true);
-            } while ($nAdded > 0 && !$this->hasConversion($src, $dest));
+                $conversion = $this->getConversion($src, $dest);
+            } while ($nAdded > 0 && $conversion === null);
 
             // Check if we have it.
-            if ($this->hasConversion($src, $dest)) {
-                return $this->getConversion($src, $dest);
+            if ($conversion !== null) {
+                return $conversion;
             }
 
             // Generate a batch of new conversions.
             $nAdded = $this->generateConversions($srcUnit, $destUnit);
-        } while ($nAdded > 0 && !$this->hasConversion($src, $dest));
+            $conversion = $this->getConversion($src, $dest);
+        } while ($nAdded > 0 && $conversion === null);
 
         // Return the desired conversion, or null if not found.
-        return $this->getConversion($srcUnit, $destUnit);
+        return $conversion;
     }
 
     /**
@@ -396,7 +399,7 @@ class Converter
         }
 
         // Get the conversion definitions for this dimension.
-        $conversionDefinitions = $this->quantityType->conversionDefinitions ?? [];
+        $conversionDefinitions = $this->quantityType->conversionDefinitions;
 
         // Initialize the Converter with all conversion definitions for this dimension.
         foreach ($conversionDefinitions as [$srcSymbol, $destSymbol, $factor]) {

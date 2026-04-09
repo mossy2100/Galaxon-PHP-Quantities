@@ -60,6 +60,9 @@ class ExchangeRateApiService implements ExchangeRateServiceInterface
 
     // region Overrides
 
+    /**
+     * Human-readable name of this exchange rate service.
+     */
     #[Override]
     public function getName(): string
     {
@@ -96,7 +99,9 @@ class ExchangeRateApiService implements ExchangeRateServiceInterface
         // Check for API error response.
         if (isset($data['result']) && $data['result'] === 'error') {
             // @codeCoverageIgnoreStart
-            $message = $data['error-type'] ?? 'Unknown error';
+            $message = isset($data['error-type']) && is_string($data['error-type'])
+                ? $data['error-type']
+                : 'Unknown error';
             throw new RuntimeException("ExchangeRate-API error: $message");
             // @codeCoverageIgnoreEnd
         }
@@ -107,7 +112,7 @@ class ExchangeRateApiService implements ExchangeRateServiceInterface
             // @codeCoverageIgnoreEnd
         }
 
-        $base = $data['base_code'] ?? 'USD';
+        $base = isset($data['base_code']) && is_string($data['base_code']) ? $data['base_code'] : 'USD';
 
         /** @var array<string, float> $rates */
         $rates = $data['conversion_rates'];

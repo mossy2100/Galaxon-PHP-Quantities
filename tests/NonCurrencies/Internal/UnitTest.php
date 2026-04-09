@@ -219,7 +219,7 @@ final class UnitTest extends TestCase
             name: 'test',
             asciiSymbol: 'tst',
             dimension: 'L',
-            systems: ['SI', 'Imperial']
+            systems: ['SI', 'Imperial'] // @phpstan-ignore argument.type
         );
     }
 
@@ -429,6 +429,7 @@ final class UnitTest extends TestCase
 
         $prefixes = $unit->allowedPrefixes;
 
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($prefixes);
         $this->assertNotEmpty($prefixes);
     }
@@ -786,6 +787,7 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
+        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($symbols);
         $this->assertArrayHasKey('m', $symbols);
     }
@@ -1140,6 +1142,33 @@ final class UnitTest extends TestCase
         $this->expectExceptionMessage("Unknown unit: 'xyz'");
 
         Unit::parse('xyz');
+    }
+
+    // endregion
+
+    // region isValidUnicodeSpecialChar() tests
+
+    /**
+     * Test isValidUnicodeSpecialChar() returns true for single Unicode special characters,
+     * and false for letters, multi-character strings, and the empty string.
+     */
+    public function testIsValidUnicodeSpecialChar(): void
+    {
+        // Single special characters → true.
+        $this->assertTrue(Unit::isValidUnicodeSpecialChar('°'));
+        $this->assertTrue(Unit::isValidUnicodeSpecialChar('%'));
+        $this->assertTrue(Unit::isValidUnicodeSpecialChar('″'));
+
+        // Letters → false.
+        $this->assertFalse(Unit::isValidUnicodeSpecialChar('m'));
+        $this->assertFalse(Unit::isValidUnicodeSpecialChar('A'));
+
+        // Multi-character strings → false (even if they start with a special char).
+        $this->assertFalse(Unit::isValidUnicodeSpecialChar('°C'));
+        $this->assertFalse(Unit::isValidUnicodeSpecialChar('km'));
+
+        // Empty string → false.
+        $this->assertFalse(Unit::isValidUnicodeSpecialChar(''));
     }
 
     // endregion

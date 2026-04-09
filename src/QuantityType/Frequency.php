@@ -21,14 +21,6 @@ class Frequency extends Quantity
      *
      * Note: Becquerel has the same dimension (T-1) but measures radioactivity,
      * not frequency. It's included here as they share the same dimension code.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array

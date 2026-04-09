@@ -368,15 +368,8 @@ class DimensionService
             return self::DIMENSION_CODES[$dimensionLetterCode]['siBaseUnitSymbol'];
         }
 
-        // Check for a common base unit.
-        if (isset(self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'])) {
-            return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
-        }
-
-        // @codeCoverageIgnoreStart
-        $system = $si ? 'SI' : 'English';
-        throw new LogicException("No $system base unit is defined for dimension '$dimensionLetterCode'.");
-        // @codeCoverageIgnoreEnd
+        // Return the common base unit.
+        return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
     }
 
     /**

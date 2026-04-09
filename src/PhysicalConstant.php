@@ -25,7 +25,7 @@ class PhysicalConstant
      * - 'value' — The numeric value (null for derived constants computed at runtime).
      * - 'unit' — The unit symbol (null for dimensionless or derived).
      *
-     * @var array<string, array{'method': string, 'value'?: float, 'unit'?: string}>
+     * @var array<string, array{method: string, value: float, unit: string}>
      */
     private const array SYMBOL_MAP = [
         // SI defining constants.
@@ -42,6 +42,11 @@ class PhysicalConstant
         'h'         => [
             'method' => 'planck',
             'value'  => 6.62607015e-34,
+            'unit'   => 'J*s',
+        ],
+        'hbar'      => [
+            'method' => 'reducedPlanck',
+            'value'  => 6.62607015e-34 / Floats::TAU,
             'unit'   => 'J*s',
         ],
         'e'         => [
@@ -127,10 +132,6 @@ class PhysicalConstant
             'method' => 'stefanBoltzmann',
             'value'  => 5.670374419e-8,
             'unit'   => 'W/(m2*K4)',
-        ],
-        // Derived constants (value/unit are null — computed at runtime).
-        'hbar'      => [
-            'method' => 'reducedPlanck',
         ],
     ];
 
@@ -233,6 +234,14 @@ class PhysicalConstant
     public static function planck(): Quantity
     {
         return self::cached('h');
+    }
+
+    /**
+     * Reduced Planck constant (ℏ = h / τ).
+     */
+    public static function reducedPlanck(): Quantity
+    {
+        return self::cached('hbar');
     }
 
     /**
@@ -409,21 +418,6 @@ class PhysicalConstant
     public static function stefanBoltzmann(): Quantity
     {
         return self::cached('sigma');
-    }
-
-    // endregion
-
-    // region Derived constants
-
-    /**
-     * Reduced Planck constant (ℏ = h / τ).
-     *
-     * Computed from Planck constant for full precision. Not stored in SYMBOL_MAP since it
-     * is derived from another constant rather than defined as a literal value.
-     */
-    public static function reducedPlanck(): Quantity
-    {
-        return self::$cache['hbar'] ??= self::planck()->div(Floats::TAU);
     }
 
     // endregion

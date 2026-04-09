@@ -36,14 +36,6 @@ class Mass extends Quantity
 
     /**
      * Unit definitions for mass.
-     *
-     * @return array<string, array{
-     *     asciiSymbol: string,
-     *     unicodeSymbol?: string,
-     *     prefixGroup?: int,
-     *     alternateSymbol?: string,
-     *     systems: list<UnitSystem>
-     * }>
      */
     #[Override]
     public static function getUnitDefinitions(): array
@@ -122,7 +114,7 @@ class Mass extends Quantity
     }
 
     /**
-     * @inheritdoc
+     * Default result unit for mass parts methods: pounds.
      */
     #[Override]
     public static function getResultUnitSymbol(): ?string

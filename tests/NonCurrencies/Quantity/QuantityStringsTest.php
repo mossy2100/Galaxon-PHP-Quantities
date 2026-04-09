@@ -471,8 +471,8 @@ final class QuantityStringsTest extends TestCase
     }
 
     /**
-     * Test that auto-spacing (the isValidUnicodeSpecialChar branch in format()) drops the space for
-     * single-character special unit symbols like ° and adds it back for letter-based symbols.
+     * Test that format()'s auto-spacing drops the space before single-character special unit symbols
+     * like ° and keeps it for letter-based or multi-character symbols.
      */
     public function testFormatAutoSpacingForSpecialUnitSymbols(): void
     {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7698ab55d35c7f6572b99503cb7d69c0",
+    "content-hash": "7f789ac81858b9930ff35dcdd5038352",
     "packages": [
         {
             "name": "galaxon/core",
@@ -202,11 +202,17 @@
         },
         {
             "name": "galaxon/coding-standard",
-            "version": "dev-main",
+            "version": "v1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard.git",
+                "reference": "157af3204cf5986403a029cb3ac5bf28ae61c877"
+            },
             "dist": {
-                "type": "path",
-                "url": "../CodingStandard",
-                "reference": "738d57c489cf88cfdcae60482e24e2170e73073d"
+                "type": "zip",
+                "url": "https://api.github.com/repos/mossy2100/Galaxon-PHP-Coding-Standard/zipball/157af3204cf5986403a029cb3ac5bf28ae61c877",
+                "reference": "157af3204cf5986403a029cb3ac5bf28ae61c877",
+                "shasum": ""
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
@@ -222,29 +228,7 @@
             "extra": {
                 "phpcodesniffer-search-depth": 3
             },
-            "scripts": {
-                "fix": [
-                    "vendor/bin/phpcbf -vp"
-                ],
-                "check": [
-                    "vendor/bin/phpcs -s"
-                ],
-                "report": [
-                    "vendor/bin/phpcs -q --report=summary"
-                ],
-                "analyze": [
-                    "vendor/bin/phpstan analyze -l 9"
-                ],
-                "test": [
-                    "vendor/bin/phpunit"
-                ],
-                "quality": [
-                    "@fix",
-                    "@check",
-                    "@analyze",
-                    "@test"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -269,9 +253,7 @@
                 "issues": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard/issues",
                 "source": "https://github.com/mossy2100/Galaxon-PHP-Coding-Standard"
             },
-            "transport-options": {
-                "relative": true
-            }
+            "time": "2026-04-09T05:36:35+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -2192,7 +2174,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "galaxon/coding-standard": 20,
         "galaxon/core": 20
     },
     "prefer-stable": false,

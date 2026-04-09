@@ -12,16 +12,12 @@
         "squizlabs/php_codesniffer": "^4.0",
         "phpstan/phpstan": "^2.1",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-        "galaxon/coding-standard": "@dev"
+        "galaxon/coding-standard": "^1.0"
     },
     "repositories": [
         {
             "type": "path",
             "url": "../Core"
-        },
-        {
-            "type": "path",
-            "url": "../CodingStandard"
         }
     ],
     "autoload": {

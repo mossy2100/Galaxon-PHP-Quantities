@@ -6,13 +6,13 @@ namespace Galaxon\Quantities\Tests\NonCurrencies\Quantity;
 
 use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Time;
+use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -344,7 +344,9 @@ final class QuantityPartsTest extends TestCase
         $this->expectExceptionMessage('No default result unit symbol configured for force quantities');
 
         // Force is registered but does not override getResultUnitSymbol().
-        Force::fromParts(['N' => 1]);
+        Force::fromParts([
+            'N' => 1,
+        ]);
     }
 
     /**
@@ -355,7 +357,9 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(UnknownUnitException::class);
         $this->expectExceptionMessage("Unknown result unit 'xyz'.");
 
-        Time::fromParts(['h' => 1], 'xyz');
+        Time::fromParts([
+            'h' => 1,
+        ], 'xyz');
     }
 
     /**
@@ -366,7 +370,9 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(DimensionMismatchException::class);
         $this->expectExceptionMessage("Result unit 'kg'");
 
-        Time::fromParts(['h' => 1], 'kg');
+        Time::fromParts([
+            'h' => 1,
+        ], 'kg');
     }
 
     /**
@@ -386,10 +392,11 @@ final class QuantityPartsTest extends TestCase
      */
     public function testToPartsNonStringPartUnitSymbolThrowsException(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The array of part unit symbols must contain only strings.');
 
         $time = new Time(60, 's');
+        // @phpstan-ignore argument.type
         $time->toParts(partUnitSymbols: [1, 'h']);
     }
 
