@@ -53,8 +53,8 @@ The unit symbol that could not be resolved.
 | `Unit`                 | `parse()`               | Symbol not found in the unit registry.             |
 | `UnitTerm`             | `__construct()`         | Unit symbol string not found in the unit registry. |
 | `UnitTerm`             | `parse()`               | Prefixed symbol not found in the unit registry.    |
-| `QuantityPartsService` | `validatePartUnits()`   | A part unit symbol is not found in the registry.   |
-| `QuantityPartsService` | `validateResultUnit()`  | The result unit symbol is not found in the registry. |
+| `Quantity`             | `validatePartUnits()`   | A part unit symbol is not found in the registry.   |
+| `Quantity`             | `validateResultUnit()`  | The result unit symbol is not found in the registry. |
 
 ---
 

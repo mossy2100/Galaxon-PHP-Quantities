@@ -191,7 +191,6 @@ These classes are predominantly internal, except for adding custom units via `Un
 | [ConversionService](docs/Reference/Services/ConversionService.md)       | Manages unit conversions and converters.                                                       |
 | [DimensionService](docs/Reference/Services/DimensionService.md)         | Utilities for working with physical dimension codes (validation, composition, transformation). |
 | [PrefixService](docs/Reference/Services/PrefixService.md)               | Manages SI and binary prefixes (lookup, filtering by group).                                   |
-| [QuantityPartsService](docs/Reference/Services/QuantityPartsService.md) | Decomposes quantities into parts (e.g. hours, minutes, seconds).                               |
 | [QuantityTypeService](docs/Reference/Services/QuantityTypeService.md)   | Registry of quantity types keyed by dimension code.                                            |
 | [UnitService](docs/Reference/Services/UnitService.md)                   | Registry of units with lookup, filtering, and loading by system.                               |
 

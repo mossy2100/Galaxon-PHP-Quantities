@@ -90,6 +90,24 @@ class Time extends Quantity
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    #[Override]
+    public static function getPartUnitSymbols(): ?array
+    {
+        return ['y', 'mo', 'w', 'd', 'h', 'min', 's'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    #[Override]
+    public static function getResultUnitSymbol(): ?string
+    {
+        return 's';
+    }
+
     // endregion
 
     // region DateInterval methods

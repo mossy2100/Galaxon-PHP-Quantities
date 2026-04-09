@@ -1197,7 +1197,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesSimpleUnit(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'm'));
     }
@@ -1207,7 +1207,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesUnitWithPrefixAndExponent(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'km2'));
     }
@@ -1217,7 +1217,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesCompoundUnitWithAsterisk(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'kg*m'));
     }
@@ -1227,7 +1227,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesCompoundUnitWithDivision(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'm/s'));
     }
@@ -1237,7 +1237,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesComplexCompoundUnit(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'kg*m/s2'));
     }
@@ -1247,7 +1247,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesUnitWithNegativeExponent(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 's-1'));
     }
@@ -1257,7 +1257,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesUnitWithSuperscriptExponent(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'm²'));
     }
@@ -1267,7 +1267,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesParenthesisedDenominatorForm(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'J/(mol*K)'));
     }
@@ -1277,7 +1277,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexMatchesMiddleDotSeparator(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(1, preg_match("/^$rx$/iu", 'kg·m'));
     }
@@ -1287,7 +1287,7 @@ class CompoundUnitTest extends TestCase
      */
     public function testRegexDoesNotMatchEmptyString(): void
     {
-        $rx = CompoundUnit::compoundUnitRegex();
+        $rx = CompoundUnit::regex();
 
         $this->assertSame(0, preg_match("/^$rx$/iu", ''));
     }

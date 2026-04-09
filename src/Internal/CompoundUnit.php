@@ -648,9 +648,9 @@ class CompoundUnit implements UnitInterface
      *
      * @return string The regex pattern (without delimiters or anchors).
      */
-    private static function compoundUnitRegexForm1(): string
+    private static function regexForm1(): string
     {
-        $rxUnitTerm = UnitTerm::unitTermRegex();
+        $rxUnitTerm = UnitTerm::regex();
         return "$rxUnitTerm(?:" . self::RX_CLASS_MUL_DIV_OPS . "$rxUnitTerm)*";
     }
 
@@ -659,9 +659,9 @@ class CompoundUnit implements UnitInterface
      *
      * @return string The regex pattern (without delimiters or anchors).
      */
-    private static function compoundUnitRegexForm2(): string
+    private static function regexForm2(): string
     {
-        $rxUnitTerm = UnitTerm::unitTermRegex();
+        $rxUnitTerm = UnitTerm::regex();
         $mulTerms = "$rxUnitTerm(?:" . self::RX_CLASS_MUL_OPS . "$rxUnitTerm)*";
         return "(?<num>$mulTerms)\/\\((?<den>$mulTerms)\\)";
     }
@@ -671,9 +671,9 @@ class CompoundUnit implements UnitInterface
      *
      * @return string The regex pattern (without delimiters or anchors).
      */
-    public static function compoundUnitRegex(): string
+    public static function regex(): string
     {
-        return '(?:' . self::compoundUnitRegexForm1() . ')|(?:' . self::compoundUnitRegexForm2() . ')';
+        return '(?:' . self::regexForm1() . ')|(?:' . self::regexForm2() . ')';
     }
 
     // endregion
@@ -688,7 +688,7 @@ class CompoundUnit implements UnitInterface
      */
     private static function isValidCompoundUnitForm1(string $symbol): bool
     {
-        return (bool)preg_match('/^' . self::compoundUnitRegexForm1() . '$/iu', $symbol);
+        return (bool)preg_match('/^' . self::regexForm1() . '$/iu', $symbol);
     }
 
     /**
@@ -700,7 +700,7 @@ class CompoundUnit implements UnitInterface
      */
     private static function isValidCompoundUnitForm2(string $symbol, ?array &$matches): bool
     {
-        return (bool)preg_match('/^' . self::compoundUnitRegexForm2() . '$/iu', $symbol, $matches);
+        return (bool)preg_match('/^' . self::regexForm2() . '$/iu', $symbol, $matches);
     }
 
     // endregion

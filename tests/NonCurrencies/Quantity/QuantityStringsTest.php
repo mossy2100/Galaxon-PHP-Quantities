@@ -470,6 +470,22 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('45°', $angle->format());
     }
 
+    /**
+     * Test that auto-spacing (the isValidUnicodeSpecialChar branch in format()) drops the space for
+     * single-character special unit symbols like ° and adds it back for letter-based symbols.
+     */
+    public function testFormatAutoSpacingForSpecialUnitSymbols(): void
+    {
+        // Single special char → no space.
+        $this->assertSame('45°', new Angle(45, 'deg')->format());
+
+        // Letter-based unit → space.
+        $this->assertSame('5 m', new Length(5, 'm')->format());
+
+        // Unit starting with a non-letter but containing letters → space (e.g. °C).
+        $this->assertSame('25 °C', new Temperature(25, 'degC')->format());
+    }
+
     // endregion
 
     // region Format tests - space control

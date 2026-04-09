@@ -418,7 +418,7 @@ class UnitTerm implements UnitInterface
      *
      * @return string The regex pattern (without delimiters or anchors).
      */
-    public static function unitTermRegex(): string
+    public static function regex(): string
     {
         $superscriptChars = Integers::SUPERSCRIPT_CHARACTERS;
         $superscriptMinus = $superscriptChars['-'];
@@ -441,7 +441,7 @@ class UnitTerm implements UnitInterface
      */
     private static function isValidUnitTerm(string $symbol, ?array &$matches): bool
     {
-        return (bool)preg_match('/^' . self::unitTermRegex() . '$/iu', $symbol, $matches);
+        return (bool)preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);
     }
 
     // endregion

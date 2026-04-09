@@ -124,5 +124,23 @@ class Length extends Quantity
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    #[Override]
+    public static function getPartUnitSymbols(): ?array
+    {
+        return ['mi', 'yd', 'ft', 'in'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    #[Override]
+    public static function getResultUnitSymbol(): ?string
+    {
+        return 'ft';
+    }
+
     // endregion
 }

@@ -117,6 +117,24 @@ class Angle extends Quantity
         return Floats::approxEqual($this->toRadians(), $other->toRadians(), $relTol, $absTol);
     }
 
+    /**
+     * @inheritdoc
+     */
+    #[Override]
+    public static function getPartUnitSymbols(): ?array
+    {
+        return ['deg', 'arcmin', 'arcsec'];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    #[Override]
+    public static function getResultUnitSymbol(): ?string
+    {
+        return 'deg';
+    }
+
     // endregion
 
     // region Trigonometric methods

@@ -426,6 +426,17 @@ class Unit implements UnitInterface
     }
 
     /**
+     * Check if a string is a Unicode special character (used for formatting decisions).
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a single Unicode special character.
+     */
+    public static function isValidUnicodeSpecialChar(string $symbol): bool
+    {
+        return (bool)preg_match('/^' . self::RX_UNICODE_SPECIAL_CHR . '$/iu', $symbol);
+    }
+
+    /**
      * Check if a string is a single ASCII character valid for use as an alternate unit symbol.
      *
      * @param string $symbol The string to check.

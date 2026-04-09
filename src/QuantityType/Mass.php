@@ -121,5 +121,14 @@ class Mass extends Quantity
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
+    #[Override]
+    public static function getResultUnitSymbol(): ?string
+    {
+        return 'lb';
+    }
+
     // endregion
 }

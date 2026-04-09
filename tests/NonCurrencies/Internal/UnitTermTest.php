@@ -348,7 +348,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesSimpleUnit(): void
     {
-        $pattern = '/^' . UnitTerm::unitTermRegex() . '$/iu';
+        $pattern = '/^' . UnitTerm::regex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm'));
         $this->assertSame(1, preg_match($pattern, 'km'));
@@ -360,7 +360,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithAsciiExponent(): void
     {
-        $pattern = '/^' . UnitTerm::unitTermRegex() . '$/iu';
+        $pattern = '/^' . UnitTerm::regex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm2'));
         $this->assertSame(1, preg_match($pattern, 's-2'));
@@ -372,7 +372,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexMatchesUnitWithSuperscriptExponent(): void
     {
-        $pattern = '/^' . UnitTerm::unitTermRegex() . '$/iu';
+        $pattern = '/^' . UnitTerm::regex() . '$/iu';
 
         $this->assertSame(1, preg_match($pattern, 'm²'));
         $this->assertSame(1, preg_match($pattern, 's⁻²'));
@@ -384,7 +384,7 @@ final class UnitTermTest extends TestCase
      */
     public function testRegexDoesNotMatchInvalidFormats(): void
     {
-        $pattern = '/^' . UnitTerm::unitTermRegex() . '$/iu';
+        $pattern = '/^' . UnitTerm::regex() . '$/iu';
 
         $this->assertSame(0, preg_match($pattern, '123'));
     }

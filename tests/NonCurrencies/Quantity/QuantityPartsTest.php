@@ -8,10 +8,11 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Exceptions\NullArgumentException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
+use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Services\QuantityPartsService;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +21,6 @@ use PHPUnit\Framework\TestCase;
  * Tests for parts-related methods on Quantity objects.
  */
 #[CoversClass(Quantity::class)]
-#[CoversClass(QuantityPartsService::class)]
 final class QuantityPartsTest extends TestCase
 {
     // region toParts() tests
@@ -139,8 +139,8 @@ final class QuantityPartsTest extends TestCase
      */
     public function testFromPartsUnregisteredQuantityTypeThrowsException(): void
     {
-        $this->expectException(NullArgumentException::class);
-        $this->expectExceptionMessage('must not be null');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Quantity type cannot be null.');
 
         // Base Quantity class has no registered quantity type.
         Quantity::fromParts([
@@ -313,10 +313,95 @@ final class QuantityPartsTest extends TestCase
      */
     public function testParsePartsUnregisteredQuantityTypeThrowsException(): void
     {
-        $this->expectException(NullArgumentException::class);
-        $this->expectExceptionMessage('must not be null');
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Quantity type cannot be null.');
 
         Quantity::parseParts('100m 50cm');
+    }
+
+    // endregion
+
+    // region validator coverage tests
+
+    /**
+     * Test that the base Quantity::getResultUnitSymbol() returns null.
+     *
+     * Subclasses may override this; the base implementation returns null and is hit when a registered
+     * quantity type (e.g. Force) does not provide its own override.
+     */
+    public function testGetResultUnitSymbolBaseReturnsNull(): void
+    {
+        $this->assertNull(Quantity::getResultUnitSymbol());
+        $this->assertNull(Force::getResultUnitSymbol());
+    }
+
+    /**
+     * Test fromParts() throws when the quantity type has no default result unit and none is provided.
+     */
+    public function testFromPartsNoDefaultResultUnitThrowsException(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('No default result unit symbol configured for force quantities');
+
+        // Force is registered but does not override getResultUnitSymbol().
+        Force::fromParts(['N' => 1]);
+    }
+
+    /**
+     * Test fromParts() throws when the result unit symbol is not a recognized unit.
+     */
+    public function testFromPartsUnknownResultUnitThrowsException(): void
+    {
+        $this->expectException(UnknownUnitException::class);
+        $this->expectExceptionMessage("Unknown result unit 'xyz'.");
+
+        Time::fromParts(['h' => 1], 'xyz');
+    }
+
+    /**
+     * Test fromParts() throws when the result unit's dimension is incompatible with the quantity type.
+     */
+    public function testFromPartsIncompatibleResultUnitThrowsException(): void
+    {
+        $this->expectException(DimensionMismatchException::class);
+        $this->expectExceptionMessage("Result unit 'kg'");
+
+        Time::fromParts(['h' => 1], 'kg');
+    }
+
+    /**
+     * Test toParts() throws when an empty array of part unit symbols is passed.
+     */
+    public function testToPartsEmptyPartUnitSymbolsThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('The array of part unit symbols cannot be empty.');
+
+        $time = new Time(60, 's');
+        $time->toParts(partUnitSymbols: []);
+    }
+
+    /**
+     * Test toParts() throws when a part unit symbol is not a string.
+     */
+    public function testToPartsNonStringPartUnitSymbolThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The array of part unit symbols must contain only strings.');
+
+        $time = new Time(60, 's');
+        $time->toParts(partUnitSymbols: [1, 'h']);
+    }
+
+    /**
+     * Test toParts() throws when a part unit symbol is not a recognized unit.
+     */
+    public function testToPartsUnknownPartUnitSymbolThrowsException(): void
+    {
+        $this->expectException(UnknownUnitException::class);
+
+        $time = new Time(60, 's');
+        $time->toParts(partUnitSymbols: ['xyz']);
     }
 
     // endregion
