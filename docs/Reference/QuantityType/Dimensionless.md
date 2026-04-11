@@ -72,7 +72,10 @@ $asDecimal = $annualRate->to('');     // 0.0525
 
 // Work capacity (hours per week as a ratio)
 $hoursPerWeek = (new Time(40, 'h'))->div(new Time(1, 'w'));
-$utilisation = $hoursPerWeek->to('%');  // 23.809523...%```
+$utilisation = $hoursPerWeek->to('%');  // 23.809523...%
+```
+
+---
 
 ## Arithmetic with Dimensionless Quantities
 

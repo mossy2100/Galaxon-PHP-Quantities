@@ -117,10 +117,6 @@ $absolute = new Temperature(0, 'K');
 $bodyTempC = $bodyTemp->to('degC');  // 37°C
 $roomTempK = $roomTemp->to('K');     // 293.15 K
 
-// Arithmetic works correctly
-$diff = $bodyTemp->subtract($roomTemp);
-echo $diff->to('degC')->value;  // 17 (temperature difference)
-
 // Compare temperatures
 $hot = new Temperature(100, 'degC');
 $boiling = new Temperature(212, 'degF');
@@ -129,6 +125,8 @@ $hot->approxEqual($boiling);  // true
 // Direct conversion without creating objects
 $kelvin = Temperature::convert(25, 'degC', 'K');  // 298.15
 ```
+
+**Note on arithmetic:** `add()` and `sub()` on Temperature values are not generally meaningful because Celsius and Fahrenheit use offset scales. For differences between temperatures, convert both operands to Kelvin (or Rankine) first, then subtract.
 
 ---
 

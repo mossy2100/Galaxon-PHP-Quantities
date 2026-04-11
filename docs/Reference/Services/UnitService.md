@@ -65,7 +65,7 @@ Get all units belonging to the given measurement system.
 ```php
 use Galaxon\Quantities\Internal\UnitSystem;
 
-$siUnits = UnitService::getBySystem(UnitSystem::SI);
+$siUnits = UnitService::getBySystem(UnitSystem::Si);
 $imperialUnits = UnitService::getBySystem(UnitSystem::Imperial);
 ```
 

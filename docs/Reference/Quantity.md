@@ -305,6 +305,23 @@ $speed = Quantity::create(1, 'kn');
 $base = $speed->toEnglishBase();  // ~1.688 ft/s
 ```
 
+### toEnglish()
+
+```php
+public function toEnglish(): self
+```
+
+Convert to English units with simplification. Base units are replaced by named units where possible (e.g., lb\*ft/s2 becomes lbf). Equivalent to calling `toEnglishBase()->toDerived()`.
+
+**Returns:**
+- `Quantity` - A new Quantity in English units.
+
+**Examples:**
+```php
+$force = Quantity::create(1, 'kg*m/s2');
+$english = $force->toEnglish();  // ~0.2248 lbf
+```
+
 ### toBase()
 
 ```php

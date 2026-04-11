@@ -95,11 +95,11 @@ $tank = new Volume(1000, 'L');
 $inCubicMeters = $tank->to('m3');  // 1 m³
 
 // Cubic centimeters (same as mL)
-$cc = new Quantity(500, 'cm3');
+$cc = new Volume(500, 'cm3');
 $inMl = $cc->to('mL');  // 500 mL
 
 // Cubic inches
-$engine = new Quantity(350, 'in3');
+$engine = new Volume(350, 'in3');
 $inLitres = $engine->to('L');  // 5.735 L
 ```
 

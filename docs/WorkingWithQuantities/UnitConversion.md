@@ -110,6 +110,6 @@ echo $fahrenheit->to('degC');  // 100 degC
 
 ## See Also
 
-- **[Quantity — Transformation Methods](../Reference/Quantity.md#transformation-methods)** — Full reference for `to()`, `toSi()`, `toSiBase()`, `toEnglishBase()`, `toBase()`, `toDerived()`, `merge()`, and `autoPrefix()`.
+- **[Quantity — Transformation Methods](../Reference/Quantity.md#transformation-methods)** — Full reference for `to()`, `toSi()`, `toSiBase()`, `toEnglish()`, `toEnglishBase()`, `toBase()`, `toDerived()`, `merge()`, and `autoPrefix()`.
 - **[Units](../Concepts/Units.md)** — Complete list of built-in units by quantity type.
 - **[Arithmetic Operations](ArithmeticOperations.md)** — Multiply and divide to create compound units.
