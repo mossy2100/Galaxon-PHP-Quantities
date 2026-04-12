@@ -477,7 +477,7 @@ $volume = $r->pow(3)->mul(4 / 3 * M_PI);
 
 ---
 
-## Fluid Mechanics
+## Fluid mechanics
 
 ### Pressure: P = F/A
 
@@ -604,7 +604,7 @@ $totalFuelSi = $totalFuel->toSi();
 
 ---
 
-## See Also
+## See also
 
 - **[README](../../README.md)** — Package overview and quick start.
 - **[Units](../Concepts/Units.md)** — Complete unit reference.

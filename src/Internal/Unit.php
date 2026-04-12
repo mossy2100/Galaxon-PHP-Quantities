@@ -477,6 +477,7 @@ class Unit implements UnitInterface
      * called for a unit, there might not be an expansion conversion, the next time there might be.
      *
      * @return ?Quantity The expansion as a Quantity with base units, or null if none found.
+     * @internal
      */
     public function tryExpand(): ?Quantity
     {

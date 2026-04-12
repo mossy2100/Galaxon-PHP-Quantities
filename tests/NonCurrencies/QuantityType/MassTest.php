@@ -629,7 +629,7 @@ final class MassTest extends TestCase
         $mass = new Mass(157, 'lb');
         $result = $mass->formatParts(partUnitSymbols: Mass::IMP_PART_UNITS);
 
-        $this->assertSame('11st 3lb', $result);
+        $this->assertSame('11 st 3 lb', $result);
     }
 
     /**
@@ -637,11 +637,11 @@ final class MassTest extends TestCase
      */
     public function testParsePartsImperial(): void
     {
-        $mass = Mass::parseParts('11st 3lb');
+        $mass = Mass::parseParts('11 st 3 lb');
 
         $this->assertInstanceOf(Mass::class, $mass);
-        $this->assertSame('lb', $mass->compoundUnit->asciiSymbol);
-        $this->assertSame(157.0, $mass->value);
+        $this->assertSame('st', $mass->compoundUnit->asciiSymbol);
+        $this->assertEqualsWithDelta(11.214285714, $mass->value, 1e-6);
     }
 
     // endregion
@@ -704,7 +704,7 @@ final class MassTest extends TestCase
         $mass = new Mass(3.25, 'lb');
         $result = $mass->formatParts(partUnitSymbols: Mass::US_PART_UNITS);
 
-        $this->assertSame('3lb 4oz', $result);
+        $this->assertSame('3 lb 4 oz', $result);
     }
 
     /**
@@ -712,7 +712,7 @@ final class MassTest extends TestCase
      */
     public function testParsePartsUsCustomary(): void
     {
-        $mass = Mass::parseParts('3lb 4oz');
+        $mass = Mass::parseParts('3 lb 4 oz');
 
         $this->assertInstanceOf(Mass::class, $mass);
         $this->assertSame('lb', $mass->compoundUnit->asciiSymbol);

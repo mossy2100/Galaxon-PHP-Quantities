@@ -49,7 +49,7 @@ Compound dimensions include exponents (e.g., `'L2'` for area, `'MLT-2'` for forc
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### parse()
 
@@ -70,7 +70,7 @@ Parse a string representation of a unit into an instance.
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -93,7 +93,7 @@ Format the unit as a string.
 
 ---
 
-## Implementing Classes
+## Implementing classes
 
 - **[Unit](Unit.md)** — Represents a single unit of measurement.
 - **[UnitTerm](UnitTerm.md)** — Represents a unit with optional prefix and exponent.

@@ -90,7 +90,7 @@ $ftToM = new Conversion('ft', 'm', $factor);
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### inv()
 
@@ -112,7 +112,7 @@ echo $mToFt->factor->value; // 3.28084...
 
 ---
 
-## Power Methods
+## Power methods
 ### pow()
 
 ```php
@@ -136,7 +136,7 @@ echo $ft2ToM2->factor->value; // 0.09290304
 
 ---
 
-## Combination Methods
+## Combination methods
 
 These methods combine two conversions to create a new conversion path. The four methods handle different topologies in the conversion graph.
 
@@ -242,7 +242,7 @@ echo $ftToYd->factor->value; // 0.333...
 
 ---
 
-## See Also
+## See also
 
 - **[Converter](Converter.md)** - Manages conversion paths between units
 - **[FloatWithError](FloatWithError.md)** - Tracks precision through operations

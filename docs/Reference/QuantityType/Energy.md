@@ -24,6 +24,17 @@ The `Energy` class handles energy measurements across SI, scientific, and common
 
 ---
 
+## Conversion definitions
+
+| From  | To             | Factor           |
+| ----- | -------------- | ---------------- |
+| `J`   | `kg*m2*s-2`    | 1                |
+| `eV`  | `J`            | 1.602176634e-19  |
+| `cal` | `J`            | 4.184            |
+| `Btu` | `J`            | 1055.05585262    |
+
+---
+
 ## SI Unit Expansion
 
 The *joule* is defined in terms of SI base units:
@@ -41,18 +52,7 @@ $inBaseUnits = $energy->to('kg*m2*s-2');  // 1
 
 ---
 
-## Conversion definitions
-
-| From  | To             | Factor           |
-| ----- | -------------- | ---------------- |
-| *J*   | *kg\*m2\*s-2*  | 1                |
-| *eV*  | *J*            | 1.602176634e-19  |
-| *cal* | *J*            | 4.184            |
-| *Btu* | *J*            | 1055.05585262    |
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Energy;
@@ -94,9 +94,8 @@ Energy is related to other quantities:
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Energy](../../Concepts/Units.md#energy)** - Complete list of energy units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Power](Power.md)** - Related quantity (energy per time)
 - **[Force](Force.md)** - Related quantity (energy per distance)

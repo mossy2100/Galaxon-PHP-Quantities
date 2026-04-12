@@ -46,7 +46,7 @@ The unit symbol that could not be resolved.
 
 ---
 
-## Where It Is Thrown
+## Where it is thrown
 
 | Class                  | Method                  | Condition                                          |
 |------------------------|-------------------------|----------------------------------------------------|
@@ -74,7 +74,7 @@ try {
 
 ---
 
-## See Also
+## See also
 
 - **[DimensionMismatchException](DimensionMismatchException.md)** — Related exception for dimension mismatches.
 - **[Unit](../Internal/Unit.md)** — Unit class with `parse()` method.

@@ -30,9 +30,9 @@ The `Temperature` class handles the complexity of temperature conversions, which
 
 | From   | To     | Factor |
 | ------ | ------ | ------ |
-| *degC* | *K*    | 1      |
-| *degF* | *degR* | 1      |
-| *K*    | *degR* | 1.8    |
+| `degC` | `K`    | 1      |
+| `degF` | `degR` | 1      |
+| `K`    | `degR` | 1.8    |
 
 ---
 
@@ -46,7 +46,7 @@ The `Temperature` class handles the complexity of temperature conversions, which
 
 ---
 
-## Temperature Scales
+## Temperature scales
 
 The package supports four temperature scales:
 
@@ -62,7 +62,7 @@ The package supports four temperature scales:
 
 ---
 
-## Overridden Methods
+## Overridden methods
 
 ### convert()
 
@@ -92,7 +92,7 @@ Temperature::convert(0, 'degR', 'degF');   // -459.67
 
 ---
 
-## Conversion Logic
+## Conversion logic
 
 The conversion process:
 
@@ -124,7 +124,7 @@ echo $cmbr->to('degC');  // -270.425 °C
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Temperature;
@@ -151,7 +151,6 @@ $kelvin = Temperature::convert(25, 'degC', 'K');  // 298.15
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Temperature](../../Concepts/Units.md#temperature)** — Complete list of temperature units.
 - **[Quantity](../Quantity.md)** — Base class documentation.

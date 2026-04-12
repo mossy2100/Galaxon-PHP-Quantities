@@ -27,16 +27,16 @@ The `Dimensionless` class handles quantities that have no physical dimension, su
 
 ## Conversion definitions
 
-| From  | To    | Factor |
-| ----- | ----- | ------ |
-| *(scalar)* | *%*   | 100    |
-| *%*   | *ppt* | 10     |
-| *ppt* | *ppm* | 1000   |
-| *ppm* | *ppb* | 1000   |
+| From      | To    | Factor |
+| --------- | ----- | ------ |
+| *(empty)* | `%`   | 100    |
+| `%`       | `ppt` | 10     |
+| `ppt`     | `ppm` | 1000   |
+| `ppm`     | `ppb` | 1000   |
 
 ---
 
-## Conversion Chain
+## Conversion chain
 
 ```
 1 (scalar)
@@ -48,7 +48,7 @@ The `Dimensionless` class handles quantities that have no physical dimension, su
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Dimensionless;
@@ -102,7 +102,7 @@ $total = $discount->add($additional);     // 30%
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -110,7 +110,6 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Dimensionless](../../Concepts/Units.md#dimensionless)** - Complete list of dimensionless units
 - **[Quantity](../Quantity.md)** - Base class documentation

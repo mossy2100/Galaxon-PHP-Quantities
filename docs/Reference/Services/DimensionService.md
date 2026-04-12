@@ -22,7 +22,7 @@ Maps single-letter dimension codes to their quantity type name and base unit sym
 
 ---
 
-## Validation Methods
+## Validation methods
 
 ### isValid()
 
@@ -42,7 +42,7 @@ DimensionService::isValid('L2M-1');   // true
 
 ---
 
-## Composition Methods
+## Composition methods
 
 ### decompose()
 
@@ -90,7 +90,7 @@ $dim = DimensionService::compose([]);
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### lessThanOrEqual()
 
@@ -113,7 +113,7 @@ DimensionService::lessThanOrEqual('', 'MLT-2');         // true (empty is subset
 
 ---
 
-## Binary Arithmetic Methods
+## Binary arithmetic methods
 
 ### sub()
 
@@ -134,7 +134,7 @@ DimensionService::sub('L', 'L2');           // 'L-1' (can produce negative expon
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -159,7 +159,7 @@ $dim = DimensionService::pow('MLT-2', 2);
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### normalize()
 
@@ -181,7 +181,7 @@ $norm = DimensionService::normalize('L1');
 
 ---
 
-## Utility Methods
+## Utility methods
 
 ### letterToInt()
 
@@ -219,7 +219,7 @@ DimensionService::countUnits('');       // 0 (dimensionless)
 
 ---
 
-## Base Unit Methods
+## Base unit methods
 
 ### getBaseUnitSymbol()
 
@@ -279,7 +279,7 @@ $du = DimensionService::getBaseCompoundUnit('MLT-2', false);
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\Services\DimensionService;
@@ -309,7 +309,7 @@ $du = DimensionService::getBaseCompoundUnit('ML2T-2', true);
 
 ---
 
-## See Also
+## See also
 
 - **[QuantityTypeService](QuantityTypeService.md)** - Registry using dimension codes
 - **[CompoundUnit](../Internal/CompoundUnit.md)** - Compound unit representation

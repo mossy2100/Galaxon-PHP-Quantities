@@ -28,12 +28,12 @@ The `Area` class handles area measurements. Most area units are derived from len
 
 | From  | To    | Factor |
 | ----- | ----- | ------ |
-| *ha*  | *m2*  | 10000  |
-| *ac*  | *yd2* | 4840   |
+| `ha`  | `m2`  | 10000  |
+| `ac`  | `yd2` | 4840   |
 
 ---
 
-## Square Units
+## Square units
 
 Square length units are automatically supported through unit arithmetic:
 
@@ -53,7 +53,7 @@ $screen = new Quantity(15.6 * 9, 'in2');
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Area;
@@ -78,9 +78,8 @@ $inSqKm = $hectares->to('km2');  // 0.01 km²
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Area](../../Concepts/Units.md#area)** - Complete list of area units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity (squared length = area)
 - **[Volume](Volume.md)** - Related quantity (area × length = volume)

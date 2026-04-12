@@ -84,7 +84,7 @@ Using a dedicated subclass for a quantity type improves code readability and typ
 
 ---
 
-## See Also
+## See also
 
 - **[Creating Quantities](../WorkingWithQuantities/CreatingQuantities.md)** — How to instantiate quantities using constructors and the factory method.
 - **[Customization](../WorkingWithQuantities/Customization.md)** — How to create your own custom quantity type classes.

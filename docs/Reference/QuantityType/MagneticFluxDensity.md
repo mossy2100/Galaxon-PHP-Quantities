@@ -25,7 +25,7 @@ The `MagneticFluxDensity` class handles magnetic flux density measurements, also
 
 | From | To              | Factor |
 | ---- | --------------- | ------ |
-| *T*  | *kg\*s-2\*A-1*  | 1      |
+| `T`  | `kg*s-2*A-1`    | 1      |
 
 ---
 
@@ -39,7 +39,7 @@ T = kg·s⁻²·A⁻¹ = Wb/m² = V·s/m²
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\MagneticFluxDensity;
@@ -58,8 +58,7 @@ $magnet = new MagneticFluxDensity(1.2, 'T');
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Magnetic Flux Density](../../Concepts/Units.md#magnetic-flux-density)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[MagneticFlux](MagneticFlux.md)** - Related quantity (Φ = B·A)

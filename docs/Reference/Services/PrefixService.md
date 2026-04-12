@@ -38,7 +38,7 @@ Base group codes identify individual prefix groups. These can be combined with b
 
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### getPrefixes()
 
@@ -92,7 +92,7 @@ PrefixService::getBySymbol('X');            // null (not found)
 
 ---
 
-## Registry Methods
+## Registry methods
 
 ### reset()
 
@@ -112,7 +112,7 @@ Clear the prefixes cache. Unlike `reset()`, the next access will NOT trigger re-
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### invert()
 
@@ -141,7 +141,7 @@ PrefixService::invert($kibi);               // throws DomainException
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\Services\PrefixService;
@@ -173,7 +173,7 @@ $inverse = PrefixService::invert($source);    // micro (10^-6)
 
 ---
 
-## See Also
+## See also
 
 - **[Prefix](../Internal/Prefix.md)** - Prefix class documentation
 - **[Unit](../Internal/Unit.md)** - Unit class using prefix groups

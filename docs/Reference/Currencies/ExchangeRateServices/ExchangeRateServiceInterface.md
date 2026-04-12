@@ -47,7 +47,7 @@ Refresh the exchange rates from the web service and return them as conversion de
 
 ---
 
-## Implementing Classes
+## Implementing classes
 
 - [CurrencyLayerService](CurrencyLayerService.md) - Exchange rate service using the CurrencyLayer API.
 - [ExchangeRateApiService](ExchangeRateApiService.md) - Exchange rate service using the ExchangeRate-API.
@@ -57,7 +57,7 @@ Refresh the exchange rates from the web service and return them as conversion de
 
 ---
 
-## See Also
+## See also
 
 - **[Money](../../QuantityType/Money.md)** - The quantity type for currency values.
 - **[Quantity](../../Quantity.md)** - The base quantity class that uses conversion definitions.

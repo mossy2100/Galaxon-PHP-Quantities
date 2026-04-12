@@ -160,7 +160,7 @@ $perSecond = new UnitTerm('s', null, -1);
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### toUnitTerm()
 
@@ -206,7 +206,7 @@ Parse a string into a UnitTerm.
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### isSi()
 
@@ -226,7 +226,7 @@ Check if this unit term's unit is a base unit (single-dimension, not expandable)
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### equal()
 
@@ -243,7 +243,7 @@ Check if this UnitTerm equals another. Compares by ASCII symbol.
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### inv()
 
@@ -264,7 +264,7 @@ echo $second->exponent; // 1
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -289,7 +289,7 @@ echo $m6->exponent; // 6
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### withExponent()
 
@@ -332,7 +332,7 @@ echo $m->asciiSymbol; // 'm'
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -361,7 +361,7 @@ Convert to string using Unicode format.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ### Building Compound Units
 
@@ -418,7 +418,7 @@ echo $term2->dimension; // 'T-1'
 
 ---
 
-## See Also
+## See also
 
 - **[Unit](Unit.md)** - The base unit representation.
 - **[CompoundUnit](CompoundUnit.md)** - Compound unit using UnitTerms.

@@ -33,13 +33,13 @@ The `Angle` class provides specialized handling for angular measurements, includ
 
 ## Conversion definitions
 
-| From      | To       | Factor |
-| --------- | -------- | ------ |
-| *turn*    | *rad*    | 2π     |
-| *turn*    | *deg*    | 360    |
-| *deg*     | *arcmin* | 60     |
-| *arcmin*  | *arcsec* | 60     |
-| *turn*    | *grad*   | 400    |
+| From     | To       | Factor |
+| -------- | -------- | ------ |
+| `turn`   | `rad`    | τ (2π) |
+| `turn`   | `deg`    | 360    |
+| `deg`    | `arcmin` | 60     |
+| `arcmin` | `arcsec` | 60     |
+| `turn`   | `grad`   | 400    |
 
 ---
 
@@ -52,7 +52,7 @@ The `Angle` class provides specialized handling for angular measurements, includ
 
 ---
 
-## Overridden Methods
+## Overridden methods
 
 ### approxEqual()
 
@@ -137,7 +137,7 @@ $zero->cot();    // INF
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### wrap()
 
@@ -162,7 +162,7 @@ echo $angle2->wrap(false);    // 0 deg
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### toRadians()
 
@@ -202,7 +202,7 @@ echo $angle->formatParts(precision: 2, partUnitSymbols: ['deg', 'arcmin']);
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Angle;
@@ -221,9 +221,8 @@ $dms = Angle::parse("23° 26' 21\"");  // Earth's axial tilt
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Angle](../../Concepts/Units.md#angle)** — Complete list of angular units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — General parts formatting and parsing.
 - **[SolidAngle](SolidAngle.md)** — Related quantity for solid angles.

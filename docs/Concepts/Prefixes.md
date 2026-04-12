@@ -4,7 +4,7 @@ Unit prefixes are short codes prepended to a unit symbol to indicate a scaling f
 
 ---
 
-## Available Prefixes
+## Available prefixes
 
 ### Metric Prefixes
 
@@ -52,7 +52,7 @@ Unit prefixes are short codes prepended to a unit symbol to indicate a scaling f
 
 ---
 
-## Prefix Group Constants
+## Prefix group constants
 
 Prefixes are organised into groups using bitwise flags:
 
@@ -74,7 +74,7 @@ Prefixes are organised into groups using bitwise flags:
 
 ---
 
-## See Also
+## See also
 
 - **[Units](Units.md)** — Complete unit reference, showing prefix support for each unit.
 - **[Unit Conversion](../WorkingWithQuantities/UnitConversion.md)** — Auto-prefixing during unit conversion.

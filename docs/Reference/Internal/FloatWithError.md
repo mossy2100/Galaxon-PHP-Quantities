@@ -88,7 +88,7 @@ echo $measured->absoluteError; // 0.5
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### isExactInt()
 
@@ -112,7 +112,7 @@ $float->isExactInt(); // false
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### neg()
 
@@ -141,7 +141,7 @@ Return the multiplicative inverse (1/value). Relative error is preserved.
 
 ---
 
-## Binary Arithmetic Methods
+## Binary arithmetic methods
 
 ### add()
 
@@ -235,7 +235,7 @@ echo $speed->value; // 16.666...
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -269,7 +269,7 @@ echo $squared->value; // 1000000.0
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### \_\_toString()
 
@@ -284,7 +284,7 @@ Convert to a string representation showing value and absolute error.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ### Tracking Conversion Precision
 
@@ -323,7 +323,7 @@ echo $ydToM->relativeError; // Error from ftToM only (ydToFt was exact)
 
 ---
 
-## See Also
+## See also
 
 - **[Conversion](Conversion.md)** - Uses FloatWithError for conversion factors
 - **[Converter](Converter.md)** - Selects conversion paths based on error

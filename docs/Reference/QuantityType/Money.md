@@ -26,7 +26,7 @@ See [CurrencyService](../Currencies/CurrencyService.md) for setup details.
 
 ---
 
-## Overridden Methods
+## Overridden methods
 
 ### \_\_toString()
 
@@ -50,7 +50,7 @@ echo $price;  // 1.234,56 €
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Money;
@@ -73,7 +73,7 @@ echo $price->format();  // 100 USD
 
 ---
 
-## See Also
+## See also
 
 - **[CurrencyService](../Currencies/CurrencyService.md)** — Currency data management, setup, and locale configuration.
 - **[ExchangeRateServiceInterface](../Currencies/ExchangeRateServices/ExchangeRateServiceInterface.md)** — Contract for exchange rate providers.

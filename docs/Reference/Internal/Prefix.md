@@ -93,7 +93,7 @@ $micro = new Prefix('micro', 'u', 'μ', 1e-6, PrefixService::GROUP_SMALL_METRIC)
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### isEngineering()
 
@@ -119,7 +119,7 @@ $centi->isEngineering(); // false
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### equal()
 
@@ -144,7 +144,7 @@ $kilo1->equal($kilo2); // true
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -180,7 +180,7 @@ Convert the prefix to a string using the Unicode symbol.
 
 ---
 
-## See Also
+## See also
 
 - **[UnitTerm](UnitTerm.md)** - Uses prefixes when representing prefixed units
 - **[Unit](Unit.md)** - Defines which prefixes a unit accepts

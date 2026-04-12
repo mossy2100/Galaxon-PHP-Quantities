@@ -28,8 +28,8 @@ The `Frequency` class handles measurements with dimension T⁻¹ (inverse time).
 
 | From | To    | Factor |
 | ---- | ----- | ------ |
-| *Hz* | *s-1* | 1      |
-| *Bq* | *s-1* | 1      |
+| `Hz` | `s-1` | 1      |
+| `Bq` | `s-1` | 1      |
 
 ---
 
@@ -62,7 +62,7 @@ Bq = s⁻¹
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Frequency;
@@ -103,7 +103,7 @@ Where f is frequency in Hz and T is period in seconds.
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -111,9 +111,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Frequency](../../Concepts/Units.md#frequency)** - Complete list of frequency units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Time](Time.md)** - Related quantity (inverse relationship)
 - **[RadiationDose](RadiationDose.md)** - Related radiation quantity

@@ -40,6 +40,29 @@ The `Length` class handles distance measurements across multiple systems includi
 
 ---
 
+## Conversion definitions
+
+| From   | To    | Factor             |
+| ------ | ----- | ------------------ |
+| `yd`   | `m`   | 0.9144             |
+| `ft`   | `m`   | 0.3048             |
+| `in`   | `mm`  | 25.4               |
+| `in`   | `px`  | 96                 |
+| `in`   | `pt`  | 72                 |
+| `in`   | `p`   | 6                  |
+| `ft`   | `in`  | 12                 |
+| `yd`   | `ft`  | 3                  |
+| `mi`   | `yd`  | 1760               |
+| `au`   | `m`   | 149597870700       |
+| `ly`   | `m`   | 9460730472580800   |
+| `pc`   | `au`  | 648000 / π         |
+| `ftm`  | `yd`  | 2                  |
+| `nmi`  | `m`   | 1852               |
+
+The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines the exact metric equivalents for US Customary and Imperial length units.
+
+---
+
 ## Parts
 
 The `Length` class supports decomposition into *miles*, *yards*, *feet*, and *inches* (Imperial/US) by default. The default result unit for `Length::fromParts()` and `Length::parseParts()` is `ft`.
@@ -70,30 +93,7 @@ echo $height->formatParts(partUnitSymbols: ['ft', 'in']);
 
 ---
 
-## Conversion definitions
-
-| From   | To    | Factor             |
-| ------ | ----- | ------------------ |
-| *yd*   | *m*   | 0.9144             |
-| *ft*   | *m*   | 0.3048             |
-| *in*   | *mm*  | 25.4               |
-| *in*   | *px*  | 96                 |
-| *in*   | *pt*  | 72                 |
-| *in*   | *p*   | 6                  |
-| *ft*   | *in*  | 12                 |
-| *yd*   | *ft*  | 3                  |
-| *mi*   | *yd*  | 1760               |
-| *au*   | *m*   | 149597870700       |
-| *ly*   | *m*   | 9460730472580800   |
-| *pc*   | *au*  | 648000 / π         |
-| *ftm*  | *yd*  | 2                  |
-| *nmi*  | *m*   | 1852               |
-
-The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines the exact metric equivalents for US Customary and Imperial length units.
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Length;
@@ -126,7 +126,7 @@ $inKm = $voyage->to('km');  // 185.2 km
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -134,9 +134,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Length](../../Concepts/Units.md#length)** - Complete list of length units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Area](Area.md)** - Related quantity (L²)
 - **[Volume](Volume.md)** - Related quantity (L³)

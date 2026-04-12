@@ -33,7 +33,7 @@ One *mole* contains exactly 6.02214076 × 10²³ elementary entities.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\AmountOfSubstance;
@@ -52,8 +52,7 @@ $glucose = new AmountOfSubstance(5, 'mmol');
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Amount of Substance](../../Concepts/Units.md#amount-of-substance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[CatalyticActivity](CatalyticActivity.md)** - Related quantity (mol/s)

@@ -58,7 +58,7 @@ The second dimension code, or null if unknown.
 
 ---
 
-## Where It Is Thrown
+## Where it is thrown
 
 | Class | Method | Condition |
 |-------|--------|-----------|
@@ -90,7 +90,7 @@ try {
 
 ---
 
-## See Also
+## See also
 
 - **[UnknownUnitException](UnknownUnitException.md)** — Related exception for unknown unit symbols.
 - **[Quantity](../Quantity.md)** — Base class where dimension checks occur during comparison and arithmetic.

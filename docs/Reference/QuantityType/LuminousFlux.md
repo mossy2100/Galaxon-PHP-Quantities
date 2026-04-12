@@ -25,7 +25,7 @@ The `LuminousFlux` class handles luminous flux measurements, commonly used to ra
 
 | From | To          | Factor |
 | ---- | ----------- | ------ |
-| *lm* | *cd\*rad2*  | 1      |
+| `lm` | `cd*rad2`   | 1      |
 
 ---
 
@@ -41,7 +41,7 @@ One *lumen* is the luminous flux emitted by a source of one *candela* intensity 
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\LuminousFlux;
@@ -58,9 +58,8 @@ $inKlm = $flashlight->to('klm');  // 1 klm
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Luminous Flux](../../Concepts/Units.md#luminous-flux)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousIntensity](LuminousIntensity.md)** - Related quantity
 - **[Illuminance](Illuminance.md)** - Related quantity (lm/m²)

@@ -8,7 +8,7 @@ This guide explains how to work with quantities beyond what the package provides
 
 ---
 
-## 1. Using Compound Units Directly
+## 1. Using Compound units Directly
 
 You don't need a dedicated class for every quantity type. The package can work with any combination of known units through compound unit expressions. For example, entropy has units of `J/K` (energy per unit temperature):
 
@@ -255,7 +255,7 @@ The built-in quantity type classes demonstrate various patterns for extending th
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](../Reference/Quantity.md)** — Base class API reference.
 - **[UnitService](../Reference/Services/UnitService.md)** — Unit registration and lookup.

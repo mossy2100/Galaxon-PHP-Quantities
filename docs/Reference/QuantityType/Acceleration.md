@@ -13,7 +13,7 @@ The `Acceleration` class handles acceleration measurements. This class has no de
 
 ---
 
-## Compound Units
+## Compound units
 
 Acceleration units are automatically supported through unit arithmetic:
 
@@ -32,7 +32,7 @@ $car = new Quantity(3.6, 'km/(h*s)');  // Equivalent to 1 m/s²
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\Quantity;
@@ -51,7 +51,7 @@ $centrifuge = new Quantity(10000 * 9.80665, 'm/s2');  // 10,000 g
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -59,7 +59,7 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Velocity](Velocity.md)** - Related quantity (a = Δv/t)

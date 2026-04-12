@@ -667,7 +667,7 @@ final class LengthTest extends TestCase
         $length = new Length(5.5, 'ft');
         $result = $length->formatParts();
 
-        $this->assertSame('1yd 2ft 6in', $result);
+        $this->assertSame('1 yd 2 ft 6 in', $result);
     }
 
     /**
@@ -679,7 +679,7 @@ final class LengthTest extends TestCase
         $length = new Length(4.5, 'ft');
         $result = $length->formatParts();
 
-        $this->assertSame('1yd 1ft 6in', $result);
+        $this->assertSame('1 yd 1 ft 6 in', $result);
     }
 
     /**
@@ -691,7 +691,7 @@ final class LengthTest extends TestCase
         $length = new Length(5.541666666666667, 'ft');
         $result = $length->formatParts(precision: 1);
 
-        $this->assertSame('1yd 2ft 6.5in', $result);
+        $this->assertSame('1 yd 2 ft 6.5 in', $result);
     }
 
     /**
@@ -703,7 +703,7 @@ final class LengthTest extends TestCase
         $length = new Length(-5.5, 'ft');
         $result = $length->formatParts();
 
-        $this->assertSame('-1yd 2ft 6in', $result);
+        $this->assertSame('-1 yd 2 ft 6 in', $result);
     }
 
     /**
@@ -715,7 +715,7 @@ final class LengthTest extends TestCase
         $result = $length->formatParts(showZeros: true);
 
         // Shows all parts including zeros (default: mi, yd, ft, in).
-        $this->assertSame('1mi 0yd 0ft 0in', $result);
+        $this->assertSame('1 mi 0 yd 0 ft 0 in', $result);
     }
 
     /**
@@ -730,7 +730,7 @@ final class LengthTest extends TestCase
         ]);
         $formatted = $length->formatParts();
 
-        $this->assertSame('1yd 2ft 6in', $formatted);
+        $this->assertSame('1 yd 2 ft 6 in', $formatted);
     }
 
     // endregion

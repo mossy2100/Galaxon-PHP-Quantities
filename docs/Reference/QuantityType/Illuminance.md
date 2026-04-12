@@ -25,7 +25,7 @@ The `Illuminance` class handles illuminance measurements, which describe how muc
 
 | From | To               | Factor |
 | ---- | ---------------- | ------ |
-| *lx* | *cd\*rad2\*m-2*  | 1      |
+| `lx` | `cd*rad2*m-2`    | 1      |
 
 ---
 
@@ -41,7 +41,7 @@ One *lux* equals one *lumen* per square meter.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Illuminance;
@@ -62,9 +62,8 @@ $inMlx = $night->to('mlx');  // 1000 mlx
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Illuminance](../../Concepts/Units.md#illuminance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (lx = lm/m²)
 - **[LuminousIntensity](LuminousIntensity.md)** - Related quantity

@@ -25,7 +25,7 @@ The `MagneticFlux` class handles magnetic flux measurements.
 
 | From | To                   | Factor |
 | ---- | -------------------- | ------ |
-| *Wb* | *kg\*m2\*s-2\*A-1*   | 1      |
+| `Wb` | `kg*m2*s-2*A-1`      | 1      |
 
 ---
 
@@ -39,7 +39,7 @@ Wb = kg·m²·s⁻²·A⁻¹ = V·s = T·m²
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\MagneticFlux;
@@ -55,9 +55,8 @@ $inWb = $transformer->to('Wb');  // 0.01 Wb
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Magnetic Flux](../../Concepts/Units.md#magnetic-flux)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[MagneticFluxDensity](MagneticFluxDensity.md)** - Related quantity (B = Φ/A)
 - **[Inductance](Inductance.md)** - Related quantity (Φ = LI)

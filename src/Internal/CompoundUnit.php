@@ -16,11 +16,10 @@ use LogicException;
 use UnexpectedValueException;
 
 /**
- * Represents a compound unit composed of one or more unit terms.
+ * Represents a compound unit composed of zero or more unit terms.
  *
- * A compound unit like 'kg⋅m⋅s⁻²' (newton) comprises multiple UnitTerm objects.
- * Unit terms with the same unit are automatically combined
- * (e.g. km³ * km⁻¹ = km²).
+ * A compound unit like 'kg⋅m⋅s⁻²' comprises multiple UnitTerm objects.
+ * Unit terms with the same unit are automatically combined (e.g. km³ * km⁻¹ = km²).
  */
 class CompoundUnit implements UnitInterface
 {
@@ -28,10 +27,24 @@ class CompoundUnit implements UnitInterface
 
     // region Private constants
 
+    /**
+     * Unit term multiplication operator characters accepted by the parser:
+     * - asterisk '*' - Also used for ASCII format. Multiplication operator in PHP.
+     * - period '.' - Often used as a substitute for the dot operator.
+     * - dot operator U+22C5 - Also used for Unicode format. This is technically the correct character.
+     * - middle dot U+00B7 - Common substitute for the dot operator. Option+Shift+9 on Mac.
+     * There are many other similar characters in Unicode, but these are the most common.
+     */
     private const string RX_MUL_OPS = '*.\x{22C5}\x{00B7}';
 
+    /**
+     * Regular expression character class for the multiplication operator characters.
+     */
     private const string RX_CLASS_MUL_OPS = '[' . self::RX_MUL_OPS . ']';
 
+    /**
+     * Regular expression character class for the multiplication and division operator characters.
+     */
     private const string RX_CLASS_MUL_DIV_OPS = '[' . self::RX_MUL_OPS . '\/]';
 
     // endregion
@@ -68,7 +81,7 @@ class CompoundUnit implements UnitInterface
     // region Property hooks
 
     /**
-     * The full unit symbol with prefix and exponent (e.g. 'km2', 'ms-1').
+     * The full compound unit symbol with prefix and exponent (e.g. 'kg*m*s-2').
      * This property returns the ASCII symbol (e.g. 'deg').
      */
     public string $asciiSymbol {
@@ -76,7 +89,7 @@ class CompoundUnit implements UnitInterface
     }
 
     /**
-     * The full unit symbol with prefix and exponent formatted as superscript (e.g. 'km²', 'ms⁻¹').
+     * The full compound unit symbol with prefix and exponent formatted as superscript (e.g. 'kg⋅m⋅s⁻²').
      * This property returns the Unicode symbol if set (e.g. '°').
      */
     public string $unicodeSymbol {
@@ -90,12 +103,7 @@ class CompoundUnit implements UnitInterface
      * For example, km²⋅ms⁻¹ would have multiplier 1000² × 0.001⁻¹ = 1e6 × 1000 = 1e9.
      */
     public float $multiplier {
-        get => array_product(
-            array_map(
-                static fn (UnitTerm $unitTerm) => $unitTerm->multiplier,
-                $this->unitTerms
-            )
-        );
+        get => array_product(array_map(static fn (UnitTerm $unitTerm) => $unitTerm->multiplier, $this->unitTerms));
     }
 
     /**
@@ -103,7 +111,8 @@ class CompoundUnit implements UnitInterface
      */
     public ?UnitTerm $firstUnitTerm {
         get {
-            $firstKey = array_key_first($this->unitTerms) ?? null;
+            // Replace with array_first() when upgrading to PHP 8.5+.
+            $firstKey = array_key_first($this->unitTerms);
             return $firstKey === null ? null : $this->unitTerms[$firstKey];
         }
     }
@@ -123,7 +132,7 @@ class CompoundUnit implements UnitInterface
      * Construct a new CompoundUnit instance.
      *
      * @param null|Unit|UnitTerm|list<Unit|UnitTerm> $unit The Unit, UnitTerm, or array of Unit or UnitTerm objects
-     * to add, or null to create an empty unit.
+     * to add, or null to create a dimensionless unit.
      */
     public function __construct(null|Unit|UnitTerm|array $unit = null)
     {
@@ -856,6 +865,7 @@ class CompoundUnit implements UnitInterface
      * succeed.
      *
      * @return ?Quantity The expansion as a Quantity with base units, or null if any term cannot be expanded.
+     * @internal
      */
     public function tryExpand(): ?Quantity
     {

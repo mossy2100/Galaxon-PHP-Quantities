@@ -27,11 +27,11 @@ The `Velocity` class handles speed and velocity measurements. Most velocity unit
 
 | From | To          | Factor |
 | ---- | ----------- | ------ |
-| *kn* | *nmi\*h-1*  | 1      |
+| `kn` | `nmi*h-1`   | 1      |
 
 ---
 
-## Knot Definition
+## Knot definition
 
 The *knot* is defined as one *nautical mile* per hour:
 
@@ -41,7 +41,7 @@ The *knot* is defined as one *nautical mile* per hour:
 
 ---
 
-## Compound Velocity Units
+## Compound velocity units
 
 Velocity units are automatically supported through unit arithmetic:
 
@@ -62,7 +62,7 @@ $inKmh = $highway->to('km/h');  // 112.65 km/h
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Velocity;
@@ -92,7 +92,7 @@ $inKmh = $c->to('km/h');  // 1.079×10⁹ km/h
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -100,9 +100,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Velocity](../../Concepts/Units.md#velocity)** - Complete list of velocity units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity
 - **[Time](Time.md)** - Related quantity

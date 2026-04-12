@@ -28,8 +28,8 @@ The `RadiationDose` class handles radiation dose measurements using the *gray* (
 
 | From | To       | Factor |
 | ---- | -------- | ------ |
-| *Gy* | *m2\*s-2* | 1      |
-| *Sv* | *m2\*s-2* | 1      |
+| `Gy` | `m2*s-2`  | 1      |
+| `Sv` | `m2*s-2`  | 1      |
 
 ---
 
@@ -61,7 +61,7 @@ Sv = m²·s⁻² = J/kg
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\RadiationDose;
@@ -85,8 +85,7 @@ $inMGy = $treatment->to('mGy');  // 2000 mGy
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Radiation Dose](../../Concepts/Units.md#radiation-dose)** - Complete list of radiation dose units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Frequency](Frequency.md)** - Contains becquerel (radioactivity)

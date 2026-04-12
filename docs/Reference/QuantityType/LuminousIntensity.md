@@ -31,7 +31,7 @@ Kcd = 683 lm/W
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\LuminousIntensity;
@@ -50,9 +50,8 @@ $inCd = $spot->to('cd');  // 5000 cd
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Luminous Intensity](../../Concepts/Units.md#luminous-intensity)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (cd·sr)
 - **[Illuminance](Illuminance.md)** - Related quantity

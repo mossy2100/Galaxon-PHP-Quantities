@@ -72,7 +72,7 @@ The quantity type this converter is for (e.g., the `QuantityType` for length), o
 
 ---
 
-## Instance Management
+## Instance management
 
 The `Converter` uses the multiton pattern. The constructor is private; use `getInstance()` to obtain instances.
 
@@ -120,7 +120,7 @@ Clear all cached Converter instances. Forces new instances to be created on next
 
 ---
 
-## Unit Methods
+## Unit methods
 
 ### hasUnit()
 
@@ -156,7 +156,7 @@ Remove all units from the unit list.
 
 ---
 
-## Conversion Lookup Methods
+## Conversion lookup methods
 
 ### findConversion()
 
@@ -244,7 +244,7 @@ Check whether a conversion between two units is already cached in the matrix.
 
 ---
 
-## Conversion Management Methods
+## Conversion management methods
 
 ### loadConversions()
 
@@ -308,7 +308,7 @@ Remove all conversions involving a given unit. Used when unloading a unit from t
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ### Basic Conversion
 
@@ -347,7 +347,7 @@ echo "$liters L"; // ~4.546 L (Imperial gallon)
 
 ---
 
-## See Also
+## See also
 
 - **[Conversion](Conversion.md)** - Represents a single unit conversion.
 - **[FloatWithError](FloatWithError.md)** - Tracks precision through operations.

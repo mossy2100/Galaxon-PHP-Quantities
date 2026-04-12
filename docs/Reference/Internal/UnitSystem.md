@@ -108,7 +108,7 @@ The default system for user-defined units.
 
 ---
 
-## Cases Summary
+## Cases summary
 
 | Case          | Description                                                   |
 | ------------- | ------------------------------------------------------------- |
@@ -126,7 +126,7 @@ The default system for user-defined units.
 
 ---
 
-## See Also
+## See also
 
 - **[Unit](Unit.md)** - Units can belong to one or more systems
 - **[UnitService](../Services/UnitService.md)** - Load units by measurement system

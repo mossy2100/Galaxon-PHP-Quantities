@@ -455,6 +455,7 @@ class UnitTerm implements UnitInterface
      * exponent.
      *
      * @return ?Quantity The expansion as a Quantity with base units, or null if none found.
+     * @internal
      */
     public function tryExpand(): ?Quantity
     {

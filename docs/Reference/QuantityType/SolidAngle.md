@@ -25,7 +25,7 @@ The `SolidAngle` class handles solid angle measurements. A solid angle is the tw
 
 | From | To     | Factor |
 | ---- | ------ | ------ |
-| *sr* | *rad2* | 1      |
+| `sr` | `rad2` | 1      |
 
 ---
 
@@ -35,7 +35,7 @@ The *steradian* (`sr`) is the SI unit of solid angle. A complete sphere subtends
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\SolidAngle;
@@ -53,9 +53,8 @@ $sphere = new SolidAngle(4 * M_PI, 'sr');
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Solid Angle](../../Concepts/Units.md#solid-angle)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Angle](Angle.md)** - Related planar angle quantity
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (lm = cd·sr)

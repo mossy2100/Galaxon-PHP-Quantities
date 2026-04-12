@@ -34,6 +34,24 @@ The SI base unit for mass is the *kilogram* (`kg`), not the *gram*. This is the 
 
 ---
 
+## Conversion definitions
+
+| From   | To   | Factor            |
+| ------ | ---- | ----------------- |
+| `t`    | `kg` | 1000              |
+| `Da`   | `kg` | 1.66053906892e-27 |
+| `lb`   | `kg` | 0.45359237        |
+| `LT`   | `lb` | 2240              |
+| `tn`   | `lb` | 2000              |
+| `st`   | `lb` | 14                |
+| `lb`   | `oz` | 16                |
+| `lb`   | `gr` | 7000              |
+| `oz t` | `gr` | 480               |
+
+The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines the exact metric equivalent for the pound.
+
+---
+
 ## Parts
 
 Mass has no built-in part unit list because the choice between Imperial and US Customary units depends on context. The `Mass` class exposes both common lists as constants — pass either to a parts method via `partUnitSymbols`:
@@ -55,25 +73,7 @@ The default result unit for `Mass::fromParts()` and `Mass::parseParts()` is `lb`
 
 ---
 
-## Conversion definitions
-
-| From   | To   | Factor            |
-| ------ | ---- | ----------------- |
-| *t*    | *kg* | 1000              |
-| *Da*   | *kg* | 1.66053906892e-27 |
-| *lb*   | *kg* | 0.45359237        |
-| *LT*   | *lb* | 2240              |
-| *tn*   | *lb* | 2000              |
-| *st*   | *lb* | 14                |
-| *lb*   | *oz* | 16                |
-| *lb*   | *gr* | 7000              |
-| *oz t* | *gr* | 480               |
-
-The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines the exact metric equivalent for the pound.
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Mass;
@@ -102,7 +102,7 @@ $grains = new Mass(77, 'gr');  // ~5 grams
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -112,9 +112,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Mass](../../Concepts/Units.md#mass)** — Complete list of mass units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[Force](Force.md)** — Related quantity (M·L·T⁻²).
 - **[Density](Density.md)** — Related quantity (M·L⁻³).

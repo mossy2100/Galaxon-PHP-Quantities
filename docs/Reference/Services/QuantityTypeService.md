@@ -65,7 +65,7 @@ Built-in quantity type definitions keyed by name. Each entry contains a dimensio
 
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### getAll()
 
@@ -165,7 +165,7 @@ $classes = QuantityTypeService::getClasses();
 
 ---
 
-## Registry Methods
+## Registry methods
 
 ### add()
 
@@ -233,7 +233,7 @@ Reset the registry to its initial state, forcing re-initialization from the buil
 
 ---
 
-## See Also
+## See also
 
 - **[QuantityType](../Internal/QuantityType.md)** - QuantityType class documentation
 - **[Quantity](../Quantity.md)** - Base quantity class

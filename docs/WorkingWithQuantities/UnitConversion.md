@@ -91,7 +91,7 @@ echo $energy->toSi()->autoPrefix();  // 1.05506 kJ
 
 ---
 
-## Temperature Conversions
+## Temperature conversions
 
 Most conversions involve a simple multiplication. The built-in `Temperature` class uses affine transformations (y = mx + k) to handle offset scales:
 
@@ -108,7 +108,7 @@ echo $fahrenheit->to('degC');  // 100 degC
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity — Transformation Methods](../Reference/Quantity.md#transformation-methods)** — Full reference for `to()`, `toSi()`, `toSiBase()`, `toEnglish()`, `toEnglishBase()`, `toBase()`, `toDerived()`, `merge()`, and `autoPrefix()`.
 - **[Units](../Concepts/Units.md)** — Complete list of built-in units by quantity type.

@@ -11,6 +11,8 @@ use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
 use Galaxon\Quantities\QuantityType\Force;
+use Galaxon\Quantities\QuantityType\Length;
+use Galaxon\Quantities\QuantityType\Mass;
 use Galaxon\Quantities\QuantityType\Time;
 use InvalidArgumentException;
 use LogicException;
@@ -94,7 +96,7 @@ final class QuantityPartsTest extends TestCase
         $time = new Time(3661, 's');
         $result = $time->formatParts();
 
-        $this->assertSame('1h 1min 1s', $result);
+        $this->assertSame('1 h 1 min 1 s', $result);
     }
 
     /**
@@ -105,7 +107,7 @@ final class QuantityPartsTest extends TestCase
         $time = new Time(-3661, 's');
         $result = $time->formatParts();
 
-        $this->assertSame('-1h 1min 1s', $result);
+        $this->assertSame('-1 h 1 min 1 s', $result);
     }
 
     /**
@@ -116,7 +118,7 @@ final class QuantityPartsTest extends TestCase
         $time = new Time(3600, 's');
         $result = $time->formatParts(showZeros: true);
 
-        $this->assertSame('0y 0mo 0w 0d 1h 0min 0s', $result);
+        $this->assertSame('0 y 0 mo 0 w 0 d 1 h 0 min 0 s', $result);
     }
 
     /**
@@ -127,7 +129,51 @@ final class QuantityPartsTest extends TestCase
         $time = new Time(0, 's');
         $result = $time->formatParts();
 
-        $this->assertSame('0s', $result);
+        $this->assertSame('0 s', $result);
+    }
+
+    /**
+     * Test formatParts() with includeSpace: false removes spaces between values and units.
+     */
+    public function testFormatPartsIncludeSpaceFalse(): void
+    {
+        $time = new Time(3661, 's');
+        $result = $time->formatParts(includeSpace: false);
+
+        $this->assertSame('1h 1min 1s', $result);
+    }
+
+    /**
+     * Test formatParts() with includeSpace: true forces spaces even for special characters.
+     */
+    public function testFormatPartsIncludeSpaceTrue(): void
+    {
+        $angle = new Angle(45.508333333, 'deg');
+        $result = $angle->formatParts(precision: 0, includeSpace: true);
+
+        $this->assertSame('45 ° 30 ′ 30 ″', $result);
+    }
+
+    /**
+     * Test formatParts() with includeSpace: null (auto) omits space for special characters.
+     */
+    public function testFormatPartsIncludeSpaceAutoAngle(): void
+    {
+        $angle = new Angle(45.508333333, 'deg');
+        $result = $angle->formatParts(precision: 0);
+
+        $this->assertSame('45° 30′ 30″', $result);
+    }
+
+    /**
+     * Test formatParts() with includeSpace: false and negative value.
+     */
+    public function testFormatPartsIncludeSpaceFalseNegative(): void
+    {
+        $time = new Time(-3661, 's');
+        $result = $time->formatParts(includeSpace: false);
+
+        $this->assertSame('-1h 1min 1s', $result);
     }
 
     // endregion
@@ -135,17 +181,17 @@ final class QuantityPartsTest extends TestCase
     // region fromParts() error tests
 
     /**
-     * Test fromParts() on unregistered quantity type throws exception.
+     * Test fromParts() on base Quantity class works (no registered quantity type needed).
      */
-    public function testFromPartsUnregisteredQuantityTypeThrowsException(): void
+    public function testFromPartsOnBaseQuantity(): void
     {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Quantity type cannot be null.');
-
-        // Base Quantity class has no registered quantity type.
-        Quantity::fromParts([
-            'm' => 100,
+        $qty = Quantity::fromParts([
+            'ft' => 5,
+            'in' => 6,
         ]);
+
+        $this->assertSame('ft', $qty->compoundUnit->asciiSymbol);
+        $this->assertSame(5.5, $qty->value);
     }
 
     /**
@@ -209,6 +255,74 @@ final class QuantityPartsTest extends TestCase
 
     // endregion
 
+    // region parse() tests
+
+    /**
+     * Test parse() with a single quantity string (no space).
+     */
+    public function testParseSingleQuantityNoSpace(): void
+    {
+        $length = Quantity::parse('123.45km');
+
+        $this->assertSame('km', $length->compoundUnit->asciiSymbol);
+        $this->assertSame(123.45, $length->value);
+    }
+
+    /**
+     * Test parse() with a single quantity string (with space).
+     */
+    public function testParseSingleQuantityWithSpace(): void
+    {
+        $length = Quantity::parse('123.45 km');
+
+        $this->assertSame('km', $length->compoundUnit->asciiSymbol);
+        $this->assertSame(123.45, $length->value);
+    }
+
+    /**
+     * Test parse() falls back to parseParts() for multi-part strings.
+     */
+    public function testParseMultiPartFallback(): void
+    {
+        $time = Time::parse('1h 30min 45s');
+
+        $this->assertInstanceOf(Time::class, $time);
+        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
+        $this->assertEqualsWithDelta(1.5125, $time->value, 1e-9);
+    }
+
+    /**
+     * Test parse() with empty input throws exception.
+     */
+    public function testParseEmptyInputThrowsException(): void
+    {
+        $this->expectException(FormatException::class);
+
+        Time::parse('');
+    }
+
+    /**
+     * Test parse() with invalid format throws exception.
+     */
+    public function testParseInvalidFormatThrowsException(): void
+    {
+        $this->expectException(FormatException::class);
+
+        Time::parse('not a quantity');
+    }
+
+    /**
+     * Test parse() with dimension mismatch throws exception.
+     */
+    public function testParseDimensionMismatchThrowsException(): void
+    {
+        $this->expectException(DimensionMismatchException::class);
+
+        Length::parse('123 kg');
+    }
+
+    // endregion
+
     // region parseParts() tests
 
     /**
@@ -219,8 +333,8 @@ final class QuantityPartsTest extends TestCase
         $time = Time::parseParts('1h 30min 45s');
 
         $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame('s', $time->compoundUnit->format());
-        $this->assertSame(5445.0, $time->value);
+        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
+        $this->assertEqualsWithDelta(1.5125, $time->value, 1e-9);
     }
 
     /**
@@ -231,7 +345,8 @@ final class QuantityPartsTest extends TestCase
         $time = Time::parseParts('-1h 1min 1s');
 
         $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame(-3661.0, $time->value);
+        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
+        $this->assertEqualsWithDelta(-1.016944444, $time->value, 1e-6);
     }
 
     /**
@@ -242,6 +357,7 @@ final class QuantityPartsTest extends TestCase
         $angle = Angle::parseParts('45deg 30arcmin 30arcsec');
 
         $this->assertInstanceOf(Angle::class, $angle);
+        $this->assertSame('deg', $angle->compoundUnit->asciiSymbol);
         $this->assertEqualsWithDelta(45.508333333, $angle->value, 1e-6);
     }
 
@@ -253,7 +369,8 @@ final class QuantityPartsTest extends TestCase
         $time = Time::parseParts('90min');
 
         $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame(5400.0, $time->value);
+        $this->assertSame('min', $time->compoundUnit->asciiSymbol);
+        $this->assertSame(90.0, $time->value);
     }
 
     /**
@@ -263,7 +380,33 @@ final class QuantityPartsTest extends TestCase
     {
         $time = Time::parseParts('1h 30min 45.5s');
 
-        $this->assertSame(5445.5, $time->value);
+        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
+        $this->assertEqualsWithDelta(1.512638889, $time->value, 1e-6);
+    }
+
+    /**
+     * Test parseParts() with spaces between values and units.
+     */
+    public function testParsePartsWithSpacesBetweenValueAndUnit(): void
+    {
+        $time = Time::parseParts('1 h 1 min 1 s');
+
+        $this->assertInstanceOf(Time::class, $time);
+        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
+        $this->assertEqualsWithDelta(1.016944444, $time->value, 1e-6);
+    }
+
+    /**
+     * Test parseParts() with multi-word unit symbols and spaces.
+     */
+    public function testParsePartsWithMultiWordUnits(): void
+    {
+        $mass = Mass::parseParts('12 LT 3 st 4 lb');
+
+        $this->assertInstanceOf(Mass::class, $mass);
+        $this->assertSame('LT', $mass->compoundUnit->asciiSymbol);
+        // 12 LT + 3 st + 4 lb = (12 * 2240 + 3 * 14 + 4) / 2240 = 12.020535714... LT
+        $this->assertEqualsWithDelta(12.020535714, $mass->value, 1e-6);
     }
 
     /**
@@ -308,71 +451,22 @@ final class QuantityPartsTest extends TestCase
         Time::parseParts('1h 45mi 34s');
     }
 
-    /**
-     * Test parseParts() on unregistered quantity type throws exception.
-     */
-    public function testParsePartsUnregisteredQuantityTypeThrowsException(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Quantity type cannot be null.');
-
-        Quantity::parseParts('100m 50cm');
-    }
-
     // endregion
 
     // region validator coverage tests
 
     /**
-     * Test that the base Quantity::getResultUnitSymbol() returns null.
-     *
-     * Subclasses may override this; the base implementation returns null and is hit when a registered
-     * quantity type (e.g. Force) does not provide its own override.
+     * Test fromParts() works with Force (which has no default result unit).
      */
-    public function testGetResultUnitSymbolBaseReturnsNull(): void
+    public function testFromPartsForce(): void
     {
-        $this->assertNull(Quantity::getResultUnitSymbol());
-        $this->assertNull(Force::getResultUnitSymbol());
-    }
-
-    /**
-     * Test fromParts() throws when the quantity type has no default result unit and none is provided.
-     */
-    public function testFromPartsNoDefaultResultUnitThrowsException(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('No default result unit symbol configured for force quantities');
-
-        // Force is registered but does not override getResultUnitSymbol().
-        Force::fromParts([
-            'N' => 1,
+        $force = Force::fromParts([
+            'N' => 100,
         ]);
-    }
 
-    /**
-     * Test fromParts() throws when the result unit symbol is not a recognized unit.
-     */
-    public function testFromPartsUnknownResultUnitThrowsException(): void
-    {
-        $this->expectException(UnknownUnitException::class);
-        $this->expectExceptionMessage("Unknown result unit 'xyz'.");
-
-        Time::fromParts([
-            'h' => 1,
-        ], 'xyz');
-    }
-
-    /**
-     * Test fromParts() throws when the result unit's dimension is incompatible with the quantity type.
-     */
-    public function testFromPartsIncompatibleResultUnitThrowsException(): void
-    {
-        $this->expectException(DimensionMismatchException::class);
-        $this->expectExceptionMessage("Result unit 'kg'");
-
-        Time::fromParts([
-            'h' => 1,
-        ], 'kg');
+        $this->assertInstanceOf(Force::class, $force);
+        $this->assertSame('N', $force->compoundUnit->asciiSymbol);
+        $this->assertSame(100.0, $force->value);
     }
 
     /**

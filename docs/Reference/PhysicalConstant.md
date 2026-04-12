@@ -23,7 +23,7 @@ The class includes:
 - Type-safe access to physical constants
 - Lazy instantiation with caching
 - Lookup by symbol via `get()`
-- Computed derived constants (e.g., reduced Planck constant = h / 2π)
+- Computed derived constants (e.g., reduced Planck constant = h / τ)
 
 ---
 
@@ -38,7 +38,7 @@ public static function caesiumFrequency(): Quantity
 The caesium-133 hyperfine transition frequency (deltaNuCs). Defines the *second*.
 
 **Returns:**
-- `Quantity` - 9,192,631,770 Hz (exact)
+- `Quantity` equal to 9,192,631,770 Hz (exact)
 
 ### speedOfLight()
 
@@ -49,7 +49,7 @@ public static function speedOfLight(): Quantity
 The speed of light in vacuum (c). Defines the *meter*.
 
 **Returns:**
-- `Quantity` - 299,792,458 m/s (exact)
+- `Quantity` equal to 299,792,458 m/s (exact)
 
 ### planck()
 
@@ -60,7 +60,7 @@ public static function planck(): Quantity
 The Planck constant (h). Defines the *kilogram*.
 
 **Returns:**
-- `Quantity` - 6.62607015×10⁻³⁴ J⋅s (exact)
+- `Quantity` equal to 6.62607015×10⁻³⁴ J⋅s (exact)
 
 ### elementaryCharge()
 
@@ -71,7 +71,7 @@ public static function elementaryCharge(): Quantity
 The elementary charge (e). Defines the *ampere*.
 
 **Returns:**
-- `Quantity` - 1.602176634×10⁻¹⁹ C (exact)
+- `Quantity` equal to 1.602176634×10⁻¹⁹ C (exact)
 
 ### boltzmann()
 
@@ -82,7 +82,7 @@ public static function boltzmann(): Quantity
 The Boltzmann constant (k). Defines the *kelvin*.
 
 **Returns:**
-- `Quantity` - 1.380649×10⁻²³ J/K (exact)
+- `Quantity` equal to 1.380649×10⁻²³ J/K (exact)
 
 ### avogadro()
 
@@ -93,7 +93,7 @@ public static function avogadro(): Quantity
 The Avogadro constant (NA). Defines the *mole*.
 
 **Returns:**
-- `Quantity` - 6.02214076×10²³ mol⁻¹ (exact)
+- `Quantity` equal to 6.02214076×10²³ mol⁻¹ (exact)
 
 ### luminousEfficacy()
 
@@ -104,11 +104,11 @@ public static function luminousEfficacy(): Quantity
 The luminous efficacy of 540 THz radiation (Kcd). Defines the *candela*.
 
 **Returns:**
-- `Quantity` - 683 lm/W (exact)
+- `Quantity` equal to 683 lm/W (exact)
 
 ---
 
-## Gravitational Constants
+## Gravitational constants
 
 ### earthGravity()
 
@@ -119,7 +119,7 @@ public static function earthGravity(): Quantity
 Standard acceleration of gravity at the surface of Earth (g).
 
 **Returns:**
-- `Quantity` - 9.80665 m/s² (exact by definition)
+- `Quantity` equal to 9.80665 m/s² (exact)
 
 ### gravitational()
 
@@ -130,11 +130,11 @@ public static function gravitational(): Quantity
 The Newtonian constant of gravitation (G).
 
 **Returns:**
-- `Quantity` - 6.67430×10⁻¹¹ m³/(kg⋅s²)
+- `Quantity` equal to 6.67430×10⁻¹¹ m³/(kg⋅s²)
 
 ---
 
-## Electromagnetic Constants
+## Electromagnetic constants
 
 ### vacuumPermittivity()
 
@@ -145,7 +145,7 @@ public static function vacuumPermittivity(): Quantity
 The vacuum electric permittivity (epsilon0).
 
 **Returns:**
-- `Quantity` - 8.8541878128×10⁻¹² F/m
+- `Quantity` equal to 8.8541878128×10⁻¹² F/m
 
 ### vacuumPermeability()
 
@@ -156,7 +156,7 @@ public static function vacuumPermeability(): Quantity
 The vacuum magnetic permeability (mu0).
 
 **Returns:**
-- `Quantity` - 1.25663706212×10⁻⁶ H/m
+- `Quantity` equal to 1.25663706212×10⁻⁶ H/m
 
 ---
 
@@ -171,7 +171,7 @@ public static function electronMass(): Quantity
 The electron rest mass (me).
 
 **Returns:**
-- `Quantity` - 9.1093837015×10⁻³¹ kg
+- `Quantity` equal to 9.1093837015×10⁻³¹ kg
 
 ### protonMass()
 
@@ -182,7 +182,7 @@ public static function protonMass(): Quantity
 The proton mass (mp).
 
 **Returns:**
-- `Quantity` - 1.67262192369×10⁻²⁷ kg
+- `Quantity` equal to 1.67262192369×10⁻²⁷ kg
 
 ### neutronMass()
 
@@ -193,7 +193,7 @@ public static function neutronMass(): Quantity
 The neutron mass (mn).
 
 **Returns:**
-- `Quantity` - 1.67492749804×10⁻²⁷ kg
+- `Quantity` equal to 1.67492749804×10⁻²⁷ kg
 
 ### fineStructure()
 
@@ -204,7 +204,7 @@ public static function fineStructure(): Quantity
 The fine-structure constant (alpha). Dimensionless.
 
 **Returns:**
-- `Quantity` - 7.2973525693×10⁻³
+- `Quantity` equal to 7.2973525693×10⁻³
 
 ### rydberg()
 
@@ -215,7 +215,7 @@ public static function rydberg(): Quantity
 The Rydberg constant (Rinf).
 
 **Returns:**
-- `Quantity` - 10,973,731.568160 m⁻¹
+- `Quantity` equal to 10,973,731.568160 m⁻¹
 
 ### bohrRadius()
 
@@ -226,11 +226,11 @@ public static function bohrRadius(): Quantity
 The Bohr radius (a0).
 
 **Returns:**
-- `Quantity` - 5.29177210903×10⁻¹¹ m
+- `Quantity` equal to 5.29177210903×10⁻¹¹ m
 
 ---
 
-## Thermodynamic Constants
+## Thermodynamic constants
 
 ### molarGas()
 
@@ -241,7 +241,7 @@ public static function molarGas(): Quantity
 The molar gas constant (R = NA \* k).
 
 **Returns:**
-- `Quantity` - 8.314462618 J/(mol⋅K)
+- `Quantity` equal to 8.314462618 J/(mol⋅K)
 
 ### stefanBoltzmann()
 
@@ -252,11 +252,11 @@ public static function stefanBoltzmann(): Quantity
 The Stefan-Boltzmann constant (σ).
 
 **Returns:**
-- `Quantity` - 5.670374419×10⁻⁸ W/(m²⋅K⁴)
+- `Quantity` equal to 5.670374419×10⁻⁸ W/(m²⋅K⁴)
 
 ---
 
-## Derived Constants
+## Derived constants
 
 ### reducedPlanck()
 
@@ -267,11 +267,11 @@ public static function reducedPlanck(): Quantity
 The reduced Planck constant (hbar = h / 2π).
 
 **Returns:**
-- `Quantity` - Computed from Planck constant with full precision
+- `Quantity` computed from Planck constant with full precision
 
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### get()
 
@@ -285,7 +285,7 @@ Get a constant by its symbol.
 - `$symbol` (string) - The constant's symbol (case-sensitive)
 
 **Returns:**
-- `Quantity` - The constant as a Quantity object
+- `Quantity` equal to the constant as a Quantity object
 
 **Throws:**
 - `DomainException` - If the symbol is unknown
@@ -320,7 +320,7 @@ foreach ($all as $symbol => $quantity) {
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ### Using Constants in Calculations
 
@@ -353,7 +353,7 @@ $G = PhysicalConstant::get('G');
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](Quantity.md)** - The base class for all physical quantities
 - **[Unit](Internal/Unit.md)** - Units used by the constants

@@ -25,7 +25,7 @@ The `Power` class handles power measurements.
 
 | From | To              | Factor |
 | ---- | --------------- | ------ |
-| *W*  | *kg\*m2\*s-3*   | 1      |
+| `W`  | `kg*m2*s-3`     | 1      |
 
 ---
 
@@ -39,7 +39,7 @@ W = kg·m²·s⁻³ = J/s = V·A
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Power;
@@ -63,7 +63,7 @@ $inGW = $plant->to('GW');  // 1 GW
 
 ---
 
-## Energy Calculation
+## Energy calculation
 
 Power × Time = Energy:
 
@@ -75,9 +75,8 @@ $energy = $power->value * $hours;  // 500 Wh = 0.5 kWh
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Power](../../Concepts/Units.md#power)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Energy](Energy.md)** - Related quantity (E = P·t)
 - **[Voltage](Voltage.md)** - Related quantity (P = V·I)

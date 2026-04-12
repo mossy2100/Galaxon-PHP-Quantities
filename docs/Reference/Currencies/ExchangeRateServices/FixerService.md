@@ -70,7 +70,7 @@ relative to EUR on the free tier.
 
 ---
 
-## See Also
+## See also
 
 - **[ExchangeRateServiceInterface](ExchangeRateServiceInterface.md)** — The interface this service implements.
 - **[CurrencyService](../CurrencyService.md)** — Exchange rate configuration and caching.

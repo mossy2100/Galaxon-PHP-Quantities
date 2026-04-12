@@ -77,7 +77,7 @@ For the complete list of built-in units, see the "Unit definitions" section in e
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity Types](../Reference/QuantityType/)** — Documentation for all quantity type classes.
 - **[UnitSystem](../Reference/Internal/UnitSystem.md)** - Measurement system classification

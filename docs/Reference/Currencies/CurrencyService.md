@@ -216,7 +216,7 @@ Get the path to the currency conversions data file.
 
 ---
 
-## Currency Data
+## Currency data
 
 ### loadUnitData()
 
@@ -297,7 +297,7 @@ Ensure all currency data is fresh. Refreshes currency units and exchange rate co
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\Currencies\CurrencyService;
@@ -326,7 +326,7 @@ $locale = CurrencyService::getLocale();
 
 ---
 
-## See Also
+## See also
 
 - **[ExchangeRateServiceInterface](ExchangeRateServices/ExchangeRateServiceInterface.md)** — Interface for exchange rate providers.
 - **[Money](../QuantityType/Money.md)** — Money quantity type.

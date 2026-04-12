@@ -171,7 +171,7 @@ $ohm = new Unit(
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### parse()
 
@@ -192,7 +192,7 @@ Parse a unit symbol and return the matching Unit from the registry.
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### belongsToSystem()
 
@@ -241,7 +241,7 @@ $meter->acceptsPrefix('Ki'); // false (binary prefix)
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### equal()
 
@@ -258,7 +258,7 @@ Check if this unit equals another. Compares by ASCII symbol.
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -283,7 +283,7 @@ Convert the unit to a string using the Unicode symbol.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ### Accessing Unit Properties
 
@@ -318,7 +318,7 @@ $symbols = $meter->symbols;
 
 ---
 
-## See Also
+## See also
 
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent.
 - **[CompoundUnit](CompoundUnit.md)** - Compound unit representation.

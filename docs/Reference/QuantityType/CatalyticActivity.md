@@ -25,7 +25,7 @@ The `CatalyticActivity` class handles catalytic activity measurements, used in e
 
 | From  | To          | Factor |
 | ----- | ----------- | ------ |
-| *kat* | *mol\*s-1*  | 1      |
+| `kat` | `mol*s-1`   | 1      |
 
 ---
 
@@ -41,7 +41,7 @@ One *katal* is the catalytic activity that converts one mole of substrate per se
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\CatalyticActivity;
@@ -57,9 +57,8 @@ $inNkat = $serum->to('nkat');  // 1000 nkat
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Catalytic Activity](../../Concepts/Units.md#catalytic-activity)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[AmountOfSubstance](AmountOfSubstance.md)** - Related quantity
 - **[Time](Time.md)** - Related quantity

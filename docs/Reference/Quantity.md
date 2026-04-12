@@ -19,7 +19,7 @@ Quantities are immutable value objects combining a numeric value with a unit. Al
 - Automatic unit conversion with prefix handling
 - Comparison and equality testing with epsilon tolerance
 - Flexible string formatting and parsing
-- Parts-based formatting (e.g., "5 h 30 min 45 s")
+- Parts-based formatting (e.g., "5h 30min 45s")
 
 ---
 
@@ -94,7 +94,7 @@ $mass = new Mass(5.5, 'kg');
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### create()
 
@@ -171,7 +171,7 @@ Length::parse('123 kg');  // DimensionMismatchException
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### convert()
 
@@ -423,7 +423,7 @@ $doubled = $length->withValue(20);  // 20 m
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### compare()
 
@@ -472,7 +472,7 @@ $a->approxEqual($b);  // true
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### abs()
 
@@ -512,7 +512,7 @@ Invert this quantity (1/x).
 
 ---
 
-## Binary Arithmetic Methods
+## Binary arithmetic methods
 
 ### add()
 
@@ -611,7 +611,7 @@ When dividing by a scalar, the unit is preserved. When dividing by a Quantity or
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -656,7 +656,7 @@ $result = $velocity->sqr();  // 9 m2/s2
 
 ---
 
-## Rounding Methods
+## Rounding methods
 
 ### round()
 
@@ -715,7 +715,7 @@ $ceiled = $length->ceil();  // 2 m
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -773,7 +773,7 @@ Convert to string using default formatting.
 
 ---
 
-## Subclass Methods
+## Subclass methods
 
 These methods are meant to be overridden in Quantity subclasses (e.g. `Angle`, `Time`, etc.).
 
@@ -835,7 +835,7 @@ Returns `null` in the base `Quantity` class. Overridden in subclasses such as `L
 
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### getQuantityType()
 
@@ -882,7 +882,7 @@ Quantity::getDimension();     // null
 
 ---
 
-## Parts Methods
+## Parts methods
 
 Parts methods allow decomposing a quantity into multiple unit components (e.g. hours, minutes, seconds) and reconstructing from them.
 
@@ -1009,7 +1009,7 @@ Only the smallest unit may have a decimal point. Larger units will be integers. 
 
 ---
 
-## Validation Methods
+## Validation methods
 
 ### isValidQuantity()
 
@@ -1035,7 +1035,7 @@ Quantity::isValidQuantity('abc', $m);         // false
 
 ---
 
-## See Also
+## See also
 
 - **[CompoundUnit](Internal/CompoundUnit.md)** - Unit representation used by Quantity.
 - **[Converter](Internal/Converter.md)** - Handles unit conversions.

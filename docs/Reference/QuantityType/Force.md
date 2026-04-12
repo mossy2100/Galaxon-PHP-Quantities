@@ -22,6 +22,15 @@ The `Force` class handles force measurements in SI and Imperial/US Customary sys
 
 ---
 
+## Conversion definitions
+
+| From   | To           | Factor          |
+| ------ | ------------ | --------------- |
+| `N`    | `kg*m/s2`    | 1               |
+| `lbf`  | `lb*ft/s2`   | 9.80665 / 0.3048 |
+
+---
+
 ## SI Unit Expansion
 
 The *newton* is defined in terms of SI base units:
@@ -48,16 +57,7 @@ lbf = lb·ft·s⁻² × (g₀ / 0.3048)
 
 ---
 
-## Conversion definitions
-
-| From   | To           | Factor          |
-| ------ | ------------ | --------------- |
-| *N*    | *kg\*m/s2*   | 1               |
-| *lbf*  | *lb\*ft/s2*  | 9.80665 / 0.3048 |
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Force;
@@ -96,9 +96,8 @@ Force is related to other quantities:
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Force](../../Concepts/Units.md#force)** - Complete list of force units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Pressure](Pressure.md)** - Related quantity (force per area)
 - **[Energy](Energy.md)** - Related quantity (force × distance)

@@ -116,7 +116,7 @@ $velocity = new CompoundUnit([
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### toCompoundUnit()
 
@@ -169,7 +169,7 @@ $frequency = CompoundUnit::parse('s-1');
 
 ---
 
-## Construction Methods
+## Construction methods
 
 ### addUnitTerm()
 
@@ -200,7 +200,7 @@ Remove a unit term.
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### isDimensionless()
 
@@ -265,7 +265,7 @@ Check if the CompoundUnit includes the given unit in any of its terms.
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### equal()
 
@@ -282,7 +282,7 @@ Check if this compound unit equals another. Compares by ASCII symbol.
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### inv()
 
@@ -302,7 +302,7 @@ $invVelocity = $velocity->inv(); // s/m
 
 ---
 
-## Binary Arithmetic Methods
+## Binary arithmetic methods
 
 ### mul()
 
@@ -326,7 +326,7 @@ $velocity = $length->mul($time->inv()); // m/s
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -350,7 +350,7 @@ $volume = $length->pow(3); // m3
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### \_\_clone()
 
@@ -439,7 +439,7 @@ echo $merged->value;       // 0.3048
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -470,7 +470,7 @@ Convert to string using Unicode format.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ### Building Compound Units
 
@@ -525,7 +525,7 @@ echo $area->asciiSymbol; // 'm2'
 
 ---
 
-## See Also
+## See also
 
 - **[Unit](Unit.md)** - Simple unit representation.
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent.

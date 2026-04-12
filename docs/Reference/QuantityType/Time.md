@@ -28,6 +28,22 @@ The `Time` class handles time durations and provides conversion to/from PHP's na
 
 ---
 
+## Conversion definitions
+
+| From  | To    | Factor   |
+| ----- | ----- | -------- |
+| `min` | `s`   | 60       |
+| `h`   | `min` | 60       |
+| `d`   | `h`   | 24       |
+| `w`   | `d`   | 7        |
+| `y`   | `mo`  | 12       |
+| `y`   | `d`   | 365.2425 |
+| `c`   | `y`   | 100      |
+
+**Note:** Month and year conversions use average values. For calendar-accurate calculations, use PHP's DateTime/DateInterval classes directly.
+
+---
+
 ## DateInterval interoperability methods
 
 ### fromDateInterval()
@@ -119,23 +135,7 @@ echo $time->formatParts(partUnitSymbols: ['h', 'min', 's']);
 
 ---
 
-## Conversion definitions
-
-| From  | To    | Factor   |
-| ----- | ----- | -------- |
-| *min* | *s*   | 60       |
-| *h*   | *min* | 60       |
-| *d*   | *h*   | 24       |
-| *w*   | *d*   | 7        |
-| *y*   | *mo*  | 12       |
-| *y*   | *d*   | 365.2425 |
-| *c*   | *y*   | 100      |
-
-**Note:** Month and year conversions use average values. For calendar-accurate calculations, use PHP's DateTime/DateInterval classes directly.
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Time;
@@ -169,9 +169,8 @@ $total = $hours->add($minutes);  // 4 hours total
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Time](../../Concepts/Units.md#time)** — Complete list of time units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[PHP DateInterval](https://www.php.net/manual/en/class.dateinterval.php)** — Native PHP class.
 - **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — General parts formatting and parsing.

@@ -1068,6 +1068,18 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('LT-2', $si->dimension);
     }
 
+    public function testToSiMixedExpandableAndBase(): void
+    {
+        // N*s mixes an expandable term (N → kg*m/s2) with a base term (s).
+        // Result: kg*m/s2 * s = kg*m/s. Verifies the internal expansion correctly handles
+        // compounds where some terms expand and others don't.
+        $du = CompoundUnit::parse('N*s');
+        $si = $du->toSiBase();
+
+        $this->assertSame('kg*m/s', $si->format(true));
+        $this->assertSame('MLT-1', $si->dimension);
+    }
+
     // endregion
 
     // region isSi() tests
@@ -1802,8 +1814,14 @@ class CompoundUnitTest extends TestCase
 
     // region tryExpand() tests
 
+    // Most of tryExpand()'s observable behaviour is covered by the toSiBase() tests above
+    // (e.g. N → kg*m/s2, kN → kg*m/s2, N*s → kg*m/s) and by the multiplier property tests
+    // for the prefix magnitudes. The tests below cover the *internal* signals that are not
+    // directly observable through the public API: the null-return contract for base and
+    // unexpandable inputs, and the caching behaviour.
+
     /**
-     * Test tryExpand returns null for a base unit.
+     * Test tryExpand returns null for a base unit (internal signal — not observable via toSi).
      */
     public function testTryExpandReturnsNullForBaseUnit(): void
     {
@@ -1813,35 +1831,19 @@ class CompoundUnitTest extends TestCase
     }
 
     /**
-     * Test tryExpand expands a named unit to base units.
+     * Test tryExpand returns null when a compound unit contains only base terms (internal signal).
      */
-    public function testTryExpandExpandsNamedUnit(): void
+    public function testTryExpandReturnsNullForUnexpandableTerm(): void
     {
-        // N (newton) = kg*m/s2.
-        $du = CompoundUnit::parse('N');
-        $expansion = $du->tryExpand();
+        // A base unit compound like kg*m is already base — nothing to expand.
+        $du = CompoundUnit::parse('kg*m');
 
-        $this->assertInstanceOf(Quantity::class, $expansion);
-        $this->assertSame(1.0, $expansion->value);
-        $this->assertSame('kg*m/s2', $expansion->compoundUnit->asciiSymbol);
+        $this->assertNull($du->tryExpand());
     }
 
     /**
-     * Test tryExpand expands a prefixed named unit.
-     */
-    public function testTryExpandExpandsPrefixedNamedUnit(): void
-    {
-        // kN (kilonewton) should expand to 1000 kg*m/s2.
-        $du = CompoundUnit::parse('kN');
-        $expansion = $du->tryExpand();
-
-        $this->assertInstanceOf(Quantity::class, $expansion);
-        $this->assertEqualsWithDelta(1000.0, $expansion->value, 1e-10);
-        $this->assertSame('kg*m/s2', $expansion->compoundUnit->asciiSymbol);
-    }
-
-    /**
-     * Test tryExpand returns cached expansion on second call.
+     * Test tryExpand returns the cached expansion on a second call. Internal optimisation,
+     * verified by identity (===) on the returned Quantity.
      */
     public function testTryExpandReturnsCachedExpansion(): void
     {
@@ -1852,31 +1854,6 @@ class CompoundUnitTest extends TestCase
 
         $this->assertInstanceOf(Quantity::class, $expansion1);
         $this->assertSame($expansion1, $expansion2);
-    }
-
-    /**
-     * Test tryExpand with mixed base and expandable terms.
-     */
-    public function testTryExpandWithMixedBaseAndExpandable(): void
-    {
-        // N*s = kg*m/s2 * s = kg*m/s. The N is expandable, s is base.
-        $du = CompoundUnit::parse('N*s');
-        $expansion = $du->tryExpand();
-
-        $this->assertInstanceOf(Quantity::class, $expansion);
-        $this->assertSame(1.0, $expansion->value);
-        $this->assertSame('kg*m/s', $expansion->compoundUnit->asciiSymbol);
-    }
-
-    /**
-     * Test tryExpand returns null when a term has no known expansion.
-     */
-    public function testTryExpandReturnsNullForUnexpandableTerm(): void
-    {
-        // A base unit compound like kg*m is already base — nothing to expand.
-        $du = CompoundUnit::parse('kg*m');
-
-        $this->assertNull($du->tryExpand());
     }
 
     // endregion
@@ -1951,13 +1928,15 @@ class CompoundUnitTest extends TestCase
     }
 
     /**
-     * Test firstUnitTerm property returns first term in compound unit.
+     * Test firstUnitTerm property returns the first term (in input order) in a compound unit
+     * with multiple terms.
      */
     public function testFirstUnitTermPropertyReturnsFirstInCompound(): void
     {
         $du = CompoundUnit::parse('kg*m/s2');
 
         $this->assertInstanceOf(UnitTerm::class, $du->firstUnitTerm);
+        $this->assertSame('kg', $du->firstUnitTerm->asciiSymbol);
     }
 
     /**

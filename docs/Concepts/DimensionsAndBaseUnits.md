@@ -65,7 +65,7 @@ Whenever a Quantity is converted to base units, the resulting compound unit will
 
 ---
 
-## See Also
+## See also
 
 - **[Terminology](Terminology.md)** — Key terms including base units, compound units, and dimensions.
 - **[Quantity Types](QuantityTypes.md)** — Typed quantity classes and their dimension codes.

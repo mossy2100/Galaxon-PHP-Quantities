@@ -25,7 +25,7 @@ The `Resistance` class handles electrical resistance measurements.
 
 | From  | To                  | Factor |
 | ----- | ------------------- | ------ |
-| *ohm* | *kg\*m2\*s-3\*A-2*  | 1      |
+| `ohm` | `kg*m2*s-3*A-2`     | 1      |
 
 ---
 
@@ -39,7 +39,7 @@ The *ohm* is defined as:
 
 ---
 
-## Unit Symbol
+## Unit symbol
 
 The ohm uses:
 - ASCII: `ohm`
@@ -47,7 +47,7 @@ The ohm uses:
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Resistance;
@@ -67,9 +67,8 @@ $inKohm = $input->to('kohm');  // 10,000 kΩ
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Resistance](../../Concepts/Units.md#resistance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Voltage](Voltage.md)** - Related quantity (V = IR)
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity

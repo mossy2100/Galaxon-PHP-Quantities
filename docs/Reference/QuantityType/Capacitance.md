@@ -25,7 +25,7 @@ The `Capacitance` class handles electrical capacitance measurements.
 
 | From | To                | Factor |
 | ---- | ----------------- | ------ |
-| *F*  | *kg-1\*m-2\*s4\*A2* | 1      |
+| `F`  | `kg-1*m-2*s4*A2`    | 1      |
 
 ---
 
@@ -39,7 +39,7 @@ F = kg⁻¹·m⁻²·s⁴·A² = C/V = s/Ω
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Capacitance;
@@ -59,9 +59,8 @@ $inMF = $super->to('mF');  // 1000 mF
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Capacitance](../../Concepts/Units.md#capacitance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCharge](ElectricCharge.md)** - Related quantity (C = Q/V)
 - **[Voltage](Voltage.md)** - Related quantity

@@ -39,7 +39,7 @@ When `parse()` encounters a multi-part string (e.g. `"1h 30min 45s"`), it automa
 
 ---
 
-## Unit Syntax
+## Unit syntax
 
 When writing unit strings — whether for `Quantity::create()`, `parse()`, or any method that
 accepts a unit — the following syntax rules apply.
@@ -217,7 +217,7 @@ echo $length->format(includeSpace: false); // 100m
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](../Reference/Quantity.md)** — Full reference for `format()`, `parse()`, and `__toString()`.
 - **[Part Decomposition](PartDecomposition.md)** — Multi-part formatting and parsing (e.g. `"5h 30min 45s"`).

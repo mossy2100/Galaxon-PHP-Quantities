@@ -155,7 +155,7 @@ echo $difference;  // e.g. $458.77
 
 ---
 
-## See Also
+## See also
 
 - **[Money](../Reference/QuantityType/Money.md)** — Creating and using Money quantities.
 - **[CurrencyService](../Reference/Currencies/CurrencyService.md)** — Exchange rate services, caching, and configuration.

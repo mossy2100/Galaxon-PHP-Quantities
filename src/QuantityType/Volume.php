@@ -14,6 +14,24 @@ use Override;
  */
 class Volume extends Quantity
 {
+    // region Public constants
+
+    /**
+     * Imperial units for volume parts.
+     *
+     * @var list<string>
+     */
+    public const array IMP_PART_UNITS = ['imp gal', 'imp qt', 'imp pt', 'imp fl oz'];
+
+    /**
+     * US customary units for volume parts.
+     *
+     * @var list<string>
+     */
+    public const array US_PART_UNITS = ['US gal', 'US qt', 'US pt', 'US cup', 'US fl oz'];
+
+    // endregion
+
     // region Overridden methods
 
     /**

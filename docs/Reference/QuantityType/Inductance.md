@@ -25,7 +25,7 @@ The `Inductance` class handles electrical inductance measurements.
 
 | From | To                   | Factor |
 | ---- | -------------------- | ------ |
-| *H*  | *kg\*m2\*s-2\*A-2*   | 1      |
+| `H`  | `kg*m2*s-2*A-2`      | 1      |
 
 ---
 
@@ -39,7 +39,7 @@ H = kg·m²·s⁻²·A⁻² = Wb/A = V·s/A
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Inductance;
@@ -56,9 +56,8 @@ $inNH = $power->to('nH');  // 100,000 nH
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Inductance](../../Concepts/Units.md#inductance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[MagneticFlux](MagneticFlux.md)** - Related quantity (Φ = LI)
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity

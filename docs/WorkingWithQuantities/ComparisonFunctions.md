@@ -8,7 +8,7 @@ Quantity objects implement the [`Comparable`](https://github.com/mossy2100/Galax
 
 ---
 
-## Exact Comparison
+## Exact comparison
 
 The `compare()` method returns `-1`, `0`, or `1`, like PHP's spaceship operator. Units are automatically converted before comparing:
 
@@ -30,7 +30,7 @@ Note that `compare()` and `equal()` test for *exact* floating-point equality. Du
 
 ---
 
-## Approximate Comparison
+## Approximate comparison
 
 The `approxEqual()` method handles floating-point precision by allowing a small tolerance:
 
@@ -60,7 +60,7 @@ $a->approxCompare($b);  // 0
 
 ---
 
-## Incompatible Quantities
+## Incompatible quantities
 
 Comparing quantities with different dimensions throws an exception with `compare()`, and returns `false` with `approxEqual()`:
 
@@ -77,7 +77,7 @@ $length->approxEqual($time);  // false (no exception)
 
 ---
 
-## See Also
+## See also
 
 - **[Comparable](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparison/Comparable.md)** — Core trait providing `compare()`, `equal()`, `lessThan()`, `greaterThan()`, and related methods.
 - **[ApproxComparable](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Traits/Comparison/ApproxComparable.md)** — Core trait providing `approxEqual()` and `approxCompare()` with tolerance support.

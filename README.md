@@ -44,7 +44,7 @@ composer require galaxon/quantities
 ```
 
 ---
-## Quick Start
+## Quick start
 
 ```php
 use Galaxon\Quantities\PhysicalConstant;

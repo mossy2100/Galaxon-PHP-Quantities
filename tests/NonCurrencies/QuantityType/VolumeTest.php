@@ -593,4 +593,148 @@ final class VolumeTest extends TestCase
     }
 
     // endregion
+
+    // region Constant tests
+
+    /**
+     * Test the IMP_PART_UNITS constant has the expected symbols.
+     */
+    public function testImpPartUnitsConstant(): void
+    {
+        $this->assertSame(['imp gal', 'imp qt', 'imp pt', 'imp fl oz'], Volume::IMP_PART_UNITS);
+    }
+
+    /**
+     * Test the US_PART_UNITS constant has the expected symbols.
+     */
+    public function testUsPartUnitsConstant(): void
+    {
+        $this->assertSame(['US gal', 'US qt', 'US pt', 'US cup', 'US fl oz'], Volume::US_PART_UNITS);
+    }
+
+    // endregion
+
+    // region Imperial parts tests
+
+    /**
+     * Test toParts() with imperial units.
+     */
+    public function testToPartsImperial(): void
+    {
+        // 5.5 imp pt = 2 imp qt 1 imp pt 10 imp fl oz
+        $volume = new Volume(5.5, 'imp pt');
+        $parts = $volume->toParts(partUnitSymbols: Volume::IMP_PART_UNITS);
+
+        $this->assertSame(1, $parts['sign']);
+        $this->assertArrayNotHasKey('imp gal', $parts);
+        $this->assertSame(2, $parts['imp qt']);
+        $this->assertSame(1, $parts['imp pt']);
+        $this->assertSame(10.0, $parts['imp fl oz']);
+    }
+
+    /**
+     * Test fromParts() with imperial units.
+     */
+    public function testFromPartsImperial(): void
+    {
+        $volume = Volume::fromParts([
+            'imp gal'   => 1,
+            'imp pt'    => 2,
+            'imp fl oz' => 5,
+        ]);
+
+        $this->assertInstanceOf(Volume::class, $volume);
+        $this->assertSame('imp gal', $volume->compoundUnit->asciiSymbol);
+        // 1 gal + 2 pt + 5 fl oz = 1 + 2/8 + 5/160 = 1 + 0.25 + 0.03125 = 1.28125 imp gal
+        $this->assertEqualsWithDelta(1.28125, $volume->value, 1e-9);
+    }
+
+    /**
+     * Test formatParts() with imperial units.
+     */
+    public function testFormatPartsImperial(): void
+    {
+        // 5.5 imp pt = 2 imp qt 1 imp pt 10 imp fl oz
+        $volume = new Volume(5.5, 'imp pt');
+        $result = $volume->formatParts(partUnitSymbols: Volume::IMP_PART_UNITS);
+
+        $this->assertSame('2 imp qt 1 imp pt 10 imp fl oz', $result);
+    }
+
+    /**
+     * Test parseParts() with imperial units.
+     */
+    public function testParsePartsImperial(): void
+    {
+        $volume = Volume::parseParts('1 imp gal 2 imp pt');
+
+        $this->assertInstanceOf(Volume::class, $volume);
+        $this->assertSame('imp gal', $volume->compoundUnit->asciiSymbol);
+        // 1 imp gal + 2 imp pt = 1 + 2/8 = 1.25 imp gal
+        $this->assertEqualsWithDelta(1.25, $volume->value, 1e-9);
+    }
+
+    // endregion
+
+    // region US customary parts tests
+
+    /**
+     * Test toParts() with US customary units.
+     */
+    public function testToPartsUsCustomary(): void
+    {
+        // 1.5 US gal = 1 US gal 2 US qt
+        $volume = new Volume(1.5, 'US gal');
+        $parts = $volume->toParts(partUnitSymbols: Volume::US_PART_UNITS);
+
+        $this->assertSame(1, $parts['sign']);
+        $this->assertSame(1, $parts['US gal']);
+        $this->assertSame(2, $parts['US qt']);
+        $this->assertArrayNotHasKey('US pt', $parts);
+        $this->assertArrayNotHasKey('US cup', $parts);
+    }
+
+    /**
+     * Test fromParts() with US customary units.
+     */
+    public function testFromPartsUsCustomary(): void
+    {
+        $volume = Volume::fromParts([
+            'US gal' => 1,
+            'US qt'  => 1,
+            'US pt'  => 1,
+        ]);
+
+        $this->assertInstanceOf(Volume::class, $volume);
+        $this->assertSame('US gal', $volume->compoundUnit->asciiSymbol);
+        // 1 gal + 1 qt + 1 pt = 1 + 0.25 + 0.125 = 1.375 US gal
+        $this->assertEqualsWithDelta(1.375, $volume->value, 1e-9);
+    }
+
+    /**
+     * Test formatParts() with US customary units.
+     */
+    public function testFormatPartsUsCustomary(): void
+    {
+        // 1.375 US gal = 1 US gal 1 US qt 1 US pt
+        $volume = new Volume(1.375, 'US gal');
+        $result = $volume->formatParts(partUnitSymbols: Volume::US_PART_UNITS);
+
+        $this->assertSame('1 US gal 1 US qt 1 US pt', $result);
+    }
+
+    /**
+     * Test parseParts() with US customary units.
+     */
+    public function testParsePartsUsCustomary(): void
+    {
+        $volume = Volume::parseParts('2 US gal 1 US qt');
+
+        $this->assertInstanceOf(Volume::class, $volume);
+        $this->assertSame('US gal', $volume->compoundUnit->asciiSymbol);
+        // 2 US gal + 1 US qt = 2.25 US gal
+        $this->assertEqualsWithDelta(2.25, $volume->value, 1e-9);
+    }
+
+    // endregion
 }

@@ -25,7 +25,7 @@ The `ElectricCharge` class handles electric charge measurements.
 
 | From | To      | Factor |
 | ---- | ------- | ------ |
-| *C*  | *s\*A*  | 1      |
+| `C`  | `s*A`   | 1      |
 
 ---
 
@@ -41,7 +41,7 @@ One *coulomb* is the charge transported by a current of one *ampere* in one *sec
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\ElectricCharge;
@@ -61,7 +61,7 @@ $inMC = $charge->to('mC');  // 1000 mC
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -69,9 +69,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Electric Charge](../../Concepts/Units.md#electric-charge)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity (I = Q/t)
 - **[Capacitance](Capacitance.md)** - Related quantity (C = Q/V)

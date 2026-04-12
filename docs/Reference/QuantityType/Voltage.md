@@ -25,7 +25,7 @@ The `Voltage` class handles voltage (electric potential difference) measurements
 
 | From | To                  | Factor |
 | ---- | ------------------- | ------ |
-| *V*  | *kg\*m2\*s-3\*A-1*  | 1      |
+| `V`  | `kg*m2*s-3*A-1`     | 1      |
 
 ---
 
@@ -39,7 +39,7 @@ V = kg·m²·s⁻³·A⁻¹ = W/A = J/C
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Voltage;
@@ -63,9 +63,8 @@ $inUV = $ecg->to('uV');  // 1000 μV
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Voltage](../../Concepts/Units.md#voltage)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity (Ohm's law)
 - **[Resistance](Resistance.md)** - Related quantity (V = IR)

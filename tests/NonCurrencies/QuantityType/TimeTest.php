@@ -490,7 +490,7 @@ final class TimeTest extends TestCase
         $time = new Time(5400, 's');  // 1h 30min
         $result = $time->formatParts();
 
-        $this->assertSame('1h 30min', $result);
+        $this->assertSame('1 h 30 min', $result);
     }
 
     /**
@@ -501,7 +501,7 @@ final class TimeTest extends TestCase
         $time = new Time(90061, 's');  // 1d 1h 1min 1s
         $result = $time->formatParts();
 
-        $this->assertSame('1d 1h 1min 1s', $result);
+        $this->assertSame('1 d 1 h 1 min 1 s', $result);
     }
 
     /**
@@ -512,7 +512,7 @@ final class TimeTest extends TestCase
         $time = new Time(3661.5, 's');  // 1h 1min 1.5s
         $result = $time->formatParts(precision: 1);
 
-        $this->assertSame('1h 1min 1.5s', $result);
+        $this->assertSame('1 h 1 min 1.5 s', $result);
     }
 
     /**
@@ -523,7 +523,7 @@ final class TimeTest extends TestCase
         $time = new Time(-3661, 's');  // -1h 1min 1s
         $result = $time->formatParts();
 
-        $this->assertSame('-1h 1min 1s', $result);
+        $this->assertSame('-1 h 1 min 1 s', $result);
     }
 
     /**
@@ -537,7 +537,7 @@ final class TimeTest extends TestCase
         $result = $time->formatParts(showZeros: true);
 
         // Shows all parts including zeros
-        $this->assertSame('0y 0mo 0w 0d 1h 0min 0s', $result);
+        $this->assertSame('0 y 0 mo 0 w 0 d 1 h 0 min 0 s', $result);
     }
 
     // endregion
@@ -624,7 +624,7 @@ final class TimeTest extends TestCase
         ]);
         $formatted = $time->formatParts();
 
-        $this->assertSame('1d 2h 30min 45s', $formatted);
+        $this->assertSame('1 d 2 h 30 min 45 s', $formatted);
     }
 
     // endregion

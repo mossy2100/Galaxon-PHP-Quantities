@@ -27,7 +27,7 @@ The *ampere* (`A`) is an SI base unit, defined by fixing the value of the elemen
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\ElectricCurrent;
@@ -47,9 +47,8 @@ $inNA = $sensor->to('nA');  // 100,000 nA
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Electric Current](../../Concepts/Units.md#electric-current)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Voltage](Voltage.md)** - Related quantity
 - **[Resistance](Resistance.md)** - Related quantity (Ohm's law: V = IR)

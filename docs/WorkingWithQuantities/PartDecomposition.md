@@ -81,7 +81,7 @@ echo $time;  // 90 min
 
 ---
 
-## Parsing Parts with `parseParts()`
+## Parsing parts with `parseParts()`
 
 The `parseParts()` method parses a multi-unit string into a quantity. Parts are separated by whitespace; there must be no space between a value and its unit symbol. Only the first part may be negative.
 
@@ -108,7 +108,7 @@ echo $time;  // 90 min
 
 ---
 
-## Formatting Parts with `formatParts()`
+## Formatting parts with `formatParts()`
 
 The `formatParts()` method produces a human-readable string, using the built-in part units for the quantity type:
 
@@ -189,7 +189,7 @@ echo $produce->formatParts(partUnitSymbols: Mass::US_PART_UNITS);  // 3lb 4oz
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](../Reference/Quantity.md#parts-methods)** — Full reference for `fromParts()`, `toParts()`, `parseParts()`, and `formatParts()`.
 - **[String Functions](StringFunctions.md)** — Parsing and formatting quantities as strings.

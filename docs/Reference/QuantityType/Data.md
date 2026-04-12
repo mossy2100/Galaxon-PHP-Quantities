@@ -26,7 +26,7 @@ The `Data` class handles digital information measurements in bits and bytes, sup
 
 | From | To  | Factor |
 | ---- | --- | ------ |
-| *B*  | *b* | 8      |
+| `B`  | `b` | 8      |
 
 ---
 
@@ -54,7 +54,7 @@ $inGiB = $disk->to('GiB');  // 931.323 GiB
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Data;
@@ -81,7 +81,6 @@ echo $actual->to('GB')->value;       // 1099.51 GB
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Data](../../Concepts/Units.md#data)** - Complete list of data units
 - **[Quantity](../Quantity.md)** - Base class documentation

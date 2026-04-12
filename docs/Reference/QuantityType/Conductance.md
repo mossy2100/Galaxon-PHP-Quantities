@@ -25,7 +25,7 @@ The `Conductance` class handles electrical conductance measurements. Conductance
 
 | From | To                  | Factor |
 | ---- | ------------------- | ------ |
-| *S*  | *kg-1\*m-2\*s3\*A2* | 1      |
+| `S`  | `kg-1*m-2*s3*A2`    | 1      |
 
 ---
 
@@ -39,7 +39,7 @@ S = s³·A²·kg⁻¹·m⁻² = A/V = 1/Ω
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Conductance;
@@ -59,8 +59,7 @@ $inNS = $channel->to('nS');  // 0.03 nS
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Conductance](../../Concepts/Units.md#conductance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Resistance](Resistance.md)** - Inverse quantity (Ω = 1/S)
