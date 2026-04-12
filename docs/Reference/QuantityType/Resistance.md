@@ -11,13 +11,27 @@ Represents electrical resistance quantities.
 
 The `Resistance` class handles electrical resistance measurements.
 
-For the complete list of resistance units, see [Units: Resistance](../../Concepts/Units.md#resistance).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Unicode symbol | Prefixes   | Systems |
+| ---- | ------------ | -------------- | ---------- | ------- |
+| ohm  | `ohm`        | `Ω`            | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From  | To                  | Factor |
+| ----- | ------------------- | ------ |
+| *ohm* | *kg\*m2\*s-3\*A-2*  | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The ohm is defined as:
+The *ohm* is defined as:
 
 ```
 Ω = kg·m²·s⁻³·A⁻² = V/A

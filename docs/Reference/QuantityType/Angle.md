@@ -16,7 +16,30 @@ The `Angle` class provides specialized handling for angular measurements, includ
 - Parsing of degree-minute-second notation (e.g., `45° 30' 15"`)
 - Specialized approximate equality comparison
 
-For the complete list of angular units, see [Units: Angle](../../Concepts/Units.md#angle).
+---
+
+## Unit definitions
+
+| Name      | ASCII symbol | Unicode symbol | Alternate symbol | Prefixes     | Systems     |
+| --------- | ------------ | -------------- | ---------------- | ------------ | ----------- |
+| radian    | `rad`        |                |                  | all metric   | SI          |
+| degree    | `deg`        | `°`            |                  |              | SI Accepted |
+| arcminute | `arcmin`     | `′`            | `'`              |              | SI Accepted |
+| arcsecond | `arcsec`     | `″`            | `"`              | small metric | SI Accepted |
+| gradian   | `grad`       |                |                  |              | Common      |
+| turn      | `turn`       |                |                  |              | Common      |
+
+---
+
+## Conversion definitions
+
+| From      | To       | Factor |
+| --------- | -------- | ------ |
+| *turn*    | *rad*    | 2π     |
+| *turn*    | *deg*    | 360    |
+| *deg*     | *arcmin* | 60     |
+| *arcmin*  | *arcsec* | 60     |
+| *turn*    | *grad*   | 400    |
 
 ---
 
@@ -158,7 +181,7 @@ $radians = $angle->toRadians(); // 3.14159...
 
 ## Parts
 
-Angles support part decomposition into degrees, arcminutes, and arcseconds by default. To use a different set of part units (e.g. just degrees and arcminutes), pass `partUnitSymbols` to the parts method.
+Angles support part decomposition into *degrees*, *arcminutes*, and *arcseconds* by default. To use a different set of part units (e.g. just degrees and arcminutes), pass `partUnitSymbols` to the parts method.
 
 ```php
 $angle = new Angle(45.504200, 'deg');

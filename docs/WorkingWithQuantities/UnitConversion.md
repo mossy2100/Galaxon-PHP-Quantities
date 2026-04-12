@@ -38,7 +38,7 @@ echo $weight->to('st');   // 11.023113... st
 
 ## Base and Derived Units
 
-Derived units like newtons, joules, and watts are shorthand for combinations of base units. You can convert to base units with `toBase()`, or substitute derived units for base-unit combinations with `toDerived()`.
+Derived units like *newtons*, *joules*, and *watts* are shorthand for combinations of base units. You can convert to base units with `toBase()`, or substitute derived units for base-unit combinations with `toDerived()`.
 
 ```php
 use Galaxon\Quantities\Quantity;
@@ -61,7 +61,7 @@ echo $lbf->toBase();  // 32.174049... lb*ft/s2
 
 ## Auto-Prefixing
 
-The `autoPrefix()` method selects the best engineering SI prefix (kilo, mega, milli, etc.) to keep the numeric value readable:
+The `autoPrefix()` method selects the best engineering SI prefix (*kilo*, *mega*, *milli*, etc.) to keep the numeric value readable:
 
 ```php
 use Galaxon\Quantities\QuantityType\Length;
@@ -79,7 +79,7 @@ $wavelength = new Length(0.00000055, 'm');
 echo $wavelength->autoPrefix();  // 550 nm
 ```
 
-The `toSi()` method converts to SI units and simplifies (e.g., kg\*m/s2 becomes N). Chain with `autoPrefix()` to also apply the best engineering prefix:
+The `toSi()` method converts to SI units and simplifies (e.g., `kg*m/s2` becomes `N`). Chain with `autoPrefix()` to also apply the best engineering prefix:
 
 ```php
 use Galaxon\Quantities\QuantityType\Energy;

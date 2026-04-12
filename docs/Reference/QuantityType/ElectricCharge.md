@@ -11,19 +11,33 @@ Represents electric charge quantities.
 
 The `ElectricCharge` class handles electric charge measurements.
 
-For the complete list of electric charge units, see [Units: Electric Charge](../../Concepts/Units.md#electric-charge).
+---
+
+## Unit definitions
+
+| Name    | ASCII symbol | Prefixes   | Systems |
+| ------- | ------------ | ---------- | ------- |
+| coulomb | `C`          | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To      | Factor |
+| ---- | ------- | ------ |
+| *C*  | *s\*A*  | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The coulomb is defined as:
+The *coulomb* is defined as:
 
 ```
 C = A·s
 ```
 
-One coulomb is the charge transported by a current of one ampere in one second.
+One *coulomb* is the charge transported by a current of one *ampere* in one *second*.
 
 ---
 

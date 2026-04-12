@@ -11,19 +11,33 @@ Represents illuminance quantities.
 
 The `Illuminance` class handles illuminance measurements, which describe how much light falls on a surface.
 
-For the complete list of illuminance units, see [Units: Illuminance](../../Concepts/Units.md#illuminance).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Prefixes   | Systems |
+| ---- | ------------ | ---------- | ------- |
+| lux  | `lx`         | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To               | Factor |
+| ---- | ---------------- | ------ |
+| *lx* | *cd\*rad2\*m-2*  | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The lux is defined as:
+The *lux* is defined as:
 
 ```
 lx = cd·sr·m⁻² = lm/m²
 ```
 
-One lux equals one lumen per square meter.
+One *lux* equals one *lumen* per square meter.
 
 ---
 

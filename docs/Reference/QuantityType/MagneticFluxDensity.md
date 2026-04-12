@@ -11,13 +11,27 @@ Represents magnetic flux density (magnetic field strength) quantities.
 
 The `MagneticFluxDensity` class handles magnetic flux density measurements, also known as magnetic field strength or B-field.
 
-For the complete list of magnetic flux density units, see [Units: Magnetic Flux Density](../../Concepts/Units.md#magnetic-flux-density).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| tesla | `T`          | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To              | Factor |
+| ---- | --------------- | ------ |
+| *T*  | *kg\*s-2\*A-1*  | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The tesla is defined as:
+The *tesla* is defined as:
 
 ```
 T = kg·s⁻²·A⁻¹ = Wb/m² = V·s/m²

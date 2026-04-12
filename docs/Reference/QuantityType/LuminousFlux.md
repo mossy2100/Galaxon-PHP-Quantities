@@ -11,19 +11,33 @@ Represents luminous flux quantities.
 
 The `LuminousFlux` class handles luminous flux measurements, commonly used to rate light bulb brightness.
 
-For the complete list of luminous flux units, see [Units: Luminous Flux](../../Concepts/Units.md#luminous-flux).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| lumen | `lm`         | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To          | Factor |
+| ---- | ----------- | ------ |
+| *lm* | *cd\*rad2*  | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The lumen is defined as:
+The *lumen* is defined as:
 
 ```
 lm = cd·sr
 ```
 
-One lumen is the luminous flux emitted by a source of one candela intensity over a solid angle of one steradian.
+One *lumen* is the luminous flux emitted by a source of one *candela* intensity over a solid angle of one *steradian*.
 
 ---
 

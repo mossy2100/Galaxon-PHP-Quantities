@@ -6,10 +6,10 @@ Represents a compound unit composed of one or more unit terms.
 
 ## Overview
 
-The `CompoundUnit` class represents compound units like 'kg\*m/s²' (newton) or 'J/(mol\*K)' (molar heat capacity). It maintains a collection of `UnitTerm` objects, each representing a unit with its prefix and exponent.
+The `CompoundUnit` class represents compound units like *kg⋅m/s²* (newton) or *J/(mol⋅K)* (molar heat capacity). It maintains a collection of `UnitTerm` objects, each representing a unit with its prefix and exponent.
 
 Key behaviors:
-- Unit terms with the same base unit are automatically combined (e.g., km³ * km⁻¹ = km²)
+- Unit terms with the same base unit are automatically combined (e.g., *km³* * *km⁻¹* = *km²*)
 - Supports parsing from strings in various formats
 - Provides both ASCII and Unicode symbol representations
 - Implements `UnitInterface` for consistent handling
@@ -19,7 +19,7 @@ Key behaviors:
 - Automatic term combination for like units
 - Multiple parsing formats (multiplication, division, parentheses)
 - Dimension code calculation from component terms
-- Immutable transformations (inv, mul, pow, toSiBase, toEnglishBase)
+- Immutable transformations (`inv`, `mul`, `pow`, `toSiBase`, `toEnglishBase`)
 - Equatable via the `Equatable` trait
 
 ---
@@ -50,7 +50,7 @@ The dimension code of the compound unit. Calculated from the component unit term
 public string $asciiSymbol { get; }
 ```
 
-The ASCII representation of the unit (e.g., 'kg\*m/s2'). Uses asterisk for multiplication and digit exponents.
+The ASCII representation of the unit (e.g., `kg*m/s2`). Uses asterisk for multiplication and digit exponents.
 
 ### unicodeSymbol
 
@@ -58,7 +58,7 @@ The ASCII representation of the unit (e.g., 'kg\*m/s2'). Uses asterisk for multi
 public string $unicodeSymbol { get; }
 ```
 
-The Unicode representation of the unit (e.g., 'kg⋅m⋅s⁻²'). Uses dot operator (⋅) for multiplication and superscript exponents.
+The Unicode representation of the unit (e.g., `kg⋅m⋅s⁻²`). Uses dot operator (⋅) for multiplication and superscript exponents.
 
 ### multiplier
 

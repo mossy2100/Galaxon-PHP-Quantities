@@ -11,13 +11,27 @@ Represents electrical inductance quantities.
 
 The `Inductance` class handles electrical inductance measurements.
 
-For the complete list of inductance units, see [Units: Inductance](../../Concepts/Units.md#inductance).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| henry | `H`          | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To                   | Factor |
+| ---- | -------------------- | ------ |
+| *H*  | *kg\*m2\*s-2\*A-2*   | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The henry is defined as:
+The *henry* is defined as:
 
 ```
 H = kg·m²·s⁻²·A⁻² = Wb/A = V·s/A

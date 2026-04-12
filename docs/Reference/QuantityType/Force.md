@@ -11,13 +11,20 @@ Represents force quantities.
 
 The `Force` class handles force measurements in SI and Imperial/US Customary systems.
 
-For the complete list of force units, see [Units: Force](../../Concepts/Units.md#force).
+---
+
+## Unit definitions
+
+| Name        | ASCII symbol | Prefixes   | Systems                |
+| ----------- | ------------ | ---------- | ---------------------- |
+| newton      | `N`          | all metric | SI                     |
+| pound force | `lbf`        |            | Imperial, US Customary |
 
 ---
 
 ## SI Unit Expansion
 
-The newton is defined in terms of SI base units:
+The *newton* is defined in terms of SI base units:
 
 ```
 N = kg·m·s⁻²
@@ -27,7 +34,7 @@ N = kg·m·s⁻²
 
 ## Pound Force
 
-The pound force (lbf) is defined using standard gravity (g₀ = 9.80665 m/s²):
+The *pound force* (`lbf`) is defined using standard gravity (g₀ = 9.80665 m/s²):
 
 ```
 1 lbf = 1 lb × g₀ = 0.45359237 kg × 9.80665 m/s² ≈ 4.44822 N
@@ -41,12 +48,12 @@ lbf = lb·ft·s⁻² × (g₀ / 0.3048)
 
 ---
 
-## Key Conversions
+## Conversion definitions
 
-| From | To | Factor |
-|------|-----|--------|
-| lbf | N | 4.44822162 |
-| kN | N | 1000 |
+| From   | To           | Factor          |
+| ------ | ------------ | --------------- |
+| *N*    | *kg\*m/s2*   | 1               |
+| *lbf*  | *lb\*ft/s2*  | 9.80665 / 0.3048 |
 
 ---
 

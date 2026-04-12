@@ -11,13 +11,27 @@ Represents electrical capacitance quantities.
 
 The `Capacitance` class handles electrical capacitance measurements.
 
-For the complete list of capacitance units, see [Units: Capacitance](../../Concepts/Units.md#capacitance).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| farad | `F`          | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To                | Factor |
+| ---- | ----------------- | ------ |
+| *F*  | *kg-1\*m-2\*s4\*A2* | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The farad is defined as:
+The *farad* is defined as:
 
 ```
 F = kg⁻¹·m⁻²·s⁴·A² = C/V = s/Ω

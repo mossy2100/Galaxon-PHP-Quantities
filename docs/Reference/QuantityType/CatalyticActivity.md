@@ -11,19 +11,33 @@ Represents catalytic activity quantities.
 
 The `CatalyticActivity` class handles catalytic activity measurements, used in enzymology and biochemistry.
 
-For the complete list of catalytic activity units, see [Units: Catalytic Activity](../../Concepts/Units.md#catalytic-activity).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| katal | `kat`        | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From  | To          | Factor |
+| ----- | ----------- | ------ |
+| *kat* | *mol\*s-1*  | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The katal is defined as:
+The *katal* is defined as:
 
 ```
 kat = mol·s⁻¹
 ```
 
-One katal is the catalytic activity that converts one mole of substrate per second.
+One *katal* is the catalytic activity that converts one mole of substrate per second.
 
 ---
 

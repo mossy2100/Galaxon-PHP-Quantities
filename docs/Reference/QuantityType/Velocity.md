@@ -9,15 +9,31 @@ Represents velocity/speed quantities.
 
 ## Overview
 
-The `Velocity` class handles speed and velocity measurements. Most velocity units are derived from length/time ratios (m/s, km/h, mph), which are automatically supported. This class provides the knot as a named unit.
+The `Velocity` class handles speed and velocity measurements. Most velocity units are derived from length/time ratios (m/s, km/h, mph), which are automatically supported. This class provides the *knot* as a named unit.
 
-For the complete list of velocity units, see [Units: Velocity](../../Concepts/Units.md#velocity).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Systems  |
+| ---- | ------------ | -------- |
+| knot | `kn`         | Nautical |
+
+**Note:** Compound velocity units like m/s, km/h, mi/h, etc. are automatically supported through unit arithmetic.
+
+---
+
+## Conversion definitions
+
+| From | To          | Factor |
+| ---- | ----------- | ------ |
+| *kn* | *nmi\*h-1*  | 1      |
 
 ---
 
 ## Knot Definition
 
-The knot is defined as one nautical mile per hour:
+The *knot* is defined as one *nautical mile* per hour:
 
 ```
 1 kn = 1 nmi/h = 1.852 km/h ≈ 1.15078 mph

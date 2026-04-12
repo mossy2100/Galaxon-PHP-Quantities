@@ -253,7 +253,7 @@ public function inv(): self
 
 Return a new UnitTerm with the exponent negated.
 
-**Returns:** `UnitTerm` - A new instance with inverted exponent (e.g., m² → m⁻²).
+**Returns:** `UnitTerm` - A new instance with inverted exponent (e.g., *m²* → *m⁻²*).
 
 **Examples:**
 ```php
@@ -277,7 +277,7 @@ Return a new UnitTerm with the exponent multiplied by the given value.
 **Parameters:**
 - `$exponent` (int) - The exponent to raise to.
 
-**Returns:** `UnitTerm` - A new instance with multiplied exponent (e.g., m² with exp=3 → m⁶).
+**Returns:** `UnitTerm` - A new instance with multiplied exponent (e.g., *m²* with exp=3 → *m⁶*).
 
 **Examples:**
 ```php

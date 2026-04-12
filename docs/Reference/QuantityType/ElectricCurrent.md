@@ -9,15 +9,21 @@ Represents electric current quantities.
 
 ## Overview
 
-The `ElectricCurrent` class handles electric current measurements. The ampere is one of the seven SI base units.
+The `ElectricCurrent` class handles electric current measurements. The *ampere* is one of the seven SI base units.
 
-For the complete list of electric current units, see [Units: Electric Current](../../Concepts/Units.md#electric-current).
+---
+
+## Unit definitions
+
+| Name   | ASCII symbol | Prefixes   | Systems |
+| ------ | ------------ | ---------- | ------- |
+| ampere | `A`          | all metric | SI      |
 
 ---
 
 ## SI Base Unit
 
-The ampere (A) is an SI base unit, defined by fixing the value of the elementary charge *e*.
+The *ampere* (`A`) is an SI base unit, defined by fixing the value of the elementary charge *e*.
 
 ---
 

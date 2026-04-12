@@ -11,13 +11,27 @@ Represents magnetic flux quantities.
 
 The `MagneticFlux` class handles magnetic flux measurements.
 
-For the complete list of magnetic flux units, see [Units: Magnetic Flux](../../Concepts/Units.md#magnetic-flux).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| weber | `Wb`         | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To                   | Factor |
+| ---- | -------------------- | ------ |
+| *Wb* | *kg\*m2\*s-2\*A-1*   | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The weber is defined as:
+The *weber* is defined as:
 
 ```
 Wb = kg·m²·s⁻²·A⁻¹ = V·s = T·m²

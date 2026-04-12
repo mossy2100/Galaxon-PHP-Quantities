@@ -11,7 +11,7 @@ Represents money quantities with currency conversion and locale-aware formatting
 
 The `Money` class handles monetary values with support for all [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currencies. Unlike other quantity types, currency units and conversion rates are loaded dynamically via [`CurrencyService`](../Currencies/CurrencyService.md) rather than being hard-coded.
 
-All currency units belong to the `Financial` unit system. The base unit is XAU (gold troy ounces).
+All currency units belong to the `Financial` unit system. The base unit is `XAU` (gold troy ounces).
 
 Before using `Money`, you must initialize the `CurrencyService`:
 

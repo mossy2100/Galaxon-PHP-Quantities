@@ -4,7 +4,7 @@
 
 ## Overview
 
-Some quantities are naturally expressed as a combination of units — angles in degrees, arcminutes, and arcseconds; time in hours, minutes, and seconds; lengths in feet and inches. The part decomposition methods let you convert between a single-unit value and its multi-unit parts.
+Some quantities are naturally expressed as a combination of units — angles in *degrees*, *arcminutes*, and *arcseconds*; time in *hours*, *minutes*, and *seconds*; lengths in *feet* and *inches*. The part decomposition methods let you convert between a single-unit value and its multi-unit parts.
 
 ---
 

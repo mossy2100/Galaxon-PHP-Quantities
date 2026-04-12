@@ -9,15 +9,21 @@ Represents luminous intensity quantities.
 
 ## Overview
 
-The `LuminousIntensity` class handles luminous intensity measurements. The candela is one of the seven SI base units.
+The `LuminousIntensity` class handles luminous intensity measurements. The *candela* is one of the seven SI base units.
 
-For the complete list of luminous intensity units, see [Units: Luminous Intensity](../../Concepts/Units.md#luminous-intensity).
+---
+
+## Unit definitions
+
+| Name    | ASCII symbol | Prefixes   | Systems |
+| ------- | ------------ | ---------- | ------- |
+| candela | `cd`         | all metric | SI      |
 
 ---
 
 ## SI Base Unit
 
-The candela (cd) is defined by fixing the luminous efficacy of monochromatic radiation at frequency 540 × 10¹² Hz:
+The *candela* (`cd`) is defined by fixing the luminous efficacy of monochromatic radiation at frequency 540 × 10¹² Hz:
 
 ```
 Kcd = 683 lm/W

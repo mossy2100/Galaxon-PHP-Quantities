@@ -9,9 +9,27 @@ Represents radiation dose quantities.
 
 ## Overview
 
-The `RadiationDose` class handles radiation dose measurements using the gray (absorbed dose) and sievert (equivalent dose).
+The `RadiationDose` class handles radiation dose measurements using the *gray* (absorbed dose) and *sievert* (equivalent dose).
 
-For the complete list of radiation dose units, see [Units: Radiation Dose](../../Concepts/Units.md#radiation-dose).
+---
+
+## Unit definitions
+
+| Name    | ASCII symbol | Prefixes   | Systems |
+| ------- | ------------ | ---------- | ------- |
+| gray    | `Gy`         | all metric | SI      |
+| sievert | `Sv`         | all metric | SI      |
+
+**Note:** *Gray* measures absorbed dose; *sievert* measures equivalent dose. Both have dimension L²·T⁻².
+
+---
+
+## Conversion definitions
+
+| From | To       | Factor |
+| ---- | -------- | ------ |
+| *Gy* | *m2\*s-2* | 1      |
+| *Sv* | *m2\*s-2* | 1      |
 
 ---
 
@@ -24,7 +42,7 @@ Both units have the same dimension (L²·T⁻² = m²/s² = J/kg) but measure di
 | Gray (Gy) | Absorbed dose | Energy deposited per unit mass |
 | Sievert (Sv) | Equivalent dose | Biological effect of radiation |
 
-The sievert accounts for the relative biological effectiveness (RBE) of different radiation types:
+The *sievert* accounts for the relative biological effectiveness (RBE) of different radiation types:
 
 ```
 Equivalent dose (Sv) = Absorbed dose (Gy) × Radiation weighting factor

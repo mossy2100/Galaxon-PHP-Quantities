@@ -11,13 +11,27 @@ Represents electrical conductance quantities.
 
 The `Conductance` class handles electrical conductance measurements. Conductance is the reciprocal of resistance.
 
-For the complete list of conductance units, see [Units: Conductance](../../Concepts/Units.md#conductance).
+---
+
+## Unit definitions
+
+| Name    | ASCII symbol | Prefixes   | Systems |
+| ------- | ------------ | ---------- | ------- |
+| siemens | `S`          | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To                  | Factor |
+| ---- | ------------------- | ------ |
+| *S*  | *kg-1\*m-2\*s3\*A2* | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The siemens is defined as:
+The *siemens* is defined as:
 
 ```
 S = s³·A²·kg⁻¹·m⁻² = A/V = 1/Ω

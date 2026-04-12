@@ -1,9 +1,5 @@
 # Physical Constants
 
----
-
-## Overview
-
 Fundamental physical constants can be accessed as Quantity objects via the PhysicalConstant class:
 
 ```php

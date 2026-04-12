@@ -11,7 +11,31 @@ Represents volume quantities.
 
 The `Volume` class handles volume measurements including liters and Imperial/US Customary liquid measures.
 
-For the complete list of volume units, see [Units: Volume](../../Concepts/Units.md#volume).
+---
+
+## Unit definitions
+
+| Name                 | ASCII symbol | Prefixes   | Systems             |
+| -------------------- | ------------ | ---------- | ------------------- |
+| liter                | `L`          | all metric | SI Accepted, Metric |
+| metric cup           | `cup`        |            | Metric              |
+| metric tablespoon    | `tbsp`       |            | Metric              |
+| metric teaspoon      | `tsp`        |            | Metric              |
+| imperial gallon      | `imp gal`    |            | Imperial            |
+| imperial quart       | `imp qt`     |            | Imperial            |
+| imperial pint        | `imp pt`     |            | Imperial            |
+| imperial fluid ounce | `imp fl oz`  |            | Imperial            |
+| imperial tablespoon  | `imp tbsp`   |            | Imperial            |
+| imperial teaspoon    | `imp tsp`    |            | Imperial            |
+| US gallon            | `US gal`     |            | US Customary        |
+| US quart             | `US qt`      |            | US Customary        |
+| US pint              | `US pt`      |            | US Customary        |
+| US cup               | `US cup`     |            | US Customary        |
+| US fluid ounce       | `US fl oz`   |            | US Customary        |
+| US tablespoon        | `US tbsp`    |            | US Customary        |
+| US teaspoon          | `US tsp`     |            | US Customary        |
+
+**Note:** Cubic units like m³, cm³, ft³, etc. are automatically supported through unit arithmetic.
 
 ---
 
@@ -43,28 +67,27 @@ echo $usPint->to('mL');   // 473.18 mL
 
 ---
 
-## Key Conversions
+## Conversion definitions
 
-| From            | To             | Factor  |
-| --------------- | -------------- | ------- |
-| m³              | L              | 1000    |
-| metric cup      | mL             | 250     |
-| metric tbsp     | mL             | 15      |
-| metric tsp      | mL             | 5       |
-| imperial gallon | L              | 4.54609 |
-| imperial gallon | imperial quart | 4       |
-| imperial quart  | imperial pint  | 2       |
-| imperial pint   | imperial fl oz | 20      |
-| imperial fl oz  | imperial tbsp  | 2       |
-| imperial tbsp   | imperial tsp   | 4       |
-| US gallon       | in³            | 231     |
-| US gallon       | US quart       | 4       |
-| US quart        | US pint        | 2       |
-| US pint         | US fl oz       | 16      |
-| US pint         | US cup         | 2       |
-| US cup          | US fl oz       | 8       |
-| US fl oz        | US tbsp        | 2       |
-| US tbsp         | US tsp         | 3       |
+| From          | To            | Factor  |
+| ------------- | ------------- | ------- |
+| *m3*          | *L*           | 1000    |
+| *cup*         | *mL*          | 250     |
+| *tbsp*        | *mL*          | 15      |
+| *tsp*         | *mL*          | 5       |
+| *US gal*      | *in3*         | 231     |
+| *US gal*      | *US qt*       | 4       |
+| *US qt*       | *US pt*       | 2       |
+| *US pt*       | *US cup*      | 2       |
+| *US cup*      | *US fl oz*    | 8       |
+| *US fl oz*    | *US tbsp*     | 2       |
+| *US tbsp*     | *US tsp*      | 3       |
+| *imp gal*     | *L*           | 4.54609 |
+| *imp gal*     | *imp qt*      | 4       |
+| *imp qt*      | *imp pt*      | 2       |
+| *imp pt*      | *imp fl oz*   | 20      |
+| *imp fl oz*   | *imp tbsp*    | 2       |
+| *imp tbsp*    | *imp tsp*     | 4       |
 
 ---
 

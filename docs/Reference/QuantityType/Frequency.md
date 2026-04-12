@@ -9,9 +9,27 @@ Represents frequency and radioactivity quantities.
 
 ## Overview
 
-The `Frequency` class handles measurements with dimension T⁻¹ (inverse time). This includes both frequency (hertz) and radioactivity (becquerel).
+The `Frequency` class handles measurements with dimension T⁻¹ (inverse time). This includes both frequency (*hertz*) and radioactivity (*becquerel*).
 
-For the complete list of frequency units, see [Units: Frequency](../../Concepts/Units.md#frequency).
+---
+
+## Unit definitions
+
+| Name      | ASCII symbol | Prefixes   | Systems |
+| --------- | ------------ | ---------- | ------- |
+| hertz     | `Hz`         | all metric | SI      |
+| becquerel | `Bq`         | all metric | SI      |
+
+**Note:** *Hertz* measures frequency; *becquerel* measures radioactivity. Both have dimension T⁻¹.
+
+---
+
+## Conversion definitions
+
+| From | To    | Factor |
+| ---- | ----- | ------ |
+| *Hz* | *s-1* | 1      |
+| *Bq* | *s-1* | 1      |
 
 ---
 
@@ -35,7 +53,7 @@ $decay = new Frequency(1000, 'Bq');  // 1000 decays/second
 
 ## SI Unit Expansion
 
-Both hertz and becquerel expand to the same base unit expression:
+Both *hertz* and *becquerel* expand to the same base unit expression:
 
 ```
 Hz = s⁻¹

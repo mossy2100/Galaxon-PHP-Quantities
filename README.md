@@ -17,7 +17,7 @@ Key capabilities include:
 - **Automatic conversion**: Easily convert between any compatible units, with most common units built-in, including SI, imperial, US customary, scientific, nautical, CSS, and more.
 - **Prefix support**: Full support for SI metric and binary prefixes.
 - **Arithmetic operations**: Add, subtract, multiply, and divide quantities with automatic unit handling.
-- **Flexible parsing**: Parse strings like "123.45 km", "90deg", or "25°C" into Quantity objects.
+- **Flexible parsing**: Parse strings like `123.45 km`, `90deg`, or `25°C` into Quantity objects.
 - **String formatting**: Format quantities as ASCII or Unicode, with configurable decimal places and locale-specific currency formatting.
 - **Part decomposition**: Break measurements into components (e.g. 12° 34′ 56″ or 1y 3mo 2d).
 - **Physical constants**: Built-in constants like the speed of light, Planck's constant, and Avogadro's number as Quantity objects.

@@ -19,7 +19,7 @@ Quantities are immutable value objects combining a numeric value with a unit. Al
 - Automatic unit conversion with prefix handling
 - Comparison and equality testing with epsilon tolerance
 - Flexible string formatting and parsing
-- Parts-based formatting (e.g., "5h 30min 45s")
+- Parts-based formatting (e.g., "5 h 30 min 45 s")
 
 ---
 
@@ -47,7 +47,7 @@ The unit of the measurement as a CompoundUnit object.
 public string $dimension { get; }
 ```
 
-The dimension code of the quantity (e.g., 'L' for length, 'MLT-2' for force).
+The dimension code of the quantity (e.g., `L` for length, `MLT-2` for force).
 
 See [DimensionService](Services/DimensionService.md) for more details about how dimensions work.
 
@@ -140,7 +140,7 @@ public static function parse(string $input): self
 
 Parse a string representation into a Quantity.
 
-Supports single-value strings (e.g. "123.45 km") and multi-part strings (e.g. "5h 30min 45s"). Subclasses may override this to support additional formats.
+Supports single-value strings (e.g. `123.45 km`) and multi-part strings (e.g. `5h 30min 45s`). Subclasses may override this to support additional formats.
 
 When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimension must match the subclass's dimension. When called as `Quantity::parse()`, any valid unit is accepted.
 
@@ -241,7 +241,7 @@ $feet = $meters->to('ft');      // 3280.84 ft
 public function toSi(): self
 ```
 
-Convert this quantity to SI units with simplification. Base units are replaced by named units where possible (e.g., kg\*m/s2 becomes N).
+Convert this quantity to SI units with simplification. Base units are replaced by named units where possible (e.g., `kg*m/s2` becomes `N`).
 
 To auto-prefix the result, chain with `autoPrefix()`.
 
@@ -266,7 +266,7 @@ public function toSiBase(): self
 
 Convert to SI base units without simplification or auto-prefixing.
 
-Unlike `toSi()`, this returns purely SI base units (e.g., kg\*m/s2 instead of N). Useful for calculations or when you need the fundamental SI form.
+Unlike `toSi()`, this returns purely SI base units (e.g., `kg*m/s2` instead of `N`). Useful for calculations or when you need the fundamental SI form.
 
 **Returns:**
 - `Quantity` - A new Quantity in SI base units.
@@ -311,7 +311,7 @@ $base = $speed->toEnglishBase();  // ~1.688 ft/s
 public function toEnglish(): self
 ```
 
-Convert to English units with simplification. Base units are replaced by named units where possible (e.g., lb\*ft/s2 becomes lbf). Equivalent to calling `toEnglishBase()->toDerived()`.
+Convert to English units with base units replaced by derived units where possible (e.g., `lb*ft/s2` becomes `lbf`). Equivalent to calling `toEnglishBase()->toDerived()`.
 
 **Returns:**
 - `Quantity` - A new Quantity in English units.
@@ -330,7 +330,7 @@ public function toBase(): self
 
 Convert to SI or English base units, whichever is the better fit for the current unit.
 
-Units like lbf, mi, and ac will convert to English base units (lb, ft, s), while units like km, N, and Hz will convert to SI base units (kg, m, s). Uses `CompoundUnit::siExpansionPreferred()` to determine the best fit.
+Units like `lbf`, `mi`, and `ac` will convert to English base units (`lb`, `ft`, `s`), while units like `km`, `N`, and `Hz` will convert to SI base units (`kg`, `m`, `s`). Uses `CompoundUnit::siExpansionPreferred()` to determine the best fit.
 
 **Returns:**
 - `Quantity` - A new Quantity in the most appropriate base units.
@@ -350,7 +350,7 @@ $base = $force->toBase();  // lb*ft/s2
 public function toDerived(): static
 ```
 
-Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
+Substitute base units for derived units where possible (e.g., `kg*m/s2` → `N`).
 
 To auto-prefix the result, chain with `autoPrefix()`.
 
@@ -366,7 +366,7 @@ To auto-prefix the result, chain with `autoPrefix()`.
 public function merge(): static
 ```
 
-Merge units with the same dimension (e.g., m\*ft -> m2).
+Merge units with the same dimension (e.g., `m*ft` → `m2`).
 
 The first unit encountered of a given dimension will be the one any others are converted to.
 

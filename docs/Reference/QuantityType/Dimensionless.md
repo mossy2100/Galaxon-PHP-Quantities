@@ -11,19 +11,28 @@ Represents dimensionless quantities (ratios, percentages, concentrations).
 
 The `Dimensionless` class handles quantities that have no physical dimension, such as ratios, percentages, and concentrations.
 
-For the complete list of dimensionless units, see [Units: Dimensionless](../../Concepts/Units.md#dimensionless).
+---
+
+## Unit definitions
+
+| Name               | ASCII symbol | Unicode symbol | Systems |
+| ------------------ | ------------ | -------------- | ------- |
+| scalar             | *(empty)*    |                | Common  |
+| percentage         | `%`          |                | Common  |
+| parts per thousand | `ppt`        | `‰`            | Common  |
+| parts per million  | `ppm`        |                | Common  |
+| parts per billion  | `ppb`        |                | Common  |
 
 ---
 
-## Units
+## Conversion definitions
 
-| Unit               | Symbol      | Value |
-|--------------------|-------------|-------|
-| scalar             | *(empty)*   | 1     |
-| percentage         | %           | 0.01  |
-| parts per thousand | ppt, ‰      | 0.001 |
-| parts per million  | ppm         | 10⁻⁶  |
-| parts per billion  | ppb         | 10⁻⁹  |
+| From  | To    | Factor |
+| ----- | ----- | ------ |
+| *(scalar)* | *%*   | 100    |
+| *%*   | *ppt* | 10     |
+| *ppt* | *ppm* | 1000   |
+| *ppm* | *ppb* | 1000   |
 
 ---
 

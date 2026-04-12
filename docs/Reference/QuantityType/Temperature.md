@@ -11,7 +11,28 @@ Represents temperature quantities with special handling for offset-based convers
 
 The `Temperature` class handles the complexity of temperature conversions, which differ from other quantity types because Celsius and Fahrenheit are offset from absolute zero.
 
-For the complete list of temperature units, see [Units: Temperature](../../Concepts/Units.md#temperature).
+---
+
+## Unit definitions
+
+| Name       | ASCII symbol | Unicode symbol | Prefixes   | Systems                |
+| ---------- | ------------ | -------------- | ---------- | ---------------------- |
+| kelvin     | `K`          |                | all metric | SI                     |
+| celsius    | `degC`       | `°C`           |            | SI                     |
+| fahrenheit | `degF`       | `°F`           |            | Imperial, US Customary |
+| rankine    | `degR`       | `°R`           |            | Imperial, US Customary |
+
+**Note:** Temperature conversions between Celsius/Fahrenheit and Kelvin/Rankine include offsets and are handled specially.
+
+---
+
+## Conversion definitions
+
+| From   | To     | Factor |
+| ------ | ------ | ------ |
+| *degC* | *K*    | 1      |
+| *degF* | *degR* | 1      |
+| *K*    | *degR* | 1.8    |
 
 ---
 
@@ -93,7 +114,7 @@ $rate = Quantity::create(5, 'J/K');
 echo $rate->to('J/degR');  // 2.7778 J/°R
 ```
 
-- **Prefixed Kelvin is supported** — Units like `mK` (millikelvin) work correctly:
+- **Prefixed Kelvin is supported** — Units like `mK` (*millikelvin*) work correctly:
 
 ```php
 $cmbr = new Temperature(2725, 'mK');

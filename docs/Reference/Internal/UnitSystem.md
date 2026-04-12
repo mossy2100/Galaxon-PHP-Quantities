@@ -24,7 +24,7 @@ This is an unbacked enum (no string or int values).
 case Si;
 ```
 
-The [International System of Units](https://en.wikipedia.org/wiki/International_System_of_Units) (SI). The modern form of the metric system and the world's most widely used system of measurement. Includes the seven SI base units (meter, kilogram, second, ampere, kelvin, mole, candela) and compound units with special names (newton, pascal, joule, etc.).
+The [International System of Units](https://en.wikipedia.org/wiki/International_System_of_Units) (SI). The modern form of the metric system and the world's most widely used system of measurement. Includes the seven SI base units (*meter*, *kilogram*, *second*, *ampere*, *kelvin*, *mole*, *candela*) and compound units with special names (*newton*, *pascal*, *joule*, etc.).
 
 ### SiAccepted
 

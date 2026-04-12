@@ -35,7 +35,7 @@ The class includes:
 public static function caesiumFrequency(): Quantity
 ```
 
-The caesium-133 hyperfine transition frequency (deltaNuCs). Defines the second.
+The caesium-133 hyperfine transition frequency (deltaNuCs). Defines the *second*.
 
 **Returns:**
 - `Quantity` - 9,192,631,770 Hz (exact)
@@ -46,7 +46,7 @@ The caesium-133 hyperfine transition frequency (deltaNuCs). Defines the second.
 public static function speedOfLight(): Quantity
 ```
 
-The speed of light in vacuum (c). Defines the meter.
+The speed of light in vacuum (c). Defines the *meter*.
 
 **Returns:**
 - `Quantity` - 299,792,458 m/s (exact)
@@ -57,7 +57,7 @@ The speed of light in vacuum (c). Defines the meter.
 public static function planck(): Quantity
 ```
 
-The Planck constant (h). Defines the kilogram.
+The Planck constant (h). Defines the *kilogram*.
 
 **Returns:**
 - `Quantity` - 6.62607015×10⁻³⁴ J⋅s (exact)
@@ -68,7 +68,7 @@ The Planck constant (h). Defines the kilogram.
 public static function elementaryCharge(): Quantity
 ```
 
-The elementary charge (e). Defines the ampere.
+The elementary charge (e). Defines the *ampere*.
 
 **Returns:**
 - `Quantity` - 1.602176634×10⁻¹⁹ C (exact)
@@ -79,7 +79,7 @@ The elementary charge (e). Defines the ampere.
 public static function boltzmann(): Quantity
 ```
 
-The Boltzmann constant (k). Defines the kelvin.
+The Boltzmann constant (k). Defines the *kelvin*.
 
 **Returns:**
 - `Quantity` - 1.380649×10⁻²³ J/K (exact)
@@ -90,7 +90,7 @@ The Boltzmann constant (k). Defines the kelvin.
 public static function avogadro(): Quantity
 ```
 
-The Avogadro constant (NA). Defines the mole.
+The Avogadro constant (NA). Defines the *mole*.
 
 **Returns:**
 - `Quantity` - 6.02214076×10²³ mol⁻¹ (exact)
@@ -101,7 +101,7 @@ The Avogadro constant (NA). Defines the mole.
 public static function luminousEfficacy(): Quantity
 ```
 
-The luminous efficacy of 540 THz radiation (Kcd). Defines the candela.
+The luminous efficacy of 540 THz radiation (Kcd). Defines the *candela*.
 
 **Returns:**
 - `Quantity` - 683 lm/W (exact)

@@ -11,13 +11,27 @@ Represents solid angle quantities.
 
 The `SolidAngle` class handles solid angle measurements. A solid angle is the two-dimensional angle in three-dimensional space that an object subtends at a point.
 
-For the complete list of solid angle units, see [Units: Solid Angle](../../Concepts/Units.md#solid-angle).
+---
+
+## Unit definitions
+
+| Name      | ASCII symbol | Prefixes     | Systems |
+| --------- | ------------ | ------------ | ------- |
+| steradian | `sr`         | small metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To     | Factor |
+| ---- | ------ | ------ |
+| *sr* | *rad2* | 1      |
 
 ---
 
 ## SI Unit
 
-The steradian (sr) is the SI unit of solid angle. A complete sphere subtends 4π steradians.
+The *steradian* (`sr`) is the SI unit of solid angle. A complete sphere subtends 4π *steradians*.
 
 ---
 

@@ -11,7 +11,22 @@ Represents data/information quantities.
 
 The `Data` class handles digital information measurements in bits and bytes, supporting both metric (decimal) and binary prefixes.
 
-For the complete list of data units, see [Units: Data](../../Concepts/Units.md#data).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Prefixes                | Systems |
+| ---- | ------------ | ----------------------- | ------- |
+| bit  | `b`          | large metric and binary | Common  |
+| byte | `B`          | large metric and binary | Common  |
+
+---
+
+## Conversion definitions
+
+| From | To  | Factor |
+| ---- | --- | ------ |
+| *B*  | *b* | 8      |
 
 ---
 

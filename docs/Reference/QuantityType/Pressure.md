@@ -11,13 +11,22 @@ Represents pressure quantities.
 
 The `Pressure` class handles pressure measurements across SI, scientific, and US customary units.
 
-For the complete list of pressure units, see [Units: Pressure](../../Concepts/Units.md#pressure).
+---
+
+## Unit definitions
+
+| Name       | ASCII symbol | Prefixes   | Systems      |
+| ---------- | ------------ | ---------- | ------------ |
+| pascal     | `Pa`         | all metric | SI           |
+| atmosphere | `atm`        |            | Scientific   |
+| mmHg       | `mmHg`       |            | Scientific   |
+| inHg       | `inHg`       |            | US Customary |
 
 ---
 
 ## SI Unit Expansion
 
-The pascal is defined in terms of SI base units:
+The *pascal* is defined in terms of SI base units:
 
 ```
 Pa = kg·m⁻¹·s⁻² = N/m²
@@ -36,13 +45,14 @@ Pa = kg·m⁻¹·s⁻² = N/m²
 
 ---
 
-## Key Conversions
+## Conversion definitions
 
-| From | To | Factor |
-|------|-----|--------|
-| atm | Pa | 101,325 (exact) |
-| mmHg | Pa | 133.322387415 |
-| inHg | mmHg | 25.4 |
+| From   | To              | Factor        |
+| ------ | --------------- | ------------- |
+| *Pa*   | *kg\*m-1\*s-2*  | 1             |
+| *mmHg* | *Pa*            | 133.322387415 |
+| *atm*  | *Pa*            | 101325        |
+| *inHg* | *mmHg*          | 25.4          |
 
 ---
 

@@ -11,13 +11,22 @@ Represents energy quantities.
 
 The `Energy` class handles energy measurements across SI, scientific, and common units.
 
-For the complete list of energy units, see [Units: Energy](../../Concepts/Units.md#energy).
+---
+
+## Unit definitions
+
+| Name                 | ASCII symbol | Prefixes     | Systems      |
+| -------------------- | ------------ | ------------ | ------------ |
+| joule                | `J`          | all metric   | SI           |
+| electronvolt         | `eV`         | all metric   | SI Accepted  |
+| calorie              | `cal`        | large metric | Common       |
+| British thermal unit | `Btu`        |              | US Customary |
 
 ---
 
 ## SI Unit Expansion
 
-The joule is defined in terms of SI base units:
+The *joule* is defined in terms of SI base units:
 
 ```
 J = kg·m²·s⁻²
@@ -32,13 +41,14 @@ $inBaseUnits = $energy->to('kg*m2*s-2');  // 1
 
 ---
 
-## Key Conversions
+## Conversion definitions
 
-| From | To | Factor |
-|------|-----|--------|
-| eV | J | 1.602176634×10⁻¹⁹ |
-| cal | J | 4.184 (exact, thermochemical) |
-| Btu | J | 1055.05585262 |
+| From  | To             | Factor           |
+| ----- | -------------- | ---------------- |
+| *J*   | *kg\*m2\*s-2*  | 1                |
+| *eV*  | *J*            | 1.602176634e-19  |
+| *cal* | *J*            | 4.184            |
+| *Btu* | *J*            | 1055.05585262    |
 
 ---
 

@@ -11,13 +11,27 @@ Represents voltage/electric potential quantities.
 
 The `Voltage` class handles voltage (electric potential difference) measurements.
 
-For the complete list of voltage units, see [Units: Voltage](../../Concepts/Units.md#voltage).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Prefixes   | Systems |
+| ---- | ------------ | ---------- | ------- |
+| volt | `V`          | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To                  | Factor |
+| ---- | ------------------- | ------ |
+| *V*  | *kg\*m2\*s-3\*A-1*  | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The volt is defined as:
+The *volt* is defined as:
 
 ```
 V = kg·m²·s⁻³·A⁻¹ = W/A = J/C

@@ -11,13 +11,27 @@ Represents power quantities.
 
 The `Power` class handles power measurements.
 
-For the complete list of power units, see [Units: Power](../../Concepts/Units.md#power).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Prefixes   | Systems |
+| ---- | ------------ | ---------- | ------- |
+| watt | `W`          | all metric | SI      |
+
+---
+
+## Conversion definitions
+
+| From | To              | Factor |
+| ---- | --------------- | ------ |
+| *W*  | *kg\*m2\*s-3*   | 1      |
 
 ---
 
 ## SI Unit Expansion
 
-The watt is defined as:
+The *watt* is defined as:
 
 ```
 W = kg·m²·s⁻³ = J/s = V·A

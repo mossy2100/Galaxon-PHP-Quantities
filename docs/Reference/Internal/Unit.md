@@ -6,7 +6,7 @@ Represents a unit of measurement.
 
 ## Overview
 
-The `Unit` class represents a single unit of measurement such as meter, gram, or hertz. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
+The `Unit` class represents a single unit of measurement such as *meter*, *gram*, or *hertz*. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
 
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality comparisons.
 

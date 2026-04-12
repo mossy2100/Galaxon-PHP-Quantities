@@ -9,18 +9,27 @@ Represents area quantities.
 
 ## Overview
 
-The `Area` class handles area measurements. Most area units are derived from length units squared (m², ft², etc.), which are automatically supported. This class provides additional named area units.
-
-For the complete list of area units, see [Units: Area](../../Concepts/Units.md#area).
+The `Area` class handles area measurements. Most area units are derived from length units squared (*m²*, *ft²*, etc.), which are automatically supported. This class provides additional named area units.
 
 ---
 
-## Key Conversions
+## Unit definitions
 
-| From | To | Factor |
-|------|-----|--------|
-| hectare | m² | 10,000 |
-| acre | yd² | 4,840 |
+| Name    | ASCII symbol | Systems                |
+| ------- | ------------ | ---------------------- |
+| hectare | `ha`         | SI Accepted, Metric    |
+| acre    | `ac`         | Imperial, US Customary |
+
+**Note:** Square units like m², km², ft², etc. are automatically supported through unit arithmetic.
+
+---
+
+## Conversion definitions
+
+| From  | To    | Factor |
+| ----- | ----- | ------ |
+| *ha*  | *m2*  | 10000  |
+| *ac*  | *yd2* | 4840   |
 
 ---
 
