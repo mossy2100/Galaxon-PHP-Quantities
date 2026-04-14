@@ -21,7 +21,7 @@ The `AmountOfSubstance` class handles measurements of the amount of substance. T
 
 ---
 
-## SI Base Unit
+## SI unit
 
 The *mole* (`mol`) is defined by fixing the value of the Avogadro constant:
 

@@ -221,10 +221,10 @@ DimensionService::countUnits('');       // 0 (dimensionless)
 
 ## Base unit methods
 
-### getBaseUnitSymbol()
+### getBaseUnitTermSymbol()
 
 ```php
-public static function getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string
+public static function getBaseUnitTermSymbol(string $dimensionLetterCode, bool $si): string
 ```
 
 Get the base unit symbol for a dimension letter code. When `$si` is true, returns the SI base unit symbol. When false, returns the English base unit symbol if one exists, otherwise falls back to the SI or common base unit.
@@ -232,13 +232,13 @@ Get the base unit symbol for a dimension letter code. When `$si` is true, return
 **Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code letter is invalid.
 
 ```php
-DimensionService::getBaseUnitSymbol('M', true);   // 'kg'
-DimensionService::getBaseUnitSymbol('M', false);  // 'lb'
-DimensionService::getBaseUnitSymbol('L', true);   // 'm'
-DimensionService::getBaseUnitSymbol('L', false);  // 'ft'
-DimensionService::getBaseUnitSymbol('T', true);   // 's'
-DimensionService::getBaseUnitSymbol('T', false);  // 's' (no English unit, falls back to SI)
-DimensionService::getBaseUnitSymbol('D', true);   // 'B' (common base unit)
+DimensionService::getBaseUnitTermSymbol('M', true);   // 'kg'
+DimensionService::getBaseUnitTermSymbol('M', false);  // 'lb'
+DimensionService::getBaseUnitTermSymbol('L', true);   // 'm'
+DimensionService::getBaseUnitTermSymbol('L', false);  // 'ft'
+DimensionService::getBaseUnitTermSymbol('T', true);   // 's'
+DimensionService::getBaseUnitTermSymbol('T', false);  // 's' (no English unit, falls back to SI)
+DimensionService::getBaseUnitTermSymbol('D', true);   // 'B' (common base unit)
 ```
 
 ### getBaseUnitTerm()
@@ -247,7 +247,7 @@ DimensionService::getBaseUnitSymbol('D', true);   // 'B' (common base unit)
 public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm
 ```
 
-Get the base unit as a `UnitTerm` object for a dimension letter code. Delegates to `getBaseUnitSymbol()` and parses the result.
+Get the base unit as a `UnitTerm` object for a dimension letter code. Delegates to `getBaseUnitTermSymbol()` and parses the result.
 
 **Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code letter is invalid.
 

@@ -6,7 +6,7 @@ Unit prefixes are short codes prepended to a unit symbol to indicate a scaling f
 
 ## Available prefixes
 
-### Metric Prefixes
+### Metric prefixes
 
 | Name   | Symbol | Multiplier | Group  |
 | ------ | ------ | ---------- | ------ |
@@ -35,7 +35,7 @@ Unit prefixes are short codes prepended to a unit symbol to indicate a scaling f
 | ronna  | *R*      | 10²⁷       | large  |
 | quetta | *Q*      | 10³⁰       | large  |
 
-### Binary Prefixes
+### Binary prefixes
 
 | Name | Symbol | Multiplier | Decimal Approx |
 |------|--------|------------|----------------|
@@ -63,7 +63,7 @@ Prefixes are organised into groups using bitwise flags:
 | `GROUP_LARGE_METRIC`  | 4     | Large metric (k-Q)          |
 | `GROUP_BINARY`        | 8     | Binary                      |
 
-### Combined Group Codes
+### Combined group codes
 
 | Constant            | Components       | Description                                                                                                                                                                                      |
 | ------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

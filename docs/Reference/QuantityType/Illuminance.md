@@ -29,7 +29,7 @@ The `Illuminance` class handles illuminance measurements, which describe how muc
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *lux* is defined as:
 

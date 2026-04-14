@@ -128,7 +128,7 @@ $length = new QuantityType('length', 'L', Length::class);
 
 ## Usage examples
 
-### Registering Quantity Types
+### Registering quantity types
 
 ```php
 use Galaxon\Quantities\Services\QuantityTypeService;
@@ -141,7 +141,7 @@ QuantityTypeService::add('dynamic viscosity', 'ML-1T-1', DynamicViscosity::class
 QuantityTypeService::setClass('currency', MyCurrencyClass::class);
 ```
 
-### Looking Up Quantity Types
+### Looking up quantity types
 
 ```php
 use Galaxon\Quantities\Services\QuantityTypeService;

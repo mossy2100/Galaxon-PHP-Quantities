@@ -29,7 +29,7 @@ The `Power` class handles power measurements.
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *watt* is defined as:
 

@@ -29,7 +29,7 @@ The `MagneticFluxDensity` class handles magnetic flux density measurements, also
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *tesla* is defined as:
 

@@ -29,7 +29,7 @@ The `Voltage` class handles voltage (electric potential difference) measurements
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *volt* is defined as:
 

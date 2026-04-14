@@ -29,7 +29,7 @@ The `Resistance` class handles electrical resistance measurements.
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *ohm* is defined as:
 

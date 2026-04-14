@@ -35,7 +35,7 @@ The `Energy` class handles energy measurements across SI, scientific, and common
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *joule* is defined in terms of SI base units:
 

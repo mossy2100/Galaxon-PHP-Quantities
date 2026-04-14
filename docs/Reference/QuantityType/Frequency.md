@@ -51,7 +51,7 @@ $decay = new Frequency(1000, 'Bq');  // 1000 decays/second
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 Both *hertz* and *becquerel* expand to the same base unit expression:
 

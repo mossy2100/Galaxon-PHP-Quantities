@@ -17,7 +17,7 @@ The class provides methods for:
 
 All operations return new instances, maintaining immutability.
 
-### Key Features
+### Key features
 
 - Immutable conversion objects
 - Precision tracking via FloatWithError

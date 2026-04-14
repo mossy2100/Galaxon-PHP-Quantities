@@ -10,7 +10,7 @@ The `Unit` class represents a single unit of measurement such as *meter*, *gram*
 
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality comparisons.
 
-### Key Features
+### Key features
 
 - Dual symbol support (ASCII and Unicode)
 - Optional alternate symbol for parser compatibility
@@ -285,7 +285,7 @@ Convert the unit to a string using the Unicode symbol.
 
 ## Usage examples
 
-### Accessing Unit Properties
+### Accessing unit properties
 
 ```php
 use Galaxon\Quantities\Services\UnitService;

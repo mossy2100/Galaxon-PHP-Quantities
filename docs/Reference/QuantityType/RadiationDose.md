@@ -50,7 +50,7 @@ Equivalent dose (Sv) = Absorbed dose (Gy) × Radiation weighting factor
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 Both units expand to the same base unit expression:
 

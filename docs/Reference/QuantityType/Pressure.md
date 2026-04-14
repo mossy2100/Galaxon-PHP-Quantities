@@ -35,7 +35,7 @@ The `Pressure` class handles pressure measurements across SI, scientific, and US
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *pascal* is defined in terms of SI base units:
 

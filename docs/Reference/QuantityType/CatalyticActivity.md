@@ -29,7 +29,7 @@ The `CatalyticActivity` class handles catalytic activity measurements, used in e
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *katal* is defined as:
 

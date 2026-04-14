@@ -18,7 +18,7 @@ The `CurrencyService` manages currency data for the Quantities package. It must 
 
 Currency units are registered under the `UnitSystem::Financial` unit system.
 
-### Exchange Rate Services
+### Exchange rate services
 
 The package includes adapters for several exchange rate APIs, all of which have free tiers:
 

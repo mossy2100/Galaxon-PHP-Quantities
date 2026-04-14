@@ -21,7 +21,7 @@ The `ElectricCurrent` class handles electric current measurements. The *ampere* 
 
 ---
 
-## SI Base Unit
+## SI unit
 
 The *ampere* (`A`) is an SI base unit, defined by fixing the value of the elementary charge *e*.
 

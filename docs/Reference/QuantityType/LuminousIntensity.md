@@ -21,7 +21,7 @@ The `LuminousIntensity` class handles luminous intensity measurements. The *cand
 
 ---
 
-## SI Base Unit
+## SI unit
 
 The *candela* (`cd`) is defined by fixing the luminous efficacy of monochromatic radiation at frequency 540 × 10¹² Hz:
 

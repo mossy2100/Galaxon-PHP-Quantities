@@ -29,7 +29,7 @@ The `Capacitance` class handles electrical capacitance measurements.
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *farad* is defined as:
 

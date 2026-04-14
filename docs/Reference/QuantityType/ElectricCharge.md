@@ -29,7 +29,7 @@ The `ElectricCharge` class handles electric charge measurements.
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *coulomb* is defined as:
 

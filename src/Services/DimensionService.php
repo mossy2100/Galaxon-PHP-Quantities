@@ -351,7 +351,7 @@ class DimensionService
      * @throws FormatException If the dimension code is invalid.
      * @throws LogicException If no base unit is defined for the dimension.
      */
-    public static function getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string
+    public static function getBaseUnitTermSymbol(string $dimensionLetterCode, bool $si): string
     {
         // Validate the code.
         if (strlen($dimensionLetterCode) !== 1 || !array_key_exists($dimensionLetterCode, self::DIMENSION_CODES)) {
@@ -383,7 +383,7 @@ class DimensionService
     public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm
     {
         // Get the base unit symbol (e.g. 'kg', 'lb').
-        $baseUnit = self::getBaseUnitSymbol($dimensionLetterCode, $si);
+        $baseUnit = self::getBaseUnitTermSymbol($dimensionLetterCode, $si);
 
         // Construct the UnitTerm.
         return UnitTerm::parse($baseUnit);

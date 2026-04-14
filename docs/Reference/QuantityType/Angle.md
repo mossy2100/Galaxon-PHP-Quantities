@@ -45,10 +45,20 @@ The `Angle` class provides specialized handling for angular measurements, includ
 
 ## Constants
 
-| Constant       | Type  | Value     | Description                                                 |
-| -------------- | ----- | --------- | ----------------------------------------------------------- |
-| `RAD_EPSILON`  | float | `1e-9`    | Default absolute tolerance for angle comparisons in radians |
-| `TRIG_EPSILON` | float | `1e-15`   | Tolerance for detecting zero in trigonometric calculations  |
+| Constant       | Type  | Value   | Description                                                 |
+| -------------- | ----- | ------- | ----------------------------------------------------------- |
+| `RAD_EPSILON`  | float | `1e-9`  | Default absolute tolerance for angle comparisons in radians |
+| `TRIG_EPSILON` | float | `1e-15` | Tolerance for detecting zero in trigonometric calculations  |
+
+---
+
+## SI unit and dimension
+
+In the SI system, the *radian* is considered dimensionless because it can be defined as a ratio of arc length to radius, producing an SI unit of *m*/*m*, or nothing. The dimension code for *radian* is therefore normally `1`. For the purpose of this package, however, it was preferable to have a dedicated `Angle` class, which necessitated a dedicated dimension code, which was allocated the letter `A`.
+
+Similarly, the *radian* is referred to as a *derived* unit in the SI system; in this package it is used as a *base* unit.
+
+See [Dimensions and Base Units](../../Concepts/DimensionsAndBaseUnits.md) for more information.
 
 ---
 

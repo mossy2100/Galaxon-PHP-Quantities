@@ -29,7 +29,7 @@ The `Inductance` class handles electrical inductance measurements.
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *henry* is defined as:
 

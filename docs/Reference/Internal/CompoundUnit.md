@@ -14,7 +14,7 @@ Key behaviors:
 - Provides both ASCII and Unicode symbol representations
 - Implements `UnitInterface` for consistent handling
 
-### Key Features
+### Key features
 
 - Automatic term combination for like units
 - Multiple parsing formats (multiplication, division, parentheses)
@@ -472,7 +472,7 @@ Convert to string using Unicode format.
 
 ## Usage examples
 
-### Building Compound Units
+### Building compound units
 
 ```php
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -490,7 +490,7 @@ echo $newton->unicodeSymbol; // 'kg⋅m⋅s⁻²'
 echo $newton->dimension;     // 'T-2LM'
 ```
 
-### Parsing and Validation
+### Parsing and validation
 
 ```php
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -506,7 +506,7 @@ if ($unit1->isSi()) {
 }
 ```
 
-### Arithmetic with Units
+### Arithmetic with units
 
 ```php
 use Galaxon\Quantities\Internal\CompoundUnit;

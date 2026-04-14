@@ -16,7 +16,7 @@ The conversion system works by:
 
 All conversions use the linear transformation formula: `destValue = srcValue * factor`
 
-### Path Discovery Strategies
+### Path discovery strategies
 
 When `findConversion()` is called, the converter tries these strategies in order (cheapest first), stopping as soon as an exact conversion is found:
 
@@ -310,7 +310,7 @@ Remove all conversions involving a given unit. Used when unloading a unit from t
 
 ## Usage examples
 
-### Basic Conversion
+### Basic conversion
 
 ```php
 use Galaxon\Quantities\Internal\Converter;
@@ -325,7 +325,7 @@ $km = $length->convert(1000, 'm', 'km');
 echo "$km km"; // 1 km
 ```
 
-### Working with Compound Units
+### Working with compound units
 
 ```php
 use Galaxon\Quantities\Internal\Converter;
@@ -335,7 +335,7 @@ $force = Converter::getInstance('MLT-2');
 $newtons = $force->convert(1, 'lbf', 'N');
 ```
 
-### Cross-System Conversions
+### Cross-system conversions
 
 ```php
 use Galaxon\Quantities\Internal\Converter;

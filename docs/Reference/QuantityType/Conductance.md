@@ -29,7 +29,7 @@ The `Conductance` class handles electrical conductance measurements. Conductance
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *siemens* is defined as:
 

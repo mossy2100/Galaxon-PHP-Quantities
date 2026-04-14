@@ -31,7 +31,7 @@ The `Force` class handles force measurements in SI and Imperial/US Customary sys
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *newton* is defined in terms of SI base units:
 

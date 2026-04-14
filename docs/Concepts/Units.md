@@ -6,9 +6,9 @@ The package provides a relatively comprehensive set of units that should be suff
 
 ## A note on spelling
 
-US spelling is used for the units *meter* and *liter*, rather than the British English spellings of *metre* and *litre*, respectively. This is because US spelling is more commonly used in programming languages and open source code, and the majority of the user base is likely to be more familiar with US spelling. It doesn't actually matter; users of the package only need to know the symbols `m` and `L`.
+US spelling is used for the units "meter" and "liter", rather than the British English spellings of "metre" and "litre", respectively. This is because US spelling is more commonly used in programming languages and open source code, and the majority of the user base is likely to be more familiar with US spelling. It doesn't actually matter; users of the package only need to know the symbols "m" and "L".
 
-Note, however, that the prefix meaning 10 is spelled *deca* within the package, which is the official international spelling, rather than *deka*, as sometimes used in US English.
+Note, however, that the prefix meaning 10 is spelled "deca" within the package, which is the official international spelling, rather than "deka", as sometimes used in US English.
 
 ---
 
@@ -62,18 +62,6 @@ In some cases a conventional unit symbol may not be supported. The main reason i
 ## Unit system codes
 
 When it comes to volume units, certain units represent different amounts in different unit systems. For example an imperial pint is approximately equal to 568 mL, whereas a US pint is approximately 473 mL. These are disambiguated by a unit system code of either "imp" or "US" where needed, e.g. `imp pt` vs. `US pt`. See the [Volume](../Reference/QuantityType/Volume.md) documentation for details.
-
----
-
-## Prefix support
-
-The **Prefixes** column in unit definition tables indicates which prefixes are supported by a given unit:
-- **all metric** — All metric prefixes (*q, r, y, z, a, f, p, n, μ, m, c, d, da, h, k, M, G, T, P, E, Z, Y, R, Q*)
-- **large metric** — Large engineering prefixes (*k, M, G, T, P, E, Z, Y, R, Q*)
-- **small metric** — Small engineering prefixes (*q, r, y, z, a, f, p, n, μ, m*)
-- **large metric and binary** — Large engineering and binary prefixes (*Ki, Mi, Gi, Ti, Pi, Ei, Zi, Yi, Ri, Qi*)
-
-For the complete list of built-in units, see the "Unit definitions" section in each [quantity type](../Reference/QuantityType/) documentation page.
 
 ---
 

@@ -29,7 +29,7 @@ The `LuminousFlux` class handles luminous flux measurements, commonly used to ra
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *lumen* is defined as:
 

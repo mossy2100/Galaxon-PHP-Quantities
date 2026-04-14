@@ -29,7 +29,7 @@ The `MagneticFlux` class handles magnetic flux measurements.
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
 The *weber* is defined as:
 

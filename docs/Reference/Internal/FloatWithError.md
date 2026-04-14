@@ -12,7 +12,7 @@ Each operation (addition, subtraction, multiplication, division, inversion, expo
 
 Implements `Stringable`, formatting as `"value ± absoluteError"`.
 
-### Key Features
+### Key features
 
 - Immutable value objects (all operations return new instances)
 - Tracks absolute error through arithmetic operations
@@ -286,7 +286,7 @@ Convert to a string representation showing value and absolute error.
 
 ## Usage examples
 
-### Tracking Conversion Precision
+### Tracking conversion precision
 
 ```php
 use Galaxon\Quantities\Internal\FloatWithError;
@@ -307,7 +307,7 @@ if ($direct->relativeError < $indirect->relativeError) {
 }
 ```
 
-### Building Conversion Factors
+### Building conversion factors
 
 ```php
 use Galaxon\Quantities\Internal\FloatWithError;

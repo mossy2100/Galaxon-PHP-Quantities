@@ -275,10 +275,17 @@ class Unit implements UnitInterface
     #[Override]
     public static function parse(string $symbol): self
     {
+        // Maintain a cache of parsed units.
+        static $cache = [];
+        if (isset($cache[$symbol])) {
+            return $cache[$symbol];
+        }
+
         // Validate the symbol format.
-        if ($symbol !== '' && !self::isValidUnitSymbol($symbol)) {
+        if (!self::isValidUnitSymbol($symbol)) {
             throw new FormatException(
-                "Unit symbol '$symbol' can only contain letters and special characters (e.g. °′″'\")."
+                "Unit symbol '$symbol' can only be an empty string or contain letters and special " .
+                "characters (e.g. °′″'\")."
             );
         }
 
@@ -286,7 +293,14 @@ class Unit implements UnitInterface
         $unit = UnitService::getBySymbol($symbol);
 
         // If not found, throw an exception.
-        return $unit ?? throw new UnknownUnitException($symbol);
+        if ($unit === null) {
+            throw new UnknownUnitException($symbol);
+        }
+
+        // Remember the unit in the cache.
+        $cache[$symbol] = $unit;
+
+        return $unit;
     }
 
     // endregion
@@ -455,9 +469,8 @@ class Unit implements UnitInterface
      */
     public static function isValidUnitSymbol(string $symbol): bool
     {
-        return self::isValidAsciiSymbol($symbol) ||
-            self::isValidUnicodeSymbol($symbol) ||
-            self::isValidAlternateSymbol($symbol);
+        return $symbol === '' || self::isValidAsciiSymbol($symbol) || self::isValidUnicodeSymbol($symbol)
+            || self::isValidAlternateSymbol($symbol);
     }
 
     // endregion
