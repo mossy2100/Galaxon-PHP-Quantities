@@ -422,10 +422,7 @@ class Quantity implements Stringable
             } else {
                 // Ensure unit belongs to both the Imperial and US Customary systems of units.
                 // We don't want to replace 'in3' with 'US gal' or 'imp gal', for example.
-                if (
-                    !$unit->belongsToSystem(UnitSystem::UsCustomary)
-                    || !$unit->belongsToSystem(UnitSystem::Imperial)
-                ) {
+                if (!$unit->belongsToSystem(UnitSystem::UsCustomary) || !$unit->belongsToSystem(UnitSystem::Imperial)) {
                     continue;
                 }
             }
@@ -546,14 +543,12 @@ class Quantity implements Stringable
             }
         }
 
-        // If we found a better prefix than none at all, apply it if it's different.
+        // If we found a better prefix than none at all, rebuild the compound unit with the first term replaced.
         if ($bestPrefix !== null) {
-            // Remove the first unit term.
-            $newCompoundUnit->removeUnitTerm($firstUnitTerm);
-            // Create a new one with the prefix applied.
-            $newUnitTerm = new UnitTerm($firstUnitTerm->unit, $bestPrefix, $firstUnitTerm->exponent);
-            // Add it.
-            $newCompoundUnit->addUnitTerm($newUnitTerm);
+            $prefixedUnitTerm = new UnitTerm($firstUnitTerm->unit, $bestPrefix, $firstUnitTerm->exponent);
+            $newUnitTerms = array_values($newCompoundUnit->unitTerms);
+            $newUnitTerms[0] = $prefixedUnitTerm;
+            $newCompoundUnit = new CompoundUnit($newUnitTerms);
         }
 
         // Create the result object.
@@ -770,16 +765,14 @@ class Quantity implements Stringable
         // Start by multiplying the values.
         $newValue = $this->value * $other->value;
 
-        // Create a new unit from this unit.
-        $newUnit = clone $this->compoundUnit;
-
-        // Add each unit term from the other Quantity.
-        foreach ($other->compoundUnit->unitTerms as $otherUnitTerm) {
-            $newUnit->addUnitTerm($otherUnitTerm);
-        }
+        // Combine the unit terms from both operands. The CompoundUnit constructor collapses same-dimension terms.
+        $newUnitTerms = array_merge(
+            array_values($this->compoundUnit->unitTerms),
+            array_values($other->compoundUnit->unitTerms)
+        );
 
         // Create the result Quantity.
-        return self::create($newValue, $newUnit);
+        return self::create($newValue, new CompoundUnit($newUnitTerms));
     }
 
     /**
@@ -940,7 +933,7 @@ class Quantity implements Stringable
         // If $includeSpace is not specified, do not insert a space between the value and unit if the unit is a single
         // non-letter unit symbol (e.g. °, %, "). Otherwise, insert one space.
         if ($includeSpace === null) {
-            $includeSpace = !Unit::isValidUnicodeSpecialChar($unitSymbol);
+            $includeSpace = !Unit::isValidNonLetter($unitSymbol);
         }
 
         // Return the formatted string.

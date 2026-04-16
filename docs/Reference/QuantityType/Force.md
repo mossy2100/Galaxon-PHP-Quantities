@@ -41,7 +41,7 @@ N = kg·m·s⁻²
 
 ---
 
-## Pound Force
+## Pound force
 
 The *pound force* (`lbf`) is defined using standard gravity (g₀ = 9.80665 m/s²):
 
@@ -86,7 +86,7 @@ $inKN = $rocket->to('kN');  // 7600 kN
 
 ---
 
-## Force-Related Quantities
+## Force-related quantities
 
 Force is related to other quantities:
 

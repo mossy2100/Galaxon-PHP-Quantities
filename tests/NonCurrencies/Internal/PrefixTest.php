@@ -24,11 +24,12 @@ final class PrefixTest extends TestCase
      */
     public function testConstructorWithValidParameters(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        $prefix = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
 
         $this->assertSame('kilo', $prefix->name);
         $this->assertSame('k', $prefix->asciiSymbol);
         $this->assertSame('k', $prefix->unicodeSymbol);  // Falls back to ASCII
+        $this->assertNull($prefix->alternateSymbol);
         $this->assertSame(1000.0, $prefix->multiplier);
         $this->assertSame(PrefixService::GROUP_LARGE_METRIC, $prefix->groupCode);
     }
@@ -38,10 +39,27 @@ final class PrefixTest extends TestCase
      */
     public function testConstructorWithUnicodeSymbol(): void
     {
-        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixService::GROUP_SMALL_METRIC);
+        $prefix = new Prefix('micro', 1e-6, PrefixService::GROUP_SMALL_METRIC, 'u', 'μ');
 
         $this->assertSame('u', $prefix->asciiSymbol);
         $this->assertSame('μ', $prefix->unicodeSymbol);
+        $this->assertNull($prefix->alternateSymbol);
+    }
+
+    /**
+     * Test constructor with alternate symbol.
+     *
+     * Uses Unicode escapes so the two visually identical but distinct micro characters are unambiguous:
+     * - U+00B5 MICRO SIGN (unicode symbol)
+     * - U+03BC GREEK SMALL LETTER MU (alternate symbol)
+     */
+    public function testConstructorWithAlternateSymbol(): void
+    {
+        $prefix = new Prefix('micro', 1e-6, PrefixService::GROUP_SMALL_METRIC, 'u', "\u{00B5}", "\u{03BC}");
+
+        $this->assertSame('u', $prefix->asciiSymbol);
+        $this->assertSame("\u{00B5}", $prefix->unicodeSymbol);
+        $this->assertSame("\u{03BC}", $prefix->alternateSymbol);
     }
 
     /**
@@ -49,7 +67,7 @@ final class PrefixTest extends TestCase
      */
     public function testConstructorWithTwoLetterAsciiSymbol(): void
     {
-        $prefix = new Prefix('deca', 'da', null, 10.0, PrefixService::GROUP_MEDIUM_METRIC);
+        $prefix = new Prefix('deca', 10.0, PrefixService::GROUP_MEDIUM_METRIC, 'da');
 
         $this->assertSame('da', $prefix->asciiSymbol);
     }
@@ -59,7 +77,7 @@ final class PrefixTest extends TestCase
      */
     public function testConstructorWithBinarySymbol(): void
     {
-        $prefix = new Prefix('kibi', 'Ki', null, 1024.0, PrefixService::GROUP_BINARY);
+        $prefix = new Prefix('kibi', 1024.0, PrefixService::GROUP_BINARY, 'Ki');
 
         $this->assertSame('Ki', $prefix->asciiSymbol);
         $this->assertSame(1024.0, $prefix->multiplier);
@@ -67,7 +85,77 @@ final class PrefixTest extends TestCase
 
     // endregion
 
-    // region Constructor validation tests
+    // region Name validation tests
+
+    /**
+     * Test constructor throws for empty name.
+     */
+    public function testConstructorThrowsForEmptyName(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid prefix name');
+
+        new Prefix('', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
+    }
+
+    /**
+     * Test constructor throws for name shorter than 3 characters.
+     */
+    public function testConstructorThrowsForNameTooShort(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid prefix name');
+
+        new Prefix('ab', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
+    }
+
+    /**
+     * Test constructor throws for name longer than 6 characters.
+     */
+    public function testConstructorThrowsForNameTooLong(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid prefix name');
+
+        new Prefix('abcdefg', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
+    }
+
+    /**
+     * Test constructor throws for name with uppercase letters.
+     */
+    public function testConstructorThrowsForNameWithUppercase(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid prefix name');
+
+        new Prefix('Kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
+    }
+
+    /**
+     * Test constructor throws for name with digits.
+     */
+    public function testConstructorThrowsForNameWithDigits(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid prefix name');
+
+        new Prefix('kilo1', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
+    }
+
+    /**
+     * Test constructor throws for name with non-ASCII letters.
+     */
+    public function testConstructorThrowsForNameWithNonAsciiLetters(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid prefix name');
+
+        new Prefix('μicro', 1e-6, PrefixService::GROUP_SMALL_METRIC, 'u');
+    }
+
+    // endregion
+
+    // region ASCII symbol validation tests
 
     /**
      * Test constructor throws for empty ASCII symbol.
@@ -77,7 +165,7 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid ASCII prefix symbol');
 
-        new Prefix('test', '', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, '');
     }
 
     /**
@@ -88,7 +176,7 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid ASCII prefix symbol');
 
-        new Prefix('test', 'k2', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k2');
     }
 
     /**
@@ -99,19 +187,23 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid ASCII prefix symbol');
 
-        new Prefix('test', 'abc', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'abc');
     }
 
     /**
-     * Test constructor throws for ASCII symbol with special characters.
+     * Test constructor throws for ASCII symbol with non-letters.
      */
-    public function testConstructorThrowsForAsciiSymbolWithSpecialChars(): void
+    public function testConstructorThrowsForAsciiSymbolWithNonLetters(): void
     {
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid ASCII prefix symbol');
 
-        new Prefix('test', 'k!', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k!');
     }
+
+    // endregion
+
+    // region Unicode symbol validation tests
 
     /**
      * Test constructor throws for invalid Unicode symbol.
@@ -121,19 +213,49 @@ final class PrefixTest extends TestCase
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid Unicode prefix symbol');
 
-        new Prefix('test', 'k', '123', 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k', '1');
     }
 
     /**
-     * Test constructor throws for Unicode symbol too long.
+     * Test constructor throws for multi-character Unicode symbol.
      */
     public function testConstructorThrowsForUnicodeSymbolTooLong(): void
     {
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid Unicode prefix symbol');
 
-        new Prefix('test', 'k', 'abc', 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k', 'abc');
     }
+
+    // endregion
+
+    // region Alternate symbol validation tests
+
+    /**
+     * Test constructor throws for invalid alternate symbol.
+     */
+    public function testConstructorThrowsForInvalidAlternateSymbol(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid alternate prefix symbol');
+
+        new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k', null, '1');
+    }
+
+    /**
+     * Test constructor throws for multi-character alternate symbol.
+     */
+    public function testConstructorThrowsForAlternateSymbolTooLong(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid alternate prefix symbol');
+
+        new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k', null, 'abc');
+    }
+
+    // endregion
+
+    // region Multiplier validation tests
 
     /**
      * Test constructor throws for zero multiplier.
@@ -143,7 +265,7 @@ final class PrefixTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Cannot create prefix with non-positive multiplier');
 
-        new Prefix('test', 'k', null, 0.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', 0.0, PrefixService::GROUP_LARGE_METRIC, 'k');
     }
 
     /**
@@ -154,7 +276,7 @@ final class PrefixTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Cannot create prefix with non-positive multiplier');
 
-        new Prefix('test', 'k', null, -1000.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', -1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
     }
 
     /**
@@ -165,8 +287,12 @@ final class PrefixTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Cannot create prefix with multiplier equal to one');
 
-        new Prefix('test', 'k', null, 1.0, PrefixService::GROUP_LARGE_METRIC);
+        new Prefix('test', 1.0, PrefixService::GROUP_LARGE_METRIC, 'k');
     }
+
+    // endregion
+
+    // region Group code validation tests
 
     /**
      * Test constructor throws for invalid group code.
@@ -176,7 +302,7 @@ final class PrefixTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid prefix group code');
 
-        new Prefix('test', 'k', null, 1000.0, 0);
+        new Prefix('test', 1000.0, 0, 'k');
     }
 
     /**
@@ -187,8 +313,8 @@ final class PrefixTest extends TestCase
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage('Invalid prefix group code');
 
-        // Combined codes are not valid for individual prefixes
-        new Prefix('test', 'k', null, 1000.0, PrefixService::GROUP_METRIC);
+        // Combined codes are not valid for individual prefixes.
+        new Prefix('test', 1000.0, PrefixService::GROUP_METRIC, 'k');
     }
 
     // endregion
@@ -196,23 +322,36 @@ final class PrefixTest extends TestCase
     // region equal() tests
 
     /**
-     * Test equal() returns true for same ASCII symbol.
+     * Test equal() returns true for same name.
      */
-    public function testEqualReturnsTrueForSameAsciiSymbol(): void
+    public function testEqualReturnsTrueForSameName(): void
     {
-        $prefix1 = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
-        $prefix2 = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        $prefix1 = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
+        $prefix2 = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
 
         $this->assertTrue($prefix1->equal($prefix2));
     }
 
     /**
-     * Test equal() returns false for different ASCII symbol.
+     * Test equal() returns false for different name.
      */
-    public function testEqualReturnsFalseForDifferentAsciiSymbol(): void
+    public function testEqualReturnsFalseForDifferentName(): void
     {
-        $prefix1 = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
-        $prefix2 = new Prefix('mega', 'M', null, 1e6, PrefixService::GROUP_LARGE_METRIC);
+        $prefix1 = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
+        $prefix2 = new Prefix('mega', 1e6, PrefixService::GROUP_LARGE_METRIC, 'M');
+
+        $this->assertFalse($prefix1->equal($prefix2));
+    }
+
+    /**
+     * Test equal() compares by name, not ASCII symbol.
+     *
+     * Two prefixes constructed with the same ASCII symbol but different names are NOT equal.
+     */
+    public function testEqualComparesByNameNotAsciiSymbol(): void
+    {
+        $prefix1 = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
+        $prefix2 = new Prefix('test', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
 
         $this->assertFalse($prefix1->equal($prefix2));
     }
@@ -222,7 +361,7 @@ final class PrefixTest extends TestCase
      */
     public function testEqualReturnsFalseForNonPrefixObject(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        $prefix = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
 
         $this->assertFalse($prefix->equal('k'));
         $this->assertFalse($prefix->equal(1000));
@@ -238,7 +377,7 @@ final class PrefixTest extends TestCase
      */
     public function testIsEngineeringReturnsTrueForSmallEngineering(): void
     {
-        $prefix = new Prefix('milli', 'm', null, 0.001, PrefixService::GROUP_SMALL_METRIC);
+        $prefix = new Prefix('milli', 0.001, PrefixService::GROUP_SMALL_METRIC, 'm');
 
         $this->assertTrue($prefix->isEngineering());
     }
@@ -248,7 +387,7 @@ final class PrefixTest extends TestCase
      */
     public function testIsEngineeringReturnsTrueForLargeEngineering(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        $prefix = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
 
         $this->assertTrue($prefix->isEngineering());
     }
@@ -258,7 +397,7 @@ final class PrefixTest extends TestCase
      */
     public function testIsEngineeringReturnsFalseForMediumMetric(): void
     {
-        $prefix = new Prefix('centi', 'c', null, 0.01, PrefixService::GROUP_MEDIUM_METRIC);
+        $prefix = new Prefix('centi', 0.01, PrefixService::GROUP_MEDIUM_METRIC, 'c');
 
         $this->assertFalse($prefix->isEngineering());
     }
@@ -268,7 +407,7 @@ final class PrefixTest extends TestCase
      */
     public function testIsEngineeringReturnsFalseForBinary(): void
     {
-        $prefix = new Prefix('kibi', 'Ki', null, 1024.0, PrefixService::GROUP_BINARY);
+        $prefix = new Prefix('kibi', 1024.0, PrefixService::GROUP_BINARY, 'Ki');
 
         $this->assertFalse($prefix->isEngineering());
     }
@@ -282,7 +421,7 @@ final class PrefixTest extends TestCase
      */
     public function testFormatReturnsUnicodeByDefault(): void
     {
-        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixService::GROUP_SMALL_METRIC);
+        $prefix = new Prefix('micro', 1e-6, PrefixService::GROUP_SMALL_METRIC, 'u', 'μ');
 
         $this->assertSame('μ', $prefix->format());
     }
@@ -292,7 +431,7 @@ final class PrefixTest extends TestCase
      */
     public function testFormatReturnsAsciiWhenRequested(): void
     {
-        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixService::GROUP_SMALL_METRIC);
+        $prefix = new Prefix('micro', 1e-6, PrefixService::GROUP_SMALL_METRIC, 'u', 'μ');
 
         $this->assertSame('u', $prefix->format(true));
     }
@@ -302,7 +441,7 @@ final class PrefixTest extends TestCase
      */
     public function testFormatReturnsSameWhenNoUnicode(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        $prefix = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
 
         $this->assertSame('k', $prefix->format());
         $this->assertSame('k', $prefix->format(true));
@@ -317,7 +456,7 @@ final class PrefixTest extends TestCase
      */
     public function testToStringReturnsUnicodeSymbol(): void
     {
-        $prefix = new Prefix('micro', 'u', 'μ', 1e-6, PrefixService::GROUP_SMALL_METRIC);
+        $prefix = new Prefix('micro', 1e-6, PrefixService::GROUP_SMALL_METRIC, 'u', 'μ');
 
         $this->assertSame('μ', (string)$prefix);
     }
@@ -327,7 +466,7 @@ final class PrefixTest extends TestCase
      */
     public function testToStringForPrefixWithoutUnicode(): void
     {
-        $prefix = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        $prefix = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
 
         $this->assertSame('k', (string)$prefix);
     }
@@ -342,7 +481,7 @@ final class PrefixTest extends TestCase
     public function testEqualWithPrefixUtilityPrefixes(): void
     {
         $utilityKilo = PrefixService::getBySymbol('k');
-        $manualKilo = new Prefix('kilo', 'k', null, 1000.0, PrefixService::GROUP_LARGE_METRIC);
+        $manualKilo = new Prefix('kilo', 1000.0, PrefixService::GROUP_LARGE_METRIC, 'k');
 
         $this->assertNotNull($utilityKilo);
         $this->assertTrue($utilityKilo->equal($manualKilo));
@@ -354,19 +493,19 @@ final class PrefixTest extends TestCase
      */
     public function testIsEngineeringMatchesPrefixUtilityPrefixes(): void
     {
-        // Engineering prefixes
+        // Engineering prefixes.
         $this->assertTrue(PrefixService::getBySymbol('k')?->isEngineering());
         $this->assertTrue(PrefixService::getBySymbol('M')?->isEngineering());
         $this->assertTrue(PrefixService::getBySymbol('m')?->isEngineering());
         $this->assertTrue(PrefixService::getBySymbol('n')?->isEngineering());
 
-        // Non-engineering prefixes
+        // Non-engineering prefixes.
         $this->assertFalse(PrefixService::getBySymbol('c')?->isEngineering());
         $this->assertFalse(PrefixService::getBySymbol('d')?->isEngineering());
         $this->assertFalse(PrefixService::getBySymbol('da')?->isEngineering());
         $this->assertFalse(PrefixService::getBySymbol('h')?->isEngineering());
 
-        // Binary prefixes
+        // Binary prefixes.
         $this->assertFalse(PrefixService::getBySymbol('Ki')?->isEngineering());
     }
 

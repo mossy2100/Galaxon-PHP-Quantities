@@ -16,7 +16,7 @@ All methods are static. The class uses lazy initialization to build the prefix l
 
 ## Constants
 
-### Group Codes
+### Group codes
 
 Base group codes identify individual prefix groups. These can be combined with bitwise OR for flexible filtering.
 
@@ -27,7 +27,7 @@ Base group codes identify individual prefix groups. These can be combined with b
 | `GROUP_LARGE_METRIC` | 4 | Large metric prefixes (kilo through quetta). |
 | `GROUP_BINARY` | 8 | Binary prefixes (kibi through quebi). |
 
-### Combined Group Codes
+### Combined group codes
 
 | Constant | Value | Description |
 |---|---|---|

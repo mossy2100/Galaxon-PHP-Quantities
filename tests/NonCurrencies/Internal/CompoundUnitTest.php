@@ -438,100 +438,59 @@ class CompoundUnitTest extends TestCase
 
     // endregion
 
-    // region removeUnitTerm() tests
+    // region Constructor combination tests
 
-    public function testRemoveUnitTermExisting(): void
+    /**
+     * The constructor builds the unit term list from the input array. Same-unit terms are combined (exponents
+     * summed), zero-exponent terms are dropped, and differently-prefixed terms of the same base unit are kept
+     * separate. These tests exercise those combination rules through the public constructor API.
+     */
+    public function testConstructorWithSingleTerm(): void
     {
-        $du = CompoundUnit::parse('kg*m');
-        $this->assertCount(2, $du->unitTerms);
-        $unitTerm = new UnitTerm('m');
-        $du->removeUnitTerm($unitTerm);
+        $cu = new CompoundUnit([new UnitTerm('m')]);
 
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('kg', $du->format(true));
+        $this->assertCount(1, $cu->unitTerms);
+        $this->assertSame('m', $cu->format(true));
     }
 
-    public function testRemoveUnitTermNonExisting(): void
+    public function testConstructorCombinesSameUnitExponents(): void
     {
-        $du = CompoundUnit::parse('m');
-        $this->assertCount(1, $du->unitTerms);
-        $unitTerm = UnitTerm::parse('kg');
+        $cu = new CompoundUnit([new UnitTerm('m', null, 2), new UnitTerm('m', null, 3)]);
 
-        // Should not throw
-        $du->removeUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
+        $this->assertCount(1, $cu->unitTerms);
+        $this->assertSame('m5', $cu->format(true));
     }
 
-    // endregion
-
-    // region addUnitTerm() tests
-
-    public function testAddUnitTermNew(): void
+    public function testConstructorCombinesWithDifferentExponents(): void
     {
-        $du = new CompoundUnit();
-        $unitTerm = new UnitTerm('m');
+        $cu = new CompoundUnit([new UnitTerm('m', null, 3), new UnitTerm('m', null, -1)]);
 
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('m', $du->format(true));
+        $this->assertCount(1, $cu->unitTerms);
+        $this->assertSame('m2', $cu->format(true));
     }
 
-    public function testAddUnitTermCombinesExponents(): void
+    public function testConstructorDropsTermsWhenExponentsCancel(): void
     {
-        $du = CompoundUnit::parse('m2');
-        $unitTerm = new UnitTerm('m', null, 3);
+        $cu = new CompoundUnit([new UnitTerm('m', null, 2), new UnitTerm('m', null, -2)]);
 
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('m5', $du->format(true));
+        $this->assertCount(0, $cu->unitTerms);
+        $this->assertSame('', $cu->format(true));
     }
 
-    public function testAddUnitTermCombinesWithDifferentExponents(): void
+    public function testConstructorCombinesSamePrefix(): void
     {
-        $du = CompoundUnit::parse('m3');
-        $unitTerm = new UnitTerm('m', null, -1);
+        $cu = new CompoundUnit([new UnitTerm('m', 'k', 2), new UnitTerm('m', 'k', 1)]);
 
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('m2', $du->format(true));
+        $this->assertCount(1, $cu->unitTerms);
+        $this->assertSame('km3', $cu->format(true));
     }
 
-    public function testAddUnitTermRemovesWhenZeroExponent(): void
+    public function testConstructorTreatsDifferentPrefixesSeparately(): void
     {
-        $du = CompoundUnit::parse('m2');
-        $unitTerm = new UnitTerm('m', null, -2);
+        // km and m should be treated as different unit terms (different unexponentiated symbols).
+        $cu = new CompoundUnit([new UnitTerm('m', 'k'), new UnitTerm('m')]);
 
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(0, $du->unitTerms);
-        $this->assertSame('', $du->format(true));
-    }
-
-    public function testAddUnitTermWithPrefix(): void
-    {
-        $du = CompoundUnit::parse('km2');
-        $unitTerm = new UnitTerm('m', 'k', 1);
-
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('km3', $du->format(true));
-    }
-
-    public function testAddUnitTermDifferentPrefixesTreatedSeparately(): void
-    {
-        // km and m should be treated as different unit terms (different keys)
-        $du = CompoundUnit::parse('km');
-        $unitTerm = new UnitTerm('m');
-
-        $du->addUnitTerm($unitTerm);
-
-        // They have different symbolWithoutExponent ('km' vs 'm'), so they're separate
-        $this->assertCount(2, $du->unitTerms);
+        $this->assertCount(2, $cu->unitTerms);
     }
 
     // endregion
@@ -1449,20 +1408,38 @@ class CompoundUnitTest extends TestCase
     }
 
     /**
-     * Test modifying a clone does not affect the original.
+     * Test that operations returning a new CompoundUnit don't mutate the original.
+     *
+     * CompoundUnit is externally immutable — mutators are private and arithmetic methods like mul() return new
+     * instances. This test exercises that guarantee via the public API.
      */
-    public function testModifyingCloneDoesNotAffectOriginal(): void
+    public function testMulDoesNotMutateOriginal(): void
     {
         $original = CompoundUnit::parse('m/s');
-        $cloned = clone $original;
+        $other = CompoundUnit::parse('kg');
 
-        // Add a unit term to the clone.
-        $cloned->addUnitTerm(new UnitTerm('g', 'k'));
+        $result = $original->mul($other);
 
         // Original should be unchanged.
         $this->assertCount(2, $original->unitTerms);
         $this->assertSame('m/s', $original->format(true));
-        $this->assertCount(3, $cloned->unitTerms);
+        // Result has one more term.
+        $this->assertCount(3, $result->unitTerms);
+    }
+
+    /**
+     * Test that addUnitTerm cannot be called externally. This pins the private visibility of the mutator, which is
+     * load-bearing for the deep-immutability guarantee.
+     */
+    public function testAddUnitTermIsPrivate(): void
+    {
+        $cu = CompoundUnit::parse('m');
+
+        $this->expectException(\Error::class);
+        $this->expectExceptionMessage('private method');
+
+        // @phpstan-ignore method.notFound
+        $cu->addUnitTerm(new UnitTerm('s'));
     }
 
     /**

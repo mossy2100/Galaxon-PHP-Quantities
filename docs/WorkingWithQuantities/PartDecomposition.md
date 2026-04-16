@@ -8,7 +8,7 @@ Some quantities are naturally expressed as a combination of units — angles in 
 
 ---
 
-## Converting to Parts with `toParts()`
+## Converting to parts with `toParts()`
 
 The `toParts()` method breaks a quantity into integer components for each part unit, with only the smallest unit having a fractional value. By default it uses the [built-in part units](#built-in-part-units) for the quantity type.
 
@@ -53,7 +53,7 @@ $parts = $time->toParts(partUnitSymbols: ['h', 'min', 's']);
 
 ---
 
-## Creating from Parts with `fromParts()`
+## Creating from parts with `fromParts()`
 
 The `fromParts()` method creates a quantity from an array of unit-value pairs:
 
@@ -145,7 +145,7 @@ echo $height->formatParts(partUnitSymbols: ['ft', 'in']);  // 5ft 8in
 
 ---
 
-## Built-in Part Units
+## Built-in part units
 
 The four parts methods use these baked-in defaults when called without explicit `$partUnitSymbols` or `$resultUnitSymbol`:
 
@@ -170,7 +170,7 @@ $height = new Length(68, 'in');
 echo $height->formatParts(partUnitSymbols: ['ft', 'in']);     // 5ft 8in
 ```
 
-### Mass: Imperial and US Customary part lists
+### Mass: imperial and US customary part lists
 
 Mass has no built-in part units (the choice between imperial stones, US customary tons, and so on is application-specific), but the `Mass` class exposes both common lists as constants:
 

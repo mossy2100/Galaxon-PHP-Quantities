@@ -78,7 +78,7 @@ $energy = $m->mul($v->sqr())->div(2)->toSi()->autoPrefix();
 
 ---
 
-## Newtonian Mechanics
+## Newtonian mechanics
 
 ### Newton's second law: F = ma
 
@@ -206,7 +206,7 @@ $g = $G->mul($marsMass)->div($marsRadius->sqr());
 
 ---
 
-## Light and Waves
+## Light and waves
 
 ### Photon energy: E = hf
 
@@ -524,7 +524,7 @@ $force = $rho->mul($volume)->mul($g);
 // 98.07 N (Force)
 ```
 
-### Pressure in Imperial units
+### Pressure in imperial units
 
 100 lbf distributed over 10 in².
 

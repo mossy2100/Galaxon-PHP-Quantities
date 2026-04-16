@@ -27,12 +27,12 @@ class FloatWithError implements Stringable
     /**
      * The numeric value.
      */
-    private(set) float $value;
+    public readonly float $value;
 
     /**
      * The absolute error (uncertainty) in the value.
      */
-    private(set) float $absoluteError;
+    public readonly float $absoluteError;
 
     // endregion
 

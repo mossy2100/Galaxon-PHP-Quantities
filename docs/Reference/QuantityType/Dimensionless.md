@@ -86,7 +86,7 @@ $utilisation = $hoursPerWeek->to('%');  // 23.809523...%
 
 ---
 
-## Arithmetic with Dimensionless Quantities
+## Arithmetic with dimensionless quantities
 
 ```php
 // Percentage calculations

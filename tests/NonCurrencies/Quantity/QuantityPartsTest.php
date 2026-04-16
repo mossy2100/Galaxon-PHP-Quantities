@@ -144,7 +144,7 @@ final class QuantityPartsTest extends TestCase
     }
 
     /**
-     * Test formatParts() with includeSpace: true forces spaces even for special characters.
+     * Test formatParts() with includeSpace: true forces spaces even for non-letters.
      */
     public function testFormatPartsIncludeSpaceTrue(): void
     {
@@ -155,7 +155,7 @@ final class QuantityPartsTest extends TestCase
     }
 
     /**
-     * Test formatParts() with includeSpace: null (auto) omits space for special characters.
+     * Test formatParts() with includeSpace: null (auto) omits space for non-letters.
      */
     public function testFormatPartsIncludeSpaceAutoAngle(): void
     {

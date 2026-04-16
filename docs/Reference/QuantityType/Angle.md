@@ -62,6 +62,12 @@ See [Dimensions and Base Units](../../Concepts/DimensionsAndBaseUnits.md) for mo
 
 ---
 
+## Square degrees, arcminutes, and arcseconds
+
+If you wish to work with square degrees, arcminutes, or arcseconds, use `deg2`, `arcmin2`, or `arcsec2`, respectively, as the unit symbols. The package doesn't currently permit exponents with unit symbols containing non-letter characters.
+
+---
+
 ## Overridden methods
 
 ### approxEqual()

@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\Converter;
+use Galaxon\Quantities\Internal\Prefix;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Quantity;
@@ -192,6 +193,48 @@ final class UnitTest extends TestCase
     }
 
     /**
+     * Test constructor accepts names with Latin diacritics (e.g. currency name Bolívar Soberano).
+     */
+    public function testConstructorAcceptsLatinDiacritics(): void
+    {
+        $unit = new Unit(name: 'Bolívar Soberano', asciiSymbol: 'VES', dimension: 'C');
+
+        $this->assertSame('Bolívar Soberano', $unit->name);
+    }
+
+    /**
+     * Test constructor accepts the right single quotation mark (U+2019), used by Pa’anga (Tonga).
+     */
+    public function testConstructorAcceptsRightSingleQuote(): void
+    {
+        $unit = new Unit(name: "Pa\u{2019}anga", asciiSymbol: 'TOP', dimension: 'C');
+
+        $this->assertSame("Pa\u{2019}anga", $unit->name);
+    }
+
+    /**
+     * Test constructor rejects names with non-Latin letters (e.g. Greek).
+     */
+    public function testConstructorThrowsForNonLatinScriptName(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid unit name');
+
+        new Unit(name: "\u{03BC}icro", asciiSymbol: 'u', dimension: 'L');
+    }
+
+    /**
+     * Test constructor rejects names containing punctuation other than the allowed right single quote.
+     */
+    public function testConstructorThrowsForNameWithPunctuation(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Invalid unit name');
+
+        new Unit(name: 'meter-squared', asciiSymbol: 'm2', dimension: 'L2');
+    }
+
+    /**
      * Test constructor throws for empty systems array.
      */
     public function testConstructorThrowsForEmptySystems(): void
@@ -330,9 +373,9 @@ final class UnitTest extends TestCase
     // region acceptsPrefix() and allowedPrefixes tests
 
     /**
-     * Test acceptsPrefix returns true for valid metric prefix with string.
+     * Test acceptsPrefix returns true for prefixes in the unit's group.
      */
-    public function testAcceptsPrefixReturnsTrueForValidPrefixString(): void
+    public function testAcceptsPrefixReturnsTrueForValidPrefix(): void
     {
         $unit = new Unit(
             name: 'meter',
@@ -342,17 +385,17 @@ final class UnitTest extends TestCase
             prefixGroup: PrefixService::GROUP_METRIC
         );
 
-        $this->assertTrue($unit->acceptsPrefix('k'));
-        $this->assertTrue($unit->acceptsPrefix('m'));
-        $this->assertTrue($unit->acceptsPrefix('c'));
-        $this->assertTrue($unit->acceptsPrefix('M'));
-        $this->assertTrue($unit->acceptsPrefix('G'));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('k')));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('m')));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('c')));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('M')));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('G')));
     }
 
     /**
-     * Test acceptsPrefix returns true for Unicode prefix string.
+     * Test acceptsPrefix returns true for a Unicode-symbol prefix (micro).
      */
-    public function testAcceptsPrefixReturnsTrueForUnicodePrefixString(): void
+    public function testAcceptsPrefixReturnsTrueForUnicodePrefix(): void
     {
         $unit = new Unit(
             name: 'meter',
@@ -362,13 +405,13 @@ final class UnitTest extends TestCase
             prefixGroup: PrefixService::GROUP_METRIC
         );
 
-        $this->assertTrue($unit->acceptsPrefix('μ'));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix("\u{00B5}")));
     }
 
     /**
-     * Test acceptsPrefix returns false for prefix not in unit's group.
+     * Test acceptsPrefix returns false for a prefix outside the unit's group.
      */
-    public function testAcceptsPrefixReturnsFalseForInvalidPrefix(): void
+    public function testAcceptsPrefixReturnsFalseForPrefixOutsideGroup(): void
     {
         $unit = new Unit(
             name: 'meter',
@@ -379,24 +422,7 @@ final class UnitTest extends TestCase
         );
 
         // Binary prefix not in METRIC group.
-        $this->assertFalse($unit->acceptsPrefix('Ki'));
-    }
-
-    /**
-     * Test acceptsPrefix returns false for unknown prefix string.
-     */
-    public function testAcceptsPrefixReturnsFalseForUnknownPrefixString(): void
-    {
-        $unit = new Unit(
-            name: 'meter',
-            asciiSymbol: 'm',
-            dimension: 'L',
-            systems: [UnitSystem::Si],
-            prefixGroup: PrefixService::GROUP_METRIC
-        );
-
-        $this->assertFalse($unit->acceptsPrefix('invalid'));
-        $this->assertFalse($unit->acceptsPrefix('X'));
+        $this->assertFalse($unit->acceptsPrefix(self::prefix('Ki')));
     }
 
     /**
@@ -411,7 +437,7 @@ final class UnitTest extends TestCase
             systems: [UnitSystem::SiAccepted]
         );
 
-        $this->assertFalse($unit->acceptsPrefix('k'));
+        $this->assertFalse($unit->acceptsPrefix(self::prefix('k')));
     }
 
     /**
@@ -691,14 +717,14 @@ final class UnitTest extends TestCase
         $this->assertSame('B', $unit->asciiSymbol);
 
         // Should accept both binary and large metric prefixes.
-        $this->assertTrue($unit->acceptsPrefix('Ki'));
-        $this->assertTrue($unit->acceptsPrefix('Mi'));
-        $this->assertTrue($unit->acceptsPrefix('k'));
-        $this->assertTrue($unit->acceptsPrefix('M'));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('Ki')));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('Mi')));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('k')));
+        $this->assertTrue($unit->acceptsPrefix(self::prefix('M')));
 
         // Should not accept small metric prefixes.
-        $this->assertFalse($unit->acceptsPrefix('m'));
-        $this->assertFalse($unit->acceptsPrefix('c'));
+        $this->assertFalse($unit->acceptsPrefix(self::prefix('m')));
+        $this->assertFalse($unit->acceptsPrefix(self::prefix('c')));
     }
 
     // endregion
@@ -722,9 +748,9 @@ final class UnitTest extends TestCase
     }
 
     /**
-     * Test constructor throws for alternate symbol with non-ASCII characters.
+     * Test constructor throws for invalid alternate symbol.
      */
-    public function testConstructorThrowsForNonAsciiAlternateSymbol(): void
+    public function testConstructorThrowsForInvalidAlternateSymbol(): void
     {
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage('Invalid alternate unit symbol');
@@ -734,7 +760,7 @@ final class UnitTest extends TestCase
             asciiSymbol: 'L',
             dimension: 'L3',
             systems: [UnitSystem::SiAccepted],
-            alternateSymbol: 'ℓ'
+            alternateSymbol: '*'
         );
     }
 
@@ -1128,7 +1154,7 @@ final class UnitTest extends TestCase
     public function testParseThrowsFormatExceptionForInvalidCharacters(): void
     {
         $this->expectException(FormatException::class);
-        $this->expectExceptionMessage('can only contain letters');
+        $this->expectExceptionMessage('Invalid unit symbol format');
 
         Unit::parse('m²');
     }
@@ -1144,31 +1170,100 @@ final class UnitTest extends TestCase
         Unit::parse('xyz');
     }
 
-    // endregion
-
-    // region isValidUnicodeSpecialChar() tests
+    /**
+     * Test parse returns the same cached instance on repeated calls.
+     */
+    public function testParseCachesResult(): void
+    {
+        $this->assertSame(Unit::parse('m'), Unit::parse('m'));
+    }
 
     /**
-     * Test isValidUnicodeSpecialChar() returns true for single Unicode special characters,
-     * and false for letters, multi-character strings, and the empty string.
+     * Test parse does not cache failures — a previously-failed lookup still throws on subsequent calls.
      */
-    public function testIsValidUnicodeSpecialChar(): void
+    public function testParseDoesNotCacheFailures(): void
     {
-        // Single special characters → true.
-        $this->assertTrue(Unit::isValidUnicodeSpecialChar('°'));
-        $this->assertTrue(Unit::isValidUnicodeSpecialChar('%'));
-        $this->assertTrue(Unit::isValidUnicodeSpecialChar('″'));
+        try {
+            Unit::parse('zqx');
+        } catch (UnknownUnitException) {
+            // Expected.
+        }
 
-        // Letters → false.
-        $this->assertFalse(Unit::isValidUnicodeSpecialChar('m'));
-        $this->assertFalse(Unit::isValidUnicodeSpecialChar('A'));
+        $this->expectException(UnknownUnitException::class);
+        Unit::parse('zqx');
+    }
 
-        // Multi-character strings → false (even if they start with a special char).
-        $this->assertFalse(Unit::isValidUnicodeSpecialChar('°C'));
-        $this->assertFalse(Unit::isValidUnicodeSpecialChar('km'));
+    // endregion
+
+    // region isValidLetter() tests
+
+    /**
+     * Test isValidLetter() accepts Latin, Greek, and letter-like compatibility characters; rejects non-letters
+     * and multi-char inputs.
+     */
+    public function testIsValidLetter(): void
+    {
+        // Single letters → true.
+        $this->assertTrue(Unit::isValidLetter('a'));
+        $this->assertTrue(Unit::isValidLetter('A'));
+        $this->assertTrue(Unit::isValidLetter("\u{03BC}"));   // Greek mu
+        $this->assertTrue(Unit::isValidLetter("\u{00B5}"));   // Micro sign
+        $this->assertTrue(Unit::isValidLetter("\u{03A9}"));   // Greek capital omega
+        $this->assertTrue(Unit::isValidLetter("\u{2126}"));   // Ohm sign (letterlike compatibility char)
+
+        // Non-letters → false.
+        $this->assertFalse(Unit::isValidLetter('°'));
+        $this->assertFalse(Unit::isValidLetter('%'));
+        $this->assertFalse(Unit::isValidLetter('1'));
+
+        // Multi-character strings → false.
+        $this->assertFalse(Unit::isValidLetter('km'));
+        $this->assertFalse(Unit::isValidLetter('°C'));
 
         // Empty string → false.
-        $this->assertFalse(Unit::isValidUnicodeSpecialChar(''));
+        $this->assertFalse(Unit::isValidLetter(''));
+    }
+
+    // endregion
+
+    // region isValidNonLetter() tests
+
+    /**
+     * Test isValidNonLetter() returns true for single valid ASCII or Unicode non-letters, and false for letters,
+     * multi-character strings, and the empty string.
+     */
+    public function testIsValidNonLetter(): void
+    {
+        // Single valid non-letters → true.
+        $this->assertTrue(Unit::isValidNonLetter('°'));
+        $this->assertTrue(Unit::isValidNonLetter('%'));
+        $this->assertTrue(Unit::isValidNonLetter('″'));
+
+        // Letters → false.
+        $this->assertFalse(Unit::isValidNonLetter('m'));
+        $this->assertFalse(Unit::isValidNonLetter('A'));
+
+        // Multi-character strings → false (even if they start with a non-letter).
+        $this->assertFalse(Unit::isValidNonLetter('°C'));
+        $this->assertFalse(Unit::isValidNonLetter('km'));
+
+        // Empty string → false.
+        $this->assertFalse(Unit::isValidNonLetter(''));
+    }
+
+    // endregion
+
+    // region Helpers
+
+    /**
+     * Resolve a prefix symbol to a Prefix instance. Asserts the lookup succeeded, so the return type narrows
+     * from ?Prefix to Prefix for the caller.
+     */
+    private static function prefix(string $symbol): Prefix
+    {
+        $prefix = PrefixService::getBySymbol($symbol);
+        self::assertNotNull($prefix, "Prefix '$symbol' not found");
+        return $prefix;
     }
 
     // endregion

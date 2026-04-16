@@ -218,10 +218,10 @@ Get the path to the currency conversions data file.
 
 ## Currency data
 
-### loadUnitData()
+### loadCurrencies()
 
 ```php
-public static function loadUnitData(): ?array
+public static function loadCurrencies(): ?array
 ```
 
 Load the currency unit data from the generated PHP cache file.
@@ -315,7 +315,7 @@ CurrencyService::init(
 CurrencyService::setLocale('de_DE');
 
 // Force a fresh download of exchange rates.
-CurrencyService::refreshConversions(bypassCache: true);
+CurrencyService::getConversions(bypassCache: true);
 
 // Use a custom data directory.
 CurrencyService::setDataDir('/tmp/currency-cache');

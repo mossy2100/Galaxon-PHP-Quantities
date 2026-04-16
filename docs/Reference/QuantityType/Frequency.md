@@ -33,14 +33,14 @@ The `Frequency` class handles measurements with dimension T⁻¹ (inverse time).
 
 ---
 
-## Hertz vs Becquerel
+## Hertz vs becquerel
 
 Both units have the same dimension (s⁻¹) but measure different phenomena:
 
-| Unit | Measures | Example |
-|------|----------|---------|
-| Hertz (Hz) | Periodic events | Sound waves, radio frequencies |
-| Becquerel (Bq) | Radioactive decays | Nuclear decay rate |
+| Unit           | Measures           | Example                        |
+|----------------|--------------------|--------------------------------|
+| hertz (Hz)     | Periodic events    | Sound waves, radio frequencies |
+| becquerel (Bq) | Radioactive decays | Nuclear decay rate             |
 
 The units are dimensionally equivalent but represent different physical concepts:
 
@@ -90,7 +90,7 @@ $period = 1 / $wave->value;  // 0.001 seconds
 
 ---
 
-## Frequency and Period
+## Frequency and period
 
 Frequency and period are inversely related:
 

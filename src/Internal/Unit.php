@@ -25,75 +25,79 @@ class Unit implements UnitInterface
 
     // region Private constants
 
-    private const string RX_ASCII_LETTER = '[a-z]';
-
-    private const string RX_ASCII_WORD = self::RX_ASCII_LETTER . '+';
-
-    private const string RX_ASCII_WORDS = self::RX_ASCII_WORD . '(?: ' . self::RX_ASCII_WORD . '){0,2}';
-
-    private const string RX_ASCII_SPECIAL_CHR = "[!-'?@`]";
-
-    private const string RX_ASCII_SYMBOL = self::RX_ASCII_WORDS . '|' . self::RX_ASCII_SPECIAL_CHR;
-
-    private const string RX_UNICODE_LETTER = '\p{L}';
-
-    private const string RX_TEMPERATURE_SYMBOL = '°[a-z]';
-
-    private const string RX_UNICODE_SYMBOL =
-        self::RX_UNICODE_LETTER . '|' . self::RX_UNICODE_SPECIAL_CHR . '|' . self::RX_TEMPERATURE_SYMBOL;
-
-    // endregion
-
-    // region Public constants
-
-    public const string RX_UNICODE_SPECIAL_CHR = "[!-'?@`′″‰\p{So}\p{Sc}]";
-
-    public const string RX_UNIT = self::RX_ASCII_WORDS . '|' . self::RX_UNICODE_SYMBOL;
-
-    public const string RX_PREFIX = '[a-z]{1,2}|' . self::RX_UNICODE_LETTER;
-
-    // endregion
-
-    // region Public properties
+    /**
+     * Letters that can appear in unit symbols.
+     */
+    public const string RX_ASCII_LETTERS = 'a-z';
+    public const string RX_LETTERS = '\p{L}';
 
     /**
-     * The unit name (e.g. 'meter', 'gram', 'hertz').
+     * Unit symbols (prefixed or not) can be:
+     * - A single word (ASCII or Unicode), e.g. 'km', 'MΩ'.
+     * - A sequence of up to 3 ASCII words, e.g. 'US fl oz'.
      */
-    private(set) string $name;
+    private const string RX_ASCII_WORD = '[' . self::RX_ASCII_LETTERS . ']{1,7}';
+    public const string RX_ASCII_WORDS = self::RX_ASCII_WORD . '(?: ' . self::RX_ASCII_WORD . '){0,2}';
+    public const string RX_WORD = '[' . self::RX_LETTERS . ']{1,7}';
+
+    /**
+     * Non-letters that can be used as unit symbols. These cannot be combined with prefixes.
+     */
+    public const string RX_ASCII_NON_LETTERS = '\'"%$#';
+    public const string RX_NON_ASCII_NON_LETTERS = '°′″‰\p{Sc}\p{So}';
+    public const string RX_NON_LETTERS = self::RX_ASCII_NON_LETTERS . self::RX_NON_ASCII_NON_LETTERS;
+
+    /**
+     * A unique symbol format used by temperature units. These also cannot be combined with prefixes.
+     */
+    public const string RX_TEMPERATURE_SYMBOL = '°[A-Z]';
+
+    // endregion
+
+    // region UnitInterface properties
 
     /**
      * The ASCII unit symbol (e.g. 'm', 'g', 'Hz').
      * This symbol is mainly for parsing from code and must be ASCII.
      */
-    private(set) string $asciiSymbol;
+    public readonly string $asciiSymbol;
 
     /**
      * The Unicode symbol (e.g. 'Ω' for ohm, '°' for degree).
      * This symbol is mainly for display and can contain Unicode characters.
      */
-    private(set) string $unicodeSymbol;
-
-    /**
-     * An additional symbol that will be accepted by the parser. It cannot accept prefixes.
-     */
-    private(set) ?string $alternateSymbol = null;
+    public readonly string $unicodeSymbol;
 
     /**
      * The dimension code (e.g. 'L', 'M', 'T-1').
      */
-    private(set) string $dimension;
+    public readonly string $dimension;
+
+    // endregion
+
+    // region Properties
+
+    /**
+     * The unit name (e.g. 'meter', 'gram', 'hertz').
+     */
+    public readonly string $name;
+
+    /**
+     * An additional symbol that will be accepted by the parser. It cannot accept prefixes.
+     */
+    public readonly ?string $alternateSymbol;
 
     /**
      * Bitwise flags indicating which prefixes are allowed (0 if none).
      */
-    private(set) int $prefixGroup;
+    public readonly int $prefixGroup;
 
     /**
      * The measurement systems this unit belongs to.
      *
      * @var list<UnitSystem>
      */
-    private(set) array $systems;
+    public readonly array $systems;
 
     // endregion
 
@@ -113,8 +117,8 @@ class Unit implements UnitInterface
      *
      * @var list<Prefix>
      */
-    public array $allowedPrefixes {
-        get => PrefixService::getPrefixes($this->prefixGroup);
+    private(set) ?array $allowedPrefixes = null {
+        get => $this->allowedPrefixes ??= PrefixService::getPrefixes($this->prefixGroup);
     }
 
     /**
@@ -125,63 +129,22 @@ class Unit implements UnitInterface
      *
      * Cached on first access.
      *
-     * @var array<string, array{string, ?string}>
+     * @var ?array<string, array{string, ?string}>
      */
-    private(set) array $symbols = [] {
-        get {
-            // Return cached result if available.
-            if ($this->symbols !== []) {
-                return $this->symbols;
-            }
-
-            // Initialize result array.
-            $symbols = [];
-
-            // Add ASCII symbol.
-            self::addSymbol($symbols, $this->asciiSymbol);
-
-            // Add the Unicode symbol, if different.
-            if ($this->unicodeSymbol !== $this->asciiSymbol) {
-                self::addSymbol($symbols, $this->unicodeSymbol);
-            }
-
-            // Add alternate symbol, if set and different.
-            if (
-                $this->alternateSymbol !== null &&
-                $this->alternateSymbol !== $this->asciiSymbol &&
-                $this->alternateSymbol !== $this->unicodeSymbol
-            ) {
-                self::addSymbol($symbols, $this->alternateSymbol);
-            }
-
-            // Add prefixed symbols.
-            $prefixes = $this->allowedPrefixes;
-            foreach ($prefixes as $prefix) {
-                // Add prefixed ASCII symbols.
-                self::addSymbol($symbols, $this->asciiSymbol, $prefix->asciiSymbol);
-                if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
-                    self::addSymbol($symbols, $this->asciiSymbol, $prefix->unicodeSymbol);
-                }
-
-                // Add prefixed Unicode symbols, if different.
-                if ($this->unicodeSymbol !== $this->asciiSymbol) {
-                    self::addSymbol($symbols, $this->unicodeSymbol, $prefix->asciiSymbol);
-                    if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
-                        self::addSymbol($symbols, $this->unicodeSymbol, $prefix->unicodeSymbol);
-                    }
-                }
-            }
-
-            $this->symbols = $symbols;
-            return $symbols;
-        }
+    private(set) ?array $symbols = null {
+        get => $this->symbols ??= $this->generateSymbols();
     }
 
     /**
      * The quantity type this unit is for, if known.
      */
-    public ?QuantityType $quantityType {
-        get => QuantityTypeService::getByDimension($this->dimension);
+    private(set) false|null|QuantityType $quantityType = false {
+        get {
+            if ($this->quantityType === false) {
+                $this->quantityType = QuantityTypeService::getByDimension($this->dimension);
+            }
+            return $this->quantityType;
+        }
     }
 
     // endregion
@@ -213,7 +176,7 @@ class Unit implements UnitInterface
     ) {
         // Check the name is non-empty, ASCII, and up to 3 words.
         $name = trim($name);
-        if (!self::isValidUnitName($name)) {
+        if (!self::isValidName($name)) {
             throw new FormatException("Invalid unit name: '$name'.");
         }
 
@@ -241,12 +204,12 @@ class Unit implements UnitInterface
         }
 
         // Validate Unicode symbol.
-        if (isset($unicodeSymbol) && !self::isValidUnicodeSymbol($unicodeSymbol)) {
+        if ($unicodeSymbol !== null && !self::isValidUnicodeSymbol($unicodeSymbol)) {
             throw new FormatException("Invalid Unicode unit symbol: '$unicodeSymbol'.");
         }
 
         // Check if the alternate symbol contains a single ASCII non-letter symbol only.
-        if (isset($alternateSymbol) && !self::isValidAlternateSymbol($alternateSymbol)) {
+        if ($alternateSymbol !== null && !self::isValidAlternateSymbol($alternateSymbol)) {
             throw new FormatException("Invalid alternate unit symbol: '$alternateSymbol'.");
         }
 
@@ -265,7 +228,9 @@ class Unit implements UnitInterface
     // region Factory methods
 
     /**
-     * Parse a unit symbol and return the matching Unit.
+     * Parse the given symbol to return the matching Unit.
+     *
+     * Results are cached for efficiency.
      *
      * @param string $symbol The unit symbol to parse (e.g. 'm', 'kg', 'Hz').
      * @return self The matching Unit.
@@ -282,11 +247,8 @@ class Unit implements UnitInterface
         }
 
         // Validate the symbol format.
-        if (!self::isValidUnitSymbol($symbol)) {
-            throw new FormatException(
-                "Unit symbol '$symbol' can only be an empty string or contain letters and special " .
-                "characters (e.g. °′″'\")."
-            );
+        if (!self::isValidSymbol($symbol)) {
+            throw new FormatException("Invalid unit symbol format: '$symbol'.");
         }
 
         // Get the unit from the registry.
@@ -342,16 +304,11 @@ class Unit implements UnitInterface
     /**
      * Check if a specific prefix is allowed for this unit.
      *
-     * @param string|Prefix $prefix The prefix to check.
+     * @param Prefix $prefix The prefix to check.
      * @return bool True if the prefix is allowed.
      */
-    public function acceptsPrefix(string|Prefix $prefix): bool
+    public function acceptsPrefix(Prefix $prefix): bool
     {
-        // Convert the prefix to a Prefix object if needed.
-        if (is_string($prefix)) {
-            $prefix = PrefixService::getBySymbol($prefix);
-        }
-
         return array_any($this->allowedPrefixes, static fn (Prefix $allowedPrefix) => $allowedPrefix->equal($prefix));
     }
 
@@ -368,7 +325,7 @@ class Unit implements UnitInterface
     #[Override]
     public function equal(mixed $other): bool
     {
-        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
+        return $other instanceof self && $this->name === $other->name;
     }
 
     // endregion
@@ -412,53 +369,50 @@ class Unit implements UnitInterface
      * @param string $name The string to check.
      * @return bool True if the string is a valid unit name.
      */
-    private static function isValidUnitName(string $name): bool
+    private static function isValidName(string $name): bool
     {
-        return $name !== '' && preg_match('/^[\p{L}\p{P} ]+$/iu', $name);
+        // Allow letters (including Latin variants), spaces, and the right single quotation mark used by "Pa’anga"
+        // (currency of Tonga).
+        return $name !== '' && preg_match('/^[\p{Latin}’ ]+$/iu', $name);
     }
 
     /**
-     * Check if a string is a valid ASCII unit symbol.
+     * Check if a string is a valid ASCII unit symbol (unprefixed).
      *
      * @param string $symbol The string to check.
      * @return bool True if the string is a valid ASCII unit symbol.
      */
     private static function isValidAsciiSymbol(string $symbol): bool
     {
-        return (bool)preg_match('/^(' . self::RX_ASCII_SYMBOL . ')$/i', $symbol);
+        return (bool)preg_match(
+            '/^(?:(?:' . self::RX_ASCII_WORDS . ')|[' . self::RX_ASCII_NON_LETTERS . '])$/i',
+            $symbol
+        );
     }
 
     /**
-     * Check if a string is a valid Unicode unit symbol.
+     * Check if a string is a valid Unicode unit symbol (unprefixed).
      *
      * @param string $symbol The string to check.
      * @return bool True if the string is a valid Unicode unit symbol.
      */
     private static function isValidUnicodeSymbol(string $symbol): bool
     {
-        return (bool)preg_match('/^(' . self::RX_UNICODE_SYMBOL . ')$/iu', $symbol);
+        return (bool)preg_match(
+            '/^(?:[' . self::RX_LETTERS . self::RX_NON_LETTERS . ']|(?:' . self::RX_TEMPERATURE_SYMBOL . '))$/u',
+            $symbol
+        );
     }
 
     /**
-     * Check if a string is a Unicode special character (used for formatting decisions).
-     *
-     * @param string $symbol The string to check.
-     * @return bool True if the string is a single Unicode special character.
-     */
-    public static function isValidUnicodeSpecialChar(string $symbol): bool
-    {
-        return (bool)preg_match('/^' . self::RX_UNICODE_SPECIAL_CHR . '$/iu', $symbol);
-    }
-
-    /**
-     * Check if a string is a single ASCII character valid for use as an alternate unit symbol.
+     * Check if a string is a single character valid for use as an alternate unit symbol.
      *
      * @param string $symbol The string to check.
      * @return bool True if the string is a valid alternate unit symbol.
      */
     private static function isValidAlternateSymbol(string $symbol): bool
     {
-        return (bool)preg_match('/^(' . self::RX_ASCII_LETTER . '|' . self::RX_ASCII_SPECIAL_CHR . ')$/i', $symbol);
+        return (bool)preg_match('/^[' . self::RX_LETTERS . self::RX_NON_LETTERS . ']$/u', $symbol);
     }
 
     /**
@@ -467,10 +421,48 @@ class Unit implements UnitInterface
      * @param string $symbol The string to check.
      * @return bool True if the string is a valid unit symbol.
      */
-    public static function isValidUnitSymbol(string $symbol): bool
+    private static function isValidSymbol(string $symbol): bool
     {
-        return $symbol === '' || self::isValidAsciiSymbol($symbol) || self::isValidUnicodeSymbol($symbol)
+        return $symbol === ''
+            || self::isValidAsciiSymbol($symbol)
+            || self::isValidUnicodeSymbol($symbol)
             || self::isValidAlternateSymbol($symbol);
+    }
+
+    /**
+     * Check if a string is a valid ASCII or Unicode letter.
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a single letter.
+     * @internal
+     */
+    public static function isValidLetter(string $symbol): bool
+    {
+        return (bool)preg_match('/^[' . self::RX_LETTERS . ']$/u', $symbol);
+    }
+
+    /**
+     * Check if a string is a valid ASCII or Unicode non-letter. This is used for formatting decisions.
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a single non-letter.
+     * @internal
+     */
+    public static function isValidNonLetter(string $symbol): bool
+    {
+        return (bool)preg_match('/^[' . self::RX_NON_LETTERS . ']$/u', $symbol);
+    }
+
+    /**
+     * Check if a string is a valid ASCII or Unicode word (max 7 letters).
+     *
+     * @param string $symbol The string to check.
+     * @return bool True if the string is a word.
+     * @internal
+     */
+    public static function isValidWord(string $symbol): bool
+    {
+        return (bool)preg_match('/^' . self::RX_WORD . '$/u', $symbol);
     }
 
     // endregion
@@ -540,15 +532,91 @@ class Unit implements UnitInterface
     }
 
     /**
-     * Helper method to add a symbol to the unit's symbol list.
+     * Helper method to add one symbol variant to the unit's symbol list.
+     *
+     * If $prefix is null, the unit symbol is added as-is, keyed by itself.
+     * If $prefix is non-null, the prefix symbol is added only if the unit is dimensionless and the unit symbol contains
+     * only letters. Unit symbols containing non-letter characters (e.g. '°C', '"') are silently skipped, since prefixes
+     * can't meaningfully combine with them.
      *
      * @param array<string, array{string, ?string}> &$symbols The array to add the symbol to.
-     * @param string $symbol The symbol to add.
-     * @param string|null $prefix The prefix for the symbol, if any.
+     * @param string $symbol The unit symbol to add.
+     * @param ?string $prefix The prefix to apply to the symbol, or null for the unprefixed variant.
      */
-    private static function addSymbol(array &$symbols, string $symbol, ?string $prefix = null): void
+    private function addSymbol(array &$symbols, string $symbol, ?string $prefix = null): void
     {
-        $symbols[$prefix . $symbol] = [$symbol, $prefix];
+        if ($prefix === null) {
+            // Add the symbol with no prefix.
+            $symbols[$symbol] = [$symbol, null];
+        } elseif ($this->dimension !== '' && self::isValidWord($symbol)) {
+            // Add the symbol with a prefix only if the unit is not dimensionless and the symbol contains letters only.
+            $symbols[$prefix . $symbol] = [$symbol, $prefix];
+        }
+    }
+
+    /**
+     * Helper method to add a unit symbol and all its prefixed variants to the unit's symbol list.
+     *
+     * Adds the unprefixed form, then one entry per supplied prefix × (ASCII, Unicode, alternate) combination.
+     * Prefixed variants are skipped for dimensionless units and symbols that contain non-letters.
+     *
+     * @param array<string, array{string, ?string}> &$symbols The array to add symbols to.
+     * @param string $unitSymbol The unit symbol to add (prefixed variants will be derived from this).
+     * @param list<Prefix> $prefixes The prefixes to combine with the unit symbol.
+     */
+    private function addSymbols(array &$symbols, string $unitSymbol, array $prefixes): void
+    {
+        // Add unprefixed symbol.
+        $this->addSymbol($symbols, $unitSymbol);
+
+        // Add prefixed symbols.
+        foreach ($prefixes as $prefix) {
+            // Add symbol with ASCII prefix.
+            $this->addSymbol($symbols, $unitSymbol, $prefix->asciiSymbol);
+
+            // Add symbol with Unicode prefix, if different to the ASCII symbol.
+            if ($prefix->unicodeSymbol !== $prefix->asciiSymbol) {
+                $this->addSymbol($symbols, $unitSymbol, $prefix->unicodeSymbol);
+            }
+
+            // Add symbol with alternate prefix, if set.
+            if ($prefix->alternateSymbol !== null) {
+                $this->addSymbol($symbols, $unitSymbol, $prefix->alternateSymbol);
+            }
+        }
+    }
+
+    /**
+     * Generate the symbol variants for this unit, including prefixed forms.
+     *
+     * Produces an entry for the unprefixed ASCII symbol, for the Unicode symbol (if distinct from the ASCII one),
+     * and for the alternate symbol (if set). Each is combined with every allowed prefix via addSymbols().
+     *
+     * @return array<string, array{string, ?string}> Keyed by the full symbol, values are [unitSymbol, prefixSymbol]
+     * tuples where prefixSymbol is null for unprefixed variants.
+     */
+    private function generateSymbols(): array
+    {
+        // Initialize result array.
+        $symbols = [];
+
+        // Get the allowed prefixes for this unit.
+        $prefixes = $this->allowedPrefixes;
+
+        // Add the unprefixed and prefixed ASCII symbol.
+        $this->addSymbols($symbols, $this->asciiSymbol, $prefixes);
+
+        // Add unprefixed and prefixed Unicode symbol, if different to the ASCII symbol.
+        if ($this->unicodeSymbol !== $this->asciiSymbol) {
+            $this->addSymbols($symbols, $this->unicodeSymbol, $prefixes);
+        }
+
+        // Add unprefixed and prefixed alternate symbol, if set.
+        if ($this->alternateSymbol !== null) {
+            $this->addSymbols($symbols, $this->alternateSymbol, $prefixes);
+        }
+
+        return $symbols;
     }
 
     // endregion

@@ -84,7 +84,7 @@ $binding = new Energy(8.8, 'MeV');  // Per nucleon
 
 ---
 
-## Energy-Related Quantities
+## Energy-related quantities
 
 Energy is related to other quantities:
 

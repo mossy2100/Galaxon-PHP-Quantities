@@ -36,7 +36,7 @@ Data units support both large metric prefixes (*kilo* and above), and binary (IE
 
 ---
 
-## Bits vs Bytes
+## Bits vs bytes
 
 ```php
 // 1 byte = 8 bits

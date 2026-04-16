@@ -21,30 +21,37 @@ class Prefix
     /**
      * The prefix name (e.g. 'milli', 'kilo').
      */
-    private(set) string $name;
-
-    /**
-     * The ASCII unit symbol (e.g. 'm', 'k', 'M').
-     * This symbol is mainly for parsing from code and must be ASCII.
-     */
-    private(set) string $asciiSymbol;
-
-    /**
-     * The Unicode symbol (e.g. 'µ' for micro).
-     * This symbol is mainly for display and can contain Unicode characters.
-     */
-    private(set) string $unicodeSymbol;
+    public readonly string $name;
 
     /**
      * The multiplier for the prefix (e.g. 0.001 for milli, 1000 for kilo).
      */
-    private(set) float $multiplier;
+    public readonly float $multiplier;
 
     /**
      * The group code for the prefix (see PrefixService::GROUP_* constants).
      * This will only be one of the base groups and will therefore be a power of 2 (i.e. 1, 2, 4, or 8).
      */
-    private(set) int $groupCode;
+    public readonly int $groupCode;
+
+    /**
+     * The ASCII unit symbol (e.g. 'm', 'k', 'M').
+     * This symbol is recognized by parse() and will be used by format() if no Unicode symbol is set.
+     */
+    public readonly string $asciiSymbol;
+
+    /**
+     * A non-ASCII symbol (e.g. 'µ' for micro).
+     * This symbol is recognized by parse() and used by format(). It can contain Unicode characters.
+     * If no value is provided, this property will match the ASCII symbol.
+     */
+    public readonly string $unicodeSymbol;
+
+    /**
+     * An additional symbol supported by the parser.
+     * This symbol is recognized by parse() but not used by format(). It can contain Unicode characters.
+     */
+    public readonly ?string $alternateSymbol;
 
     // endregion
 
@@ -54,28 +61,40 @@ class Prefix
      * Constructor.
      *
      * @param string $name The prefix name.
-     * @param string $asciiSymbol The ASCII symbol.
-     * @param ?string $unicodeSymbol The Unicode symbol, or null to use the ASCII symbol.
      * @param float $multiplier The multiplier.
      * @param int $groupCode The group code (see PrefixService::GROUP_* constants).
-     * @throws FormatException If the ASCII or Unicode symbols are invalid.
+     * @param string $asciiSymbol The ASCII symbol.
+     * @param ?string $unicodeSymbol The Unicode symbol, or null to use the ASCII symbol.
+     * @param ?string $alternateSymbol The alternate symbol, or null for none.
+     * @throws FormatException If any symbols are invalid.
      * @throws DomainException If the multiplier is invalid.
      */
     public function __construct(
         string $name,
-        string $asciiSymbol,
-        ?string $unicodeSymbol,
         float $multiplier,
-        int $groupCode
+        int $groupCode,
+        string $asciiSymbol,
+        ?string $unicodeSymbol = null,
+        ?string $alternateSymbol = null
     ) {
-        // Validate the ASCII symbol. Max two ASCII letters.
+        // Validate the name.
+        if (!self::isValidName($name)) {
+            throw new FormatException("Invalid prefix name: '$name'.");
+        }
+
+        // Validate the ASCII symbol.
         if (!self::isValidAsciiPrefix($asciiSymbol)) {
             throw new FormatException("Invalid ASCII prefix symbol: '$asciiSymbol'.");
         }
 
-        // Validate the Unicode symbol. Max one Unicode letter.
-        if ($unicodeSymbol !== null && !self::isValidUnicodePrefix($unicodeSymbol)) {
+        // Validate the Unicode symbol.
+        if ($unicodeSymbol !== null && !Unit::isValidLetter($unicodeSymbol)) {
             throw new FormatException("Invalid Unicode prefix symbol: '$unicodeSymbol'.");
+        }
+
+        // Validate the alternate symbol. Same constraints as for the Unicode prefix.
+        if ($alternateSymbol !== null && !Unit::isValidLetter($alternateSymbol)) {
+            throw new FormatException("Invalid alternate prefix symbol: '$alternateSymbol'.");
         }
 
         // Validate multiplier.
@@ -99,6 +118,7 @@ class Prefix
         $this->name = $name;
         $this->asciiSymbol = $asciiSymbol;
         $this->unicodeSymbol = $unicodeSymbol ?? $asciiSymbol;
+        $this->alternateSymbol = $alternateSymbol;
         $this->multiplier = $multiplier;
         $this->groupCode = $groupCode;
     }
@@ -111,11 +131,11 @@ class Prefix
      * Check if this prefix is equal to another.
      *
      * @param mixed $other The other value to compare.
-     * @return bool True if the prefixes have the same ASCII symbol.
+     * @return bool True if the prefixes have the same name.
      */
     public function equal(mixed $other): bool
     {
-        return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
+        return $other instanceof self && $this->name === $other->name;
     }
 
     // endregion
@@ -164,6 +184,17 @@ class Prefix
     // region Validation methods
 
     /**
+     * Check if a string is a valid prefix name, which is a string of 3-6 lower-case ASCII letters.
+     *
+     * @param string $name
+     * @return bool
+     */
+    private static function isValidName(string $name): bool
+    {
+        return (bool)preg_match('/^[' . Unit::RX_ASCII_LETTERS . ']{3,6}$/', $name);
+    }
+
+    /**
      * Check if a string is a valid ASCII prefix symbol (1-2 ASCII letters).
      *
      * @param string $symbol The string to check.
@@ -171,18 +202,7 @@ class Prefix
      */
     private static function isValidAsciiPrefix(string $symbol): bool
     {
-        return (bool)preg_match('/^[a-z]{1,2}$/i', $symbol);
-    }
-
-    /**
-     * Check if a string is a valid Unicode prefix symbol (1 Unicode letter).
-     *
-     * @param string $symbol The string to check.
-     * @return bool True if the string is a valid Unicode prefix symbol.
-     */
-    private static function isValidUnicodePrefix(string $symbol): bool
-    {
-        return (bool)preg_match('/^\p{L}$/iu', $symbol);
+        return (bool)preg_match('/^[' . Unit::RX_ASCII_LETTERS . ']{1,2}$/i', $symbol);
     }
 
     // endregion

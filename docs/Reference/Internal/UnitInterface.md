@@ -12,7 +12,7 @@ Extends `Stringable`, so all implementing classes can be cast to string.
 
 The interface defines:
 - `$asciiSymbol` — ASCII representation of the unit symbol.
-- `$unicodeSymbol` — Unicode representation with proper superscripts and special characters.
+- `$unicodeSymbol` — Unicode representation with proper superscripts and non-letters.
 - `$dimension` — The dimensional code (e.g., `'L'` for length, `'M'` for mass).
 - `parse()` — Static method to create an instance from a string.
 - `format()` — Instance method to format the unit as a string.
@@ -35,7 +35,7 @@ The ASCII representation of the unit symbol. Uses only ASCII characters, with ex
 public string $unicodeSymbol { get; }
 ```
 
-The Unicode representation of the unit symbol. May include special characters like superscript digits (e.g., `'m²'`), Greek letters (e.g., `'Ω'` for ohm), and the middle dot operator (e.g., `'kg⋅m/s²'`).
+The Unicode representation of the unit symbol. May include non-ASCII characters like superscript digits (e.g., `'m²'`), Greek letters (e.g., `'Ω'` for ohm), and the middle dot operator (e.g., `'kg⋅m/s²'`).
 
 ### dimension
 

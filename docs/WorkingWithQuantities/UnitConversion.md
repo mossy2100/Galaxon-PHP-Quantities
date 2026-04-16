@@ -17,7 +17,7 @@ $miles = $meters->to('mi'); // 0.621371 mi
 
 ---
 
-## SI to Imperial/US
+## SI to imperial/US
 
 ```php
 use Galaxon\Quantities\QuantityType\Length;
@@ -36,7 +36,7 @@ echo $weight->to('st');   // 11.023113... st
 
 ---
 
-## Base and Derived Units
+## Base and derived units
 
 Derived units like *newtons*, *joules*, and *watts* are shorthand for combinations of base units. You can convert to base units with `toBase()`, or substitute derived units for base-unit combinations with `toDerived()`.
 
@@ -59,7 +59,7 @@ echo $lbf->toBase();  // 32.174049... lb*ft/s2
 
 ---
 
-## Auto-Prefixing
+## Auto-prefixing
 
 The `autoPrefix()` method selects the best engineering SI prefix (*kilo*, *mega*, *milli*, etc.) to keep the numeric value readable:
 

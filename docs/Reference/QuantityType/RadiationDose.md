@@ -33,14 +33,14 @@ The `RadiationDose` class handles radiation dose measurements using the *gray* (
 
 ---
 
-## Gray vs Sievert
+## Gray vs sievert
 
 Both units have the same dimension (L²·T⁻² = m²/s² = J/kg) but measure different aspects of radiation:
 
-| Unit | Measures | Description |
-|------|----------|-------------|
-| Gray (Gy) | Absorbed dose | Energy deposited per unit mass |
-| Sievert (Sv) | Equivalent dose | Biological effect of radiation |
+| Unit         | Measures        | Description                    |
+|--------------|-----------------|--------------------------------|
+| gray (Gy)    | Absorbed dose   | Energy deposited per unit mass |
+| sievert (Sv) | Equivalent dose | Biological effect of radiation |
 
 The *sievert* accounts for the relative biological effectiveness (RBE) of different radiation types:
 

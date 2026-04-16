@@ -18,7 +18,7 @@ This decomposition allows for:
 
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality.
 
-### Key Features
+### Key features
 
 - Automatic symbol lookup and validation
 - Both ASCII and Unicode symbol formatting
@@ -363,7 +363,7 @@ Convert to string using Unicode format.
 
 ## Usage examples
 
-### Building Compound Units
+### Building compound units
 
 ```php
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -382,7 +382,7 @@ $acceleration = new CompoundUnit([$meter, $perSecondSquared]);
 echo $acceleration->asciiSymbol; // 'm/s2'
 ```
 
-### Working with Prefixes
+### Working with prefixes
 
 ```php
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -401,7 +401,7 @@ $m2 = $km2->removePrefix();
 echo $m2->asciiSymbol; // 'm2'
 ```
 
-### Parsing and Validation
+### Parsing and validation
 
 ```php
 use Galaxon\Quantities\Internal\UnitTerm;

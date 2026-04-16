@@ -24,10 +24,11 @@ class Resistance extends Quantity
     {
         return [
             'ohm' => [
-                'asciiSymbol'   => 'ohm',
-                'unicodeSymbol' => 'Ω',
-                'prefixGroup'   => PrefixService::GROUP_METRIC,
-                'systems'       => [UnitSystem::Si],
+                'asciiSymbol'     => 'ohm',
+                'unicodeSymbol'   => 'Ω', // U+03A9, Greek upper-case omega
+                'alternateSymbol' => 'Ω', // U+2126, Ohm symbol
+                'prefixGroup'     => PrefixService::GROUP_METRIC,
+                'systems'         => [UnitSystem::Si],
             ],
         ];
     }

@@ -28,17 +28,17 @@ class Conversion implements Stringable
     /**
      * The source unit.
      */
-    private(set) CompoundUnit $srcUnit;
+    public readonly CompoundUnit $srcUnit;
 
     /**
      * The destination unit.
      */
-    private(set) CompoundUnit $destUnit;
+    public readonly CompoundUnit $destUnit;
 
     /**
      * The scale factor.
      */
-    private(set) FloatWithError $factor;
+    public readonly FloatWithError $factor;
 
     // endregion
 

@@ -18,7 +18,7 @@ The class includes:
 - Thermodynamic constants (molar gas constant, Stefan-Boltzmann constant)
 - Derived constants (reduced Planck constant)
 
-### Key Features
+### Key features
 
 - Type-safe access to physical constants
 - Lazy instantiation with caching
@@ -27,7 +27,7 @@ The class includes:
 
 ---
 
-## SI Defining Constants
+## SI defining constants
 
 ### caesiumFrequency()
 
@@ -160,7 +160,7 @@ The vacuum magnetic permeability (μ₀).
 
 ---
 
-## Atomic and Nuclear Constants
+## Atomic and nuclear constants
 
 ### electronMass()
 
@@ -322,7 +322,7 @@ foreach ($all as $symbol => $quantity) {
 
 ## Usage examples
 
-### Using Constants in Calculations
+### Using constants in calculations
 
 ```php
 use Galaxon\Quantities\PhysicalConstant;

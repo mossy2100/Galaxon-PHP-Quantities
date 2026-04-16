@@ -107,7 +107,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorThrowsForExponentZero(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot have a zero exponent');
+        $this->expectExceptionMessage('Cannot have an exponent of 0');
 
         new UnitTerm('m', null, 0);
     }
@@ -519,14 +519,25 @@ final class UnitTermTest extends TestCase
     }
 
     /**
-     * Test parse throws for exponent of zero.
+     * Test parse throws for exponent of zero (rejected by the constructor).
      */
     public function testParseThrowsForExponentZero(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot have a zero exponent');
+        $this->expectExceptionMessage('Cannot have an exponent of 0');
 
         UnitTerm::parse('m0');
+    }
+
+    /**
+     * Test parse throws for an explicit exponent of 1 — write 'm' instead of 'm1'.
+     */
+    public function testParseThrowsForExponentOne(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Cannot have an exponent of 1');
+
+        UnitTerm::parse('m1');
     }
 
     // endregion

@@ -12,7 +12,7 @@ The `Quantity` class provides a framework for creating strongly typed measuremen
 
 Quantities are immutable value objects combining a numeric value with a unit. All arithmetic and transformation operations return new instances.
 
-### Key Features
+### Key features
 
 - Automatic validation of units and values
 - Type-safe arithmetic operations (add, subtract, multiply, divide)

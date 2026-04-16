@@ -61,10 +61,6 @@ class Temperature extends Quantity
     #[Override]
     public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
     {
-        // Get the original arguments as strings in case of exception.
-        $srcSymbol = (string)$srcUnit;
-        $destSymbol = (string)$destUnit;
-
         // Get the units as CompoundUnit objects. These calls could throw exceptions.
         $srcUnit = CompoundUnit::toCompoundUnit($srcUnit);
         $destUnit = CompoundUnit::toCompoundUnit($destUnit);
@@ -170,14 +166,16 @@ class Temperature extends Quantity
                 'systems'     => [UnitSystem::Si],
             ],
             'celsius'    => [
-                'asciiSymbol'   => 'degC',
-                'unicodeSymbol' => '°C',
-                'systems'       => [UnitSystem::Si],
+                'asciiSymbol'     => 'degC',
+                'unicodeSymbol'   => '°C',
+                'alternateSymbol' => '℃',
+                'systems'         => [UnitSystem::Si],
             ],
             'fahrenheit' => [
-                'asciiSymbol'   => 'degF',
-                'unicodeSymbol' => '°F',
-                'systems'       => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'asciiSymbol'     => 'degF',
+                'unicodeSymbol'   => '°F',
+                'alternateSymbol' => '℉',
+                'systems'         => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',

@@ -100,7 +100,7 @@ The conversion process:
 2. **Convert between systems** - Multiply/divide by 1.8 if crossing SI/Imperial boundary
 3. **Convert to destination** - Apply offset if ending in Celsius or Fahrenheit
 
-### Important Notes
+### Important notes
 
 - **Offsets only apply to absolute temperatures** — When converting compound units like `J/°C` to `J/K`, only the scale factor applies, not the offset. This is physically correct because such quantities represent rates of change, not absolute temperatures:
 

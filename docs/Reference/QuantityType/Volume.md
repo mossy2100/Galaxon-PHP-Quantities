@@ -63,7 +63,7 @@ The `Volume` class handles volume measurements including liters and Imperial/US 
 
 ---
 
-## Imperial vs US Customary
+## Imperial vs US customary
 
 Several volume units share the same name but represent different amounts in the imperial and US customary systems. These are disambiguated with system prefixes (`imp` or `US`):
 
@@ -124,27 +124,6 @@ $inMl = $cc->to('mL');  // 500 mL
 // Cubic inches
 $engine = new Volume(350, 'in3');
 $inLitres = $engine->to('L');  // 5.735 L
-```
-
----
-
-## Parts
-
-Volume has no built-in part unit list because the choice between Imperial and US Customary units depends on context. The `Volume` class exposes both common lists as constants — pass either to a parts method via `partUnitSymbols`:
-
-```php
-use Galaxon\Quantities\QuantityType\Volume;
-
-Volume::IMP_PART_UNITS;  // ['imp gal', 'imp qt', 'imp pt', 'imp fl oz']
-Volume::US_PART_UNITS;   // ['US gal', 'US qt', 'US pt', 'US cup', 'US fl oz']
-
-$beer = new Volume(5.5, 'imp pt');
-echo $beer->formatParts(partUnitSymbols: Volume::IMP_PART_UNITS);
-// 2 imp qt 1 imp pt 10 imp fl oz
-
-$milk = new Volume(1.5, 'US gal');
-echo $milk->formatParts(partUnitSymbols: Volume::US_PART_UNITS);
-// 1 US gal 2 US qt
 ```
 
 ---

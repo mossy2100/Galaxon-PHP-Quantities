@@ -243,7 +243,7 @@ The unit and conversion definitions will be picked up automatically when the rel
 
 ---
 
-## Built-in Examples
+## Built-in examples
 
 The built-in quantity type classes demonstrate various patterns for extending the base `Quantity` class:
 

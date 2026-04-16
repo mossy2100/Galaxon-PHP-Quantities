@@ -36,7 +36,7 @@ The unit name (e.g., `'meter'`, `'gram'`, `'hertz'`).
 private(set) string $asciiSymbol
 ```
 
-The ASCII unit symbol (e.g., `'m'`, `'g'`, `'Hz'`). Used for parsing and code compatibility.
+The ASCII unit symbol (e.g., `'m'`, `'g'`, `'Hz'`). Used for parsing and code compatibility. Multiple words are permitted, separated by single spaces (e.g., `US fl oz`).
 
 ### unicodeSymbol
 
@@ -52,7 +52,7 @@ The Unicode symbol (e.g., `'Ω'` for ohm, `'°'` for degree). Used for display p
 private(set) ?string $alternateSymbol
 ```
 
-An additional symbol accepted by the parser. This can only be a single ASCII letter or special character, and cannot accept prefixes. Examples: `'` for arcminutes (alternate to the prime symbol `′`) and `"` for arcseconds (alternate to the double-prime symbol `″`). Not used for output. Default: `null`.
+An additional symbol accepted by the parser. This can only be a single ASCII letter or non-letter, and cannot accept prefixes. Examples: `'` for arcminutes (alternate to the prime symbol `′`) and `"` for arcseconds (alternate to the double-prime symbol `″`). Not used for output. Default: `null`.
 
 ### dimension
 
@@ -297,7 +297,7 @@ echo $unit->asciiSymbol; // 'N'
 echo $unit->dimension;   // 'MLT-2'
 ```
 
-### Working with Prefixes
+### Working with prefixes
 
 ```php
 use Galaxon\Quantities\Services\UnitService;
