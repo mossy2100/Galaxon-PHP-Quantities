@@ -36,7 +36,15 @@ The ASCII symbol for the prefix (e.g., 'k' for kilo, 'u' for micro). Used for pa
 private(set) string $unicodeSymbol
 ```
 
-The Unicode symbol for the prefix (e.g., 'μ' for micro). Used for display purposes.
+The Unicode symbol for the prefix (e.g., 'μ', U+00B5 Micro sign). Used for display purposes.
+
+### alternateSymbol
+
+```php
+private(set) ?string $alternateSymbol
+```
+
+An optional, additional symbol for the prefix that is accepted by the parser (e.g., 'μ', U+03BC Greek small letter mu).
 
 ### multiplier
 

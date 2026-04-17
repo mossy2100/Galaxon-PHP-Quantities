@@ -893,29 +893,47 @@ Subclasses provide their built-in defaults by overriding [`getPartUnitSymbols()`
 ```php
 public static function fromParts(
     array $parts,
-    ?string $resultUnitSymbol = null
+    bool $si = false
 ): static
 ```
 
 Create a Quantity from component parts.
 
+The result is expressed in the base unit for the quantity type's dimension. By default this is the English base unit (e.g. `'ft'` for lengths, `'°'` for angles). Pass `$si = true` to use the SI base unit instead (e.g. `'m'` for lengths, `'rad'` for angles).
+
+Part unit symbols can be base, prefixed, or compound (e.g. `'m'`, `'km'`, and `'km/h'` are all accepted).
+
 **Parameters:**
-- `$parts` (`array<string, int|float>`) - Array of unit symbol => value pairs, optionally with a `'sign'` key (1 or -1).
-- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the built-in default for this quantity type.
+- `$parts` (`array<string, int|float>`) - Array of unit symbol => value pairs, optionally with a `'sign'` key (integer 1 or -1).
+- `$si` (bool) - If true, use the SI base unit for the result; if false (default), use the English base unit.
 
 **Returns:**
 - `static` - The combined Quantity.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$resultUnitSymbol` is null and no default exists for the quantity type.
-- `DomainException` - If the sign is not -1 or 1.
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If `$resultUnitSymbol` or any of the part unit symbols are not recognized.
-- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If `$resultUnitSymbol` is incompatible with the quantity type, or if any part unit symbol is incompatible with the result unit's dimension.
+- `InvalidArgumentException` - If the sign is not an integer, or if any keys are not strings, or if any values are not numbers.
+- `DomainException` - If the sign is not -1 or 1, or if any values are non-finite.
+- `LogicException` - If the quantity type is not registered, or if no parts were provided, or if no conversion path exists.
+- [`FormatException`](../../../packages/Core/docs/Exceptions/FormatException.md) - If any part unit symbols cannot be parsed.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any part unit symbols are not recognized.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If any part unit dimensions don't match the quantity type.
 
 **Examples:**
 ```php
+// Angle from degrees, arcminutes, arcseconds — result in English base (degrees).
 $angle = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'arcsec' => 15]);
+
+// Time from components — result in English base (seconds).
 $duration = Time::fromParts(['h' => 2, 'min' => 30, 's' => 45]);
+
+// Force with SI base result (kg·m/s²).
+$force = Force::fromParts(['N' => 100], si: true);
+
+// Prefixed symbols are accepted.
+$length = Length::fromParts(['km' => 5, 'm' => 300]);
+
+// Negative value using sign.
+$time = Time::fromParts(['h' => 1, 'min' => 30, 'sign' => -1]);
 ```
 
 ### toParts()
@@ -927,21 +945,51 @@ public function toParts(
 ): array
 ```
 
-Convert to component parts. Uses the built-in part units for the quantity type by default.
+Decompose a quantity into component parts from the largest to the smallest unit.
+
+Every part unit is included in the result, even if its value is 0. All values are integers except for the smallest unit, which may have a fractional part. A `'sign'` key is always present (1 for non-negative, -1 for negative).
+
+Part unit symbols can be base, prefixed, or compound (e.g. `'m'`, `'km'`, and `'km/h'` are all accepted). If `$partUnitSymbols` is null or an empty array, the built-in defaults for the quantity type are used. Note, however, only the `Angle`, `Time`, and `Length` types have default part units.
+
+If rounding the smallest unit causes overflow (e.g. 59.9 seconds rounds to 60), larger parts are adjusted automatically.
 
 **Parameters:**
 - `$precision` (?int) - Decimal places for the smallest unit, or null for no rounding.
-- `$partUnitSymbols` (?list<string>) - Part unit symbols to decompose into, or `null` to use the built-in default for this quantity type.
+- `$partUnitSymbols` (?list\<string>) - Part unit symbols to decompose into, or null/empty to use the built-in default for this quantity type.
 
 **Returns:**
-- `array<string, int|float>` - Array with a `'sign'` key (1 or -1) and unit symbol => value pairs.
+- `array<string, int|float>` - Array with a `'sign'` key (1 or -1) and unit symbol => value pairs, ordered from largest to smallest unit.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$partUnitSymbols` is null and no default exists for the quantity type.
-- `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` is an empty array.
+- `LogicException` - If the quantity type is not registered, or if `$partUnitSymbols` is empty and no default exists for the quantity type, or if no conversion path exists to a part unit.
+- `FormatException` - If any part unit symbols cannot be parsed.
+- `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` contains duplicate units.
 - `InvalidArgumentException` - If any of the part unit symbols are not strings.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a part unit symbol is not recognized.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If a part unit is incompatible with the quantity's dimension.
+
+**Examples:**
+```php
+// Time decomposition using built-in defaults.
+$time = new Time(5445, 's');
+$parts = $time->toParts();
+// ['sign' => 1, 'y' => 0, ..., 'h' => 1, 'min' => 30, 's' => 45.0]
+
+// Angle with precision.
+$angle = new Angle(45.508333, 'deg');
+$parts = $angle->toParts(precision: 0);
+// ['sign' => 1, 'deg' => 45, 'arcmin' => 30, 'arcsec' => 30.0]
+
+// Custom part units (subset of defaults).
+$time = new Time(5445, 's');
+$parts = $time->toParts(partUnitSymbols: ['h', 'min', 's']);
+// ['sign' => 1, 'h' => 1, 'min' => 30, 's' => 45.0]
+
+// Prefixed part units.
+$length = new Length(5300, 'm');
+$parts = $length->toParts(partUnitSymbols: ['km', 'm']);
+// ['sign' => 1, 'km' => 5, 'm' => 300.0]
+```
 
 ### parseParts()
 

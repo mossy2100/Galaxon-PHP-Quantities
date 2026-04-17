@@ -41,9 +41,16 @@ The *ohm* is defined as:
 
 ## Unit symbol
 
-The ohm uses:
+The package supports three symbols for the ohm:
 - ASCII: `ohm`
-- Unicode: `Ω` (Greek capital omega, U+03A9)
+- Unicode: `Ω` (U+03A9 Greek capital letter Omega)
+- Alternate: `Ω` (U+2126 Ohm sign)
+
+The recommendation from Unicode is to prefer the Greek capital letter Omega for the ohm symbol, but the "Ohm sign" character is also accepted by the parser for backwards compatibility.
+
+How to type capital Omega:
+1. Mac: Option+W
+2. Windows: Alt+234
 
 ---
 

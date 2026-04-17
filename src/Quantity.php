@@ -1003,11 +1003,16 @@ class Quantity implements Stringable
      *
      * The $parts array may include an optional 'sign' key to indicate the sign of the sum, which must be integer 1
      * (non-negative) or -1 (negative). If omitted, the sign is assumed to be 1.
+     *
      * The dimensions of the class quantity type (if not Quantity and registered), and the input and result units must
      * all match.
-     * The result quantity will use the base English unit for the quantity type (e.g. 's', '°', 'ft', 'lb').
+     *
+     * By default, the result quantity will use the base English unit for the quantity type (e.g. 's', '°', 'ft', 'lb'),
+     * as parts are typically used with English units. However, $si can be set to true to override this and use the base
+     * SI unit for the result. Of course, to() can be called on the result to convert it to whatever unit you want.
      *
      * @param array<string, int|float> $parts The parts, with the part unit symbols as keys, and part values as values.
+     * @param bool $si If true, use the SI base unit for the result; if false (default), use the English base unit.
      * @return static A new Quantity representing the sum of the parts.
      * @throws InvalidArgumentException If the sign is not an integer, or if any of the keys in the parts array are not
      * strings, or if any of the values in the parts array are not numbers.
@@ -1019,7 +1024,7 @@ class Quantity implements Stringable
      * @throws FormatException If any of the part unit symbols cannot be parsed.
      * @throws UnknownUnitException If any of the part unit symbols are not recognized.
      */
-    public static function fromParts(array $parts): static
+    public static function fromParts(array $parts, bool $si = false): static
     {
         // Validate the sign.
         $sign = 1;
@@ -1049,8 +1054,8 @@ class Quantity implements Stringable
         $quantityType = self::validateQuantityType();
         // Get the dimension.
         $dimension = $quantityType->dimension;
-        // Set the result unit to the English base unit for the dimension.
-        $resultUnit = DimensionService::getBaseCompoundUnit($dimension, false);
+        // Set the result unit to the SI or English base unit matching the dimension.
+        $resultUnit = DimensionService::getBaseCompoundUnit($dimension, $si);
         // Initialize the result to 0.
         $result = self::create(0, $resultUnit);
 
@@ -1068,7 +1073,7 @@ class Quantity implements Stringable
             }
 
             // Try to parse the unit. This will throw if the unit is invalid.
-            $unit = Unit::parse($unitSymbol);
+            $unit = CompoundUnit::parse($unitSymbol);
 
             // Check the dimension matches.
             if ($unit->dimension !== $dimension) {
@@ -1101,6 +1106,7 @@ class Quantity implements Stringable
      * @return array<string, int|float> Array of parts, plus the sign (1 or -1).
      * @throws LogicException If the quantity type is null, or if $partUnitSymbols is empty and no default exists for
      * the quantity type, or if no conversion path exists to a part unit.
+     * @throws FormatException If any of the part unit symbols cannot be parsed.
      * @throws DomainException If $precision is specified and negative, or if the $partUnitSymbols array contains
      * duplicate units.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
@@ -1152,9 +1158,10 @@ class Quantity implements Stringable
             // If the rounding increases the remainder, rounding up one or more larger parts may be necessary.
             if ($rem2 > $rem) {
                 // To account for non-integer conversion factors, rebuild the parts array.
+                // The fromParts() method is called with $si = false, matching the usual case for parts methods;
+                // however, this doesn't actually matter since the quantity is immediately decomposed to parts again.
                 // We call toParts() with $precision = null to avoid infinite recursion.
-                $rebuilt = static::fromParts($parts);
-                $parts = $rebuilt->toParts(null, $partUnitSymbols);
+                $parts = static::fromParts($parts)->toParts(null, $partUnitSymbols);
 
                 // Round off the smallest part to the specified precision.
                 assert(isset($parts[$smallestUnitSymbol]));
@@ -1169,17 +1176,20 @@ class Quantity implements Stringable
      * Parse a multi-part string into a Quantity.
      *
      * Parts must be separated by spaces. There cannot be spaces between values and units.
-     * Parts units must be bare units without prefixes or exponents.
      * Units containing spaces (e.g. 'US gal') and compound units are not supported.
      * Dimensionless quantities (e.g. '1000') are not supported.
      * Only the first part may be negative.
-     * The result quantity will use the base English unit (e.g. 's', '°', 'ft', 'lb').
+     *
+     * By default, the result quantity will use the base English unit for the quantity type (e.g. 's', '°', 'ft', 'lb'),
+     * as parts are typically used with English units. However, $si can be set to true to override this and use the base
+     * SI unit for the result. Of course, to() can be called on the result to convert it to whatever unit you want.
      *
      * Examples:
      *     - "4y 5mo 6d 12h 34min 56.789s"
      *     - "12° 34′ 56.789″"
      *
      * @param string $input The string to parse.
+     * @param bool $si If true, use the SI base unit for the result; if false (default), use the English base unit.
      * @return static A new Quantity representing the sum of the parts.
      * @throws FormatException If the input string is empty or malformed.
      * @throws LogicException If the quantity type is not registered.
@@ -1187,7 +1197,7 @@ class Quantity implements Stringable
      * @throws UnknownUnitException If any units are not recognized.
      * @throws DimensionMismatchException If units have incompatible dimensions.
      */
-    public static function parseParts(string $input): static
+    public static function parseParts(string $input, bool $si = false): static
     {
         // Ensure the input string is not empty.
         $input = trim($input);
@@ -1213,7 +1223,7 @@ class Quantity implements Stringable
         $sign = 1;
         $firstPartSeen = false;
         foreach ($partStrings as $partString) {
-            // Check the part string looks like a quantity (non-dimensionless).
+            // Check the part string looks like a quantity with both value and unit.
             if (!self::isValidQuantity($partString, $m) || empty($m[2])) {
                 throw new FormatException($err);
             }
@@ -1247,7 +1257,7 @@ class Quantity implements Stringable
         $parts['sign'] = $sign;
 
         // Construct the new Quantity from the extracted parts.
-        return static::fromParts($parts);
+        return static::fromParts($parts, $si);
     }
 
     /**
@@ -1348,12 +1358,13 @@ class Quantity implements Stringable
      *
      * If $partUnitSymbols is empty (null or empty array), falls back to the value returned by
      * static::getPartUnitSymbols().
+     *
      * Units are sorted in descending order by size.
      *
      * @param QuantityType $quantityType The quantity type for the calling class.
      * @param ?list<string> $partUnitSymbols The part unit symbols to validate, or null to use the default for the given
      * quantity type.
-     * @return list<Unit> The corresponding Unit objects in descending order by size.
+     * @return list<CompoundUnit> The corresponding Unit objects in descending order by size.
      * @throws LogicException If $partUnitSymbols is empty and no default exists for the quantity type.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @throws FormatException If any of the part unit symbols cannot be parsed.
@@ -1383,7 +1394,7 @@ class Quantity implements Stringable
             }
 
             // Get the unit. This will throw if the unit is invalid.
-            $partUnit = Unit::parse($partUnitSymbol);
+            $partUnit = CompoundUnit::parse($partUnitSymbol);
 
             // Check the dimension matches.
             if ($partUnit->dimension !== $quantityType->dimension) {
@@ -1401,7 +1412,7 @@ class Quantity implements Stringable
         }
 
         // Sort units by decreasing size.
-        $baseUnit = DimensionService::getBaseCompoundUnit($quantityType->dimension, false);
+        $baseUnit = DimensionService::getBaseCompoundUnit($quantityType->dimension, true);
         $sizes = array_map(
             static fn ($unit): float => ConversionService::convert(1, $unit, $baseUnit),
             $partUnits
