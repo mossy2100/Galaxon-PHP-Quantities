@@ -10,6 +10,7 @@ use Galaxon\Quantities\Exceptions\DimensionMismatchException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
+use Galaxon\Quantities\QuantityType\Dimensionless;
 use Galaxon\Quantities\QuantityType\Force;
 use Galaxon\Quantities\QuantityType\Length;
 use Galaxon\Quantities\QuantityType\Mass;
@@ -89,75 +90,64 @@ final class QuantityPartsTest extends TestCase
     // region formatParts() tests
 
     /**
-     * Test formatParts() with Time quantity.
+     * Test formatParts() with a Time quantity.
      */
     public function testFormatPartsTime(): void
     {
         $time = new Time(3661, 's');
         $result = $time->formatParts();
 
-        $this->assertSame('1 h 1 min 1 s', $result);
+        $this->assertSame('1h 1min 1s', $result);
     }
 
     /**
-     * Test formatParts() with negative value.
+     * Test formatParts() with a negative value.
      */
     public function testFormatPartsNegative(): void
     {
         $time = new Time(-3661, 's');
         $result = $time->formatParts();
 
-        $this->assertSame('-1 h 1 min 1 s', $result);
+        $this->assertSame('-1h 1min 1s', $result);
     }
 
     /**
-     * Test formatParts() with showZeros.
-     */
-    public function testFormatPartsShowZeros(): void
-    {
-        $time = new Time(3600, 's');
-        $result = $time->formatParts(showZeros: true);
-
-        $this->assertSame('0 y 0 mo 0 w 0 d 1 h 0 min 0 s', $result);
-    }
-
-    /**
-     * Test formatParts() with zero value.
+     * Test formatParts() with zero value always includes the smallest unit.
      */
     public function testFormatPartsZero(): void
     {
         $time = new Time(0, 's');
         $result = $time->formatParts();
 
-        $this->assertSame('0 s', $result);
+        $this->assertSame('0s', $result);
     }
 
     /**
-     * Test formatParts() with includeSpace: false removes spaces between values and units.
+     * Test formatParts() with showZeros includes all parts, even zero-value ones.
      */
-    public function testFormatPartsIncludeSpaceFalse(): void
+    public function testFormatPartsShowZeros(): void
     {
-        $time = new Time(3661, 's');
-        $result = $time->formatParts(includeSpace: false);
+        $time = new Time(3600, 's');
+        $result = $time->formatParts(showZeros: true);
 
-        $this->assertSame('1h 1min 1s', $result);
+        $this->assertSame('0y 0mo 0w 0d 1h 0min 0s', $result);
     }
 
     /**
-     * Test formatParts() with includeSpace: true forces spaces even for non-letters.
+     * Test formatParts() with precision formats the smallest unit to the given decimal places.
      */
-    public function testFormatPartsIncludeSpaceTrue(): void
+    public function testFormatPartsWithPrecision(): void
     {
-        $angle = new Angle(45.508333333, 'deg');
-        $result = $angle->formatParts(precision: 0, includeSpace: true);
+        $time = new Time(3661.5, 's');
+        $result = $time->formatParts(precision: 1);
 
-        $this->assertSame('45 ° 30 ′ 30 ″', $result);
+        $this->assertSame('1h 1min 1.5s', $result);
     }
 
     /**
-     * Test formatParts() with includeSpace: null (auto) omits space for non-letters.
+     * Test formatParts() with an Angle quantity uses Unicode symbols by default.
      */
-    public function testFormatPartsIncludeSpaceAutoAngle(): void
+    public function testFormatPartsAngleUnicode(): void
     {
         $angle = new Angle(45.508333333, 'deg');
         $result = $angle->formatParts(precision: 0);
@@ -166,14 +156,14 @@ final class QuantityPartsTest extends TestCase
     }
 
     /**
-     * Test formatParts() with includeSpace: false and negative value.
+     * Test formatParts() with ascii: true uses ASCII unit symbols.
      */
-    public function testFormatPartsIncludeSpaceFalseNegative(): void
+    public function testFormatPartsAngleAscii(): void
     {
-        $time = new Time(-3661, 's');
-        $result = $time->formatParts(includeSpace: false);
+        $angle = new Angle(45.508333333, 'deg');
+        $result = $angle->formatParts(precision: 0, ascii: true);
 
-        $this->assertSame('-1h 1min 1s', $result);
+        $this->assertSame('45deg 30arcmin 30arcsec', $result);
     }
 
     // endregion
@@ -366,8 +356,7 @@ final class QuantityPartsTest extends TestCase
         $time = Time::parse('1h 30min 45s');
 
         $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(1.5125, $time->value, 1e-9);
+        $this->assertEqualsWithDelta(5445.0, $time->to('s')->value, 1e-9);
     }
 
     /**
@@ -412,8 +401,7 @@ final class QuantityPartsTest extends TestCase
         $time = Time::parseParts('1h 30min 45s');
 
         $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(1.5125, $time->value, 1e-9);
+        $this->assertEqualsWithDelta(5445.0, $time->to('s')->value, 1e-9);
     }
 
     /**
@@ -424,8 +412,7 @@ final class QuantityPartsTest extends TestCase
         $time = Time::parseParts('-1h 1min 1s');
 
         $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(-1.016944444, $time->value, 1e-6);
+        $this->assertEqualsWithDelta(-3661.0, $time->to('s')->value, 1e-6);
     }
 
     /**
@@ -436,8 +423,7 @@ final class QuantityPartsTest extends TestCase
         $angle = Angle::parseParts('45deg 30arcmin 30arcsec');
 
         $this->assertInstanceOf(Angle::class, $angle);
-        $this->assertSame('deg', $angle->compoundUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(45.508333333, $angle->value, 1e-6);
+        $this->assertEqualsWithDelta(45.508333333, $angle->to('deg')->value, 1e-6);
     }
 
     /**
@@ -448,8 +434,7 @@ final class QuantityPartsTest extends TestCase
         $time = Time::parseParts('90min');
 
         $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame('min', $time->compoundUnit->asciiSymbol);
-        $this->assertSame(90.0, $time->value);
+        $this->assertEqualsWithDelta(5400.0, $time->to('s')->value, 1e-6);
     }
 
     /**
@@ -459,33 +444,52 @@ final class QuantityPartsTest extends TestCase
     {
         $time = Time::parseParts('1h 30min 45.5s');
 
-        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(1.512638889, $time->value, 1e-6);
+        $this->assertEqualsWithDelta(5445.5, $time->to('s')->value, 1e-6);
     }
 
     /**
-     * Test parseParts() with spaces between values and units.
-     */
-    public function testParsePartsWithSpacesBetweenValueAndUnit(): void
-    {
-        $time = Time::parseParts('1 h 1 min 1 s');
-
-        $this->assertInstanceOf(Time::class, $time);
-        $this->assertSame('h', $time->compoundUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(1.016944444, $time->value, 1e-6);
-    }
-
-    /**
-     * Test parseParts() with multi-word unit symbols and spaces.
+     * Test parseParts() with multi-word unit symbols (no space between value and unit).
      */
     public function testParsePartsWithMultiWordUnits(): void
     {
-        $mass = Mass::parseParts('12 LT 3 st 4 lb');
+        $mass = Mass::parseParts('12LT 3st 4lb');
 
         $this->assertInstanceOf(Mass::class, $mass);
-        $this->assertSame('LT', $mass->compoundUnit->asciiSymbol);
-        // 12 LT + 3 st + 4 lb = (12 * 2240 + 3 * 14 + 4) / 2240 = 12.020535714... LT
-        $this->assertEqualsWithDelta(12.020535714, $mass->value, 1e-6);
+        // 12 LT + 3 st + 4 lb = 12 * 2240 + 3 * 14 + 4 = 26926 lb
+        $this->assertEqualsWithDelta(26926.0, $mass->to('lb')->value, 1e-6);
+    }
+
+    /**
+     * Test parseParts() with a bare number (dimensionless).
+     */
+    public function testParsePartsBareNumber(): void
+    {
+        $qty = Dimensionless::parseParts('42');
+
+        $this->assertInstanceOf(Dimensionless::class, $qty);
+        $this->assertSame(42.0, $qty->value);
+    }
+
+    /**
+     * Test parseParts() with mixed bare number and unit parts.
+     */
+    public function testParsePartsBareNumberWithUnits(): void
+    {
+        $qty = Dimensionless::parseParts('1000 45% 76ppm');
+
+        $this->assertInstanceOf(Dimensionless::class, $qty);
+        $this->assertEqualsWithDelta(1000.450076, $qty->value, 1e-10);
+    }
+
+    /**
+     * Test parseParts() with duplicate bare numbers throws exception.
+     */
+    public function testParsePartsDuplicateBareNumberThrowsException(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Duplicate unit symbol');
+
+        Dimensionless::parseParts('1000 2000');
     }
 
     /**

@@ -629,7 +629,7 @@ final class MassTest extends TestCase
         $mass = new Mass(157, 'lb');
         $result = $mass->formatParts(partUnitSymbols: Mass::IMP_PART_UNITS);
 
-        $this->assertSame('11 st 3 lb', $result);
+        $this->assertSame('11st 3lb', $result);
     }
 
     /**
@@ -704,7 +704,7 @@ final class MassTest extends TestCase
         $mass = new Mass(3.25, 'lb');
         $result = $mass->formatParts(partUnitSymbols: Mass::US_PART_UNITS);
 
-        $this->assertSame('3 lb 4 oz', $result);
+        $this->assertSame('3lb 4oz', $result);
     }
 
     /**

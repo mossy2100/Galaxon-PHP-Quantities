@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
+use DivisionByZeroError;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
+use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitSystem;
@@ -115,16 +117,16 @@ class Temperature extends Quantity
         }
 
         // ----------------------------------------------------------------------------------------
-        // Convert SI to imperial or vice-versa.
+        // Convert SI to English or vice-versa.
 
-        $destIsImperial = in_array($destSymbol, ['degR', 'degF'], true);
+        $destIsEnglish = in_array($destSymbol, ['degR', 'degF'], true);
 
         // Scale only if crossing sides.
-        if ($srcSymbol === 'K' && $destIsImperial) {
+        if ($srcSymbol === 'K' && $destIsEnglish) {
             // Convert Kelvin to Rankine.
             $value *= self::RANKINE_PER_KELVIN;
             $srcSymbol = 'degR';
-        } elseif ($srcSymbol === 'degR' && !$destIsImperial) {
+        } elseif ($srcSymbol === 'degR' && !$destIsEnglish) {
             // Convert Rankine to Kelvin.
             $value /= self::RANKINE_PER_KELVIN;
             $srcSymbol = 'K';
@@ -233,6 +235,21 @@ class Temperature extends Quantity
 
         // Check for the four base temperature units.
         return in_array($unit->asciiSymbol, ['K', 'degC', 'degF', 'degR'], true);
+    }
+
+    /**
+     * Get the temperature in an absolute unit (K or degR).
+     *
+     * @return self
+     * @throws DomainException
+     * @throws LogicException
+     */
+    private function toAbsolute(): self {
+        return match ($this->compoundUnit->asciiSymbol) {
+            'degC' => $this->to('K'),
+            'degF' => $this->to('degR'),
+            default => $this,
+        };
     }
 
     // endregion

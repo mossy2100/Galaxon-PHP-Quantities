@@ -820,19 +820,6 @@ Returns `null` in the base `Quantity` class. Overridden in subclasses such as `L
 **Returns:**
 - `?list<string>` - The default part unit symbols, or `null` if the subclass does not provide a default.
 
-### getResultUnitSymbol()
-
-```php
-public static function getResultUnitSymbol(): ?string
-```
-
-Get the default result unit symbol used by `fromParts()` and `parseParts()` when no explicit `$resultUnitSymbol` argument is supplied.
-
-Returns `null` in the base `Quantity` class. Overridden in subclasses such as `Length`, `Time`, `Angle`, and `Mass` to provide a built-in default. Subclasses without an override require callers to pass `$resultUnitSymbol` explicitly; otherwise the parts methods throw `LogicException`.
-
-**Returns:**
-- `?string` - The default result unit symbol, or `null` if the subclass does not provide a default.
-
 ---
 
 ## Lookup methods
@@ -996,32 +983,53 @@ $parts = $length->toParts(partUnitSymbols: ['km', 'm']);
 ```php
 public static function parseParts(
     string $input,
-    ?string $resultUnitSymbol = null
+    bool $si = false
 ): static
 ```
 
 Parse a multi-part string into a Quantity.
 
-Parses strings like `"4y 5mo 6d 12h 34min 56.789s"` where each part is a value immediately followed by a unit symbol, separated by whitespace.
+Parses strings like `"4y 5mo 6d 12h 34min 56.789s"` where each part is a value immediately followed by a unit symbol. Parts must be separated by whitespace, but there cannot be whitespace between values and units. Units containing spaces (e.g. `'US gal'`) are not supported, but compound units without spaces (e.g. `'kW*h'`) are.
+
+A part may also be a bare number without a unit (dimensionless scalar). Since units can't be duplicated, there can be at most one bare number.
+
+Only the first part may be negative.
 
 **Parameters:**
 - `$input` (string) - The string to parse.
-- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the built-in default for this quantity type.
+- `$si` (bool) - If true, use the SI base unit for the result; if false (default), use the English base unit.
 
 **Returns:**
 - `static` - A new Quantity representing the sum of the parts.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$resultUnitSymbol` is null and no default exists for the quantity type.
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty or malformed.
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If `$resultUnitSymbol` is not a recognized unit.
-- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If `$resultUnitSymbol` is incompatible with the quantity type.
+- `LogicException` - If the quantity type is not registered.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty, malformed, contains a non-first negative part, or contains duplicate unit symbols.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any unit symbols are not recognized.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If units have incompatible dimensions.
 - `UnexpectedValueException` - If there is an unexpected error during parsing.
 
 **Examples:**
 ```php
-$time = Time::parseParts('5h 30min 45s');
-$angle = Angle::parseParts("12deg 34arcmin 56.789arcsec");
+// Time from a multi-part string.
+$time = Time::parseParts('1h 30min 45s');
+echo $time;  // 5445 s
+
+// Angle from DMS.
+$angle = Angle::parseParts('45deg 30arcmin 30arcsec');
+echo $angle;  // 45.50833°
+
+// Negative value — only the first part may carry the sign.
+$time = Time::parseParts('-2h 15min');
+echo $time;  // -8100 s
+
+// SI base result.
+$length = Length::parseParts('5ft 6in', si: true);
+echo $length;  // 1.6764 m
+
+// Bare number with dimensionless units.
+$qty = Dimensionless::parseParts('1000 45% 76ppm');
+echo $qty;  // 1000.450076
 ```
 
 ### formatParts()
@@ -1049,8 +1057,8 @@ Only the smallest unit may have a decimal point. Larger units will be integers. 
 - `string` - Formatted string like `"5h 30min 45s"`.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$partUnitSymbols` is null and no default exists for the quantity type.
-- `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` is an empty array.
+- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$partUnitSymbols` is null or empty and no default exists for the quantity type.
+- `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` contains duplicate units.
 - `InvalidArgumentException` - If any of the part unit symbols are not strings.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a part unit symbol is not recognized.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If a part unit is incompatible with the quantity's dimension.

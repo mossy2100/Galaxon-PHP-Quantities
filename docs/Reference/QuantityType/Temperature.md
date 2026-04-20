@@ -122,6 +122,18 @@ echo $cmbr->to('K');     // 2.725 K
 echo $cmbr->to('degC');  // -270.425 °C
 ```
 
+### Arithmetic
+
+Before calling arithmetic methods, particularly those that involve some form of multiplication or division (e.g. `inv()`, `mul()`, `div()`), it may be necessary to convert any Temperature quantities involved to absolute units (i.e. `K` or `°R`) to get the correct result.
+
+```
+example here
+
+
+
+```
+
+
 ---
 
 ## Usage examples

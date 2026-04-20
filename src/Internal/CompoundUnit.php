@@ -458,7 +458,7 @@ class CompoundUnit implements UnitInterface
      */
     public function toSiBase(): self
     {
-        return DimensionService::getBaseCompoundUnit($this->dimension, true);
+        return DimensionService::getBaseCompoundUnit($this->dimension);
     }
 
     /**

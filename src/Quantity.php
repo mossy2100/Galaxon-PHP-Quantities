@@ -1175,14 +1175,17 @@ class Quantity implements Stringable
     /**
      * Parse a multi-part string into a Quantity.
      *
-     * Parts must be separated by spaces. There cannot be spaces between values and units.
-     * Units containing spaces (e.g. 'US gal') and compound units are not supported.
-     * Dimensionless quantities (e.g. '1000') are not supported.
+     * Parts must be separated by spaces.
+     * Compound units (e.g. 'kW*h', 'km/h') are supported.
      * Only the first part may be negative.
      *
+     * The method varies from parse() as follows:
+     * - There cannot be spaces between values and units.
+     * - Units containing spaces (e.g. 'US gal') are not supported.
+     *
      * By default, the result quantity will use the base English unit for the quantity type (e.g. 's', '°', 'ft', 'lb'),
-     * as parts are typically used with English units. However, $si can be set to true to override this and use the base
-     * SI unit for the result. Of course, to() can be called on the result to convert it to whatever unit you want.
+     * as parts are typically used with these units. However, $si can be set to true to override this and use the base
+     * SI unit for the result. Of course, to() can be called on the result to convert it to whatever unit is desired.
      *
      * Examples:
      *     - "4y 5mo 6d 12h 34min 56.789s"
@@ -1223,8 +1226,8 @@ class Quantity implements Stringable
         $sign = 1;
         $firstPartSeen = false;
         foreach ($partStrings as $partString) {
-            // Check the part string looks like a quantity with both value and unit.
-            if (!self::isValidQuantity($partString, $m) || empty($m[2])) {
+            // Check the part string looks like a quantity.
+            if (!self::isValidQuantity($partString, $m)) {
                 throw new FormatException($err);
             }
 
@@ -1241,7 +1244,7 @@ class Quantity implements Stringable
             }
 
             // Add the part to the result array.
-            $partSymbol = $m[2];
+            $partSymbol = $m[2] ?? '';
             // Check the unit is new.
             if (array_key_exists($partSymbol, $parts)) {
                 throw new FormatException("Duplicate unit symbol in input string: '$partSymbol'.");
@@ -1294,37 +1297,38 @@ class Quantity implements Stringable
         // order by unit size.
         $parts = $this->toParts($precision, $partUnitSymbols);
 
+        // Extract the sign.
+        $sign = $parts['sign'];
+        unset($parts['sign']);
+
         // Prep for loop.
         $result = [];
         $smallestUnitSymbol = array_key_last($parts);
-        assert($smallestUnitSymbol !== 'sign');
-        $smallestUnit = Unit::parse($smallestUnitSymbol);
+        assert($smallestUnitSymbol !== null);
 
-        // Generate string as parts for all but the smallest unit.
+        // Generate substrings for each part.
         foreach ($parts as $unitSymbol => $value) {
-            // Skip the sign.
-            if ($unitSymbol === 'sign') {
-                continue;
-            }
-
+            // Include the part if non-zero or including all zeroes.
+            $include = !Floats::approxEqual($value, 0) || $showZeros;
             if ($unitSymbol !== $smallestUnitSymbol) {
-                // Include the part if non-zero or including all zeroes.
-                if (!Numbers::isZero($value) || $showZeros) {
+                if ($include) {
                     $unit = Unit::parse($unitSymbol);
                     $result[] = $value . $unit->format($ascii);
                 }
             } else {
-                // Round off the smallest unit to the specified precision.
-                $roundedValue = $precision === null ? $value : round($value, $precision);
-                if (!Numbers::isZero($roundedValue) || $showZeros || empty($result)) {
+                // Include the smallest part if non-zero or including all zeroes or no other parts have been added.
+                if ($include || empty($result)) {
+                    // Format with decimals. The $ascii parameter does nothing when the specifier is 'f', but it
+                    // doesn't hurt to pass it anyway, in case format() changes.
                     $valueStr = Floats::format($value, 'f', $precision, null, $ascii);
+                    $smallestUnit = Unit::parse($smallestUnitSymbol);
                     $result[] = $valueStr . $smallestUnit->format($ascii);
                 }
             }
         }
 
         // Return a string of units, separated by spaces. Prepend minus sign if negative.
-        return ($parts['sign'] === -1 ? '-' : '') . implode(' ', $result);
+        return ($sign === -1 ? '-' : '') . implode(' ', $result);
     }
 
     /**
@@ -1412,7 +1416,7 @@ class Quantity implements Stringable
         }
 
         // Sort units by decreasing size.
-        $baseUnit = DimensionService::getBaseCompoundUnit($quantityType->dimension, true);
+        $baseUnit = DimensionService::getBaseCompoundUnit($quantityType->dimension);
         $sizes = array_map(
             static fn ($unit): float => ConversionService::convert(1, $unit, $baseUnit),
             $partUnits

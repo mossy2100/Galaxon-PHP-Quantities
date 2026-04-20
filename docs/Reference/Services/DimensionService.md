@@ -224,7 +224,7 @@ DimensionService::countUnits('');       // 0 (dimensionless)
 ### getBaseUnitTermSymbol()
 
 ```php
-public static function getBaseUnitTermSymbol(string $dimensionLetterCode, bool $si): string
+public static function getBaseUnitTermSymbol(string $dimensionLetterCode, bool $si = true): string
 ```
 
 Get the base unit symbol for a dimension letter code. When `$si` is true, returns the SI base unit symbol. When false, returns the English base unit symbol if one exists, otherwise falls back to the SI or common base unit.
@@ -244,7 +244,7 @@ DimensionService::getBaseUnitTermSymbol('D', true);   // 'B' (common base unit)
 ### getBaseUnitTerm()
 
 ```php
-public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm
+public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si = true): UnitTerm
 ```
 
 Get the base unit as a `UnitTerm` object for a dimension letter code. Delegates to `getBaseUnitTermSymbol()` and parses the result.
@@ -262,7 +262,7 @@ $term = DimensionService::getBaseUnitTerm('L', false);
 ### getBaseCompoundUnit()
 
 ```php
-public static function getBaseCompoundUnit(string $dimension, bool $si): CompoundUnit
+public static function getBaseCompoundUnit(string $dimension, bool $si = true): CompoundUnit
 ```
 
 Convert a dimension code to a `CompoundUnit` composed of SI or English base units. Each dimension term is converted to a `UnitTerm` with the appropriate exponent.
@@ -303,7 +303,7 @@ $result = DimensionService::compose($terms1);
 // 'ML2T-2' (Energy)
 
 // Build the SI base compound unit for a dimension.
-$du = DimensionService::getBaseCompoundUnit('ML2T-2', true);
+$du = DimensionService::getBaseCompoundUnit('ML2T-2');
 // CompoundUnit representing kg*m2/s2
 ```
 

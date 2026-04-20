@@ -104,7 +104,9 @@ echo $energy->to('MJ');  // 12.96 MJ
 
 ## Parsing parts with `parseParts()`
 
-The `parseParts()` method parses a multi-unit string into a quantity. Parts are separated by whitespace; there must be no space between a value and its unit symbol, and unit symbols containing spaces (e.g. `US gal`) are not supported. Only the first part may be negative.
+The `parseParts()` method parses a multi-unit string into a quantity. Parts are separated by whitespace; there must be no space between a value and its unit symbol. Units containing spaces (e.g. `US gal`) are not supported, but compound units without spaces (e.g. `kW*h`) are. Only the first part may be negative.
+
+A part may also be a bare number without a unit (dimensionless). Since unit symbols can't be duplicated, there can be at most one bare number in the input.
 
 ```php
 // Time parsed from a multi-unit string.
@@ -118,6 +120,10 @@ echo $angle;  // 45.5°
 // Negative quantities — only the first part may carry the sign.
 $time = Time::parseParts('-2h 15min');
 echo $time;  // -8100 s
+
+// Bare number with dimensionless units.
+$qty = Dimensionless::parseParts('1000 45% 76ppm');
+echo $qty;  // 1000.450076
 ```
 
 As with `fromParts()`, the result is expressed in the base English unit by default. Pass `$si = true` to use the SI base unit:
@@ -150,7 +156,7 @@ echo $time->formatParts();                 // 1d 1h 1min 1s
 // Zero components are omitted by default.
 $time = new Time(3600, 's');
 echo $time->formatParts();                         // 1h
-echo $time->formatParts(showZeros: true);          // 1h 0min 0s
+echo $time->formatParts(showZeros: true);          // 0y 0mo 0w 0d 1h 0min 0s
 
 // Negative values.
 $time = new Time(-3661, 's');
