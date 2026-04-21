@@ -54,7 +54,6 @@ The unit symbol that could not be resolved.
 | `UnitTerm`             | `__construct()`         | Unit symbol string not found in the unit registry. |
 | `UnitTerm`             | `parse()`               | Prefixed symbol not found in the unit registry.    |
 | `Quantity`             | `validatePartUnits()`   | A part unit symbol is not found in the registry.   |
-| `Quantity`             | `validateResultUnit()`  | The result unit symbol is not found in the registry. |
 
 ---
 

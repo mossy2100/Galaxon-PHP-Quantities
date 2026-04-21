@@ -94,21 +94,13 @@ PrefixService::getBySymbol('X');            // null (not found)
 
 ## Registry methods
 
-### reset()
-
-```php
-public static function reset(): void
-```
-
-Reset the prefixes cache. The next access will trigger re-initialization. Primarily useful for testing.
-
 ### removeAll()
 
 ```php
 public static function removeAll(): void
 ```
 
-Clear the prefixes cache. Unlike `reset()`, the next access will NOT trigger re-initialization — `init()` must be called manually. Used internally during initialization.
+Clear the prefixes cache. The next access will NOT trigger re-initialization — `init()` must be called manually. Used internally during initialization.
 
 ---
 

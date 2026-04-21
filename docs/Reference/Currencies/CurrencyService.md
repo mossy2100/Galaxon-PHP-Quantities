@@ -81,6 +81,7 @@ Initialize the currency service. This is the primary entry point for setting up 
 **Throws:**
 - [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the locale string is invalid.
 - `DomainException` - If either TTL argument is negative.
+- `RuntimeException` - If the ISO 4217 XML or exchange rate API request fails, or if the data directory cannot be created.
 
 ### getExchangeRateService()
 
@@ -101,7 +102,7 @@ public static function setExchangeRateService(
 ): void
 ```
 
-Set the exchange rate service used to fetch conversion data. Must be set before calling `refresh()` or `refreshConversions()`. Typically configured via `init()`.
+Set the exchange rate service used to fetch conversion data. Must be set before calling `refresh()` or `getConversions()`. Typically configured via `init()`.
 
 ### getLocale()
 
@@ -218,67 +219,45 @@ Get the path to the currency conversions data file.
 
 ## Currency data
 
-### loadCurrencies()
+### getUnits()
 
 ```php
-public static function loadCurrencies(): ?array
+public static function getUnits(bool $bypassCache = false): array
 ```
 
-Load the currency unit data from the generated PHP cache file.
+Ensure the currency unit data is up to date. Returns the cached data if it exists and has not expired. Otherwise fetches a fresh copy from the official ISO 4217 XML, regenerates the data file, and returns the new data.
+
+**Parameters:**
+- `$bypassCache` (bool) - If `true`, always fetch fresh data regardless of cache expiry. Default: `false`.
 
 **Returns:**
-- `?array` - The cached data array, or `null` if the file does not exist. The array contains:
+- `array` - The current currency unit data, containing:
   - `whenFetched` (string) - Timestamp of when the data was fetched.
   - `currencies` (array<string, string>) - Currency names mapped to their ISO 4217 codes.
 
-### loadConversionData()
-
-```php
-public static function loadConversionData(): ?array
-```
-
-Load the exchange rate conversion data from the generated PHP cache file.
-
-**Returns:**
-- `?array` - The cached data array, or `null` if the file does not exist. The array contains:
-  - `whenFetched` (string) - Timestamp of when the data was fetched.
-  - `serviceName` (string) - Name of the exchange rate service that provided the data.
-  - `definitions` (list) - Conversion triples as `[sourceSymbol, destSymbol, factor]`.
-
-### refreshUnits()
-
-```php
-public static function refreshUnits(bool $bypassCache = false): bool
-```
-
-Regenerate the currency unit data file from the official ISO 4217 XML. Fund currencies and entries without currency codes are excluded. Skips the download if the cache has not expired, unless `$bypassCache` is `true`.
-
-**Parameters:**
-- `$bypassCache` (bool) - If `true`, skip checking the cache expiry. Default: `false`.
-
-**Returns:**
-- `bool` - `true` if the data was updated.
-
 **Throws:**
-- `RuntimeException` - If the XML cannot be fetched or parsed.
+- `RuntimeException` - If a fetch is required but the ISO 4217 XML cannot be fetched or parsed, or if the data directory cannot be created.
 
-### refreshConversions()
+### getConversions()
 
 ```php
-public static function refreshConversions(bool $bypassCache = false): bool
+public static function getConversions(bool $bypassCache = false): array
 ```
 
-Update all currency conversion data using the configured exchange rate service. Skips the download if the cache has not expired and the service has not changed, unless `$bypassCache` is `true`.
+Ensure the currency conversion data is up to date. Returns the cached data if it exists, has not expired, and was produced by the currently configured exchange rate service. Otherwise fetches fresh data, regenerates the data file, and returns it.
 
 **Parameters:**
-- `$bypassCache` (bool) - If `true`, skip checking the cache expiry. Default: `false`.
+- `$bypassCache` (bool) - If `true`, always fetch fresh data regardless of cache state. Default: `false`.
 
 **Returns:**
-- `bool` - `true` if the data was updated.
+- `array` - The current currency conversion data, containing:
+  - `whenFetched` (string) - Timestamp of when the data was fetched.
+  - `serviceName` (string) - The name of the exchange rate service used.
+  - `definitions` (list<array{string, string, float}>) - Conversion definition tuples.
 
 **Throws:**
 - `LogicException` - If the exchange rate service is not configured.
-- `RuntimeException` - If the API request fails or returns invalid data.
+- `RuntimeException` - If a fetch is required but the exchange rate service fails or the data directory cannot be created.
 
 ### refresh()
 
@@ -292,7 +271,7 @@ Ensure all currency data is fresh. Refreshes currency units and exchange rate co
 - `$bypassCache` (bool) - If `true`, skip checking the cache expiry. Default: `false`.
 
 **Throws:**
-- `RuntimeException` - If the ISO 4217 XML or exchange rate API request fails.
+- `RuntimeException` - If the ISO 4217 XML or exchange rate API request fails, or if the data directory cannot be created.
 - `LogicException` - If the exchange rate service is not configured.
 
 ---

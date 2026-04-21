@@ -70,7 +70,7 @@ $wavelength = Length::parse('5.5e-7 m');
 // Parse with the base class (infers the quantity type)
 $force = Quantity::parse('9.8 kg*m/s2');
 
-// Multi-part strings are supported for Angle and Time
+// Multi-part strings are supported.
 $duration = Time::parse('1h 30min 45s');
 ```
 

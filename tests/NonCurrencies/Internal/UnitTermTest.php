@@ -1192,4 +1192,63 @@ final class UnitTermTest extends TestCase
     }
 
     // endregion
+
+    // region isValidSymbol() tests
+
+    /**
+     * Test isValidSymbol() returns true and populates match groups for valid unit term strings.
+     */
+    public function testIsValidSymbolReturnsTrueForValidFormats(): void
+    {
+        // Single letter — group 1 is the symbol, group 2 absent.
+        $this->assertTrue(UnitTerm::isValidSymbol('m', $m));
+        $this->assertSame('m', $m[1]);
+        $this->assertArrayNotHasKey(2, $m);
+
+        // Multi-letter word (prefixed symbol passes format check).
+        $this->assertTrue(UnitTerm::isValidSymbol('km', $m));
+        $this->assertSame('km', $m[1]);
+
+        // Letter with ASCII exponent — group 2 is the exponent.
+        $this->assertTrue(UnitTerm::isValidSymbol('m2', $m));
+        $this->assertSame('m', $m[1]);
+        $this->assertSame('2', $m[2]);
+
+        // Negative ASCII exponent.
+        $this->assertTrue(UnitTerm::isValidSymbol('m-2', $m));
+        $this->assertSame('m', $m[1]);
+        $this->assertSame('-2', $m[2]);
+
+        // Non-letter symbol.
+        $this->assertTrue(UnitTerm::isValidSymbol('%', $m));
+        $this->assertSame('%', $m[1]);
+
+        // Temperature symbol (degree + uppercase letter).
+        $this->assertTrue(UnitTerm::isValidSymbol('°C', $m));
+        $this->assertSame('°C', $m[1]);
+
+        // Unicode superscript exponent.
+        $this->assertTrue(UnitTerm::isValidSymbol("m\u{00B2}", $m));  // m²
+        $this->assertSame('m', $m[1]);
+    }
+
+    /**
+     * Test isValidSymbol() returns false for strings that don't match the unit term format.
+     */
+    public function testIsValidSymbolReturnsFalseForInvalidFormats(): void
+    {
+        // Empty string.
+        $this->assertFalse(UnitTerm::isValidSymbol('', $m));
+
+        // Compound unit — slash not valid in a single term.
+        $this->assertFalse(UnitTerm::isValidSymbol('m/s', $m));
+
+        // Multiply operator.
+        $this->assertFalse(UnitTerm::isValidSymbol('m*s', $m));
+
+        // Starts with a digit.
+        $this->assertFalse(UnitTerm::isValidSymbol('2m', $m));
+    }
+
+    // endregion
 }

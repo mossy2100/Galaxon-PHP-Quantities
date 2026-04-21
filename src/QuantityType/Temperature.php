@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\QuantityType;
 
-use DivisionByZeroError;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Internal\UnitInterface;
 use Galaxon\Quantities\Internal\UnitSystem;
@@ -207,6 +205,28 @@ class Temperature extends Quantity
 
     // endregion
 
+    // region Transformation methods
+
+    /**
+     * Convert the temperature to its corresponding absolute scale unit.
+     *
+     * Celsius converts to Kelvin; Fahrenheit converts to Rankine. Kelvin and Rankine are cloned unchanged.
+     * Always returns a new object. Useful when a value measured from absolute zero is needed, e.g. for ratio
+     * calculations.
+     *
+     * @return static The equivalent temperature in K or °R.
+     */
+    public function toAbsoluteScale(): static
+    {
+        return match ($this->compoundUnit->asciiSymbol) {
+            'degC' => $this->to('K'),
+            'degF' => $this->to('degR'),
+            default => clone $this,
+        };
+    }
+
+    // endregion
+
     // region Private helper methods
 
     /**
@@ -235,21 +255,6 @@ class Temperature extends Quantity
 
         // Check for the four base temperature units.
         return in_array($unit->asciiSymbol, ['K', 'degC', 'degF', 'degR'], true);
-    }
-
-    /**
-     * Get the temperature in an absolute unit (K or degR).
-     *
-     * @return self
-     * @throws DomainException
-     * @throws LogicException
-     */
-    private function toAbsolute(): self {
-        return match ($this->compoundUnit->asciiSymbol) {
-            'degC' => $this->to('K'),
-            'degF' => $this->to('degR'),
-            default => $this,
-        };
     }
 
     // endregion

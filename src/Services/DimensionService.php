@@ -346,7 +346,7 @@ class DimensionService
      * The unit may be prefixed (e.g. 'kg' for 'M').
      *
      * @param string $dimensionLetterCode Single-letter dimension code.
-     * @param bool $si Whether to return the SI base unit symbol (true, default) or the English base unit symbol (false).
+     * @param bool $si True to return the SI base unit symbol (default); false for the English base unit symbol.
      * @return string The unit term symbol.
      * @throws FormatException If the dimension code is invalid.
      * @throws LogicException If no base unit symbol is found for the dimension code.

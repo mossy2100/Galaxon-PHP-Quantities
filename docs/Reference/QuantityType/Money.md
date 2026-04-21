@@ -30,7 +30,7 @@ See [CurrencyService](../Currencies/CurrencyService.md) for setup details.
 
 Currency units are not hard-coded. They are loaded dynamically from the official [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) XML published by SIX Group, which defines currency names and three-letter codes (e.g. `USD`, `EUR`, `JPY`). The data is cached locally and refreshed when it expires.
 
-See [`CurrencyService::refreshUnits()`](../Currencies/CurrencyService.md) for details on how currency unit data is fetched and cached.
+See [`CurrencyService::getUnits()`](../Currencies/CurrencyService.md) for details on how currency unit data is fetched and cached.
 
 ---
 

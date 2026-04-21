@@ -251,7 +251,7 @@ class UnitTerm implements UnitInterface
         }
 
         // Validate the format.
-        if (!self::isValidUnitTerm($symbol, $matches)) {
+        if (!self::isValidSymbol($symbol, $matches)) {
             throw new FormatException("Invalid unit term symbol format: '$symbol'.");
         }
 
@@ -472,7 +472,7 @@ class UnitTerm implements UnitInterface
 
     // endregion
 
-    // region Regex methods
+    // region Validation methods
 
     /**
      * Get the regex pattern for matching a unit term.
@@ -493,21 +493,17 @@ class UnitTerm implements UnitInterface
             $rxExponent = "(?:-?\d)|(?:$superscriptMinus?[$superscriptDigits])";
 
             // Get the regular expression to match the prefixed or unprefixed unit symbol.
-            $rxUnit = '(?:' . Unit::RX_WORD . ')'                      // 1-7 letters (ASCII or Unicode)
+            $rxUnit = '(?:' . Unit::RX_WORD . ')'                   // 1-7 letters (ASCII or Unicode)
                 . '|' . '(?:' . Unit::RX_ASCII_WORDS . ')'          // 1-3 ASCII words
                 . '|' . '(?:[' . Unit::RX_NON_LETTERS . '])'        // 1 non-letter symbol
                 . '|' . '(?:' . Unit::RX_TEMPERATURE_SYMBOL . ')';  // degree symbol plus one letter
 
-            // Return the full regular expression with two captures.
+            // Get the full regular expression with two captures.
             $rx = "($rxUnit)($rxExponent)?";
         }
 
         return $rx;
     }
-
-    // endregion
-
-    // region Validation methods
 
     /**
      * Check if a string is a valid unit term symbol.
@@ -524,7 +520,7 @@ class UnitTerm implements UnitInterface
      * @param ?array<int, string> $matches Output array for match results.
      * @return bool True if the symbol is a valid unit term.
      */
-    public static function isValidUnitTerm(string $symbol, ?array &$matches): bool
+    public static function isValidSymbol(string $symbol, ?array &$matches): bool
     {
         // Match against the regex.
         return (bool)preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);

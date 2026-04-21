@@ -261,7 +261,9 @@ final class QuantityPartsTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Cannot create a Quantity from an empty parts array.');
 
-        Time::fromParts(['sign' => 1]);
+        Time::fromParts([
+            'sign' => 1,
+        ]);
     }
 
     /**
@@ -546,7 +548,9 @@ final class QuantityPartsTest extends TestCase
      */
     public function testFromPartsForceSi(): void
     {
-        $force = Force::fromParts(['N' => 100], si: true);
+        $force = Force::fromParts([
+            'N' => 100,
+        ], si: true);
 
         $this->assertInstanceOf(Force::class, $force);
         $this->assertSame('kg*m/s2', $force->compoundUnit->asciiSymbol);
@@ -558,7 +562,9 @@ final class QuantityPartsTest extends TestCase
      */
     public function testFromPartsForceEnglish(): void
     {
-        $force = Force::fromParts(['N' => 100]);
+        $force = Force::fromParts([
+            'N' => 100,
+        ]);
 
         $this->assertInstanceOf(Force::class, $force);
         $this->assertSame('lb*ft/s2', $force->compoundUnit->asciiSymbol);

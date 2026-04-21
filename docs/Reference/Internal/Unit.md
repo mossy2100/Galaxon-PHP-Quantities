@@ -224,19 +224,22 @@ Check if this unit is a base unit. A base unit has a dimension code of at most o
 ### acceptsPrefix()
 
 ```php
-public function acceptsPrefix(string|Prefix $prefix): bool
+public function acceptsPrefix(Prefix $prefix): bool
 ```
 
 Check if a specific prefix is allowed for this unit.
 
 **Parameters:**
-- `$prefix` (string|Prefix) - The prefix symbol or object to check.
+- `$prefix` (Prefix) - The prefix to check.
 
 **Examples:**
 ```php
 $meter = Unit::parse('m');
-$meter->acceptsPrefix('k');  // true (kilo)
-$meter->acceptsPrefix('Ki'); // false (binary prefix)
+$kilo = PrefixService::getBySymbol('k');
+$binary = PrefixService::getBySymbol('Ki');
+
+$meter->acceptsPrefix($kilo);    // true (metric prefix, meter accepts metric)
+$meter->acceptsPrefix($binary);  // false (binary prefix not in metric group)
 ```
 
 ---

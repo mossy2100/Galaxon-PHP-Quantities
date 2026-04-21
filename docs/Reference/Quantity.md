@@ -135,12 +135,12 @@ $custom = Quantity::create(5, 'kg*m2/s3');
 ### parse()
 
 ```php
-public static function parse(string $input): self
+public static function parse(string $input): static
 ```
 
 Parse a string representation into a Quantity.
 
-Supports single-value strings (e.g. `123.45 km`) and multi-part strings (e.g. `5h 30min 45s`). Subclasses may override this to support additional formats.
+Supports single-value strings (e.g. `123.45 km`) and multi-part strings (e.g. `5h 30min 45s`).
 
 When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimension must match the subclass's dimension. When called as `Quantity::parse()`, any valid unit is accepted.
 
@@ -148,11 +148,13 @@ When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimensio
 - `$input` (string) - The string to parse.
 
 **Returns:**
-- `Quantity` - The parsed Quantity.
+- `static` - A new Quantity of the calling class type.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If units are unknown.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input is empty, the string format is invalid, or a unit symbol cannot be parsed.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any unit symbol is not recognized.
+- `DomainException` - If a value is non-finite (single-value input only).
+- `LogicException` - If the input contains multiple parts and the quantity type is not registered, or no conversion path exists between a part unit and the result unit.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If called on a subclass and the parsed unit has a different dimension.
 
 **Examples:**
@@ -873,7 +875,7 @@ Quantity::getDimension();     // null
 
 Parts methods allow decomposing a quantity into multiple unit components (e.g. hours, minutes, seconds) and reconstructing from them.
 
-Subclasses provide their built-in defaults by overriding [`getPartUnitSymbols()`](#getpartunitsymbols) and [`getResultUnitSymbol()`](#getresultunitsymbol). Each parts method also accepts an inline `$partUnitSymbols` or `$resultUnitSymbol` argument that overrides the default for a single call. See [Part Decomposition](../WorkingWithQuantities/PartDecomposition.md) for usage examples.
+Subclasses provide their built-in defaults by overriding [`getPartUnitSymbols()`](#getpartunitsymbols). Each parts method also accepts an inline `$partUnitSymbols` or `$resultUnitSymbol` argument that overrides the default for a single call. See [Part Decomposition](../WorkingWithQuantities/PartDecomposition.md) for usage examples.
 
 ### fromParts()
 
@@ -1003,7 +1005,7 @@ Only the first part may be negative.
 - `static` - A new Quantity representing the sum of the parts.
 
 **Throws:**
-- `LogicException` - If the quantity type is not registered.
+- `LogicException` - If the quantity type is not registered, or if no conversion path exists between a part unit and the result unit.
 - [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty, malformed, contains a non-first negative part, or contains duplicate unit symbols.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any unit symbols are not recognized.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If units have incompatible dimensions.
@@ -1057,7 +1059,8 @@ Only the smallest unit may have a decimal point. Larger units will be integers. 
 - `string` - Formatted string like `"5h 30min 45s"`.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$partUnitSymbols` is null or empty and no default exists for the quantity type.
+- `LogicException` - If the quantity type is null (called on an unregistered subclass), if `$partUnitSymbols` is null or empty and no default exists for the quantity type, or if no conversion path exists to a part unit.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If any part unit symbol cannot be parsed.
 - `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` contains duplicate units.
 - `InvalidArgumentException` - If any of the part unit symbols are not strings.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a part unit symbol is not recognized.

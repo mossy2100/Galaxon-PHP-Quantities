@@ -211,15 +211,14 @@ class Quantity implements Stringable
      *    - "12 mi 34 yd 567 ft 8.9 in"
      *
      * @param string $input The string to parse.
-     * @return self A new Quantity parsed from the string.
-     * @throws FormatException If the input string format is invalid.
-     * @throws DomainException If the string contains unknown units, or the string contains multiple parts and either
-     * the quantity type is unregistered or the result unit symbol is invalid.
+     * @return static A new Quantity parsed from the string.
+     * @throws FormatException If the input is empty, the string format is invalid, or a unit symbol cannot be parsed.
+     * @throws UnknownUnitException If any unit symbol is not recognized.
+     * @throws DomainException If a value is non-finite (single-value input only).
+     * @throws LogicException If the input contains multiple parts and the quantity type is not registered, or no
+     * conversion path exists between a part unit and the result unit.
      * @throws DimensionMismatchException If called on a subclass and the parsed unit's dimension doesn't match.
-     * @throws UnexpectedValueException If there's an unexpected error during parsing.
-     * @throws InvalidArgumentException If the string contains multiple parts, and any of the part unit symbols are not
-     * @throws LogicException If the string contains multiple parts, and the first part is negative.
-     * strings.
+     * @throws UnexpectedValueException If an unexpected error occurs during parsing.
      * @example
      *   Length::parse("123.45 km")  // Length(123.45, 'km')
      *   Angle::parse("90deg")       // Angle(90.0, 'deg')
@@ -1194,8 +1193,10 @@ class Quantity implements Stringable
      * @param string $input The string to parse.
      * @param bool $si If true, use the SI base unit for the result; if false (default), use the English base unit.
      * @return static A new Quantity representing the sum of the parts.
-     * @throws FormatException If the input string is empty or malformed.
-     * @throws LogicException If the quantity type is not registered.
+     * @throws FormatException If the input string is empty, malformed, contains a non-first negative part, or contains
+     * duplicate unit symbols.
+     * @throws LogicException If the quantity type is not registered, or if no conversion path exists between a part
+     * unit and the result unit.
      * @throws UnexpectedValueException If there is an unexpected error during parsing.
      * @throws UnknownUnitException If any units are not recognized.
      * @throws DimensionMismatchException If units have incompatible dimensions.
@@ -1281,7 +1282,8 @@ class Quantity implements Stringable
      * @param ?list<string> $partUnitSymbols The part unit symbols, or null to use the default for this quantity type.
      * @return string The formatted string.
      * @throws LogicException If the quantity type is null, or if $partUnitSymbols is empty and no default exists for
-     * the quantity type.
+     * the quantity type, or if no conversion path exists to a part unit.
+     * @throws FormatException If any of the part unit symbols cannot be parsed.
      * @throws DomainException If $precision is negative or the $partUnitSymbols array contains duplicate units.
      * @throws InvalidArgumentException If any of the part unit symbols are not strings.
      * @throws UnknownUnitException If a part unit symbol is not recognized.

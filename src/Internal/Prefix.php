@@ -184,10 +184,10 @@ class Prefix
     // region Validation methods
 
     /**
-     * Check if a string is a valid prefix name, which is a string of 3-6 lower-case ASCII letters.
+     * Check if a string is a valid prefix name (3–6 ASCII letters).
      *
-     * @param string $name
-     * @return bool
+     * @param string $name The string to check.
+     * @return bool True if the string is a valid prefix name.
      */
     private static function isValidName(string $name): bool
     {

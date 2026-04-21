@@ -123,8 +123,8 @@ class CurrencyService
      * generated PHP data file, and reloads the Financial unit system and currency conversions.
      *
      * @return array{
-     *      whenFetched: string,
-     *      currencies: array<string, string>
+     *     whenFetched: string,
+     *     currencies: array<string, string>
      * } The currency unit data just written.
      * @throws RuntimeException If the ISO 4217 XML cannot be fetched or parsed, or if the data directory cannot be
      * created.
@@ -234,7 +234,7 @@ class CurrencyService
     /**
      * Ensure the currency unit data is up to date.
      *
-     * Returns the cached data if it exists and has not expired. Otherwise calls fetchCurrencies() to download a
+     * Returns the cached data if it exists and has not expired. Otherwise calls fetchUnits() to download a
      * fresh copy, regenerate the data file, and return the new data.
      *
      * @param bool $bypassCache If true, always fetch fresh data regardless of cache expiry.
@@ -242,7 +242,7 @@ class CurrencyService
      *     whenFetched: string,
      *     currencies: array<string, string>
      * } The current currency unit data.
-     * @throws RuntimeException If a fetch is required but the ISO 4217 XML cannot be fetched or parsed, or if the
+     * @throws RuntimeException If a fetch is required, but the ISO 4217 XML cannot be fetched or parsed, or if the
      * data directory cannot be created.
      */
     public static function getUnits(bool $bypassCache = false): array
@@ -430,11 +430,13 @@ class CurrencyService
      * Initialize the currency service.
      *
      * @param ExchangeRateServiceInterface $exchangeRateService The exchange rate service.
-     * @param string|null $locale The locale used for currency formatting.
+     * @param ?string $locale The locale used for currency formatting.
      * @param int $ratesTtl The rates cache period in seconds.
      * @param int $currenciesTtl The currencies cache period in seconds.
      * @throws FormatException If the locale string is invalid.
      * @throws DomainException If either TTL argument is negative.
+     * @throws RuntimeException If the ISO 4217 XML or exchange rate API request fails, or if the data directory
+     * cannot be created.
      */
     public static function init(
         ExchangeRateServiceInterface $exchangeRateService,
@@ -456,7 +458,8 @@ class CurrencyService
      * Ensure we have fresh data.
      *
      * @param bool $bypassCache If true, skip checking the cache expiry.
-     * @throws RuntimeException If the XML or API request fails.
+     * @throws RuntimeException If the ISO 4217 XML or exchange rate API request fails, or if the data directory
+     * cannot be created.
      * @throws LogicException If the exchange rate service is not configured.
      */
     public static function refresh(bool $bypassCache = false): void

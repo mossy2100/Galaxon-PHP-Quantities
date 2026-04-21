@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\NonCurrencies\Quantity;
 
+use Error;
 use Galaxon\Quantities\Internal\CompoundUnit;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\QuantityType\Angle;
@@ -55,7 +56,7 @@ final class QuantityImmutabilityTest extends TestCase
         $length = Length::create(1, 'm');
         $other = CompoundUnit::parse('kg');
 
-        $this->expectException(\Error::class);
+        $this->expectException(Error::class);
         // @phpstan-ignore property.readOnlyAssignNotInConstructor
         $length->compoundUnit = $other;
     }
@@ -67,7 +68,7 @@ final class QuantityImmutabilityTest extends TestCase
     {
         $length = Length::create(1, 'm');
 
-        $this->expectException(\Error::class);
+        $this->expectException(Error::class);
         // @phpstan-ignore property.readOnlyAssignNotInConstructor
         $length->value = 999.0;
     }

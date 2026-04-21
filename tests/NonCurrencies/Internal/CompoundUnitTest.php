@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\NonCurrencies\Internal;
 
+use Error;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -1435,7 +1436,7 @@ class CompoundUnitTest extends TestCase
     {
         $cu = CompoundUnit::parse('m');
 
-        $this->expectException(\Error::class);
+        $this->expectException(Error::class);
         $this->expectExceptionMessage('private method');
 
         // @phpstan-ignore method.notFound

@@ -124,15 +124,50 @@ echo $cmbr->to('degC');  // -270.425 °C
 
 ### Arithmetic
 
-Before calling arithmetic methods, particularly those that involve some form of multiplication or division (e.g. `inv()`, `mul()`, `div()`), it may be necessary to convert any Temperature quantities involved to absolute units (i.e. `K` or `°R`) to get the correct result.
+Before calling arithmetic methods that involve multiplication or division (e.g. `inv()`, `mul()`, `div()`), convert offset-scale temperatures to an absolute scale first using `toAbsoluteScale()`. Without this, the result is physically meaningless because Celsius and Fahrenheit have arbitrary zero points.
 
+```php
+// "Twice as hot" as 20 °C — must work in Kelvin.
+$t = new Temperature(20, 'degC');           // 20 °C = 293.15 K
+$doubled = $t->toAbsoluteScale()->mul(2);   // 586.3 K ≈ 313.15 °C
+
+// Ratio of two temperatures.
+$t1 = new Temperature(100, 'degC');         // 373.15 K
+$t2 = new Temperature(50, 'degC');          // 323.15 K
+$ratio = $t1->toAbsoluteScale()->div($t2->toAbsoluteScale());  // ≈ 1.155
 ```
-example here
 
+---
 
+## Transformation methods
 
+### toAbsoluteScale()
+
+```php
+public function toAbsoluteScale(): static
 ```
 
+Convert the temperature to its corresponding absolute scale unit.
+
+Celsius converts to Kelvin; Fahrenheit converts to Rankine. Kelvin and Rankine are cloned with the same value. Always returns a new object. Useful when a value measured from absolute zero is needed, e.g. before ratio calculations or multiplication.
+
+**Returns:**
+- `static` — The equivalent temperature in `K` or `°R`.
+
+**Examples:**
+```php
+$t = new Temperature(0, 'degC');
+echo $t->toAbsoluteScale();   // 273.15 K
+
+$t = new Temperature(32, 'degF');
+echo $t->toAbsoluteScale();   // 491.67 °R
+
+$t = new Temperature(300, 'K');
+echo $t->toAbsoluteScale();   // 300 K  (cloned)
+
+$t = new Temperature(491.67, 'degR');
+echo $t->toAbsoluteScale();   // 491.67 °R  (cloned)
+```
 
 ---
 

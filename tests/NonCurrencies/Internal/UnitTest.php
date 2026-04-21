@@ -1253,6 +1253,39 @@ final class UnitTest extends TestCase
 
     // endregion
 
+    // region isValidWord() tests
+
+    /**
+     * Test isValidWord() accepts 1–7 Unicode letters and rejects non-letters, multi-char symbols, and empty strings.
+     */
+    public function testIsValidWord(): void
+    {
+        // Single ASCII letter.
+        $this->assertTrue(Unit::isValidWord('m'));
+        // Multi-letter ASCII word.
+        $this->assertTrue(Unit::isValidWord('km'));
+        $this->assertTrue(Unit::isValidWord('arcmin'));
+        // Exactly 7 letters — boundary.
+        $this->assertTrue(Unit::isValidWord('abcdefg'));
+        // Single Unicode letter.
+        $this->assertTrue(Unit::isValidWord("\u{03BC}"));  // Greek mu
+
+        // 8 letters — exceeds maximum.
+        $this->assertFalse(Unit::isValidWord('abcdefgh'));
+        // Non-letter character.
+        $this->assertFalse(Unit::isValidWord('°'));
+        $this->assertFalse(Unit::isValidWord('%'));
+        // Contains a non-letter.
+        $this->assertFalse(Unit::isValidWord('km/h'));
+        $this->assertFalse(Unit::isValidWord('k m'));
+        // Digit.
+        $this->assertFalse(Unit::isValidWord('1m'));
+        // Empty string → false.
+        $this->assertFalse(Unit::isValidWord(''));
+    }
+
+    // endregion
+
     // region Helpers
 
     /**

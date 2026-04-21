@@ -215,13 +215,13 @@ class CompoundUnit implements UnitInterface
 
         // Check for the first form: the symbol is a series of unit terms separated by multiplication and/or division
         // operators.
-        if (self::isValidCompoundUnitForm1($symbol)) {
+        if (self::isValidSymbolForm1($symbol)) {
             return self::parseHelper($symbol);
         }
 
         // Check for the second form: the symbol has the form "<terms>/(<terms>)", where <terms> is a sequence of one or
         // more multiplied unit terms. Examples: 'J/(mol*K)', 'W/(m2*K4)'.
-        if (self::isValidCompoundUnitForm2($symbol, $matches)) {
+        if (self::isValidSymbolForm2($symbol, $matches)) {
             assert(isset($matches['num']) && isset($matches['den']));
 
             // Get the numerator and denominator as CompoundUnit instances.
@@ -618,7 +618,7 @@ class CompoundUnit implements UnitInterface
 
     // endregion
 
-    // region Regex methods
+    // region Validation methods
 
     /**
      * Get the regex pattern for form 1 of a compound unit: unit terms separated by multiply/divide operators.
@@ -653,29 +653,30 @@ class CompoundUnit implements UnitInterface
         return '(?:' . self::regexForm1() . ')|(?:' . self::regexForm2() . ')';
     }
 
-    // endregion
-
-    // region Validation methods
-
     /**
-     * Check if a string matches form 1 of a compound unit.
+     * Check if a string matches a compound unit without brackets.
+     *
+     * This form has multiple unit terms joined by multiplication and division operators.
      *
      * @param string $symbol The symbol to validate.
      * @return bool True if the symbol matches form 1.
      */
-    private static function isValidCompoundUnitForm1(string $symbol): bool
+    private static function isValidSymbolForm1(string $symbol): bool
     {
         return (bool)preg_match('/^' . self::regexForm1() . '$/iu', $symbol);
     }
 
     /**
-     * Check if a string matches form 2 of a compound unit.
+     * Check if a string matches a compound unit with brackets.
+     *
+     * This form has a numerator and denominator, separated by a division operator, with the denominator in brackets.
+     * Each has multiple unit terms joined by multiplication operators only.
      *
      * @param string $symbol The symbol to validate.
      * @param ?array<array-key, string> $matches Output array for match results.
      * @return bool True if the symbol matches form 2.
      */
-    private static function isValidCompoundUnitForm2(string $symbol, ?array &$matches): bool
+    private static function isValidSymbolForm2(string $symbol, ?array &$matches): bool
     {
         return (bool)preg_match('/^' . self::regexForm2() . '$/iu', $symbol, $matches);
     }
@@ -842,13 +843,13 @@ class CompoundUnit implements UnitInterface
 
             // Accumulate the exponents for each letter in the dimension code.
             foreach ($dims as $dimCode => $exp) {
+                // Accumulate the exponent for this letter.
                 if (isset($dimCodes[$dimCode])) {
                     $exp += $dimCodes[$dimCode];
-                    if ($exp === 0) {
-                        unset($dimCodes[$dimCode]);
-                    } else {
-                        $dimCodes[$dimCode] = $exp;
-                    }
+                }
+                // Set or unset the exponent for this letter.
+                if ($exp === 0) {
+                    unset($dimCodes[$dimCode]);
                 } else {
                     $dimCodes[$dimCode] = $exp;
                 }

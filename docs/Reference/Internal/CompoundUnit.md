@@ -169,37 +169,6 @@ $frequency = CompoundUnit::parse('s-1');
 
 ---
 
-## Construction methods
-
-### addUnitTerm()
-
-```php
-public function addUnitTerm(UnitTerm $newUnitTerm): void
-```
-
-Add a unit term, combining exponents with any existing term of the same unit.
-
-**Parameters:**
-- `$newUnitTerm` (UnitTerm) - The unit term to add.
-
-**Behavior:**
-- If a term with the same base exists, exponents are added.
-- If the resulting exponent is zero, the term is removed.
-- Terms are automatically sorted into canonical order.
-
-### removeUnitTerm()
-
-```php
-public function removeUnitTerm(UnitTerm $unitTermToRemove): void
-```
-
-Remove a unit term.
-
-**Parameters:**
-- `$unitTermToRemove` (UnitTerm) - The unit term to remove.
-
----
-
 ## Inspection methods
 
 ### isDimensionless()
