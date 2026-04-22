@@ -358,7 +358,9 @@ class PrefixService
                         continue;
                     }
                     if (isset($seen[$sym])) {
+                        // @codeCoverageIgnoreStart
                         throw new DomainException("Duplicate prefix symbol: '$sym'.");
+                        // @codeCoverageIgnoreEnd
                     }
                     $seen[$sym] = true;
                 }

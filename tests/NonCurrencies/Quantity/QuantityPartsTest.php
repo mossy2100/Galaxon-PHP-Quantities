@@ -279,6 +279,73 @@ final class QuantityPartsTest extends TestCase
         ]);
     }
 
+    /**
+     * Test fromParts() throws when the "sign" key is not an integer.
+     */
+    public function testFromPartsNonIntegerSignThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The "sign" part must be an integer.');
+
+        // @phpstan-ignore argument.type
+        Time::fromParts([
+            'h'    => 1,
+            'sign' => 'negative',
+        ]);
+    }
+
+    /**
+     * Test fromParts() throws when a parts array key is not a string.
+     */
+    public function testFromPartsNonStringKeyThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The parts array must contain only strings as keys.');
+
+        // @phpstan-ignore argument.type
+        Length::fromParts([1.0]);
+    }
+
+    /**
+     * Test fromParts() throws when a parts array value is not a number.
+     */
+    public function testFromPartsNonNumericValueThrowsException(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The parts array must contain only numbers as values.');
+
+        // @phpstan-ignore argument.type
+        Length::fromParts([
+            'm' => 'oops',
+        ]);
+    }
+
+    /**
+     * Test fromParts() throws when a parts array value is not finite.
+     */
+    public function testFromPartsNonFiniteValueThrowsException(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('The parts values must be finite numbers.');
+
+        Length::fromParts([
+            'm' => INF,
+        ]);
+    }
+
+    /**
+     * Test fromParts() throws when called directly on the base Quantity class (no quantity type).
+     */
+    public function testFromPartsThrowsWhenQuantityTypeIsNull(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Quantity type cannot be null.');
+
+        Quantity::fromParts([
+            'm' => 1,
+        ]);
+    }
+
     // endregion
 
     // region validatePrecision() tests

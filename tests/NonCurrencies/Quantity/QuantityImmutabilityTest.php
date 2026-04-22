@@ -57,7 +57,7 @@ final class QuantityImmutabilityTest extends TestCase
         $other = CompoundUnit::parse('kg');
 
         $this->expectException(Error::class);
-        // @phpstan-ignore property.readOnlyAssignNotInConstructor
+        // @phpstan-ignore assign.propertyProtectedSet
         $length->compoundUnit = $other;
     }
 
@@ -69,7 +69,7 @@ final class QuantityImmutabilityTest extends TestCase
         $length = Length::create(1, 'm');
 
         $this->expectException(Error::class);
-        // @phpstan-ignore property.readOnlyAssignNotInConstructor
+        // @phpstan-ignore assign.propertyProtectedSet
         $length->value = 999.0;
     }
 }

@@ -89,8 +89,8 @@ class CurrencyService
     /**
      * Load the currency unit data from the generated PHP file, if it exists.
      *
-     * Returns null if the file is missing, contains a syntax error, or doesn't return an array. No exceptions are
-     * raised — any failure condition yields a null result.
+     * Returns null if the file is missing, contains a syntax error, or doesn't return an array with the expected
+     * shape. No exceptions are raised — any failure condition yields a null result.
      *
      * @return ?array{
      *     whenFetched: string,
@@ -112,8 +112,19 @@ class CurrencyService
             return null;
         }
 
-        // Check it's an array.
-        return is_array($unitData) ? $unitData : null;
+        // Check it's an array with the right shape.
+        $ok = is_array($unitData)
+            && array_key_exists('whenFetched', $unitData) && is_string($unitData['whenFetched'])
+            && array_key_exists('currencies', $unitData) && is_array($unitData['currencies']);
+
+        // Check currencies are arrays with the right shape.
+        if ($ok) {
+            foreach ($unitData['currencies'] as $name => $code) {
+                $ok = $ok && is_string($name) && is_string($code);
+            }
+        }
+
+        return $ok ? $unitData : null;
     }
 
     /**
@@ -268,6 +279,16 @@ class CurrencyService
         return self::fetchUnits();
     }
 
+    /**
+     * Delete the currency unit data files.
+     */
+    public static function deleteUnits(): void
+    {
+        $dataDir = self::getDataDir();
+        self::deleteFile("$dataDir/CurrencyUnits.xml");
+        self::deleteFile("$dataDir/CurrencyUnits.php");
+    }
+
     // endregion
 
     // region Conversion data methods
@@ -275,8 +296,8 @@ class CurrencyService
     /**
      * Load the currency conversion data from the generated PHP file, if it exists.
      *
-     * Returns null if the file is missing, contains a syntax error, or doesn't return an array. No exceptions are
-     * raised — any failure condition yields a null result.
+     * Returns null if the file is missing, contains a syntax error, or doesn't return an array with the expected
+     * shape. No exceptions are raised — any failure condition yields a null result.
      *
      * @return ?array{
      *     whenFetched: string,
@@ -299,8 +320,21 @@ class CurrencyService
             return null;
         }
 
-        // Check it's an array.
-        return is_array($conversionData) ? $conversionData : null;
+        // Check it's an array with the right shape.
+        $ok = is_array($conversionData)
+            && array_key_exists('whenFetched', $conversionData) && is_string($conversionData['whenFetched'])
+            && array_key_exists('serviceName', $conversionData) && is_string($conversionData['serviceName'])
+            && array_key_exists('definitions', $conversionData) && is_array($conversionData['definitions']);
+
+        // Check definitions are arrays with the right shape.
+        if ($ok) {
+            foreach ($conversionData['definitions'] as $definition) {
+                $ok = $ok && is_array($definition) && count($definition) === 3 && is_string($definition[0])
+                    && is_string($definition[1]) && is_float($definition[2]);
+            }
+        }
+
+        return $ok ? $conversionData : null;
     }
 
     /**
@@ -323,6 +357,7 @@ class CurrencyService
         self::ensureDirExists(self::$dataDir);
 
         // Get the latest exchange rates.
+        assert(self::$exchangeRateService !== null);
         $conversionDefinitions = self::$exchangeRateService->getConversionDefinitions();
 
         // Get the configured currency service name.
@@ -420,6 +455,15 @@ class CurrencyService
 
         // Fetch the exchange rates from the official source and write them to the data file.
         return self::fetchConversions();
+    }
+
+    /**
+     * Delete the currency conversion data file.
+     */
+    public static function deleteConversions(): void
+    {
+        $dataDir = self::getDataDir();
+        self::deleteFile("$dataDir/CurrencyConversions.php");
     }
 
     // endregion
@@ -648,12 +692,12 @@ class CurrencyService
      */
     public static function getXmlFilePath(): string
     {
-        return self::$dataDir . '/CurrencyData.xml';
+        return self::$dataDir . '/CurrencyUnits.xml';
     }
 
     // endregion
 
-    // region Private configuration methods
+    // region Helper methods
 
     /**
      * Ensure that the exchange rate service is configured.
@@ -682,6 +726,18 @@ class CurrencyService
             // @codeCoverageIgnoreStart
             throw new RuntimeException("Failed to create directory: '$dirPath'.");
             // @codeCoverageIgnoreEnd
+        }
+    }
+
+    /**
+     * Delete a file if it exists.
+     *
+     * @param string $path The file path.
+     */
+    private static function deleteFile(string $path): void
+    {
+        if (file_exists($path)) {
+            unlink($path);
         }
     }
 

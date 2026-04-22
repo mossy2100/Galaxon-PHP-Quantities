@@ -730,7 +730,7 @@ final class LengthTest extends TestCase
         ]);
         $formatted = $length->formatParts();
 
-        $this->assertSame('1 yd 2 ft 6 in', $formatted);
+        $this->assertSame('1yd 2ft 6in', $formatted);
     }
 
     // endregion

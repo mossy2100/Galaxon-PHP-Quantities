@@ -368,6 +368,21 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('ML2T-2', $du->dimension);
     }
 
+    public function testDimensionCancellingTermsYieldsDimensionless(): void
+    {
+        // N*m = J, so N*m/J is dimensionless. The M, L2, and T-2 contributions
+        // from N*m are cancelled by J^-1's M-1, L-2, T2 contributions inside getDimension().
+        $du = CompoundUnit::parse('N*m/J');
+        $this->assertSame('', $du->dimension);
+    }
+
+    public function testDimensionPartialCancellationLeavesRemainder(): void
+    {
+        // W has dimension ML2T-3; W/m2 cancels the L2, leaving MT-3 (irradiance).
+        $du = CompoundUnit::parse('W/m2');
+        $this->assertSame('MT-3', $du->dimension);
+    }
+
     // endregion
 
     // region equal() tests
@@ -1439,7 +1454,7 @@ class CompoundUnitTest extends TestCase
         $this->expectException(Error::class);
         $this->expectExceptionMessage('private method');
 
-        // @phpstan-ignore method.notFound
+        // @phpstan-ignore method.private
         $cu->addUnitTerm(new UnitTerm('s'));
     }
 
@@ -1817,6 +1832,21 @@ class CompoundUnitTest extends TestCase
         $du = CompoundUnit::parse('kg*m');
 
         $this->assertNull($du->tryExpand());
+    }
+
+    /**
+     * Test tryExpand passes base unit terms through unchanged when mixed with non-base terms.
+     *
+     * N*m: N is non-base (expands to kg*m/s²), m is base (added directly to the result).
+     * The combined expansion should have dimension ML²T⁻² (equivalent to a Joule).
+     */
+    public function testTryExpandWithMixedBaseAndNonBaseTerms(): void
+    {
+        $du = CompoundUnit::parse('N*m');
+        $expansion = $du->tryExpand();
+
+        $this->assertInstanceOf(Quantity::class, $expansion);
+        $this->assertSame('ML2T-2', $expansion->compoundUnit->dimension);
     }
 
     /**

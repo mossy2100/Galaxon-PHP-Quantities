@@ -58,7 +58,11 @@ class UnitService
 
         return array_find(
             self::$units,
-            static fn (Unit $unit) => in_array($symbol, array_keys($unit->symbols), true)
+            static function (Unit $unit) use ($symbol): bool {
+                $symbols = $unit->symbols;
+                assert(is_array($symbols));
+                return in_array($symbol, array_keys($symbols), true);
+            }
         );
     }
 
@@ -122,7 +126,9 @@ class UnitService
         // Gather symbol keys from each unit.
         $symbolLists = [];
         foreach (self::$units as $unit) {
-            $symbolLists[] = array_keys($unit->symbols);
+            $symbols = $unit->symbols;
+            assert(is_array($symbols));
+            $symbolLists[] = array_keys($symbols);
         }
 
         /** @var list<string> */
@@ -163,7 +169,9 @@ class UnitService
         $existingSymbols = self::getAllSymbols();
 
         // Check if the new unit's symbols conflict with existing ones.
-        foreach ($unit->symbols as $symbol => $details) {
+        $symbols = $unit->symbols;
+        assert(is_array($symbols));
+        foreach ($symbols as $symbol => $details) {
             if (in_array($symbol, $existingSymbols, true)) {
                 throw new DomainException(
                     "The symbol '$symbol' for $unit->name is already being used by another unit."
@@ -358,7 +366,9 @@ class UnitService
 
         // Collect unit definitions.
         foreach (QuantityTypeService::getAll() as $qtyType) {
-            foreach ($qtyType->unitDefinitions as $name => $definition) {
+            $unitDefinitions = $qtyType->unitDefinitions;
+            assert(is_array($unitDefinitions));
+            foreach ($unitDefinitions as $name => $definition) {
                 $definitions[$name] = $definition;
             }
         }

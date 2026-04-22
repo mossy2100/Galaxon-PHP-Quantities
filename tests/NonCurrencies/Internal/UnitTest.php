@@ -9,6 +9,7 @@ use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\Prefix;
+use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Quantity;
@@ -455,7 +456,6 @@ final class UnitTest extends TestCase
 
         $prefixes = $unit->allowedPrefixes;
 
-        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($prefixes);
         $this->assertNotEmpty($prefixes);
     }
@@ -489,8 +489,9 @@ final class UnitTest extends TestCase
         $unit = UnitService::getBySymbol('m');
         $this->assertInstanceOf(Unit::class, $unit);
 
-        $this->assertNotNull($unit->quantityType);
-        $this->assertSame('length', $unit->quantityType->name);
+        $quantityType = $unit->quantityType;
+        $this->assertInstanceOf(QuantityType::class, $quantityType);
+        $this->assertSame('length', $quantityType->name);
     }
 
     /**
@@ -813,7 +814,6 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
-        // @phpstan-ignore method.alreadyNarrowedType
         $this->assertIsArray($symbols);
         $this->assertArrayHasKey('m', $symbols);
     }
@@ -833,6 +833,7 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
+        $this->assertIsArray($symbols);
         $this->assertArrayHasKey('ohm', $symbols);
         $this->assertArrayHasKey('Ω', $symbols);
     }
@@ -852,6 +853,7 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
+        $this->assertIsArray($symbols);
         $this->assertArrayHasKey('L', $symbols);
         $this->assertArrayHasKey('#', $symbols);
     }
@@ -871,6 +873,7 @@ final class UnitTest extends TestCase
 
         $symbols = $unit->symbols;
 
+        $this->assertIsArray($symbols);
         $this->assertArrayHasKey('m', $symbols);
         $this->assertArrayHasKey('km', $symbols);
         $this->assertArrayHasKey('cm', $symbols);
@@ -894,6 +897,7 @@ final class UnitTest extends TestCase
         $symbols = $unit->symbols;
 
         // ASCII prefixed.
+        $this->assertIsArray($symbols);
         $this->assertArrayHasKey('kohm', $symbols);
         $this->assertArrayHasKey('Mohm', $symbols);
 

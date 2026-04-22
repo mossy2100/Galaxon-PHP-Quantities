@@ -741,6 +741,7 @@ class CompoundUnit implements UnitInterface
     private function addUnitTerm(UnitTerm $newUnitTerm): void
     {
         $symbol = $newUnitTerm->unexponentiatedAsciiSymbol;
+        assert($symbol !== null);
         $existingUnitTerm = $this->unitTerms[$symbol] ?? null;
         if ($existingUnitTerm === null) {
             // Add the new unit term.

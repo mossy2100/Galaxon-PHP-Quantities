@@ -90,6 +90,11 @@ class UnitTerm implements UnitInterface
      */
     private ?Quantity $expansion = null;
 
+    /**
+     * Cache of the regex pattern for matching a unit term.
+     */
+    private static ?string $rx = null;
+
     // endregion
 
     // region Property hooks
@@ -277,6 +282,7 @@ class UnitTerm implements UnitInterface
 
         // Search for a matching unit symbol.
         foreach (UnitService::getAll() as $unit) {
+            assert($unit->symbols !== null);
             if (array_key_exists($prefixedUnitSymbol, $unit->symbols)) {
                 // Found a match. Get the unit symbol and prefix.
                 [$unitSymbol, $prefixSymbol] = $unit->symbols[$prefixedUnitSymbol];
@@ -447,7 +453,7 @@ class UnitTerm implements UnitInterface
                 $exp = '';
             } else {
                 // If the Unicode symbol contains non-letters than use the ASCII version with the exponent.
-                // This way, for example, we get 'deg²' instead of '°²'.
+                // This way we get, for example, 'deg²' instead of '°²'.
                 $symbol = Unit::isValidWord($this->unit->unicodeSymbol)
                     ? $this->unit->unicodeSymbol
                     : $this->unit->asciiSymbol;
@@ -481,10 +487,7 @@ class UnitTerm implements UnitInterface
      */
     public static function regex(): string
     {
-        // Cache this to save rebuilding every time.
-        static $rx = null;
-
-        if ($rx === null) {
+        if (self::$rx === null) {
             // Get the regular expression for an exponent (ASCII or superscript).
             $superscriptChars = Integers::SUPERSCRIPT_CHARACTERS;
             $superscriptMinus = $superscriptChars['-'];
@@ -499,10 +502,10 @@ class UnitTerm implements UnitInterface
                 . '|' . '(?:' . Unit::RX_TEMPERATURE_SYMBOL . ')';  // degree symbol plus one letter
 
             // Get the full regular expression with two captures.
-            $rx = "($rxUnit)($rxExponent)?";
+            self::$rx = "($rxUnit)($rxExponent)?";
         }
 
-        return $rx;
+        return self::$rx;
     }
 
     /**
@@ -517,7 +520,7 @@ class UnitTerm implements UnitInterface
      * - $matches[2] is the exponent (not set if none found)
      *
      * @param string $symbol The symbol to validate.
-     * @param ?array<int, string> $matches Output array for match results.
+     * @param ?array<string> $matches Output array for match results.
      * @return bool True if the symbol is a valid unit term.
      */
     public static function isValidSymbol(string $symbol, ?array &$matches): bool

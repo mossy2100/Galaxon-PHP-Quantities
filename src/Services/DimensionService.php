@@ -369,12 +369,14 @@ class DimensionService
         }
 
         // Check for a common base unit.
+        // @phpstan-ignore isset.offset
         if (isset(self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'])) {
             return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
         }
 
         // Should never happen.
         // @codeCoverageIgnoreStart
+        // @phpstan-ignore deadCode.unreachable
         throw new LogicException("No base unit symbol found for dimension code letter: '$dimensionLetterCode'.");
         // @codeCoverageIgnoreEnd
     }

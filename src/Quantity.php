@@ -254,6 +254,7 @@ class Quantity implements Stringable
             throw new DimensionMismatchException(static::getDimension(), $result->dimension);
         }
 
+        assert($result instanceof static);
         return $result;
     }
 
@@ -522,6 +523,7 @@ class Quantity implements Stringable
 
         // Try each allowed prefix to see if it's better. We want the prefix that produces the smallest value greater
         // than or equal to 1.
+        assert($firstUnitTerm->unit->allowedPrefixes !== null);
         foreach ($firstUnitTerm->unit->allowedPrefixes as $prefix) {
             // We only want to consider engineering prefixes for this. The middle metric prefixes (c, d, da, h) are
             // rarely used for most units. We also don't want binary prefixes (e.g. 'kB' is usually preferred to 'KiB').
@@ -1233,6 +1235,7 @@ class Quantity implements Stringable
             }
 
             // Check the sign.
+            assert(isset($m[1]));
             $partValue = (float)$m[1];
             if ($partValue < 0) {
                 if (!$firstPartSeen) {

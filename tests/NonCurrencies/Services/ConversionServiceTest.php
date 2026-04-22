@@ -46,7 +46,7 @@ final class ConversionServiceTest extends TestCase
     {
         $this->expectException(UnknownUnitException::class);
 
-        ConversionService::has('nonexistent1', 'nonexistent2');
+        ConversionService::has('noexist', 'doesnt');
     }
 
     /**
@@ -97,7 +97,7 @@ final class ConversionServiceTest extends TestCase
     {
         $this->expectException(UnknownUnitException::class);
 
-        ConversionService::get('nonexistent1', 'nonexistent2');
+        ConversionService::get('noexist', 'doesnt');
     }
 
     /**
@@ -329,7 +329,7 @@ final class ConversionServiceTest extends TestCase
     {
         $this->expectException(UnknownUnitException::class);
 
-        ConversionService::convert(1.0, 'nonexistent', 'm');
+        ConversionService::convert(1.0, 'noexist', 'm');
     }
 
     /**

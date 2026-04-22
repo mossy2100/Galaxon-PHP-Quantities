@@ -309,7 +309,9 @@ class Unit implements UnitInterface
      */
     public function acceptsPrefix(Prefix $prefix): bool
     {
-        return array_any($this->allowedPrefixes, static fn (Prefix $allowedPrefix) => $allowedPrefix->equal($prefix));
+        $allowedPrefixes = $this->allowedPrefixes;
+        assert($allowedPrefixes !== null);
+        return array_any($allowedPrefixes, static fn (Prefix $allowedPrefix) => $allowedPrefix->equal($prefix));
     }
 
     // endregion
@@ -602,6 +604,7 @@ class Unit implements UnitInterface
 
         // Get the allowed prefixes for this unit.
         $prefixes = $this->allowedPrefixes;
+        assert($prefixes !== null);
 
         // Add the unprefixed and prefixed ASCII symbol.
         $this->addSymbols($symbols, $this->asciiSymbol, $prefixes);

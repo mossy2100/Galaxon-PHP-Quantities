@@ -637,11 +637,11 @@ final class MassTest extends TestCase
      */
     public function testParsePartsImperial(): void
     {
-        $mass = Mass::parseParts('11 st 3 lb');
+        $mass = Mass::parseParts('11st 3lb');
 
         $this->assertInstanceOf(Mass::class, $mass);
-        $this->assertSame('st', $mass->compoundUnit->asciiSymbol);
-        $this->assertEqualsWithDelta(11.214285714, $mass->value, 1e-6);
+        $this->assertSame('lb', $mass->compoundUnit->asciiSymbol);
+        $this->assertEqualsWithDelta(157, $mass->value, 1e-6);
     }
 
     // endregion
@@ -712,7 +712,7 @@ final class MassTest extends TestCase
      */
     public function testParsePartsUsCustomary(): void
     {
-        $mass = Mass::parseParts('3 lb 4 oz');
+        $mass = Mass::parseParts('3lb 4oz');
 
         $this->assertInstanceOf(Mass::class, $mass);
         $this->assertSame('lb', $mass->compoundUnit->asciiSymbol);

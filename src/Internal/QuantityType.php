@@ -71,7 +71,7 @@ class QuantityType
     private(set) ?array $unitDefinitions = null {
         get {
             // Return the cached value if it exists.
-            if (isset($this->unitDefinitions)) {
+            if ($this->unitDefinitions !== null) {
                 return $this->unitDefinitions;
             }
 

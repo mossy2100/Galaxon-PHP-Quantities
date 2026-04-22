@@ -624,7 +624,7 @@ final class TimeTest extends TestCase
         ]);
         $formatted = $time->formatParts();
 
-        $this->assertSame('1 d 2 h 30 min 45 s', $formatted);
+        $this->assertSame('1d 2h 30min 45s', $formatted);
     }
 
     // endregion

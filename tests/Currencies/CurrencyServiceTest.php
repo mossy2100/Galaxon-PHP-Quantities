@@ -55,25 +55,25 @@ class CurrencyServiceTest extends TestCase
     public function testSetDataDirChangesPath(): void
     {
         CurrencyService::setDataDir('/tmp/test-currencies');
-        self::assertSame('/tmp/test-currencies', CurrencyService::getDataDir());
+        $this->assertSame('/tmp/test-currencies', CurrencyService::getDataDir());
     }
 
     public function testSetDataDirStripsTrailingSlash(): void
     {
         CurrencyService::setDataDir('/tmp/test-currencies/');
-        self::assertSame('/tmp/test-currencies', CurrencyService::getDataDir());
+        $this->assertSame('/tmp/test-currencies', CurrencyService::getDataDir());
     }
 
     public function testGetUnitsFilePathReflectsDataDir(): void
     {
         CurrencyService::setDataDir('/tmp/test-currencies');
-        self::assertSame('/tmp/test-currencies/CurrencyUnits.php', CurrencyService::getUnitsFilePath());
+        $this->assertSame('/tmp/test-currencies/CurrencyUnits.php', CurrencyService::getUnitsFilePath());
     }
 
     public function testGetConversionsFilePathReflectsDataDir(): void
     {
         CurrencyService::setDataDir('/tmp/test-currencies');
-        self::assertSame('/tmp/test-currencies/CurrencyConversions.php', CurrencyService::getConversionsFilePath());
+        $this->assertSame('/tmp/test-currencies/CurrencyConversions.php', CurrencyService::getConversionsFilePath());
     }
 
     public function testSetDataDirThrowsForEmptyPath(): void
@@ -91,12 +91,12 @@ class CurrencyServiceTest extends TestCase
     public function testSetDataDirCreatesNonExistentDirectory(): void
     {
         $tempDir = sys_get_temp_dir() . '/currency-test-' . uniqid();
-        self::assertDirectoryDoesNotExist($tempDir);
+        $this->assertDirectoryDoesNotExist($tempDir);
 
         CurrencyService::setDataDir($tempDir);
 
-        self::assertDirectoryExists($tempDir);
-        self::assertSame($tempDir, CurrencyService::getDataDir());
+        $this->assertDirectoryExists($tempDir);
+        $this->assertSame($tempDir, CurrencyService::getDataDir());
 
         // Clean up.
         rmdir($tempDir);
@@ -109,7 +109,7 @@ class CurrencyServiceTest extends TestCase
     public function testGetLocaleReturnsExplicitlySetLocale(): void
     {
         CurrencyService::setLocale('en_AU');
-        self::assertSame('en_AU', CurrencyService::getLocale());
+        $this->assertSame('en_AU', CurrencyService::getLocale());
     }
 
     public function testGetLocaleReturnsSomethingWhenNotSet(): void
@@ -118,8 +118,8 @@ class CurrencyServiceTest extends TestCase
         $locale = CurrencyService::getLocale();
 
         // Should fall back to PHP's default locale.
-        self::assertNotNull($locale);
-        self::assertNotEmpty($locale);
+        $this->assertNotNull($locale);
+        $this->assertNotEmpty($locale);
     }
 
     public function testSetLocaleAcceptsNull(): void
@@ -129,7 +129,7 @@ class CurrencyServiceTest extends TestCase
 
         // After clearing, getLocale() falls back to auto-detection rather than returning the old value.
         // We can't assert null because getLocale() auto-detects, but we verify no exception is thrown.
-        self::assertNotSame('en_US', CurrencyService::getLocale());
+        $this->assertNotSame('en_US', CurrencyService::getLocale());
     }
 
     public function testSetLocaleThrowsForInvalidLocale(): void
@@ -141,15 +141,15 @@ class CurrencyServiceTest extends TestCase
     public function testSetLocaleAcceptsVariousValidFormats(): void
     {
         CurrencyService::setLocale('en');
-        self::assertSame('en', CurrencyService::getLocale());
+        $this->assertSame('en', CurrencyService::getLocale());
 
         CurrencyService::setLocale(null);
         CurrencyService::setLocale('en_US');
-        self::assertSame('en_US', CurrencyService::getLocale());
+        $this->assertSame('en_US', CurrencyService::getLocale());
 
         CurrencyService::setLocale(null);
         CurrencyService::setLocale('zh-Hant-TW');
-        self::assertSame('zh-Hant-TW', CurrencyService::getLocale());
+        $this->assertSame('zh-Hant-TW', CurrencyService::getLocale());
     }
 
     // endregion
@@ -158,19 +158,19 @@ class CurrencyServiceTest extends TestCase
 
     public function testGetRatesTtlReturnsDefault(): void
     {
-        self::assertSame(3600, CurrencyService::getRatesTtl());
+        $this->assertSame(3600, CurrencyService::getRatesTtl());
     }
 
     public function testSetRatesTtlChangesValue(): void
     {
         CurrencyService::setRatesTtl(1800);
-        self::assertSame(1800, CurrencyService::getRatesTtl());
+        $this->assertSame(1800, CurrencyService::getRatesTtl());
     }
 
     public function testSetRatesTtlAcceptsZero(): void
     {
         CurrencyService::setRatesTtl(0);
-        self::assertSame(0, CurrencyService::getRatesTtl());
+        $this->assertSame(0, CurrencyService::getRatesTtl());
     }
 
     public function testSetRatesTtlThrowsForNegativeValue(): void
@@ -181,19 +181,19 @@ class CurrencyServiceTest extends TestCase
 
     public function testGetCurrenciesTtlReturnsDefault(): void
     {
-        self::assertSame(2592000, CurrencyService::getCurrenciesTtl());
+        $this->assertSame(2592000, CurrencyService::getCurrenciesTtl());
     }
 
     public function testSetCurrenciesTtlChangesValue(): void
     {
         CurrencyService::setCurrenciesTtl(86400);
-        self::assertSame(86400, CurrencyService::getCurrenciesTtl());
+        $this->assertSame(86400, CurrencyService::getCurrenciesTtl());
     }
 
     public function testSetCurrenciesTtlAcceptsZero(): void
     {
         CurrencyService::setCurrenciesTtl(0);
-        self::assertSame(0, CurrencyService::getCurrenciesTtl());
+        $this->assertSame(0, CurrencyService::getCurrenciesTtl());
     }
 
     public function testSetCurrenciesTtlThrowsForNegativeValue(): void
@@ -208,8 +208,16 @@ class CurrencyServiceTest extends TestCase
 
     public function testLoadUnitsReturnsNullWhenNoFile(): void
     {
+        $originalDir = CurrencyService::getDataDir();
         CurrencyService::setDataDir(self::TEST_DATA_DIR . '/empty');
-        self::assertNull(self::invoke('loadUnits'));
+
+        try {
+            $this->assertNull(self::invoke('loadUnits'));
+        } finally {
+            CurrencyService::deleteUnits();
+            CurrencyService::deleteConversions();
+            CurrencyService::setDataDir($originalDir);
+        }
     }
 
     public function testLoadUnitsReturnsValidArray(): void
@@ -218,11 +226,11 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::getUnits(true);
         $data = self::invoke('loadUnits');
 
-        self::assertIsArray($data);
-        self::assertArrayHasKey('whenFetched', $data);
-        self::assertArrayHasKey('currencies', $data);
-        self::assertIsArray($data['currencies']);
-        self::assertNotEmpty($data['currencies']);
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('whenFetched', $data);
+        $this->assertArrayHasKey('currencies', $data);
+        $this->assertIsArray($data['currencies']);
+        $this->assertNotEmpty($data['currencies']);
     }
 
     public function testLoadUnitsReturnsNullOnParseError(): void
@@ -234,7 +242,7 @@ class CurrencyServiceTest extends TestCase
         file_put_contents($dir . '/CurrencyUnits.php', '<?php this is not valid php;');
         CurrencyService::setDataDir($dir);
 
-        self::assertNull(self::invoke('loadUnits'));
+        $this->assertNull(self::invoke('loadUnits'));
 
         @unlink($dir . '/CurrencyUnits.php');
         @rmdir($dir);
@@ -249,7 +257,7 @@ class CurrencyServiceTest extends TestCase
         file_put_contents($dir . '/CurrencyUnits.php', '<?php return "not an array";');
         CurrencyService::setDataDir($dir);
 
-        self::assertNull(self::invoke('loadUnits'));
+        $this->assertNull(self::invoke('loadUnits'));
 
         @unlink($dir . '/CurrencyUnits.php');
         @rmdir($dir);
@@ -259,15 +267,16 @@ class CurrencyServiceTest extends TestCase
     {
         CurrencyService::getUnits(true);
         $data = self::invoke('loadUnits');
-        self::assertIsArray($data);
+        $this->assertIsArray($data);
 
+        $this->assertIsArray($data['currencies']);
         $symbols = array_values($data['currencies']);
 
-        self::assertContains('USD', $symbols);
-        self::assertContains('EUR', $symbols);
-        self::assertContains('GBP', $symbols);
-        self::assertContains('AUD', $symbols);
-        self::assertContains('JPY', $symbols);
+        $this->assertContains('USD', $symbols);
+        $this->assertContains('EUR', $symbols);
+        $this->assertContains('GBP', $symbols);
+        $this->assertContains('AUD', $symbols);
+        $this->assertContains('JPY', $symbols);
     }
 
     // endregion
@@ -276,8 +285,16 @@ class CurrencyServiceTest extends TestCase
 
     public function testLoadConversionsReturnsNullWhenNoFile(): void
     {
+        $originalDir = CurrencyService::getDataDir();
         CurrencyService::setDataDir(self::TEST_DATA_DIR . '/empty');
-        self::assertNull(self::invoke('loadConversions'));
+
+        try {
+            $this->assertNull(self::invoke('loadConversions'));
+        } finally {
+            CurrencyService::deleteUnits();
+            CurrencyService::deleteConversions();
+            CurrencyService::setDataDir($originalDir);
+        }
     }
 
     public function testLoadConversionsReturnsValidArray(): void
@@ -286,12 +303,12 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::getConversions(true);
         $data = self::invoke('loadConversions');
 
-        self::assertIsArray($data);
-        self::assertArrayHasKey('whenFetched', $data);
-        self::assertArrayHasKey('serviceName', $data);
-        self::assertArrayHasKey('definitions', $data);
-        self::assertIsArray($data['definitions']);
-        self::assertNotEmpty($data['definitions']);
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('whenFetched', $data);
+        $this->assertArrayHasKey('serviceName', $data);
+        $this->assertArrayHasKey('definitions', $data);
+        $this->assertIsArray($data['definitions']);
+        $this->assertNotEmpty($data['definitions']);
     }
 
     public function testLoadConversionsReturnsNullOnParseError(): void
@@ -303,7 +320,7 @@ class CurrencyServiceTest extends TestCase
         file_put_contents($dir . '/CurrencyConversions.php', '<?php this is not valid php;');
         CurrencyService::setDataDir($dir);
 
-        self::assertNull(self::invoke('loadConversions'));
+        $this->assertNull(self::invoke('loadConversions'));
 
         @unlink($dir . '/CurrencyConversions.php');
         @rmdir($dir);
@@ -318,7 +335,7 @@ class CurrencyServiceTest extends TestCase
         file_put_contents($dir . '/CurrencyConversions.php', '<?php return 42;');
         CurrencyService::setDataDir($dir);
 
-        self::assertNull(self::invoke('loadConversions'));
+        $this->assertNull(self::invoke('loadConversions'));
 
         @unlink($dir . '/CurrencyConversions.php');
         @rmdir($dir);
@@ -332,12 +349,11 @@ class CurrencyServiceTest extends TestCase
     {
         $result = CurrencyService::getUnits(true);
 
-        self::assertIsArray($result);
-        self::assertArrayHasKey('whenFetched', $result);
-        self::assertArrayHasKey('currencies', $result);
-        self::assertNotEmpty($result['currencies']);
-        self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.php');
-        self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyData.xml');
+        $this->assertArrayHasKey('whenFetched', $result);
+        $this->assertArrayHasKey('currencies', $result);
+        $this->assertNotEmpty($result['currencies']);
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.php');
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.xml');
     }
 
     public function testGetUnitsReturnsCachedDataWhenFresh(): void
@@ -348,7 +364,7 @@ class CurrencyServiceTest extends TestCase
         // Second call without bypass should return the same cached data (identical timestamp).
         $second = CurrencyService::getUnits(false);
 
-        self::assertSame($first['whenFetched'], $second['whenFetched']);
+        $this->assertSame($first['whenFetched'], $second['whenFetched']);
     }
 
     public function testGetUnitsWritesValidData(): void
@@ -356,10 +372,10 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::getUnits(true);
 
         $data = self::invoke('loadUnits');
-        self::assertIsArray($data);
-        self::assertArrayHasKey('whenFetched', $data);
-        self::assertArrayHasKey('currencies', $data);
-        self::assertNotEmpty($data['currencies']);
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('whenFetched', $data);
+        $this->assertArrayHasKey('currencies', $data);
+        $this->assertNotEmpty($data['currencies']);
     }
 
     public function testGetUnitsRenamesSDR(): void
@@ -367,9 +383,9 @@ class CurrencyServiceTest extends TestCase
         $data = CurrencyService::getUnits(true);
 
         // SDR is stored with the cleaned-up name, not the ISO-parenthesised form.
-        self::assertArrayHasKey('Special Drawing Right', $data['currencies']);
-        self::assertSame('XDR', $data['currencies']['Special Drawing Right']);
-        self::assertArrayNotHasKey('SDR (Special Drawing Right)', $data['currencies']);
+        $this->assertArrayHasKey('Special Drawing Right', $data['currencies']);
+        $this->assertSame('XDR', $data['currencies']['Special Drawing Right']);
+        $this->assertArrayNotHasKey('SDR (Special Drawing Right)', $data['currencies']);
     }
 
     // endregion
@@ -381,12 +397,11 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::setExchangeRateService(new FrankfurterService());
         $result = CurrencyService::getConversions(true);
 
-        self::assertIsArray($result);
-        self::assertArrayHasKey('whenFetched', $result);
-        self::assertArrayHasKey('serviceName', $result);
-        self::assertArrayHasKey('definitions', $result);
-        self::assertNotEmpty($result['definitions']);
-        self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+        $this->assertArrayHasKey('whenFetched', $result);
+        $this->assertArrayHasKey('serviceName', $result);
+        $this->assertArrayHasKey('definitions', $result);
+        $this->assertNotEmpty($result['definitions']);
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyConversions.php');
     }
 
     public function testGetConversionsReturnsCachedDataWhenFresh(): void
@@ -399,8 +414,8 @@ class CurrencyServiceTest extends TestCase
         // Second call without bypass should return the same cached data.
         $second = CurrencyService::getConversions(false);
 
-        self::assertSame($first['whenFetched'], $second['whenFetched']);
-        self::assertSame($first['serviceName'], $second['serviceName']);
+        $this->assertSame($first['whenFetched'], $second['whenFetched']);
+        $this->assertSame($first['serviceName'], $second['serviceName']);
     }
 
     public function testGetConversionsWritesValidData(): void
@@ -409,11 +424,11 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::getConversions(true);
 
         $data = self::invoke('loadConversions');
-        self::assertIsArray($data);
-        self::assertArrayHasKey('whenFetched', $data);
-        self::assertArrayHasKey('serviceName', $data);
-        self::assertArrayHasKey('definitions', $data);
-        self::assertNotEmpty($data['definitions']);
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('whenFetched', $data);
+        $this->assertArrayHasKey('serviceName', $data);
+        $this->assertArrayHasKey('definitions', $data);
+        $this->assertNotEmpty($data['definitions']);
     }
 
     public function testGetConversionsRefetchesOnServiceChange(): void
@@ -429,8 +444,8 @@ class CurrencyServiceTest extends TestCase
 
         $second = CurrencyService::getConversions(false);
 
-        self::assertSame('FakeService', $second['serviceName']);
-        self::assertNotSame($first['serviceName'], $second['serviceName']);
+        $this->assertSame('FakeService', $second['serviceName']);
+        $this->assertNotSame($first['serviceName'], $second['serviceName']);
     }
 
     public function testGetConversionsThrowsWithoutService(): void
@@ -442,20 +457,67 @@ class CurrencyServiceTest extends TestCase
 
     // endregion
 
+    // region deleteUnits
+
+    public function testDeleteUnitsRemovesFiles(): void
+    {
+        // Ensure the files exist first.
+        CurrencyService::getUnits(true);
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.php');
+
+        CurrencyService::deleteUnits();
+
+        $this->assertFileDoesNotExist(self::TEST_DATA_DIR . '/CurrencyUnits.php');
+        $this->assertFileDoesNotExist(self::TEST_DATA_DIR . '/CurrencyUnits.xml');
+    }
+
+    public function testDeleteUnitsIsIdempotentWhenFilesAbsent(): void
+    {
+        // Files may not exist; deleting again should not throw.
+        CurrencyService::deleteUnits();
+        CurrencyService::deleteUnits();
+        $this->assertFileDoesNotExist(self::TEST_DATA_DIR . '/CurrencyUnits.php');
+    }
+
+    // endregion
+
+    // region deleteConversions
+
+    public function testDeleteConversionsRemovesFile(): void
+    {
+        // Ensure the file exists first.
+        CurrencyService::getConversions(true);
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+
+        CurrencyService::deleteConversions();
+
+        $this->assertFileDoesNotExist(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+    }
+
+    public function testDeleteConversionsIsIdempotentWhenFileAbsent(): void
+    {
+        // File may not exist; deleting again should not throw.
+        CurrencyService::deleteConversions();
+        CurrencyService::deleteConversions();
+        $this->assertFileDoesNotExist(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+    }
+
+    // endregion
+
     // region refresh
 
     public function testRefreshFromScratchCreatesDataFiles(): void
     {
         // Delete any existing data files so refresh() must fetch fresh data.
+        @unlink(self::TEST_DATA_DIR . '/CurrencyUnits.xml');
         @unlink(self::TEST_DATA_DIR . '/CurrencyUnits.php');
         @unlink(self::TEST_DATA_DIR . '/CurrencyConversions.php');
-        @unlink(self::TEST_DATA_DIR . '/CurrencyData.xml');
 
         CurrencyService::setExchangeRateService(new FrankfurterService());
         CurrencyService::refresh();
 
-        self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.php');
-        self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.php');
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyConversions.php');
     }
 
     public function testRefreshWithBypassCacheRefreshesEvenWhenCached(): void
@@ -479,8 +541,8 @@ class CurrencyServiceTest extends TestCase
         $newUnitsMtime = filemtime(self::TEST_DATA_DIR . '/CurrencyUnits.php');
         $newConversionsMtime = filemtime(self::TEST_DATA_DIR . '/CurrencyConversions.php');
 
-        self::assertGreaterThan($unitsMtime, $newUnitsMtime);
-        self::assertGreaterThan($conversionsMtime, $newConversionsMtime);
+        $this->assertGreaterThan($unitsMtime, $newUnitsMtime);
+        $this->assertGreaterThan($conversionsMtime, $newConversionsMtime);
     }
 
     // endregion
@@ -491,14 +553,14 @@ class CurrencyServiceTest extends TestCase
     {
         CurrencyService::init(new FrankfurterService());
 
-        self::assertInstanceOf(FrankfurterService::class, CurrencyService::getExchangeRateService());
+        $this->assertInstanceOf(FrankfurterService::class, CurrencyService::getExchangeRateService());
     }
 
     public function testInitWithCustomLocale(): void
     {
         CurrencyService::init(new FrankfurterService(), 'de_DE');
 
-        self::assertSame('de_DE', CurrencyService::getLocale());
+        $this->assertSame('de_DE', CurrencyService::getLocale());
     }
 
     public function testInitWritesDataToConfiguredDir(): void
@@ -506,8 +568,8 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::init(new FrankfurterService());
 
         // Data files should be written to the test data directory, not production.
-        self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.php');
-        self::assertFileExists(self::TEST_DATA_DIR . '/CurrencyConversions.php');
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyUnits.php');
+        $this->assertFileExists(self::TEST_DATA_DIR . '/CurrencyConversions.php');
     }
 
     public function testInitDoesNotWriteToProductionDir(): void
@@ -527,15 +589,15 @@ class CurrencyServiceTest extends TestCase
         // If they didn't exist, they should still not exist.
         if ($unitsMtime !== null) {
             clearstatcache(true, $unitsPath);
-            self::assertSame($unitsMtime, filemtime($unitsPath));
+            $this->assertSame($unitsMtime, filemtime($unitsPath));
         } else {
-            self::assertFileDoesNotExist($unitsPath);
+            $this->assertFileDoesNotExist($unitsPath);
         }
         if ($conversionsMtime !== null) {
             clearstatcache(true, $conversionsPath);
-            self::assertSame($conversionsMtime, filemtime($conversionsPath));
+            $this->assertSame($conversionsMtime, filemtime($conversionsPath));
         } else {
-            self::assertFileDoesNotExist($conversionsPath);
+            $this->assertFileDoesNotExist($conversionsPath);
         }
     }
 

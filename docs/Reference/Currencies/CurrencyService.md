@@ -57,7 +57,71 @@ The default directory where generated currency data files are stored.
 
 ---
 
-## Configuration
+## Unit data
+
+### getUnits()
+
+```php
+public static function getUnits(bool $bypassCache = false): array
+```
+
+Ensure the currency unit data is up to date. Returns the cached data if it exists and has not expired. Otherwise fetches a fresh copy from the official ISO 4217 XML, regenerates the data file, and returns the new data.
+
+**Parameters:**
+- `$bypassCache` (bool) - If `true`, always fetch fresh data regardless of cache expiry. Default: `false`.
+
+**Returns:**
+- `array` - The current currency unit data, containing:
+  - `whenFetched` (string) - Timestamp of when the data was fetched.
+  - `currencies` (array<string, string>) - Currency names mapped to their ISO 4217 codes.
+
+**Throws:**
+- `RuntimeException` - If a fetch is required but the ISO 4217 XML cannot be fetched or parsed, or if the data directory cannot be created.
+
+### deleteUnits()
+
+```php
+public static function deleteUnits(): void
+```
+
+Delete the currency unit data files (`CurrencyUnits.php` and `CurrencyUnits.xml`) from the configured data directory. Has no effect if the files do not exist. The next call to `getUnits()` or `refresh()` will re-fetch fresh data.
+
+---
+
+## Conversion data
+
+### getConversions()
+
+```php
+public static function getConversions(bool $bypassCache = false): array
+```
+
+Ensure the currency conversion data is up to date. Returns the cached data if it exists, has not expired, and was produced by the currently configured exchange rate service. Otherwise fetches fresh data, regenerates the data file, and returns it.
+
+**Parameters:**
+- `$bypassCache` (bool) - If `true`, always fetch fresh data regardless of cache state. Default: `false`.
+
+**Returns:**
+- `array` - The current currency conversion data, containing:
+  - `whenFetched` (string) - Timestamp of when the data was fetched.
+  - `serviceName` (string) - The name of the exchange rate service used.
+  - `definitions` (list<array{string, string, float}>) - Conversion definition tuples.
+
+**Throws:**
+- `LogicException` - If the exchange rate service is not configured.
+- `RuntimeException` - If a fetch is required but the exchange rate service fails or the data directory cannot be created.
+
+### deleteConversions()
+
+```php
+public static function deleteConversions(): void
+```
+
+Delete the currency conversion data file (`CurrencyConversions.php`) from the configured data directory. Has no effect if the file does not exist. The next call to `getConversions()` or `refresh()` will re-fetch fresh data.
+
+---
+
+## Main methods
 
 ### init()
 
@@ -82,6 +146,25 @@ Initialize the currency service. This is the primary entry point for setting up 
 - [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the locale string is invalid.
 - `DomainException` - If either TTL argument is negative.
 - `RuntimeException` - If the ISO 4217 XML or exchange rate API request fails, or if the data directory cannot be created.
+
+### refresh()
+
+```php
+public static function refresh(bool $bypassCache = false): void
+```
+
+Ensure all currency data is fresh. Calls `getUnits()` and `getConversions()`, each of which fetches new data only if its cache has expired (or if `$bypassCache` is `true`).
+
+**Parameters:**
+- `$bypassCache` (bool) - If `true`, skip checking the cache expiry. Default: `false`.
+
+**Throws:**
+- `RuntimeException` - If the ISO 4217 XML or exchange rate API request fails, or if the data directory cannot be created.
+- `LogicException` - If the exchange rate service is not configured.
+
+---
+
+## Configuration
 
 ### getExchangeRateService()
 
@@ -217,65 +300,6 @@ Get the path to the currency conversions data file.
 
 ---
 
-## Currency data
-
-### getUnits()
-
-```php
-public static function getUnits(bool $bypassCache = false): array
-```
-
-Ensure the currency unit data is up to date. Returns the cached data if it exists and has not expired. Otherwise fetches a fresh copy from the official ISO 4217 XML, regenerates the data file, and returns the new data.
-
-**Parameters:**
-- `$bypassCache` (bool) - If `true`, always fetch fresh data regardless of cache expiry. Default: `false`.
-
-**Returns:**
-- `array` - The current currency unit data, containing:
-  - `whenFetched` (string) - Timestamp of when the data was fetched.
-  - `currencies` (array<string, string>) - Currency names mapped to their ISO 4217 codes.
-
-**Throws:**
-- `RuntimeException` - If a fetch is required but the ISO 4217 XML cannot be fetched or parsed, or if the data directory cannot be created.
-
-### getConversions()
-
-```php
-public static function getConversions(bool $bypassCache = false): array
-```
-
-Ensure the currency conversion data is up to date. Returns the cached data if it exists, has not expired, and was produced by the currently configured exchange rate service. Otherwise fetches fresh data, regenerates the data file, and returns it.
-
-**Parameters:**
-- `$bypassCache` (bool) - If `true`, always fetch fresh data regardless of cache state. Default: `false`.
-
-**Returns:**
-- `array` - The current currency conversion data, containing:
-  - `whenFetched` (string) - Timestamp of when the data was fetched.
-  - `serviceName` (string) - The name of the exchange rate service used.
-  - `definitions` (list<array{string, string, float}>) - Conversion definition tuples.
-
-**Throws:**
-- `LogicException` - If the exchange rate service is not configured.
-- `RuntimeException` - If a fetch is required but the exchange rate service fails or the data directory cannot be created.
-
-### refresh()
-
-```php
-public static function refresh(bool $bypassCache = false): void
-```
-
-Ensure all currency data is fresh. Refreshes currency units and exchange rate conversions if their caches have expired, then loads the data into the unit and conversion registries.
-
-**Parameters:**
-- `$bypassCache` (bool) - If `true`, skip checking the cache expiry. Default: `false`.
-
-**Throws:**
-- `RuntimeException` - If the ISO 4217 XML or exchange rate API request fails, or if the data directory cannot be created.
-- `LogicException` - If the exchange rate service is not configured.
-
----
-
 ## Usage examples
 
 ```php
@@ -301,6 +325,10 @@ CurrencyService::setDataDir('/tmp/currency-cache');
 
 // Check what locale is active.
 $locale = CurrencyService::getLocale();
+
+// Clear cached data files to force a re-fetch on next use.
+CurrencyService::deleteUnits();
+CurrencyService::deleteConversions();
 ```
 
 ---
