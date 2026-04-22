@@ -16,7 +16,7 @@ The conversion system works by:
 
 All conversions use the linear transformation formula: `destValue = srcValue * factor`
 
-### Path Discovery Strategies
+### Path discovery strategies
 
 When `findConversion()` is called, the converter tries these strategies in order (cheapest first), stopping as soon as an exact conversion is found:
 
@@ -72,7 +72,7 @@ The quantity type this converter is for (e.g., the `QuantityType` for length), o
 
 ---
 
-## Instance Management
+## Instance management
 
 The `Converter` uses the multiton pattern. The constructor is private; use `getInstance()` to obtain instances.
 
@@ -120,7 +120,7 @@ Clear all cached Converter instances. Forces new instances to be created on next
 
 ---
 
-## Unit Methods
+## Unit methods
 
 ### hasUnit()
 
@@ -156,7 +156,7 @@ Remove all units from the unit list.
 
 ---
 
-## Conversion Lookup Methods
+## Conversion lookup methods
 
 ### findConversion()
 
@@ -244,7 +244,7 @@ Check whether a conversion between two units is already cached in the matrix.
 
 ---
 
-## Conversion Management Methods
+## Conversion management methods
 
 ### loadConversions()
 
@@ -308,9 +308,9 @@ Remove all conversions involving a given unit. Used when unloading a unit from t
 
 ---
 
-## Usage Examples
+## Usage examples
 
-### Basic Conversion
+### Basic conversion
 
 ```php
 use Galaxon\Quantities\Internal\Converter;
@@ -325,7 +325,7 @@ $km = $length->convert(1000, 'm', 'km');
 echo "$km km"; // 1 km
 ```
 
-### Working with Compound Units
+### Working with compound units
 
 ```php
 use Galaxon\Quantities\Internal\Converter;
@@ -335,7 +335,7 @@ $force = Converter::getInstance('MLT-2');
 $newtons = $force->convert(1, 'lbf', 'N');
 ```
 
-### Cross-System Conversions
+### Cross-system conversions
 
 ```php
 use Galaxon\Quantities\Internal\Converter;
@@ -347,7 +347,7 @@ echo "$liters L"; // ~4.546 L (Imperial gallon)
 
 ---
 
-## See Also
+## See also
 
 - **[Conversion](Conversion.md)** - Represents a single unit conversion.
 - **[FloatWithError](FloatWithError.md)** - Tracks precision through operations.

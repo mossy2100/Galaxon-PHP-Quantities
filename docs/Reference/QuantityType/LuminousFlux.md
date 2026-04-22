@@ -11,23 +11,37 @@ Represents luminous flux quantities.
 
 The `LuminousFlux` class handles luminous flux measurements, commonly used to rate light bulb brightness.
 
-For the complete list of luminous flux units, see [Units: Luminous Flux](../../Concepts/Units.md#luminous-flux).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| lumen | `lm`         | all metric | SI      |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The lumen is defined as:
+| From | To          | Factor |
+| ---- | ----------- | ------ |
+| `lm` | `cd*rad2`   | 1      |
+
+---
+
+## SI unit
+
+The *lumen* is defined as:
 
 ```
 lm = cd·sr
 ```
 
-One lumen is the luminous flux emitted by a source of one candela intensity over a solid angle of one steradian.
+One *lumen* is the luminous flux emitted by a source of one *candela* intensity over a solid angle of one *steradian*.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\LuminousFlux;
@@ -44,9 +58,8 @@ $inKlm = $flashlight->to('klm');  // 1 klm
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Luminous Flux](../../Concepts/Units.md#luminous-flux)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousIntensity](LuminousIntensity.md)** - Related quantity
 - **[Illuminance](Illuminance.md)** - Related quantity (lm/m²)

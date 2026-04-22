@@ -22,7 +22,7 @@ Maps single-letter dimension codes to their quantity type name and base unit sym
 
 ---
 
-## Validation Methods
+## Validation methods
 
 ### isValid()
 
@@ -42,7 +42,7 @@ DimensionService::isValid('L2M-1');   // true
 
 ---
 
-## Composition Methods
+## Composition methods
 
 ### decompose()
 
@@ -90,7 +90,7 @@ $dim = DimensionService::compose([]);
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### lessThanOrEqual()
 
@@ -113,7 +113,7 @@ DimensionService::lessThanOrEqual('', 'MLT-2');         // true (empty is subset
 
 ---
 
-## Binary Arithmetic Methods
+## Binary arithmetic methods
 
 ### sub()
 
@@ -134,7 +134,7 @@ DimensionService::sub('L', 'L2');           // 'L-1' (can produce negative expon
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -159,7 +159,7 @@ $dim = DimensionService::pow('MLT-2', 2);
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### normalize()
 
@@ -181,7 +181,7 @@ $norm = DimensionService::normalize('L1');
 
 ---
 
-## Utility Methods
+## Utility methods
 
 ### letterToInt()
 
@@ -219,12 +219,12 @@ DimensionService::countUnits('');       // 0 (dimensionless)
 
 ---
 
-## Base Unit Methods
+## Base unit methods
 
-### getBaseUnitSymbol()
+### getBaseUnitTermSymbol()
 
 ```php
-public static function getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string
+public static function getBaseUnitTermSymbol(string $dimensionLetterCode, bool $si = true): string
 ```
 
 Get the base unit symbol for a dimension letter code. When `$si` is true, returns the SI base unit symbol. When false, returns the English base unit symbol if one exists, otherwise falls back to the SI or common base unit.
@@ -232,22 +232,22 @@ Get the base unit symbol for a dimension letter code. When `$si` is true, return
 **Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code letter is invalid.
 
 ```php
-DimensionService::getBaseUnitSymbol('M', true);   // 'kg'
-DimensionService::getBaseUnitSymbol('M', false);  // 'lb'
-DimensionService::getBaseUnitSymbol('L', true);   // 'm'
-DimensionService::getBaseUnitSymbol('L', false);  // 'ft'
-DimensionService::getBaseUnitSymbol('T', true);   // 's'
-DimensionService::getBaseUnitSymbol('T', false);  // 's' (no English unit, falls back to SI)
-DimensionService::getBaseUnitSymbol('D', true);   // 'B' (common base unit)
+DimensionService::getBaseUnitTermSymbol('M', true);   // 'kg'
+DimensionService::getBaseUnitTermSymbol('M', false);  // 'lb'
+DimensionService::getBaseUnitTermSymbol('L', true);   // 'm'
+DimensionService::getBaseUnitTermSymbol('L', false);  // 'ft'
+DimensionService::getBaseUnitTermSymbol('T', true);   // 's'
+DimensionService::getBaseUnitTermSymbol('T', false);  // 's' (no English unit, falls back to SI)
+DimensionService::getBaseUnitTermSymbol('D', true);   // 'B' (common base unit)
 ```
 
 ### getBaseUnitTerm()
 
 ```php
-public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm
+public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si = true): UnitTerm
 ```
 
-Get the base unit as a `UnitTerm` object for a dimension letter code. Delegates to `getBaseUnitSymbol()` and parses the result.
+Get the base unit as a `UnitTerm` object for a dimension letter code. Delegates to `getBaseUnitTermSymbol()` and parses the result.
 
 **Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code letter is invalid.
 
@@ -262,7 +262,7 @@ $term = DimensionService::getBaseUnitTerm('L', false);
 ### getBaseCompoundUnit()
 
 ```php
-public static function getBaseCompoundUnit(string $dimension, bool $si): CompoundUnit
+public static function getBaseCompoundUnit(string $dimension, bool $si = true): CompoundUnit
 ```
 
 Convert a dimension code to a `CompoundUnit` composed of SI or English base units. Each dimension term is converted to a `UnitTerm` with the appropriate exponent.
@@ -279,7 +279,7 @@ $du = DimensionService::getBaseCompoundUnit('MLT-2', false);
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\Services\DimensionService;
@@ -303,13 +303,13 @@ $result = DimensionService::compose($terms1);
 // 'ML2T-2' (Energy)
 
 // Build the SI base compound unit for a dimension.
-$du = DimensionService::getBaseCompoundUnit('ML2T-2', true);
+$du = DimensionService::getBaseCompoundUnit('ML2T-2');
 // CompoundUnit representing kg*m2/s2
 ```
 
 ---
 
-## See Also
+## See also
 
 - **[QuantityTypeService](QuantityTypeService.md)** - Registry using dimension codes
 - **[CompoundUnit](../Internal/CompoundUnit.md)** - Compound unit representation

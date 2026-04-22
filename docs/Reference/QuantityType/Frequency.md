@@ -9,20 +9,38 @@ Represents frequency and radioactivity quantities.
 
 ## Overview
 
-The `Frequency` class handles measurements with dimension T⁻¹ (inverse time). This includes both frequency (hertz) and radioactivity (becquerel).
-
-For the complete list of frequency units, see [Units: Frequency](../../Concepts/Units.md#frequency).
+The `Frequency` class handles measurements with dimension T⁻¹ (inverse time). This includes both frequency (*hertz*) and radioactivity (*becquerel*).
 
 ---
 
-## Hertz vs Becquerel
+## Unit definitions
+
+| Name      | ASCII symbol | Prefixes   | Systems |
+| --------- | ------------ | ---------- | ------- |
+| hertz     | `Hz`         | all metric | SI      |
+| becquerel | `Bq`         | all metric | SI      |
+
+**Note:** *Hertz* measures frequency; *becquerel* measures radioactivity. Both have dimension T⁻¹.
+
+---
+
+## Conversion definitions
+
+| From | To    | Factor |
+| ---- | ----- | ------ |
+| `Hz` | `s-1` | 1      |
+| `Bq` | `s-1` | 1      |
+
+---
+
+## Hertz vs becquerel
 
 Both units have the same dimension (s⁻¹) but measure different phenomena:
 
-| Unit | Measures | Example |
-|------|----------|---------|
-| Hertz (Hz) | Periodic events | Sound waves, radio frequencies |
-| Becquerel (Bq) | Radioactive decays | Nuclear decay rate |
+| Unit           | Measures           | Example                        |
+|----------------|--------------------|--------------------------------|
+| hertz (Hz)     | Periodic events    | Sound waves, radio frequencies |
+| becquerel (Bq) | Radioactive decays | Nuclear decay rate             |
 
 The units are dimensionally equivalent but represent different physical concepts:
 
@@ -33,9 +51,9 @@ $decay = new Frequency(1000, 'Bq');  // 1000 decays/second
 
 ---
 
-## SI Unit Expansion
+## SI unit
 
-Both hertz and becquerel expand to the same base unit expression:
+Both *hertz* and *becquerel* expand to the same base unit expression:
 
 ```
 Hz = s⁻¹
@@ -44,7 +62,7 @@ Bq = s⁻¹
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Frequency;
@@ -72,7 +90,7 @@ $period = 1 / $wave->value;  // 0.001 seconds
 
 ---
 
-## Frequency and Period
+## Frequency and period
 
 Frequency and period are inversely related:
 
@@ -85,7 +103,7 @@ Where f is frequency in Hz and T is period in seconds.
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -93,9 +111,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Frequency](../../Concepts/Units.md#frequency)** - Complete list of frequency units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Time](Time.md)** - Related quantity (inverse relationship)
 - **[RadiationDose](RadiationDose.md)** - Related radiation quantity

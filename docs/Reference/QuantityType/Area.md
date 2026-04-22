@@ -9,22 +9,31 @@ Represents area quantities.
 
 ## Overview
 
-The `Area` class handles area measurements. Most area units are derived from length units squared (m², ft², etc.), which are automatically supported. This class provides additional named area units.
-
-For the complete list of area units, see [Units: Area](../../Concepts/Units.md#area).
+The `Area` class handles area measurements. Most area units are derived from length units squared (*m²*, *ft²*, etc.), which are automatically supported. This class provides additional named area units.
 
 ---
 
-## Key Conversions
+## Unit definitions
 
-| From | To | Factor |
-|------|-----|--------|
-| hectare | m² | 10,000 |
-| acre | yd² | 4,840 |
+| Name    | ASCII symbol | Systems                |
+| ------- | ------------ | ---------------------- |
+| hectare | `ha`         | SI Accepted, Metric    |
+| acre    | `ac`         | Imperial, US Customary |
+
+**Note:** Square units like m², km², ft², etc. are automatically supported through unit arithmetic.
 
 ---
 
-## Square Units
+## Conversion definitions
+
+| From  | To    | Factor |
+| ----- | ----- | ------ |
+| `ha`  | `m2`  | 10000  |
+| `ac`  | `yd2` | 4840   |
+
+---
+
+## Square units
 
 Square length units are automatically supported through unit arithmetic:
 
@@ -44,7 +53,7 @@ $screen = new Quantity(15.6 * 9, 'in2');
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Area;
@@ -69,9 +78,8 @@ $inSqKm = $hectares->to('km2');  // 0.01 km²
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Area](../../Concepts/Units.md#area)** - Complete list of area units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity (squared length = area)
 - **[Volume](Volume.md)** - Related quantity (area × length = volume)

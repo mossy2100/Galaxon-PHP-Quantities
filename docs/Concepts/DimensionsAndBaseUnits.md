@@ -20,7 +20,7 @@ The standard base dimension codes, as defined by the [International System of Qu
 | `N`  | amount of substance | *mol*        |
 | `J`  | luminous intensity  | *cd*         |
 
-Additionally, a code of `1` indicates a dimensionless quantity, for example a concentration expressed in parts per million (*ppm*) or an interest rate expressed as a percentage (*%*).
+Additionally, a code of `1` indicates a dimensionless quantity, for example a concentration expressed in *parts per million* (`ppm`) or an interest rate expressed as a *percentage* (`%`).
 
 The Quantities package tweaks and expands this system as follows:
 
@@ -36,36 +36,36 @@ The Quantities package tweaks and expands this system as follows:
 
 Base units are fundamental; they map to a single letter dimension code. Furthermore, there is a single canonical base unit for each dimension in SI; these are known as SI base units, as shown above.
 
-The package diverges slightly from SI in that radians (*rad*) are used as an SI base unit for angles. Technically, they are an SI compound unit, representing a dimensionless quantity.
+The package diverges slightly from SI in that *radians* (*rad*) are used as an SI base unit for angles. Technically, they are an SI compound unit, representing a dimensionless quantity.
 
-The package also refers to "English" base units, used within the imperial and US customary systems of units. These are shown below.
+The package also refers to "English" base units, being those used within the imperial and US customary systems of units. These are shown below.
 
 Additionally, the notion of *common* base units is introduced, which belong to neither SI nor the English systems, but serve both:
-1. Bytes (*B*) are used as the common base unit for data quantities. Although technically the bit (*b*) is more fundamental, bytes are much more common in practice.
+1. Bytes (*B*) are used as the common base unit for data quantities. Although technically the *bit* (*b*) is more fundamental, *bytes* are much more common in practice.
 2. Troy ounces of gold (*XAU*) are used as the common base currency, being the most commonly traded international currency.
 
 The resulting dimension codes and base units used within the package are thus:
 
 | Code | Name                | Common base unit | SI base unit | English base unit |
 | ---- | ------------------- | ---------------- | ------------ | ----------------- |
-| L    | length              |                  | *m*          | *ft*              |
-| M    | mass                |                  | *kg*         | *lb*              |
-| T    | time                |                  | *s*          |                   |
-| I    | electric current    |                  | *A*          |                   |
-| H    | temperature         |                  | *K*          | *°R*              |
-| N    | amount of substance |                  | *mol*        |                   |
-| J    | luminous intensity  |                  | *cd*         |                   |
-| A    | angle               |                  | *rad*        | *°*               |
-| D    | data                | *B*              |              |                   |
-| C    | currency            | *XAU*            |              |                   |
+| `L`  | length              |                  | *m*          | *ft*              |
+| `M`  | mass                |                  | *kg*         | *lb*              |
+| `T`  | time                |                  | *s*          |                   |
+| `I`  | electric current    |                  | *A*          |                   |
+| `H`  | temperature         |                  | *K*          | *°R*              |
+| `N`  | amount of substance |                  | *mol*        |                   |
+| `J`  | luminous intensity  |                  | *cd*         |                   |
+| `A`  | angle               |                  | *rad*        | *°*               |
+| `D`  | data                | *B*              |              |                   |
+| `C`  | currency            | *XAU*            |              |                   |
 
 Whenever a Quantity is converted to base units, the resulting compound unit will be a combination of units from the respective set.
-1. If no English unit is defined for a dimension, the algorithm will use the SI base unit.
+1. If no English base unit is defined for a dimension, the algorithm will use the SI base unit.
 2. If no SI base unit is defined for a dimension, it will use the common base unit.
 
 ---
 
-## See Also
+## See also
 
 - **[Terminology](Terminology.md)** — Key terms including base units, compound units, and dimensions.
 - **[Quantity Types](QuantityTypes.md)** — Typed quantity classes and their dimension codes.

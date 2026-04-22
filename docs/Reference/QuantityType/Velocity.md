@@ -9,15 +9,31 @@ Represents velocity/speed quantities.
 
 ## Overview
 
-The `Velocity` class handles speed and velocity measurements. Most velocity units are derived from length/time ratios (m/s, km/h, mph), which are automatically supported. This class provides the knot as a named unit.
-
-For the complete list of velocity units, see [Units: Velocity](../../Concepts/Units.md#velocity).
+The `Velocity` class handles speed and velocity measurements. Most velocity units are derived from length/time ratios (m/s, km/h, mph), which are automatically supported. This class provides the *knot* as a named unit.
 
 ---
 
-## Knot Definition
+## Unit definitions
 
-The knot is defined as one nautical mile per hour:
+| Name | ASCII symbol | Systems  |
+| ---- | ------------ | -------- |
+| knot | `kn`         | Nautical |
+
+**Note:** Compound velocity units like m/s, km/h, mi/h, etc. are automatically supported through unit arithmetic.
+
+---
+
+## Conversion definitions
+
+| From | To          | Factor |
+| ---- | ----------- | ------ |
+| `kn` | `nmi*h-1`   | 1      |
+
+---
+
+## Knot definition
+
+The *knot* is defined as one *nautical mile* per hour:
 
 ```
 1 kn = 1 nmi/h = 1.852 km/h ≈ 1.15078 mph
@@ -25,7 +41,7 @@ The knot is defined as one nautical mile per hour:
 
 ---
 
-## Compound Velocity Units
+## Compound velocity units
 
 Velocity units are automatically supported through unit arithmetic:
 
@@ -46,7 +62,7 @@ $inKmh = $highway->to('km/h');  // 112.65 km/h
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Velocity;
@@ -76,7 +92,7 @@ $inKmh = $c->to('km/h');  // 1.079×10⁹ km/h
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -84,9 +100,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Velocity](../../Concepts/Units.md#velocity)** - Complete list of velocity units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity
 - **[Time](Time.md)** - Related quantity

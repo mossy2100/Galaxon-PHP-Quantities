@@ -11,7 +11,28 @@ Represents temperature quantities with special handling for offset-based convers
 
 The `Temperature` class handles the complexity of temperature conversions, which differ from other quantity types because Celsius and Fahrenheit are offset from absolute zero.
 
-For the complete list of temperature units, see [Units: Temperature](../../Concepts/Units.md#temperature).
+---
+
+## Unit definitions
+
+| Name       | ASCII symbol | Unicode symbol | Prefixes   | Systems                |
+| ---------- | ------------ | -------------- | ---------- | ---------------------- |
+| kelvin     | `K`          |                | all metric | SI                     |
+| celsius    | `degC`       | `°C`           |            | SI                     |
+| fahrenheit | `degF`       | `°F`           |            | Imperial, US Customary |
+| rankine    | `degR`       | `°R`           |            | Imperial, US Customary |
+
+**Note:** Temperature conversions between Celsius/Fahrenheit and Kelvin/Rankine include offsets and are handled specially.
+
+---
+
+## Conversion definitions
+
+| From   | To     | Factor |
+| ------ | ------ | ------ |
+| `degC` | `K`    | 1      |
+| `degF` | `degR` | 1      |
+| `K`    | `degR` | 1.8    |
 
 ---
 
@@ -25,7 +46,7 @@ For the complete list of temperature units, see [Units: Temperature](../../Conce
 
 ---
 
-## Temperature Scales
+## Temperature scales
 
 The package supports four temperature scales:
 
@@ -41,7 +62,7 @@ The package supports four temperature scales:
 
 ---
 
-## Overridden Methods
+## Overridden methods
 
 ### convert()
 
@@ -71,7 +92,7 @@ Temperature::convert(0, 'degR', 'degF');   // -459.67
 
 ---
 
-## Conversion Logic
+## Conversion logic
 
 The conversion process:
 
@@ -79,7 +100,7 @@ The conversion process:
 2. **Convert between systems** - Multiply/divide by 1.8 if crossing SI/Imperial boundary
 3. **Convert to destination** - Apply offset if ending in Celsius or Fahrenheit
 
-### Important Notes
+### Important notes
 
 - **Offsets only apply to absolute temperatures** — When converting compound units like `J/°C` to `J/K`, only the scale factor applies, not the offset. This is physically correct because such quantities represent rates of change, not absolute temperatures:
 
@@ -93,7 +114,7 @@ $rate = Quantity::create(5, 'J/K');
 echo $rate->to('J/degR');  // 2.7778 J/°R
 ```
 
-- **Prefixed Kelvin is supported** — Units like `mK` (millikelvin) work correctly:
+- **Prefixed Kelvin is supported** — Units like `mK` (*millikelvin*) work correctly:
 
 ```php
 $cmbr = new Temperature(2725, 'mK');
@@ -101,9 +122,56 @@ echo $cmbr->to('K');     // 2.725 K
 echo $cmbr->to('degC');  // -270.425 °C
 ```
 
+### Arithmetic
+
+Before calling arithmetic methods that involve multiplication or division (e.g. `inv()`, `mul()`, `div()`), convert offset-scale temperatures to an absolute scale first using `toAbsoluteScale()`. Without this, the result is physically meaningless because Celsius and Fahrenheit have arbitrary zero points.
+
+```php
+// "Twice as hot" as 20 °C — must work in Kelvin.
+$t = new Temperature(20, 'degC');           // 20 °C = 293.15 K
+$doubled = $t->toAbsoluteScale()->mul(2);   // 586.3 K ≈ 313.15 °C
+
+// Ratio of two temperatures.
+$t1 = new Temperature(100, 'degC');         // 373.15 K
+$t2 = new Temperature(50, 'degC');          // 323.15 K
+$ratio = $t1->toAbsoluteScale()->div($t2->toAbsoluteScale());  // ≈ 1.155
+```
+
 ---
 
-## Usage Examples
+## Transformation methods
+
+### toAbsoluteScale()
+
+```php
+public function toAbsoluteScale(): static
+```
+
+Convert the temperature to its corresponding absolute scale unit.
+
+Celsius converts to Kelvin; Fahrenheit converts to Rankine. Kelvin and Rankine are cloned with the same value. Always returns a new object. Useful when a value measured from absolute zero is needed, e.g. before ratio calculations or multiplication.
+
+**Returns:**
+- `static` — The equivalent temperature in `K` or `°R`.
+
+**Examples:**
+```php
+$t = new Temperature(0, 'degC');
+echo $t->toAbsoluteScale();   // 273.15 K
+
+$t = new Temperature(32, 'degF');
+echo $t->toAbsoluteScale();   // 491.67 °R
+
+$t = new Temperature(300, 'K');
+echo $t->toAbsoluteScale();   // 300 K  (cloned)
+
+$t = new Temperature(491.67, 'degR');
+echo $t->toAbsoluteScale();   // 491.67 °R  (cloned)
+```
+
+---
+
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Temperature;
@@ -117,10 +185,6 @@ $absolute = new Temperature(0, 'K');
 $bodyTempC = $bodyTemp->to('degC');  // 37°C
 $roomTempK = $roomTemp->to('K');     // 293.15 K
 
-// Arithmetic works correctly
-$diff = $bodyTemp->subtract($roomTemp);
-echo $diff->to('degC')->value;  // 17 (temperature difference)
-
 // Compare temperatures
 $hot = new Temperature(100, 'degC');
 $boiling = new Temperature(212, 'degF');
@@ -130,9 +194,10 @@ $hot->approxEqual($boiling);  // true
 $kelvin = Temperature::convert(25, 'degC', 'K');  // 298.15
 ```
 
+**Note on arithmetic:** `add()` and `sub()` on Temperature values are not generally meaningful because Celsius and Fahrenheit use offset scales. For differences between temperatures, convert both operands to Kelvin (or Rankine) first, then subtract.
+
 ---
 
-## See Also
+## See also
 
-- **[Units: Temperature](../../Concepts/Units.md#temperature)** — Complete list of temperature units.
 - **[Quantity](../Quantity.md)** — Base class documentation.

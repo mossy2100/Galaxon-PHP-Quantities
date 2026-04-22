@@ -17,7 +17,7 @@ Key capabilities include:
 - **Automatic conversion**: Easily convert between any compatible units, with most common units built-in, including SI, imperial, US customary, scientific, nautical, CSS, and more.
 - **Prefix support**: Full support for SI metric and binary prefixes.
 - **Arithmetic operations**: Add, subtract, multiply, and divide quantities with automatic unit handling.
-- **Flexible parsing**: Parse strings like "123.45 km", "90deg", or "25°C" into Quantity objects.
+- **Flexible parsing**: Parse strings like `123.45 km`, `90deg`, or `25°C` into Quantity objects.
 - **String formatting**: Format quantities as ASCII or Unicode, with configurable decimal places and locale-specific currency formatting.
 - **Part decomposition**: Break measurements into components (e.g. 12° 34′ 56″ or 1y 3mo 2d).
 - **Physical constants**: Built-in constants like the speed of light, Planck's constant, and Avogadro's number as Quantity objects.
@@ -44,7 +44,7 @@ composer require galaxon/quantities
 ```
 
 ---
-## Quick Start
+## Quick start
 
 ```php
 use Galaxon\Quantities\PhysicalConstant;
@@ -151,9 +151,9 @@ All quantity type classes extend `Quantity` and define their specific units and 
 | [AmountOfSubstance](docs/Reference/QuantityType/AmountOfSubstance.md)     | N          | mol                    | SI base quantity for counting entities.          |
 | [Angle](docs/Reference/QuantityType/Angle.md)                             | A          | rad                    | Angular measurements with trig functions.        |
 | [Area](docs/Reference/QuantityType/Area.md)                               | L2         | m²                     | Two-dimensional extent.                          |
-| [Capacitance](docs/Reference/QuantityType/Capacitance.md)                 | T4I2L-2M-1 | F                      | Ability to store electric charge.                |
+| [Capacitance](docs/Reference/QuantityType/Capacitance.md)                 | T4L-2M-1I2 | F                      | Ability to store electric charge.                |
 | [CatalyticActivity](docs/Reference/QuantityType/CatalyticActivity.md)     | T-1N       | kat                    | Rate of catalysis.                               |
-| [Conductance](docs/Reference/QuantityType/Conductance.md)                 | T3I2L-2M-1 | S                      | Electrical conductance.                          |
+| [Conductance](docs/Reference/QuantityType/Conductance.md)                 | T3L-2M-1I2 | S                      | Electrical conductance.                          |
 | [Data](docs/Reference/QuantityType/Data.md)                               | D          | B                      | Digital storage with metric and binary prefixes. |
 | [Density](docs/Reference/QuantityType/Density.md)                         | L-3M       | kg/m³                  | Mass per unit volume.                            |
 | [Dimensionless](docs/Reference/QuantityType/Dimensionless.md)             | *empty*    | *empty*                | Ratios, percentages, and pure numbers.           |
@@ -162,10 +162,10 @@ All quantity type classes extend `Quantity` and define their specific units and 
 | [Energy](docs/Reference/QuantityType/Energy.md)                           | T-2L2M     | J                      | Capacity to do work.                             |
 | [Force](docs/Reference/QuantityType/Force.md)                             | T-2LM      | N                      | Interaction causing acceleration.                |
 | [Frequency](docs/Reference/QuantityType/Frequency.md)                     | T-1        | Hz, Bq                 | Cycles per unit time.                            |
-| [Illuminance](docs/Reference/QuantityType/Illuminance.md)                 | L-2J       | lx                     | Luminous flux per area.                          |
+| [Illuminance](docs/Reference/QuantityType/Illuminance.md)                 | L-2JA2     | lx                     | Luminous flux per area.                          |
 | [Inductance](docs/Reference/QuantityType/Inductance.md)                   | T-2L2MI-2  | H                      | Property opposing current change.                |
 | [Length](docs/Reference/QuantityType/Length.md)                           | L          | m                      | SI base quantity for distance.                   |
-| [LuminousFlux](docs/Reference/QuantityType/LuminousFlux.md)               | AJ         | lm                     | Perceived light power.                           |
+| [LuminousFlux](docs/Reference/QuantityType/LuminousFlux.md)               | JA2        | lm                     | Perceived light power.                           |
 | [LuminousIntensity](docs/Reference/QuantityType/LuminousIntensity.md)     | J          | cd                     | SI base quantity for luminous intensity.         |
 | [MagneticFlux](docs/Reference/QuantityType/MagneticFlux.md)               | T-2L2MI-1  | Wb                     | Total magnetic field through surface.            |
 | [MagneticFluxDensity](docs/Reference/QuantityType/MagneticFluxDensity.md) | T-2MI-1    | T                      | Magnetic field strength.                         |

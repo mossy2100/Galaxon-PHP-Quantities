@@ -11,13 +11,27 @@ Represents electrical resistance quantities.
 
 The `Resistance` class handles electrical resistance measurements.
 
-For the complete list of resistance units, see [Units: Resistance](../../Concepts/Units.md#resistance).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Unicode symbol | Prefixes   | Systems |
+| ---- | ------------ | -------------- | ---------- | ------- |
+| ohm  | `ohm`        | `Ω`            | all metric | SI      |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The ohm is defined as:
+| From  | To                  | Factor |
+| ----- | ------------------- | ------ |
+| `ohm` | `kg*m2*s-3*A-2`     | 1      |
+
+---
+
+## SI unit
+
+The *ohm* is defined as:
 
 ```
 Ω = kg·m²·s⁻³·A⁻² = V/A
@@ -25,15 +39,22 @@ The ohm is defined as:
 
 ---
 
-## Unit Symbol
+## Unit symbol
 
-The ohm uses:
+The package supports three symbols for the ohm:
 - ASCII: `ohm`
-- Unicode: `Ω` (Greek capital omega, U+03A9)
+- Unicode: `Ω` (U+03A9 Greek capital letter Omega)
+- Alternate: `Ω` (U+2126 Ohm sign)
+
+The recommendation from Unicode is to prefer the Greek capital letter Omega for the ohm symbol, but the "Ohm sign" character is also accepted by the parser for backwards compatibility.
+
+How to type capital Omega:
+1. Mac: Option+W
+2. Windows: Alt+234
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Resistance;
@@ -53,9 +74,8 @@ $inKohm = $input->to('kohm');  // 10,000 kΩ
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Resistance](../../Concepts/Units.md#resistance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Voltage](Voltage.md)** - Related quantity (V = IR)
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity

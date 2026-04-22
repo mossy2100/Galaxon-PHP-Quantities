@@ -11,13 +11,33 @@ Represents energy quantities.
 
 The `Energy` class handles energy measurements across SI, scientific, and common units.
 
-For the complete list of energy units, see [Units: Energy](../../Concepts/Units.md#energy).
+---
+
+## Unit definitions
+
+| Name                 | ASCII symbol | Prefixes     | Systems      |
+| -------------------- | ------------ | ------------ | ------------ |
+| joule                | `J`          | all metric   | SI           |
+| electronvolt         | `eV`         | all metric   | SI Accepted  |
+| calorie              | `cal`        | large metric | Common       |
+| British thermal unit | `Btu`        |              | US Customary |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The joule is defined in terms of SI base units:
+| From  | To             | Factor           |
+| ----- | -------------- | ---------------- |
+| `J`   | `kg*m2*s-2`    | 1                |
+| `eV`  | `J`            | 1.602176634e-19  |
+| `cal` | `J`            | 4.184            |
+| `Btu` | `J`            | 1055.05585262    |
+
+---
+
+## SI unit
+
+The *joule* is defined in terms of SI base units:
 
 ```
 J = kg·m²·s⁻²
@@ -32,17 +52,7 @@ $inBaseUnits = $energy->to('kg*m2*s-2');  // 1
 
 ---
 
-## Key Conversions
-
-| From | To | Factor |
-|------|-----|--------|
-| eV | J | 1.602176634×10⁻¹⁹ |
-| cal | J | 4.184 (exact, thermochemical) |
-| Btu | J | 1055.05585262 |
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Energy;
@@ -74,7 +84,7 @@ $binding = new Energy(8.8, 'MeV');  // Per nucleon
 
 ---
 
-## Energy-Related Quantities
+## Energy-related quantities
 
 Energy is related to other quantities:
 
@@ -84,9 +94,8 @@ Energy is related to other quantities:
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Energy](../../Concepts/Units.md#energy)** - Complete list of energy units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Power](Power.md)** - Related quantity (energy per time)
 - **[Force](Force.md)** - Related quantity (energy per distance)

@@ -201,7 +201,7 @@ $entropy = $energy->div($temp);  // ~1.667 J/K
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](../Reference/Quantity.md#arithmetic-methods)** — Full method signatures and parameter details.
 - **[Calculation Examples](CalculationExamples.md)** — Real-world physics and engineering calculations.

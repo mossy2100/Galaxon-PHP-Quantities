@@ -6,20 +6,20 @@ Represents a compound unit composed of one or more unit terms.
 
 ## Overview
 
-The `CompoundUnit` class represents compound units like 'kg\*m/s²' (newton) or 'J/(mol\*K)' (molar heat capacity). It maintains a collection of `UnitTerm` objects, each representing a unit with its prefix and exponent.
+The `CompoundUnit` class represents compound units like *kg⋅m/s²* (newton) or *J/(mol⋅K)* (molar heat capacity). It maintains a collection of `UnitTerm` objects, each representing a unit with its prefix and exponent.
 
 Key behaviors:
-- Unit terms with the same base unit are automatically combined (e.g., km³ * km⁻¹ = km²)
+- Unit terms with the same base unit are automatically combined (e.g., *km³* * *km⁻¹* = *km²*)
 - Supports parsing from strings in various formats
 - Provides both ASCII and Unicode symbol representations
 - Implements `UnitInterface` for consistent handling
 
-### Key Features
+### Key features
 
 - Automatic term combination for like units
 - Multiple parsing formats (multiplication, division, parentheses)
 - Dimension code calculation from component terms
-- Immutable transformations (inv, mul, pow, toSiBase, toEnglishBase)
+- Immutable transformations (`inv`, `mul`, `pow`, `toSiBase`, `toEnglishBase`)
 - Equatable via the `Equatable` trait
 
 ---
@@ -50,7 +50,7 @@ The dimension code of the compound unit. Calculated from the component unit term
 public string $asciiSymbol { get; }
 ```
 
-The ASCII representation of the unit (e.g., 'kg\*m/s2'). Uses asterisk for multiplication and digit exponents.
+The ASCII representation of the unit (e.g., `kg*m/s2`). Uses asterisk for multiplication and digit exponents.
 
 ### unicodeSymbol
 
@@ -58,7 +58,7 @@ The ASCII representation of the unit (e.g., 'kg\*m/s2'). Uses asterisk for multi
 public string $unicodeSymbol { get; }
 ```
 
-The Unicode representation of the unit (e.g., 'kg⋅m⋅s⁻²'). Uses dot operator (⋅) for multiplication and superscript exponents.
+The Unicode representation of the unit (e.g., `kg⋅m⋅s⁻²`). Uses dot operator (⋅) for multiplication and superscript exponents.
 
 ### multiplier
 
@@ -116,7 +116,7 @@ $velocity = new CompoundUnit([
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### toCompoundUnit()
 
@@ -169,38 +169,7 @@ $frequency = CompoundUnit::parse('s-1');
 
 ---
 
-## Construction Methods
-
-### addUnitTerm()
-
-```php
-public function addUnitTerm(UnitTerm $newUnitTerm): void
-```
-
-Add a unit term, combining exponents with any existing term of the same unit.
-
-**Parameters:**
-- `$newUnitTerm` (UnitTerm) - The unit term to add.
-
-**Behavior:**
-- If a term with the same base exists, exponents are added.
-- If the resulting exponent is zero, the term is removed.
-- Terms are automatically sorted into canonical order.
-
-### removeUnitTerm()
-
-```php
-public function removeUnitTerm(UnitTerm $unitTermToRemove): void
-```
-
-Remove a unit term.
-
-**Parameters:**
-- `$unitTermToRemove` (UnitTerm) - The unit term to remove.
-
----
-
-## Inspection Methods
+## Inspection methods
 
 ### isDimensionless()
 
@@ -265,7 +234,7 @@ Check if the CompoundUnit includes the given unit in any of its terms.
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### equal()
 
@@ -282,7 +251,7 @@ Check if this compound unit equals another. Compares by ASCII symbol.
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### inv()
 
@@ -302,7 +271,7 @@ $invVelocity = $velocity->inv(); // s/m
 
 ---
 
-## Binary Arithmetic Methods
+## Binary arithmetic methods
 
 ### mul()
 
@@ -326,7 +295,7 @@ $velocity = $length->mul($time->inv()); // m/s
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -350,7 +319,7 @@ $volume = $length->pow(3); // m3
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### \_\_clone()
 
@@ -439,7 +408,7 @@ echo $merged->value;       // 0.3048
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -470,9 +439,9 @@ Convert to string using Unicode format.
 
 ---
 
-## Usage Examples
+## Usage examples
 
-### Building Compound Units
+### Building compound units
 
 ```php
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -490,7 +459,7 @@ echo $newton->unicodeSymbol; // 'kg⋅m⋅s⁻²'
 echo $newton->dimension;     // 'T-2LM'
 ```
 
-### Parsing and Validation
+### Parsing and validation
 
 ```php
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -506,7 +475,7 @@ if ($unit1->isSi()) {
 }
 ```
 
-### Arithmetic with Units
+### Arithmetic with units
 
 ```php
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -525,7 +494,7 @@ echo $area->asciiSymbol; // 'm2'
 
 ---
 
-## See Also
+## See also
 
 - **[Unit](Unit.md)** - Simple unit representation.
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent.

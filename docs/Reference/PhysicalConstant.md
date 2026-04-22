@@ -18,16 +18,16 @@ The class includes:
 - Thermodynamic constants (molar gas constant, Stefan-Boltzmann constant)
 - Derived constants (reduced Planck constant)
 
-### Key Features
+### Key features
 
 - Type-safe access to physical constants
 - Lazy instantiation with caching
 - Lookup by symbol via `get()`
-- Computed derived constants (e.g., reduced Planck constant = h / 2π)
+- Computed derived constants (e.g., reduced Planck constant = h / τ = h / 2π)
 
 ---
 
-## SI Defining Constants
+## SI defining constants
 
 ### caesiumFrequency()
 
@@ -35,10 +35,10 @@ The class includes:
 public static function caesiumFrequency(): Quantity
 ```
 
-The caesium-133 hyperfine transition frequency (deltaNuCs). Defines the second.
+The caesium-133 hyperfine transition frequency (ΔνCs). Defines the *second*.
 
 **Returns:**
-- `Quantity` - 9,192,631,770 Hz (exact)
+- `Quantity` equal to 9,192,631,770 Hz
 
 ### speedOfLight()
 
@@ -46,10 +46,10 @@ The caesium-133 hyperfine transition frequency (deltaNuCs). Defines the second.
 public static function speedOfLight(): Quantity
 ```
 
-The speed of light in vacuum (c). Defines the meter.
+The speed of light in vacuum (c). Defines the *meter*.
 
 **Returns:**
-- `Quantity` - 299,792,458 m/s (exact)
+- `Quantity` equal to 299,792,458 m/s
 
 ### planck()
 
@@ -57,10 +57,10 @@ The speed of light in vacuum (c). Defines the meter.
 public static function planck(): Quantity
 ```
 
-The Planck constant (h). Defines the kilogram.
+The Planck constant (h). Defines the *kilogram*.
 
 **Returns:**
-- `Quantity` - 6.62607015×10⁻³⁴ J⋅s (exact)
+- `Quantity` equal to 6.62607015×10⁻³⁴ J⋅s
 
 ### elementaryCharge()
 
@@ -68,10 +68,10 @@ The Planck constant (h). Defines the kilogram.
 public static function elementaryCharge(): Quantity
 ```
 
-The elementary charge (e). Defines the ampere.
+The elementary charge (e). Defines the *ampere*.
 
 **Returns:**
-- `Quantity` - 1.602176634×10⁻¹⁹ C (exact)
+- `Quantity` equal to 1.602176634×10⁻¹⁹ C
 
 ### boltzmann()
 
@@ -79,10 +79,10 @@ The elementary charge (e). Defines the ampere.
 public static function boltzmann(): Quantity
 ```
 
-The Boltzmann constant (k). Defines the kelvin.
+The Boltzmann constant (k). Defines the *kelvin*.
 
 **Returns:**
-- `Quantity` - 1.380649×10⁻²³ J/K (exact)
+- `Quantity` equal to 1.380649×10⁻²³ J/K
 
 ### avogadro()
 
@@ -90,10 +90,10 @@ The Boltzmann constant (k). Defines the kelvin.
 public static function avogadro(): Quantity
 ```
 
-The Avogadro constant (NA). Defines the mole.
+The Avogadro constant (Nₐ). Defines the *mole*.
 
 **Returns:**
-- `Quantity` - 6.02214076×10²³ mol⁻¹ (exact)
+- `Quantity` equal to 6.02214076×10²³ mol⁻¹
 
 ### luminousEfficacy()
 
@@ -101,14 +101,14 @@ The Avogadro constant (NA). Defines the mole.
 public static function luminousEfficacy(): Quantity
 ```
 
-The luminous efficacy of 540 THz radiation (Kcd). Defines the candela.
+The luminous efficacy of 540 THz radiation (K<sub>cd</sub>). Defines the *candela*.
 
 **Returns:**
-- `Quantity` - 683 lm/W (exact)
+- `Quantity` equal to 683 lm/W
 
 ---
 
-## Gravitational Constants
+## Gravitational constants
 
 ### earthGravity()
 
@@ -119,7 +119,7 @@ public static function earthGravity(): Quantity
 Standard acceleration of gravity at the surface of Earth (g).
 
 **Returns:**
-- `Quantity` - 9.80665 m/s² (exact by definition)
+- `Quantity` equal to 9.80665 m/s²
 
 ### gravitational()
 
@@ -130,11 +130,11 @@ public static function gravitational(): Quantity
 The Newtonian constant of gravitation (G).
 
 **Returns:**
-- `Quantity` - 6.67430×10⁻¹¹ m³/(kg⋅s²)
+- `Quantity` equal to 6.67430×10⁻¹¹ m³/(kg⋅s²)
 
 ---
 
-## Electromagnetic Constants
+## Electromagnetic constants
 
 ### vacuumPermittivity()
 
@@ -142,10 +142,10 @@ The Newtonian constant of gravitation (G).
 public static function vacuumPermittivity(): Quantity
 ```
 
-The vacuum electric permittivity (epsilon0).
+The vacuum electric permittivity (ε₀).
 
 **Returns:**
-- `Quantity` - 8.8541878128×10⁻¹² F/m
+- `Quantity` equal to 8.8541878128×10⁻¹² F/m
 
 ### vacuumPermeability()
 
@@ -153,14 +153,14 @@ The vacuum electric permittivity (epsilon0).
 public static function vacuumPermeability(): Quantity
 ```
 
-The vacuum magnetic permeability (mu0).
+The vacuum magnetic permeability (μ₀).
 
 **Returns:**
-- `Quantity` - 1.25663706212×10⁻⁶ H/m
+- `Quantity` equal to 1.25663706212×10⁻⁶ H/m
 
 ---
 
-## Atomic and Nuclear Constants
+## Atomic and nuclear constants
 
 ### electronMass()
 
@@ -168,10 +168,10 @@ The vacuum magnetic permeability (mu0).
 public static function electronMass(): Quantity
 ```
 
-The electron rest mass (me).
+The electron rest mass (mₑ).
 
 **Returns:**
-- `Quantity` - 9.1093837015×10⁻³¹ kg
+- `Quantity` equal to 9.1093837015×10⁻³¹ kg
 
 ### protonMass()
 
@@ -179,10 +179,10 @@ The electron rest mass (me).
 public static function protonMass(): Quantity
 ```
 
-The proton mass (mp).
+The proton mass (mₚ).
 
 **Returns:**
-- `Quantity` - 1.67262192369×10⁻²⁷ kg
+- `Quantity` equal to 1.67262192369×10⁻²⁷ kg
 
 ### neutronMass()
 
@@ -190,10 +190,10 @@ The proton mass (mp).
 public static function neutronMass(): Quantity
 ```
 
-The neutron mass (mn).
+The neutron mass (mₙ).
 
 **Returns:**
-- `Quantity` - 1.67492749804×10⁻²⁷ kg
+- `Quantity` equal to 1.67492749804×10⁻²⁷ kg
 
 ### fineStructure()
 
@@ -201,10 +201,10 @@ The neutron mass (mn).
 public static function fineStructure(): Quantity
 ```
 
-The fine-structure constant (alpha). Dimensionless.
+The fine-structure constant (α). Dimensionless.
 
 **Returns:**
-- `Quantity` - 7.2973525693×10⁻³
+- `Quantity` equal to 7.2973525693×10⁻³
 
 ### rydberg()
 
@@ -212,10 +212,10 @@ The fine-structure constant (alpha). Dimensionless.
 public static function rydberg(): Quantity
 ```
 
-The Rydberg constant (Rinf).
+The Rydberg constant (R<sub>∞</sub>).
 
 **Returns:**
-- `Quantity` - 10,973,731.568160 m⁻¹
+- `Quantity` equal to 10,973,731.568160 m⁻¹
 
 ### bohrRadius()
 
@@ -223,14 +223,14 @@ The Rydberg constant (Rinf).
 public static function bohrRadius(): Quantity
 ```
 
-The Bohr radius (a0).
+The Bohr radius (a₀).
 
 **Returns:**
-- `Quantity` - 5.29177210903×10⁻¹¹ m
+- `Quantity` equal to 5.29177210903×10⁻¹¹ m
 
 ---
 
-## Thermodynamic Constants
+## Thermodynamic constants
 
 ### molarGas()
 
@@ -238,10 +238,10 @@ The Bohr radius (a0).
 public static function molarGas(): Quantity
 ```
 
-The molar gas constant (R = NA \* k).
+The molar gas constant (R = Nₐ·k).
 
 **Returns:**
-- `Quantity` - 8.314462618 J/(mol⋅K)
+- `Quantity` equal to 8.314462618 J/(mol⋅K)
 
 ### stefanBoltzmann()
 
@@ -252,11 +252,11 @@ public static function stefanBoltzmann(): Quantity
 The Stefan-Boltzmann constant (σ).
 
 **Returns:**
-- `Quantity` - 5.670374419×10⁻⁸ W/(m²⋅K⁴)
+- `Quantity` equal to 5.670374419×10⁻⁸ W/(m²⋅K⁴)
 
 ---
 
-## Derived Constants
+## Derived constants
 
 ### reducedPlanck()
 
@@ -264,14 +264,14 @@ The Stefan-Boltzmann constant (σ).
 public static function reducedPlanck(): Quantity
 ```
 
-The reduced Planck constant (hbar = h / 2π).
+The reduced Planck constant (ℏ = h / 2π).
 
 **Returns:**
-- `Quantity` - Computed from Planck constant with full precision
+- `Quantity` computed from Planck constant with full precision
 
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### get()
 
@@ -285,7 +285,7 @@ Get a constant by its symbol.
 - `$symbol` (string) - The constant's symbol (case-sensitive)
 
 **Returns:**
-- `Quantity` - The constant as a Quantity object
+- `Quantity` equal to the constant as a Quantity object
 
 **Throws:**
 - `DomainException` - If the symbol is unknown
@@ -320,9 +320,9 @@ foreach ($all as $symbol => $quantity) {
 
 ---
 
-## Usage Examples
+## Usage examples
 
-### Using Constants in Calculations
+### Using constants in calculations
 
 ```php
 use Galaxon\Quantities\PhysicalConstant;
@@ -341,19 +341,9 @@ $momentum = Quantity::create(1e-24, 'kg*m/s');
 $wavelength = $h->div($momentum);
 ```
 
-### Looking Up Constants by Symbol
-
-```php
-use Galaxon\Quantities\PhysicalConstant;
-
-$c = PhysicalConstant::get('c');
-$NA = PhysicalConstant::get('NA');
-$G = PhysicalConstant::get('G');
-```
-
 ---
 
-## See Also
+## See also
 
 - **[Quantity](Quantity.md)** - The base class for all physical quantities
 - **[Unit](Internal/Unit.md)** - Units used by the constants

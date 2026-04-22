@@ -346,19 +346,19 @@ class DimensionService
      * The unit may be prefixed (e.g. 'kg' for 'M').
      *
      * @param string $dimensionLetterCode Single-letter dimension code.
-     * @param bool $si Whether to return the SI base unit symbol (true) or the English base unit symbol (false).
+     * @param bool $si True to return the SI base unit symbol (default); false for the English base unit symbol.
      * @return string The unit term symbol.
      * @throws FormatException If the dimension code is invalid.
-     * @throws LogicException If no base unit is defined for the dimension.
+     * @throws LogicException If no base unit symbol is found for the dimension code.
      */
-    public static function getBaseUnitSymbol(string $dimensionLetterCode, bool $si): string
+    public static function getBaseUnitTermSymbol(string $dimensionLetterCode, bool $si = true): string
     {
         // Validate the code.
         if (strlen($dimensionLetterCode) !== 1 || !array_key_exists($dimensionLetterCode, self::DIMENSION_CODES)) {
             throw new FormatException("Invalid dimension code letter: '$dimensionLetterCode'.");
         }
 
-        // If not SI and has an English base unit, return it.
+        // If not SI and there's an English base unit, return it.
         if (!$si && isset(self::DIMENSION_CODES[$dimensionLetterCode]['englishBaseUnitSymbol'])) {
             return self::DIMENSION_CODES[$dimensionLetterCode]['englishBaseUnitSymbol'];
         }
@@ -368,22 +368,31 @@ class DimensionService
             return self::DIMENSION_CODES[$dimensionLetterCode]['siBaseUnitSymbol'];
         }
 
-        // Return the common base unit.
-        return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
+        // Check for a common base unit.
+        // @phpstan-ignore isset.offset
+        if (isset(self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'])) {
+            return self::DIMENSION_CODES[$dimensionLetterCode]['commonBaseUnitSymbol'];
+        }
+
+        // Should never happen.
+        // @codeCoverageIgnoreStart
+        // @phpstan-ignore deadCode.unreachable
+        throw new LogicException("No base unit symbol found for dimension code letter: '$dimensionLetterCode'.");
+        // @codeCoverageIgnoreEnd
     }
 
     /**
      * Get the SI or English base unit term for a given dimension code letter.
      *
      * @param string $dimensionLetterCode Single-letter dimension code.
-     * @param bool $si Whether to return the SI base unit term (true) or the English base unit term (false).
+     * @param bool $si Whether to return the SI base unit term (true, default) or the English base unit term (false).
      * @return UnitTerm The unit term.
      * @throws FormatException If the dimension code is invalid.
      */
-    public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si): UnitTerm
+    public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si = true): UnitTerm
     {
         // Get the base unit symbol (e.g. 'kg', 'lb').
-        $baseUnit = self::getBaseUnitSymbol($dimensionLetterCode, $si);
+        $baseUnit = self::getBaseUnitTermSymbol($dimensionLetterCode, $si);
 
         // Construct the UnitTerm.
         return UnitTerm::parse($baseUnit);
@@ -393,16 +402,19 @@ class DimensionService
      * Convert a dimension to a CompoundUnit in SI or English base units.
      *
      * @param string $dimension The dimension code (e.g. 'MLT-2').
-     * @param bool $si Whether to return the SI compound unit (true) or the English compound unit (false).
+     * @param bool $si Whether to return the SI compound unit (true, default) or the English compound unit (false).
      * @return CompoundUnit The new CompoundUnit.
      * @throws FormatException If the dimension code is invalid.
      */
-    public static function getBaseCompoundUnit(string $dimension, bool $si): CompoundUnit
+    public static function getBaseCompoundUnit(string $dimension, bool $si = true): CompoundUnit
     {
         $unitTerms = [];
         $dimTerms = self::decompose($dimension);
         foreach ($dimTerms as $code => $exp) {
-            $unitTerms[] = self::getBaseUnitTerm($code, $si)->pow($exp);
+            // Get the base unit term (e.g. 'kg', 'lb').
+            $unitTerm = self::getBaseUnitTerm($code, $si);
+            // Raise it to the exponent.
+            $unitTerms[] = $unitTerm->pow($exp);
         }
         return new CompoundUnit($unitTerms);
     }

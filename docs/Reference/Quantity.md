@@ -12,7 +12,7 @@ The `Quantity` class provides a framework for creating strongly typed measuremen
 
 Quantities are immutable value objects combining a numeric value with a unit. All arithmetic and transformation operations return new instances.
 
-### Key Features
+### Key features
 
 - Automatic validation of units and values
 - Type-safe arithmetic operations (add, subtract, multiply, divide)
@@ -47,7 +47,7 @@ The unit of the measurement as a CompoundUnit object.
 public string $dimension { get; }
 ```
 
-The dimension code of the quantity (e.g., 'L' for length, 'MLT-2' for force).
+The dimension code of the quantity (e.g., `L` for length, `MLT-2` for force).
 
 See [DimensionService](Services/DimensionService.md) for more details about how dimensions work.
 
@@ -94,7 +94,7 @@ $mass = new Mass(5.5, 'kg');
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### create()
 
@@ -135,12 +135,12 @@ $custom = Quantity::create(5, 'kg*m2/s3');
 ### parse()
 
 ```php
-public static function parse(string $input): self
+public static function parse(string $input): static
 ```
 
 Parse a string representation into a Quantity.
 
-Supports single-value strings (e.g. "123.45 km") and multi-part strings (e.g. "5h 30min 45s"). Subclasses may override this to support additional formats.
+Supports single-value strings (e.g. `123.45 km`) and multi-part strings (e.g. `5h 30min 45s`).
 
 When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimension must match the subclass's dimension. When called as `Quantity::parse()`, any valid unit is accepted.
 
@@ -148,11 +148,13 @@ When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimensio
 - `$input` (string) - The string to parse.
 
 **Returns:**
-- `Quantity` - The parsed Quantity.
+- `static` - A new Quantity of the calling class type.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If units are unknown.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input is empty, the string format is invalid, or a unit symbol cannot be parsed.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any unit symbol is not recognized.
+- `DomainException` - If a value is non-finite (single-value input only).
+- `LogicException` - If the input contains multiple parts and the quantity type is not registered, or no conversion path exists between a part unit and the result unit.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If called on a subclass and the parsed unit has a different dimension.
 
 **Examples:**
@@ -171,7 +173,7 @@ Length::parse('123 kg');  // DimensionMismatchException
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### convert()
 
@@ -241,7 +243,7 @@ $feet = $meters->to('ft');      // 3280.84 ft
 public function toSi(): self
 ```
 
-Convert this quantity to SI units with simplification. Base units are replaced by named units where possible (e.g., kg\*m/s2 becomes N).
+Convert this quantity to SI units with simplification. Base units are replaced by named units where possible (e.g., `kg*m/s2` becomes `N`).
 
 To auto-prefix the result, chain with `autoPrefix()`.
 
@@ -266,7 +268,7 @@ public function toSiBase(): self
 
 Convert to SI base units without simplification or auto-prefixing.
 
-Unlike `toSi()`, this returns purely SI base units (e.g., kg\*m/s2 instead of N). Useful for calculations or when you need the fundamental SI form.
+Unlike `toSi()`, this returns purely SI base units (e.g., `kg*m/s2` instead of `N`). Useful for calculations or when you need the fundamental SI form.
 
 **Returns:**
 - `Quantity` - A new Quantity in SI base units.
@@ -305,6 +307,23 @@ $speed = Quantity::create(1, 'kn');
 $base = $speed->toEnglishBase();  // ~1.688 ft/s
 ```
 
+### toEnglish()
+
+```php
+public function toEnglish(): self
+```
+
+Convert to English units with base units replaced by derived units where possible (e.g., `lb*ft/s2` becomes `lbf`). Equivalent to calling `toEnglishBase()->toDerived()`.
+
+**Returns:**
+- `Quantity` - A new Quantity in English units.
+
+**Examples:**
+```php
+$force = Quantity::create(1, 'kg*m/s2');
+$english = $force->toEnglish();  // ~0.2248 lbf
+```
+
 ### toBase()
 
 ```php
@@ -313,7 +332,7 @@ public function toBase(): self
 
 Convert to SI or English base units, whichever is the better fit for the current unit.
 
-Units like lbf, mi, and ac will convert to English base units (lb, ft, s), while units like km, N, and Hz will convert to SI base units (kg, m, s). Uses `CompoundUnit::siExpansionPreferred()` to determine the best fit.
+Units like `lbf`, `mi`, and `ac` will convert to English base units (`lb`, `ft`, `s`), while units like `km`, `N`, and `Hz` will convert to SI base units (`kg`, `m`, `s`). Uses `CompoundUnit::siExpansionPreferred()` to determine the best fit.
 
 **Returns:**
 - `Quantity` - A new Quantity in the most appropriate base units.
@@ -333,7 +352,7 @@ $base = $force->toBase();  // lb*ft/s2
 public function toDerived(): static
 ```
 
-Substitute base units for derived units where possible (e.g., kg\*m/s2 -> N).
+Substitute base units for derived units where possible (e.g., `kg*m/s2` → `N`).
 
 To auto-prefix the result, chain with `autoPrefix()`.
 
@@ -349,7 +368,7 @@ To auto-prefix the result, chain with `autoPrefix()`.
 public function merge(): static
 ```
 
-Merge units with the same dimension (e.g., m\*ft -> m2).
+Merge units with the same dimension (e.g., `m*ft` → `m2`).
 
 The first unit encountered of a given dimension will be the one any others are converted to.
 
@@ -406,7 +425,7 @@ $doubled = $length->withValue(20);  // 20 m
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### compare()
 
@@ -455,7 +474,7 @@ $a->approxEqual($b);  // true
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### abs()
 
@@ -495,7 +514,7 @@ Invert this quantity (1/x).
 
 ---
 
-## Binary Arithmetic Methods
+## Binary arithmetic methods
 
 ### add()
 
@@ -594,7 +613,7 @@ When dividing by a scalar, the unit is preserved. When dividing by a Quantity or
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -639,7 +658,7 @@ $result = $velocity->sqr();  // 9 m2/s2
 
 ---
 
-## Rounding Methods
+## Rounding methods
 
 ### round()
 
@@ -698,7 +717,7 @@ $ceiled = $length->ceil();  // 2 m
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -756,7 +775,7 @@ Convert to string using default formatting.
 
 ---
 
-## Subclass Methods
+## Subclass methods
 
 These methods are meant to be overridden in Quantity subclasses (e.g. `Angle`, `Time`, etc.).
 
@@ -803,22 +822,9 @@ Returns `null` in the base `Quantity` class. Overridden in subclasses such as `L
 **Returns:**
 - `?list<string>` - The default part unit symbols, or `null` if the subclass does not provide a default.
 
-### getResultUnitSymbol()
-
-```php
-public static function getResultUnitSymbol(): ?string
-```
-
-Get the default result unit symbol used by `fromParts()` and `parseParts()` when no explicit `$resultUnitSymbol` argument is supplied.
-
-Returns `null` in the base `Quantity` class. Overridden in subclasses such as `Length`, `Time`, `Angle`, and `Mass` to provide a built-in default. Subclasses without an override require callers to pass `$resultUnitSymbol` explicitly; otherwise the parts methods throw `LogicException`.
-
-**Returns:**
-- `?string` - The default result unit symbol, or `null` if the subclass does not provide a default.
-
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### getQuantityType()
 
@@ -865,40 +871,58 @@ Quantity::getDimension();     // null
 
 ---
 
-## Parts Methods
+## Parts methods
 
 Parts methods allow decomposing a quantity into multiple unit components (e.g. hours, minutes, seconds) and reconstructing from them.
 
-Subclasses provide their built-in defaults by overriding [`getPartUnitSymbols()`](#getpartunitsymbols) and [`getResultUnitSymbol()`](#getresultunitsymbol). Each parts method also accepts an inline `$partUnitSymbols` or `$resultUnitSymbol` argument that overrides the default for a single call. See [Part Decomposition](../WorkingWithQuantities/PartDecomposition.md) for usage examples.
+Subclasses provide their built-in defaults by overriding [`getPartUnitSymbols()`](#getpartunitsymbols). Each parts method also accepts an inline `$partUnitSymbols` or `$resultUnitSymbol` argument that overrides the default for a single call. See [Part Decomposition](../WorkingWithQuantities/PartDecomposition.md) for usage examples.
 
 ### fromParts()
 
 ```php
 public static function fromParts(
     array $parts,
-    ?string $resultUnitSymbol = null
+    bool $si = false
 ): static
 ```
 
 Create a Quantity from component parts.
 
+The result is expressed in the base unit for the quantity type's dimension. By default this is the English base unit (e.g. `'ft'` for lengths, `'°'` for angles). Pass `$si = true` to use the SI base unit instead (e.g. `'m'` for lengths, `'rad'` for angles).
+
+Part unit symbols can be base, prefixed, or compound (e.g. `'m'`, `'km'`, and `'km/h'` are all accepted).
+
 **Parameters:**
-- `$parts` (`array<string, int|float>`) - Array of unit symbol => value pairs, optionally with a `'sign'` key (1 or -1).
-- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the built-in default for this quantity type.
+- `$parts` (`array<string, int|float>`) - Array of unit symbol => value pairs, optionally with a `'sign'` key (integer 1 or -1).
+- `$si` (bool) - If true, use the SI base unit for the result; if false (default), use the English base unit.
 
 **Returns:**
 - `static` - The combined Quantity.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$resultUnitSymbol` is null and no default exists for the quantity type.
-- `DomainException` - If the sign is not -1 or 1.
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If `$resultUnitSymbol` or any of the part unit symbols are not recognized.
-- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If `$resultUnitSymbol` is incompatible with the quantity type, or if any part unit symbol is incompatible with the result unit's dimension.
+- `InvalidArgumentException` - If the sign is not an integer, or if any keys are not strings, or if any values are not numbers.
+- `DomainException` - If the sign is not -1 or 1, or if any values are non-finite.
+- `LogicException` - If the quantity type is not registered, or if no parts were provided, or if no conversion path exists.
+- [`FormatException`](../../../packages/Core/docs/Exceptions/FormatException.md) - If any part unit symbols cannot be parsed.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any part unit symbols are not recognized.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If any part unit dimensions don't match the quantity type.
 
 **Examples:**
 ```php
+// Angle from degrees, arcminutes, arcseconds — result in English base (degrees).
 $angle = Angle::fromParts(['deg' => 45, 'arcmin' => 30, 'arcsec' => 15]);
+
+// Time from components — result in English base (seconds).
 $duration = Time::fromParts(['h' => 2, 'min' => 30, 's' => 45]);
+
+// Force with SI base result (kg·m/s²).
+$force = Force::fromParts(['N' => 100], si: true);
+
+// Prefixed symbols are accepted.
+$length = Length::fromParts(['km' => 5, 'm' => 300]);
+
+// Negative value using sign.
+$time = Time::fromParts(['h' => 1, 'min' => 30, 'sign' => -1]);
 ```
 
 ### toParts()
@@ -910,53 +934,104 @@ public function toParts(
 ): array
 ```
 
-Convert to component parts. Uses the built-in part units for the quantity type by default.
+Decompose a quantity into component parts from the largest to the smallest unit.
+
+Every part unit is included in the result, even if its value is 0. All values are integers except for the smallest unit, which may have a fractional part. A `'sign'` key is always present (1 for non-negative, -1 for negative).
+
+Part unit symbols can be base, prefixed, or compound (e.g. `'m'`, `'km'`, and `'km/h'` are all accepted). If `$partUnitSymbols` is null or an empty array, the built-in defaults for the quantity type are used. Note, however, only the `Angle`, `Time`, and `Length` types have default part units.
+
+If rounding the smallest unit causes overflow (e.g. 59.9 seconds rounds to 60), larger parts are adjusted automatically.
 
 **Parameters:**
 - `$precision` (?int) - Decimal places for the smallest unit, or null for no rounding.
-- `$partUnitSymbols` (?list<string>) - Part unit symbols to decompose into, or `null` to use the built-in default for this quantity type.
+- `$partUnitSymbols` (?list\<string>) - Part unit symbols to decompose into, or null/empty to use the built-in default for this quantity type.
 
 **Returns:**
-- `array<string, int|float>` - Array with a `'sign'` key (1 or -1) and unit symbol => value pairs.
+- `array<string, int|float>` - Array with a `'sign'` key (1 or -1) and unit symbol => value pairs, ordered from largest to smallest unit.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$partUnitSymbols` is null and no default exists for the quantity type.
-- `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` is an empty array.
+- `LogicException` - If the quantity type is not registered, or if `$partUnitSymbols` is empty and no default exists for the quantity type, or if no conversion path exists to a part unit.
+- `FormatException` - If any part unit symbols cannot be parsed.
+- `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` contains duplicate units.
 - `InvalidArgumentException` - If any of the part unit symbols are not strings.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a part unit symbol is not recognized.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If a part unit is incompatible with the quantity's dimension.
+
+**Examples:**
+```php
+// Time decomposition using built-in defaults.
+$time = new Time(5445, 's');
+$parts = $time->toParts();
+// ['sign' => 1, 'y' => 0, ..., 'h' => 1, 'min' => 30, 's' => 45.0]
+
+// Angle with precision.
+$angle = new Angle(45.508333, 'deg');
+$parts = $angle->toParts(precision: 0);
+// ['sign' => 1, 'deg' => 45, 'arcmin' => 30, 'arcsec' => 30.0]
+
+// Custom part units (subset of defaults).
+$time = new Time(5445, 's');
+$parts = $time->toParts(partUnitSymbols: ['h', 'min', 's']);
+// ['sign' => 1, 'h' => 1, 'min' => 30, 's' => 45.0]
+
+// Prefixed part units.
+$length = new Length(5300, 'm');
+$parts = $length->toParts(partUnitSymbols: ['km', 'm']);
+// ['sign' => 1, 'km' => 5, 'm' => 300.0]
+```
 
 ### parseParts()
 
 ```php
 public static function parseParts(
     string $input,
-    ?string $resultUnitSymbol = null
+    bool $si = false
 ): static
 ```
 
 Parse a multi-part string into a Quantity.
 
-Parses strings like `"4y 5mo 6d 12h 34min 56.789s"` where each part is a value immediately followed by a unit symbol, separated by whitespace.
+Parses strings like `"4y 5mo 6d 12h 34min 56.789s"` where each part is a value immediately followed by a unit symbol. Parts must be separated by whitespace, but there cannot be whitespace between values and units. Units containing spaces (e.g. `'US gal'`) are not supported, but compound units without spaces (e.g. `'kW*h'`) are.
+
+A part may also be a bare number without a unit (dimensionless scalar). Since units can't be duplicated, there can be at most one bare number.
+
+Only the first part may be negative.
 
 **Parameters:**
 - `$input` (string) - The string to parse.
-- `$resultUnitSymbol` (?string) - The result unit symbol, or `null` to use the built-in default for this quantity type.
+- `$si` (bool) - If true, use the SI base unit for the result; if false (default), use the English base unit.
 
 **Returns:**
 - `static` - A new Quantity representing the sum of the parts.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$resultUnitSymbol` is null and no default exists for the quantity type.
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty or malformed.
-- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If `$resultUnitSymbol` is not a recognized unit.
-- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If `$resultUnitSymbol` is incompatible with the quantity type.
+- `LogicException` - If the quantity type is not registered, or if no conversion path exists between a part unit and the result unit.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty, malformed, contains a non-first negative part, or contains duplicate unit symbols.
+- [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any unit symbols are not recognized.
+- [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If units have incompatible dimensions.
 - `UnexpectedValueException` - If there is an unexpected error during parsing.
 
 **Examples:**
 ```php
-$time = Time::parseParts('5h 30min 45s');
-$angle = Angle::parseParts("12deg 34arcmin 56.789arcsec");
+// Time from a multi-part string.
+$time = Time::parseParts('1h 30min 45s');
+echo $time;  // 5445 s
+
+// Angle from DMS.
+$angle = Angle::parseParts('45deg 30arcmin 30arcsec');
+echo $angle;  // 45.50833°
+
+// Negative value — only the first part may carry the sign.
+$time = Time::parseParts('-2h 15min');
+echo $time;  // -8100 s
+
+// SI base result.
+$length = Length::parseParts('5ft 6in', si: true);
+echo $length;  // 1.6764 m
+
+// Bare number with dimensionless units.
+$qty = Dimensionless::parseParts('1000 45% 76ppm');
+echo $qty;  // 1000.450076
 ```
 
 ### formatParts()
@@ -984,15 +1059,16 @@ Only the smallest unit may have a decimal point. Larger units will be integers. 
 - `string` - Formatted string like `"5h 30min 45s"`.
 
 **Throws:**
-- `LogicException` - If the quantity type is null (called on an unregistered subclass), or if `$partUnitSymbols` is null and no default exists for the quantity type.
-- `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` is an empty array.
+- `LogicException` - If the quantity type is null (called on an unregistered subclass), if `$partUnitSymbols` is null or empty and no default exists for the quantity type, or if no conversion path exists to a part unit.
+- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If any part unit symbol cannot be parsed.
+- `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` contains duplicate units.
 - `InvalidArgumentException` - If any of the part unit symbols are not strings.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a part unit symbol is not recognized.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If a part unit is incompatible with the quantity's dimension.
 
 ---
 
-## Validation Methods
+## Validation methods
 
 ### isValidQuantity()
 
@@ -1018,7 +1094,7 @@ Quantity::isValidQuantity('abc', $m);         // false
 
 ---
 
-## See Also
+## See also
 
 - **[CompoundUnit](Internal/CompoundUnit.md)** - Unit representation used by Quantity.
 - **[Converter](Internal/Converter.md)** - Handles unit conversions.

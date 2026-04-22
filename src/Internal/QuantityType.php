@@ -29,12 +29,11 @@ class QuantityType
      */
     public readonly string $dimension;
 
-    // endregion
-
-    // region Property hooks
-
     /**
      * The fully-qualified class name of the Quantity subclass for this quantity type.
+     *
+     * Writable so callers can substitute their own Quantity subclass at runtime — the set hook validates that
+     * any assigned value is a subclass of Quantity.
      *
      * @var class-string<Quantity>
      * @throws InvalidArgumentException If the value is not a subclass of Quantity.
@@ -53,10 +52,14 @@ class QuantityType
         }
     }
 
+    // endregion
+
+    // region Property hooks
+
     /**
      * The default unit definitions for this quantity type.
      *
-     * @var array<string, array{
+     * @var ?array<string, array{
      *      asciiSymbol: string,
      *      unicodeSymbol?: string,
      *      prefixGroup?: int,
@@ -65,10 +68,10 @@ class QuantityType
      *      dimension: string
      *  }>
      */
-    private(set) array $unitDefinitions {
+    private(set) ?array $unitDefinitions = null {
         get {
             // Return the cached value if it exists.
-            if (isset($this->unitDefinitions)) {
+            if ($this->unitDefinitions !== null) {
                 return $this->unitDefinitions;
             }
 
@@ -121,10 +124,12 @@ class QuantityType
      * @param string $name The human-readable name.
      * @param string $dimension The dimension code.
      * @param class-string<Quantity> $class The Quantity subclass.
+     * @throws InvalidArgumentException If the provided class is not a subclass of Quantity.
      * @throws FormatException If the dimension code is invalid.
      */
     public function __construct(string $name, string $dimension, string $class)
     {
+        // Set the properties. The set hook on $class validates the class is a Quantity subclass.
         $this->name = $name;
         $this->dimension = DimensionService::normalize($dimension);
         $this->class = $class;

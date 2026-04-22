@@ -14,7 +14,7 @@ All methods are static. The class uses lazy initialization to build the registry
 
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### getByName()
 
@@ -65,7 +65,7 @@ Get all units belonging to the given measurement system.
 ```php
 use Galaxon\Quantities\Internal\UnitSystem;
 
-$siUnits = UnitService::getBySystem(UnitSystem::SI);
+$siUnits = UnitService::getBySystem(UnitSystem::Si);
 $imperialUnits = UnitService::getBySystem(UnitSystem::Imperial);
 ```
 
@@ -118,7 +118,7 @@ $symbols = UnitService::getAllSymbols();
 
 ---
 
-## Registry Methods
+## Registry methods
 
 ### add()
 
@@ -198,7 +198,7 @@ Reset the registry to its default initial state. The next access will trigger re
 
 ---
 
-## Loading Methods
+## Loading methods
 
 ### loadSystem()
 
@@ -228,7 +228,7 @@ UnitService::loadAll();
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### has()
 
@@ -257,7 +257,7 @@ $n = UnitService::count();
 
 ---
 
-## See Also
+## See also
 
 - **[Unit](../Internal/Unit.md)** — Unit class documentation
 - **[ConversionService](ConversionService.md)** — Conversion registry

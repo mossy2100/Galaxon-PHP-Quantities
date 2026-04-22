@@ -299,9 +299,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertSame(45.0, $angle->value);
 
         // Micro symbol for prefixes
-        $length = new Length(100, 'μm');
+        $length = new Length(100, 'µm');
         $this->assertSame(100.0, $length->value);
-        $this->assertSame('μm', $length->compoundUnit->unicodeSymbol);
+        $this->assertSame('µm', $length->compoundUnit->unicodeSymbol);
     }
 
     // endregion

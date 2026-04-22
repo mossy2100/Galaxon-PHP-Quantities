@@ -11,7 +11,7 @@ Represents money quantities with currency conversion and locale-aware formatting
 
 The `Money` class handles monetary values with support for all [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) currencies. Unlike other quantity types, currency units and conversion rates are loaded dynamically via [`CurrencyService`](../Currencies/CurrencyService.md) rather than being hard-coded.
 
-All currency units belong to the `Financial` unit system. The base unit is XAU (gold troy ounces).
+All currency units belong to the `Financial` unit system. The base unit is `XAU` (gold troy ounces).
 
 Before using `Money`, you must initialize the `CurrencyService`:
 
@@ -26,7 +26,23 @@ See [CurrencyService](../Currencies/CurrencyService.md) for setup details.
 
 ---
 
-## Overridden Methods
+## Unit definitions
+
+Currency units are not hard-coded. They are loaded dynamically from the official [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) XML published by SIX Group, which defines currency names and three-letter codes (e.g. `USD`, `EUR`, `JPY`). The data is cached locally and refreshed when it expires.
+
+See [`CurrencyService::getUnits()`](../Currencies/CurrencyService.md) for details on how currency unit data is fetched and cached.
+
+---
+
+## Conversion definitions
+
+Exchange rate conversions are loaded dynamically from a pluggable exchange rate service. Each service adapter fetches live rates from an external API and returns them as conversion definition tuples, the same format used by other quantity types' `getConversionDefinitions()`.
+
+The available exchange rate services are documented in [CurrencyService](../Currencies/CurrencyService.md#exchange-rate-services).
+
+---
+
+## Overridden methods
 
 ### \_\_toString()
 
@@ -50,7 +66,7 @@ echo $price;  // 1.234,56 €
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Money;
@@ -73,7 +89,7 @@ echo $price->format();  // 100 USD
 
 ---
 
-## See Also
+## See also
 
 - **[CurrencyService](../Currencies/CurrencyService.md)** — Currency data management, setup, and locale configuration.
 - **[ExchangeRateServiceInterface](../Currencies/ExchangeRateServices/ExchangeRateServiceInterface.md)** — Contract for exchange rate providers.

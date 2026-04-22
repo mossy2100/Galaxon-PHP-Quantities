@@ -9,15 +9,21 @@ Represents luminous intensity quantities.
 
 ## Overview
 
-The `LuminousIntensity` class handles luminous intensity measurements. The candela is one of the seven SI base units.
-
-For the complete list of luminous intensity units, see [Units: Luminous Intensity](../../Concepts/Units.md#luminous-intensity).
+The `LuminousIntensity` class handles luminous intensity measurements. The *candela* is one of the seven SI base units.
 
 ---
 
-## SI Base Unit
+## Unit definitions
 
-The candela (cd) is defined by fixing the luminous efficacy of monochromatic radiation at frequency 540 × 10¹² Hz:
+| Name    | ASCII symbol | Prefixes   | Systems |
+| ------- | ------------ | ---------- | ------- |
+| candela | `cd`         | all metric | SI      |
+
+---
+
+## SI unit
+
+The *candela* (`cd`) is defined by fixing the luminous efficacy of monochromatic radiation at frequency 540 × 10¹² Hz:
 
 ```
 Kcd = 683 lm/W
@@ -25,7 +31,7 @@ Kcd = 683 lm/W
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\LuminousIntensity;
@@ -44,9 +50,8 @@ $inCd = $spot->to('cd');  // 5000 cd
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Luminous Intensity](../../Concepts/Units.md#luminous-intensity)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (cd·sr)
 - **[Illuminance](Illuminance.md)** - Related quantity

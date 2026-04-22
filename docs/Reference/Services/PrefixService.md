@@ -16,7 +16,7 @@ All methods are static. The class uses lazy initialization to build the prefix l
 
 ## Constants
 
-### Group Codes
+### Group codes
 
 Base group codes identify individual prefix groups. These can be combined with bitwise OR for flexible filtering.
 
@@ -27,7 +27,7 @@ Base group codes identify individual prefix groups. These can be combined with b
 | `GROUP_LARGE_METRIC` | 4 | Large metric prefixes (kilo through quetta). |
 | `GROUP_BINARY` | 8 | Binary prefixes (kibi through quebi). |
 
-### Combined Group Codes
+### Combined group codes
 
 | Constant | Value | Description |
 |---|---|---|
@@ -38,7 +38,7 @@ Base group codes identify individual prefix groups. These can be combined with b
 
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### getPrefixes()
 
@@ -92,15 +92,7 @@ PrefixService::getBySymbol('X');            // null (not found)
 
 ---
 
-## Registry Methods
-
-### reset()
-
-```php
-public static function reset(): void
-```
-
-Reset the prefixes cache. The next access will trigger re-initialization. Primarily useful for testing.
+## Registry methods
 
 ### removeAll()
 
@@ -108,11 +100,11 @@ Reset the prefixes cache. The next access will trigger re-initialization. Primar
 public static function removeAll(): void
 ```
 
-Clear the prefixes cache. Unlike `reset()`, the next access will NOT trigger re-initialization — `init()` must be called manually. Used internally during initialization.
+Clear the prefixes cache. The next access will NOT trigger re-initialization — `init()` must be called manually. Used internally during initialization.
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### invert()
 
@@ -141,7 +133,7 @@ PrefixService::invert($kibi);               // throws DomainException
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\Services\PrefixService;
@@ -173,7 +165,7 @@ $inverse = PrefixService::invert($source);    // micro (10^-6)
 
 ---
 
-## See Also
+## See also
 
 - **[Prefix](../Internal/Prefix.md)** - Prefix class documentation
 - **[Unit](../Internal/Unit.md)** - Unit class using prefix groups

@@ -11,13 +11,29 @@ Represents force quantities.
 
 The `Force` class handles force measurements in SI and Imperial/US Customary systems.
 
-For the complete list of force units, see [Units: Force](../../Concepts/Units.md#force).
+---
+
+## Unit definitions
+
+| Name        | ASCII symbol | Prefixes   | Systems                |
+| ----------- | ------------ | ---------- | ---------------------- |
+| newton      | `N`          | all metric | SI                     |
+| pound force | `lbf`        |            | Imperial, US Customary |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The newton is defined in terms of SI base units:
+| From   | To           | Factor          |
+| ------ | ------------ | --------------- |
+| `N`    | `kg*m/s2`    | 1               |
+| `lbf`  | `lb*ft/s2`   | 9.80665 / 0.3048 |
+
+---
+
+## SI unit
+
+The *newton* is defined in terms of SI base units:
 
 ```
 N = kg·m·s⁻²
@@ -25,9 +41,9 @@ N = kg·m·s⁻²
 
 ---
 
-## Pound Force
+## Pound force
 
-The pound force (lbf) is defined using standard gravity (g₀ = 9.80665 m/s²):
+The *pound force* (`lbf`) is defined using standard gravity (g₀ = 9.80665 m/s²):
 
 ```
 1 lbf = 1 lb × g₀ = 0.45359237 kg × 9.80665 m/s² ≈ 4.44822 N
@@ -41,16 +57,7 @@ lbf = lb·ft·s⁻² × (g₀ / 0.3048)
 
 ---
 
-## Key Conversions
-
-| From | To | Factor |
-|------|-----|--------|
-| lbf | N | 4.44822162 |
-| kN | N | 1000 |
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Force;
@@ -79,7 +86,7 @@ $inKN = $rocket->to('kN');  // 7600 kN
 
 ---
 
-## Force-Related Quantities
+## Force-related quantities
 
 Force is related to other quantities:
 
@@ -89,9 +96,8 @@ Force is related to other quantities:
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Force](../../Concepts/Units.md#force)** - Complete list of force units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Pressure](Pressure.md)** - Related quantity (force per area)
 - **[Energy](Energy.md)** - Related quantity (force × distance)

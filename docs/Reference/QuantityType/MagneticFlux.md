@@ -11,13 +11,27 @@ Represents magnetic flux quantities.
 
 The `MagneticFlux` class handles magnetic flux measurements.
 
-For the complete list of magnetic flux units, see [Units: Magnetic Flux](../../Concepts/Units.md#magnetic-flux).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| weber | `Wb`         | all metric | SI      |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The weber is defined as:
+| From | To                   | Factor |
+| ---- | -------------------- | ------ |
+| `Wb` | `kg*m2*s-2*A-1`      | 1      |
+
+---
+
+## SI unit
+
+The *weber* is defined as:
 
 ```
 Wb = kg·m²·s⁻²·A⁻¹ = V·s = T·m²
@@ -25,7 +39,7 @@ Wb = kg·m²·s⁻²·A⁻¹ = V·s = T·m²
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\MagneticFlux;
@@ -41,9 +55,8 @@ $inWb = $transformer->to('Wb');  // 0.01 Wb
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Magnetic Flux](../../Concepts/Units.md#magnetic-flux)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[MagneticFluxDensity](MagneticFluxDensity.md)** - Related quantity (B = Φ/A)
 - **[Inductance](Inductance.md)** - Related quantity (Φ = LI)

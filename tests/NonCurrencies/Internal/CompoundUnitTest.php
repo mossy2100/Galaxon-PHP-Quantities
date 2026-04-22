@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Galaxon\Quantities\Tests\NonCurrencies\Internal;
 
+use Error;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -367,6 +368,21 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('ML2T-2', $du->dimension);
     }
 
+    public function testDimensionCancellingTermsYieldsDimensionless(): void
+    {
+        // N*m = J, so N*m/J is dimensionless. The M, L2, and T-2 contributions
+        // from N*m are cancelled by J^-1's M-1, L-2, T2 contributions inside getDimension().
+        $du = CompoundUnit::parse('N*m/J');
+        $this->assertSame('', $du->dimension);
+    }
+
+    public function testDimensionPartialCancellationLeavesRemainder(): void
+    {
+        // W has dimension ML2T-3; W/m2 cancels the L2, leaving MT-3 (irradiance).
+        $du = CompoundUnit::parse('W/m2');
+        $this->assertSame('MT-3', $du->dimension);
+    }
+
     // endregion
 
     // region equal() tests
@@ -438,100 +454,59 @@ class CompoundUnitTest extends TestCase
 
     // endregion
 
-    // region removeUnitTerm() tests
+    // region Constructor combination tests
 
-    public function testRemoveUnitTermExisting(): void
+    /**
+     * The constructor builds the unit term list from the input array. Same-unit terms are combined (exponents
+     * summed), zero-exponent terms are dropped, and differently-prefixed terms of the same base unit are kept
+     * separate. These tests exercise those combination rules through the public constructor API.
+     */
+    public function testConstructorWithSingleTerm(): void
     {
-        $du = CompoundUnit::parse('kg*m');
-        $this->assertCount(2, $du->unitTerms);
-        $unitTerm = new UnitTerm('m');
-        $du->removeUnitTerm($unitTerm);
+        $cu = new CompoundUnit([new UnitTerm('m')]);
 
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('kg', $du->format(true));
+        $this->assertCount(1, $cu->unitTerms);
+        $this->assertSame('m', $cu->format(true));
     }
 
-    public function testRemoveUnitTermNonExisting(): void
+    public function testConstructorCombinesSameUnitExponents(): void
     {
-        $du = CompoundUnit::parse('m');
-        $this->assertCount(1, $du->unitTerms);
-        $unitTerm = UnitTerm::parse('kg');
+        $cu = new CompoundUnit([new UnitTerm('m', null, 2), new UnitTerm('m', null, 3)]);
 
-        // Should not throw
-        $du->removeUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
+        $this->assertCount(1, $cu->unitTerms);
+        $this->assertSame('m5', $cu->format(true));
     }
 
-    // endregion
-
-    // region addUnitTerm() tests
-
-    public function testAddUnitTermNew(): void
+    public function testConstructorCombinesWithDifferentExponents(): void
     {
-        $du = new CompoundUnit();
-        $unitTerm = new UnitTerm('m');
+        $cu = new CompoundUnit([new UnitTerm('m', null, 3), new UnitTerm('m', null, -1)]);
 
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('m', $du->format(true));
+        $this->assertCount(1, $cu->unitTerms);
+        $this->assertSame('m2', $cu->format(true));
     }
 
-    public function testAddUnitTermCombinesExponents(): void
+    public function testConstructorDropsTermsWhenExponentsCancel(): void
     {
-        $du = CompoundUnit::parse('m2');
-        $unitTerm = new UnitTerm('m', null, 3);
+        $cu = new CompoundUnit([new UnitTerm('m', null, 2), new UnitTerm('m', null, -2)]);
 
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('m5', $du->format(true));
+        $this->assertCount(0, $cu->unitTerms);
+        $this->assertSame('', $cu->format(true));
     }
 
-    public function testAddUnitTermCombinesWithDifferentExponents(): void
+    public function testConstructorCombinesSamePrefix(): void
     {
-        $du = CompoundUnit::parse('m3');
-        $unitTerm = new UnitTerm('m', null, -1);
+        $cu = new CompoundUnit([new UnitTerm('m', 'k', 2), new UnitTerm('m', 'k', 1)]);
 
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('m2', $du->format(true));
+        $this->assertCount(1, $cu->unitTerms);
+        $this->assertSame('km3', $cu->format(true));
     }
 
-    public function testAddUnitTermRemovesWhenZeroExponent(): void
+    public function testConstructorTreatsDifferentPrefixesSeparately(): void
     {
-        $du = CompoundUnit::parse('m2');
-        $unitTerm = new UnitTerm('m', null, -2);
+        // km and m should be treated as different unit terms (different unexponentiated symbols).
+        $cu = new CompoundUnit([new UnitTerm('m', 'k'), new UnitTerm('m')]);
 
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(0, $du->unitTerms);
-        $this->assertSame('', $du->format(true));
-    }
-
-    public function testAddUnitTermWithPrefix(): void
-    {
-        $du = CompoundUnit::parse('km2');
-        $unitTerm = new UnitTerm('m', 'k', 1);
-
-        $du->addUnitTerm($unitTerm);
-
-        $this->assertCount(1, $du->unitTerms);
-        $this->assertSame('km3', $du->format(true));
-    }
-
-    public function testAddUnitTermDifferentPrefixesTreatedSeparately(): void
-    {
-        // km and m should be treated as different unit terms (different keys)
-        $du = CompoundUnit::parse('km');
-        $unitTerm = new UnitTerm('m');
-
-        $du->addUnitTerm($unitTerm);
-
-        // They have different symbolWithoutExponent ('km' vs 'm'), so they're separate
-        $this->assertCount(2, $du->unitTerms);
+        $this->assertCount(2, $cu->unitTerms);
     }
 
     // endregion
@@ -1068,6 +1043,18 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('LT-2', $si->dimension);
     }
 
+    public function testToSiMixedExpandableAndBase(): void
+    {
+        // N*s mixes an expandable term (N → kg*m/s2) with a base term (s).
+        // Result: kg*m/s2 * s = kg*m/s. Verifies the internal expansion correctly handles
+        // compounds where some terms expand and others don't.
+        $du = CompoundUnit::parse('N*s');
+        $si = $du->toSiBase();
+
+        $this->assertSame('kg*m/s', $si->format(true));
+        $this->assertSame('MLT-1', $si->dimension);
+    }
+
     // endregion
 
     // region isSi() tests
@@ -1437,20 +1424,38 @@ class CompoundUnitTest extends TestCase
     }
 
     /**
-     * Test modifying a clone does not affect the original.
+     * Test that operations returning a new CompoundUnit don't mutate the original.
+     *
+     * CompoundUnit is externally immutable — mutators are private and arithmetic methods like mul() return new
+     * instances. This test exercises that guarantee via the public API.
      */
-    public function testModifyingCloneDoesNotAffectOriginal(): void
+    public function testMulDoesNotMutateOriginal(): void
     {
         $original = CompoundUnit::parse('m/s');
-        $cloned = clone $original;
+        $other = CompoundUnit::parse('kg');
 
-        // Add a unit term to the clone.
-        $cloned->addUnitTerm(new UnitTerm('g', 'k'));
+        $result = $original->mul($other);
 
         // Original should be unchanged.
         $this->assertCount(2, $original->unitTerms);
         $this->assertSame('m/s', $original->format(true));
-        $this->assertCount(3, $cloned->unitTerms);
+        // Result has one more term.
+        $this->assertCount(3, $result->unitTerms);
+    }
+
+    /**
+     * Test that addUnitTerm cannot be called externally. This pins the private visibility of the mutator, which is
+     * load-bearing for the deep-immutability guarantee.
+     */
+    public function testAddUnitTermIsPrivate(): void
+    {
+        $cu = CompoundUnit::parse('m');
+
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('private method');
+
+        // @phpstan-ignore method.private
+        $cu->addUnitTerm(new UnitTerm('s'));
     }
 
     /**
@@ -1802,8 +1807,14 @@ class CompoundUnitTest extends TestCase
 
     // region tryExpand() tests
 
+    // Most of tryExpand()'s observable behaviour is covered by the toSiBase() tests above
+    // (e.g. N → kg*m/s2, kN → kg*m/s2, N*s → kg*m/s) and by the multiplier property tests
+    // for the prefix magnitudes. The tests below cover the *internal* signals that are not
+    // directly observable through the public API: the null-return contract for base and
+    // unexpandable inputs, and the caching behaviour.
+
     /**
-     * Test tryExpand returns null for a base unit.
+     * Test tryExpand returns null for a base unit (internal signal — not observable via toSi).
      */
     public function testTryExpandReturnsNullForBaseUnit(): void
     {
@@ -1813,35 +1824,34 @@ class CompoundUnitTest extends TestCase
     }
 
     /**
-     * Test tryExpand expands a named unit to base units.
+     * Test tryExpand returns null when a compound unit contains only base terms (internal signal).
      */
-    public function testTryExpandExpandsNamedUnit(): void
+    public function testTryExpandReturnsNullForUnexpandableTerm(): void
     {
-        // N (newton) = kg*m/s2.
-        $du = CompoundUnit::parse('N');
-        $expansion = $du->tryExpand();
+        // A base unit compound like kg*m is already base — nothing to expand.
+        $du = CompoundUnit::parse('kg*m');
 
-        $this->assertInstanceOf(Quantity::class, $expansion);
-        $this->assertSame(1.0, $expansion->value);
-        $this->assertSame('kg*m/s2', $expansion->compoundUnit->asciiSymbol);
+        $this->assertNull($du->tryExpand());
     }
 
     /**
-     * Test tryExpand expands a prefixed named unit.
+     * Test tryExpand passes base unit terms through unchanged when mixed with non-base terms.
+     *
+     * N*m: N is non-base (expands to kg*m/s²), m is base (added directly to the result).
+     * The combined expansion should have dimension ML²T⁻² (equivalent to a Joule).
      */
-    public function testTryExpandExpandsPrefixedNamedUnit(): void
+    public function testTryExpandWithMixedBaseAndNonBaseTerms(): void
     {
-        // kN (kilonewton) should expand to 1000 kg*m/s2.
-        $du = CompoundUnit::parse('kN');
+        $du = CompoundUnit::parse('N*m');
         $expansion = $du->tryExpand();
 
         $this->assertInstanceOf(Quantity::class, $expansion);
-        $this->assertEqualsWithDelta(1000.0, $expansion->value, 1e-10);
-        $this->assertSame('kg*m/s2', $expansion->compoundUnit->asciiSymbol);
+        $this->assertSame('ML2T-2', $expansion->compoundUnit->dimension);
     }
 
     /**
-     * Test tryExpand returns cached expansion on second call.
+     * Test tryExpand returns the cached expansion on a second call. Internal optimisation,
+     * verified by identity (===) on the returned Quantity.
      */
     public function testTryExpandReturnsCachedExpansion(): void
     {
@@ -1852,31 +1862,6 @@ class CompoundUnitTest extends TestCase
 
         $this->assertInstanceOf(Quantity::class, $expansion1);
         $this->assertSame($expansion1, $expansion2);
-    }
-
-    /**
-     * Test tryExpand with mixed base and expandable terms.
-     */
-    public function testTryExpandWithMixedBaseAndExpandable(): void
-    {
-        // N*s = kg*m/s2 * s = kg*m/s. The N is expandable, s is base.
-        $du = CompoundUnit::parse('N*s');
-        $expansion = $du->tryExpand();
-
-        $this->assertInstanceOf(Quantity::class, $expansion);
-        $this->assertSame(1.0, $expansion->value);
-        $this->assertSame('kg*m/s', $expansion->compoundUnit->asciiSymbol);
-    }
-
-    /**
-     * Test tryExpand returns null when a term has no known expansion.
-     */
-    public function testTryExpandReturnsNullForUnexpandableTerm(): void
-    {
-        // A base unit compound like kg*m is already base — nothing to expand.
-        $du = CompoundUnit::parse('kg*m');
-
-        $this->assertNull($du->tryExpand());
     }
 
     // endregion
@@ -1951,13 +1936,15 @@ class CompoundUnitTest extends TestCase
     }
 
     /**
-     * Test firstUnitTerm property returns first term in compound unit.
+     * Test firstUnitTerm property returns the first term (in input order) in a compound unit
+     * with multiple terms.
      */
     public function testFirstUnitTermPropertyReturnsFirstInCompound(): void
     {
         $du = CompoundUnit::parse('kg*m/s2');
 
         $this->assertInstanceOf(UnitTerm::class, $du->firstUnitTerm);
+        $this->assertSame('kg', $du->firstUnitTerm->asciiSymbol);
     }
 
     /**

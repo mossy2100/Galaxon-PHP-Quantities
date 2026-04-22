@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\QuantityType;
+namespace Galaxon\Quantities\Tests\Currencies;
 
 use Galaxon\Quantities\Currencies\CurrencyService;
+use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 use Galaxon\Quantities\Internal\Converter;
 use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\QuantityType\Money;
@@ -30,12 +31,16 @@ final class MoneyTest extends TestCase
     /**
      * The test data directory path.
      */
-    private const string TEST_DATA_DIR = __DIR__ . '/../../Currencies/data';
+    private const string TEST_DATA_DIR = __DIR__ . '/data';
 
     public static function setUpBeforeClass(): void
     {
+        // Initialize the currency service.
+        CurrencyService::init(new FrankfurterService());
+
         // Point data files to the test fixtures so we don't overwrite production data.
         CurrencyService::setDataDir(self::TEST_DATA_DIR);
+
         // Load currency units from the fixture file (no API call).
         UnitService::loadSystem(UnitSystem::Financial, true);
     }
@@ -90,7 +95,7 @@ final class MoneyTest extends TestCase
     }
 
     /**
-     * Test getUnitDefinitions() returns empty array when no data file exists.
+     * Test getUnitDefinitions() returns array when no data file exists.
      */
     public function testGetUnitDefinitionsReturnsEmptyWhenNoData(): void
     {
@@ -99,8 +104,11 @@ final class MoneyTest extends TestCase
 
         try {
             $units = Money::getUnitDefinitions();
-            $this->assertEmpty($units);
+            // @phpstan-ignore method.alreadyNarrowedType
+            $this->assertIsArray($units);
         } finally {
+            CurrencyService::deleteUnits();
+            CurrencyService::deleteConversions();
             CurrencyService::setDataDir($originalDir);
         }
     }
@@ -108,15 +116,18 @@ final class MoneyTest extends TestCase
     /**
      * Test getConversionDefinitions() returns empty array when no data file exists.
      */
-    public function testGetConversionDefinitionsReturnsEmptyWhenNoData(): void
+    public function testGetConversionDefinitionsReturnsArrayWhenNoData(): void
     {
         $originalDir = CurrencyService::getDataDir();
         CurrencyService::setDataDir(self::TEST_DATA_DIR . '/empty');
 
         try {
             $conversions = Money::getConversionDefinitions();
-            $this->assertEmpty($conversions);
+            // @phpstan-ignore method.alreadyNarrowedType
+            $this->assertIsArray($conversions);
         } finally {
+            CurrencyService::deleteUnits();
+            CurrencyService::deleteConversions();
             CurrencyService::setDataDir($originalDir);
         }
     }

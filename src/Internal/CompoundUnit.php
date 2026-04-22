@@ -16,11 +16,10 @@ use LogicException;
 use UnexpectedValueException;
 
 /**
- * Represents a compound unit composed of one or more unit terms.
+ * Represents a compound unit composed of zero or more unit terms.
  *
- * A compound unit like 'kg⋅m⋅s⁻²' (newton) comprises multiple UnitTerm objects.
- * Unit terms with the same unit are automatically combined
- * (e.g. km³ * km⁻¹ = km²).
+ * A compound unit like 'kg⋅m⋅s⁻²' comprises multiple UnitTerm objects.
+ * Unit terms with the same unit are automatically combined (e.g. km³ * km⁻¹ = km²).
  */
 class CompoundUnit implements UnitInterface
 {
@@ -28,11 +27,56 @@ class CompoundUnit implements UnitInterface
 
     // region Private constants
 
+    /**
+     * Unit term multiplication operator characters accepted by the parser:
+     * - asterisk '*' - Also used for ASCII format. Multiplication operator in PHP.
+     * - period '.' - Often used as a substitute for the dot operator.
+     * - dot operator U+22C5 - Also used for Unicode format. This is technically the correct character.
+     * - middle dot U+00B7 - Common substitute for the dot operator. Option+Shift+9 on Mac.
+     * There are many other similar characters in Unicode, but these are the most common.
+     */
     private const string RX_MUL_OPS = '*.\x{22C5}\x{00B7}';
 
+    /**
+     * Regular expression character class for the multiplication operator characters.
+     */
     private const string RX_CLASS_MUL_OPS = '[' . self::RX_MUL_OPS . ']';
 
+    /**
+     * Regular expression character class for the multiplication and division operator characters.
+     */
     private const string RX_CLASS_MUL_DIV_OPS = '[' . self::RX_MUL_OPS . '\/]';
+
+    // endregion
+
+    // region UnitInterface properties
+
+    /**
+     * The full compound unit symbol with prefix and exponent (e.g. 'kg*m*s-2').
+     * This property returns the ASCII symbol (e.g. 'deg').
+     */
+    public string $asciiSymbol {
+        get => $this->format(true);
+    }
+
+    /**
+     * The full compound unit symbol with prefix and exponent formatted as superscript (e.g. 'kg⋅m⋅s⁻²').
+     * This property returns the Unicode symbol if set (e.g. '°').
+     */
+    public string $unicodeSymbol {
+        get => $this->format();
+    }
+
+    /**
+     * The dimension code of the compound unit.
+     *
+     * The interface requires a non-nullable string, so we can't back this property directly with a nullable cache.
+     * Instead, we keep the cache in the separate $dimensionCache field and populate it lazily here. That makes this
+     * property virtual — which is why it can't declare private(set).
+     */
+    public string $dimension {
+        get => $this->dimensionCache ??= $this->getDimension();
+    }
 
     // endregion
 
@@ -47,13 +91,6 @@ class CompoundUnit implements UnitInterface
      */
     private(set) array $unitTerms = [];
 
-    /**
-     * The dimension code of the compound unit.
-     *
-     * Defaults to empty string '' (dimensionless).
-     */
-    private(set) string $dimension = '';
-
     // endregion
 
     // region Private properties
@@ -63,25 +100,14 @@ class CompoundUnit implements UnitInterface
      */
     private ?Quantity $expansion = null;
 
+    /**
+     * Backing field for dimension.
+     */
+    private ?string $dimensionCache = null;
+
     // endregion
 
     // region Property hooks
-
-    /**
-     * The full unit symbol with prefix and exponent (e.g. 'km2', 'ms-1').
-     * This property returns the ASCII symbol (e.g. 'deg').
-     */
-    public string $asciiSymbol {
-        get => $this->format(true);
-    }
-
-    /**
-     * The full unit symbol with prefix and exponent formatted as superscript (e.g. 'km²', 'ms⁻¹').
-     * This property returns the Unicode symbol if set (e.g. '°').
-     */
-    public string $unicodeSymbol {
-        get => $this->format();
-    }
 
     /**
      * The combined multiplier from all unit term prefixes.
@@ -90,12 +116,7 @@ class CompoundUnit implements UnitInterface
      * For example, km²⋅ms⁻¹ would have multiplier 1000² × 0.001⁻¹ = 1e6 × 1000 = 1e9.
      */
     public float $multiplier {
-        get => array_product(
-            array_map(
-                static fn (UnitTerm $unitTerm) => $unitTerm->multiplier,
-                $this->unitTerms
-            )
-        );
+        get => array_product(array_map(static fn (UnitTerm $unitTerm) => $unitTerm->multiplier, $this->unitTerms));
     }
 
     /**
@@ -103,7 +124,8 @@ class CompoundUnit implements UnitInterface
      */
     public ?UnitTerm $firstUnitTerm {
         get {
-            $firstKey = array_key_first($this->unitTerms) ?? null;
+            // Replace with array_first() when upgrading to PHP 8.5+.
+            $firstKey = array_key_first($this->unitTerms);
             return $firstKey === null ? null : $this->unitTerms[$firstKey];
         }
     }
@@ -123,7 +145,7 @@ class CompoundUnit implements UnitInterface
      * Construct a new CompoundUnit instance.
      *
      * @param null|Unit|UnitTerm|list<Unit|UnitTerm> $unit The Unit, UnitTerm, or array of Unit or UnitTerm objects
-     * to add, or null to create an empty unit.
+     * to add, or null to create a dimensionless unit.
      */
     public function __construct(null|Unit|UnitTerm|array $unit = null)
     {
@@ -175,12 +197,14 @@ class CompoundUnit implements UnitInterface
     }
 
     /**
-     * Parse a string into a new CompoundUnit.
+     * Parse the given symbol to return the matching CompoundUnit.
      *
      * @param string $symbol The unit symbol, which can be simple or complex (e.g. 'm', 'kg*m/s2', etc.).
      * @return self The new CompoundUnit instance.
      * @throws FormatException If the symbol format is invalid.
      * @throws UnknownUnitException If any units are unknown.
+     * @throws UnexpectedValueException If an unexpected error occurs.
+     * @throws DomainException If an exponent is zero.
      */
     public static function parse(string $symbol): self
     {
@@ -189,77 +213,30 @@ class CompoundUnit implements UnitInterface
             return new self();
         }
 
-        // Check for a series of unit terms separated by multiplication and/or division operators.
-        if (self::isValidCompoundUnitForm1($symbol)) {
+        // Check for the first form: the symbol is a series of unit terms separated by multiplication and/or division
+        // operators.
+        if (self::isValidSymbolForm1($symbol)) {
             return self::parseHelper($symbol);
         }
 
-        // Check for parentheses. The only permitted use of parentheses is "<terms>/(<terms>)", where <terms> is a
-        // sequence of one or more multiplied unit terms. Examples: 'J/(mol*K)', 'W/(m2*K4)'.
-        if (self::isValidCompoundUnitForm2($symbol, $matches)) {
+        // Check for the second form: the symbol has the form "<terms>/(<terms>)", where <terms> is a sequence of one or
+        // more multiplied unit terms. Examples: 'J/(mol*K)', 'W/(m2*K4)'.
+        if (self::isValidSymbolForm2($symbol, $matches)) {
             assert(isset($matches['num']) && isset($matches['den']));
-            $numerator = $matches['num'];
-            $denominator = $matches['den'];
-            $numUnit = self::parseHelper($numerator);
-            $denUnit = self::parseHelper($denominator);
+
+            // Get the numerator and denominator as CompoundUnit instances.
+            $numUnit = self::parseHelper($matches['num']);
+            $denUnit = self::parseHelper($matches['den']);
+
+            // Copy unit terms from the denominator to the numerator.
             foreach ($denUnit->unitTerms as $denUnitTerm) {
                 $numUnit->addUnitTerm($denUnitTerm->inv());
             }
+
             return $numUnit;
         }
 
-        throw new FormatException("Invalid compound unit symbol: '$symbol'.");
-    }
-
-    // endregion
-
-    // region Construction methods
-
-    /**
-     * Add a unit term, combining exponents with any existing term of the same unit.
-     *
-     * If a term with the same base unit already exists, their exponents are added.
-     * If the resulting exponent is zero, the term is removed entirely.
-     *
-     * @param UnitTerm $newUnitTerm The unit term to add.
-     */
-    public function addUnitTerm(UnitTerm $newUnitTerm): void
-    {
-        $symbol = $newUnitTerm->unexponentiatedAsciiSymbol;
-        $existingUnitTerm = $this->unitTerms[$symbol] ?? null;
-        if ($existingUnitTerm === null) {
-            // Add the new unit term.
-            $this->unitTerms[$symbol] = $newUnitTerm;
-        } else {
-            // Add the exponent of the new unit term to that of the existing term.
-            $exp = $existingUnitTerm->exponent + $newUnitTerm->exponent;
-            if ($exp === 0) {
-                unset($this->unitTerms[$symbol]);
-            } else {
-                $this->unitTerms[$symbol] = $existingUnitTerm->withExponent($exp);
-            }
-        }
-
-        // Keep the unit terms sorted. This is important for multiplying quantities.
-        $this->sortUnitTerms();
-
-        // Update the dimension.
-        $this->updateDimension();
-    }
-
-    /**
-     * Remove a unit term.
-     *
-     * @param UnitTerm $unitTermToRemove The unit term to remove.
-     */
-    public function removeUnitTerm(UnitTerm $unitTermToRemove): void
-    {
-        foreach ($this->unitTerms as $symbol => $unitTerm) {
-            if ($unitTerm->equal($unitTermToRemove)) {
-                unset($this->unitTerms[$symbol]);
-                break;
-            }
-        }
+        throw new FormatException("Invalid compound unit symbol format: '$symbol'.");
     }
 
     // endregion
@@ -481,7 +458,7 @@ class CompoundUnit implements UnitInterface
      */
     public function toSiBase(): self
     {
-        return DimensionService::getBaseCompoundUnit($this->dimension, true);
+        return DimensionService::getBaseCompoundUnit($this->dimension);
     }
 
     /**
@@ -641,7 +618,7 @@ class CompoundUnit implements UnitInterface
 
     // endregion
 
-    // region Regex methods
+    // region Validation methods
 
     /**
      * Get the regex pattern for form 1 of a compound unit: unit terms separated by multiply/divide operators.
@@ -676,29 +653,30 @@ class CompoundUnit implements UnitInterface
         return '(?:' . self::regexForm1() . ')|(?:' . self::regexForm2() . ')';
     }
 
-    // endregion
-
-    // region Validation methods
-
     /**
-     * Check if a string matches form 1 of a compound unit.
+     * Check if a string matches a compound unit without brackets.
+     *
+     * This form has multiple unit terms joined by multiplication and division operators.
      *
      * @param string $symbol The symbol to validate.
      * @return bool True if the symbol matches form 1.
      */
-    private static function isValidCompoundUnitForm1(string $symbol): bool
+    private static function isValidSymbolForm1(string $symbol): bool
     {
         return (bool)preg_match('/^' . self::regexForm1() . '$/iu', $symbol);
     }
 
     /**
-     * Check if a string matches form 2 of a compound unit.
+     * Check if a string matches a compound unit with brackets.
+     *
+     * This form has a numerator and denominator, separated by a division operator, with the denominator in brackets.
+     * Each has multiple unit terms joined by multiplication operators only.
      *
      * @param string $symbol The symbol to validate.
      * @param ?array<array-key, string> $matches Output array for match results.
      * @return bool True if the symbol matches form 2.
      */
-    private static function isValidCompoundUnitForm2(string $symbol, ?array &$matches): bool
+    private static function isValidSymbolForm2(string $symbol, ?array &$matches): bool
     {
         return (bool)preg_match('/^' . self::regexForm2() . '$/iu', $symbol, $matches);
     }
@@ -733,7 +711,7 @@ class CompoundUnit implements UnitInterface
         // Convert the substrings to unit terms.
         $nParts = count($parts);
         for ($i = 0; $i < $nParts; $i += 2) {
-            // Parse the unit term. This could throw an UnknownUnitException if the symbol is invalid.
+            // Parse the unit term. This throws an UnknownUnitException if the symbol is invalid.
             $unitTerm = UnitTerm::parse($parts[$i]);
 
             if ($i > 0 && $parts[$i - 1] === '/') {
@@ -747,6 +725,42 @@ class CompoundUnit implements UnitInterface
 
         // Return the new object.
         return $new;
+    }
+
+    /**
+     * Add a unit term, combining exponents with any existing term of the same unit.
+     *
+     * If a term with the same base unit already exists, their exponents are added.
+     * If the resulting exponent is zero, the term is removed entirely.
+     *
+     * Private to preserve deep immutability: external callers must build compound units via the constructor or
+     * use arithmetic methods like mul() / inv() / pow(), which return new instances.
+     *
+     * @param UnitTerm $newUnitTerm The unit term to add.
+     */
+    private function addUnitTerm(UnitTerm $newUnitTerm): void
+    {
+        $symbol = $newUnitTerm->unexponentiatedAsciiSymbol;
+        assert($symbol !== null);
+        $existingUnitTerm = $this->unitTerms[$symbol] ?? null;
+        if ($existingUnitTerm === null) {
+            // Add the new unit term.
+            $this->unitTerms[$symbol] = $newUnitTerm;
+        } else {
+            // Add the exponent of the new unit term to that of the existing term.
+            $exp = $existingUnitTerm->exponent + $newUnitTerm->exponent;
+            if ($exp === 0) {
+                unset($this->unitTerms[$symbol]);
+            } else {
+                $this->unitTerms[$symbol] = $existingUnitTerm->withExponent($exp);
+            }
+        }
+
+        // Keep the unit terms sorted. This is important for multiplying quantities.
+        $this->sortUnitTerms();
+
+        // Clear the cached dimension.
+        $this->dimensionCache = null;
     }
 
     /**
@@ -819,10 +833,8 @@ class CompoundUnit implements UnitInterface
 
     /**
      * Recalculate the dimension from the current unit terms.
-     *
-     * @return void
      */
-    private function updateDimension(): void
+    private function getDimension(): string
     {
         // Convert the unit terms to dimension codes.
         $dimCodes = [];
@@ -832,21 +844,21 @@ class CompoundUnit implements UnitInterface
 
             // Accumulate the exponents for each letter in the dimension code.
             foreach ($dims as $dimCode => $exp) {
+                // Accumulate the exponent for this letter.
                 if (isset($dimCodes[$dimCode])) {
                     $exp += $dimCodes[$dimCode];
-                    if ($exp === 0) {
-                        unset($dimCodes[$dimCode]);
-                    } else {
-                        $dimCodes[$dimCode] = $exp;
-                    }
+                }
+                // Set or unset the exponent for this letter.
+                if ($exp === 0) {
+                    unset($dimCodes[$dimCode]);
                 } else {
                     $dimCodes[$dimCode] = $exp;
                 }
             }
         }
 
-        // Generate the full dimension code.
-        $this->dimension = DimensionService::compose($dimCodes);
+        // Compose the full dimension code.
+        return DimensionService::compose($dimCodes);
     }
 
     /**
@@ -856,6 +868,7 @@ class CompoundUnit implements UnitInterface
      * succeed.
      *
      * @return ?Quantity The expansion as a Quantity with base units, or null if any term cannot be expanded.
+     * @internal
      */
     public function tryExpand(): ?Quantity
     {

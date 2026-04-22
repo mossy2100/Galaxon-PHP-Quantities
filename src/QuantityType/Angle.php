@@ -118,15 +118,6 @@ class Angle extends Quantity
         return ['deg', 'arcmin', 'arcsec'];
     }
 
-    /**
-     * Default result unit for angle parts methods: degrees.
-     */
-    #[Override]
-    public static function getResultUnitSymbol(): ?string
-    {
-        return 'deg';
-    }
-
     // endregion
 
     // region Trigonometric methods

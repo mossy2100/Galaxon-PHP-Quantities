@@ -17,7 +17,7 @@ $miles = $meters->to('mi'); // 0.621371 mi
 
 ---
 
-## SI to Imperial/US
+## SI to imperial/US
 
 ```php
 use Galaxon\Quantities\QuantityType\Length;
@@ -36,9 +36,9 @@ echo $weight->to('st');   // 11.023113... st
 
 ---
 
-## Base and Derived Units
+## Base and derived units
 
-Derived units like newtons, joules, and watts are shorthand for combinations of base units. You can convert to base units with `toBase()`, or substitute derived units for base-unit combinations with `toDerived()`.
+Derived units like *newtons*, *joules*, and *watts* are shorthand for combinations of base units. You can convert to base units with `toBase()`, or substitute derived units for base-unit combinations with `toDerived()`.
 
 ```php
 use Galaxon\Quantities\Quantity;
@@ -59,9 +59,9 @@ echo $lbf->toBase();  // 32.174049... lb*ft/s2
 
 ---
 
-## Auto-Prefixing
+## Auto-prefixing
 
-The `autoPrefix()` method selects the best engineering SI prefix (kilo, mega, milli, etc.) to keep the numeric value readable:
+The `autoPrefix()` method selects the best engineering SI prefix (*kilo*, *mega*, *milli*, etc.) to keep the numeric value readable:
 
 ```php
 use Galaxon\Quantities\QuantityType\Length;
@@ -79,7 +79,7 @@ $wavelength = new Length(0.00000055, 'm');
 echo $wavelength->autoPrefix();  // 550 nm
 ```
 
-The `toSi()` method converts to SI units and simplifies (e.g., kg\*m/s2 becomes N). Chain with `autoPrefix()` to also apply the best engineering prefix:
+The `toSi()` method converts to SI units and simplifies (e.g., `kg*m/s2` becomes `N`). Chain with `autoPrefix()` to also apply the best engineering prefix:
 
 ```php
 use Galaxon\Quantities\QuantityType\Energy;
@@ -91,7 +91,7 @@ echo $energy->toSi()->autoPrefix();  // 1.05506 kJ
 
 ---
 
-## Temperature Conversions
+## Temperature conversions
 
 Most conversions involve a simple multiplication. The built-in `Temperature` class uses affine transformations (y = mx + k) to handle offset scales:
 
@@ -108,8 +108,8 @@ echo $fahrenheit->to('degC');  // 100 degC
 
 ---
 
-## See Also
+## See also
 
-- **[Quantity — Transformation Methods](../Reference/Quantity.md#transformation-methods)** — Full reference for `to()`, `toSi()`, `toSiBase()`, `toEnglishBase()`, `toBase()`, `toDerived()`, `merge()`, and `autoPrefix()`.
+- **[Quantity — Transformation Methods](../Reference/Quantity.md#transformation-methods)** — Full reference for `to()`, `toSi()`, `toSiBase()`, `toEnglish()`, `toEnglishBase()`, `toBase()`, `toDerived()`, `merge()`, and `autoPrefix()`.
 - **[Units](../Concepts/Units.md)** — Complete list of built-in units by quantity type.
 - **[Arithmetic Operations](ArithmeticOperations.md)** — Multiply and divide to create compound units.

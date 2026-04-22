@@ -2,7 +2,7 @@
 
 Categorizes units of measurement by their measurement system.
 
-**Namespace:** `Galaxon\Quantities`
+**Namespace:** `Galaxon\Quantities\Internal`
 
 ---
 
@@ -24,7 +24,7 @@ This is an unbacked enum (no string or int values).
 case Si;
 ```
 
-The [International System of Units](https://en.wikipedia.org/wiki/International_System_of_Units) (SI). The modern form of the metric system and the world's most widely used system of measurement. Includes the seven SI base units (meter, kilogram, second, ampere, kelvin, mole, candela) and compound units with special names (newton, pascal, joule, etc.).
+The [International System of Units](https://en.wikipedia.org/wiki/International_System_of_Units) (SI). The modern form of the metric system and the world's most widely used system of measurement. Includes the seven SI base units (*meter*, *kilogram*, *second*, *ampere*, *kelvin*, *mole*, *candela*) and compound units with special names (*newton*, *pascal*, *joule*, etc.).
 
 ### SiAccepted
 
@@ -108,7 +108,7 @@ The default system for user-defined units.
 
 ---
 
-## Cases Summary
+## Cases summary
 
 | Case          | Description                                                   |
 | ------------- | ------------------------------------------------------------- |
@@ -126,7 +126,7 @@ The default system for user-defined units.
 
 ---
 
-## See Also
+## See also
 
 - **[Unit](Unit.md)** - Units can belong to one or more systems
 - **[UnitService](../Services/UnitService.md)** - Load units by measurement system

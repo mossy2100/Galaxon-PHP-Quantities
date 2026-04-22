@@ -11,13 +11,27 @@ Represents electrical capacitance quantities.
 
 The `Capacitance` class handles electrical capacitance measurements.
 
-For the complete list of capacitance units, see [Units: Capacitance](../../Concepts/Units.md#capacitance).
+---
+
+## Unit definitions
+
+| Name  | ASCII symbol | Prefixes   | Systems |
+| ----- | ------------ | ---------- | ------- |
+| farad | `F`          | all metric | SI      |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The farad is defined as:
+| From | To                | Factor |
+| ---- | ----------------- | ------ |
+| `F`  | `kg-1*m-2*s4*A2`    | 1      |
+
+---
+
+## SI unit
+
+The *farad* is defined as:
 
 ```
 F = kg⁻¹·m⁻²·s⁴·A² = C/V = s/Ω
@@ -25,7 +39,7 @@ F = kg⁻¹·m⁻²·s⁴·A² = C/V = s/Ω
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Capacitance;
@@ -45,9 +59,8 @@ $inMF = $super->to('mF');  // 1000 mF
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Capacitance](../../Concepts/Units.md#capacitance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCharge](ElectricCharge.md)** - Related quantity (C = Q/V)
 - **[Voltage](Voltage.md)** - Related quantity

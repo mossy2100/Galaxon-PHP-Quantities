@@ -70,7 +70,7 @@ $wavelength = Length::parse('5.5e-7 m');
 // Parse with the base class (infers the quantity type)
 $force = Quantity::parse('9.8 kg*m/s2');
 
-// Multi-part strings are supported for Angle and Time
+// Multi-part strings are supported.
 $duration = Time::parse('1h 30min 45s');
 ```
 
@@ -99,7 +99,7 @@ For example, if `new Quantity(42, 'J/K')` was used to create an entropy quantity
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](../Reference/Quantity.md)** — Full API reference for the base Quantity class.
 - **[Units](../Concepts/Units.md)** — Complete list of built-in units by quantity type.

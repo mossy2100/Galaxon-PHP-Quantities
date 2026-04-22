@@ -13,7 +13,7 @@ The `Density` class handles density measurements. This class has no dedicated un
 
 ---
 
-## Compound Units
+## Compound units
 
 Density units are automatically supported through unit arithmetic:
 
@@ -30,7 +30,7 @@ $inLbFt3 = $water->to('lb/ft3');  // 62.428 lb/ft³
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\Quantity;
@@ -54,7 +54,7 @@ $relativeToWater = $material->value / 1.0;  // 2.5
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Mass](Mass.md)** - Related quantity

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\Services;
 
 use DomainException;
+use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Core\Floats;
 use Galaxon\Quantities\Internal\Prefix;
 
@@ -18,11 +19,17 @@ class PrefixService
 {
     // region Public constants
 
+    /**
+     * Base prefix group codes.
+     */
     public const int GROUP_SMALL_METRIC = 1;
     public const int GROUP_MEDIUM_METRIC = 2;
     public const int GROUP_LARGE_METRIC = 4;
     public const int GROUP_BINARY = 8;
 
+    /**
+     * Combined prefix group codes.
+     */
     public const int GROUP_METRIC = self::GROUP_SMALL_METRIC | self::GROUP_MEDIUM_METRIC | self::GROUP_LARGE_METRIC;
     public const int GROUP_ENGINEERING = self::GROUP_SMALL_METRIC | self::GROUP_LARGE_METRIC;
     public const int GROUP_LARGE = self::GROUP_LARGE_METRIC | self::GROUP_BINARY;
@@ -34,49 +41,187 @@ class PrefixService
 
     /**
      * Prefix definitions.
+     *
+     * @var array<string, array{
+     *     multiplier: int|float,
+     *     prefixGroup: int,
+     *     asciiSymbol: string,
+     *     unicodeSymbol?: string,
+     *     alternateSymbol?: string
+     * }>
      */
     private const array PREFIX_DEFINITIONS = [
-        self::GROUP_SMALL_METRIC  => [
-            'quecto' => ['q', 1e-30],
-            'ronto'  => ['r', 1e-27],
-            'yocto'  => ['y', 1e-24],
-            'zepto'  => ['z', 1e-21],
-            'atto'   => ['a', 1e-18],
-            'femto'  => ['f', 1e-15],
-            'pico'   => ['p', 1e-12],
-            'nano'   => ['n', 1e-9],
-            'micro'  => ['u', 1e-6, 'μ'],
-            'milli'  => ['m', 1e-3],
+        'quecto' => [
+            'multiplier'  => 1e-30,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'q',
         ],
-        self::GROUP_MEDIUM_METRIC => [
-            'centi' => ['c', 1e-2],
-            'deci'  => ['d', 1e-1],
-            'deca'  => ['da', 1e1],
-            'hecto' => ['h', 1e2],
+        'ronto'  => [
+            'multiplier'  => 1e-27,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'r',
         ],
-        self::GROUP_LARGE_METRIC  => [
-            'kilo'   => ['k', 1e3],
-            'mega'   => ['M', 1e6],
-            'giga'   => ['G', 1e9],
-            'tera'   => ['T', 1e12],
-            'peta'   => ['P', 1e15],
-            'exa'    => ['E', 1e18],
-            'zetta'  => ['Z', 1e21],
-            'yotta'  => ['Y', 1e24],
-            'ronna'  => ['R', 1e27],
-            'quetta' => ['Q', 1e30],
+        'yocto'  => [
+            'multiplier'  => 1e-24,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'y',
         ],
-        self::GROUP_BINARY        => [
-            'kibi'  => ['Ki', 2 ** 10],
-            'mebi'  => ['Mi', 2 ** 20],
-            'gibi'  => ['Gi', 2 ** 30],
-            'tebi'  => ['Ti', 2 ** 40],
-            'pebi'  => ['Pi', 2 ** 50],
-            'exbi'  => ['Ei', 2 ** 60],
-            'zebi'  => ['Zi', 2 ** 70],
-            'yobi'  => ['Yi', 2 ** 80],
-            'robi'  => ['Ri', 2 ** 90],
-            'quebi' => ['Qi', 2 ** 100],
+        'zepto'  => [
+            'multiplier'  => 1e-21,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'z',
+        ],
+        'atto'   => [
+            'multiplier'  => 1e-18,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'a',
+        ],
+        'femto'  => [
+            'multiplier'  => 1e-15,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'f',
+        ],
+        'pico'   => [
+            'multiplier'  => 1e-12,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'p',
+        ],
+        'nano'   => [
+            'multiplier'  => 1e-9,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'n',
+        ],
+        'micro'  => [
+            'multiplier'      => 1e-6,
+            'prefixGroup'     => self::GROUP_SMALL_METRIC,
+            'asciiSymbol'     => 'u',
+            'unicodeSymbol'   => 'µ', // U+00B5 MICRO SIGN
+            'alternateSymbol' => 'μ', // U+03BC GREEK SMALL LETTER MU
+        ],
+        'milli'  => [
+            'multiplier'  => 1e-3,
+            'prefixGroup' => self::GROUP_SMALL_METRIC,
+            'asciiSymbol' => 'm',
+        ],
+        'centi'  => [
+            'multiplier'  => 1e-2,
+            'prefixGroup' => self::GROUP_MEDIUM_METRIC,
+            'asciiSymbol' => 'c',
+        ],
+        'deci'   => [
+            'multiplier'  => 1e-1,
+            'prefixGroup' => self::GROUP_MEDIUM_METRIC,
+            'asciiSymbol' => 'd',
+        ],
+        'deca'   => [
+            'multiplier'  => 1e1,
+            'prefixGroup' => self::GROUP_MEDIUM_METRIC,
+            'asciiSymbol' => 'da',
+        ],
+        'hecto'  => [
+            'multiplier'  => 1e2,
+            'prefixGroup' => self::GROUP_MEDIUM_METRIC,
+            'asciiSymbol' => 'h',
+        ],
+        'kilo'   => [
+            'multiplier'  => 1e3,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'k',
+        ],
+        'mega'   => [
+            'multiplier'  => 1e6,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'M',
+        ],
+        'giga'   => [
+            'multiplier'  => 1e9,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'G',
+        ],
+        'tera'   => [
+            'multiplier'  => 1e12,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'T',
+        ],
+        'peta'   => [
+            'multiplier'  => 1e15,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'P',
+        ],
+        'exa'    => [
+            'multiplier'  => 1e18,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'E',
+        ],
+        'zetta'  => [
+            'multiplier'  => 1e21,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'Z',
+        ],
+        'yotta'  => [
+            'multiplier'  => 1e24,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'Y',
+        ],
+        'ronna'  => [
+            'multiplier'  => 1e27,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'R',
+        ],
+        'quetta' => [
+            'multiplier'  => 1e30,
+            'prefixGroup' => self::GROUP_LARGE_METRIC,
+            'asciiSymbol' => 'Q',
+        ],
+        'kibi'   => [
+            'multiplier'  => 2 ** 10,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Ki',
+        ],
+        'mebi'   => [
+            'multiplier'  => 2 ** 20,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Mi',
+        ],
+        'gibi'   => [
+            'multiplier'  => 2 ** 30,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Gi',
+        ],
+        'tebi'   => [
+            'multiplier'  => 2 ** 40,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Ti',
+        ],
+        'pebi'   => [
+            'multiplier'  => 2 ** 50,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Pi',
+        ],
+        'exbi'   => [
+            'multiplier'  => 2 ** 60,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Ei',
+        ],
+        'zebi'   => [
+            'multiplier'  => 2 ** 70,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Zi',
+        ],
+        'yobi'   => [
+            'multiplier'  => 2 ** 80,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Yi',
+        ],
+        'robi'   => [
+            'multiplier'  => 2 ** 90,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Ri',
+        ],
+        'quebi'  => [
+            'multiplier'  => 2 ** 100,
+            'prefixGroup' => self::GROUP_BINARY,
+            'asciiSymbol' => 'Qi',
         ],
     ];
 
@@ -85,11 +230,11 @@ class PrefixService
     // region Private static properties
 
     /**
-     * List of all prefixes, ordered by multiplier.
+     * List of all prefixes.
      *
-     * @var ?list<Prefix>
+     * @var list<Prefix>
      */
-    private static ?array $prefixes = null;
+    private static array $prefixes = [];
 
     // endregion
 
@@ -104,7 +249,6 @@ class PrefixService
     public static function getPrefixes(int $prefixGroup = self::GROUP_ALL): array
     {
         self::init();
-        assert(self::$prefixes !== null);
 
         // No prefixes.
         if ($prefixGroup === 0) {
@@ -120,7 +264,7 @@ class PrefixService
     /**
      * Get a prefix by its symbol.
      *
-     * Supports both ASCII and Unicode symbols.
+     * Supports ASCII, Unicode, and alternate symbols.
      *
      * @param string $symbol The prefix symbol to search for.
      * @return ?Prefix The matching prefix, or null if not found.
@@ -128,11 +272,12 @@ class PrefixService
     public static function getBySymbol(string $symbol): ?Prefix
     {
         self::init();
-        assert(self::$prefixes !== null);
 
         return array_find(
             self::$prefixes,
-            static fn (Prefix $prefix) => $prefix->asciiSymbol === $symbol || $prefix->unicodeSymbol === $symbol
+            static fn (Prefix $prefix) => $prefix->asciiSymbol === $symbol
+                || $prefix->unicodeSymbol === $symbol
+                || $prefix->alternateSymbol === $symbol
         );
     }
 
@@ -141,21 +286,9 @@ class PrefixService
     // region Registry methods
 
     /**
-     * Reset the prefixes cache.
-     *
-     * After calling this method, the next access will trigger re-initialization.
-     * Primarily useful for testing.
-     */
-    public static function reset(): void
-    {
-        self::$prefixes = null;
-    }
-
-    /**
      * Clear the prefixes cache.
      *
-     * After calling this method, the next access will NOT trigger re-initialization.
-     * It will be necessary to call init() manually to re-initialize the prefixes array.
+     * The cache will be re-initialized lazily on the next access.
      */
     public static function removeAll(): void
     {
@@ -178,7 +311,6 @@ class PrefixService
     public static function invert(?Prefix $prefix): ?Prefix
     {
         self::init();
-        assert(self::$prefixes !== null);
 
         // Handle the null case.
         if ($prefix === null) {
@@ -207,19 +339,41 @@ class PrefixService
      * Initialize the prefixes array from the prefix definitions.
      *
      * This is called lazily on first access.
+     *
+     * @throws FormatException If any symbols are invalid.
+     * @throws DomainException If any multipliers are invalid.
      */
     private static function init(): void
     {
-        if (self::$prefixes === null) {
-            self::removeAll();
+        if (self::$prefixes === []) {
+            // Keep track of seen symbols.
+            $seen = [];
 
             // Create the prefix objects from the definitions and add to the array.
-            foreach (self::PREFIX_DEFINITIONS as $groupCode => $groupDefinitions) {
-                foreach ($groupDefinitions as $name => $definition) {
-                    [$asciiSymbol, $multiplier] = $definition;
-                    $unicodeSymbol = $definition[2] ?? null;
-                    self::$prefixes[] = new Prefix($name, $asciiSymbol, $unicodeSymbol, $multiplier, $groupCode);
+            foreach (self::PREFIX_DEFINITIONS as $name => $definition) {
+                // Check for duplicates.
+                foreach (['asciiSymbol', 'unicodeSymbol', 'alternateSymbol'] as $key) {
+                    $sym = $definition[$key] ?? null;
+                    if ($sym === null) {
+                        continue;
+                    }
+                    if (isset($seen[$sym])) {
+                        // @codeCoverageIgnoreStart
+                        throw new DomainException("Duplicate prefix symbol: '$sym'.");
+                        // @codeCoverageIgnoreEnd
+                    }
+                    $seen[$sym] = true;
                 }
+
+                // Construct the new prefix and add it to the cache.
+                self::$prefixes[] = new Prefix(
+                    $name,
+                    $definition['multiplier'],
+                    $definition['prefixGroup'],
+                    $definition['asciiSymbol'],
+                    $definition['unicodeSymbol'] ?? null,
+                    $definition['alternateSymbol'] ?? null
+                );
             }
         }
     }

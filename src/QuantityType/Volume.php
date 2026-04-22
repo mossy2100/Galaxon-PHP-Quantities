@@ -25,9 +25,10 @@ class Volume extends Quantity
         return [
             // Metric volume units
             'liter'                => [
-                'asciiSymbol' => 'L',
-                'prefixGroup' => PrefixService::GROUP_METRIC,
-                'systems'     => [UnitSystem::SiAccepted, UnitSystem::Metric],
+                'asciiSymbol'     => 'L',
+                'alternateSymbol' => 'l',
+                'prefixGroup'     => PrefixService::GROUP_METRIC,
+                'systems'         => [UnitSystem::SiAccepted, UnitSystem::Metric],
             ],
             'metric cup'           => [
                 'asciiSymbol' => 'cup',

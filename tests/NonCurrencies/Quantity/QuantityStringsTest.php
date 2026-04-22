@@ -471,12 +471,12 @@ final class QuantityStringsTest extends TestCase
     }
 
     /**
-     * Test that format()'s auto-spacing drops the space before single-character special unit symbols
+     * Test that format()'s auto-spacing drops the space before single-character non-letter symbols
      * like ° and keeps it for letter-based or multi-character symbols.
      */
     public function testFormatAutoSpacingForSpecialUnitSymbols(): void
     {
-        // Single special char → no space.
+        // Single non-letter → no space.
         $this->assertSame('45°', new Angle(45, 'deg')->format());
 
         // Letter-based unit → space.

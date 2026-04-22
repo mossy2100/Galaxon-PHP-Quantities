@@ -11,23 +11,37 @@ Represents illuminance quantities.
 
 The `Illuminance` class handles illuminance measurements, which describe how much light falls on a surface.
 
-For the complete list of illuminance units, see [Units: Illuminance](../../Concepts/Units.md#illuminance).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Prefixes   | Systems |
+| ---- | ------------ | ---------- | ------- |
+| lux  | `lx`         | all metric | SI      |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The lux is defined as:
+| From | To               | Factor |
+| ---- | ---------------- | ------ |
+| `lx` | `cd*rad2*m-2`    | 1      |
+
+---
+
+## SI unit
+
+The *lux* is defined as:
 
 ```
 lx = cd·sr·m⁻² = lm/m²
 ```
 
-One lux equals one lumen per square meter.
+One *lux* equals one *lumen* per square meter.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Illuminance;
@@ -48,9 +62,8 @@ $inMlx = $night->to('mlx');  // 1000 mlx
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Illuminance](../../Concepts/Units.md#illuminance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[LuminousFlux](LuminousFlux.md)** - Related quantity (lx = lm/m²)
 - **[LuminousIntensity](LuminousIntensity.md)** - Related quantity

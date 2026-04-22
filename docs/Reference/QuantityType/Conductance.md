@@ -11,13 +11,27 @@ Represents electrical conductance quantities.
 
 The `Conductance` class handles electrical conductance measurements. Conductance is the reciprocal of resistance.
 
-For the complete list of conductance units, see [Units: Conductance](../../Concepts/Units.md#conductance).
+---
+
+## Unit definitions
+
+| Name    | ASCII symbol | Prefixes   | Systems |
+| ------- | ------------ | ---------- | ------- |
+| siemens | `S`          | all metric | SI      |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The siemens is defined as:
+| From | To                  | Factor |
+| ---- | ------------------- | ------ |
+| `S`  | `kg-1*m-2*s3*A2`    | 1      |
+
+---
+
+## SI unit
+
+The *siemens* is defined as:
 
 ```
 S = s³·A²·kg⁻¹·m⁻² = A/V = 1/Ω
@@ -25,7 +39,7 @@ S = s³·A²·kg⁻¹·m⁻² = A/V = 1/Ω
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Conductance;
@@ -45,8 +59,7 @@ $inNS = $channel->to('nS');  // 0.03 nS
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Conductance](../../Concepts/Units.md#conductance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Resistance](Resistance.md)** - Inverse quantity (Ω = 1/S)

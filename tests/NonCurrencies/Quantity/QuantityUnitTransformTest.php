@@ -255,7 +255,7 @@ final class QuantityUnitTransformTest extends TestCase
         $prefixed = $length->autoPrefix();
 
         $this->assertApproxEqual(5.0, $prefixed->value);
-        $this->assertSame('μm', $prefixed->compoundUnit->unicodeSymbol);
+        $this->assertSame('µm', $prefixed->compoundUnit->unicodeSymbol);
     }
 
     /**

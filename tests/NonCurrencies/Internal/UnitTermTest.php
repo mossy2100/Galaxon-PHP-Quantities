@@ -8,6 +8,7 @@ use DomainException;
 use Galaxon\Core\Exceptions\FormatException;
 use Galaxon\Quantities\Exceptions\UnknownUnitException;
 use Galaxon\Quantities\Internal\Converter;
+use Galaxon\Quantities\Internal\QuantityType;
 use Galaxon\Quantities\Internal\Unit;
 use Galaxon\Quantities\Internal\UnitSystem;
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -15,6 +16,7 @@ use Galaxon\Quantities\Services\PrefixService;
 use Galaxon\Quantities\Services\UnitService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use stdClass;
 
 /**
@@ -23,6 +25,14 @@ use stdClass;
 #[CoversClass(UnitTerm::class)]
 final class UnitTermTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        // Reset the cached regex so UnitTerm::regex() always rebuilds during this test class,
+        // ensuring coverage is attributed here regardless of test execution order.
+        $prop = new ReflectionClass(UnitTerm::class)->getProperty('rx');
+        $prop->setValue(null, null);
+    }
+
     // region Constructor tests
 
     /**
@@ -107,7 +117,7 @@ final class UnitTermTest extends TestCase
     public function testConstructorThrowsForExponentZero(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot have a zero exponent');
+        $this->expectExceptionMessage('Cannot have an exponent of 0');
 
         new UnitTerm('m', null, 0);
     }
@@ -519,14 +529,47 @@ final class UnitTermTest extends TestCase
     }
 
     /**
-     * Test parse throws for exponent of zero.
+     * Test parse throws for exponent of zero (rejected by the constructor).
      */
     public function testParseThrowsForExponentZero(): void
     {
         $this->expectException(DomainException::class);
-        $this->expectExceptionMessage('Cannot have a zero exponent');
+        $this->expectExceptionMessage('Cannot have an exponent of 0');
 
         UnitTerm::parse('m0');
+    }
+
+    /**
+     * Test parse throws for an explicit exponent of 1 — write 'm' instead of 'm1'.
+     */
+    public function testParseThrowsForExponentOne(): void
+    {
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Cannot have an exponent of 1');
+
+        UnitTerm::parse('m1');
+    }
+
+    /**
+     * Test parse throws when a unit with a non-letter symbol is given an exponent.
+     */
+    public function testParseThrowsForNonLetterSymbolWithExponent(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Units containing non-letters cannot have exponents');
+
+        UnitTerm::parse('%2');
+    }
+
+    /**
+     * Test parse throws when a dimensionless unit is given an exponent.
+     */
+    public function testParseThrowsForDimensionlessUnitWithExponent(): void
+    {
+        $this->expectException(FormatException::class);
+        $this->expectExceptionMessage('Dimensionless units cannot have exponents');
+
+        UnitTerm::parse('ppm2');
     }
 
     // endregion
@@ -592,6 +635,19 @@ final class UnitTermTest extends TestCase
 
         $this->assertSame('s⁻²', $term->format());
         $this->assertSame('s-2', $term->format(true));
+    }
+
+    /**
+     * Test format falls back to ASCII symbol when the Unicode symbol contains non-letters.
+     *
+     * 'deg' has Unicode symbol '°', which is not a letter, so format() uses 'deg' with a
+     * superscript exponent rather than producing the unreadable '°²'.
+     */
+    public function testFormatUsesAsciiSymbolWhenUnicodeContainsNonLetters(): void
+    {
+        $term = new UnitTerm('deg', null, 2);
+
+        $this->assertSame('deg²', $term->format());
     }
 
     // endregion
@@ -1034,8 +1090,9 @@ final class UnitTermTest extends TestCase
     {
         $term = new UnitTerm('m');
 
-        $this->assertNotNull($term->quantityType);
-        $this->assertSame('length', $term->quantityType->name);
+        $quantityType = $term->quantityType;
+        $this->assertInstanceOf(QuantityType::class, $quantityType);
+        $this->assertSame('length', $quantityType->name);
     }
 
     /**
@@ -1178,6 +1235,82 @@ final class UnitTermTest extends TestCase
             UnitService::remove($unit);
             Converter::removeAllInstances();
         }
+    }
+
+    // endregion
+
+    // region isValidSymbol() tests
+
+    /**
+     * Test isValidSymbol() returns true and populates match groups for valid unit term strings.
+     */
+    public function testIsValidSymbolReturnsTrueForValidFormats(): void
+    {
+        // Single letter — group 1 is the symbol, group 2 absent.
+        $this->assertTrue(UnitTerm::isValidSymbol('m', $m));
+        $this->assertIsArray($m);
+        $this->assertArrayHasKey(1, $m);
+        $this->assertSame('m', $m[1]);
+        $this->assertArrayNotHasKey(2, $m);
+
+        // Multi-letter word (prefixed symbol passes format check).
+        $this->assertTrue(UnitTerm::isValidSymbol('km', $m));
+        $this->assertIsArray($m);
+        $this->assertArrayHasKey(1, $m);
+        $this->assertSame('km', $m[1]);
+
+        // Letter with ASCII exponent — group 2 is the exponent.
+        $this->assertTrue(UnitTerm::isValidSymbol('m2', $m));
+        $this->assertIsArray($m);
+        $this->assertArrayHasKey(1, $m);
+        $this->assertSame('m', $m[1]);
+        $this->assertSame('2', $m[2]);
+
+        // Negative ASCII exponent.
+        $this->assertTrue(UnitTerm::isValidSymbol('m-2', $m));
+        $this->assertIsArray($m);
+        $this->assertArrayHasKey(1, $m);
+        $this->assertSame('m', $m[1]);
+        $this->assertArrayHasKey(2, $m);
+        $this->assertSame('-2', $m[2]);
+
+        // Non-letter symbol.
+        $this->assertTrue(UnitTerm::isValidSymbol('%', $m));
+        $this->assertIsArray($m);
+        $this->assertArrayHasKey(1, $m);
+        $this->assertSame('%', $m[1]);
+
+        // Temperature symbol (degree + uppercase letter).
+        $this->assertTrue(UnitTerm::isValidSymbol('°C', $m));
+        $this->assertIsArray($m);
+        $this->assertArrayHasKey(1, $m);
+        $this->assertSame('°C', $m[1]);
+
+        // Unicode superscript exponent.
+        $this->assertTrue(UnitTerm::isValidSymbol("m\u{00B2}", $m));  // m²
+        $this->assertIsArray($m);
+        $this->assertArrayHasKey(1, $m);
+        $this->assertSame('m', $m[1]);
+        $this->assertArrayHasKey(2, $m);
+        $this->assertSame('²', $m[2]);
+    }
+
+    /**
+     * Test isValidSymbol() returns false for strings that don't match the unit term format.
+     */
+    public function testIsValidSymbolReturnsFalseForInvalidFormats(): void
+    {
+        // Empty string.
+        $this->assertFalse(UnitTerm::isValidSymbol('', $m));
+
+        // Compound unit — slash not valid in a single term.
+        $this->assertFalse(UnitTerm::isValidSymbol('m/s', $m));
+
+        // Multiply operator.
+        $this->assertFalse(UnitTerm::isValidSymbol('m*s', $m));
+
+        // Starts with a digit.
+        $this->assertFalse(UnitTerm::isValidSymbol('2m', $m));
     }
 
     // endregion

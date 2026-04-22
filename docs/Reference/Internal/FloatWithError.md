@@ -12,7 +12,7 @@ Each operation (addition, subtraction, multiplication, division, inversion, expo
 
 Implements `Stringable`, formatting as `"value ± absoluteError"`.
 
-### Key Features
+### Key features
 
 - Immutable value objects (all operations return new instances)
 - Tracks absolute error through arithmetic operations
@@ -88,7 +88,7 @@ echo $measured->absoluteError; // 0.5
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### isExactInt()
 
@@ -112,7 +112,7 @@ $float->isExactInt(); // false
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### neg()
 
@@ -141,7 +141,7 @@ Return the multiplicative inverse (1/value). Relative error is preserved.
 
 ---
 
-## Binary Arithmetic Methods
+## Binary arithmetic methods
 
 ### add()
 
@@ -235,7 +235,7 @@ echo $speed->value; // 16.666...
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -269,7 +269,7 @@ echo $squared->value; // 1000000.0
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### \_\_toString()
 
@@ -284,9 +284,9 @@ Convert to a string representation showing value and absolute error.
 
 ---
 
-## Usage Examples
+## Usage examples
 
-### Tracking Conversion Precision
+### Tracking conversion precision
 
 ```php
 use Galaxon\Quantities\Internal\FloatWithError;
@@ -307,7 +307,7 @@ if ($direct->relativeError < $indirect->relativeError) {
 }
 ```
 
-### Building Conversion Factors
+### Building conversion factors
 
 ```php
 use Galaxon\Quantities\Internal\FloatWithError;
@@ -323,7 +323,7 @@ echo $ydToM->relativeError; // Error from ftToM only (ydToFt was exact)
 
 ---
 
-## See Also
+## See also
 
 - **[Conversion](Conversion.md)** - Uses FloatWithError for conversion factors
 - **[Converter](Converter.md)** - Selects conversion paths based on error

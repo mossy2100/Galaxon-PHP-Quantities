@@ -11,7 +11,22 @@ Represents data/information quantities.
 
 The `Data` class handles digital information measurements in bits and bytes, supporting both metric (decimal) and binary prefixes.
 
-For the complete list of data units, see [Units: Data](../../Concepts/Units.md#data).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Prefixes                | Systems |
+| ---- | ------------ | ----------------------- | ------- |
+| bit  | `b`          | large metric and binary | Common  |
+| byte | `B`          | large metric and binary | Common  |
+
+---
+
+## Conversion definitions
+
+| From | To  | Factor |
+| ---- | --- | ------ |
+| `B`  | `b` | 8      |
 
 ---
 
@@ -21,7 +36,7 @@ Data units support both large metric prefixes (*kilo* and above), and binary (IE
 
 ---
 
-## Bits vs Bytes
+## Bits vs bytes
 
 ```php
 // 1 byte = 8 bits
@@ -39,7 +54,7 @@ $inGiB = $disk->to('GiB');  // 931.323 GiB
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Data;
@@ -66,7 +81,6 @@ echo $actual->to('GB')->value;       // 1099.51 GB
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Data](../../Concepts/Units.md#data)** - Complete list of data units
 - **[Quantity](../Quantity.md)** - Base class documentation

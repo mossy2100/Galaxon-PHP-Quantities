@@ -25,15 +25,44 @@ use Override;
  * - exponent: The power (2).
  *
  * Computed properties:
- * - symbol: The full unit symbol ('km2').
- * - symbolWithoutPrefix: The unit without prefix ('m2').
- * - symbolWithoutExponent: The unit without exponent ('km').
- * - multiplier: The prefix multiplier raised to the exponent (1000² = 1e6).
+ * - asciiSymbol: The full unit term symbol in ASCII form ('km2').
+ * - unicodeSymbol: The full unit term symbol in Unicode form with superscript exponent ('km²').
+ * - unprefixedAsciiSymbol: The unit symbol without its prefix, in ASCII form ('m2').
+ * - unexponentiatedAsciiSymbol: The unit symbol without its exponent, in ASCII form ('km').
+ * - prefixMultiplier: The prefix multiplier alone (1000 for km).
+ * - multiplier: The prefix multiplier raised to the exponent (1000² = 1e6 for km²).
  * - dimension: The dimension code with exponent applied.
+ * - quantityType: The registered quantity type for this dimension, or null if none.
  */
 class UnitTerm implements UnitInterface
 {
     use Equatable;
+
+    // region UnitInterface properties
+
+    /**
+     * The ASCII version of the unit term symbol, including prefix and exponent if set (e.g. 'deg', 'm2', 'MN', 's-1').
+     */
+    public string $asciiSymbol {
+        get => $this->format(true);
+    }
+
+    /**
+     * The Unicode version of the unit term symbol, including prefix and exponent if set (e.g. 'µs', 'mΩ').
+     * The exponent will be formatted using superscript (e.g. 'km²', 'ms⁻¹').
+     */
+    public string $unicodeSymbol {
+        get => $this->format();
+    }
+
+    /**
+     * The dimension code.
+     */
+    public string $dimension {
+        get => DimensionService::pow($this->unit->dimension, $this->exponent);
+    }
+
+    // endregion
 
     // region Public properties
 
@@ -61,69 +90,56 @@ class UnitTerm implements UnitInterface
      */
     private ?Quantity $expansion = null;
 
+    /**
+     * Cache of the regex pattern for matching a unit term.
+     */
+    private static ?string $rx = null;
+
     // endregion
 
     // region Property hooks
 
     /**
-     * The full unit symbol with prefix and exponent (e.g. 'km2', 'ms-1').
-     * This property returns the ASCII symbol (e.g. 'deg').
-     */
-    public string $asciiSymbol {
-        get => $this->format(true);
-    }
-
-    /**
-     * The full unit symbol with prefix and exponent formatted as superscript (e.g. 'km²', 'ms⁻¹').
-     * This property returns the Unicode symbol if set (e.g. '°').
-     */
-    public string $unicodeSymbol {
-        get => $this->format();
-    }
-
-    /**
      * The unprefixed unit term symbol (e.g. 'm2', 's-1').
      * This property returns the ASCII version. For the Unicode symbol, cast to string (__toString()).
      */
-    public string $unprefixedAsciiSymbol {
-        get => $this->unit->asciiSymbol . ($this->exponent === 1 ? '' : $this->exponent);
+    private(set) ?string $unprefixedAsciiSymbol = null {
+        get => $this->unprefixedAsciiSymbol ??=
+            $this->unit->asciiSymbol . ($this->exponent === 1 ? '' : $this->exponent);
     }
 
     /**
      * The unit term with no exponent (e.g. 'km', 's').
      * This property returns the ASCII version. For the Unicode symbol, cast to string (__toString()).
      */
-    public string $unexponentiatedAsciiSymbol {
-        get => $this->prefix?->asciiSymbol . $this->unit->asciiSymbol;
+    private(set) ?string $unexponentiatedAsciiSymbol = null {
+        get => $this->unexponentiatedAsciiSymbol ??= $this->prefix?->asciiSymbol . $this->unit->asciiSymbol;
     }
 
     /**
      * The prefix multiplier.
      */
-    public float $prefixMultiplier {
-        get => $this->prefix === null ? 1.0 : $this->prefix->multiplier;
+    private(set) ?float $prefixMultiplier = null {
+        get => $this->prefixMultiplier ??= $this->prefix === null ? 1.0 : $this->prefix->multiplier;
     }
 
     /**
      * The prefix multiplier raised to the exponent (e.g. 1000² = 1e6 for km²).
      */
-    public float $multiplier {
-        get => $this->prefixMultiplier ** $this->exponent;
-    }
-
-    /**
-     * The dimension code.
-     */
-    public string $dimension
-    {
-        get => DimensionService::pow($this->unit->dimension, $this->exponent);
+    private(set) ?float $multiplier = null {
+        get => $this->multiplier ??= $this->prefixMultiplier ** $this->exponent;
     }
 
     /**
      * The quantity type this unit term is for, if known.
      */
-    public ?QuantityType $quantityType {
-        get => QuantityTypeService::getByDimension($this->dimension);
+    private(set) false|null|QuantityType $quantityType = false {
+        get {
+            if ($this->quantityType === false) {
+                $this->quantityType = QuantityTypeService::getByDimension($this->dimension);
+            }
+            return $this->quantityType;
+        }
     }
 
     // endregion
@@ -133,9 +149,11 @@ class UnitTerm implements UnitInterface
     /**
      * Constructor.
      *
+     * The exponent must be in the range -9..9, excluding 0.
+     *
      * @param string|Unit $unit The unit or its symbol (e.g. 'm', 'ft', 'N').
      * @param null|string|Prefix $prefix The prefix symbol or object, or null if none.
-     * @param int $exponent The exponent (default 1).
+     * @param int $exponent The exponent (default 1). Must be in -9..9 and not 0.
      * @throws UnknownUnitException If the unit symbol is not recognized.
      * @throws DomainException If the exponent or prefix is invalid.
      */
@@ -169,7 +187,7 @@ class UnitTerm implements UnitInterface
             throw new DomainException("Exponent $exponent is outside the valid range -9 to 9.");
         }
         if ($exponent === 0) {
-            throw new DomainException('Cannot have a zero exponent.');
+            throw new DomainException('Cannot have an exponent of 0.');
         }
 
         // Set properties.
@@ -208,49 +226,88 @@ class UnitTerm implements UnitInterface
     }
 
     /**
-     * Parses the given symbol to extract the unit, prefix, and exponent.
+     * Parses the given symbol to return the matching UnitTerm.
+     *
+     * Results are cached for efficiency.
+     *
+     * An explicit exponent of 1 (e.g. 'm1') is accepted but non-canonical — write 'm' instead. Exponents of 0 and
+     * those outside the range -9..9 are rejected by the constructor.
      *
      * @param string $symbol The unit symbol with an optional prefix and/or exponent (e.g. 'm2', 's-1').
      * @return self The parsed unit term.
-     * @throws FormatException If the format is invalid.
+     * @throws FormatException If the format is invalid, or if a prefix or non-unity exponent is combined with a
+     * non-letter or dimensionless unit.
      * @throws UnknownUnitException If the unit symbol is not recognized.
-     * @throws DomainException If the exponent is zero.
+     * @throws DomainException If the exponent is 0 or outside the range -9..9.
      */
     public static function parse(string $symbol): self
     {
-        // Handle dimensionless units.
+        // Maintain a cache of parsed unit terms.
+        static $cache = [];
+        if (isset($cache[$symbol])) {
+            return $cache[$symbol];
+        }
+
+        // An empty string is a dimensionless scalar.
         if ($symbol === '') {
-            return new self();
+            $unitTerm = new self();
+            $cache[$symbol] = $unitTerm;
+            return $unitTerm;
         }
 
         // Validate the format.
-        if (!self::isValidUnitTerm($symbol, $matches)) {
-            throw new FormatException(
-                "Invalid unit '$symbol'. A unit must comprise one or more letters optionally followed by an exponent."
-            );
+        if (!self::isValidSymbol($symbol, $matches)) {
+            throw new FormatException("Invalid unit term symbol format: '$symbol'.");
         }
 
         // Get the prefixed unit symbol.
         assert(isset($matches[1]));
         $prefixedUnitSymbol = $matches[1];
 
-        // Get the exponent, handling both ASCII and superscript formats.
-        $exp = 1;
-        if (isset($matches[2]) && $matches[2] !== '') {
+        // Get the exponent.
+        if (!isset($matches[2]) || $matches[2] === '') {
+            // Default.
+            $exp = 1;
+        } else {
+            // Accept either ASCII or superscript exponents.
             $expStr = $matches[2];
             $exp = Integers::isSuperscript($expStr) ? Integers::fromSuperscript($expStr) : (int)$expStr;
-        }
 
-        // Make sure the exponent isn't 0.
-        if ($exp === 0) {
-            throw new DomainException('Cannot have a zero exponent.');
+            // Disallow explicit '1'.
+            // NB: Invalid exponents (0, and any outside the range of -9..9) are checked by the constructor.
+            if ($exp === 1) {
+                throw new DomainException('Cannot have an exponent of 1.');
+            }
         }
 
         // Search for a matching unit symbol.
         foreach (UnitService::getAll() as $unit) {
+            assert($unit->symbols !== null);
             if (array_key_exists($prefixedUnitSymbol, $unit->symbols)) {
+                // Found a match. Get the unit symbol and prefix.
                 [$unitSymbol, $prefixSymbol] = $unit->symbols[$prefixedUnitSymbol];
-                return new self($unitSymbol, $prefixSymbol, $exp);
+
+                // Units that contain non-letters or that are dimensionless may not have an exponent.
+                if ($exp !== 1) {
+                    // Check unit symbol contains only letters.
+                    if (!Unit::isValidWord($unitSymbol)) {
+                        throw new FormatException(
+                            "Invalid unit term symbol: '$symbol'. Units containing non-letters cannot have exponents."
+                        );
+                    }
+
+                    // Check unit is not dimensionless.
+                    if ($unit->dimension === '') {
+                        throw new FormatException(
+                            "Invalid unit term symbol: '$symbol'. Dimensionless units cannot have exponents."
+                        );
+                    }
+                }
+
+                // Construct, cache, and return the result.
+                $unitTerm = new self($unitSymbol, $prefixSymbol, $exp);
+                $cache[$symbol] = $unitTerm;
+                return $unitTerm;
             }
         }
 
@@ -322,6 +379,7 @@ class UnitTerm implements UnitInterface
      *
      * @param int $exponent The exponent to raise the unit term to.
      * @return self A new instance with the multiplied exponent (e.g. m² with exp=3 → m⁶).
+     * @throws DomainException If the resulting exponent is invalid (i.e. 0 or outside the range -9..9).
      */
     public function pow(int $exponent): self
     {
@@ -337,7 +395,7 @@ class UnitTerm implements UnitInterface
      *
      * @param int $exp The new exponent.
      * @return self A new instance with the specified exponent.
-     * @throws DomainException If the exponent is invalid.
+     * @throws DomainException If the exponent is invalid (i.e. 0 or outside the range -9..9).
      */
     public function withExponent(int $exp): self
     {
@@ -390,8 +448,17 @@ class UnitTerm implements UnitInterface
         } else {
             // Get the Unicode parts.
             $prefix = $this->prefix?->unicodeSymbol;
-            $symbol = $this->unit->unicodeSymbol;
-            $exp = $this->exponent === 1 ? '' : Integers::toSuperscript($this->exponent);
+            if ($this->exponent === 1) {
+                $symbol = $this->unit->unicodeSymbol;
+                $exp = '';
+            } else {
+                // If the Unicode symbol contains non-letters than use the ASCII version with the exponent.
+                // This way we get, for example, 'deg²' instead of '°²'.
+                $symbol = Unit::isValidWord($this->unit->unicodeSymbol)
+                    ? $this->unit->unicodeSymbol
+                    : $this->unit->asciiSymbol;
+                $exp = Integers::toSuperscript($this->exponent);
+            }
         }
 
         // Construct the full unit term symbol.
@@ -411,7 +478,7 @@ class UnitTerm implements UnitInterface
 
     // endregion
 
-    // region Regex methods
+    // region Validation methods
 
     /**
      * Get the regex pattern for matching a unit term.
@@ -420,27 +487,45 @@ class UnitTerm implements UnitInterface
      */
     public static function regex(): string
     {
-        $superscriptChars = Integers::SUPERSCRIPT_CHARACTERS;
-        $superscriptMinus = $superscriptChars['-'];
-        unset($superscriptChars['-']);
-        $superscriptDigits = implode('', $superscriptChars);
-        return '((?:' . Unit::RX_PREFIX . ')?(?:' . Unit::RX_UNIT .
-            "))((-?\d)|($superscriptMinus?[$superscriptDigits]))?";
+        if (self::$rx === null) {
+            // Get the regular expression for an exponent (ASCII or superscript).
+            $superscriptChars = Integers::SUPERSCRIPT_CHARACTERS;
+            $superscriptMinus = $superscriptChars['-'];
+            unset($superscriptChars['-']);
+            $superscriptDigits = implode('', $superscriptChars);
+            $rxExponent = "(?:-?\d)|(?:$superscriptMinus?[$superscriptDigits])";
+
+            // Get the regular expression to match the prefixed or unprefixed unit symbol.
+            $rxUnit = '(?:' . Unit::RX_WORD . ')'                   // 1-7 letters (ASCII or Unicode)
+                . '|' . '(?:' . Unit::RX_ASCII_WORDS . ')'          // 1-3 ASCII words
+                . '|' . '(?:[' . Unit::RX_NON_LETTERS . '])'        // 1 non-letter symbol
+                . '|' . '(?:' . Unit::RX_TEMPERATURE_SYMBOL . ')';  // degree symbol plus one letter
+
+            // Get the full regular expression with two captures.
+            self::$rx = "($rxUnit)($rxExponent)?";
+        }
+
+        return self::$rx;
     }
-
-    // endregion
-
-    // region Validation methods
 
     /**
      * Check if a string is a valid unit term symbol.
      *
+     * This method checks the format only - it doesn't validate the symbol, exponent, or prefix.
+     * That is done in parse().
+     *
+     * The match results:
+     * - $matches[0] is the entire match
+     * - $matches[1] is the prefixed unit symbol
+     * - $matches[2] is the exponent (not set if none found)
+     *
      * @param string $symbol The symbol to validate.
-     * @param ?array<array-key, string> $matches Output array for match results.
+     * @param ?array<string> $matches Output array for match results.
      * @return bool True if the symbol is a valid unit term.
      */
-    private static function isValidUnitTerm(string $symbol, ?array &$matches): bool
+    public static function isValidSymbol(string $symbol, ?array &$matches): bool
     {
+        // Match against the regex.
         return (bool)preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);
     }
 
@@ -455,6 +540,7 @@ class UnitTerm implements UnitInterface
      * exponent.
      *
      * @return ?Quantity The expansion as a Quantity with base units, or null if none found.
+     * @internal
      */
     public function tryExpand(): ?Quantity
     {

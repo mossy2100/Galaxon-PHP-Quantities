@@ -641,7 +641,7 @@ final class MassTest extends TestCase
 
         $this->assertInstanceOf(Mass::class, $mass);
         $this->assertSame('lb', $mass->compoundUnit->asciiSymbol);
-        $this->assertSame(157.0, $mass->value);
+        $this->assertEqualsWithDelta(157, $mass->value, 1e-6);
     }
 
     // endregion

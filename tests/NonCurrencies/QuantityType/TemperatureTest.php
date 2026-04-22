@@ -571,6 +571,75 @@ final class TemperatureTest extends TestCase
 
     // endregion
 
+    // region toAbsoluteScale() tests
+
+    /**
+     * Test that Celsius converts to Kelvin.
+     */
+    public function testToAbsoluteScaleFromCelsius(): void
+    {
+        $temp = new Temperature(0, 'degC');
+        $result = $temp->toAbsoluteScale();
+
+        $this->assertInstanceOf(Temperature::class, $result);
+        $this->assertSame('K', $result->compoundUnit->asciiSymbol);
+        $this->assertSame(273.15, $result->value);
+    }
+
+    /**
+     * Test that Fahrenheit converts to Rankine.
+     */
+    public function testToAbsoluteScaleFromFahrenheit(): void
+    {
+        $temp = new Temperature(32, 'degF');
+        $result = $temp->toAbsoluteScale();
+
+        $this->assertInstanceOf(Temperature::class, $result);
+        $this->assertSame('degR', $result->compoundUnit->asciiSymbol);
+        $this->assertApproxEqual(491.67, $result->value);
+    }
+
+    /**
+     * Test that Kelvin is cloned with the same value.
+     */
+    public function testToAbsoluteScaleFromKelvin(): void
+    {
+        $temp = new Temperature(300, 'K');
+        $result = $temp->toAbsoluteScale();
+
+        $this->assertNotSame($temp, $result);
+        $this->assertSame('K', $result->compoundUnit->asciiSymbol);
+        $this->assertSame(300.0, $result->value);
+    }
+
+    /**
+     * Test that Rankine is cloned with the same value.
+     */
+    public function testToAbsoluteScaleFromRankine(): void
+    {
+        $temp = new Temperature(491.67, 'degR');
+        $result = $temp->toAbsoluteScale();
+
+        $this->assertNotSame($temp, $result);
+        $this->assertSame('degR', $result->compoundUnit->asciiSymbol);
+        $this->assertSame(491.67, $result->value);
+    }
+
+    /**
+     * Test that prefixed Kelvin (e.g. mK) is cloned with the same value.
+     */
+    public function testToAbsoluteScaleFromPrefixedKelvin(): void
+    {
+        $temp = new Temperature(1000, 'mK');
+        $result = $temp->toAbsoluteScale();
+
+        $this->assertNotSame($temp, $result);
+        $this->assertSame('mK', $result->compoundUnit->asciiSymbol);
+        $this->assertSame(1000.0, $result->value);
+    }
+
+    // endregion
+
     // region Fallback conversion test
 
     /**

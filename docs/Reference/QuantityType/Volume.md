@@ -11,11 +11,59 @@ Represents volume quantities.
 
 The `Volume` class handles volume measurements including liters and Imperial/US Customary liquid measures.
 
-For the complete list of volume units, see [Units: Volume](../../Concepts/Units.md#volume).
+---
+
+## Unit definitions
+
+| Name                 | ASCII symbol | Prefixes   | Systems             |
+| -------------------- | ------------ | ---------- | ------------------- |
+| liter                | `L`          | all metric | SI Accepted, Metric |
+| metric cup           | `cup`        |            | Metric              |
+| metric tablespoon    | `tbsp`       |            | Metric              |
+| metric teaspoon      | `tsp`        |            | Metric              |
+| imperial gallon      | `imp gal`    |            | Imperial            |
+| imperial quart       | `imp qt`     |            | Imperial            |
+| imperial pint        | `imp pt`     |            | Imperial            |
+| imperial fluid ounce | `imp fl oz`  |            | Imperial            |
+| imperial tablespoon  | `imp tbsp`   |            | Imperial            |
+| imperial teaspoon    | `imp tsp`    |            | Imperial            |
+| US gallon            | `US gal`     |            | US Customary        |
+| US quart             | `US qt`      |            | US Customary        |
+| US pint              | `US pt`      |            | US Customary        |
+| US cup               | `US cup`     |            | US Customary        |
+| US fluid ounce       | `US fl oz`   |            | US Customary        |
+| US tablespoon        | `US tbsp`    |            | US Customary        |
+| US teaspoon          | `US tsp`     |            | US Customary        |
+
+**Note:** Cubic units like m³, cm³, ft³, etc. are automatically supported through unit arithmetic.
 
 ---
 
-## Imperial vs US Customary
+## Conversion definitions
+
+| From          | To            | Factor  |
+| ------------- | ------------- | ------- |
+| `m3`          | `L`           | 1000    |
+| `cup`         | `mL`          | 250     |
+| `tbsp`        | `mL`          | 15      |
+| `tsp`         | `mL`          | 5       |
+| `US gal`      | `in3`         | 231     |
+| `US gal`      | `US qt`       | 4       |
+| `US qt`       | `US pt`       | 2       |
+| `US pt`       | `US cup`      | 2       |
+| `US cup`      | `US fl oz`    | 8       |
+| `US fl oz`    | `US tbsp`     | 2       |
+| `US tbsp`     | `US tsp`      | 3       |
+| `imp gal`     | `L`           | 4.54609 |
+| `imp gal`     | `imp qt`      | 4       |
+| `imp qt`      | `imp pt`      | 2       |
+| `imp pt`      | `imp fl oz`   | 20      |
+| `imp fl oz`   | `imp tbsp`    | 2       |
+| `imp tbsp`    | `imp tsp`     | 4       |
+
+---
+
+## Imperial vs US customary
 
 Several volume units share the same name but represent different amounts in the imperial and US customary systems. These are disambiguated with system prefixes (`imp` or `US`):
 
@@ -43,32 +91,7 @@ echo $usPint->to('mL');   // 473.18 mL
 
 ---
 
-## Key Conversions
-
-| From            | To             | Factor  |
-| --------------- | -------------- | ------- |
-| m³              | L              | 1000    |
-| metric cup      | mL             | 250     |
-| metric tbsp     | mL             | 15      |
-| metric tsp      | mL             | 5       |
-| imperial gallon | L              | 4.54609 |
-| imperial gallon | imperial quart | 4       |
-| imperial quart  | imperial pint  | 2       |
-| imperial pint   | imperial fl oz | 20      |
-| imperial fl oz  | imperial tbsp  | 2       |
-| imperial tbsp   | imperial tsp   | 4       |
-| US gallon       | in³            | 231     |
-| US gallon       | US quart       | 4       |
-| US quart        | US pint        | 2       |
-| US pint         | US fl oz       | 16      |
-| US pint         | US cup         | 2       |
-| US cup          | US fl oz       | 8       |
-| US fl oz        | US tbsp        | 2       |
-| US tbsp         | US tsp         | 3       |
-
----
-
-## Metric Culinary Units
+## Metric culinary units
 
 The metric cup (250 mL), tablespoon (15 mL), and teaspoon (5 mL) are available in the `Metric` unit system. These use unprefixed symbols (`cup`, `tbsp`, `tsp`) since metric is the international standard for these units.
 
@@ -85,7 +108,7 @@ echo $salt->to('mL');  // 5 mL
 
 ---
 
-## Cubic Units
+## Cubic units
 
 Cubic length units are automatically supported through unit arithmetic:
 
@@ -95,17 +118,17 @@ $tank = new Volume(1000, 'L');
 $inCubicMeters = $tank->to('m3');  // 1 m³
 
 // Cubic centimeters (same as mL)
-$cc = new Quantity(500, 'cm3');
+$cc = new Volume(500, 'cm3');
 $inMl = $cc->to('mL');  // 500 mL
 
 // Cubic inches
-$engine = new Quantity(350, 'in3');
+$engine = new Volume(350, 'in3');
 $inLitres = $engine->to('L');  // 5.735 L
 ```
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Volume;
@@ -134,9 +157,8 @@ $inImpGal = $tank->to('imp gal');  // 10.998 imp gal
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Volume](../../Concepts/Units.md#volume)** - Complete list of volume units
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Length](Length.md)** - Related quantity (cubic length = volume)
 - **[Area](Area.md)** - Related quantity

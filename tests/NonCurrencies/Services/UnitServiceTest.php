@@ -634,7 +634,9 @@ final class UnitServiceTest extends TestCase
             $unit = UnitService::getByName('fulldefunit');
             $this->assertInstanceOf(Unit::class, $unit);
             $this->assertSame(PrefixService::GROUP_METRIC, $unit->prefixGroup);
+
             // Unicode and alternate symbols should be in the symbols map.
+            $this->assertIsArray($unit->symbols);
             $this->assertArrayHasKey('ψ', $unit->symbols);
             $this->assertArrayHasKey('#', $unit->symbols);
         } finally {

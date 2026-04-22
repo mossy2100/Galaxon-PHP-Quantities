@@ -9,25 +9,31 @@ Represents amount of substance quantities.
 
 ## Overview
 
-The `AmountOfSubstance` class handles measurements of the amount of substance. The mole is one of the seven SI base units.
-
-For the complete list of amount of substance units, see [Units: Amount of Substance](../../Concepts/Units.md#amount-of-substance).
+The `AmountOfSubstance` class handles measurements of the amount of substance. The *mole* is one of the seven SI base units.
 
 ---
 
-## SI Base Unit
+## Unit definitions
 
-The mole (mol) is defined by fixing the value of the Avogadro constant:
+| Name | ASCII symbol | Prefixes   | Systems |
+| ---- | ------------ | ---------- | ------- |
+| mole | `mol`        | all metric | SI      |
+
+---
+
+## SI unit
+
+The *mole* (`mol`) is defined by fixing the value of the Avogadro constant:
 
 ```
 Nₐ = 6.02214076 × 10²³ mol⁻¹
 ```
 
-One mole contains exactly 6.02214076 × 10²³ elementary entities.
+One *mole* contains exactly 6.02214076 × 10²³ elementary entities.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\AmountOfSubstance;
@@ -46,8 +52,7 @@ $glucose = new AmountOfSubstance(5, 'mmol');
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Amount of Substance](../../Concepts/Units.md#amount-of-substance)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[CatalyticActivity](CatalyticActivity.md)** - Related quantity (mol/s)

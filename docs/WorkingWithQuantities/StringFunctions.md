@@ -39,16 +39,16 @@ When `parse()` encounters a multi-part string (e.g. `"1h 30min 45s"`), it automa
 
 ---
 
-## Unit Syntax
+## Unit syntax
 
 When writing unit strings — whether for `Quantity::create()`, `parse()`, or any method that
 accepts a unit — the following syntax rules apply.
 
-### Simple Units
+### Simple units
 
 A simple unit is a prefix (optional) followed by a unit symbol, e.g. `km`, `mg`, `Hz`, `degC`.
 
-### Compound Units
+### Compound units
 
 Compound units combine multiple unit terms using multiplication and division operators.
 
@@ -91,7 +91,7 @@ $energy = Quantity::create(100, 'kg⋅m²/s²');
 $inv = Quantity::create(5000, 's⁻¹');
 ```
 
-### Bracket Form
+### Bracket form
 
 When the denominator contains multiple unit terms, it's acceptable to use parentheses to group them:
 
@@ -112,7 +112,7 @@ Parentheses are only permitted around the denominator, in the form `<numerator>/
 
 ## Formatting output
 
-### Default Formatting with `echo`
+### Default formatting with `echo`
 
 Using a Quantity in a string context calls `__toString()`, which uses default formatting:
 
@@ -217,7 +217,7 @@ echo $length->format(includeSpace: false); // 100m
 
 ---
 
-## See Also
+## See also
 
 - **[Quantity](../Reference/Quantity.md)** — Full reference for `format()`, `parse()`, and `__toString()`.
 - **[Part Decomposition](PartDecomposition.md)** — Multi-part formatting and parsing (e.g. `"5h 30min 45s"`).

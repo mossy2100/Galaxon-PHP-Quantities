@@ -6,7 +6,7 @@ Represents an SI or binary prefix for units.
 
 ## Overview
 
-Unit prefixes representing multipliers allow expressing very large or very small quantities more conveniently, such as kilometer (km), microsecond (µs), or gibibyte (GiB). The `Prefix` class represents metric (SI) and binary prefixes that can be applied to units of measurement.
+Unit prefixes representing multipliers allow expressing very large or very small quantities more conveniently, such as *kilometer* (km), *microsecond* (µs), or *gibibyte* (GiB). The `Prefix` class represents metric (SI) and binary prefixes that can be applied to units of measurement.
 
 As with units, prefixes have both ASCII and Unicode symbol representations. These are usually the same, the notable exception being the micro prefix having ASCII symbol 'u' and Unicode symbol 'μ'.
 
@@ -36,7 +36,15 @@ The ASCII symbol for the prefix (e.g., 'k' for kilo, 'u' for micro). Used for pa
 private(set) string $unicodeSymbol
 ```
 
-The Unicode symbol for the prefix (e.g., 'μ' for micro). Used for display purposes.
+The Unicode symbol for the prefix (e.g., 'μ', U+00B5 Micro sign). Used for display purposes.
+
+### alternateSymbol
+
+```php
+private(set) ?string $alternateSymbol
+```
+
+An optional, additional symbol for the prefix that is accepted by the parser (e.g., 'μ', U+03BC Greek small letter mu).
 
 ### multiplier
 
@@ -93,7 +101,7 @@ $micro = new Prefix('micro', 'u', 'μ', 1e-6, PrefixService::GROUP_SMALL_METRIC)
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### isEngineering()
 
@@ -119,7 +127,7 @@ $centi->isEngineering(); // false
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### equal()
 
@@ -144,7 +152,7 @@ $kilo1->equal($kilo2); // true
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -180,7 +188,7 @@ Convert the prefix to a string using the Unicode symbol.
 
 ---
 
-## See Also
+## See also
 
 - **[UnitTerm](UnitTerm.md)** - Uses prefixes when representing prefixed units
 - **[Unit](Unit.md)** - Defines which prefixes a unit accepts

@@ -9,19 +9,25 @@ Represents electric current quantities.
 
 ## Overview
 
-The `ElectricCurrent` class handles electric current measurements. The ampere is one of the seven SI base units.
-
-For the complete list of electric current units, see [Units: Electric Current](../../Concepts/Units.md#electric-current).
+The `ElectricCurrent` class handles electric current measurements. The *ampere* is one of the seven SI base units.
 
 ---
 
-## SI Base Unit
+## Unit definitions
 
-The ampere (A) is an SI base unit, defined by fixing the value of the elementary charge *e*.
+| Name   | ASCII symbol | Prefixes   | Systems |
+| ------ | ------------ | ---------- | ------- |
+| ampere | `A`          | all metric | SI      |
 
 ---
 
-## Usage Examples
+## SI unit
+
+The *ampere* (`A`) is an SI base unit, defined by fixing the value of the elementary charge *e*.
+
+---
+
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\ElectricCurrent;
@@ -41,9 +47,8 @@ $inNA = $sensor->to('nA');  // 100,000 nA
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Electric Current](../../Concepts/Units.md#electric-current)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Voltage](Voltage.md)** - Related quantity
 - **[Resistance](Resistance.md)** - Related quantity (Ohm's law: V = IR)

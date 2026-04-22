@@ -21,7 +21,7 @@ All methods are static. The dimension is inferred from the units provided — th
 
 ---
 
-## Lookup Methods
+## Lookup methods
 
 ### get()
 
@@ -47,7 +47,7 @@ Get a known conversion from the matrix without attempting to discover new paths.
 
 ---
 
-## Registry Methods
+## Registry methods
 
 ### add()
 
@@ -90,7 +90,7 @@ Remove all conversions involving units from a specific measurement system.
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### has()
 
@@ -110,7 +110,7 @@ Check whether a conversion exists in the matrix.
 
 ---
 
-## Computation Methods
+## Computation methods
 
 ### convert()
 
@@ -157,7 +157,7 @@ Find a conversion between two units, discovering new paths if necessary. Unlike 
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\Internal\Conversion;
@@ -188,7 +188,7 @@ ConversionService::removeBySystem(UnitSystem::Financial);
 
 ---
 
-## See Also
+## See also
 
 - **[Conversion](../Internal/Conversion.md)** - Conversion class documentation.
 - **[Converter](../Internal/Converter.md)** - Manages conversion paths for a single dimension.

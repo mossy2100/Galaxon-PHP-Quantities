@@ -469,91 +469,91 @@ final class DimensionServiceTest extends TestCase
 
     // endregion
 
-    // region getBaseUnitSymbol() tests
+    // region getBaseUnitTermSymbol() tests
 
     /**
-     * Test getBaseUnitSymbol() returns correct SI symbol for each dimension code.
+     * Test getBaseUnitTermSymbol() returns correct SI symbol for each dimension code.
      */
-    public function testGetBaseUnitSymbolReturnsCorrectSymbols(): void
+    public function testGetBaseUnitTermSymbolReturnsCorrectSymbols(): void
     {
-        $this->assertSame('kg', DimensionService::getBaseUnitSymbol('M', true));
-        $this->assertSame('m', DimensionService::getBaseUnitSymbol('L', true));
-        $this->assertSame('s', DimensionService::getBaseUnitSymbol('T', true));
-        $this->assertSame('A', DimensionService::getBaseUnitSymbol('I', true));
-        $this->assertSame('K', DimensionService::getBaseUnitSymbol('H', true));
-        $this->assertSame('mol', DimensionService::getBaseUnitSymbol('N', true));
-        $this->assertSame('cd', DimensionService::getBaseUnitSymbol('J', true));
-        $this->assertSame('rad', DimensionService::getBaseUnitSymbol('A', true));
-        $this->assertSame('B', DimensionService::getBaseUnitSymbol('D', true));
-        $this->assertSame('XAU', DimensionService::getBaseUnitSymbol('C', true));
+        $this->assertSame('kg', DimensionService::getBaseUnitTermSymbol('M', true));
+        $this->assertSame('m', DimensionService::getBaseUnitTermSymbol('L', true));
+        $this->assertSame('s', DimensionService::getBaseUnitTermSymbol('T', true));
+        $this->assertSame('A', DimensionService::getBaseUnitTermSymbol('I', true));
+        $this->assertSame('K', DimensionService::getBaseUnitTermSymbol('H', true));
+        $this->assertSame('mol', DimensionService::getBaseUnitTermSymbol('N', true));
+        $this->assertSame('cd', DimensionService::getBaseUnitTermSymbol('J', true));
+        $this->assertSame('rad', DimensionService::getBaseUnitTermSymbol('A', true));
+        $this->assertSame('B', DimensionService::getBaseUnitTermSymbol('D', true));
+        $this->assertSame('XAU', DimensionService::getBaseUnitTermSymbol('C', true));
     }
 
     /**
-     * Test getBaseUnitSymbol() throws for invalid dimension code.
+     * Test getBaseUnitTermSymbol() throws for invalid dimension code.
      */
-    public function testGetBaseUnitSymbolThrowsForInvalidCode(): void
+    public function testGetBaseUnitTermSymbolThrowsForInvalidCode(): void
     {
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: 'X'");
 
-        DimensionService::getBaseUnitSymbol('X', true);
+        DimensionService::getBaseUnitTermSymbol('X', true);
     }
 
     /**
-     * Test getBaseUnitSymbol() throws for multi-character string.
+     * Test getBaseUnitTermSymbol() throws for multi-character string.
      */
-    public function testGetBaseUnitSymbolThrowsForMultiCharacter(): void
+    public function testGetBaseUnitTermSymbolThrowsForMultiCharacter(): void
     {
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: 'ML'");
 
-        DimensionService::getBaseUnitSymbol('ML', true);
+        DimensionService::getBaseUnitTermSymbol('ML', true);
     }
 
     /**
-     * Test getBaseUnitSymbol() throws for empty string.
+     * Test getBaseUnitTermSymbol() throws for empty string.
      */
-    public function testGetBaseUnitSymbolThrowsForEmptyString(): void
+    public function testGetBaseUnitTermSymbolThrowsForEmptyString(): void
     {
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: ''");
 
-        DimensionService::getBaseUnitSymbol('', true);
+        DimensionService::getBaseUnitTermSymbol('', true);
     }
 
     /**
-     * Test getBaseUnitSymbol() throws for lowercase letter.
+     * Test getBaseUnitTermSymbol() throws for lowercase letter.
      */
-    public function testGetBaseUnitSymbolThrowsForLowercase(): void
+    public function testGetBaseUnitTermSymbolThrowsForLowercase(): void
     {
         $this->expectException(FormatException::class);
         $this->expectExceptionMessage("Invalid dimension code letter: 'm'");
 
-        DimensionService::getBaseUnitSymbol('m', true);
+        DimensionService::getBaseUnitTermSymbol('m', true);
     }
 
     /**
-     * Test getBaseUnitSymbol() returns English base unit symbols for dimensions that have them.
+     * Test getBaseUnitTermSymbol() returns English base unit symbols for dimensions that have them.
      */
-    public function testGetBaseUnitSymbolReturnsEnglishSymbols(): void
+    public function testGetBaseUnitTermSymbolReturnsEnglishSymbols(): void
     {
-        $this->assertSame('lb', DimensionService::getBaseUnitSymbol('M', false));
-        $this->assertSame('ft', DimensionService::getBaseUnitSymbol('L', false));
-        $this->assertSame('deg', DimensionService::getBaseUnitSymbol('A', false));
-        $this->assertSame('degR', DimensionService::getBaseUnitSymbol('H', false));
+        $this->assertSame('lb', DimensionService::getBaseUnitTermSymbol('M', false));
+        $this->assertSame('ft', DimensionService::getBaseUnitTermSymbol('L', false));
+        $this->assertSame('deg', DimensionService::getBaseUnitTermSymbol('A', false));
+        $this->assertSame('degR', DimensionService::getBaseUnitTermSymbol('H', false));
     }
 
     /**
-     * Test getBaseUnitSymbol() falls back to SI for dimensions without English base units.
+     * Test getBaseUnitTermSymbol() falls back to SI for dimensions without English base units.
      */
-    public function testGetBaseUnitSymbolEnglishFallsBackToSi(): void
+    public function testGetBaseUnitTermSymbolEnglishFallsBackToSi(): void
     {
-        $this->assertSame('s', DimensionService::getBaseUnitSymbol('T', false));
-        $this->assertSame('A', DimensionService::getBaseUnitSymbol('I', false));
-        $this->assertSame('mol', DimensionService::getBaseUnitSymbol('N', false));
-        $this->assertSame('cd', DimensionService::getBaseUnitSymbol('J', false));
-        $this->assertSame('B', DimensionService::getBaseUnitSymbol('D', false));
-        $this->assertSame('XAU', DimensionService::getBaseUnitSymbol('C', false));
+        $this->assertSame('s', DimensionService::getBaseUnitTermSymbol('T', false));
+        $this->assertSame('A', DimensionService::getBaseUnitTermSymbol('I', false));
+        $this->assertSame('mol', DimensionService::getBaseUnitTermSymbol('N', false));
+        $this->assertSame('cd', DimensionService::getBaseUnitTermSymbol('J', false));
+        $this->assertSame('B', DimensionService::getBaseUnitTermSymbol('D', false));
+        $this->assertSame('XAU', DimensionService::getBaseUnitTermSymbol('C', false));
     }
 
     // endregion

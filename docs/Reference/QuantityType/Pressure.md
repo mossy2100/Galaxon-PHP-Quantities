@@ -11,13 +11,33 @@ Represents pressure quantities.
 
 The `Pressure` class handles pressure measurements across SI, scientific, and US customary units.
 
-For the complete list of pressure units, see [Units: Pressure](../../Concepts/Units.md#pressure).
+---
+
+## Unit definitions
+
+| Name       | ASCII symbol | Prefixes   | Systems      |
+| ---------- | ------------ | ---------- | ------------ |
+| pascal     | `Pa`         | all metric | SI           |
+| atmosphere | `atm`        |            | Scientific   |
+| mmHg       | `mmHg`       |            | Scientific   |
+| inHg       | `inHg`       |            | US Customary |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The pascal is defined in terms of SI base units:
+| From   | To              | Factor        |
+| ------ | --------------- | ------------- |
+| `Pa`   | `kg*m-1*s-2`    | 1             |
+| `mmHg` | `Pa`            | 133.322387415 |
+| `atm`  | `Pa`            | 101325        |
+| `inHg` | `mmHg`          | 25.4          |
+
+---
+
+## SI unit
+
+The *pascal* is defined in terms of SI base units:
 
 ```
 Pa = kg·m⁻¹·s⁻² = N/m²
@@ -36,17 +56,7 @@ Pa = kg·m⁻¹·s⁻² = N/m²
 
 ---
 
-## Key Conversions
-
-| From | To | Factor |
-|------|-----|--------|
-| atm | Pa | 101,325 (exact) |
-| mmHg | Pa | 133.322387415 |
-| inHg | mmHg | 25.4 |
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Pressure;
@@ -71,8 +81,7 @@ $inAtm = $hydraulic->to('atm');   // 197.385 atm
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Pressure](../../Concepts/Units.md#pressure)** — Complete list of pressure units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[Force](Force.md)** — Related quantity (pressure = force/area).

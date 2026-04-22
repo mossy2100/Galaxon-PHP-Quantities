@@ -61,10 +61,6 @@ class Temperature extends Quantity
     #[Override]
     public static function convert(float $value, string|UnitInterface $srcUnit, string|UnitInterface $destUnit): float
     {
-        // Get the original arguments as strings in case of exception.
-        $srcSymbol = (string)$srcUnit;
-        $destSymbol = (string)$destUnit;
-
         // Get the units as CompoundUnit objects. These calls could throw exceptions.
         $srcUnit = CompoundUnit::toCompoundUnit($srcUnit);
         $destUnit = CompoundUnit::toCompoundUnit($destUnit);
@@ -119,16 +115,16 @@ class Temperature extends Quantity
         }
 
         // ----------------------------------------------------------------------------------------
-        // Convert SI to imperial or vice-versa.
+        // Convert SI to English or vice-versa.
 
-        $destIsImperial = in_array($destSymbol, ['degR', 'degF'], true);
+        $destIsEnglish = in_array($destSymbol, ['degR', 'degF'], true);
 
         // Scale only if crossing sides.
-        if ($srcSymbol === 'K' && $destIsImperial) {
+        if ($srcSymbol === 'K' && $destIsEnglish) {
             // Convert Kelvin to Rankine.
             $value *= self::RANKINE_PER_KELVIN;
             $srcSymbol = 'degR';
-        } elseif ($srcSymbol === 'degR' && !$destIsImperial) {
+        } elseif ($srcSymbol === 'degR' && !$destIsEnglish) {
             // Convert Rankine to Kelvin.
             $value /= self::RANKINE_PER_KELVIN;
             $srcSymbol = 'K';
@@ -170,14 +166,16 @@ class Temperature extends Quantity
                 'systems'     => [UnitSystem::Si],
             ],
             'celsius'    => [
-                'asciiSymbol'   => 'degC',
-                'unicodeSymbol' => '°C',
-                'systems'       => [UnitSystem::Si],
+                'asciiSymbol'     => 'degC',
+                'unicodeSymbol'   => '°C',
+                'alternateSymbol' => '℃',
+                'systems'         => [UnitSystem::Si],
             ],
             'fahrenheit' => [
-                'asciiSymbol'   => 'degF',
-                'unicodeSymbol' => '°F',
-                'systems'       => [UnitSystem::Imperial, UnitSystem::UsCustomary],
+                'asciiSymbol'     => 'degF',
+                'unicodeSymbol'   => '°F',
+                'alternateSymbol' => '℉',
+                'systems'         => [UnitSystem::Imperial, UnitSystem::UsCustomary],
             ],
             'rankine'    => [
                 'asciiSymbol'   => 'degR',
@@ -203,6 +201,28 @@ class Temperature extends Quantity
             ['degF', 'degR', 1],
             ['K', 'degR', self::RANKINE_PER_KELVIN],
         ];
+    }
+
+    // endregion
+
+    // region Transformation methods
+
+    /**
+     * Convert the temperature to its corresponding absolute scale unit.
+     *
+     * Celsius converts to Kelvin; Fahrenheit converts to Rankine. Kelvin and Rankine are cloned unchanged.
+     * Always returns a new object. Useful when a value measured from absolute zero is needed, e.g. for ratio
+     * calculations.
+     *
+     * @return static The equivalent temperature in K or °R.
+     */
+    public function toAbsoluteScale(): static
+    {
+        return match ($this->compoundUnit->asciiSymbol) {
+            'degC' => $this->to('K'),
+            'degF' => $this->to('degR'),
+            default => clone $this,
+        };
     }
 
     // endregion

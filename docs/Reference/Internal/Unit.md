@@ -6,11 +6,11 @@ Represents a unit of measurement.
 
 ## Overview
 
-The `Unit` class represents a single unit of measurement such as meter, gram, or hertz. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
+The `Unit` class represents a single unit of measurement such as *meter*, *gram*, or *hertz*. Each unit has a name, symbols (ASCII and Unicode), a dimension code, and metadata about which prefixes it accepts and which measurement systems it belongs to.
 
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality comparisons.
 
-### Key Features
+### Key features
 
 - Dual symbol support (ASCII and Unicode)
 - Optional alternate symbol for parser compatibility
@@ -36,7 +36,7 @@ The unit name (e.g., `'meter'`, `'gram'`, `'hertz'`).
 private(set) string $asciiSymbol
 ```
 
-The ASCII unit symbol (e.g., `'m'`, `'g'`, `'Hz'`). Used for parsing and code compatibility.
+The ASCII unit symbol (e.g., `'m'`, `'g'`, `'Hz'`). Used for parsing and code compatibility. Multiple words are permitted, separated by single spaces (e.g., `US fl oz`).
 
 ### unicodeSymbol
 
@@ -52,7 +52,7 @@ The Unicode symbol (e.g., `'Ω'` for ohm, `'°'` for degree). Used for display p
 private(set) ?string $alternateSymbol
 ```
 
-An additional symbol accepted by the parser. This can only be a single ASCII letter or special character, and cannot accept prefixes. Examples: `'` for arcminutes (alternate to the prime symbol `′`) and `"` for arcseconds (alternate to the double-prime symbol `″`). Not used for output. Default: `null`.
+An additional symbol accepted by the parser. This can only be a single ASCII letter or non-letter, and cannot accept prefixes. Examples: `'` for arcminutes (alternate to the prime symbol `′`) and `"` for arcseconds (alternate to the double-prime symbol `″`). Not used for output. Default: `null`.
 
 ### dimension
 
@@ -171,7 +171,7 @@ $ohm = new Unit(
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### parse()
 
@@ -192,7 +192,7 @@ Parse a unit symbol and return the matching Unit from the registry.
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### belongsToSystem()
 
@@ -224,24 +224,27 @@ Check if this unit is a base unit. A base unit has a dimension code of at most o
 ### acceptsPrefix()
 
 ```php
-public function acceptsPrefix(string|Prefix $prefix): bool
+public function acceptsPrefix(Prefix $prefix): bool
 ```
 
 Check if a specific prefix is allowed for this unit.
 
 **Parameters:**
-- `$prefix` (string|Prefix) - The prefix symbol or object to check.
+- `$prefix` (Prefix) - The prefix to check.
 
 **Examples:**
 ```php
 $meter = Unit::parse('m');
-$meter->acceptsPrefix('k');  // true (kilo)
-$meter->acceptsPrefix('Ki'); // false (binary prefix)
+$kilo = PrefixService::getBySymbol('k');
+$binary = PrefixService::getBySymbol('Ki');
+
+$meter->acceptsPrefix($kilo);    // true (metric prefix, meter accepts metric)
+$meter->acceptsPrefix($binary);  // false (binary prefix not in metric group)
 ```
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### equal()
 
@@ -258,7 +261,7 @@ Check if this unit equals another. Compares by ASCII symbol.
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -283,9 +286,9 @@ Convert the unit to a string using the Unicode symbol.
 
 ---
 
-## Usage Examples
+## Usage examples
 
-### Accessing Unit Properties
+### Accessing unit properties
 
 ```php
 use Galaxon\Quantities\Services\UnitService;
@@ -297,7 +300,7 @@ echo $unit->asciiSymbol; // 'N'
 echo $unit->dimension;   // 'MLT-2'
 ```
 
-### Working with Prefixes
+### Working with prefixes
 
 ```php
 use Galaxon\Quantities\Services\UnitService;
@@ -318,7 +321,7 @@ $symbols = $meter->symbols;
 
 ---
 
-## See Also
+## See also
 
 - **[UnitTerm](UnitTerm.md)** - Unit with prefix and exponent.
 - **[CompoundUnit](CompoundUnit.md)** - Compound unit representation.

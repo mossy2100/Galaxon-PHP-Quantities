@@ -11,9 +11,44 @@ Represents mass quantities.
 
 The `Mass` class handles mass measurements across SI, Imperial, and US Customary systems.
 
-The SI base unit for mass is the **kilogram** (kg), not the gram. This is the only SI base unit with a prefix. The gram is defined with all metric prefixes, so `kg`, `mg`, `μg`, etc. are all available.
+The SI base unit for mass is the *kilogram* (`kg`), not the *gram*. This is the only SI base unit with a prefix. The *gram* is defined with all metric prefixes, so `kg`, `mg`, `μg`, etc. are all available.
 
-For the complete list of mass units, see [Units: Mass](../../Concepts/Units.md#mass).
+---
+
+## Unit definitions
+
+| Name       | ASCII symbol | Prefixes   | Systems                |
+| ---------- | ------------ | ---------- | ---------------------- |
+| gram       | `g`          | all metric | SI                     |
+| tonne      | `t`          |            | SI Accepted            |
+| dalton     | `Da`         |            | SI Accepted            |
+| grain      | `gr`         |            | Imperial, US Customary |
+| ounce      | `oz`         |            | Imperial, US Customary |
+| troy ounce | `oz t`       |            | Imperial, US Customary |
+| pound      | `lb`         |            | Imperial, US Customary |
+| stone      | `st`         |            | Imperial               |
+| short ton  | `tn`         |            | US Customary           |
+| long ton   | `LT`         |            | Imperial               |
+
+**Note:** The SI base unit for mass is the *kilogram* (`kg`), not the *gram*.
+
+---
+
+## Conversion definitions
+
+| From   | To   | Factor            |
+| ------ | ---- | ----------------- |
+| `t`    | `kg` | 1000              |
+| `Da`   | `kg` | 1.66053906892e-27 |
+| `lb`   | `kg` | 0.45359237        |
+| `LT`   | `lb` | 2240              |
+| `tn`   | `lb` | 2000              |
+| `st`   | `lb` | 14                |
+| `lb`   | `oz` | 16                |
+| `lb`   | `gr` | 7000              |
+| `oz t` | `gr` | 480               |
+
+The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines the exact metric equivalent for the pound.
 
 ---
 
@@ -38,24 +73,7 @@ The default result unit for `Mass::fromParts()` and `Mass::parseParts()` is `lb`
 
 ---
 
-## Key Conversions
-
-| From      | To        | Factor              |
-| --------- | --------- | ------------------- |
-| pound     | kilogram  | 0.45359237          |
-| grain     | milligram | 64.79891            |
-| tonne     | kilogram  | 1000                |
-| dalton    | kilogram  | 1.66053906892×10⁻²⁷ |
-| pound     | ounce     | 16                  |
-| stone     | pound     | 14                  |
-| short ton | pound     | 2000                |
-| long ton  | pound     | 2240                |
-
-The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/International_yard_and_pound) (1959) defines the exact metric equivalent for the pound.
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Mass;
@@ -84,7 +102,7 @@ $grains = new Mass(77, 'gr');  // ~5 grams
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -94,9 +112,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Mass](../../Concepts/Units.md#mass)** — Complete list of mass units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[Force](Force.md)** — Related quantity (M·L·T⁻²).
 - **[Density](Density.md)** — Related quantity (M·L⁻³).

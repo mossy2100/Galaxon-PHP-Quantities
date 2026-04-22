@@ -91,15 +91,6 @@ class Time extends Quantity
         return ['y', 'mo', 'w', 'd', 'h', 'min', 's'];
     }
 
-    /**
-     * Default result unit for time parts methods: seconds.
-     */
-    #[Override]
-    public static function getResultUnitSymbol(): ?string
-    {
-        return 's';
-    }
-
     // endregion
 
     // region DateInterval methods

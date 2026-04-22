@@ -11,23 +11,37 @@ Represents electric charge quantities.
 
 The `ElectricCharge` class handles electric charge measurements.
 
-For the complete list of electric charge units, see [Units: Electric Charge](../../Concepts/Units.md#electric-charge).
+---
+
+## Unit definitions
+
+| Name    | ASCII symbol | Prefixes   | Systems |
+| ------- | ------------ | ---------- | ------- |
+| coulomb | `C`          | all metric | SI      |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The coulomb is defined as:
+| From | To      | Factor |
+| ---- | ------- | ------ |
+| `C`  | `s*A`   | 1      |
+
+---
+
+## SI unit
+
+The *coulomb* is defined as:
 
 ```
 C = A·s
 ```
 
-One coulomb is the charge transported by a current of one ampere in one second.
+One *coulomb* is the charge transported by a current of one *ampere* in one *second*.
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\ElectricCharge;
@@ -47,7 +61,7 @@ $inMC = $charge->to('mC');  // 1000 mC
 
 ---
 
-## Physical Constants
+## Physical constants
 
 The following physical constants have this quantity type. See [`PhysicalConstant`](../PhysicalConstant.md) for the full list.
 
@@ -55,9 +69,8 @@ The following physical constants have this quantity type. See [`PhysicalConstant
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Electric Charge](../../Concepts/Units.md#electric-charge)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[ElectricCurrent](ElectricCurrent.md)** - Related quantity (I = Q/t)
 - **[Capacitance](Capacitance.md)** - Related quantity (C = Q/V)

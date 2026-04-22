@@ -11,7 +11,36 @@ Represents time quantities with integration to PHP's DateInterval.
 
 The `Time` class handles time durations and provides conversion to/from PHP's native `DateInterval` class.
 
-For the complete list of time units, see [Units: Time](../../Concepts/Units.md#time).
+---
+
+## Unit definitions
+
+| Name    | ASCII symbol | Prefixes   | Systems     |
+| ------- | ------------ | ---------- | ----------- |
+| second  | `s`          | all metric | SI          |
+| minute  | `min`        |            | SI Accepted |
+| hour    | `h`          |            | SI Accepted |
+| day     | `d`          |            | SI Accepted |
+| week    | `w`          |            | Common      |
+| month   | `mo`         |            | Common      |
+| year    | `y`          |            | Common      |
+| century | `c`          |            | Common      |
+
+---
+
+## Conversion definitions
+
+| From  | To    | Factor   |
+| ----- | ----- | -------- |
+| `min` | `s`   | 60       |
+| `h`   | `min` | 60       |
+| `d`   | `h`   | 24       |
+| `w`   | `d`   | 7        |
+| `y`   | `mo`  | 12       |
+| `y`   | `d`   | 365.2425 |
+| `c`   | `y`   | 100      |
+
+**Note:** Month and year conversions use average values. For calendar-accurate calculations, use PHP's DateTime/DateInterval classes directly.
 
 ---
 
@@ -106,25 +135,7 @@ echo $time->formatParts(partUnitSymbols: ['h', 'min', 's']);
 
 ---
 
-## Time Conversions
-
-The following conversions are defined:
-
-| From      | To     | Factor   |
-|-----------|--------|----------|
-| minute    | second | 60       |
-| hour      | minute | 60       |
-| day       | hour   | 24       |
-| week      | day    | 7        |
-| year      | month  | 12       |
-| year      | day    | 365.2425 |
-| century   | year   | 100      |
-
-**Note:** Month and year conversions use average values. For calendar-accurate calculations, use PHP's DateTime/DateInterval classes directly.
-
----
-
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Time;
@@ -158,9 +169,8 @@ $total = $hours->add($minutes);  // 4 hours total
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Time](../../Concepts/Units.md#time)** — Complete list of time units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[PHP DateInterval](https://www.php.net/manual/en/class.dateinterval.php)** — Native PHP class.
 - **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — General parts formatting and parsing.

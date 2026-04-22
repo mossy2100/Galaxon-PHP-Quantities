@@ -18,7 +18,7 @@ This decomposition allows for:
 
 The class implements `UnitInterface` and uses the `Equatable` trait for value-based equality.
 
-### Key Features
+### Key features
 
 - Automatic symbol lookup and validation
 - Both ASCII and Unicode symbol formatting
@@ -160,7 +160,7 @@ $perSecond = new UnitTerm('s', null, -1);
 
 ---
 
-## Factory Methods
+## Factory methods
 
 ### toUnitTerm()
 
@@ -206,7 +206,7 @@ Parse a string into a UnitTerm.
 
 ---
 
-## Inspection Methods
+## Inspection methods
 
 ### isSi()
 
@@ -226,7 +226,7 @@ Check if this unit term's unit is a base unit (single-dimension, not expandable)
 
 ---
 
-## Comparison Methods
+## Comparison methods
 
 ### equal()
 
@@ -243,7 +243,7 @@ Check if this UnitTerm equals another. Compares by ASCII symbol.
 
 ---
 
-## Unary Arithmetic Methods
+## Unary arithmetic methods
 
 ### inv()
 
@@ -253,7 +253,7 @@ public function inv(): self
 
 Return a new UnitTerm with the exponent negated.
 
-**Returns:** `UnitTerm` - A new instance with inverted exponent (e.g., m² → m⁻²).
+**Returns:** `UnitTerm` - A new instance with inverted exponent (e.g., *m²* → *m⁻²*).
 
 **Examples:**
 ```php
@@ -264,7 +264,7 @@ echo $second->exponent; // 1
 
 ---
 
-## Power Methods
+## Power methods
 
 ### pow()
 
@@ -277,7 +277,7 @@ Return a new UnitTerm with the exponent multiplied by the given value.
 **Parameters:**
 - `$exponent` (int) - The exponent to raise to.
 
-**Returns:** `UnitTerm` - A new instance with multiplied exponent (e.g., m² with exp=3 → m⁶).
+**Returns:** `UnitTerm` - A new instance with multiplied exponent (e.g., *m²* with exp=3 → *m⁶*).
 
 **Examples:**
 ```php
@@ -289,7 +289,7 @@ echo $m6->exponent; // 6
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### withExponent()
 
@@ -332,7 +332,7 @@ echo $m->asciiSymbol; // 'm'
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### format()
 
@@ -361,9 +361,9 @@ Convert to string using Unicode format.
 
 ---
 
-## Usage Examples
+## Usage examples
 
-### Building Compound Units
+### Building compound units
 
 ```php
 use Galaxon\Quantities\Internal\CompoundUnit;
@@ -382,7 +382,7 @@ $acceleration = new CompoundUnit([$meter, $perSecondSquared]);
 echo $acceleration->asciiSymbol; // 'm/s2'
 ```
 
-### Working with Prefixes
+### Working with prefixes
 
 ```php
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -401,7 +401,7 @@ $m2 = $km2->removePrefix();
 echo $m2->asciiSymbol; // 'm2'
 ```
 
-### Parsing and Validation
+### Parsing and validation
 
 ```php
 use Galaxon\Quantities\Internal\UnitTerm;
@@ -418,7 +418,7 @@ echo $term2->dimension; // 'T-1'
 
 ---
 
-## See Also
+## See also
 
 - **[Unit](Unit.md)** - The base unit representation.
 - **[CompoundUnit](CompoundUnit.md)** - Compound unit using UnitTerms.

@@ -252,7 +252,9 @@ class Converter
         // If currencies are involved, ensure we have fresh data.
         $dim = $this->dimension;
         if (str_contains($dim, 'C')) {
+            // @codeCoverageIgnoreStart
             CurrencyService::refresh();
+            // @codeCoverageIgnoreEnd
         }
 
         // Make sure both units are in the list.

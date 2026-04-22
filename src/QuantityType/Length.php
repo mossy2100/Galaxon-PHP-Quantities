@@ -125,14 +125,5 @@ class Length extends Quantity
         return ['mi', 'yd', 'ft', 'in'];
     }
 
-    /**
-     * Default result unit for length parts methods: feet.
-     */
-    #[Override]
-    public static function getResultUnitSymbol(): ?string
-    {
-        return 'ft';
-    }
-
     // endregion
 }

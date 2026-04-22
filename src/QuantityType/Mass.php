@@ -113,14 +113,5 @@ class Mass extends Quantity
         ];
     }
 
-    /**
-     * Default result unit for mass parts methods: pounds.
-     */
-    #[Override]
-    public static function getResultUnitSymbol(): ?string
-    {
-        return 'lb';
-    }
-
     // endregion
 }

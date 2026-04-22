@@ -16,20 +16,59 @@ The `Angle` class provides specialized handling for angular measurements, includ
 - Parsing of degree-minute-second notation (e.g., `45° 30' 15"`)
 - Specialized approximate equality comparison
 
-For the complete list of angular units, see [Units: Angle](../../Concepts/Units.md#angle).
+---
+
+## Unit definitions
+
+| Name      | ASCII symbol | Unicode symbol | Alternate symbol | Prefixes     | Systems     |
+| --------- | ------------ | -------------- | ---------------- | ------------ | ----------- |
+| radian    | `rad`        |                |                  | all metric   | SI          |
+| degree    | `deg`        | `°`            |                  |              | SI Accepted |
+| arcminute | `arcmin`     | `′`            | `'`              |              | SI Accepted |
+| arcsecond | `arcsec`     | `″`            | `"`              | small metric | SI Accepted |
+| gradian   | `grad`       |                |                  |              | Common      |
+| turn      | `turn`       |                |                  |              | Common      |
+
+---
+
+## Conversion definitions
+
+| From     | To       | Factor |
+| -------- | -------- | ------ |
+| `turn`   | `rad`    | τ (2π) |
+| `turn`   | `deg`    | 360    |
+| `deg`    | `arcmin` | 60     |
+| `arcmin` | `arcsec` | 60     |
+| `turn`   | `grad`   | 400    |
 
 ---
 
 ## Constants
 
-| Constant       | Type  | Value     | Description                                                 |
-| -------------- | ----- | --------- | ----------------------------------------------------------- |
-| `RAD_EPSILON`  | float | `1e-9`    | Default absolute tolerance for angle comparisons in radians |
-| `TRIG_EPSILON` | float | `1e-15`   | Tolerance for detecting zero in trigonometric calculations  |
+| Constant       | Type  | Value   | Description                                                 |
+| -------------- | ----- | ------- | ----------------------------------------------------------- |
+| `RAD_EPSILON`  | float | `1e-9`  | Default absolute tolerance for angle comparisons in radians |
+| `TRIG_EPSILON` | float | `1e-15` | Tolerance for detecting zero in trigonometric calculations  |
 
 ---
 
-## Overridden Methods
+## SI unit and dimension
+
+In the SI system, the *radian* is considered dimensionless because it can be defined as a ratio of arc length to radius, producing an SI unit of *m*/*m*, or nothing. The dimension code for *radian* is therefore normally `1`. For the purpose of this package, however, it was preferable to have a dedicated `Angle` class, which necessitated a dedicated dimension code, which was allocated the letter `A`.
+
+Similarly, the *radian* is referred to as a *derived* unit in the SI system; in this package it is used as a *base* unit.
+
+See [Dimensions and Base Units](../../Concepts/DimensionsAndBaseUnits.md) for more information.
+
+---
+
+## Square degrees, arcminutes, and arcseconds
+
+If you wish to work with square degrees, arcminutes, or arcseconds, use `deg2`, `arcmin2`, or `arcsec2`, respectively, as the unit symbols. The package doesn't currently permit exponents with unit symbols containing non-letter characters.
+
+---
+
+## Overridden methods
 
 ### approxEqual()
 
@@ -114,7 +153,7 @@ $zero->cot();    // INF
 
 ---
 
-## Transformation Methods
+## Transformation methods
 
 ### wrap()
 
@@ -139,7 +178,7 @@ echo $angle2->wrap(false);    // 0 deg
 
 ---
 
-## Conversion Methods
+## Conversion methods
 
 ### toRadians()
 
@@ -158,7 +197,7 @@ $radians = $angle->toRadians(); // 3.14159...
 
 ## Parts
 
-Angles support part decomposition into degrees, arcminutes, and arcseconds by default. To use a different set of part units (e.g. just degrees and arcminutes), pass `partUnitSymbols` to the parts method.
+Angles support part decomposition into *degrees*, *arcminutes*, and *arcseconds* by default. To use a different set of part units (e.g. just degrees and arcminutes), pass `partUnitSymbols` to the parts method.
 
 ```php
 $angle = new Angle(45.504200, 'deg');
@@ -179,7 +218,7 @@ echo $angle->formatParts(precision: 2, partUnitSymbols: ['deg', 'arcmin']);
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Angle;
@@ -198,9 +237,8 @@ $dms = Angle::parse("23° 26' 21\"");  // Earth's axial tilt
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Angle](../../Concepts/Units.md#angle)** — Complete list of angular units.
 - **[Quantity](../Quantity.md)** — Base class documentation.
 - **[Part Decomposition](../../WorkingWithQuantities/PartDecomposition.md)** — General parts formatting and parsing.
 - **[SolidAngle](SolidAngle.md)** — Related quantity for solid angles.

@@ -47,7 +47,7 @@ final class PrefixServiceTest extends TestCase
             PrefixService::GROUP_ENGINEERING
         );
 
-        // Large = large engineering metric + binary.
+        // Large = large metric + binary.
         $this->assertSame(PrefixService::GROUP_LARGE_METRIC | PrefixService::GROUP_BINARY, PrefixService::GROUP_LARGE);
 
         // All = metric + binary.
@@ -234,11 +234,23 @@ final class PrefixServiceTest extends TestCase
     }
 
     /**
-     * Test getBySymbol() returns Prefix for valid Unicode symbol.
+     * Test getBySymbol() resolves the Unicode symbol (U+00B5 MICRO SIGN).
      */
-    public function testGetBySymbolReturnsForValidUnicode(): void
+    public function testGetBySymbolResolvesUnicodeSymbol(): void
     {
-        $prefix = PrefixService::getBySymbol('μ');
+        $prefix = PrefixService::getBySymbol("\u{00B5}");
+
+        $this->assertInstanceOf(Prefix::class, $prefix);
+        $this->assertSame('micro', $prefix->name);
+        $this->assertSame(1e-6, $prefix->multiplier);
+    }
+
+    /**
+     * Test getBySymbol() resolves the alternate symbol (U+03BC GREEK SMALL LETTER MU).
+     */
+    public function testGetBySymbolResolvesAlternateSymbol(): void
+    {
+        $prefix = PrefixService::getBySymbol("\u{03BC}");
 
         $this->assertInstanceOf(Prefix::class, $prefix);
         $this->assertSame('micro', $prefix->name);
@@ -345,7 +357,7 @@ final class PrefixServiceTest extends TestCase
      */
     public function testInvertMicroToMega(): void
     {
-        $micro = PrefixService::getBySymbol('μ');
+        $micro = PrefixService::getBySymbol("\u{00B5}");
         $result = PrefixService::invert($micro);
 
         $this->assertInstanceOf(Prefix::class, $result);
@@ -497,7 +509,11 @@ final class PrefixServiceTest extends TestCase
     }
 
     /**
-     * Test that micro prefix has correct Unicode symbol.
+     * Test that micro prefix has correct symbols.
+     *
+     * Uses Unicode escapes so the two visually identical but distinct micro characters are unambiguous:
+     * - U+00B5 MICRO SIGN (unicode symbol)
+     * - U+03BC GREEK SMALL LETTER MU (alternate symbol)
      */
     public function testMicroPrefixUnicodeSymbol(): void
     {
@@ -505,7 +521,8 @@ final class PrefixServiceTest extends TestCase
 
         $this->assertInstanceOf(Prefix::class, $micro);
         $this->assertSame('u', $micro->asciiSymbol);
-        $this->assertSame('μ', $micro->unicodeSymbol);
+        $this->assertSame("\u{00B5}", $micro->unicodeSymbol);
+        $this->assertSame("\u{03BC}", $micro->alternateSymbol);
     }
 
     /**
@@ -527,9 +544,9 @@ final class PrefixServiceTest extends TestCase
     // region Prefix definitions tests
 
     /**
-     * Test all small engineering metric prefixes are defined.
+     * Test all small metric prefixes are defined.
      */
-    public function testSmallEngineeringMetricPrefixesDefined(): void
+    public function testSmallMetricPrefixesDefined(): void
     {
         $expected = ['q', 'r', 'y', 'z', 'a', 'f', 'p', 'n', 'u', 'm'];
         $result = PrefixService::getPrefixes(PrefixService::GROUP_SMALL_METRIC);
@@ -541,9 +558,9 @@ final class PrefixServiceTest extends TestCase
     }
 
     /**
-     * Test all large engineering metric prefixes are defined.
+     * Test all large metric prefixes are defined.
      */
-    public function testLargeEngineeringMetricPrefixesDefined(): void
+    public function testLargeMetricPrefixesDefined(): void
     {
         $expected = ['k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y', 'R', 'Q'];
         $result = PrefixService::getPrefixes(PrefixService::GROUP_LARGE_METRIC);
@@ -583,19 +600,19 @@ final class PrefixServiceTest extends TestCase
 
     // endregion
 
-    // region reset() tests
+    // region removeAll() tests
 
     /**
-     * Test reset() clears the prefix cache.
+     * Test removeAll() clears the prefix cache.
      */
-    public function testResetClearsPrefixCache(): void
+    public function testRemoveAllClearsPrefixCache(): void
     {
         // First ensure prefixes are loaded.
         $before = PrefixService::getPrefixes();
         $this->assertNotEmpty($before);
 
         // Reset the cache.
-        PrefixService::reset();
+        PrefixService::removeAll();
 
         // Access prefixes again - should reinitialize.
         $after = PrefixService::getPrefixes();

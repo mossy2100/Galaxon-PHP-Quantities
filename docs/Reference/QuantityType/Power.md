@@ -11,13 +11,27 @@ Represents power quantities.
 
 The `Power` class handles power measurements.
 
-For the complete list of power units, see [Units: Power](../../Concepts/Units.md#power).
+---
+
+## Unit definitions
+
+| Name | ASCII symbol | Prefixes   | Systems |
+| ---- | ------------ | ---------- | ------- |
+| watt | `W`          | all metric | SI      |
 
 ---
 
-## SI Unit Expansion
+## Conversion definitions
 
-The watt is defined as:
+| From | To              | Factor |
+| ---- | --------------- | ------ |
+| `W`  | `kg*m2*s-3`     | 1      |
+
+---
+
+## SI unit
+
+The *watt* is defined as:
 
 ```
 W = kg·m²·s⁻³ = J/s = V·A
@@ -25,7 +39,7 @@ W = kg·m²·s⁻³ = J/s = V·A
 
 ---
 
-## Usage Examples
+## Usage examples
 
 ```php
 use Galaxon\Quantities\QuantityType\Power;
@@ -49,7 +63,7 @@ $inGW = $plant->to('GW');  // 1 GW
 
 ---
 
-## Energy Calculation
+## Energy calculation
 
 Power × Time = Energy:
 
@@ -61,9 +75,8 @@ $energy = $power->value * $hours;  // 500 Wh = 0.5 kWh
 
 ---
 
-## See Also
+## See also
 
-- **[Units: Power](../../Concepts/Units.md#power)** - Complete list
 - **[Quantity](../Quantity.md)** - Base class documentation
 - **[Energy](Energy.md)** - Related quantity (E = P·t)
 - **[Voltage](Voltage.md)** - Related quantity (P = V·I)
