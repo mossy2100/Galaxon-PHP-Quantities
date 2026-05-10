@@ -13,7 +13,7 @@ The package provides several classes to support quantity types:
 
 ## SI base quantity types
 
-All seven [SI base units](https://en.wikipedia.org/wiki/SI_base_unit) have a dedicated class:
+All seven [SI base quantity types](https://en.wikipedia.org/wiki/SI_base_unit) have a dedicated class:
 
 | Name                | Dimension | Class                                                                 | SI base unit |
 | ------------------- | --------- | --------------------------------------------------------------------- | ------------ |
@@ -29,29 +29,29 @@ All seven [SI base units](https://en.wikipedia.org/wiki/SI_base_unit) have a ded
 
 ## Quantity types for SI named units
 
-The quantity types corresponding to all 22 [named SI compound units](https://en.wikipedia.org/wiki/SI_derived_unit#Special_names) have a dedicated class:
+The package covers all 22 [named SI derived units](https://en.wikipedia.org/wiki/SI_derived_unit#Special_names). Three share a class with a dimensionally equivalent quantity type: becquerel with `Frequency` (both T⁻¹), sievert with `RadiationDose` (both T⁻²L²), and degree Celsius with `Temperature`. The remaining 19 have dedicated classes:
 
-| Name                  | Dimension    | Class                                                                     | SI named unit |
-| --------------------- | ------------ | ------------------------------------------------------------------------- | ------------- |
-| angle                 | `A`          | [`Angle`](../Reference/QuantityType/Angle.md)                             | radian (*rad*)          |
-| solid angle           | `A2`         | [`SolidAngle`](../Reference/QuantityType/SolidAngle.md)                   | steradian (*sr*)        |
-| frequency             | `T-1`        | [`Frequency`](../Reference/QuantityType/Frequency.md)                     | hertz (*Hz*)            |
-| force                 | `T-2LM`      | [`Force`](../Reference/QuantityType/Force.md)                             | newton (*N*)            |
-| pressure              | `T-2L-1M`    | [`Pressure`](../Reference/QuantityType/Pressure.md)                       | pascal (*Pa*)           |
-| energy                | `T-2L2M`     | [`Energy`](../Reference/QuantityType/Energy.md)                           | joule (*J*)             |
-| power                 | `T-3L2M`     | [`Power`](../Reference/QuantityType/Power.md)                             | watt (*W*)              |
-| electric charge       | `TI`         | [`ElectricCharge`](../Reference/QuantityType/ElectricCharge.md)           | coulomb (*C*)           |
-| voltage               | `T-3L2MI-1`  | [`Voltage`](../Reference/QuantityType/Voltage.md)                         | volt (*V*)              |
-| capacitance           | `T4L-2M-1I2` | [`Capacitance`](../Reference/QuantityType/Capacitance.md)                 | farad (*F*)             |
-| resistance            | `T-3L2MI-2`  | [`Resistance`](../Reference/QuantityType/Resistance.md)                   | ohm (*Ω*)              |
-| conductance           | `T3L-2M-1I2` | [`Conductance`](../Reference/QuantityType/Conductance.md)                 | siemens (*S*)           |
-| magnetic flux         | `T-2L2MI-1`  | [`MagneticFlux`](../Reference/QuantityType/MagneticFlux.md)               | weber (*Wb*)            |
-| magnetic flux density | `T-2MI-1`    | [`MagneticFluxDensity`](../Reference/QuantityType/MagneticFluxDensity.md) | tesla (*T*)             |
-| inductance            | `T-2L2MI-2`  | [`Inductance`](../Reference/QuantityType/Inductance.md)                   | henry (*H*)             |
-| luminous flux         | `JA2`        | [`LuminousFlux`](../Reference/QuantityType/LuminousFlux.md)               | lumen (*lm*)            |
-| illuminance           | `L-2JA2`     | [`Illuminance`](../Reference/QuantityType/Illuminance.md)                 | lux (*lx*)              |
-| absorbed dose         | `T-2L2`      | [`RadiationDose`](../Reference/QuantityType/RadiationDose.md)             | gray (*Gy*)             |
-| catalytic activity    | `T-1N`       | [`CatalyticActivity`](../Reference/QuantityType/CatalyticActivity.md)     | katal (*kat*)           |
+| Name                  | Dimension    | Class                                                                     | SI derived unit  |
+| --------------------- | ------------ | ------------------------------------------------------------------------- | ---------------- |
+| angle                 | `A`          | [`Angle`](../Reference/QuantityType/Angle.md)                             | radian (*rad*)   |
+| solid angle           | `A2`         | [`SolidAngle`](../Reference/QuantityType/SolidAngle.md)                   | steradian (*sr*) |
+| frequency             | `T-1`        | [`Frequency`](../Reference/QuantityType/Frequency.md)                     | hertz (*Hz*)     |
+| force                 | `T-2LM`      | [`Force`](../Reference/QuantityType/Force.md)                             | newton (*N*)     |
+| pressure              | `T-2L-1M`    | [`Pressure`](../Reference/QuantityType/Pressure.md)                       | pascal (*Pa*)    |
+| energy                | `T-2L2M`     | [`Energy`](../Reference/QuantityType/Energy.md)                           | joule (*J*)      |
+| power                 | `T-3L2M`     | [`Power`](../Reference/QuantityType/Power.md)                             | watt (*W*)       |
+| electric charge       | `TI`         | [`ElectricCharge`](../Reference/QuantityType/ElectricCharge.md)           | coulomb (*C*)    |
+| voltage               | `T-3L2MI-1`  | [`Voltage`](../Reference/QuantityType/Voltage.md)                         | volt (*V*)       |
+| capacitance           | `T4L-2M-1I2` | [`Capacitance`](../Reference/QuantityType/Capacitance.md)                 | farad (*F*)      |
+| resistance            | `T-3L2MI-2`  | [`Resistance`](../Reference/QuantityType/Resistance.md)                   | ohm (*Ω*)        |
+| conductance           | `T3L-2M-1I2` | [`Conductance`](../Reference/QuantityType/Conductance.md)                 | siemens (*S*)    |
+| magnetic flux         | `T-2L2MI-1`  | [`MagneticFlux`](../Reference/QuantityType/MagneticFlux.md)               | weber (*Wb*)     |
+| magnetic flux density | `T-2MI-1`    | [`MagneticFluxDensity`](../Reference/QuantityType/MagneticFluxDensity.md) | tesla (*T*)      |
+| inductance            | `T-2L2MI-2`  | [`Inductance`](../Reference/QuantityType/Inductance.md)                   | henry (*H*)      |
+| luminous flux         | `JA2`        | [`LuminousFlux`](../Reference/QuantityType/LuminousFlux.md)               | lumen (*lm*)     |
+| illuminance           | `L-2JA2`     | [`Illuminance`](../Reference/QuantityType/Illuminance.md)                 | lux (*lx*)       |
+| absorbed dose         | `T-2L2`      | [`RadiationDose`](../Reference/QuantityType/RadiationDose.md)             | gray (*Gy*)      |
+| catalytic activity    | `T-1N`       | [`CatalyticActivity`](../Reference/QuantityType/CatalyticActivity.md)     | katal (*kat*)    |
 
 ---
 
@@ -59,7 +59,7 @@ The quantity types corresponding to all 22 [named SI compound units](https://en.
 
 These commonly used quantity types also have dedicated classes:
 
-| Name          | Dimension | Class                                                         | Common base or SI derived unit     |
+| Name          | Dimension | Class                                                         | SI derived or common base unit     |
 | ------------- | --------- | ------------------------------------------------------------- | ---------------------------------- |
 | dimensionless | *(empty)* | [`Dimensionless`](../Reference/QuantityType/Dimensionless.md) | *(none)*                           |
 | data          | `D`       | [`Data`](../Reference/QuantityType/Data.md)                   | byte (*B*)                         |
@@ -76,11 +76,11 @@ These commonly used quantity types also have dedicated classes:
 
 There are many other quantity types for which no dedicated subclass is provided, as doing so would unnecessarily bloat the package.
 
-Examples include: momentum, torque, viscosity, electric field strength, and heat capacity. Many more can be found at the [list of physical quantities](https://en.wikipedia.org/wiki/List_of_physical_quantities) on Wikipedia.
+Examples include: momentum, angular velocity, viscosity, electric field strength, and heat capacity. Many more can be found at the [list of physical quantities](https://en.wikipedia.org/wiki/List_of_physical_quantities) on Wikipedia.
 
 Only two quantity type classes (`Acceleration` and `Density`) are included that add no additional functionality, as they have no dedicated units or conversions. They're included because they're reasonably common, and serve as examples of how to add your own custom quantity types.
 
-Using a dedicated subclass for a quantity type improves code readability and type safety, and can be a form of future-proofing in case additional functionality needs to be added later.
+Using dedicated subclasses for quantity types improves code readability and type safety, and can be a form of future-proofing in case additional functionality needs to be added later. However, this isn't a requirement, as the base `Quantity` class works for any quantity type.
 
 ---
 
@@ -88,7 +88,7 @@ Using a dedicated subclass for a quantity type improves code readability and typ
 
 - **[Creating Quantities](../WorkingWithQuantities/CreatingQuantities.md)** — How to instantiate quantities using constructors and the factory method.
 - **[Customization](../WorkingWithQuantities/Customization.md)** — How to create your own custom quantity type classes.
-- **[Units](Units.md)** — Complete list of built-in units for each quantity type.
+- **[Units](Units.md)** — Unit symbol conventions, notation rules, and supported non-ASCII and alternate symbols.
 - **[QuantityTypeService](../Reference/Services/QuantityTypeService.md)** — Service for registering and looking up quantity types.
 - **[QuantityType](../Reference/Internal/QuantityType.md)** — Internal metadata class representing a quantity type.
 

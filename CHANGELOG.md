@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-05-11
+
+### Added
+
+- **`PhysicalConstant` public float constants** — All 20 constants now accessible as typed class constants (e.g. `PhysicalConstant::PLANCK`, `PhysicalConstant::SPEED_OF_LIGHT`). The internal data table and `Force::lbf` conversion now reference these instead of hardcoded literals.
+- **`Temperature::toAbsoluteScale()`** — Public method returning `static`; always returns a new object even for Kelvin/Rankine inputs.
+- **`CurrencyService::getUnits(bool $bypassCache)`** and **`getConversions(bool $bypassCache)`** — Cleaner replacements for the removed `refreshUnits()` / `refreshConversions()` methods.
+- **`CurrencyService::deleteUnits()`**, **`deleteConversions()`**, **`resetDataDir()`** — Cache management methods.
+- **`$si` parameter on `fromParts()` and `parseParts()`** — Allows the caller to choose SI or English base units for the result. Replaces the old `$resultUnitSymbol` parameter.
+- **Prefixed and compound symbols in parts methods** — `fromParts()`, `toParts()`, and `parseParts()` now accept prefixed (`km`) and compound (`kW*h`) unit symbols as part keys.
+- **`Unit::parse()` lookup cache** — Successful symbol lookups are cached so repeated parses do not re-scan unit definitions.
+
+### Changed
+
+- **`Quantity::parse()`** — Return type narrowed from `self` to `static`.
+- **`Quantity::parse()` and `parseParts()`** — Now two distinct public methods; `parse()` tries a single quantity first and falls back to `parseParts()`.
+- **`toParts()`** — Always emits every requested part unit, even when its value is zero.
+- **`formatParts()`** — Zero-value fallback uses the smallest requested unit rather than a hardcoded default; sign extracted before the loop.
+- **`CompoundUnit::addUnitTerm()` and `removeUnitTerm()`** — Made private; external callers can no longer mutate a `CompoundUnit` directly.
+- **`CurrencyService::DEFAULT_DATA_DIR`** — Made private. Use `resetDataDir()` to restore the default data directory.
+- **`DimensionService::getBaseUnitSymbol()`** — Renamed to `getBaseUnitTermSymbol()`.
+- **`DimensionService::getBaseUnitTerm()` and `getBaseCompoundUnit()`** — `$si` parameter now defaults to `true`.
+- **`UnitTerm` parsing** — Explicit exponents of 0 and 1 are now rejected at parse time.
+
+### Fixed
+
+- **`parseParts()`** — Last part was not added in the parse loop; a leading space appeared on the unit symbol when value and unit were whitespace-separated.
+- **`CurrencyService::getXmlFilePath()`** — Was returning `CurrencyData.xml`; corrected to `CurrencyUnits.xml`.
+
+### Removed
+
+- **`Quantity::getResultUnitSymbol()`** and its overrides in `Angle`, `Length`, `Mass`, and `Time` — The result unit for `fromParts()` is now the first unit in the parts array.
+- **`CurrencyService::loadUnitData()`**, **`loadConversionData()`**, **`refreshUnits()`**, **`refreshConversions()`** — Replaced by `getUnits()`, `getConversions()`, `deleteUnits()`, and `deleteConversions()`.
+- **`PrefixService::reset()`**.
+
+### Documentation
+
+- Full formatting standardisation across all docs: unit names italic, symbols in backticks, dimension codes in backticks, prefix symbols italic.
+- Unit definition and conversion definition tables added to all QuantityType reference docs.
+- `CurrencyService.md` restructured; new methods documented.
+- `Temperature.md` updated with `toAbsoluteScale()`.
+- `CompoundUnit.md` construction section removed (mutators now private).
+- `PhysicalConstant.md` quick reference updated with ASCII symbols and italic units; cross-link to the concepts guide added.
+
+---
+
 ## [1.0.0] - 2026-04-09
 
 ### Removed

@@ -45,7 +45,7 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::setLocale(null);
         CurrencyService::setRatesTtl(3600);
         CurrencyService::setCurrenciesTtl(2592000);
-        CurrencyService::setDataDir(CurrencyService::DEFAULT_DATA_DIR);
+        CurrencyService::resetDataDir();
     }
 
     // endregion
@@ -100,6 +100,19 @@ class CurrencyServiceTest extends TestCase
 
         // Clean up.
         rmdir($tempDir);
+    }
+
+    public function testResetDataDirRestoresDefault(): void
+    {
+        // Capture the default path before changing anything.
+        CurrencyService::resetDataDir();
+        $defaultDir = CurrencyService::getDataDir();
+
+        // Change to a different directory, then reset.
+        CurrencyService::setDataDir('/tmp/test-reset');
+        CurrencyService::resetDataDir();
+
+        $this->assertSame($defaultDir, CurrencyService::getDataDir());
     }
 
     // endregion
@@ -576,8 +589,14 @@ class CurrencyServiceTest extends TestCase
     {
         // setUp() redirects the data dir to the test directory. This test verifies that init() respects
         // that redirection and does not write to the production data directory.
-        $unitsPath = CurrencyService::DEFAULT_DATA_DIR . '/CurrencyUnits.php';
-        $conversionsPath = CurrencyService::DEFAULT_DATA_DIR . '/CurrencyConversions.php';
+
+        // Get the default data directory path (temporarily reset, then restore the test directory).
+        CurrencyService::resetDataDir();
+        $defaultDataDir = CurrencyService::getDataDir();
+        CurrencyService::setDataDir(self::TEST_DATA_DIR);
+
+        $unitsPath = "$defaultDataDir/CurrencyUnits.php";
+        $conversionsPath = "$defaultDataDir/CurrencyConversions.php";
 
         // Snapshot the production files' state before init().
         $unitsMtime = file_exists($unitsPath) ? filemtime($unitsPath) : null;

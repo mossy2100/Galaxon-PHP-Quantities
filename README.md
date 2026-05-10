@@ -9,24 +9,24 @@ This package enables calculations and conversions with physical and non-physical
 ---
 ## Description
 
-This package provides strongly-typed classes for physical quantities (length, mass, time, temperature, etc.) and some non-physical quantities (data, money), with comprehensive unit conversion capabilities. The system automatically finds conversion factors between compatible units, supports metric and binary prefixes, and handles offsets for temperature scales.
+This package provides strongly-typed classes for physical quantities (length, mass, time, temperature, etc.) and some non-physical quantities (data, money), with comprehensive unit conversion capabilities. The system automatically finds conversion factors between compatible units, supports metric and binary prefixes, handles offsets for temperature scales, and loads the latest currency exchange rates automatically.
 
 Key capabilities include:
 
-- **Type-safe measurements**: Each measurement type (Length, Mass, Time, etc.) is a separate class. You can easily create your own custom quantity type classes.
-- **Automatic conversion**: Easily convert between any compatible units, with most common units built-in, including SI, imperial, US customary, scientific, nautical, CSS, and more.
+- **Type-safe measurements**: Each measurement type (Length, Mass, Time, etc.) is a separate class. Plus, you can easily create your own custom quantity type classes.
+- **Automatic conversion**: Easily convert between any compatible units, with most common units built-in, including SI, imperial, US customary, scientific, nautical, CSS, and currencies.
 - **Prefix support**: Full support for SI metric and binary prefixes.
 - **Arithmetic operations**: Add, subtract, multiply, and divide quantities with automatic unit handling.
-- **Flexible parsing**: Parse strings like `123.45 km`, `90deg`, or `25°C` into Quantity objects.
+- **Flexible parsing**: Parse strings like `123.45 km/h`, `90deg`, or `25°C` into Quantity objects.
 - **String formatting**: Format quantities as ASCII or Unicode, with configurable decimal places and locale-specific currency formatting.
-- **Part decomposition**: Break measurements into components (e.g. 12° 34′ 56″ or 1y 3mo 2d).
+- **Part decomposition**: Break measurements into components (e.g. `12° 34′ 56″` or `1y 3mo 2d`).
 - **Physical constants**: Built-in constants like the speed of light, Planck's constant, and Avogadro's number as Quantity objects.
 - **Up-to-date exchange rates**: Updated automatically as needed using the exchange rate API of your choice.
 
 ---
 ## Development and Quality Assurance / AI Disclosure
 
-[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing substantial assistance with code review, suggesting improvements, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach resulted in a well-designed, production-quality, thoroughly-tested, and well-documented package delivered in significantly less time than with traditional development methods.
+[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing assistance with code reviews, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach has resulted in a well-designed, production-quality, thoroughly-tested, and well-documented package.
 
 ![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
@@ -110,7 +110,7 @@ Background on the domain model and how the library represents physical measureme
 2. **[Dimensions and Base Units](docs/Concepts/DimensionsAndBaseUnits.md)** — Dimension codes, base units, and how the library tracks physical dimensions.
 3. **[Quantity Types](docs/Concepts/QuantityTypes.md)** — Typed quantity classes like Length, Mass, and Force, and how they map to dimensions.
 4. **[Prefixes](docs/Concepts/Prefixes.md)** — Metric, engineering, and binary prefixes for scaling units.
-5. **[Units](docs/Concepts/Units.md)** — Complete reference of all built-in units organised by quantity type.
+5. **[Units](docs/Concepts/Units.md)** — Unit symbol conventions, notation rules, and supported non-ASCII and alternate symbols.
 6. **[Physical Constants](docs/Concepts/PhysicalConstants.md)** — Built-in physical constants as Quantity objects.
 
 ---
@@ -143,7 +143,7 @@ Other than the quantity type classes (below), these are the main classes you'll 
 
 ### Quantity Types
 
-All quantity type classes extend `Quantity` and define their specific units and conversions. See **[Units](docs/Concepts/Units.md)** for a complete reference of all built-in units organized by quantity type.
+All quantity type classes extend `Quantity` and define their specific units and conversions. See the **[Quantity Type reference](docs/Reference/QuantityType/)** for the complete list of built-in units for each type.
 
 | Class                                                                     | Dimension  | SI or common base unit | Description                                      |
 | ------------------------------------------------------------------------- | ---------- | ---------------------- | ------------------------------------------------ |

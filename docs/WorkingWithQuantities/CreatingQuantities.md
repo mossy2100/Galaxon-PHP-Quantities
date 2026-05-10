@@ -102,6 +102,6 @@ For example, if `new Quantity(42, 'J/K')` was used to create an entropy quantity
 ## See also
 
 - **[Quantity](../Reference/Quantity.md)** — Full API reference for the base Quantity class.
-- **[Units](../Concepts/Units.md)** — Complete list of built-in units by quantity type.
+- **[Units](../Concepts/Units.md)** — Unit symbol conventions, notation rules, and supported non-ASCII and alternate symbols.
 - **[Customization](Customization.md)** — Adding custom units, conversions, and quantity type classes.
 - **[String Functions](StringFunctions.md)** — Parsing quantity strings with `parse()`.

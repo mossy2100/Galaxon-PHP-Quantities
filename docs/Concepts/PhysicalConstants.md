@@ -37,7 +37,7 @@ $c = PhysicalConstant::get('c');
 | [Reduced Planck constant](https://en.wikipedia.org/wiki/Planck_constant)                     | ℏ               | hbar         | h / 2π                | *J·s*             |
 | [Elementary charge](https://en.wikipedia.org/wiki/Elementary_charge)                         | e               | e            | 1.602176634 × 10⁻¹⁹   | *C*               |
 | [Boltzmann constant](https://en.wikipedia.org/wiki/Boltzmann_constant)                       | k               | k            | 1.380649 × 10⁻²³      | *J/K*             |
-| [Avogadro constant](https://en.wikipedia.org/wiki/Avogadro_constant)                         | N<sub>A</sub>   | NA           | 6.02214076 × 10²³     | *mol⁻¹*           |
+| [Avogadro constant](https://en.wikipedia.org/wiki/Avogadro_constant)                         | Nᴀ              | NA           | 6.02214076 × 10²³     | *mol⁻¹*           |
 | [Luminous efficacy](https://en.wikipedia.org/wiki/Luminous_efficacy)                         | K<sub>cd</sub>  | Kcd          | 683                   | *lm/W*            |
 | [Standard gravity](https://en.wikipedia.org/wiki/Standard_gravity)                           | g               | g            | 9.80665               | *m/s²*            |
 | [Gravitational constant](https://en.wikipedia.org/wiki/Gravitational_constant)               | G               | G            | 6.67430 × 10⁻¹¹       | *m³/(kg·s²)*      |
@@ -51,6 +51,8 @@ $c = PhysicalConstant::get('c');
 | [Bohr radius](https://en.wikipedia.org/wiki/Bohr_radius)                                     | a₀              | a0           | 5.29177210903 × 10⁻¹¹ | *m*               |
 | [Molar gas constant](https://en.wikipedia.org/wiki/Gas_constant)                             | R               | R            | 8.314462618           | *J/(mol·K)*       |
 | [Stefan-Boltzmann constant](https://en.wikipedia.org/wiki/Stefan%E2%80%93Boltzmann_constant) | σ               | sigma        | 5.670374419 × 10⁻⁸    | *W/(m²·K⁴)*       |
+
+*See also: [Quick reference](../Reference/PhysicalConstant.md#quick-reference) — includes PHP constant names and method names.*
 
 If you have suggestions for additional constants that would be useful, let me know.
 

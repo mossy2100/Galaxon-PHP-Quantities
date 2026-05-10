@@ -1,6 +1,6 @@
 # Units
 
-The package provides a relatively comprehensive set of units that should be sufficient for the majority of use cases in modern programming. This page details the built-in units. Note, however, you can add your own.
+The package provides a relatively comprehensive set of units that should be sufficient for most use cases in modern programming. You can also add your own custom units.
 
 ---
 
@@ -16,44 +16,51 @@ Note, however, that the prefix meaning 10 is spelled "deca" within the package, 
 
 All units can have at least one and up to three symbols, with additional symbols formed by combination with prefixes.
 
-### Symbol types
+1. **ASCII symbol.** Every unit has one, and they must be unique. The ASCII symbol is necessary for easy typing on a regular keyboard.
+2. **Unicode symbol.** In most cases this matches the ASCII symbol. It differs only for units conventionally expressed with non-ASCII characters, such as `°` or `Ω`. When formatting, the Unicode symbol is preferred; if none is specified, the ASCII symbol is used.
+3. **Alternate symbol.** An additional single-character symbol accepted by `parse()` methods, but never used by `format()`.
 
-1. **ASCII symbol.** Every unit has one, and they must be unique. The ASCII symbol is necessary for easy typing in code on a regular keyboard.
-2. **Unicode symbol.** This is defined for a handful of units only, the most common being the degree symbol (`°`) as used in the symbols for degrees of angle, degrees Celsius or Fahrenheit, etc.; and the ohm symbol (`Ω`). When formatting a quantity or unit the Unicode symbol will be preferred, if specified; if none is specified, the ASCII symbol will be used.
-3. **Alternate symbol.** This is an additional unit symbol accepted by `parse()` methods. It can only be one character, it doesn't combine with prefixes, and it is never used by `format()` methods. The only defaults are the single and double quote characters (i.e. `'` and `"`), which may be used for arcminutes and arcseconds respectively.
+The following table shows all units that have a Unicode and/or alternate symbol defined:
 
-All units normally expressed with non-ASCII characters are assigned an ASCII symbol so they are easier to type on a standard keyboard. Therefore, you can use the following:
+| Unit | Quantity | ASCII | Unicode | Alternate |
+|------|----------|-------|---------|-----------|
+| degree of arc | Angle | `deg` | `°` | |
+| arcminute | Angle | `arcmin` | `′` | `'` |
+| arcsecond | Angle | `arcsec` | `″` | `"` |
+| degrees Celsius | Temperature | `degC` | `°C` | |
+| degrees Fahrenheit | Temperature | `degF` | `°F` | |
+| degrees Rankine | Temperature | `degR` | `°R` | |
+| liter | Volume | `L` | | `l` |
+| ohm | Resistance | `ohm` | `Ω` (U+03A9) | `Ω` (U+2126) |
+| per mille | Dimensionless | `ppt` | `‰` | |
 
-1. `deg` in place of `°` (this matches [CSS notation](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/angle) for angles)
-2. `arcmin` in place of `′`
-3. `arcsec` in place of `″`
-4. `degC` in place of `°C`
-5. `degF` in place of `°F`
-6. `degR` in place of `°R`
-7. `ohm` in place of `Ω`
-8. `ppt` in place of `‰`
+Notes:
+- `deg` matches [CSS notation](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/angle) for angles.
+- The two ohm symbols are visually identical but distinct Unicode code points: U+03A9 (GREEK CAPITAL LETTER OMEGA) is used for formatting; U+2126 (OHM SIGN) is accepted by the parser for backward compatibility.
 
-### Notes on specific symbols
+---
 
-In some cases a conventional unit symbol may not be supported. The main reason is because the package relies on unit symbols being unique. It could also be necessary for prefixes or conversions to work properly (e.g. `kcal` instead of `Cal`, `lbf/in2` instead of `psi`); or it could be a stylistic choice (e.g. `L` instead of `l`).
+## Notes on specific symbols
+
+In some cases a common unit symbol may not be supported. One reason is because the package relies on unit symbols being unique. Otherwise, it could be necessary for consistency, or for prefixes or conversions to work properly (e.g. `kcal` instead of `Cal`, `lbf/in2` instead of `psi`); or it could be a stylistic choice (e.g. `L` instead of `l`).
 
 1. Use `p` (lower-case) for picas, not `pc`, which means parsec.
 2. Don't use `pt` for pint, which means point, a typographical unit. For pints, use either `imp pt` for imperial pints, or `US pt` for US pints.
-3. Use `arcsec` for arcsecond, not `as`, which means attosecond. For milliarcsecond, use `marcsec`, not `mas`.
-4. Use `ft` for feet, not `′` (the prime symbol), which means arcminutes.
-5. Use `in` for inches, not `″` (the double prime symbol), which means arcseconds.
-6. Use `°C` or `degC` for degrees Celsius, not `C`, which means coulomb, the unit for electric charge.
-7. Use `°F` or `degF` for degrees Fahrenheit, not `F`, which means farad, the unit for electric capacitance.
-8. Use `°R` or `degR` for degrees Rankine, not `R`. This is just for consistency; `R` is not currently used for any other unit.
-9. Use `kcal` for kilocalorie (a.k.a. 'large' or 'food' calorie), not `Cal`. Use `cal` for calorie, i.e. 'small' calorie. 
-10. Use `L` for liter, not `l`, following modern style guides, as `l` is deemed too similar to the digit `1`.
-11. Use `lbf/in2` for pounds force per square inch, not `psi`.
-12. Use `cm3` for cubic centimeters, not `cc`.
+3. Use `ft` for feet, not `′` (the prime symbol), which means arcminutes.
+4. Use `in` for inches, not `″` (the double prime symbol), which means arcseconds.
+5. Use `arcmin` for arcminute, not `am`, which means attometer.
+6. Use `arcsec` for arcsecond, not `as`, which means attosecond. For milliarcsecond, use `marcsec`, not `mas`.
+7. Use `°C` or `degC` for degrees Celsius, not `C`, which means coulomb, the unit for electric charge.
+8. Use `°F` or `degF` for degrees Fahrenheit, not `F`, which means farad, the unit for electric capacitance.
+9. Use `°R` or `degR` for degrees Rankine, not `R`. This is just for consistency; `R` is not currently used for any other unit.
+10. Use `kcal` for kilocalorie (a.k.a. 'large' or 'food' calorie), not `Cal`. Use `cal` for calorie, i.e. 'small' calorie.
+11. Use `cm3` for cubic centimeters, not `cc`.
+12. Use `lbf/in2` for pounds force per square inch, not `psi`.
 13. Use `km/h` for kilometers per hour, not `kph`.
-14. Use `mi/h` for miles per hour, not `mph`. 
-15. Use `u` or `µ` for the 'micro' prefix, not `mc`. e.g. for microgram use `ug` or `µg`, not `mcg`. 
-16. Use `ppt` for 'parts per thousand'. There is no built-in unit for 'parts per trillion'.
-17. Use `min` for minutes, not `mi`, which means miles.
+14. Use `min` for minutes, not `mi`, which means miles.
+15. Use `mi/h` for miles per hour, not `mph`. 
+16. Use `u` or `µ` for the 'micro' prefix, not `mc`. e.g. for microgram use `ug` or `µg`, not `mcg`. 
+17. Use `ppt` for 'parts per thousand'. There is no built-in unit for 'parts per trillion'.
 18. Use `mA*h` for battery capacity, not `mAh`.
 19. Use `kW*h` for energy consumption, not `kWh`.
 

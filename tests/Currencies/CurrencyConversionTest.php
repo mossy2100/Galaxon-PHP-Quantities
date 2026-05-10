@@ -40,7 +40,7 @@ final class CurrencyConversionTest extends TestCase
         // Reset static state.
         CurrencyService::setExchangeRateService(null);
         CurrencyService::setLocale(null);
-        CurrencyService::setDataDir(CurrencyService::DEFAULT_DATA_DIR);
+        CurrencyService::resetDataDir();
         Converter::removeAllInstances();
     }
 

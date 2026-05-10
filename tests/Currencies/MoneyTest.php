@@ -49,7 +49,7 @@ final class MoneyTest extends TestCase
     {
         // Reset static state.
         CurrencyService::setLocale(null);
-        CurrencyService::setDataDir(CurrencyService::DEFAULT_DATA_DIR);
+        CurrencyService::resetDataDir();
         Converter::removeAllInstances();
     }
 

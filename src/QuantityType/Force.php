@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Galaxon\Quantities\QuantityType;
 
 use Galaxon\Quantities\Internal\UnitSystem;
+use Galaxon\Quantities\PhysicalConstant;
 use Galaxon\Quantities\Quantity;
 use Galaxon\Quantities\Services\PrefixService;
 use Override;
@@ -46,7 +47,7 @@ class Force extends Quantity
         return [
             ['N', 'kg*m/s2', 1],
             // g₀ (standard gravity) = (9.80665 m/s²) / (0.3048 m/ft).
-            ['lbf', 'lb*ft/s2', 9.80665 / 0.3048],
+            ['lbf', 'lb*ft/s2', PhysicalConstant::EARTH_GRAVITY / 0.3048],
         ];
     }
 

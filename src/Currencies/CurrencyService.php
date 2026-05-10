@@ -24,21 +24,12 @@ use SimpleXMLElement;
  */
 class CurrencyService
 {
-    // region Public constants
+    // region Private constants
 
     /**
      * The default data directory path.
      */
-    public const string DEFAULT_DATA_DIR = __DIR__ . '/data';
-
-    /**
-     * The date format used for timestamps in generated data files.
-     */
-    private const string DATETIME_FORMAT = 'Y-m-d H:i:s T';
-
-    // endregion
-
-    // region Private constants
+    private const string DEFAULT_DATA_DIR = __DIR__ . '/data';
 
     /**
      * The URL for the official ISO 4217 XML published by SIX Group.
@@ -52,6 +43,11 @@ class CurrencyService
      * The regular expression for matching a locale string.
      */
     private const string RX_LOCALE = '[a-z]{2,4}([-_][A-Z][a-z]{3})?([-_]([A-Z]{2}|[0-9]{3}))?';
+
+    /**
+     * The date format used for timestamps in generated data files.
+     */
+    private const string DATETIME_FORMAT = 'Y-m-d H:i:s T';
 
     // endregion
 
@@ -662,6 +658,17 @@ class CurrencyService
         }
         self::ensureDirExists($dataDir);
         self::$dataDir = $dataDir;
+    }
+
+    /**
+     * Reset the data directory for currency data files to the default value (the directory named 'data' in the
+     * current working directory).
+     *
+     * @throws RuntimeException If the directory cannot be created.
+     */
+    public static function resetDataDir(): void
+    {
+        self::setDataDir(self::DEFAULT_DATA_DIR);
     }
 
     /**

@@ -263,4 +263,4 @@ $n = UnitService::count();
 - **[ConversionService](ConversionService.md)** — Conversion registry
 - **[QuantityTypeService](QuantityTypeService.md)** — Quantity type registry
 - **[UnitSystem](../Internal/UnitSystem.md)** — Measurement system enum
-- **[Units](../../Concepts/Units.md)** — Complete unit reference
+- **[Units](../../Concepts/Units.md)** — Unit symbol conventions, notation rules, and supported non-ASCII and alternate symbols.

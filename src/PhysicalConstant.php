@@ -15,6 +15,120 @@ use Galaxon\Core\Floats;
  */
 class PhysicalConstant
 {
+    // region Public constants
+
+    // SI defining constants.
+
+    /**
+     * Hyperfine transition frequency of caesium-133 (ΔνCs) in Hz.
+     */
+    public const float CAESIUM_FREQUENCY = 9192631770.0;
+
+    /**
+     * Speed of light in vacuum (c) in m/s.
+     */
+    public const float SPEED_OF_LIGHT = 299792458.0;
+
+    /**
+     * Planck constant (h) in J*s.
+     */
+    public const float PLANCK = 6.62607015e-34;
+
+    /**
+     * Reduced Planck constant (ℏ = h / 2π) in J*s.
+     */
+    public const float REDUCED_PLANCK = self::PLANCK / Floats::TAU;
+
+    /**
+     * Elementary charge (e) in C.
+     */
+    public const float ELEMENTARY_CHARGE = 1.602176634e-19;
+
+    /**
+     * Boltzmann constant (k) in J/K.
+     */
+    public const float BOLTZMANN = 1.380649e-23;
+
+    /**
+     * Avogadro constant (Nᴀ) in mol-1.
+     */
+    public const float AVOGADRO = 6.02214076e23;
+
+    /**
+     * Luminous efficacy of 540 THz radiation (Kcd) in lm/W.
+     */
+    public const float LUMINOUS_EFFICACY = 683.0;
+
+    // Gravitational constants.
+
+    /**
+     * Earth surface standard gravity (g0) in m/s2.
+     */
+    public const float EARTH_GRAVITY = 9.80665;
+
+    /**
+     * Newtonian constant of gravitation (G) in m3/(kg*s2).
+     */
+    public const float GRAVITATIONAL = 6.67430e-11;
+
+    // Electromagnetic constants.
+
+    /**
+     * Vacuum electric permittivity (epsilon0) in F/m.
+     */
+    public const float VACUUM_PERMITTIVITY = 8.8541878128e-12;
+
+    /**
+     * Vacuum magnetic permeability (mu0) in H/m.
+     */
+    public const float VACUUM_PERMEABILITY = 1.25663706212e-6;
+
+    // Atomic and nuclear constants.
+
+    /**
+     * Electron rest mass (me) in kg.
+     */
+    public const float ELECTRON_MASS = 9.1093837015e-31;
+
+    /**
+     * Proton mass (mp) in kg.
+     */
+    public const float PROTON_MASS = 1.67262192369e-27;
+
+    /**
+     * Neutron mass (mn) in kg.
+     */
+    public const float NEUTRON_MASS = 1.67492749804e-27;
+
+    /**
+     * Fine-structure constant (alpha). Dimensionless.
+     */
+    public const float FINE_STRUCTURE = 7.2973525693e-3;
+
+    /**
+     * Rydberg constant (Rinf) in m-1.
+     */
+    public const float RYDBERG = 10973731.568160;
+
+    /**
+     * Bohr radius (a0) in m.
+     */
+    public const float BOHR_RADIUS = 5.29177210903e-11;
+
+    // Thermodynamic constants.
+
+    /**
+     * Molar gas constant (R = NA*k) in J/(mol*K).
+     */
+    public const float MOLAR_GAS = 8.314462618;
+
+    /**
+     * Stefan-Boltzmann constant (sigma) in W/(m2*K4).
+     */
+    public const float STEFAN_BOLTZMANN = 5.670374419e-8;
+
+    // endregion
+
     // region Private constants
 
     /**
@@ -31,106 +145,106 @@ class PhysicalConstant
         // SI defining constants.
         'deltaNuCs' => [
             'method' => 'caesiumFrequency',
-            'value'  => 9192631770.0,
+            'value'  => self::CAESIUM_FREQUENCY,
             'unit'   => 'Hz',
         ],
         'c'         => [
             'method' => 'speedOfLight',
-            'value'  => 299792458.0,
+            'value'  => self::SPEED_OF_LIGHT,
             'unit'   => 'm/s',
         ],
         'h'         => [
             'method' => 'planck',
-            'value'  => 6.62607015e-34,
+            'value'  => self::PLANCK,
             'unit'   => 'J*s',
         ],
         'hbar'      => [
             'method' => 'reducedPlanck',
-            'value'  => 6.62607015e-34 / Floats::TAU,
+            'value'  => self::REDUCED_PLANCK,
             'unit'   => 'J*s',
         ],
         'e'         => [
             'method' => 'elementaryCharge',
-            'value'  => 1.602176634e-19,
+            'value'  => self::ELEMENTARY_CHARGE,
             'unit'   => 'C',
         ],
         'k'         => [
             'method' => 'boltzmann',
-            'value'  => 1.380649e-23,
+            'value'  => self::BOLTZMANN,
             'unit'   => 'J/K',
         ],
         'NA'        => [
             'method' => 'avogadro',
-            'value'  => 6.02214076e23,
+            'value'  => self::AVOGADRO,
             'unit'   => 'mol-1',
         ],
         'Kcd'       => [
             'method' => 'luminousEfficacy',
-            'value'  => 683.0,
+            'value'  => self::LUMINOUS_EFFICACY,
             'unit'   => 'lm/W',
         ],
         // Gravitational constants.
         'g'         => [
             'method' => 'earthGravity',
-            'value'  => 9.80665,
+            'value'  => self::EARTH_GRAVITY,
             'unit'   => 'm/s2',
         ],
         'G'         => [
             'method' => 'gravitational',
-            'value'  => 6.67430e-11,
+            'value'  => self::GRAVITATIONAL,
             'unit'   => 'm3/(kg*s2)',
         ],
         // Electromagnetic constants.
         'epsilon0'  => [
             'method' => 'vacuumPermittivity',
-            'value'  => 8.8541878128e-12,
+            'value'  => self::VACUUM_PERMITTIVITY,
             'unit'   => 'F/m',
         ],
         'mu0'       => [
             'method' => 'vacuumPermeability',
-            'value'  => 1.25663706212e-6,
+            'value'  => self::VACUUM_PERMEABILITY,
             'unit'   => 'H/m',
         ],
         // Atomic and nuclear constants.
         'me'        => [
             'method' => 'electronMass',
-            'value'  => 9.1093837015e-31,
+            'value'  => self::ELECTRON_MASS,
             'unit'   => 'kg',
         ],
         'mp'        => [
             'method' => 'protonMass',
-            'value'  => 1.67262192369e-27,
+            'value'  => self::PROTON_MASS,
             'unit'   => 'kg',
         ],
         'mn'        => [
             'method' => 'neutronMass',
-            'value'  => 1.67492749804e-27,
+            'value'  => self::NEUTRON_MASS,
             'unit'   => 'kg',
         ],
         'alpha'     => [
             'method' => 'fineStructure',
-            'value'  => 7.2973525693e-3,
+            'value'  => self::FINE_STRUCTURE,
             'unit'   => '',
         ],
         'Rinf'      => [
             'method' => 'rydberg',
-            'value'  => 10973731.568160,
+            'value'  => self::RYDBERG,
             'unit'   => 'm-1',
         ],
         'a0'        => [
             'method' => 'bohrRadius',
-            'value'  => 5.29177210903e-11,
+            'value'  => self::BOHR_RADIUS,
             'unit'   => 'm',
         ],
         // Thermodynamic constants.
         'R'         => [
             'method' => 'molarGas',
-            'value'  => 8.314462618,
+            'value'  => self::MOLAR_GAS,
             'unit'   => 'J/(mol*K)',
         ],
         'sigma'     => [
             'method' => 'stefanBoltzmann',
-            'value'  => 5.670374419e-8,
+            'value'  => self::STEFAN_BOLTZMANN,
             'unit'   => 'W/(m2*K4)',
         ],
     ];

@@ -261,5 +261,5 @@ The built-in quantity type classes demonstrate various patterns for extending th
 - **[UnitService](../Reference/Services/UnitService.md)** — Unit registration and lookup.
 - **[ConversionService](../Reference/Services/ConversionService.md)** — Conversion registration.
 - **[QuantityTypeService](../Reference/Services/QuantityTypeService.md)** — Quantity type registration.
-- **[Units](../Concepts/Units.md)** — Complete list of built-in units.
+- **[Units](../Concepts/Units.md)** — Unit symbol conventions, notation rules, and supported non-ASCII and alternate symbols.
 - **[Dimensions and Base Units](../Concepts/DimensionsAndBaseUnits.md)** — Dimension codes and how they work.

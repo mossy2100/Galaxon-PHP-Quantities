@@ -8,22 +8,57 @@ Provides access to fundamental physical constants as Quantity objects.
 
 ## Overview
 
-The `PhysicalConstant` class provides a convenient way to access well-known physical constants as properly typed `Quantity` objects with their correct units. Constants are lazily created and cached for efficient reuse.
+The `PhysicalConstant` class provides access to well-known physical constants in two forms:
 
-The class includes:
+- **As a raw `float`** — via a public class constant (e.g. `PhysicalConstant::PLANCK`). Use this when you need the numeric value for a plain PHP computation.
+- **As a `Quantity` object** — via a static method (e.g. `PhysicalConstant::planck()`). Use this when you need a typed value with units for use with the Quantities API.
+
+```php
+// Raw float value — no unit information:
+$hValue = PhysicalConstant::PLANCK;        // 6.62607015e-34
+
+// Quantity object — carries its unit (J⋅s):
+$hQuantity = PhysicalConstant::planck();   // Quantity(6.62607015e-34, 'J*s')
+```
+
+`Quantity` objects are lazily instantiated and cached for efficient reuse.
+
+The class covers:
 - All seven SI defining constants
 - Gravitational constants (standard gravity, gravitational constant)
 - Electromagnetic constants (vacuum permittivity and permeability)
 - Atomic and nuclear constants (electron mass, proton mass, etc.)
 - Thermodynamic constants (molar gas constant, Stefan-Boltzmann constant)
-- Derived constants (reduced Planck constant)
+- The reduced Planck constant (derived as ℏ = h / 2π)
 
-### Key features
+---
 
-- Type-safe access to physical constants
-- Lazy instantiation with caching
-- Lookup by symbol via `get()`
-- Computed derived constants (e.g., reduced Planck constant = h / τ = h / 2π)
+## Quick reference
+
+| ASCII symbol | Constant              | Method                 | Value               | Unit              |
+| ------------ | --------------------- | ---------------------- | ------------------- | ----------------- |
+| deltaNuCs    | `CAESIUM_FREQUENCY`   | `caesiumFrequency()`   | 9,192,631,770       | *Hz*              |
+| c            | `SPEED_OF_LIGHT`      | `speedOfLight()`       | 299,792,458         | *m/s*             |
+| h            | `PLANCK`              | `planck()`             | 6.62607015×10⁻³⁴    | *J⋅s*             |
+| hbar         | `REDUCED_PLANCK`      | `reducedPlanck()`      | 1.054571817×10⁻³⁴   | *J⋅s*             |
+| e            | `ELEMENTARY_CHARGE`   | `elementaryCharge()`   | 1.602176634×10⁻¹⁹   | *C*               |
+| k            | `BOLTZMANN`           | `boltzmann()`          | 1.380649×10⁻²³      | *J/K*             |
+| NA           | `AVOGADRO`            | `avogadro()`           | 6.02214076×10²³     | *mol⁻¹*           |
+| Kcd          | `LUMINOUS_EFFICACY`   | `luminousEfficacy()`   | 683                 | *lm/W*            |
+| g            | `EARTH_GRAVITY`       | `earthGravity()`       | 9.80665             | *m/s²*            |
+| G            | `GRAVITATIONAL`       | `gravitational()`      | 6.67430×10⁻¹¹       | *m³/(kg⋅s²)*      |
+| epsilon0     | `VACUUM_PERMITTIVITY` | `vacuumPermittivity()` | 8.8541878128×10⁻¹²  | *F/m*             |
+| mu0          | `VACUUM_PERMEABILITY` | `vacuumPermeability()` | 1.25663706212×10⁻⁶  | *H/m*             |
+| me           | `ELECTRON_MASS`       | `electronMass()`       | 9.1093837015×10⁻³¹  | *kg*              |
+| mp           | `PROTON_MASS`         | `protonMass()`         | 1.67262192369×10⁻²⁷ | *kg*              |
+| mn           | `NEUTRON_MASS`        | `neutronMass()`        | 1.67492749804×10⁻²⁷ | *kg*              |
+| alpha        | `FINE_STRUCTURE`      | `fineStructure()`      | 7.2973525693×10⁻³   | *(dimensionless)* |
+| Rinf         | `RYDBERG`             | `rydberg()`            | 10,973,731.568      | *m⁻¹*             |
+| a0           | `BOHR_RADIUS`         | `bohrRadius()`         | 5.29177210903×10⁻¹¹ | *m*               |
+| R            | `MOLAR_GAS`           | `molarGas()`           | 8.314462618         | *J/(mol⋅K)*       |
+| sigma        | `STEFAN_BOLTZMANN`    | `stefanBoltzmann()`    | 5.670374419×10⁻⁸    | *W/(m²⋅K⁴)*       |
+
+*See also: [Supported constants](../Concepts/PhysicalConstants.md#supported-constants) — includes usual symbols and Wikipedia links.*
 
 ---
 
@@ -90,7 +125,7 @@ The Boltzmann constant (k). Defines the *kelvin*.
 public static function avogadro(): Quantity
 ```
 
-The Avogadro constant (Nₐ). Defines the *mole*.
+The Avogadro constant (Nᴀ). Defines the *mole*.
 
 **Returns:**
 - `Quantity` equal to 6.02214076×10²³ mol⁻¹
@@ -238,7 +273,7 @@ The Bohr radius (a₀).
 public static function molarGas(): Quantity
 ```
 
-The molar gas constant (R = Nₐ·k).
+The molar gas constant (R = Nᴀ·k).
 
 **Returns:**
 - `Quantity` equal to 8.314462618 J/(mol⋅K)

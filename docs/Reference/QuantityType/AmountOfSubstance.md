@@ -26,7 +26,7 @@ The `AmountOfSubstance` class handles measurements of the amount of substance. T
 The *mole* (`mol`) is defined by fixing the value of the Avogadro constant:
 
 ```
-Nₐ = 6.02214076 × 10²³ mol⁻¹
+Nᴀ = 6.02214076 × 10²³ mol⁻¹
 ```
 
 One *mole* contains exactly 6.02214076 × 10²³ elementary entities.

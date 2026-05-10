@@ -45,18 +45,6 @@ Both currency unit definitions and exchange rates are cached as PHP files in a l
 
 ---
 
-## Constants
-
-### DEFAULT_DATA_DIR
-
-```php
-public const string DEFAULT_DATA_DIR = __DIR__ . '/data';
-```
-
-The default directory where generated currency data files are stored.
-
----
-
 ## Unit data
 
 ### getUnits()
@@ -275,6 +263,17 @@ Set the directory where currency data files are stored. Creates the directory if
 **Throws:**
 - `DomainException` - If the path is empty.
 - `RuntimeException` - If the directory cannot be created.
+
+### resetDataDir()
+
+```php
+public static function resetDataDir(): void
+```
+
+Reset the data directory to its default location (the `data` directory alongside the `CurrencyService` source file). Useful for restoring default state after calling `setDataDir()`.
+
+**Throws:**
+- `RuntimeException` - If the default directory cannot be created.
 
 ### getUnitsFilePath()
 

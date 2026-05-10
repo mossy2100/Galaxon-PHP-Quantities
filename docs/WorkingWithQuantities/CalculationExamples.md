@@ -607,6 +607,6 @@ $totalFuelSi = $totalFuel->toSi();
 ## See also
 
 - **[README](../../README.md)** — Package overview and quick start.
-- **[Units](../Concepts/Units.md)** — Complete unit reference.
+- **[Units](../Concepts/Units.md)** — Unit symbol conventions, notation rules, and supported non-ASCII and alternate symbols.
 - **[Quantity](../Reference/Quantity.md)** — Quantity class documentation.
 - **[PhysicalConstant](../Reference/PhysicalConstant.md)** — Available physical constants.
