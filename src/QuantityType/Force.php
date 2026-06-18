@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\QuantityType;
+namespace OceanMoon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\Services\PrefixService;
 use Override;
 
 /**

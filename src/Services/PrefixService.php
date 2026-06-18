@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Services;
+namespace OceanMoon\Quantities\Services;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Floats;
-use Galaxon\Quantities\Internal\Prefix;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Floats;
+use OceanMoon\Quantities\Internal\Prefix;
 
 /**
  * Utility class for working with SI and binary prefixes.

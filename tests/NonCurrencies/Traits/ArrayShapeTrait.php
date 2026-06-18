@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Traits;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Traits;
 
-use Galaxon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Internal\UnitSystem;
 
 /**
  * Trait providing assertions for validating unit and conversion definition array shapes.

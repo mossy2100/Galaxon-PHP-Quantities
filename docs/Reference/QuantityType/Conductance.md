@@ -2,7 +2,7 @@
 
 Represents electrical conductance quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -42,7 +42,7 @@ S = s³·A²·kg⁻¹·m⁻² = A/V = 1/Ω
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Conductance;
+use OceanMoon\Quantities\QuantityType\Conductance;
 
 // Water quality
 $tap = new Conductance(500, 'uS');

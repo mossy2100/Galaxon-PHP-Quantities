@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Internal;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Internal;
 
 use DomainException;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Internal\FloatWithError;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Internal\FloatWithError;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Services\UnitService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

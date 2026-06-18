@@ -176,7 +176,7 @@ Convert any unit representation to a UnitTerm. Returns the same instance if alre
 **Returns:** `UnitTerm`
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a string has an invalid format.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a string has an invalid format.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a string or Unit symbol is not recognized.
 - `DomainException` - If the exponent or prefix is invalid.
 
@@ -194,7 +194,7 @@ Parse a string into a UnitTerm.
 **Returns:** `UnitTerm`
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the unit symbol is not recognized.
 - `DomainException` - If the exponent is zero.
 
@@ -366,8 +366,8 @@ Convert to string using Unicode format.
 ### Building compound units
 
 ```php
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Internal\UnitTerm;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\UnitTerm;
 
 // Build velocity: m/s
 $meter = new UnitTerm('m');
@@ -385,7 +385,7 @@ echo $acceleration->asciiSymbol; // 'm/s2'
 ### Working with prefixes
 
 ```php
-use Galaxon\Quantities\Internal\UnitTerm;
+use OceanMoon\Quantities\Internal\UnitTerm;
 
 $km2 = new UnitTerm('m', 'k', 2);
 
@@ -404,7 +404,7 @@ echo $m2->asciiSymbol; // 'm2'
 ### Parsing and validation
 
 ```php
-use Galaxon\Quantities\Internal\UnitTerm;
+use OceanMoon\Quantities\Internal\UnitTerm;
 
 // Parse with various formats
 $term1 = UnitTerm::parse('km2');

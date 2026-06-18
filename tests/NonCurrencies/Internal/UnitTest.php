@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Internal;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Internal;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
-use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\Internal\Prefix;
-use Galaxon\Quantities\Internal\QuantityType;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\Services\UnitService;
 use InvalidArgumentException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Exceptions\UnknownUnitException;
+use OceanMoon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\Internal\Prefix;
+use OceanMoon\Quantities\Internal\QuantityType;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\Services\PrefixService;
+use OceanMoon\Quantities\Services\UnitService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;

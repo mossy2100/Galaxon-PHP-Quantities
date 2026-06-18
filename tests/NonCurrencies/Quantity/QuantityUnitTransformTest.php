@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Quantity;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Quantity;
 
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
-use Galaxon\Quantities\Internal\QuantityType;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\QuantityType\Area;
-use Galaxon\Quantities\QuantityType\Energy;
-use Galaxon\Quantities\QuantityType\Force;
-use Galaxon\Quantities\QuantityType\Frequency;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\QuantityType\Volume;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Quantities\Internal\QuantityType;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Angle;
+use OceanMoon\Quantities\QuantityType\Area;
+use OceanMoon\Quantities\QuantityType\Energy;
+use OceanMoon\Quantities\QuantityType\Force;
+use OceanMoon\Quantities\QuantityType\Frequency;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Volume;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

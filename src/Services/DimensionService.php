@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Services;
+namespace OceanMoon\Quantities\Services;
 
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Numbers;
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Internal\UnitTerm;
 use LogicException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Numbers;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\UnitTerm;
 
 /**
  * Utility class for working with physical dimension codes.

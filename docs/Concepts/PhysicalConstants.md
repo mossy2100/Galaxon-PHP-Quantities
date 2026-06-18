@@ -3,7 +3,7 @@
 Fundamental physical constants can be accessed as Quantity objects via the PhysicalConstant class:
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\PhysicalConstant;
 
 // Speed of light
 $c = PhysicalConstant::speedOfLight();

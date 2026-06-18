@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Services;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Services;
 
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Internal\UnitTerm;
-use Galaxon\Quantities\Services\DimensionService;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\UnitTerm;
+use OceanMoon\Quantities\Services\DimensionService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

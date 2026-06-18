@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Quantity;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Quantity;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\QuantityType\Dimensionless;
-use Galaxon\Quantities\QuantityType\Force;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Time;
 use InvalidArgumentException;
 use LogicException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Quantities\Exceptions\UnknownUnitException;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Angle;
+use OceanMoon\Quantities\QuantityType\Dimensionless;
+use OceanMoon\Quantities\QuantityType\Force;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Time;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

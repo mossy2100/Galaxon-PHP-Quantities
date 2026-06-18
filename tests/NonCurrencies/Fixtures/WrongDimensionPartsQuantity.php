@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Fixtures;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Fixtures;
 
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Time;
 
 /**
  * A Time subclass with a wrong-dimension unit in its default part unit symbols.

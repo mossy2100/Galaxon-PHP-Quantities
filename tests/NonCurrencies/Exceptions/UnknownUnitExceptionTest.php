@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Exceptions;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Exceptions;
 
 use DomainException;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
+use OceanMoon\Quantities\Exceptions\UnknownUnitException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;

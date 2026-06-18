@@ -140,14 +140,14 @@ Create a new Unit instance.
 - `$alternateSymbol` (?string) - Additional accepted symbol. Default: `null`.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If any symbol or name contains invalid characters.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If any symbol or name contains invalid characters.
 - `DomainException` - If the systems array is empty or the prefix group is out of range.
 - `InvalidArgumentException` - If the systems array contains non-UnitSystem values.
 
 **Examples:**
 
 ```php
-use Galaxon\Quantities\Internal\Unit;use Galaxon\Quantities\Internal\UnitSystem;use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Quantities\Internal\Unit;use OceanMoon\Quantities\Internal\UnitSystem;use OceanMoon\Quantities\Services\PrefixService;
 
 // Basic SI unit
 $meter = new Unit(
@@ -187,7 +187,7 @@ Parse a unit symbol and return the matching Unit from the registry.
 **Returns:** `Unit`
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the symbol contains invalid characters.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the symbol contains invalid characters.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If the symbol is not recognized.
 
 ---
@@ -291,7 +291,7 @@ Convert the unit to a string using the Unicode symbol.
 ### Accessing unit properties
 
 ```php
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Services\UnitService;
 
 $unit = UnitService::getBySymbol('N');
 
@@ -303,7 +303,7 @@ echo $unit->dimension;   // 'MLT-2'
 ### Working with prefixes
 
 ```php
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Services\UnitService;
 
 $meter = UnitService::getBySymbol('m');
 

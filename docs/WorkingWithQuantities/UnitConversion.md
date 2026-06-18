@@ -20,8 +20,8 @@ $miles = $meters->to('mi'); // 0.621371 mi
 ## SI to imperial/US
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Mass;
 
 // Length
 $height = new Length(1.83, 'm');
@@ -41,8 +41,8 @@ echo $weight->to('st');   // 11.023113... st
 Derived units like *newtons*, *joules*, and *watts* are shorthand for combinations of base units. You can convert to base units with `toBase()`, or substitute derived units for base-unit combinations with `toDerived()`.
 
 ```php
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Force;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Force;
 
 // Convert to base units
 $force = new Force(100, 'N');
@@ -64,7 +64,7 @@ echo $lbf->toBase();  // 32.174049... lb*ft/s2
 The `autoPrefix()` method selects the best engineering SI prefix (*kilo*, *mega*, *milli*, etc.) to keep the numeric value readable:
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Length;
 
 // Large value -> auto-prefix picks km
 $distance = new Length(42195, 'm');
@@ -82,7 +82,7 @@ echo $wavelength->autoPrefix();  // 550 nm
 The `toSi()` method converts to SI units and simplifies (e.g., `kg*m/s2` becomes `N`). Chain with `autoPrefix()` to also apply the best engineering prefix:
 
 ```php
-use Galaxon\Quantities\QuantityType\Energy;
+use OceanMoon\Quantities\QuantityType\Energy;
 
 $energy = new Energy(1, 'Btu');
 echo $energy->toSi();                // 1055.06 J
@@ -96,7 +96,7 @@ echo $energy->toSi()->autoPrefix();  // 1.05506 kJ
 Most conversions involve a simple multiplication. The built-in `Temperature` class uses affine transformations (y = mx + k) to handle offset scales:
 
 ```php
-use Galaxon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\QuantityType\Temperature;
 
 $celsius = new Temperature(0, 'degC');
 echo $celsius->to('degF');  // 32 degF

@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace OceanMoon\Quantities\Internal;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Traits\Comparison\Equatable;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\DimensionService;
-use Galaxon\Quantities\Services\QuantityTypeService;
 use LogicException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Traits\Comparison\Equatable;
+use OceanMoon\Quantities\Exceptions\UnknownUnitException;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Services\DimensionService;
+use OceanMoon\Quantities\Services\QuantityTypeService;
 use UnexpectedValueException;
 
 /**

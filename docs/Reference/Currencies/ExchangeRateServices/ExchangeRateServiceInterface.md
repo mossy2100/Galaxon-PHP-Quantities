@@ -2,7 +2,7 @@
 
 Interface for exchange rate web services.
 
-**Namespace:** `Galaxon\Quantities\Currencies\ExchangeRateServices`
+**Namespace:** `OceanMoon\Quantities\Currencies\ExchangeRateServices`
 
 ---
 

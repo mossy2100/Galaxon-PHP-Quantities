@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Services;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Services;
 
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Quantities\Exceptions\UnknownUnitException;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Services\UnitService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

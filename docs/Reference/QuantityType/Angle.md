@@ -2,7 +2,7 @@
 
 Represents angle quantities with support for various angular units, trigonometric methods, and special parsing.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -221,7 +221,7 @@ echo $angle->formatParts(precision: 2, partUnitSymbols: ['deg', 'arcmin']);
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Angle;
+use OceanMoon\Quantities\QuantityType\Angle;
 
 // Create angles in different units.
 $radians = new Angle(M_PI / 4, 'rad');

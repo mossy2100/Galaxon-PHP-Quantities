@@ -289,7 +289,7 @@ Convert to a string representation showing value and absolute error.
 ### Tracking conversion precision
 
 ```php
-use Galaxon\Quantities\Internal\FloatWithError;
+use OceanMoon\Quantities\Internal\FloatWithError;
 
 // Direct conversion factor (high precision)
 $direct = new FloatWithError(0.3048);  // feet to meters
@@ -310,7 +310,7 @@ if ($direct->relativeError < $indirect->relativeError) {
 ### Building conversion factors
 
 ```php
-use Galaxon\Quantities\Internal\FloatWithError;
+use OceanMoon\Quantities\Internal\FloatWithError;
 
 // Conversion from yards to meters
 $ydToFt = new FloatWithError(3);      // 3 feet per yard (exact)

@@ -2,7 +2,7 @@
 
 Represents density quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -18,7 +18,7 @@ The `Density` class handles density measurements. This class has no dedicated un
 Density units are automatically supported through unit arithmetic:
 
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 // SI units
 $water = new Quantity(1000, 'kg/m3');
@@ -33,7 +33,7 @@ $inLbFt3 = $water->to('lb/ft3');  // 62.428 lb/ft³
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 // Water density
 $water = new Quantity(1, 'g/cm3');

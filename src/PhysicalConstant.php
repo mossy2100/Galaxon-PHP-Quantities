@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities;
+namespace OceanMoon\Quantities;
 
 use DomainException;
-use Galaxon\Core\Floats;
+use OceanMoon\Core\Floats;
 
 /**
  * Provides access to physical constants as Quantity objects.

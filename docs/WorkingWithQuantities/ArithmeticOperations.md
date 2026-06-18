@@ -7,7 +7,7 @@
 Quantities support a full set of arithmetic operations. All operations return new Quantity objects — the original is never modified.
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $a = new Length(100, 'm');
 $b = new Length(50, 'm');
@@ -55,8 +55,8 @@ These accept a scalar, a Quantity, or a unit (as a string or `UnitInterface` obj
 - **Unit** — multiplies/divides units.
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $length = new Length(10, 'm');
 
@@ -100,7 +100,7 @@ This applies whenever `mul()` or `div()` produces a result with multiple terms o
 Invert a quantity (1/x). Both the value and unit are inverted:
 
 ```php
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $time = new Time(4, 's');
 $inv = $time->inv();  // 0.25 s-1 (Frequency)
@@ -115,7 +115,7 @@ Throws `DivisionByZeroError` if the value is zero.
 `neg()` negates the value. `abs()` returns the absolute value. Neither changes the unit:
 
 ```php
-use Galaxon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\QuantityType\Temperature;
 
 $temp = new Temperature(-10, 'degC');
 $pos = $temp->abs();  // 10 °C
@@ -129,7 +129,7 @@ $neg = $pos->neg();   // -10 °C
 Raise a quantity to an integer exponent. Both the value and unit are exponentiated:
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $side = new Length(3, 'm');
 $area = $side->sqr();     // 9 m2 (Area)
@@ -139,7 +139,7 @@ $volume = $side->pow(3);  // 27 m3 (Volume)
 Negative exponents invert the unit:
 
 ```php
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $time = new Time(2, 's');
 $invSquared = $time->pow(-2);  // 0.25 s-2
@@ -152,7 +152,7 @@ $invSquared = $time->pow(-2);  // 0.25 s-2
 Since every operation returns a new Quantity, you can chain calls:
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $length = new Length(10, 'm');
 $result = $length->mul(2)->add(new Length(5, 'm'))->sub(new Length(3, 'm'));
@@ -168,14 +168,14 @@ The result type of `add()`, `sub()`, `neg()`, or `abs()` is always the same type
 The result type of `mul()`, `div()`, `inv()`, or `pow()` is determined automatically. If the result quantity's dimension matches a registered quantity type, the correct subclass is returned. Otherwise, a base `Quantity` object is returned:
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Acceleration;
-use Galaxon\Quantities\QuantityType\Energy;
-use Galaxon\Quantities\QuantityType\Frequency;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\Acceleration;
+use OceanMoon\Quantities\QuantityType\Energy;
+use OceanMoon\Quantities\QuantityType\Frequency;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\QuantityType\Time;
 
 // Force = Mass × Acceleration (F = ma)
 $mass = new Mass(10, 'kg');

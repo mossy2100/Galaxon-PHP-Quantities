@@ -2,7 +2,7 @@
 
 Represents electrical capacitance quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -42,7 +42,7 @@ F = kg⁻¹·m⁻²·s⁴·A² = C/V = s/Ω
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Capacitance;
+use OceanMoon\Quantities\QuantityType\Capacitance;
 
 // Common capacitors
 $decoupling = new Capacitance(100, 'nF');

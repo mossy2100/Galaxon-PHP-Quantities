@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Currencies;
+namespace OceanMoon\Quantities\Currencies;
 
 use DateTimeInterface;
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Stringify;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
-use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\UnitService;
 use Locale;
 use LogicException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Stringify;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
+use OceanMoon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Services\UnitService;
 use ParseError;
 use RuntimeException;
 use SimpleXMLElement;

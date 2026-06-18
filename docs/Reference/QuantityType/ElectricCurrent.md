@@ -2,7 +2,7 @@
 
 Represents electric current quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -30,7 +30,7 @@ The *ampere* (`A`) is an SI base unit, defined by fixing the value of the elemen
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\ElectricCurrent;
+use OceanMoon\Quantities\QuantityType\ElectricCurrent;
 
 // Household appliances
 $kettle = new ElectricCurrent(10, 'A');

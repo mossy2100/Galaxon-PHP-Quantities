@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\Currencies;
+namespace OceanMoon\Quantities\Tests\Currencies;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 use LogicException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Currencies\CurrencyService;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\ExchangeRateServiceInterface;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;

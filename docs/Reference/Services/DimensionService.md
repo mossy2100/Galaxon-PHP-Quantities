@@ -2,7 +2,7 @@
 
 Utility class for working with physical dimension codes.
 
-**Namespace:** `Galaxon\Quantities\Services`
+**Namespace:** `OceanMoon\Quantities\Services`
 
 ---
 
@@ -54,7 +54,7 @@ Decompose a dimension code string into an associative array mapping dimension le
 
 **Returns:** `array<string, int>`
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
 
 ```php
 $terms = DimensionService::decompose('MLT-2');
@@ -100,7 +100,7 @@ public static function lessThanOrEqual(string $dimension1, string $dimension2): 
 
 Check if `$dimension1` is a subset of `$dimension2`. Returns true if every dimension term in `$dimension1` exists in `$dimension2` with the same sign and an equal or smaller absolute exponent. Used by `toDerived()` to determine whether a unit's dimension fits inside a quantity's dimension.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if either dimension code is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if either dimension code is invalid.
 
 ```php
 DimensionService::lessThanOrEqual('MLT-2', 'MLT-2');  // true (equal)
@@ -123,7 +123,7 @@ public static function sub(string $dimension1, string $dimension2): string
 
 Subtract `$dimension2` from `$dimension1`. Subtracts each exponent in `$dimension2` from the corresponding exponent in `$dimension1`. Terms that cancel to zero are removed. Terms in `$dimension2` that are not in `$dimension1` are ignored.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if either dimension code is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if either dimension code is invalid.
 
 ```php
 DimensionService::sub('ML2T-2', 'MLT-2');  // 'L' (energy - force = length)
@@ -144,7 +144,7 @@ public static function pow(string $dimension, int $exponent): string
 
 Apply an exponent to every term in a dimension code. Each term's existing exponent is multiplied by the given exponent.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
 
 ```php
 $dim = DimensionService::pow('L', 3);
@@ -169,7 +169,7 @@ public static function normalize(string $dimension): string
 
 Normalize a dimension code to canonical form by decomposing and recomposing it. This sorts terms into canonical order and removes explicit exponents of 1.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
 
 ```php
 $norm = DimensionService::normalize('TLM');
@@ -191,7 +191,7 @@ public static function letterToInt(string $letter): int
 
 Convert a dimension code letter to its position index (0-based) in the canonical ordering.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the letter is not a valid dimension code.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the letter is not a valid dimension code.
 
 ```php
 $idx = DimensionService::letterToInt('M');  // 0
@@ -208,7 +208,7 @@ public static function countUnits(string $dimension): int
 
 Count the total number of base unit slots in a dimension code. Each dimension term contributes the absolute value of its exponent.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
 
 ```php
 DimensionService::countUnits('L');      // 1
@@ -229,7 +229,7 @@ public static function getBaseUnitTermSymbol(string $dimensionLetterCode, bool $
 
 Get the base unit symbol for a dimension letter code. When `$si` is true, returns the SI base unit symbol. When false, returns the English base unit symbol if one exists, otherwise falls back to the SI or common base unit.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code letter is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code letter is invalid.
 
 ```php
 DimensionService::getBaseUnitTermSymbol('M', true);   // 'kg'
@@ -249,7 +249,7 @@ public static function getBaseUnitTerm(string $dimensionLetterCode, bool $si = t
 
 Get the base unit as a `UnitTerm` object for a dimension letter code. Delegates to `getBaseUnitTermSymbol()` and parses the result.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code letter is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code letter is invalid.
 
 ```php
 $term = DimensionService::getBaseUnitTerm('M', true);
@@ -267,7 +267,7 @@ public static function getBaseCompoundUnit(string $dimension, bool $si = true): 
 
 Convert a dimension code to a `CompoundUnit` composed of SI or English base units. Each dimension term is converted to a `UnitTerm` with the appropriate exponent.
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
 
 ```php
 $du = DimensionService::getBaseCompoundUnit('MLT-2', true);
@@ -282,7 +282,7 @@ $du = DimensionService::getBaseCompoundUnit('MLT-2', false);
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\Services\DimensionService;
+use OceanMoon\Quantities\Services\DimensionService;
 
 // Validate user input.
 if (DimensionService::isValid($userDimension)) {

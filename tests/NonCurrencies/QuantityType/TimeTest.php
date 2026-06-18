@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\QuantityType;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\QuantityType;
 
 use DateInterval;
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

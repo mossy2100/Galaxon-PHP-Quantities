@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\QuantityType;
+namespace OceanMoon\Quantities\QuantityType;
 
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Internal\UnitInterface;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\Internal\UnitTerm;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\UnitInterface;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Internal\UnitTerm;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\Services\PrefixService;
 use Override;
 
 /**

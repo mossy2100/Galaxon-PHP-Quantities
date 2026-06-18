@@ -2,7 +2,7 @@
 
 Static service for managing currency units and exchange rate conversions.
 
-**Namespace:** `Galaxon\Quantities\Currencies`
+**Namespace:** `OceanMoon\Quantities\Currencies`
 
 ---
 
@@ -30,7 +30,7 @@ The package includes adapters for several exchange rate APIs, all of which have 
 | `CurrencyLayerService`     | Yes              | 170                | [currencylayer.com](https://currencylayer.com/)           |
 | `FixerService`             | Yes              | 170                | [fixer.io](https://fixer.io/)                            |
 
-All services are in the `Galaxon\Quantities\Currencies\ExchangeRateServices` namespace.
+All services are in the `OceanMoon\Quantities\Currencies\ExchangeRateServices` namespace.
 
 `FrankfurterService` is the simplest option — no API key, no signup. It uses European Central Bank data and covers ~30 major currencies. The other services require a free API key but support 160+ currencies, including precious metals (XAU, XAG) and some cryptocurrencies.
 
@@ -131,7 +131,7 @@ Initialize the currency service. This is the primary entry point for setting up 
 - `$currenciesTtl` (int) - Cache lifetime for currency unit data in seconds. Default: 2592000 (30 days).
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the locale string is invalid.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the locale string is invalid.
 - `DomainException` - If either TTL argument is negative.
 - `RuntimeException` - If the ISO 4217 XML or exchange rate API request fails, or if the data directory cannot be created.
 
@@ -195,7 +195,7 @@ public static function setLocale(?string $locale): void
 Set the locale used for currency formatting. Pass `null` to clear an explicitly set locale and revert to auto-detection.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the locale string is invalid.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the locale string is invalid.
 
 ### getCurrenciesTtl()
 
@@ -302,8 +302,8 @@ Get the path to the currency conversions data file.
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\OpenExchangeRatesService;
+use OceanMoon\Quantities\Currencies\CurrencyService;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\OpenExchangeRatesService;
 
 // Initialize with an exchange rate service.
 CurrencyService::init(

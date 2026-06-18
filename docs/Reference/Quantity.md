@@ -2,7 +2,7 @@
 
 Base class for physical measurements with units.
 
-**Namespace:** `Galaxon\Quantities`
+**Namespace:** `OceanMoon\Quantities`
 
 ---
 
@@ -81,12 +81,12 @@ The `Quantity` constructor cannot be called directly — use a specific subclass
 - `LogicException` - If `new Quantity()` is called directly or the wrong subclass constructor is called for the unit's dimension.
 - `DomainException` - If the value is non-finite (INF or NAN).
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the unit string contains unknown units.
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the unit string cannot be parsed.
 
 **Examples:**
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Mass;
 
 $length = new Length(100, 'm');
 $mass = new Mass(5.5, 'kg');
@@ -116,11 +116,11 @@ Determines the quantity dimension from the unit, and refers to [QuantityTypeServ
 **Throws:**
 - `DomainException` - If the value is non-finite (INF or NAN).
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If the unit string contains unknown units.
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the unit string cannot be parsed.
 
 **Examples:**
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 // Creates a Length object.
 $length = Quantity::create(100, 'm');
@@ -151,7 +151,7 @@ When called from a subclass (e.g. `Length::parse()`), the parsed unit's dimensio
 - `static` - A new Quantity of the calling class type.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input is empty, the string format is invalid, or a unit symbol cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input is empty, the string format is invalid, or a unit symbol cannot be parsed.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any unit symbol is not recognized.
 - `DomainException` - If a value is non-finite (single-value input only).
 - `LogicException` - If the input contains multiple parts and the quantity type is not registered, or no conversion path exists between a part unit and the result unit.
@@ -198,7 +198,7 @@ A convenience method for converting a raw numeric value without creating Quantit
 - `float` - The converted value.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
 - `LogicException` - If no conversion path exists between the units.
 
@@ -733,7 +733,7 @@ public function format(
 
 Format the measurement as a string with value and unit.
 
-See [`Floats::format()`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Floats.md#format) for details on the `$specifier`, `$precision`, `$trimZeros`, and `$ascii` parameters.
+See [`Floats::format()`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Floats.md#format) for details on the `$specifier`, `$precision`, `$trimZeros`, and `$ascii` parameters.
 
 **Parameters:**
 - `$specifier` (string) - The format specifier. See `Floats::format()` for the full list of supported specifiers.
@@ -1006,7 +1006,7 @@ Only the first part may be negative.
 
 **Throws:**
 - `LogicException` - If the quantity type is not registered, or if no conversion path exists between a part unit and the result unit.
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty, malformed, contains a non-first negative part, or contains duplicate unit symbols.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the input string is empty, malformed, contains a non-first negative part, or contains duplicate unit symbols.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If any unit symbols are not recognized.
 - [`DimensionMismatchException`](Exceptions/DimensionMismatchException.md) - If units have incompatible dimensions.
 - `UnexpectedValueException` - If there is an unexpected error during parsing.
@@ -1060,7 +1060,7 @@ Only the smallest unit may have a decimal point. Larger units will be integers. 
 
 **Throws:**
 - `LogicException` - If the quantity type is null (called on an unregistered subclass), if `$partUnitSymbols` is null or empty and no default exists for the quantity type, or if no conversion path exists to a part unit.
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If any part unit symbol cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If any part unit symbol cannot be parsed.
 - `DomainException` - If `$precision` is negative, or if `$partUnitSymbols` contains duplicate units.
 - `InvalidArgumentException` - If any of the part unit symbols are not strings.
 - [`UnknownUnitException`](Exceptions/UnknownUnitException.md) - If a part unit symbol is not recognized.

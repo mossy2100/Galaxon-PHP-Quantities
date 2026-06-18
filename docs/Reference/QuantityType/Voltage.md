@@ -2,7 +2,7 @@
 
 Represents voltage/electric potential quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -42,7 +42,7 @@ V = kg·m²·s⁻³·A⁻¹ = W/A = J/C
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Voltage;
+use OceanMoon\Quantities\QuantityType\Voltage;
 
 // Batteries
 $aa = new Voltage(1.5, 'V');

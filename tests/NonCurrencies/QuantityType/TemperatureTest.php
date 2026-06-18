@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\QuantityType;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\QuantityType;
 
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

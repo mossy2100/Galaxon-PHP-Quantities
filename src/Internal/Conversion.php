@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace OceanMoon\Quantities\Internal;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
 use Stringable;
 
 /**

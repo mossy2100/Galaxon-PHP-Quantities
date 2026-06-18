@@ -2,7 +2,7 @@
 
 Represents power quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -42,7 +42,7 @@ W = kg·m²·s⁻³ = J/s = V·A
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Power;
+use OceanMoon\Quantities\QuantityType\Power;
 
 // Household
 $bulb = new Power(60, 'W');

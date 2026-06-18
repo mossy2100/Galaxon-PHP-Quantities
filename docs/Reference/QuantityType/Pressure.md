@@ -2,7 +2,7 @@
 
 Represents pressure quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -59,7 +59,7 @@ Pa = kg·m⁻¹·s⁻² = N/m²
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Pressure;
+use OceanMoon\Quantities\QuantityType\Pressure;
 
 // Atmospheric pressure.
 $seaLevel = new Pressure(1, 'atm');

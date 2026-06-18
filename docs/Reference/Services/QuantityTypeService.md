@@ -2,7 +2,7 @@
 
 Registry of quantity types keyed by dimension code.
 
-**Namespace:** `Galaxon\Quantities\Services`
+**Namespace:** `OceanMoon\Quantities\Services`
 
 ---
 
@@ -94,13 +94,13 @@ Get the quantity type matching a given dimension code. The dimension code is nor
 
 **Returns:** `?QuantityType`
 
-**Throws:** [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
+**Throws:** [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
 
 ```php
 $qtyType = QuantityTypeService::getByDimension('L');
 echo $qtyType->name;      // 'length'
 echo $qtyType->dimension;  // 'L'
-echo $qtyType->class;      // 'Galaxon\Quantities\QuantityType\Length'
+echo $qtyType->class;      // 'OceanMoon\Quantities\QuantityType\Length'
 
 // Normalizes dimension codes.
 $qtyType = QuantityTypeService::getByDimension('LT-1');
@@ -176,7 +176,7 @@ public static function add(string $name, string $dimension, string $class): void
 Register a new quantity type. The name, dimension, and class must all be unique.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) if the dimension code is invalid.
 - `LogicException` if the name, dimension, or class is already registered.
 
 ```php

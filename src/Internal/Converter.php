@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace OceanMoon\Quantities\Internal;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Floats;
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\DimensionService;
-use Galaxon\Quantities\Services\QuantityTypeService;
 use LogicException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Floats;
+use OceanMoon\Quantities\Currencies\CurrencyService;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Services\DimensionService;
+use OceanMoon\Quantities\Services\QuantityTypeService;
 
 /**
  * Manages unit conversions for a measurement type.

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Services;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Services;
 
 use DomainException;
-use Galaxon\Quantities\Internal\Prefix;
-use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Quantities\Internal\Prefix;
+use OceanMoon\Quantities\Services\PrefixService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

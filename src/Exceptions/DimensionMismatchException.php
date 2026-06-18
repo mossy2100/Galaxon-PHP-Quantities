@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Exceptions;
+namespace OceanMoon\Quantities\Exceptions;
 
 use DomainException;
-use Galaxon\Quantities\Services\QuantityTypeService;
+use OceanMoon\Quantities\Services\QuantityTypeService;
 use Throwable;
 
 /**

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Quantity;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Quantity;
 
 use Error;
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Angle;
+use OceanMoon\Quantities\QuantityType\Length;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

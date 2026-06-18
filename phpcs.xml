@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<ruleset name="Galaxon">
-    <description>Coding standard for Galaxon libraries</description>
+<ruleset name="OceanMoon">
+    <description>Coding standard for the OceanMoon packages by Shaun Moss.</description>
 
     <!-- Paths to check -->
     <file>src</file>
@@ -9,7 +9,7 @@
     <!-- Exclude generated data files -->
     <exclude-pattern>src/Currencies/data</exclude-pattern>
 
-    <!-- Use Galaxon PHP Coding Standard (includes PSR12 + custom rules) -->
-    <rule ref="Galaxon"/>
+    <!-- Use OceanMoon PHP Coding Standard (includes PSR12 + additional rules) -->
+    <rule ref="OceanMoon"/>
 
 </ruleset>

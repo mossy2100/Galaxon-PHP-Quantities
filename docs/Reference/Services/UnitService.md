@@ -2,7 +2,7 @@
 
 Registry of units with lookup, filtering, and loading by system.
 
-**Namespace:** `Galaxon\Quantities\Services`
+**Namespace:** `OceanMoon\Quantities\Services`
 
 ---
 
@@ -63,7 +63,7 @@ Get all units belonging to the given measurement system.
 **Returns:** `list<Unit>`
 
 ```php
-use Galaxon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Internal\UnitSystem;
 
 $siUnits = UnitService::getBySystem(UnitSystem::Si);
 $imperialUnits = UnitService::getBySystem(UnitSystem::Imperial);
@@ -133,7 +133,7 @@ Add a unit to the registry. By default, returns `false` if a unit with the same 
 **Throws:** `DomainException` if any of the new unit's symbols conflict with an existing unit's symbols.
 
 ```php
-use Galaxon\Quantities\Internal\Unit;use Galaxon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Internal\Unit;use OceanMoon\Quantities\Internal\UnitSystem;
 
 $furlong = new Unit(
     name: 'furlong',

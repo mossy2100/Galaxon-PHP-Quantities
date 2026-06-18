@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\Currencies;
+namespace OceanMoon\Quantities\Tests\Currencies;
 
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
-use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\QuantityType\Money;
-use Galaxon\Quantities\Services\UnitService;
-use Galaxon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
+use OceanMoon\Quantities\Currencies\CurrencyService;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
+use OceanMoon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\QuantityType\Money;
+use OceanMoon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

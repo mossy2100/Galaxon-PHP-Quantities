@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Services;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Services;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Internal\QuantityType;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Area;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\QuantityType\Velocity;
-use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\Tests\NonCurrencies\Fixtures\TestQuantity;
 use LogicException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Internal\QuantityType;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Area;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Velocity;
+use OceanMoon\Quantities\Services\QuantityTypeService;
+use OceanMoon\Quantities\Tests\NonCurrencies\Fixtures\TestQuantity;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;

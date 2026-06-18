@@ -13,10 +13,10 @@ Quantities can be created from strings using `parse()` and rendered as strings v
 Use `parse()` to create a Quantity from a string. Whitespace between the value and unit is allowed:
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Angle;
+use OceanMoon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Mass;
 
 // Simple quantities
 $length = Length::parse('42.195 km');   // Length(42.195, 'km')

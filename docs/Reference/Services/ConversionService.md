@@ -2,7 +2,7 @@
 
 Static service for managing unit conversions across all dimensions.
 
-**Namespace:** `Galaxon\Quantities\Services`
+**Namespace:** `OceanMoon\Quantities\Services`
 
 ---
 
@@ -41,7 +41,7 @@ Get a known conversion from the matrix without attempting to discover new paths.
 **Returns:** `?Conversion` - The conversion, or `null` if not in the matrix.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
 
@@ -104,7 +104,7 @@ public static function has(
 Check whether a conversion exists in the matrix.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
 
@@ -132,7 +132,7 @@ Convert a value from one unit to another. Discovers conversion paths if necessar
 **Returns:** `float` - The converted value.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
 - `LogicException` - If no conversion path exists between the units.
@@ -151,7 +151,7 @@ Find a conversion between two units, discovering new paths if necessary. Unlike 
 **Returns:** `?Conversion` - The conversion, or `null` if no path exists.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a unit string contains unknown units.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If the dimensions don't match.
 
@@ -160,8 +160,8 @@ Find a conversion between two units, discovering new paths if necessary. Unlike 
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Services\ConversionService;
 
 // Check for a known conversion
 if (ConversionService::has('m', 'ft')) {

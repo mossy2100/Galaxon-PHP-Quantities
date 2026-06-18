@@ -2,7 +2,7 @@
 
 Exception thrown when a unit symbol cannot be resolved to a known unit.
 
-**Namespace:** `Galaxon\Quantities\Exceptions`
+**Namespace:** `OceanMoon\Quantities\Exceptions`
 **Extends:** `DomainException`
 
 ---
@@ -60,8 +60,8 @@ The unit symbol that could not be resolved.
 ## Examples
 
 ```php
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\Exceptions\UnknownUnitException;
+use OceanMoon\Quantities\QuantityType\Length;
 
 try {
     $length = new Length(5, 'xyz');

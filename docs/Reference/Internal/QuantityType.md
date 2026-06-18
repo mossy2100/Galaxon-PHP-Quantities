@@ -113,13 +113,13 @@ Create a new QuantityType instance.
 - `$class` (class-string\<Quantity\>) - The fully-qualified Quantity subclass name.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the dimension code is invalid.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the dimension code is invalid.
 - `InvalidArgumentException` - If the class is not a subclass of `Quantity`.
 
 **Examples:**
 ```php
-use Galaxon\Quantities\Internal\QuantityType;
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\Internal\QuantityType;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $length = new QuantityType('length', 'L', Length::class);
 ```
@@ -131,8 +131,8 @@ $length = new QuantityType('length', 'L', Length::class);
 ### Registering quantity types
 
 ```php
-use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\QuantityType\DynamicViscosity;
+use OceanMoon\Quantities\Services\QuantityTypeService;
+use OceanMoon\Quantities\QuantityType\DynamicViscosity;
 
 // Register a custom quantity type
 QuantityTypeService::add('dynamic viscosity', 'ML-1T-1', DynamicViscosity::class);
@@ -144,7 +144,7 @@ QuantityTypeService::setClass('currency', MyCurrencyClass::class);
 ### Looking up quantity types
 
 ```php
-use Galaxon\Quantities\Services\QuantityTypeService;
+use OceanMoon\Quantities\Services\QuantityTypeService;
 
 // Get quantity type by dimension
 $lengthType = QuantityTypeService::getByDimension('L');

@@ -90,7 +90,7 @@ Get the Converter instance for a given dimension. Creates a new instance on firs
 **Returns:** `Converter`
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the dimension code is invalid.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the dimension code is invalid.
 
 ### getInstances()
 
@@ -180,7 +180,7 @@ For dimensions containing `'C'` (currency), automatically calls `CurrencyService
 **Returns:** `?Conversion` - The conversion, or `null` if no path exists.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension for this converter.
 
 ### findConversionFactor()
@@ -216,7 +216,7 @@ Convert a numeric value from one unit to another.
 **Returns:** `float` - The converted value.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit string cannot be parsed.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If either unit has the wrong dimension.
 - `LogicException` - If no conversion path exists between the units.
 
@@ -258,7 +258,7 @@ Load conversion definitions for this converter's dimension from the registered q
 - `$replaceExisting` (bool) - If `true`, replace existing conversions between the same units. Default: `false`.
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit symbol cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a unit symbol cannot be parsed.
 - `DomainException` - If the factor is invalid.
 - [`DimensionMismatchException`](../Exceptions/DimensionMismatchException.md) - If a conversion's dimension doesn't match this converter.
 
@@ -313,7 +313,7 @@ Remove all conversions involving a given unit. Used when unloading a unit from t
 ### Basic conversion
 
 ```php
-use Galaxon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\Internal\Converter;
 
 // Convert length
 $length = Converter::getInstance('L');
@@ -328,7 +328,7 @@ echo "$km km"; // 1 km
 ### Working with compound units
 
 ```php
-use Galaxon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\Internal\Converter;
 
 // Force conversion
 $force = Converter::getInstance('MLT-2');
@@ -338,7 +338,7 @@ $newtons = $force->convert(1, 'lbf', 'N');
 ### Cross-system conversions
 
 ```php
-use Galaxon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\Internal\Converter;
 
 $volume = Converter::getInstance('L3');
 $liters = $volume->convert(1, 'imp gal', 'L');

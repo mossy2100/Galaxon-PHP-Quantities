@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Examples;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Examples;
 
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
-use Galaxon\Quantities\QuantityType\Capacitance;
-use Galaxon\Quantities\QuantityType\ElectricCharge;
-use Galaxon\Quantities\QuantityType\ElectricCurrent;
-use Galaxon\Quantities\QuantityType\Energy;
-use Galaxon\Quantities\QuantityType\Frequency;
-use Galaxon\Quantities\QuantityType\Power;
-use Galaxon\Quantities\QuantityType\Resistance;
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\QuantityType\Voltage;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Quantities\QuantityType\Capacitance;
+use OceanMoon\Quantities\QuantityType\ElectricCharge;
+use OceanMoon\Quantities\QuantityType\ElectricCurrent;
+use OceanMoon\Quantities\QuantityType\Energy;
+use OceanMoon\Quantities\QuantityType\Frequency;
+use OceanMoon\Quantities\QuantityType\Power;
+use OceanMoon\Quantities\QuantityType\Resistance;
+use OceanMoon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Voltage;
 use PHPUnit\Framework\TestCase;
 
 /**

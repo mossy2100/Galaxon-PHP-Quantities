@@ -2,7 +2,7 @@
 
 Represents acceleration quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -18,7 +18,7 @@ The `Acceleration` class handles acceleration measurements. This class has no de
 Acceleration units are automatically supported through unit arithmetic:
 
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 // Meters per second squared
 $gravity = new Quantity(9.80665, 'm/s2');
@@ -35,7 +35,7 @@ $car = new Quantity(3.6, 'km/(h*s)');  // Equivalent to 1 m/s²
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 // Earth's gravity
 $g = new Quantity(9.80665, 'm/s2');

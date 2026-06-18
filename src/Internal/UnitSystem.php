@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace OceanMoon\Quantities\Internal;
 
 /**
  * Systems of units.

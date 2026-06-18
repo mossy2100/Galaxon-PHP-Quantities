@@ -2,7 +2,7 @@
 
 Represents time quantities with integration to PHP's DateInterval.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -138,7 +138,7 @@ echo $time->formatParts(partUnitSymbols: ['h', 'min', 's']);
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Time;
 
 // Create time durations
 $seconds = new Time(3600, 's');

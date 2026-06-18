@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\QuantityType;
+namespace OceanMoon\Quantities\QuantityType;
 
-use Galaxon\Core\Floats;
-use Galaxon\Core\Numbers;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Core\Floats;
+use OceanMoon\Core\Numbers;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\Services\PrefixService;
 use Override;
 
 /**

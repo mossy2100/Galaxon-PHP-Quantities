@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Services;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Services;
 
 use DomainException;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\Services\PrefixService;
-use Galaxon\Quantities\Services\QuantityTypeService;
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Services\PrefixService;
+use OceanMoon\Quantities\Services\QuantityTypeService;
+use OceanMoon\Quantities\Services\UnitService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

@@ -132,7 +132,7 @@ Convert any unit representation to a CompoundUnit. Returns the same instance if 
 **Returns:** `CompoundUnit`
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a string cannot be parsed.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If a string cannot be parsed.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If a string contains unknown units.
 - `DomainException` - If a string contains a zero exponent.
 
@@ -150,7 +150,7 @@ Parse a string into a CompoundUnit.
 **Returns:** `CompoundUnit`
 
 **Throws:**
-- [`FormatException`](https://github.com/mossy2100/Galaxon-PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
+- [`FormatException`](https://github.com/mossy2100/PHP-Core/blob/main/docs/Exceptions/FormatException.md) - If the format is invalid.
 - [`UnknownUnitException`](../Exceptions/UnknownUnitException.md) - If any units are unknown.
 - `DomainException` - If an exponent is zero.
 
@@ -444,8 +444,8 @@ Convert to string using Unicode format.
 ### Building compound units
 
 ```php
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Internal\UnitTerm;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\UnitTerm;
 
 // Build Newton: kg*m/s2
 $newton = new CompoundUnit([
@@ -462,7 +462,7 @@ echo $newton->dimension;     // 'T-2LM'
 ### Parsing and validation
 
 ```php
-use Galaxon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\CompoundUnit;
 
 // Parse various formats
 $unit1 = CompoundUnit::parse('kg*m/s2');
@@ -478,7 +478,7 @@ if ($unit1->isSi()) {
 ### Arithmetic with units
 
 ```php
-use Galaxon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\CompoundUnit;
 
 $length = CompoundUnit::parse('m');
 $time = CompoundUnit::parse('s');

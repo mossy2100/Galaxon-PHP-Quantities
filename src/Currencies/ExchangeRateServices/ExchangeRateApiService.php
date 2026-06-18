@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Currencies\ExchangeRateServices;
+namespace OceanMoon\Quantities\Currencies\ExchangeRateServices;
 
 use DomainException;
 use Override;

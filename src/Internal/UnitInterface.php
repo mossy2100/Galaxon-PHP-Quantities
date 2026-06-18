@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace OceanMoon\Quantities\Internal;
 
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Exceptions\UnknownUnitException;
 use Stringable;
 
 /**

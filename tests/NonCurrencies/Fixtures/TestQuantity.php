@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Fixtures;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Fixtures;
 
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 /**
  * Test fixture class for testing QuantityTypeService::setClass().

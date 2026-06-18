@@ -2,7 +2,7 @@
 
 Represents amount of substance quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -36,7 +36,7 @@ One *mole* contains exactly 6.02214076 × 10²³ elementary entities.
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\AmountOfSubstance;
+use OceanMoon\Quantities\QuantityType\AmountOfSubstance;
 
 // Chemistry
 $sample = new AmountOfSubstance(0.5, 'mol');

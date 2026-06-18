@@ -9,8 +9,8 @@ Because currencies are regular units in the Quantities system, they participate 
 All examples on this page assume the currency service has been initialised:
 
 ```php
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
+use OceanMoon\Quantities\Currencies\CurrencyService;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 
 CurrencyService::init(new FrankfurterService());
 ```
@@ -22,7 +22,7 @@ CurrencyService::init(new FrankfurterService());
 Convert a money value from one currency to another:
 
 ```php
-use Galaxon\Quantities\QuantityType\Money;
+use OceanMoon\Quantities\QuantityType\Money;
 
 $price = new Money(12.99, 'USD');
 echo $price->to('AUD');  // e.g. 20.58 AUD
@@ -37,7 +37,7 @@ echo $price->to('JPY');  // e.g. 1955 JPY
 Divide an annual salary by a work capacity to get an hourly rate, then convert currencies:
 
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 $salary = Quantity::create(120000, 'USD/y');
 $capacity = Quantity::create(40, 'h/w');
@@ -57,7 +57,7 @@ Convert a metal price from one mass unit and currency to another. For example, c
 (NB: This example won't work with the Frankfurter service, which doesn't provide rates for precious metals.)
 
 ```php
-use Galaxon\Quantities\Currencies\ExchangeRateServices\OpenExchangeRatesService;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\OpenExchangeRatesService;
 
 CurrencyService::init(new OpenExchangeRatesService('your-api-key'));
 
@@ -91,7 +91,7 @@ echo $priceA->to('USD/US gal')->format(precision: 2);  // 68.06 USD/US gal
 Compare the cost-effectiveness of two protein powder products by computing the price per kilogram of protein.
 
 ```php
-use Galaxon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Mass;
 
 // Product A: $126.95 for 2.5 kg, 30.1 g protein per 44 g serve.
 $priceA = new Money(126.95, 'AUD');

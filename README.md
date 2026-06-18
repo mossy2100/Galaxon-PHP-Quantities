@@ -1,4 +1,4 @@
-# Galaxon PHP Quantities
+# OceanMoon PHP Quantities
 
 This package enables calculations and conversions with physical and non-physical quantities, including support for SI and other systems of units (including data and currencies), metric and binary prefixes, parsing, and formatting.
 
@@ -24,9 +24,9 @@ Key capabilities include:
 - **Up-to-date exchange rates**: Updated automatically as needed using the exchange rate API of your choice.
 
 ---
-## Development and Quality Assurance / AI Disclosure
+## Development and Quality Assurance
 
-[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing assistance with code reviews, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach has resulted in a well-designed, production-quality, thoroughly-tested, and well-documented package.
+[Claude Chat](https://claude.ai) and [Claude Code](https://www.claude.com/product/claude-code) were used in the development of this package. The core classes were designed, coded, and commented primarily by the author, with Claude providing assistance with code reviews, debugging, and generating tests and documentation. All code was thoroughly reviewed by the author, and validated using industry-standard tools including [PHP_Codesniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer/), [PHPStan](https://phpstan.org/) (to level 9), and [PHPUnit](https://phpunit.de/index.html) to ensure full compliance with [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards and comprehensive unit testing with 100% code coverage. This collaborative approach has produced a well-designed, production-ready package with thorough test coverage and documentation.
 
 ![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
@@ -34,27 +34,27 @@ Key capabilities include:
 ## Requirements
 
 - PHP ^8.4
-- galaxon/core
+- oceanmoon/core
 
 ---
 ## Installation
 
 ```bash
-composer require galaxon/quantities
+composer require oceanmoon/quantities
 ```
 
 ---
 ## Quick start
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\QuantityType\Force;
-use Galaxon\Quantities\QuantityType\Frequency;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Money;
-use Galaxon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\Angle;
+use OceanMoon\Quantities\QuantityType\Force;
+use OceanMoon\Quantities\QuantityType\Frequency;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Money;
+use OceanMoon\Quantities\QuantityType\Temperature;
 
 // Create measurements
 $distance = new Length(5, 'km');

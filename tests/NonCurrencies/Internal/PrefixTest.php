@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Internal;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Internal;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Internal\Prefix;
-use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Internal\Prefix;
+use OceanMoon\Quantities\Services\PrefixService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

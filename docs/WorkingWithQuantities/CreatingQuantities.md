@@ -18,8 +18,8 @@ Use this method when a class exists for the relevant quantity type.
 Dedicated subclasses exist for quantity types that have their own units, add extra features, or are commonly used. Using them gives you type-hinting, `instanceof` checks, and IDE autocompletion:
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Angle;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Angle;
 
 $distance = new Length(42.195, 'km');
 $heading = new Angle(127.5, 'deg');
@@ -39,7 +39,7 @@ In theory, `Quantity::create()` (below) could be used in all cases, but `new Qua
 This factory method works with any valid unit expression, making it ideal for ad-hoc or uncommon measurements.
 
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 $entropy = Quantity::create(37.5, 'J/K');
 $torque = Quantity::create(120, 'N*m');
@@ -59,9 +59,9 @@ If you need a dedicated class for a quantity type, see [Customization](Customiza
 Use `parse()` to create a quantity from a string containing both a value and a unit:
 
 ```php
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Time;
 
 // Parse with a subclass for type safety
 $distance = Length::parse('42.195 km');

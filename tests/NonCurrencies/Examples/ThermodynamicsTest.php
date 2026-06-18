@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Examples;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Examples;
 
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\AmountOfSubstance;
-use Galaxon\Quantities\QuantityType\Area;
-use Galaxon\Quantities\QuantityType\Energy;
-use Galaxon\Quantities\QuantityType\Power;
-use Galaxon\Quantities\QuantityType\Pressure;
-use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\QuantityType\Volume;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\AmountOfSubstance;
+use OceanMoon\Quantities\QuantityType\Area;
+use OceanMoon\Quantities\QuantityType\Energy;
+use OceanMoon\Quantities\QuantityType\Power;
+use OceanMoon\Quantities\QuantityType\Pressure;
+use OceanMoon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\QuantityType\Volume;
 use PHPUnit\Framework\TestCase;
 
 /**

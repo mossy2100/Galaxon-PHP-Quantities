@@ -2,7 +2,7 @@
 
 Represents catalytic activity quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -44,7 +44,7 @@ One *katal* is the catalytic activity that converts one mole of substrate per se
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\CatalyticActivity;
+use OceanMoon\Quantities\QuantityType\CatalyticActivity;
 
 // Enzyme assay
 $activity = new CatalyticActivity(50, 'nkat');

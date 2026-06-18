@@ -2,7 +2,7 @@
 
 Represents electrical inductance quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -42,7 +42,7 @@ H = kg·m²·s⁻²·A⁻² = Wb/A = V·s/A
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Inductance;
+use OceanMoon\Quantities\QuantityType\Inductance;
 
 // Common inductors
 $rf = new Inductance(10, 'nH');

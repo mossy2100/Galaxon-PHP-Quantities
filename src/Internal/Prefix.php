@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace OceanMoon\Quantities\Internal;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Traits\Comparison\Equatable;
-use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Traits\Comparison\Equatable;
+use OceanMoon\Quantities\Services\PrefixService;
 
 /**
  * Represents an SI prefix.

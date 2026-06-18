@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Exceptions;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Exceptions;
 
 use DomainException;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;

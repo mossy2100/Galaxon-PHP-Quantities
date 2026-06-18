@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Examples;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Examples;
 
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
-use Galaxon\Quantities\QuantityType\Area;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Volume;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Quantities\QuantityType\Area;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Volume;
 use PHPUnit\Framework\TestCase;
 
 /**

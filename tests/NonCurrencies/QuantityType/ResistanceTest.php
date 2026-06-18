@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\QuantityType;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\QuantityType;
 
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Resistance;
-use Galaxon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Resistance;
+use OceanMoon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;

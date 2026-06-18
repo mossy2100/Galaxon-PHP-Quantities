@@ -2,7 +2,7 @@
 
 Represents money quantities with currency conversion and locale-aware formatting.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -16,8 +16,8 @@ All currency units belong to the `Financial` unit system. The base unit is `XAU`
 Before using `Money`, you must initialize the `CurrencyService`:
 
 ```php
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
+use OceanMoon\Quantities\Currencies\CurrencyService;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
 
 CurrencyService::init(new FrankfurterService());
 ```
@@ -69,7 +69,7 @@ echo $price;  // 1.234,56 €
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Money;
+use OceanMoon\Quantities\QuantityType\Money;
 
 // Create money values.
 $price = new Money(100, 'USD');

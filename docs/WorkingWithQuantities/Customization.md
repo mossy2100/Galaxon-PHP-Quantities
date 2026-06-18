@@ -13,8 +13,8 @@ This guide explains how to work with quantities beyond what the package provides
 You don't need a dedicated class for every quantity type. The package can work with any combination of known units through compound unit expressions. For example, entropy has units of `J/K` (energy per unit temperature):
 
 ```php
-use Galaxon\Quantities\QuantityType\Energy;
-use Galaxon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\QuantityType\Energy;
+use OceanMoon\Quantities\QuantityType\Temperature;
 
 // Arithmetic automatically produces the correct compound units.
 $energy = new Energy(150, 'J');
@@ -22,7 +22,7 @@ $temp = new Temperature(4, 'K');
 $entropy = $energy->div($temp);
 
 echo $entropy;           // "37.5 J/K"
-echo get_class($entropy); // "Galaxon\Quantities\Quantity"
+echo get_class($entropy); // "OceanMoon\Quantities\Quantity"
 ```
 
 The result is a generic `Quantity` object with the compound unit `J/K`. All arithmetic, conversion, and formatting operations work as normal.
@@ -30,7 +30,7 @@ The result is a generic `Quantity` object with the compound unit `J/K`. All arit
 You can also create entropy values directly using `Quantity::create()`:
 
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 // Create a generic Quantity with units J/K.
 $s2 = Quantity::create(37.5, 'J/K');
@@ -45,7 +45,7 @@ This will produce a `Quantity` object since no `Entropy` class is registered. Fu
 If you want entropy values to have their own class, whether for code readability, type-hinting, `instanceof` checks, or adding custom methods, create one by extending `Quantity`:
 
 ```php
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 class Entropy extends Quantity
 {
@@ -57,7 +57,7 @@ That's it — some built-in quantity types like `Acceleration` and `Density` are
 **Important:** You must also register your class with `QuantityTypeService` so that the package knows it exists. Without this step, `Quantity::create()` and arithmetic operations cannot return objects of your custom class. They have no way to discover it automatically, because PHP's autoloader only loads classes when they are explicitly referenced.
 
 ```php
-use Galaxon\Quantities\Services\QuantityTypeService;
+use OceanMoon\Quantities\Services\QuantityTypeService;
 
 // Register the Entropy class for the entropy dimension.
 QuantityTypeService::add('entropy', 'ML2T-2H-1', Entropy::class);
@@ -66,7 +66,7 @@ QuantityTypeService::add('entropy', 'ML2T-2H-1', Entropy::class);
 If you don't know the dimension code for a quantity type, but you know the units (and they are registered and loaded), try this:
 
 ```php
-use Galaxon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\CompoundUnit;
 
 $dimension = CompoundUnit::parse('J/K')->dimension;
 ```
@@ -90,11 +90,11 @@ echo get_class($entropy); // "Entropy"
 You can add custom units to the `UnitService` without creating a custom class. For example, suppose you want a "chaos" unit (`ch`) for entropy, equivalent to J/K:
 
 ```php
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Services\UnitService;
 
 // 1. Create the unit.
 $chaosUnit = new Unit('chaos', 'ch', 'ML2T-2H-1');
@@ -119,12 +119,12 @@ echo $s->to('Btu/degR');  // 0.019746 Btu/°R
 **US legal cup** — The US legal cup (240 mL) is used for nutrition labelling in the United States. The package includes the US customary cup (236.588 mL) but not the legal cup:
 
 ```php
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\QuantityType\Volume;
-use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\QuantityType\Volume;
+use OceanMoon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Services\UnitService;
 
 $legalCup = new Unit(
     name: 'US legal cup',
@@ -143,11 +143,11 @@ echo $recipe->to('L');   // 0.48 L
 **Parts per trillion** — The package includes `ppm` and `ppb` but not parts per trillion. Since `ppt` is already used for parts per thousand, we'll use `ppT`:
 
 ```php
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\QuantityType\Dimensionless;
-use Galaxon\Quantities\Services\ConversionService;
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\QuantityType\Dimensionless;
+use OceanMoon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Services\UnitService;
 
 // Create and add the unit (dimensionless).
 UnitService::add(new Unit('parts per trillion', 'ppT', ''));
@@ -164,11 +164,11 @@ echo $concentration->to('ppm');  // 0.000005 ppm
 **Person unit** — A "person" unit lets you do per-person calculations with quantities. Since "person" isn't a physical unit, we use the amount-of-substance dimension (`N`) as a convenient stand-in for counting. In this example, we don't need to add a conversion linking the new unit to existing ones as we don't need to convert `pers` to `mol` or anything else. You could do something similar with an `ea` unit (for "each") if needed.
 
 ```php
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\UnitService;
+use OceanMoon\Quantities\Currencies\CurrencyService;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\Services\UnitService;
 
 // Set up currency support.
 CurrencyService::init(new FrankfurterService());
@@ -209,9 +209,9 @@ echo $costPerPerson;  // 25 AUD/pers
 For a fully integrated custom quantity type, override `getUnitDefinitions()` and `getConversionDefinitions()` in your class. This is how all built-in quantity types with custom units work (e.g. `Force`, `Pressure`, `Length`):
 
 ```php
-use Galaxon\Quantities\Internal\UnitSystem;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Quantities\Internal\UnitSystem;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\Services\PrefixService;
 use Override;
 
 class Entropy extends Quantity

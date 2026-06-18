@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Internal;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Internal;
 
-use Galaxon\Quantities\Internal\QuantityType;
-use Galaxon\Quantities\Quantity;
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Time;
-use Galaxon\Quantities\Tests\NonCurrencies\Fixtures\UnregisteredQuantity;
 use InvalidArgumentException;
+use OceanMoon\Quantities\Internal\QuantityType;
+use OceanMoon\Quantities\Quantity;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\Tests\NonCurrencies\Fixtures\UnregisteredQuantity;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;

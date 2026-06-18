@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\QuantityType;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\QuantityType;
 
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Core\Traits\Asserts\FloatAssertions;
-use Galaxon\Quantities\QuantityType\Angle;
-use Galaxon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Core\Traits\Asserts\FloatAssertions;
+use OceanMoon\Quantities\QuantityType\Angle;
+use OceanMoon\Quantities\Tests\NonCurrencies\Traits\ArrayShapeTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

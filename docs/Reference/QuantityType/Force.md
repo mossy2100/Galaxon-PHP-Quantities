@@ -2,7 +2,7 @@
 
 Represents force quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -60,7 +60,7 @@ lbf = lb·ft·s⁻² × (g₀ / 0.3048)
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Force;
+use OceanMoon\Quantities\QuantityType\Force;
 
 // SI units
 $push = new Force(100, 'N');

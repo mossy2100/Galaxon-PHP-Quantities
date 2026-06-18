@@ -2,7 +2,7 @@
 
 Represents temperature quantities with special handling for offset-based conversions.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -174,7 +174,7 @@ echo $t->toAbsoluteScale();   // 491.67 °R  (cloned)
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\QuantityType\Temperature;
 
 // Create temperatures
 $bodyTemp = new Temperature(98.6, 'degF');

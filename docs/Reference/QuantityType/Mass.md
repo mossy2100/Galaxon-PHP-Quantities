@@ -2,7 +2,7 @@
 
 Represents mass quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -57,7 +57,7 @@ The [International Yard and Pound Agreement](https://en.wikipedia.org/wiki/Inter
 Mass has no built-in part unit list because the choice between Imperial and US Customary units depends on context. The `Mass` class exposes both common lists as constants — pass either to a parts method via `partUnitSymbols`:
 
 ```php
-use Galaxon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Mass;
 
 Mass::IMP_PART_UNITS;  // ['LT', 'st', 'lb', 'oz']
 Mass::US_PART_UNITS;   // ['tn', 'lb', 'oz', 'gr']
@@ -76,7 +76,7 @@ The default result unit for `Mass::fromParts()` and `Mass::parseParts()` is `lb`
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Mass;
 
 // Create masses in different units
 $kg = new Mass(75, 'kg');

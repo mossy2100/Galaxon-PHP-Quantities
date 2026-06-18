@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Services;
+namespace OceanMoon\Quantities\Services;
 
 use DomainException;
-use Galaxon\Core\Exceptions\FormatException;
-use Galaxon\Quantities\Exceptions\DimensionMismatchException;
-use Galaxon\Quantities\Exceptions\UnknownUnitException;
-use Galaxon\Quantities\Internal\CompoundUnit;
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Internal\UnitInterface;
-use Galaxon\Quantities\Internal\UnitSystem;
 use LogicException;
+use OceanMoon\Core\Exceptions\FormatException;
+use OceanMoon\Quantities\Exceptions\DimensionMismatchException;
+use OceanMoon\Quantities\Exceptions\UnknownUnitException;
+use OceanMoon\Quantities\Internal\CompoundUnit;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Internal\UnitInterface;
+use OceanMoon\Quantities\Internal\UnitSystem;
 
 /**
  * Services for unit conversions.

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Services;
+namespace OceanMoon\Quantities\Services;
 
 use DomainException;
-use Galaxon\Quantities\Internal\QuantityType;
-use Galaxon\Quantities\Internal\Unit;
-use Galaxon\Quantities\Internal\UnitSystem;
 use InvalidArgumentException;
+use OceanMoon\Quantities\Internal\QuantityType;
+use OceanMoon\Quantities\Internal\Unit;
+use OceanMoon\Quantities\Internal\UnitSystem;
 
 /**
  * Registry of units with lookup, filtering, and loading by system.

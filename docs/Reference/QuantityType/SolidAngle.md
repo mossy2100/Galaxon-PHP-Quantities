@@ -2,7 +2,7 @@
 
 Represents solid angle quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -46,7 +46,7 @@ See [Dimensions and Base Units](../../Concepts/DimensionsAndBaseUnits.md) for mo
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\SolidAngle;
+use OceanMoon\Quantities\QuantityType\SolidAngle;
 
 // Light cone
 $cone = new SolidAngle(0.5, 'sr');

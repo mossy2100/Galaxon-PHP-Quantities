@@ -13,8 +13,8 @@ These examples demonstrate derived quantity arithmetic, unit conversions, and ph
 Usain Bolt's 100 m world record: 9.58 seconds.
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $d = new Length(100, 'm');
 $t = new Time(9.58, 's');
@@ -27,8 +27,8 @@ $v = $d->div($t);
 Car accelerating from 0 to 30 m/s in 10 seconds.
 
 ```php
-use Galaxon\Quantities\QuantityType\Velocity;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Velocity;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $deltaV = new Velocity(30, 'm/s');
 $deltaT = new Time(10, 's');
@@ -39,8 +39,8 @@ $a = $deltaV->div($deltaT);
 ### Distance under constant acceleration: d = 1/2 at²
 
 ```php
-use Galaxon\Quantities\QuantityType\Acceleration;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Acceleration;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $a = new Acceleration(2, 'm/s2');
 $t = new Time(10, 's');
@@ -53,8 +53,8 @@ $d = $a->mul($t->sqr())->div(2);
 Object falling for 3 seconds under standard gravity.
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $g = PhysicalConstant::earthGravity();
 $t = new Time(3, 's');
@@ -67,8 +67,8 @@ $d = $g->mul($t->sqr())->div(2);
 A one tonne car travelling at 100 km/h.
 
 ```php
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Velocity;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Velocity;
 
 $m = new Mass(1, 't');
 $v = new Velocity(100, 'km/h');
@@ -83,8 +83,8 @@ $energy = $m->mul($v->sqr())->div(2)->toSi()->autoPrefix();
 ### Newton's second law: F = ma
 
 ```php
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Acceleration;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Acceleration;
 
 $m = new Mass(10, 'kg');
 $a = new Acceleration(5, 'm/s2');
@@ -97,8 +97,8 @@ $force = $m->mul($a);
 Weight of a 75 kg person under standard gravity.
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\Mass;
 
 $m = new Mass(75, 'kg');
 $g = PhysicalConstant::earthGravity();
@@ -111,9 +111,9 @@ $weight = $m->mul($g);
 Gravitational force between the Earth and the Moon.
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Mass;
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $G = PhysicalConstant::gravitational();
 $earthMass = new Mass(5.972e24, 'kg');
@@ -130,8 +130,8 @@ echo $force->toDerived()->format('e', 2);
 Pushing a box with 100 N of force over 5 meters.
 
 ```php
-use Galaxon\Quantities\QuantityType\Force;
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Force;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $force = new Force(100, 'N');
 $d = new Length(5, 'm');
@@ -154,8 +154,8 @@ $kcal = $work->to('kcal');
 ### Power: P = W/t
 
 ```php
-use Galaxon\Quantities\QuantityType\Energy;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Energy;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $work = new Energy(500, 'J');
 $t = new Time(10, 's');
@@ -172,8 +172,8 @@ $power = $work->div($t);
 How long sunlight takes to reach Earth.
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $d = new Length(1, 'au');
 $c = PhysicalConstant::speedOfLight();
@@ -213,8 +213,8 @@ $g = $G->mul($marsMass)->div($marsRadius->sqr());
 Energy of a green light photon.
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Frequency;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\Frequency;
 
 $h = PhysicalConstant::planck();
 $f = new Frequency(5.49e14, 'Hz');
@@ -280,8 +280,8 @@ $ev = $energy->to('eV');  // 2.25 eV
 A current of 2 A through a 100 ohm resistor.
 
 ```php
-use Galaxon\Quantities\QuantityType\ElectricCurrent;
-use Galaxon\Quantities\QuantityType\Resistance;
+use OceanMoon\Quantities\QuantityType\ElectricCurrent;
+use OceanMoon\Quantities\QuantityType\Resistance;
 
 $current = new ElectricCurrent(2, 'A');
 $resistance = new Resistance(100, 'ohm');
@@ -294,8 +294,8 @@ $voltage = $current->mul($resistance);
 A 2 A current at 120 V (typical US household appliance).
 
 ```php
-use Galaxon\Quantities\QuantityType\ElectricCurrent;
-use Galaxon\Quantities\QuantityType\Voltage;
+use OceanMoon\Quantities\QuantityType\ElectricCurrent;
+use OceanMoon\Quantities\QuantityType\Voltage;
 
 $current = new ElectricCurrent(2, 'A');
 $voltage = new Voltage(120, 'V');
@@ -319,8 +319,8 @@ $charge = $current->mul($t);
 A 10 uF capacitor charged to 12 V.
 
 ```php
-use Galaxon\Quantities\QuantityType\Capacitance;
-use Galaxon\Quantities\QuantityType\Voltage;
+use OceanMoon\Quantities\QuantityType\Capacitance;
+use OceanMoon\Quantities\QuantityType\Voltage;
 
 $cap = new Capacitance(10e-6, 'F');
 $voltage = new Voltage(12, 'V');
@@ -331,8 +331,8 @@ $energy = $cap->mul($voltage->sqr())->div(2);
 ### AC mains period: T = 1/f
 
 ```php
-use Galaxon\Quantities\QuantityType\Dimensionless;
-use Galaxon\Quantities\QuantityType\Frequency;
+use OceanMoon\Quantities\QuantityType\Dimensionless;
+use OceanMoon\Quantities\QuantityType\Frequency;
 
 $mains = new Frequency(50, 'Hz');
 $one = new Dimensionless(1);
@@ -355,10 +355,10 @@ $ms = $period->to('ms');
 1 mol of gas at 300 K in a 25 L (0.025 m³) container.
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\AmountOfSubstance;
-use Galaxon\Quantities\QuantityType\Temperature;
-use Galaxon\Quantities\QuantityType\Volume;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\AmountOfSubstance;
+use OceanMoon\Quantities\QuantityType\Temperature;
+use OceanMoon\Quantities\QuantityType\Volume;
 
 $n = new AmountOfSubstance(1, 'mol');
 $R = PhysicalConstant::molarGas();
@@ -374,7 +374,7 @@ $P = $n->mul($R)->mul($T)->div($V);
 Total radiant power from 1 m² of the Sun's surface (T = 5778 K).
 
 ```php
-use Galaxon\Quantities\QuantityType\Area;
+use OceanMoon\Quantities\QuantityType\Area;
 
 $sigma = PhysicalConstant::stefanBoltzmann();
 $area = new Area(1, 'm2');
@@ -429,7 +429,7 @@ $N = $n->mul($Na);
 How many moles in 18 grams of water (molar mass = 18.015 g/mol)?
 
 ```php
-use Galaxon\Quantities\QuantityType\Mass;
+use OceanMoon\Quantities\QuantityType\Mass;
 
 $mass = new Mass(0.018, 'kg');
 $molarMass = new Mass(0.018015, 'kg')->div(new AmountOfSubstance(1, 'mol'));
@@ -444,7 +444,7 @@ $n = $mass->div($molarMass);
 ### Circle circumference: C = 2πr
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $r = new Length(5, 'm');
 $circumference = $r->mul(2 * M_PI);
@@ -484,8 +484,8 @@ $volume = $r->pow(3)->mul(4 / 3 * M_PI);
 A 1000 N force distributed over 0.5 m².
 
 ```php
-use Galaxon\Quantities\QuantityType\Force;
-use Galaxon\Quantities\QuantityType\Area;
+use OceanMoon\Quantities\QuantityType\Force;
+use OceanMoon\Quantities\QuantityType\Area;
 
 $force = new Force(1000, 'N');
 $area = new Area(0.5, 'm2');
@@ -498,9 +498,9 @@ $pressure = $force->div($area);
 Pressure at 10 meters depth in fresh water (ρ = 1000 kg/m³).
 
 ```php
-use Galaxon\Quantities\PhysicalConstant;
-use Galaxon\Quantities\QuantityType\Density;
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\PhysicalConstant;
+use OceanMoon\Quantities\QuantityType\Density;
+use OceanMoon\Quantities\QuantityType\Length;
 
 $rho = new Density(1000, 'kg/m3');
 $g = PhysicalConstant::earthGravity();
@@ -514,8 +514,8 @@ $pressure = $rho->mul($g)->mul($h);
 A 10 liter (0.01 m³) object submerged in fresh water.
 
 ```php
-use Galaxon\Quantities\QuantityType\Density;
-use Galaxon\Quantities\QuantityType\Volume;
+use OceanMoon\Quantities\QuantityType\Density;
+use OceanMoon\Quantities\QuantityType\Volume;
 
 $rho = new Density(1000, 'kg/m3');
 $volume = new Volume(0.01, 'm3');
@@ -547,8 +547,8 @@ These examples use mixed Imperial, Nautical, and SI units.
 An aircraft covers 360 nautical miles in 1.5 hours.
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $d = new Length(360, 'nmi');
 $t = new Time(1.5, 'h');
@@ -562,8 +562,8 @@ $vSi = $v->toSi();
 Descending from 35,000 ft at 1,500 ft/min.
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
-use Galaxon\Quantities\QuantityType\Velocity;
+use OceanMoon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Velocity;
 
 $altitude = new Length(35000, 'ft');
 $rate = new Velocity(1500, 'ft/min');
@@ -592,8 +592,8 @@ $distanceSi = $distance->toSi();
 An aircraft burns 850 US gallons per hour on a 3.5 hour flight.
 
 ```php
-use Galaxon\Quantities\QuantityType\Volume;
-use Galaxon\Quantities\QuantityType\Time;
+use OceanMoon\Quantities\QuantityType\Volume;
+use OceanMoon\Quantities\QuantityType\Time;
 
 $fuelFlow = new Volume(850, 'US gal')->div(new Time(1, 'h'));
 $flightTime = new Time(3.5, 'h');

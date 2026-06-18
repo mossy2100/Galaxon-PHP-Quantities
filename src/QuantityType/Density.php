@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\QuantityType;
+namespace OceanMoon\Quantities\QuantityType;
 
-use Galaxon\Quantities\Quantity;
+use OceanMoon\Quantities\Quantity;
 
 /**
  * Represents density quantities.

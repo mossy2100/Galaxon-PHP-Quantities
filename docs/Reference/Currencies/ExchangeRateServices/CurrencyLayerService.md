@@ -2,7 +2,7 @@
 
 Exchange rate service using the CurrencyLayer API.
 
-**Namespace:** `Galaxon\Quantities\Currencies\ExchangeRateServices`
+**Namespace:** `OceanMoon\Quantities\Currencies\ExchangeRateServices`
 **Implements:** [`ExchangeRateServiceInterface`](ExchangeRateServiceInterface.md)
 
 ---

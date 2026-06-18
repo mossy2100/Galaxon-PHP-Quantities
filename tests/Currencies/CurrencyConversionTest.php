@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\Currencies;
+namespace OceanMoon\Quantities\Tests\Currencies;
 
-use Galaxon\Quantities\Currencies\CurrencyService;
-use Galaxon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
-use Galaxon\Quantities\Internal\Conversion;
-use Galaxon\Quantities\Internal\Converter;
-use Galaxon\Quantities\QuantityType\Money;
-use Galaxon\Quantities\Services\ConversionService;
+use OceanMoon\Quantities\Currencies\CurrencyService;
+use OceanMoon\Quantities\Currencies\ExchangeRateServices\FrankfurterService;
+use OceanMoon\Quantities\Internal\Conversion;
+use OceanMoon\Quantities\Internal\Converter;
+use OceanMoon\Quantities\QuantityType\Money;
+use OceanMoon\Quantities\Services\ConversionService;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 

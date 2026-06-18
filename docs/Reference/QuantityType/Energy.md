@@ -2,7 +2,7 @@
 
 Represents energy quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -55,7 +55,7 @@ $inBaseUnits = $energy->to('kg*m2*s-2');  // 1
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Energy;
+use OceanMoon\Quantities\QuantityType\Energy;
 
 // SI units
 $work = new Energy(500, 'J');

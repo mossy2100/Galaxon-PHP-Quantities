@@ -2,7 +2,7 @@
 
 Represents length/distance quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -96,7 +96,7 @@ echo $height->formatParts(partUnitSymbols: ['ft', 'in']);
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Length;
+use OceanMoon\Quantities\QuantityType\Length;
 
 // Create lengths in different units
 $meters = new Length(100, 'm');

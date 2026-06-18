@@ -2,7 +2,7 @@
 
 Utility class for working with SI and binary prefixes.
 
-**Namespace:** `Galaxon\Quantities\Services`
+**Namespace:** `OceanMoon\Quantities\Services`
 
 ---
 
@@ -136,7 +136,7 @@ PrefixService::invert($kibi);               // throws DomainException
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\Services\PrefixService;
+use OceanMoon\Quantities\Services\PrefixService;
 
 // Get all prefixes (metric + binary).
 $allPrefixes = PrefixService::getPrefixes(PrefixService::GROUP_ALL);

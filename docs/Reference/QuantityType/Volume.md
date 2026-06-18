@@ -2,7 +2,7 @@
 
 Represents volume quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -80,7 +80,7 @@ Several volume units share the same name but represent different amounts in the 
 Always use the system prefix to avoid ambiguity:
 
 ```php
-use Galaxon\Quantities\QuantityType\Volume;
+use OceanMoon\Quantities\QuantityType\Volume;
 
 $impPint = new Volume(1, 'imp pt');
 $usPint = new Volume(1, 'US pt');
@@ -131,7 +131,7 @@ $inLitres = $engine->to('L');  // 5.735 L
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\Volume;
+use OceanMoon\Quantities\QuantityType\Volume;
 
 // Metric volumes
 $liters = new Volume(2, 'L');

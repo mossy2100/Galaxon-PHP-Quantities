@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Internal;
+namespace OceanMoon\Quantities\Internal;
 
 use DivisionByZeroError;
-use Galaxon\Core\Floats;
+use OceanMoon\Core\Floats;
 use Stringable;
 
 /**

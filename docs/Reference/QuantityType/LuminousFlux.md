@@ -2,7 +2,7 @@
 
 Represents luminous flux quantities.
 
-**Namespace:** `Galaxon\Quantities\QuantityType`
+**Namespace:** `OceanMoon\Quantities\QuantityType`
 **Extends:** [`Quantity`](../Quantity.md)
 
 ---
@@ -44,7 +44,7 @@ One *lumen* is the luminous flux emitted by a source of one *candela* intensity 
 ## Usage examples
 
 ```php
-use Galaxon\Quantities\QuantityType\LuminousFlux;
+use OceanMoon\Quantities\QuantityType\LuminousFlux;
 
 // Light bulbs
 $bulb = new LuminousFlux(800, 'lm');  // "60W equivalent"

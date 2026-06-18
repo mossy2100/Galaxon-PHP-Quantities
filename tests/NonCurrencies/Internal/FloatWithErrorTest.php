@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Galaxon\Quantities\Tests\NonCurrencies\Internal;
+namespace OceanMoon\Quantities\Tests\NonCurrencies\Internal;
 
 use DivisionByZeroError;
-use Galaxon\Core\Floats;
-use Galaxon\Quantities\Internal\FloatWithError;
+use OceanMoon\Core\Floats;
+use OceanMoon\Quantities\Internal\FloatWithError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
