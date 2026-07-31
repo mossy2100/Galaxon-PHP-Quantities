@@ -68,7 +68,7 @@ class FixerServiceTest extends TestCase
         return $apiKey;
     }
 
-    // region Constructor
+    #region Constructor
 
     public function testConstructorRejectsEmptyAccessKey(): void
     {
@@ -82,9 +82,9 @@ class FixerServiceTest extends TestCase
         self::assertSame('test-key', $service->accessKey);
     }
 
-    // endregion
+    #endregion
 
-    // region getName
+    #region getName
 
     public function testGetName(): void
     {
@@ -92,9 +92,9 @@ class FixerServiceTest extends TestCase
         self::assertSame('Fixer.io', $service->getName());
     }
 
-    // endregion
+    #endregion
 
-    // region getConversionDefinitions
+    #region getConversionDefinitions
 
     public function testGetConversionDefinitionsReturnsArray(): void
     {
@@ -138,5 +138,5 @@ class FixerServiceTest extends TestCase
         self::assertContains('AUD', $targetCurrencies);
     }
 
-    // endregion
+    #endregion
 }

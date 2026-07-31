@@ -68,7 +68,7 @@ class ExchangeRateApiServiceTest extends TestCase
         return $apiKey;
     }
 
-    // region Constructor
+    #region Constructor
 
     public function testConstructorRejectsEmptyApiKey(): void
     {
@@ -82,9 +82,9 @@ class ExchangeRateApiServiceTest extends TestCase
         self::assertSame('test-key', $service->apiKey);
     }
 
-    // endregion
+    #endregion
 
-    // region getName
+    #region getName
 
     public function testGetName(): void
     {
@@ -92,9 +92,9 @@ class ExchangeRateApiServiceTest extends TestCase
         self::assertSame('ExchangeRate-API', $service->getName());
     }
 
-    // endregion
+    #endregion
 
-    // region getConversionDefinitions
+    #region getConversionDefinitions
 
     public function testGetConversionDefinitionsReturnsArray(): void
     {
@@ -138,5 +138,5 @@ class ExchangeRateApiServiceTest extends TestCase
         self::assertContains('AUD', $targetCurrencies);
     }
 
-    // endregion
+    #endregion
 }

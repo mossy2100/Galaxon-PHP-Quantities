@@ -16,16 +16,16 @@ use RuntimeException;
  */
 class FrankfurterService implements ExchangeRateServiceInterface
 {
-    // region Private constants
+    #region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
      */
     private const string API_URL = 'https://api.frankfurter.dev/v1/latest';
 
-    // endregion
+    #endregion
 
-    // region Overrides
+    #region Overrides
 
     /**
      * Human-readable name of this exchange rate service.
@@ -80,5 +80,5 @@ class FrankfurterService implements ExchangeRateServiceInterface
         return $conversionDefinitions;
     }
 
-    // endregion
+    #endregion
 }

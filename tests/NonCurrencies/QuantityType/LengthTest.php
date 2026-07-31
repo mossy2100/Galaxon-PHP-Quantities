@@ -19,7 +19,7 @@ final class LengthTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -41,9 +41,9 @@ final class LengthTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Metric conversion tests
+    #region Metric conversion tests
 
     /**
      * Test converting meters to kilometers.
@@ -113,9 +113,9 @@ final class LengthTest extends TestCase
         $this->assertApproxEqual(1000000000.0, $nm->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Imperial/US conversion tests
+    #region Imperial/US conversion tests
 
     /**
      * Test converting feet to inches.
@@ -150,9 +150,9 @@ final class LengthTest extends TestCase
         $this->assertSame(1760.0, $yd->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Cross-system conversion tests (metric to imperial)
+    #region Cross-system conversion tests (metric to imperial)
 
     /**
      * Test converting meters to feet.
@@ -236,9 +236,9 @@ final class LengthTest extends TestCase
         $this->assertSame(0.9144, $m->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Scientific unit tests
+    #region Scientific unit tests
 
     /**
      * Test converting astronomical units to meters.
@@ -340,9 +340,9 @@ final class LengthTest extends TestCase
         $this->assertApproxEqual(136986, $ly->value, 1e-5);
     }
 
-    // endregion
+    #endregion
 
-    // region CSS unit tests
+    #region CSS unit tests
 
     /**
      * Test converting inches to pixels.
@@ -388,9 +388,9 @@ final class LengthTest extends TestCase
         $this->assertSame(1.0, $pica->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Nautical unit tests
+    #region Nautical unit tests
 
     /**
      * Test converting nautical miles to meters.
@@ -425,9 +425,9 @@ final class LengthTest extends TestCase
         $this->assertSame(6.0, $ft->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method.
@@ -449,9 +449,9 @@ final class LengthTest extends TestCase
         $this->assertSame(2.54, $value);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing meters.
@@ -507,9 +507,9 @@ final class LengthTest extends TestCase
         $this->assertSame(1500.0, $length->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Chained conversion tests
+    #region Chained conversion tests
 
     /**
      * Test chained conversions.
@@ -524,9 +524,9 @@ final class LengthTest extends TestCase
         $this->assertSame(1000000.0, $mm->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Same unit conversion tests
+    #region Same unit conversion tests
 
     /**
      * Test converting to same unit.
@@ -540,9 +540,9 @@ final class LengthTest extends TestCase
         $this->assertSame('m', $same->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parts methods tests
+    #region Parts methods tests
 
     /**
      * Test fromParts with feet and inches.
@@ -733,9 +733,9 @@ final class LengthTest extends TestCase
         $this->assertSame('1yd 2ft 6in', $formatted);
     }
 
-    // endregion
+    #endregion
 
-    // region Zero and negative value tests
+    #region Zero and negative value tests
 
     /**
      * Test converting zero value.
@@ -759,9 +759,9 @@ final class LengthTest extends TestCase
         $this->assertSame(-0.1, $km->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Arithmetic (add) tests
+    #region Arithmetic (add) tests
 
     /**
      * Test adding SI units (meters + kilometers).
@@ -898,9 +898,9 @@ final class LengthTest extends TestCase
         $this->assertSame('in', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Arithmetic (mul) tests
+    #region Arithmetic (mul) tests
 
     /**
      * Test multiplying meters by a scalar.
@@ -972,9 +972,9 @@ final class LengthTest extends TestCase
         $this->assertSame(-10.0, $result->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Arithmetic (div) tests
+    #region Arithmetic (div) tests
 
     /**
      * Test dividing meters by a scalar.
@@ -1046,5 +1046,5 @@ final class LengthTest extends TestCase
         $this->assertApproxEqual(10.0 / 3.0, $result->value);
     }
 
-    // endregion
+    #endregion
 }

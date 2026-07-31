@@ -9,7 +9,6 @@ use DomainException;
 use InvalidArgumentException;
 use LogicException;
 use OceanMoon\Core\Exceptions\FormatException;
-use OceanMoon\Core\Exceptions\IncomparableTypesException;
 use OceanMoon\Core\Floats;
 use OceanMoon\Core\Numbers;
 use OceanMoon\Core\Traits\Comparison\ApproxComparable;
@@ -57,7 +56,7 @@ class Quantity implements Stringable
 {
     use ApproxComparable;
 
-    // region Public properties
+    #region Public properties
 
     /**
      * The numeric value of the quantity in the specified unit.
@@ -69,9 +68,9 @@ class Quantity implements Stringable
      */
     public readonly CompoundUnit $compoundUnit;
 
-    // endregion
+    #endregion
 
-    // region Property hooks
+    #region Property hooks
 
     /**
      * The dimension.
@@ -87,18 +86,18 @@ class Quantity implements Stringable
         get => static::getQuantityType();
     }
 
-    // endregion
+    #endregion
 
-    // region Private static properties
+    #region Private static properties
 
     /**
      * Flag to permit call to new Quantity().
      */
     private static bool $allowConstruct = false;
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Constructor.
@@ -165,9 +164,9 @@ class Quantity implements Stringable
         $this->compoundUnit = $compoundUnit;
     }
 
-    // endregion
+    #endregion
 
-    // region Factory method
+    #region Factory method
 
     /**
      * Create a Quantity of the appropriate type for the given unit.
@@ -258,9 +257,9 @@ class Quantity implements Stringable
         return $result;
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Convert a value from a source unit to a destination unit.
@@ -580,9 +579,9 @@ class Quantity implements Stringable
         return new static($value, $this->compoundUnit);
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods
+    #region Comparison methods
 
     /**
      * Compare two Quantities.
@@ -594,7 +593,7 @@ class Quantity implements Stringable
      *
      * @param mixed $other The measurement to compare with.
      * @return int -1 if this < other, 0 if equal, 1 if this > other.
-     * @throws IncomparableTypesException If the other Quantity has a different type.
+     * @throws InvalidArgumentException If the other Quantity has a different type.
      * @throws DimensionMismatchException If the Quantities have different dimensions.
      * @throws LogicException If no conversion path exists between the units.
      */
@@ -621,7 +620,7 @@ class Quantity implements Stringable
             // Get the other Quantity's value in the same unit.
             // This will throw if the other Quantity has a different type or dimension.
             $otherValue = $this->preCompare($other);
-        } catch (DimensionMismatchException | IncomparableTypesException) {
+        } catch (DimensionMismatchException | InvalidArgumentException) {
             // If the other Quantity has a different type or dimension to this one.
             return false;
         }
@@ -630,9 +629,9 @@ class Quantity implements Stringable
         return Floats::approxEqual($this->value, $otherValue, $relTol, $absTol);
     }
 
-    // endregion
+    #endregion
 
-    // region Unary arithmetic methods
+    #region Unary arithmetic methods
 
     /**
      * Get the absolute value of this Quantity.
@@ -680,9 +679,9 @@ class Quantity implements Stringable
         return self::create(1.0 / $this->value, $this->compoundUnit->inv());
     }
 
-    // endregion
+    #endregion
 
-    // region Binary arithmetic methods
+    #region Binary arithmetic methods
 
     /**
      * Add another Quantity to this one. Units must be compatible, i.e. have the same dimension.
@@ -814,9 +813,9 @@ class Quantity implements Stringable
         return $this->mul($other->inv());
     }
 
-    // endregion
+    #endregion
 
-    // region Power methods
+    #region Power methods
 
     /**
      * Raise the Quantity to an exponent.
@@ -855,9 +854,9 @@ class Quantity implements Stringable
         return $this->mul($this);
     }
 
-    // endregion
+    #endregion
 
-    // region Rounding methods
+    #region Rounding methods
 
     /**
      * Round the value to the given precision.
@@ -891,9 +890,9 @@ class Quantity implements Stringable
         return $this->withValue(ceil($this->value));
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Format the measurement as a string with control over precision and notation.
@@ -954,9 +953,9 @@ class Quantity implements Stringable
         return $this->format();
     }
 
-    // endregion
+    #endregion
 
-    // region Lookup methods
+    #region Lookup methods
 
     /**
      * Get the quantity type corresponding to the calling class, if known.
@@ -995,9 +994,9 @@ class Quantity implements Stringable
         return static::getQuantityType()?->dimension;
     }
 
-    // endregion
+    #endregion
 
-    // region Parts methods
+    #region Parts methods
 
     /**
      * Create a new Quantity as a sum of measurements of different units.
@@ -1437,9 +1436,9 @@ class Quantity implements Stringable
         return $result;
     }
 
-    // endregion
+    #endregion
 
-    // region Subclass methods
+    #region Subclass methods
 
     /**
      * Unit definitions.
@@ -1471,9 +1470,9 @@ class Quantity implements Stringable
         return [];
     }
 
-    // endregion
+    #endregion
 
-    // region Validation methods
+    #region Validation methods
 
     /**
      * Check if a string is a valid quantity representation (number optionally followed by a unit).
@@ -1494,9 +1493,9 @@ class Quantity implements Stringable
         return (bool)preg_match("/^($rxNum)\s*($rxCompoundUnit)?$/iu", $qty, $matches);
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Construct a bare Quantity object, bypassing the direct-instantiation guard.
@@ -1527,14 +1526,15 @@ class Quantity implements Stringable
      * @param mixed $other The other measurement to compare with.
      * @return float The value of the other measurement in the same unit as this one.
      * @throws LogicException If no conversion path exists between the units.
-     * @throws IncomparableTypesException If the other value is not a Quantity.
+     * @throws InvalidArgumentException If the other value is not a Quantity.
      * @throws DimensionMismatchException If the two Quantities have different dimensions.
      */
     private function preCompare(mixed $other): float
     {
         // Check the two values are both Quantity objects.
         if (!$other instanceof self) {
-            throw new IncomparableTypesException($this, $other);
+            throw new InvalidArgumentException("Can't compare " . get_debug_type($this) . ' with ' .
+                get_debug_type($other) . '.');
         }
 
         // Check the two Quantities have the same dimension.
@@ -1550,5 +1550,5 @@ class Quantity implements Stringable
             : $other->to($this->compoundUnit)->value;
     }
 
-    // endregion
+    #endregion
 }

@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(PrefixService::class)]
 final class PrefixServiceTest extends TestCase
 {
-    // region Constants tests
+    #region Constants tests
 
     /**
      * Test base prefix group constants have correct values.
@@ -54,9 +54,9 @@ final class PrefixServiceTest extends TestCase
         $this->assertSame(PrefixService::GROUP_METRIC | PrefixService::GROUP_BINARY, PrefixService::GROUP_ALL);
     }
 
-    // endregion
+    #endregion
 
-    // region getPrefixes() tests
+    #region getPrefixes() tests
 
     /**
      * Test getPrefixes() with zero returns empty array.
@@ -216,9 +216,9 @@ final class PrefixServiceTest extends TestCase
         $this->assertSame($sorted, $multipliers);
     }
 
-    // endregion
+    #endregion
 
-    // region getBySymbol() tests
+    #region getBySymbol() tests
 
     /**
      * Test getBySymbol() returns Prefix for valid ASCII symbol.
@@ -311,9 +311,9 @@ final class PrefixServiceTest extends TestCase
         $this->assertNull(PrefixService::getBySymbol('K'));
     }
 
-    // endregion
+    #endregion
 
-    // region invert() tests
+    #region invert() tests
 
     /**
      * Test invert() converts kilo to milli.
@@ -482,9 +482,9 @@ final class PrefixServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Prefix object property tests
+    #region Prefix object property tests
 
     /**
      * Test that prefixes have correct groupCode property.
@@ -539,9 +539,9 @@ final class PrefixServiceTest extends TestCase
         $this->assertSame($mega->asciiSymbol, $mega->unicodeSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Prefix definitions tests
+    #region Prefix definitions tests
 
     /**
      * Test all small metric prefixes are defined.
@@ -598,9 +598,9 @@ final class PrefixServiceTest extends TestCase
         $this->assertSame((float)(2 ** 60), PrefixService::getBySymbol('Ei')?->multiplier);
     }
 
-    // endregion
+    #endregion
 
-    // region removeAll() tests
+    #region removeAll() tests
 
     /**
      * Test removeAll() clears the prefix cache.
@@ -622,5 +622,5 @@ final class PrefixServiceTest extends TestCase
         $this->assertCount(count($before), $after);
     }
 
-    // endregion
+    #endregion
 }

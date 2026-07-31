@@ -68,7 +68,7 @@ class OpenExchangeRatesServiceTest extends TestCase
         return $apiKey;
     }
 
-    // region Constructor
+    #region Constructor
 
     public function testConstructorRejectsEmptyAppId(): void
     {
@@ -82,9 +82,9 @@ class OpenExchangeRatesServiceTest extends TestCase
         self::assertSame('test-app-id', $service->appId);
     }
 
-    // endregion
+    #endregion
 
-    // region getName
+    #region getName
 
     public function testGetName(): void
     {
@@ -92,9 +92,9 @@ class OpenExchangeRatesServiceTest extends TestCase
         self::assertSame('Open Exchange Rates', $service->getName());
     }
 
-    // endregion
+    #endregion
 
-    // region getConversionDefinitions
+    #region getConversionDefinitions
 
     public function testGetConversionDefinitionsReturnsArray(): void
     {
@@ -138,5 +138,5 @@ class OpenExchangeRatesServiceTest extends TestCase
         self::assertContains('AUD', $targetCurrencies);
     }
 
-    // endregion
+    #endregion
 }

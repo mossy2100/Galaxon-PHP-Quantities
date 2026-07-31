@@ -14,7 +14,7 @@ use Override;
  */
 class Power extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for power.
@@ -44,5 +44,5 @@ class Power extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

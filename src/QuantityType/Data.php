@@ -14,7 +14,7 @@ use Override;
  */
 class Data extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for data.
@@ -50,5 +50,5 @@ class Data extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

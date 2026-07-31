@@ -14,7 +14,7 @@ use Override;
  */
 class ElectricCharge extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for electric charge.
@@ -44,5 +44,5 @@ class ElectricCharge extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

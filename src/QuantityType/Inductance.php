@@ -14,7 +14,7 @@ use Override;
  */
 class Inductance extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for inductance.
@@ -44,5 +44,5 @@ class Inductance extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

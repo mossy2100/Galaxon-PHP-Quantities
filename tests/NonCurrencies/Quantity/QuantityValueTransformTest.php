@@ -21,7 +21,7 @@ final class QuantityValueTransformTest extends TestCase
 {
     use FloatAssertions;
 
-    // region withValue() tests
+    #region withValue() tests
 
     /**
      * Test withValue() preserves unit.
@@ -112,9 +112,9 @@ final class QuantityValueTransformTest extends TestCase
         $this->assertNotSame($qty, $newQty);
     }
 
-    // endregion
+    #endregion
 
-    // region round() tests
+    #region round() tests
 
     /**
      * Test round() with default precision (0 decimal places).
@@ -185,9 +185,9 @@ final class QuantityValueTransformTest extends TestCase
         $this->assertSame(1600.0, $length->round(-2)->value);
     }
 
-    // endregion
+    #endregion
 
-    // region floor() tests
+    #region floor() tests
 
     /**
      * Test floor() on positive value.
@@ -223,9 +223,9 @@ final class QuantityValueTransformTest extends TestCase
         $this->assertSame(3.0, $floored->value);
     }
 
-    // endregion
+    #endregion
 
-    // region ceil() tests
+    #region ceil() tests
 
     /**
      * Test ceil() on positive value.
@@ -261,5 +261,5 @@ final class QuantityValueTransformTest extends TestCase
         $this->assertSame(3.0, $ceiled->value);
     }
 
-    // endregion
+    #endregion
 }

@@ -14,7 +14,7 @@ use Override;
  */
 class MagneticFluxDensity extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for magnetic flux density.
@@ -44,5 +44,5 @@ class MagneticFluxDensity extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

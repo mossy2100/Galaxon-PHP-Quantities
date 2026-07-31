@@ -17,7 +17,7 @@ final class DensityTest extends TestCase
 {
     use ArrayShapeTrait;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns empty array (not overridden).
@@ -39,5 +39,5 @@ final class DensityTest extends TestCase
         $this->assertEmpty($conversions);
     }
 
-    // endregion
+    #endregion
 }

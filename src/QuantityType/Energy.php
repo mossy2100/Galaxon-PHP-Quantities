@@ -14,7 +14,7 @@ use Override;
  */
 class Energy extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for energy.
@@ -61,5 +61,5 @@ class Energy extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

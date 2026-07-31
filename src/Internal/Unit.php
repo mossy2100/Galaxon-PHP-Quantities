@@ -23,7 +23,7 @@ class Unit implements UnitInterface
 {
     use Equatable;
 
-    // region Private constants
+    #region Private constants
 
     /**
      * Letters that can appear in unit symbols.
@@ -52,9 +52,9 @@ class Unit implements UnitInterface
      */
     public const string RX_TEMPERATURE_SYMBOL = '°[A-Z]';
 
-    // endregion
+    #endregion
 
-    // region UnitInterface properties
+    #region UnitInterface properties
 
     /**
      * The ASCII unit symbol (e.g. 'm', 'g', 'Hz').
@@ -73,9 +73,9 @@ class Unit implements UnitInterface
      */
     public readonly string $dimension;
 
-    // endregion
+    #endregion
 
-    // region Properties
+    #region Properties
 
     /**
      * The unit name (e.g. 'meter', 'gram', 'hertz').
@@ -99,18 +99,18 @@ class Unit implements UnitInterface
      */
     public readonly array $systems;
 
-    // endregion
+    #endregion
 
-    // region Private properties
+    #region Private properties
 
     /**
      * The expansion quantity, if one exists and is known.
      */
     private ?Quantity $expansion = null;
 
-    // endregion
+    #endregion
 
-    // region Property hooks
+    #region Property hooks
 
     /**
      * Allowed prefixes for this unit.
@@ -147,9 +147,9 @@ class Unit implements UnitInterface
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Constructor.
@@ -223,9 +223,9 @@ class Unit implements UnitInterface
         $this->alternateSymbol = $alternateSymbol;
     }
 
-    // endregion
+    #endregion
 
-    // region Factory methods
+    #region Factory methods
 
     /**
      * Parse the given symbol to return the matching Unit.
@@ -265,9 +265,9 @@ class Unit implements UnitInterface
         return $unit;
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check if this unit belongs to a specific measurement system.
@@ -314,9 +314,9 @@ class Unit implements UnitInterface
         return array_any($allowedPrefixes, static fn (Prefix $allowedPrefix) => $allowedPrefix->equal($prefix));
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods
+    #region Comparison methods
 
     /**
      * Check if this Unit is equal to another.
@@ -330,9 +330,9 @@ class Unit implements UnitInterface
         return $other instanceof self && $this->name === $other->name;
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Format the unit as a string.
@@ -361,9 +361,9 @@ class Unit implements UnitInterface
         return $this->format();
     }
 
-    // endregion
+    #endregion
 
-    // region Validation methods
+    #region Validation methods
 
     /**
      * Check if a string is a valid unit name.
@@ -467,9 +467,9 @@ class Unit implements UnitInterface
         return (bool)preg_match('/^' . self::RX_WORD . '$/u', $symbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Attempt to expand this unit into base units.
@@ -622,5 +622,5 @@ class Unit implements UnitInterface
         return $symbols;
     }
 
-    // endregion
+    #endregion
 }

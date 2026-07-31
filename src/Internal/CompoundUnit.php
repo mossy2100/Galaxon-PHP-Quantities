@@ -25,7 +25,7 @@ class CompoundUnit implements UnitInterface
 {
     use Equatable;
 
-    // region Private constants
+    #region Private constants
 
     /**
      * Unit term multiplication operator characters accepted by the parser:
@@ -47,9 +47,9 @@ class CompoundUnit implements UnitInterface
      */
     private const string RX_CLASS_MUL_DIV_OPS = '[' . self::RX_MUL_OPS . '\/]';
 
-    // endregion
+    #endregion
 
-    // region UnitInterface properties
+    #region UnitInterface properties
 
     /**
      * The full compound unit symbol with prefix and exponent (e.g. 'kg*m*s-2').
@@ -78,9 +78,9 @@ class CompoundUnit implements UnitInterface
         get => $this->dimensionCache ??= $this->getDimension();
     }
 
-    // endregion
+    #endregion
 
-    // region Public properties
+    #region Public properties
 
     /**
      * Array of unit terms the CompoundUnit comprises, keyed by the unit symbol without the exponent.
@@ -91,9 +91,9 @@ class CompoundUnit implements UnitInterface
      */
     private(set) array $unitTerms = [];
 
-    // endregion
+    #endregion
 
-    // region Private properties
+    #region Private properties
 
     /**
      * The expansion quantity, if one exists and is known.
@@ -105,9 +105,9 @@ class CompoundUnit implements UnitInterface
      */
     private ?string $dimensionCache = null;
 
-    // endregion
+    #endregion
 
-    // region Property hooks
+    #region Property hooks
 
     /**
      * The combined multiplier from all unit term prefixes.
@@ -137,9 +137,9 @@ class CompoundUnit implements UnitInterface
         get => QuantityTypeService::getByDimension($this->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Construct a new CompoundUnit instance.
@@ -166,9 +166,9 @@ class CompoundUnit implements UnitInterface
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Factory methods
+    #region Factory methods
 
     /**
      * Convert the argument to a CompoundUnit if necessary.
@@ -239,9 +239,9 @@ class CompoundUnit implements UnitInterface
         throw new FormatException("Invalid compound unit symbol format: '$symbol'.");
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check if this compound unit is dimensionless (has no unit terms).
@@ -357,9 +357,9 @@ class CompoundUnit implements UnitInterface
         return array_any($this->unitTerms, static fn (UnitTerm $unitTerm) => $unitTerm->unit->equal($unit));
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods
+    #region Comparison methods
 
     /**
      * Check if this CompoundUnit is equal to another.
@@ -372,9 +372,9 @@ class CompoundUnit implements UnitInterface
         return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
     }
 
-    // endregion
+    #endregion
 
-    // region Unary arithmetic methods
+    #region Unary arithmetic methods
 
     /**
      * Return a new CompoundUnit with all exponents negated.
@@ -389,9 +389,9 @@ class CompoundUnit implements UnitInterface
         return new self($unitTerms);
     }
 
-    // endregion
+    #endregion
 
-    // region Binary arithmetic methods
+    #region Binary arithmetic methods
 
     /**
      * Multiply this CompoundUnit by another, combining unit terms.
@@ -410,9 +410,9 @@ class CompoundUnit implements UnitInterface
         return $result;
     }
 
-    // endregion
+    #endregion
 
-    // region Power methods
+    #region Power methods
 
     /**
      * Return a new CompoundUnit raised to a given power.
@@ -433,9 +433,9 @@ class CompoundUnit implements UnitInterface
         return new self($unitTerms);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Clone the CompoundUnit, including deep cloning of unit terms.
@@ -544,9 +544,9 @@ class CompoundUnit implements UnitInterface
         return Quantity::create($resultValue, $resultUnit);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Format the compound unit as a string.
@@ -616,9 +616,9 @@ class CompoundUnit implements UnitInterface
         return $this->format();
     }
 
-    // endregion
+    #endregion
 
-    // region Validation methods
+    #region Validation methods
 
     /**
      * Get the regex pattern for form 1 of a compound unit: unit terms separated by multiply/divide operators.
@@ -681,9 +681,9 @@ class CompoundUnit implements UnitInterface
         return (bool)preg_match('/^' . self::regexForm2() . '$/iu', $symbol, $matches);
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Parse a sequence of unit terms separated by multiplication and/or division operators.
@@ -918,5 +918,5 @@ class CompoundUnit implements UnitInterface
         return $this->expansion;
     }
 
-    // endregion
+    #endregion
 }

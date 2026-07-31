@@ -16,13 +16,13 @@ use Stringable;
  */
 class FloatWithError implements Stringable
 {
-    // region Private constants
+    #region Private constants
 
     private const float HALF = 0.5;
 
-    // endregion
+    #endregion
 
-    // region Public properties
+    #region Public properties
 
     /**
      * The numeric value.
@@ -34,9 +34,9 @@ class FloatWithError implements Stringable
      */
     public readonly float $absoluteError;
 
-    // endregion
+    #endregion
 
-    // region Property hooks
+    #region Property hooks
 
     /**
      * Get the relative error (absolute error divided by value).
@@ -53,9 +53,9 @@ class FloatWithError implements Stringable
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Constructor.
@@ -76,9 +76,9 @@ class FloatWithError implements Stringable
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check if the number is an integer.
@@ -90,9 +90,9 @@ class FloatWithError implements Stringable
         return Floats::isExactInt($this->value) && $this->absoluteError === 0.0;
     }
 
-    // endregion
+    #endregion
 
-    // region Unary arithmetic methods
+    #region Unary arithmetic methods
 
     /**
      * Negate this number.
@@ -135,9 +135,9 @@ class FloatWithError implements Stringable
         return new self($newValue, $newError);
     }
 
-    // endregion
+    #endregion
 
-    // region Binary arithmetic methods
+    #region Binary arithmetic methods
 
     /**
      * Add another FloatWithError to this one.
@@ -267,9 +267,9 @@ class FloatWithError implements Stringable
         return new self($newValue, $newError);
     }
 
-    // endregion
+    #endregion
 
-    // region Power methods
+    #region Power methods
 
     /**
      * Raise this FloatWithError to an integer power.
@@ -304,9 +304,9 @@ class FloatWithError implements Stringable
         return new self($newValue, $newError);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Convert to string representation showing value and absolute error.
@@ -318,5 +318,5 @@ class FloatWithError implements Stringable
         return sprintf('%.15g ± %.2e', $this->value, $this->absoluteError);
     }
 
-    // endregion
+    #endregion
 }

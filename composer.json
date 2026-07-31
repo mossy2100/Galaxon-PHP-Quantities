@@ -33,7 +33,7 @@
         "test:unit": "scripts/test unit",
         "test:currencies": "scripts/test currencies",
         "test": "scripts/test",
-        "coverage": "php scripts/coverage-check.php",
+        "coverage": "php8.4 scripts/coverage-check.php",
         "quality": [
             "@fix",
             "@check",
@@ -48,6 +48,9 @@
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "platform": {
+            "php": "8.4.0"
         }
     }
 }

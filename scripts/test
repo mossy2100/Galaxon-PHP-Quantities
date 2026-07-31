@@ -26,4 +26,4 @@ if [[ "$suite" != "all" ]]; then
     args+=(--testsuite="$suite")
 fi
 
-exec php "${args[@]}"
+exec php8.4 "${args[@]}"

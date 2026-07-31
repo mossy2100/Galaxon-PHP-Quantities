@@ -17,25 +17,25 @@ use RuntimeException;
  */
 class OpenExchangeRatesService implements ExchangeRateServiceInterface
 {
-    // region Private constants
+    #region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
      */
     private const string API_URL = 'https://openexchangerates.org/api/latest.json';
 
-    // endregion
+    #endregion
 
-    // region Public properties
+    #region Public properties
 
     /**
      * The App ID for Open Exchange Rates.
      */
     private(set) string $appId;
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Create a new Open Exchange Rates service.
@@ -55,9 +55,9 @@ class OpenExchangeRatesService implements ExchangeRateServiceInterface
         $this->appId = $appId;
     }
 
-    // endregion
+    #endregion
 
-    // region Overrides
+    #region Overrides
 
     /**
      * Human-readable name of this exchange rate service.
@@ -118,5 +118,5 @@ class OpenExchangeRatesService implements ExchangeRateServiceInterface
         return $conversionDefinitions;
     }
 
-    // endregion
+    #endregion
 }

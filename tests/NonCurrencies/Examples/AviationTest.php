@@ -19,7 +19,7 @@ class AviationTest extends TestCase
 {
     use FloatAssertions;
 
-    // region Tests
+    #region Tests
 
     /**
      * Ground speed: v = d/t.
@@ -95,5 +95,5 @@ class AviationTest extends TestCase
         $this->assertApproxEqual(11.26, $totalFuelSi->value, 1e-2);
     }
 
-    // endregion
+    #endregion
 }

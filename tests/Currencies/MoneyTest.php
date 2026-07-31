@@ -26,7 +26,7 @@ final class MoneyTest extends TestCase
 {
     use ArrayShapeTrait;
 
-    // region Setup
+    #region Setup
 
     /**
      * The test data directory path.
@@ -53,9 +53,9 @@ final class MoneyTest extends TestCase
         Converter::removeAllInstances();
     }
 
-    // endregion
+    #endregion
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -132,9 +132,9 @@ final class MoneyTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Construction tests
+    #region Construction tests
 
     /**
      * Test constructing a Money quantity with USD.
@@ -179,9 +179,9 @@ final class MoneyTest extends TestCase
         $this->assertSame(-25.50, $money->value);
     }
 
-    // endregion
+    #endregion
 
-    // region __toString() tests
+    #region __toString() tests
 
     /**
      * Test __toString() with an explicit locale.
@@ -264,9 +264,9 @@ final class MoneyTest extends TestCase
         $this->assertNotEmpty($result);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding money in the same currency.
@@ -282,9 +282,9 @@ final class MoneyTest extends TestCase
         $this->assertSame('USD', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing a USD string.
@@ -320,5 +320,5 @@ final class MoneyTest extends TestCase
         $this->assertSame('GBP', $money->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 }

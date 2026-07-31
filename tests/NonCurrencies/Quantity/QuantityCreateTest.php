@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityCreateTest extends TestCase
 {
-    // region Direct constructor tests
+    #region Direct constructor tests
 
     /**
      * Test creating a Length with the constructor.
@@ -84,9 +84,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertSame('degC', $temp->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Static create() method tests
+    #region Static create() method tests
 
     /**
      * Test creating a Length with the static create() method.
@@ -114,9 +114,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertInstanceOf(Time::class, $time);
     }
 
-    // endregion
+    #endregion
 
-    // region Prefixed unit tests
+    #region Prefixed unit tests
 
     /**
      * Test creating with metric prefixes.
@@ -141,9 +141,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertSame('ns', $ns->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Negative and zero value tests
+    #region Negative and zero value tests
 
     /**
      * Test creating with zero value.
@@ -176,9 +176,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertStringNotContainsString('-', (string)$length->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Error handling tests
+    #region Error handling tests
 
     /**
      * Test that INF throws an exception.
@@ -285,9 +285,9 @@ final class QuantityCreateTest extends TestCase
         new Quantity(5, 'm');
     }
 
-    // endregion
+    #endregion
 
-    // region Unicode symbol tests
+    #region Unicode symbol tests
 
     /**
      * Test creating with Unicode symbols.
@@ -304,9 +304,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertSame('µm', $length->compoundUnit->unicodeSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region fromParts() tests
+    #region fromParts() tests
 
     /**
      * Test fromParts() on a subclass returns the correct instance type.
@@ -355,9 +355,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertSame(-5400.0, $qty->value);
     }
 
-    // endregion
+    #endregion
 
-    // region dimension property tests
+    #region dimension property tests
 
     /**
      * Test dimension property returns the compound unit's dimension.
@@ -379,9 +379,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertSame('MLT-2', $force->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region getDimension() tests
+    #region getDimension() tests
 
     /**
      * Test getDimension() returns the correct dimension code for a subclass.
@@ -403,9 +403,9 @@ final class QuantityCreateTest extends TestCase
         $this->assertNull(Quantity::getDimension());
     }
 
-    // endregion
+    #endregion
 
-    // region Base class method tests
+    #region Base class method tests
 
     /**
      * Test getUnitDefinitions() returns empty array by default.
@@ -427,5 +427,5 @@ final class QuantityCreateTest extends TestCase
         $this->assertSame([], $result);
     }
 
-    // endregion
+    #endregion
 }

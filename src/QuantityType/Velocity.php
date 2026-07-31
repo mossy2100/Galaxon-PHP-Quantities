@@ -13,7 +13,7 @@ use Override;
  */
 class Velocity extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for velocity.
@@ -42,5 +42,5 @@ class Velocity extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(UnitService::class)]
 final class UnitServiceTest extends TestCase
 {
-    // region getAll() tests
+    #region getAll() tests
 
     /**
      * Test getAll() returns an array.
@@ -73,9 +73,9 @@ final class UnitServiceTest extends TestCase
         $this->assertSame('s', $result['second']->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region getByName() tests
+    #region getByName() tests
 
     /**
      * Test getByName() returns Unit for a valid name.
@@ -107,9 +107,9 @@ final class UnitServiceTest extends TestCase
         $this->assertNull(UnitService::getByName('METER'));
     }
 
-    // endregion
+    #endregion
 
-    // region getBySymbol() tests
+    #region getBySymbol() tests
 
     /**
      * Test getBySymbol() returns Unit for valid ASCII symbol.
@@ -168,9 +168,9 @@ final class UnitServiceTest extends TestCase
         $this->assertNull($upper);
     }
 
-    // endregion
+    #endregion
 
-    // region getBySystem() tests
+    #region getBySystem() tests
 
     /**
      * Test getBySystem() returns an array of Unit objects.
@@ -282,9 +282,9 @@ final class UnitServiceTest extends TestCase
         $this->assertSame(array_values($result), $result);
     }
 
-    // endregion
+    #endregion
 
-    // region getByQuantityType() tests
+    #region getByQuantityType() tests
 
     /**
      * Test getByQuantityType() returns units for a known quantity type.
@@ -350,9 +350,9 @@ final class UnitServiceTest extends TestCase
         $this->assertSame(array_values($result), $result);
     }
 
-    // endregion
+    #endregion
 
-    // region getAllSymbols() tests
+    #region getAllSymbols() tests
 
     /**
      * Test getAllSymbols() returns array of strings.
@@ -407,9 +407,9 @@ final class UnitServiceTest extends TestCase
         $this->assertContains('Ω', $result);
     }
 
-    // endregion
+    #endregion
 
-    // region add() tests
+    #region add() tests
 
     /**
      * Test add() creates a new unit and returns true.
@@ -591,9 +591,9 @@ final class UnitServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region addFromDefinition() tests
+    #region addFromDefinition() tests
 
     /**
      * Test addFromDefinition() creates a unit from a definition array.
@@ -644,9 +644,9 @@ final class UnitServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region remove() tests
+    #region remove() tests
 
     /**
      * Test remove() removes a unit by Unit object.
@@ -713,9 +713,9 @@ final class UnitServiceTest extends TestCase
         $this->assertInstanceOf(Unit::class, $result);
     }
 
-    // endregion
+    #endregion
 
-    // region removeAll() tests
+    #region removeAll() tests
 
     /**
      * Test removeAll() empties the registry.
@@ -747,9 +747,9 @@ final class UnitServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region reset() tests
+    #region reset() tests
 
     /**
      * Test reset() followed by access still includes default units.
@@ -763,9 +763,9 @@ final class UnitServiceTest extends TestCase
         $this->assertTrue(UnitService::has('gram'));
     }
 
-    // endregion
+    #endregion
 
-    // region has() tests
+    #region has() tests
 
     /**
      * Test has() returns true for existing unit by name string.
@@ -815,9 +815,9 @@ final class UnitServiceTest extends TestCase
         $this->assertFalse(UnitService::has('METER'));
     }
 
-    // endregion
+    #endregion
 
-    // region count() tests
+    #region count() tests
 
     /**
      * Test count() returns a positive integer for the default registry.
@@ -881,9 +881,9 @@ final class UnitServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region loadSystem() tests
+    #region loadSystem() tests
 
     /**
      * Test loadSystem() adds units from the specified system.
@@ -929,9 +929,9 @@ final class UnitServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region loadAll() tests
+    #region loadAll() tests
 
     /**
      * Test loadAll() makes Imperial and US Customary units available.
@@ -950,9 +950,9 @@ final class UnitServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Data integrity tests
+    #region Data integrity tests
 
     /**
      * Test all units have required properties.
@@ -1014,5 +1014,5 @@ final class UnitServiceTest extends TestCase
         $this->assertCount(count($symbols), $uniqueSymbols, 'Duplicate ASCII symbols found.');
     }
 
-    // endregion
+    #endregion
 }

@@ -14,7 +14,7 @@ use Override;
  */
 class Length extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for length.
@@ -125,5 +125,5 @@ class Length extends Quantity
         return ['mi', 'yd', 'ft', 'in'];
     }
 
-    // endregion
+    #endregion
 }

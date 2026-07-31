@@ -17,7 +17,7 @@ use OceanMoon\Quantities\Internal\Prefix;
  */
 class PrefixService
 {
-    // region Public constants
+    #region Public constants
 
     /**
      * Base prefix group codes.
@@ -35,9 +35,9 @@ class PrefixService
     public const int GROUP_LARGE = self::GROUP_LARGE_METRIC | self::GROUP_BINARY;
     public const int GROUP_ALL = self::GROUP_METRIC | self::GROUP_BINARY;
 
-    // endregion
+    #endregion
 
-    // region Private constants
+    #region Private constants
 
     /**
      * Prefix definitions.
@@ -225,9 +225,9 @@ class PrefixService
         ],
     ];
 
-    // endregion
+    #endregion
 
-    // region Private static properties
+    #region Private static properties
 
     /**
      * List of all prefixes.
@@ -236,9 +236,9 @@ class PrefixService
      */
     private static array $prefixes = [];
 
-    // endregion
+    #endregion
 
-    // region Lookup methods
+    #region Lookup methods
 
     /**
      * Return an array of prefixes given an integer group code comprising bitwise flags.
@@ -281,9 +281,9 @@ class PrefixService
         );
     }
 
-    // endregion
+    #endregion
 
-    // region Registry methods
+    #region Registry methods
 
     /**
      * Clear the prefixes cache.
@@ -295,9 +295,9 @@ class PrefixService
         self::$prefixes = [];
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Invert a prefix.
@@ -331,9 +331,9 @@ class PrefixService
         return $inversePrefix;
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Initialize the prefixes array from the prefix definitions.
@@ -378,5 +378,5 @@ class PrefixService
         }
     }
 
-    // endregion
+    #endregion
 }

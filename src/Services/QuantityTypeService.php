@@ -52,7 +52,7 @@ use OceanMoon\Quantities\QuantityType\Volume;
  */
 class QuantityTypeService
 {
-    // region Private constants
+    #region Private constants
 
     /**
      * Default (built-in) quantity types keyed by name (e.g. 'time', 'length').
@@ -207,9 +207,9 @@ class QuantityTypeService
         ],
     ];
 
-    // endregion
+    #endregion
 
-    // region Private static properties
+    #region Private static properties
 
     /**
      * All known/supported quantity types, including defaults and custom. Keyed by name.
@@ -218,9 +218,9 @@ class QuantityTypeService
      */
     private static ?array $quantityTypes = null;
 
-    // endregion
+    #endregion
 
-    // region Lookup methods
+    #region Lookup methods
 
     /**
      * Get all registered quantity types.
@@ -304,9 +304,9 @@ class QuantityTypeService
         return $classes;
     }
 
-    // endregion
+    #endregion
 
-    // region Registry methods
+    #region Registry methods
 
     /**
      * Reset the registry to its initial state.
@@ -415,9 +415,9 @@ class QuantityTypeService
         self::$quantityTypes = [];
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Initialize the quantity types array from the constant.
@@ -436,5 +436,5 @@ class QuantityTypeService
         }
     }
 
-    // endregion
+    #endregion
 }

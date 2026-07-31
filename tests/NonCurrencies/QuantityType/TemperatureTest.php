@@ -26,7 +26,7 @@ final class TemperatureTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -48,9 +48,9 @@ final class TemperatureTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Constants tests
+    #region Constants tests
 
     /**
      * Test that the Celsius offset constant is correct.
@@ -76,9 +76,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame(1.8, Temperature::RANKINE_PER_KELVIN);
     }
 
-    // endregion
+    #endregion
 
-    // region Celsius to other units tests
+    #region Celsius to other units tests
 
     /**
      * Test converting Celsius to Kelvin at freezing point.
@@ -138,9 +138,9 @@ final class TemperatureTest extends TestCase
         $this->assertApproxEqual(491.67, $r->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Kelvin to other units tests
+    #region Kelvin to other units tests
 
     /**
      * Test converting Kelvin to Celsius.
@@ -177,9 +177,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame(180.0, $r->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Fahrenheit to other units tests
+    #region Fahrenheit to other units tests
 
     /**
      * Test converting Fahrenheit to Celsius at freezing point.
@@ -225,9 +225,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame(459.67, $r->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Rankine to other units tests
+    #region Rankine to other units tests
 
     /**
      * Test converting Rankine to Kelvin.
@@ -263,9 +263,9 @@ final class TemperatureTest extends TestCase
         $this->assertApproxEqual(0.0, $f->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Special cases tests
+    #region Special cases tests
 
     /**
      * Test temperature where Celsius equals Fahrenheit (-40).
@@ -330,9 +330,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame(263.15, $k->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method Celsius to Kelvin.
@@ -364,9 +364,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame(25.0, $value);
     }
 
-    // endregion
+    #endregion
 
-    // region Error handling tests
+    #region Error handling tests
 
     /**
      * Test convert throws for invalid source unit.
@@ -390,9 +390,9 @@ final class TemperatureTest extends TestCase
         Temperature::convert(100, 'K', 'm');
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing Celsius temperature.
@@ -449,9 +449,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame('mK', $temp->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Prefixed Kelvin tests
+    #region Prefixed Kelvin tests
 
     /**
      * Test converting millikelvin to Kelvin.
@@ -508,9 +508,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame(1.0, $k->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Round-trip tests
+    #region Round-trip tests
 
     /**
      * Test Celsius to Fahrenheit to Celsius round-trip.
@@ -534,9 +534,9 @@ final class TemperatureTest extends TestCase
         $this->assertApproxEqual(300.0, $roundTrip->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Compound unit tests
+    #region Compound unit tests
 
     /**
      * Test that temperature offset is not applied to compound units.
@@ -569,9 +569,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame('J/K', $converted->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region toAbsoluteScale() tests
+    #region toAbsoluteScale() tests
 
     /**
      * Test that Celsius converts to Kelvin.
@@ -638,9 +638,9 @@ final class TemperatureTest extends TestCase
         $this->assertSame(1000.0, $result->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Fallback conversion test
+    #region Fallback conversion test
 
     /**
      * Test that an unknown temperature unit falls back to parent::convert().
@@ -678,5 +678,5 @@ final class TemperatureTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 }

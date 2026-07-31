@@ -14,7 +14,7 @@ use Override;
  */
 class Capacitance extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for capacitance.
@@ -44,5 +44,5 @@ class Capacitance extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

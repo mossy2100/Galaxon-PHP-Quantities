@@ -14,7 +14,7 @@ use Override;
  */
 class ElectricCurrent extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for electric current.
@@ -31,5 +31,5 @@ class ElectricCurrent extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

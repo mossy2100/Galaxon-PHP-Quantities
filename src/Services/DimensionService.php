@@ -21,7 +21,7 @@ use OceanMoon\Quantities\Internal\UnitTerm;
  */
 class DimensionService
 {
-    // region Public constants
+    #region Public constants
 
     /**
      * Dimension codes are based on ISQ (International System of Quantities) dimensional symbols, with a few
@@ -103,9 +103,9 @@ class DimensionService
         ],
     ];
 
-    // endregion
+    #endregion
 
-    // region Validation methods
+    #region Validation methods
 
     /**
      * Check if a dimension code string is valid.
@@ -119,9 +119,9 @@ class DimensionService
         return (bool)preg_match("/^([$validCodes](-?\d)?)*$/", $dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region Composition methods
+    #region Composition methods
 
     /**
      * Decompose a dimension code string into an array of dimension codes and exponents.
@@ -175,9 +175,9 @@ class DimensionService
         return $result;
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods
+    #region Comparison methods
 
     /**
      * Check if dimension1 is a subset of dimension2.
@@ -211,9 +211,9 @@ class DimensionService
         return true;
     }
 
-    // endregion
+    #endregion
 
-    // region Binary arithmetic methods
+    #region Binary arithmetic methods
 
     /**
      * Subtract dimension2 from dimension1.
@@ -242,9 +242,9 @@ class DimensionService
         return self::compose($dimTerms3);
     }
 
-    // endregion
+    #endregion
 
-    // region Power methods
+    #region Power methods
 
     /**
      * Apply an exponent to a dimension code.
@@ -276,9 +276,9 @@ class DimensionService
         return self::compose($dimTerms);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Normalize a dimension code string.
@@ -296,9 +296,9 @@ class DimensionService
         return self::compose($dimTerms);
     }
 
-    // endregion
+    #endregion
 
-    // region Utility methods
+    #region Utility methods
 
     /**
      * Convert a dimension code letter into an int [0..9].
@@ -336,9 +336,9 @@ class DimensionService
         return array_reduce($dimTerms, static fn (int $count, int $exp) => $count + abs($exp), 0);
     }
 
-    // endregion
+    #endregion
 
-    // region Base unit methods
+    #region Base unit methods
 
     /**
      * Get the SI or English base unit term symbol for the given dimension letter code.
@@ -419,9 +419,9 @@ class DimensionService
         return new CompoundUnit($unitTerms);
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Get the valid dimension code letters for use in regex patterns.
@@ -443,5 +443,5 @@ class DimensionService
         return implode('', self::getLetterCodes());
     }
 
-    // endregion
+    #endregion
 }

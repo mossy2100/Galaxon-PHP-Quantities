@@ -17,7 +17,7 @@ use RuntimeException;
  */
 class CurrencyLayerService implements ExchangeRateServiceInterface
 {
-    // region Private constants
+    #region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
@@ -32,18 +32,18 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
      */
     private const int SOURCE_CODE_LENGTH = 3;
 
-    // endregion
+    #endregion
 
-    // region Public properties
+    #region Public properties
 
     /**
      * The access key for CurrencyLayer.
      */
     private(set) string $accessKey;
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Create a new CurrencyLayer service.
@@ -60,9 +60,9 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
         $this->accessKey = $accessKey;
     }
 
-    // endregion
+    #endregion
 
-    // region Overrides
+    #region Overrides
 
     /**
      * Human-readable name of this exchange rate service.
@@ -132,5 +132,5 @@ class CurrencyLayerService implements ExchangeRateServiceInterface
         return $conversionDefinitions;
     }
 
-    // endregion
+    #endregion
 }

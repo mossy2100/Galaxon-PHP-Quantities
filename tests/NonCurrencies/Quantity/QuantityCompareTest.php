@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityCompareTest extends TestCase
 {
-    // region compare() tests - same units
+    #region compare() tests - same units
 
     /**
      * Test compare() returns 0 for equal values.
@@ -54,9 +54,9 @@ final class QuantityCompareTest extends TestCase
         $this->assertSame(1, $a->compare($b));
     }
 
-    // endregion
+    #endregion
 
-    // region compare() tests - different units
+    #region compare() tests - different units
 
     /**
      * Test compare() with different units (same dimension).
@@ -104,9 +104,9 @@ final class QuantityCompareTest extends TestCase
         $length->compare(100);
     }
 
-    // endregion
+    #endregion
 
-    // region approxEqual() tests
+    #region approxEqual() tests
 
     /**
      * Test approxEqual() for exactly equal values.
@@ -199,9 +199,9 @@ final class QuantityCompareTest extends TestCase
         $this->assertFalse($length->approxEqual(100));
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison with zero
+    #region Comparison with zero
 
     /**
      * Test comparing zero values.
@@ -226,9 +226,9 @@ final class QuantityCompareTest extends TestCase
         $this->assertSame(-1, $zero->compare($pos));
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison with negative values
+    #region Comparison with negative values
 
     /**
      * Test comparing negative values.
@@ -242,5 +242,5 @@ final class QuantityCompareTest extends TestCase
         $this->assertSame(-1, $b->compare($a));
     }
 
-    // endregion
+    #endregion
 }

@@ -16,7 +16,7 @@ class Prefix
 {
     use Equatable;
 
-    // region Public properties
+    #region Public properties
 
     /**
      * The prefix name (e.g. 'milli', 'kilo').
@@ -53,9 +53,9 @@ class Prefix
      */
     public readonly ?string $alternateSymbol;
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Constructor.
@@ -123,9 +123,9 @@ class Prefix
         $this->groupCode = $groupCode;
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods
+    #region Comparison methods
 
     /**
      * Check if this prefix is equal to another.
@@ -138,9 +138,9 @@ class Prefix
         return $other instanceof self && $this->name === $other->name;
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check if this prefix is an engineering prefix.
@@ -154,9 +154,9 @@ class Prefix
         return (bool)($this->groupCode & PrefixService::GROUP_ENGINEERING);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Format the prefix for display.
@@ -179,9 +179,9 @@ class Prefix
         return $this->format();
     }
 
-    // endregion
+    #endregion
 
-    // region Validation methods
+    #region Validation methods
 
     /**
      * Check if a string is a valid prefix name (3–6 ASCII letters).
@@ -205,5 +205,5 @@ class Prefix
         return (bool)preg_match('/^[' . Unit::RX_ASCII_LETTERS . ']{1,2}$/i', $symbol);
     }
 
-    // endregion
+    #endregion
 }

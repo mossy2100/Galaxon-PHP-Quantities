@@ -21,7 +21,7 @@ final class PhysicalConstantTest extends TestCase
 {
     use FloatAssertions;
 
-    // region SI defining constants
+    #region SI defining constants
 
     /**
      * Test getting the speed of light.
@@ -119,9 +119,9 @@ final class PhysicalConstantTest extends TestCase
         $this->assertSame('J*s', $hbar->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Gravitational constants
+    #region Gravitational constants
 
     /**
      * Test getting the standard gravity.
@@ -147,9 +147,9 @@ final class PhysicalConstantTest extends TestCase
         $this->assertSame('m3/(kg*s2)', $gravConst->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Electromagnetic constants
+    #region Electromagnetic constants
 
     /**
      * Test getting the vacuum permittivity.
@@ -175,9 +175,9 @@ final class PhysicalConstantTest extends TestCase
         $this->assertSame('H/m', $mu0->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Atomic and nuclear constants
+    #region Atomic and nuclear constants
 
     /**
      * Test getting the electron mass.
@@ -251,9 +251,9 @@ final class PhysicalConstantTest extends TestCase
         $this->assertSame('m', $a0->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Thermodynamic constants
+    #region Thermodynamic constants
 
     /**
      * Test getting the molar gas constant.
@@ -279,9 +279,9 @@ final class PhysicalConstantTest extends TestCase
         $this->assertSame('W/(m2*K4)', $sigma->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Caching tests
+    #region Caching tests
 
     /**
      * Test that repeated calls return the same cached instance.
@@ -329,9 +329,9 @@ final class PhysicalConstantTest extends TestCase
         $this->assertSame($hbar1, $hbar2);
     }
 
-    // endregion
+    #endregion
 
-    // region get() method tests
+    #region get() method tests
 
     /**
      * Test get() with speed of light symbol.
@@ -391,9 +391,9 @@ final class PhysicalConstantTest extends TestCase
         PhysicalConstant::get('xyz');
     }
 
-    // endregion
+    #endregion
 
-    // region getAll() method tests
+    #region getAll() method tests
 
     /**
      * Test getAll() returns a non-empty array of Quantity objects keyed by symbol.
@@ -426,9 +426,9 @@ final class PhysicalConstantTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Practical usage tests
+    #region Practical usage tests
 
     /**
      * Test using constants in calculations (E = mc²).
@@ -466,5 +466,5 @@ final class PhysicalConstantTest extends TestCase
         $this->assertApproxEqual(6.67430e-11, $newtons->value);
     }
 
-    // endregion
+    #endregion
 }

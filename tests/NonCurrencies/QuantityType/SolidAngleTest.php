@@ -17,7 +17,7 @@ final class SolidAngleTest extends TestCase
 {
     use ArrayShapeTrait;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -39,5 +39,5 @@ final class SolidAngleTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 }

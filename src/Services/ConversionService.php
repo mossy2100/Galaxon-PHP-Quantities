@@ -24,7 +24,7 @@ use OceanMoon\Quantities\Internal\UnitSystem;
  */
 class ConversionService
 {
-    // region Lookup methods
+    #region Lookup methods
 
     /**
      * Get a known conversion from the matrix without attempting to discover new paths.
@@ -43,9 +43,9 @@ class ConversionService
         return $converter->getConversion($srcUnit, $destUnit);
     }
 
-    // endregion
+    #endregion
 
-    // region Registry methods
+    #region Registry methods
 
     /**
      * Add a conversion to the appropriate Converter.
@@ -99,9 +99,9 @@ class ConversionService
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check whether a conversion exists in the matrix.
@@ -118,9 +118,9 @@ class ConversionService
         return self::get($srcUnit, $destUnit) !== null;
     }
 
-    // endregion
+    #endregion
 
-    // region Computation methods
+    #region Computation methods
 
     /**
      * Convert a value from one unit to another.
@@ -163,9 +163,9 @@ class ConversionService
         return $converter->findConversion($srcUnit, $destUnit);
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Validate and convert both units to CompoundUnit objects, ensuring they share the same dimension.
@@ -190,5 +190,5 @@ class ConversionService
         return [$srcUnit, $destUnit];
     }
 
-    // endregion
+    #endregion
 }

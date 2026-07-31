@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Conversion::class)]
 class ConversionTest extends TestCase
 {
-    // region Constructor tests
+    #region Constructor tests
 
     /**
      * Test constructor with string unit terms.
@@ -118,9 +118,9 @@ class ConversionTest extends TestCase
         $this->assertSame(0.0, $conv->factor->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region invert() tests
+    #region invert() tests
 
     /**
      * Test invert swaps units.
@@ -189,9 +189,9 @@ class ConversionTest extends TestCase
         $this->assertSame(1.0, $inverted->factor->value);
     }
 
-    // endregion
+    #endregion
 
-    // region combineSequential() tests
+    #region combineSequential() tests
 
     /**
      * Test combineSequential chains units correctly.
@@ -251,9 +251,9 @@ class ConversionTest extends TestCase
         $this->assertEqualsWithDelta(12.0, $combined->factor->value, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region combineConvergent() tests
+    #region combineConvergent() tests
 
     /**
      * Test combineConvergent chains units correctly.
@@ -299,9 +299,9 @@ class ConversionTest extends TestCase
         $this->assertGreaterThan(0.0, $combined->factor->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region combineDivergent() tests
+    #region combineDivergent() tests
 
     /**
      * Test combineDivergent chains units correctly.
@@ -347,9 +347,9 @@ class ConversionTest extends TestCase
         $this->assertGreaterThan(0.0, $combined->factor->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region combineOpposite() tests
+    #region combineOpposite() tests
 
     /**
      * Test combineOpposite chains units correctly.
@@ -396,9 +396,9 @@ class ConversionTest extends TestCase
         $this->assertGreaterThan(0.0, $combined->factor->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region pow() tests
+    #region pow() tests
 
     /**
      * Test pow squares a conversion.
@@ -490,9 +490,9 @@ class ConversionTest extends TestCase
         $this->assertSame(1.0, $squared->factor->value);
     }
 
-    // endregion
+    #endregion
 
-    // region removePrefixes() tests
+    #region removePrefixes() tests
 
     /**
      * Test removePrefixes removes prefixes from both units.
@@ -538,9 +538,9 @@ class ConversionTest extends TestCase
         $this->assertEqualsWithDelta(3.28084, $unprefixed->factor->value, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region Exponent unit tests
+    #region Exponent unit tests
 
     /**
      * Test constructor with squared units (L2 dimension).
@@ -571,9 +571,9 @@ class ConversionTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $unprefixed->factor->value, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region isExact() tests
+    #region isExact() tests
 
     /**
      * Test isExact() returns true for a conversion with an exact integer factor.
@@ -620,9 +620,9 @@ class ConversionTest extends TestCase
         $this->assertTrue($inverted->isExact());
     }
 
-    // endregion
+    #endregion
 
-    // region involvesUnit() tests
+    #region involvesUnit() tests
 
     /**
      * Test involvesUnit() returns true for the source unit.
@@ -672,9 +672,9 @@ class ConversionTest extends TestCase
         $this->assertFalse($conv->involvesUnit($second));
     }
 
-    // endregion
+    #endregion
 
-    // region dimension property tests
+    #region dimension property tests
 
     /**
      * Test dimension property returns the source unit's dimension.
@@ -696,9 +696,9 @@ class ConversionTest extends TestCase
         $this->assertSame('L2', $conv->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region __toString() tests
+    #region __toString() tests
 
     /**
      * Test toString format.
@@ -714,5 +714,5 @@ class ConversionTest extends TestCase
         $this->assertStringContainsString('3.28084', $str);
     }
 
-    // endregion
+    #endregion
 }

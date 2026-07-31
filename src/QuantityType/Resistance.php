@@ -14,7 +14,7 @@ use Override;
  */
 class Resistance extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for electrical resistance.
@@ -66,5 +66,5 @@ class Resistance extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

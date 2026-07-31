@@ -14,7 +14,7 @@ use Override;
  */
 class LuminousIntensity extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for luminous intensity.
@@ -31,5 +31,5 @@ class LuminousIntensity extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

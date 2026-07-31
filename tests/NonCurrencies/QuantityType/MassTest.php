@@ -19,7 +19,7 @@ final class MassTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -41,9 +41,9 @@ final class MassTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Metric conversion tests
+    #region Metric conversion tests
 
     /**
      * Test converting kilograms to grams.
@@ -135,9 +135,9 @@ final class MassTest extends TestCase
         $this->assertSame(1.0, $g->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Imperial/US conversion tests
+    #region Imperial/US conversion tests
 
     /**
      * Test converting pounds to ounces.
@@ -241,9 +241,9 @@ final class MassTest extends TestCase
         $this->assertSame(0.06479891, $g->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Cross-system conversion tests
+    #region Cross-system conversion tests
 
     /**
      * Test converting pounds to kilograms.
@@ -320,9 +320,9 @@ final class MassTest extends TestCase
         $this->assertApproxEqual(14 * 0.45359237, $kg->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding grams to grams.
@@ -412,9 +412,9 @@ final class MassTest extends TestCase
         $this->assertSame('tn', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing kilograms.
@@ -472,9 +472,9 @@ final class MassTest extends TestCase
         $this->assertSame('t', $mass->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method.
@@ -496,9 +496,9 @@ final class MassTest extends TestCase
         $this->assertSame(0.45359237, $value);
     }
 
-    // endregion
+    #endregion
 
-    // region fromParts tests
+    #region fromParts tests
 
     /**
      * Test fromParts creates a mass quantity using the default result unit.
@@ -549,9 +549,9 @@ final class MassTest extends TestCase
         $this->assertEqualsWithDelta(-3.25, $mass->value, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region Constant tests
+    #region Constant tests
 
     /**
      * Test the IMP_PART_UNITS constant has the expected symbols.
@@ -569,9 +569,9 @@ final class MassTest extends TestCase
         $this->assertSame(['tn', 'lb', 'oz', 'gr'], Mass::US_PART_UNITS);
     }
 
-    // endregion
+    #endregion
 
-    // region Imperial parts tests
+    #region Imperial parts tests
 
     /**
      * Test toParts() with imperial units.
@@ -644,9 +644,9 @@ final class MassTest extends TestCase
         $this->assertEqualsWithDelta(157, $mass->value, 1e-6);
     }
 
-    // endregion
+    #endregion
 
-    // region US customary parts tests
+    #region US customary parts tests
 
     /**
      * Test toParts() with US customary units.
@@ -730,9 +730,9 @@ final class MassTest extends TestCase
         $this->assertSame(-3.25, $mass->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Special cases
+    #region Special cases
 
     /**
      * Test converting zero mass.
@@ -762,5 +762,5 @@ final class MassTest extends TestCase
         $this->assertApproxEqual(70 / 0.45359237 / 14, $st->value);
     }
 
-    // endregion
+    #endregion
 }

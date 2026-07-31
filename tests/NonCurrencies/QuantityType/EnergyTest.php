@@ -19,7 +19,7 @@ final class EnergyTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -41,9 +41,9 @@ final class EnergyTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Joule conversion tests
+    #region Joule conversion tests
 
     /**
      * Test converting joules to kilojoules.
@@ -102,9 +102,9 @@ final class EnergyTest extends TestCase
         $this->assertSame(1000000000.0, $j->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Calorie conversion tests
+    #region Calorie conversion tests
 
     /**
      * Test converting calories to joules.
@@ -163,9 +163,9 @@ final class EnergyTest extends TestCase
         $this->assertApproxEqual(1.0, $kcal->value);
     }
 
-    // endregion
+    #endregion
 
-    // region BTU conversion tests
+    #region BTU conversion tests
 
     /**
      * Test converting BTU to joules.
@@ -225,9 +225,9 @@ final class EnergyTest extends TestCase
         $this->assertApproxEqual(4184 / 1055.05585262, $btu->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Electronvolt conversion tests
+    #region Electronvolt conversion tests
 
     /**
      * Test converting electronvolts to joules.
@@ -285,9 +285,9 @@ final class EnergyTest extends TestCase
         $this->assertSame(1000.0, $mev->value);
     }
 
-    // endregion
+    #endregion
 
-    // region SI base unit conversion tests
+    #region SI base unit conversion tests
 
     /**
      * Test converting joules to base SI units.
@@ -315,9 +315,9 @@ final class EnergyTest extends TestCase
         $this->assertSame('kg*m2/s2', $si->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding joules to joules.
@@ -378,9 +378,9 @@ final class EnergyTest extends TestCase
         $this->assertSame('kJ', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing joules.
@@ -438,9 +438,9 @@ final class EnergyTest extends TestCase
         $this->assertSame('Btu', $energy->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method.
@@ -462,11 +462,11 @@ final class EnergyTest extends TestCase
         $this->assertSame(4.184, $value);
     }
 
-    // endregion
+    #endregion
 
-    // endregion
+    #endregion
 
-    // region Practical examples
+    #region Practical examples
 
     /**
      * Test food energy conversion (nutrition label): 200 kcal to kJ.
@@ -515,5 +515,5 @@ final class EnergyTest extends TestCase
         $this->assertApproxEqual(105.505585262, $mj->value);
     }
 
-    // endregion
+    #endregion
 }

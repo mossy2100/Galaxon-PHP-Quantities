@@ -17,25 +17,25 @@ use RuntimeException;
  */
 class FixerService implements ExchangeRateServiceInterface
 {
-    // region Private constants
+    #region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
      */
     private const string API_URL = 'https://data.fixer.io/api/latest';
 
-    // endregion
+    #endregion
 
-    // region Public properties
+    #region Public properties
 
     /**
      * The access key for Fixer.io.
      */
     private(set) string $accessKey;
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Create a new Fixer.io service.
@@ -52,9 +52,9 @@ class FixerService implements ExchangeRateServiceInterface
         $this->accessKey = $accessKey;
     }
 
-    // endregion
+    #endregion
 
-    // region Overrides
+    #region Overrides
 
     /**
      * Human-readable name of this exchange rate service.
@@ -121,5 +121,5 @@ class FixerService implements ExchangeRateServiceInterface
         return $conversionDefinitions;
     }
 
-    // endregion
+    #endregion
 }

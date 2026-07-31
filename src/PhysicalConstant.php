@@ -15,7 +15,7 @@ use OceanMoon\Core\Floats;
  */
 class PhysicalConstant
 {
-    // region Public constants
+    #region Public constants
 
     // SI defining constants.
 
@@ -127,9 +127,9 @@ class PhysicalConstant
      */
     public const float STEFAN_BOLTZMANN = 5.670374419e-8;
 
-    // endregion
+    #endregion
 
-    // region Private constants
+    #region Private constants
 
     /**
      * Map of symbols to their definitions.
@@ -249,9 +249,9 @@ class PhysicalConstant
         ],
     ];
 
-    // endregion
+    #endregion
 
-    // region Private static properties
+    #region Private static properties
 
     /**
      * Cache of instantiated constant Quantity objects, keyed by symbol.
@@ -260,9 +260,9 @@ class PhysicalConstant
      */
     private static array $cache = [];
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Get or create a cached constant from the SYMBOL_MAP definition.
@@ -278,9 +278,9 @@ class PhysicalConstant
         );
     }
 
-    // endregion
+    #endregion
 
-    // region Lookup methods
+    #region Lookup methods
 
     /**
      * Get a physical constant by its symbol.
@@ -316,9 +316,9 @@ class PhysicalConstant
         return $constants;
     }
 
-    // endregion
+    #endregion
 
-    // region SI defining constants
+    #region SI defining constants
 
     /**
      * Hyperfine transition frequency of caesium (ΔνCs).
@@ -398,9 +398,9 @@ class PhysicalConstant
         return self::cached('Kcd');
     }
 
-    // endregion
+    #endregion
 
-    // region Gravitational constants
+    #region Gravitational constants
 
     /**
      * Standard acceleration of gravity at the surface of Earth (g₀).
@@ -422,9 +422,9 @@ class PhysicalConstant
         return self::cached('G');
     }
 
-    // endregion
+    #endregion
 
-    // region Electromagnetic constants
+    #region Electromagnetic constants
 
     /**
      * Vacuum electric permittivity (ε₀).
@@ -446,9 +446,9 @@ class PhysicalConstant
         return self::cached('mu0');
     }
 
-    // endregion
+    #endregion
 
-    // region Atomic and nuclear constants
+    #region Atomic and nuclear constants
 
     /**
      * Electron mass (mₑ).
@@ -510,9 +510,9 @@ class PhysicalConstant
         return self::cached('a0');
     }
 
-    // endregion
+    #endregion
 
-    // region Thermodynamic constants
+    #region Thermodynamic constants
 
     /**
      * Molar gas constant (R).
@@ -534,5 +534,5 @@ class PhysicalConstant
         return self::cached('sigma');
     }
 
-    // endregion
+    #endregion
 }

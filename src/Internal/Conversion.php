@@ -23,7 +23,7 @@ use Stringable;
  */
 class Conversion implements Stringable
 {
-    // region Public properties
+    #region Public properties
 
     /**
      * The source unit.
@@ -40,9 +40,9 @@ class Conversion implements Stringable
      */
     public readonly FloatWithError $factor;
 
-    // endregion
+    #endregion
 
-    // region Property hooks
+    #region Property hooks
 
     /**
      * The Conversion dimension.
@@ -51,9 +51,9 @@ class Conversion implements Stringable
         get => $this->srcUnit->dimension;
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Constructor.
@@ -95,9 +95,9 @@ class Conversion implements Stringable
         $this->factor = $factor;
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check if the conversion is exact (no error).
@@ -120,9 +120,9 @@ class Conversion implements Stringable
         return $this->srcUnit->includesUnit($unit) || $this->destUnit->includesUnit($unit);
     }
 
-    // endregion
+    #endregion
 
-    // region Unary arithmetic methods
+    #region Unary arithmetic methods
 
     /**
      * Invert this conversion to go from destination unit back to source unit.
@@ -143,9 +143,9 @@ class Conversion implements Stringable
         return new self($this->destUnit, $this->srcUnit, $m);
     }
 
-    // endregion
+    #endregion
 
-    // region Power methods
+    #region Power methods
 
     /**
      * Create a new conversion by applying an exponent.
@@ -166,9 +166,9 @@ class Conversion implements Stringable
         return new self($newSrcUnitTerm, $newDestUnitTerm, $newFactor);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Generate a new conversion from an existing one by removing prefixes from the source and destination unit terms.
@@ -183,9 +183,9 @@ class Conversion implements Stringable
         return new self($srcUnit, $destUnit, $factor);
     }
 
-    // endregion
+    #endregion
 
-    // region Combination methods
+    #region Combination methods
 
     /**
      * Compose two conversions sequentially: source->mid and mid->dest.
@@ -285,9 +285,9 @@ class Conversion implements Stringable
         return new self($this->destUnit, $other->srcUnit, $m);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Format as "1 srcUnit = 9.999999 destUnit".
@@ -299,5 +299,5 @@ class Conversion implements Stringable
         return "1 $this->srcUnit = {$this->factor->value} $this->destUnit";
     }
 
-    // endregion
+    #endregion
 }

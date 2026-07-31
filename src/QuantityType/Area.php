@@ -13,7 +13,7 @@ use Override;
  */
 class Area extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for area.
@@ -49,5 +49,5 @@ class Area extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

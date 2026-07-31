@@ -21,7 +21,7 @@ final class ForceTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -41,9 +41,9 @@ final class ForceTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Metric conversion tests
+    #region Metric conversion tests
 
     /**
      * Test converting newtons to kilonewtons.
@@ -102,9 +102,9 @@ final class ForceTest extends TestCase
         $this->assertSame(1.0, $mn->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Cross-system conversion tests
+    #region Cross-system conversion tests
 
     /**
      * Test converting newtons to pound force.
@@ -155,9 +155,9 @@ final class ForceTest extends TestCase
         $this->assertApproxEqual(4.4482216152605, $kn->value);
     }
 
-    // endregion
+    #endregion
 
-    // region SI base unit conversion tests
+    #region SI base unit conversion tests
 
     /**
      * Test converting newtons to base SI units.
@@ -185,9 +185,9 @@ final class ForceTest extends TestCase
         $this->assertSame('kg*m/s2', $si->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region F = ma tests (Mass × Acceleration = Force)
+    #region F = ma tests (Mass × Acceleration = Force)
 
     /**
      * Test calculating force from mass and acceleration (SI units).
@@ -221,9 +221,9 @@ final class ForceTest extends TestCase
         $this->assertSame(10.0, $n->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Weight calculation tests
+    #region Weight calculation tests
 
     /**
      * Test calculating weight from mass (Earth gravity).
@@ -254,9 +254,9 @@ final class ForceTest extends TestCase
         $this->assertApproxEqual(9.80665 / 4.4482216152605, $lbf->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding newtons to newtons.
@@ -317,9 +317,9 @@ final class ForceTest extends TestCase
         $this->assertSame('lbf', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing newtons.
@@ -355,9 +355,9 @@ final class ForceTest extends TestCase
         $this->assertSame('lbf', $force->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method.
@@ -379,9 +379,9 @@ final class ForceTest extends TestCase
         $this->assertApproxEqual(4.4482216152605, $value);
     }
 
-    // endregion
+    #endregion
 
-    // region Practical examples
+    #region Practical examples
 
     /**
      * Test typical car engine thrust.
@@ -407,9 +407,9 @@ final class ForceTest extends TestCase
         $this->assertSame(0.0, $lbf->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Expansion and compound unit tests
+    #region Expansion and compound unit tests
 
     /**
      * Test toBase() converts newtons to SI base units.
@@ -490,5 +490,5 @@ final class ForceTest extends TestCase
         $this->assertApproxEqual($expected, $n->value);
     }
 
-    // endregion
+    #endregion
 }

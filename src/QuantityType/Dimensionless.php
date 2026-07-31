@@ -13,7 +13,7 @@ use Override;
  */
 class Dimensionless extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for dimensionless quantities.
@@ -62,5 +62,5 @@ class Dimensionless extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

@@ -14,7 +14,7 @@ use Override;
  */
 class MagneticFlux extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for magnetic flux.
@@ -44,5 +44,5 @@ class MagneticFlux extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

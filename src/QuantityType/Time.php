@@ -18,7 +18,7 @@ use Override;
  */
 class Time extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for time.
@@ -91,9 +91,9 @@ class Time extends Quantity
         return ['y', 'mo', 'w', 'd', 'h', 'min', 's'];
     }
 
-    // endregion
+    #endregion
 
-    // region DateInterval methods
+    #region DateInterval methods
 
     /**
      * Create a Time from a PHP DateInterval object.
@@ -198,5 +198,5 @@ class Time extends Quantity
         return $dateInterval;
     }
 
-    // endregion
+    #endregion
 }

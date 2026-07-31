@@ -27,7 +27,7 @@ final class QuantityUnitTransformTest extends TestCase
 {
     use FloatAssertions;
 
-    // region toSi() tests
+    #region toSi() tests
 
     /**
      * Test toSi() on a length in meters (already SI).
@@ -113,9 +113,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame('kg*m/s2', $si->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region toBase() tests
+    #region toBase() tests
 
     /**
      * Test toBase() on newton converts to SI base units.
@@ -166,9 +166,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame('lb*ft/s2', $base->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region merge() tests
+    #region merge() tests
 
     /**
      * Test merge() combines same dimension units.
@@ -206,9 +206,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame('m', $merged->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region autoPrefix() tests
+    #region autoPrefix() tests
 
     /**
      * Test autoPrefix() on large value.
@@ -282,9 +282,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame('km', $prefixed->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region toDerived() tests
+    #region toDerived() tests
 
     /**
      * Test toDerived() compacts base units to a named unit.
@@ -475,9 +475,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame('ac*ft', $derived->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Round-trip tests
+    #region Round-trip tests
 
     /**
      * Test toBase() then toDerived() returns equivalent value.
@@ -492,9 +492,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame('N', $derived->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region autoPrefix() edge case tests
+    #region autoPrefix() edge case tests
 
     /**
      * Test autoPrefix() on dimensionless quantity returns same instance.
@@ -509,9 +509,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame('', $prefixed->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region toEnglishBase() tests
+    #region toEnglishBase() tests
 
     /**
      * Test toEnglishBase() converts force to lb*ft/s2.
@@ -587,9 +587,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame(10.0, $english->value);
     }
 
-    // endregion
+    #endregion
 
-    // region toEnglish() tests
+    #region toEnglish() tests
 
     /**
      * Test toEnglish() on force simplifies to lbf.
@@ -665,9 +665,9 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertSame(5280.0, $english->value);
     }
 
-    // endregion
+    #endregion
 
-    // region getQuantityType() tests
+    #region getQuantityType() tests
 
     /**
      * Test getQuantityType() returns QuantityType for a registered subclass.
@@ -711,5 +711,5 @@ final class QuantityUnitTransformTest extends TestCase
         $this->assertNull($qty->quantityType);
     }
 
-    // endregion
+    #endregion
 }

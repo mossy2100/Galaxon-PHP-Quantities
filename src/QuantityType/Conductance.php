@@ -14,7 +14,7 @@ use Override;
  */
 class Conductance extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for electrical conductance.
@@ -44,5 +44,5 @@ class Conductance extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

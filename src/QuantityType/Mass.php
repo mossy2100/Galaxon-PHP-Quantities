@@ -14,7 +14,7 @@ use Override;
  */
 class Mass extends Quantity
 {
-    // region Public constants
+    #region Public constants
 
     /**
      * Imperial units for mass parts.
@@ -30,9 +30,9 @@ class Mass extends Quantity
      */
     public const array US_PART_UNITS = ['tn', 'lb', 'oz', 'gr'];
 
-    // endregion
+    #endregion
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for mass.
@@ -113,5 +113,5 @@ class Mass extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

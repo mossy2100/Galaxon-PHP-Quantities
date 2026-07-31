@@ -14,7 +14,7 @@ use Override;
  */
 class AmountOfSubstance extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for amount of substance.
@@ -31,5 +31,5 @@ class AmountOfSubstance extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(FloatWithError::class)]
 class FloatWithErrorTest extends TestCase
 {
-    // region Constructor tests
+    #region Constructor tests
 
     /**
      * Test constructor with exact integer has zero error.
@@ -64,9 +64,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertSame(0.0, $num->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region Property tests
+    #region Property tests
 
     /**
      * Test relativeError property with normal values.
@@ -108,9 +108,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertSame(0.04, $num->relativeError);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test addition combines values and adds errors.
@@ -185,9 +185,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertSame(0.1, $a->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region Subtraction tests
+    #region Subtraction tests
 
     /**
      * Test subtraction combines values and adds errors.
@@ -260,9 +260,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertGreaterThanOrEqual(0.2, $result->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region Negation tests
+    #region Negation tests
 
     /**
      * Test negation flips value sign.
@@ -303,9 +303,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertSame(0.0, $result->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region Multiplication tests
+    #region Multiplication tests
 
     /**
      * Test multiplication combines values and adds relative errors.
@@ -377,9 +377,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertSame(0.0, $result->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Division tests
+    #region Division tests
 
     /**
      * Test division combines values and adds relative errors.
@@ -465,9 +465,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertGreaterThan(0.0, $result->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region Inverse tests
+    #region Inverse tests
 
     /**
      * Test inverse calculates 1/x correctly.
@@ -520,9 +520,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertSame(10.0, $result->value);
     }
 
-    // endregion
+    #endregion
 
-    // region isExactInt() tests
+    #region isExactInt() tests
 
     /**
      * Test isExactInt returns true for exact integer value with zero error.
@@ -620,9 +620,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertFalse($result->isExactInt());
     }
 
-    // endregion
+    #endregion
 
-    // region pow() tests
+    #region pow() tests
 
     /**
      * Test pow squares a value correctly.
@@ -750,9 +750,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertSame(0.0, $result->absoluteError);
     }
 
-    // endregion
+    #endregion
 
-    // region String representation tests
+    #region String representation tests
 
     /**
      * Test __toString format.
@@ -781,9 +781,9 @@ class FloatWithErrorTest extends TestCase
         $this->assertMatchesRegularExpression('/0\.00e\+0+/', $str);
     }
 
-    // endregion
+    #endregion
 
-    // region Error propagation chain tests
+    #region Error propagation chain tests
 
     /**
      * Test error accumulation through chain of operations.
@@ -817,5 +817,5 @@ class FloatWithErrorTest extends TestCase
         $this->assertSame(0.0, $result->absoluteError);
     }
 
-    // endregion
+    #endregion
 }

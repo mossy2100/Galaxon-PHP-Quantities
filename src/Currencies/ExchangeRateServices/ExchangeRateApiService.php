@@ -17,7 +17,7 @@ use RuntimeException;
  */
 class ExchangeRateApiService implements ExchangeRateServiceInterface
 {
-    // region Private constants
+    #region Private constants
 
     /**
      * The API endpoint for latest exchange rates.
@@ -26,18 +26,18 @@ class ExchangeRateApiService implements ExchangeRateServiceInterface
      */
     private const string API_URL = 'https://v6.exchangerate-api.com/v6';
 
-    // endregion
+    #endregion
 
-    // region Public properties
+    #region Public properties
 
     /**
      * The API key for ExchangeRate-API.
      */
     private(set) string $apiKey;
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Create a new ExchangeRate-API service.
@@ -56,9 +56,9 @@ class ExchangeRateApiService implements ExchangeRateServiceInterface
         $this->apiKey = $apiKey;
     }
 
-    // endregion
+    #endregion
 
-    // region Overrides
+    #region Overrides
 
     /**
      * Human-readable name of this exchange rate service.
@@ -125,5 +125,5 @@ class ExchangeRateApiService implements ExchangeRateServiceInterface
         return $conversionDefinitions;
     }
 
-    // endregion
+    #endregion
 }

@@ -20,7 +20,7 @@ final class TimeTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -42,9 +42,9 @@ final class TimeTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion tests
+    #region Conversion tests
 
     /**
      * Test converting seconds to minutes.
@@ -147,9 +147,9 @@ final class TimeTest extends TestCase
         $this->assertSame(1.0, $us->value);
     }
 
-    // endregion
+    #endregion
 
-    // region DateInterval conversion tests
+    #region DateInterval conversion tests
 
     /**
      * Test fromDateInterval with simple interval.
@@ -363,9 +363,9 @@ final class TimeTest extends TestCase
         $this->assertSame('PT1H30M', $spec);
     }
 
-    // endregion
+    #endregion
 
-    // region Parts methods tests
+    #region Parts methods tests
 
     /**
      * Test fromParts with hours and minutes.
@@ -540,9 +540,9 @@ final class TimeTest extends TestCase
         $this->assertSame('0y 0mo 0w 0d 1h 0min 0s', $result);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing time with seconds unit.
@@ -589,9 +589,9 @@ final class TimeTest extends TestCase
         $this->assertSame('h', $time->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Round-trip tests
+    #region Round-trip tests
 
     /**
      * Test DateInterval round-trip conversion.
@@ -627,5 +627,5 @@ final class TimeTest extends TestCase
         $this->assertSame('1d 2h 30min 45s', $formatted);
     }
 
-    // endregion
+    #endregion
 }

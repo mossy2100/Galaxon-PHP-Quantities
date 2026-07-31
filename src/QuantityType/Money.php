@@ -17,7 +17,7 @@ use RuntimeException;
  */
 class Money extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for currencies.
@@ -75,5 +75,5 @@ class Money extends Quantity
         return $this->format(); // @codeCoverageIgnore
     }
 
-    // endregion
+    #endregion
 }

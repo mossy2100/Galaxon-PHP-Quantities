@@ -15,7 +15,7 @@ use OceanMoon\Quantities\Internal\UnitSystem;
  */
 class UnitService
 {
-    // region Private static properties
+    #region Private static properties
 
     /**
      * All known/supported units including defaults and custom.
@@ -25,9 +25,9 @@ class UnitService
      */
     private static ?array $units = null;
 
-    // endregion
+    #endregion
 
-    // region Lookup methods
+    #region Lookup methods
 
     /**
      * Get a unit by its name, or null if not found.
@@ -135,9 +135,9 @@ class UnitService
         return array_merge(...$symbolLists);
     }
 
-    // endregion
+    #endregion
 
-    // region Registry methods
+    #region Registry methods
 
     /**
      * Add a unit to the system.
@@ -255,9 +255,9 @@ class UnitService
         self::$units = null;
     }
 
-    // endregion
+    #endregion
 
-    // region Loading methods
+    #region Loading methods
 
     /**
      * Load all units belonging to a specific system of units.
@@ -298,9 +298,9 @@ class UnitService
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check if a unit is in the registry.
@@ -331,9 +331,9 @@ class UnitService
         return count(self::$units);
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Initialize the units array from the QuantityType classes and default UnitSystems.
@@ -376,5 +376,5 @@ class UnitService
         return $definitions;
     }
 
-    // endregion
+    #endregion
 }

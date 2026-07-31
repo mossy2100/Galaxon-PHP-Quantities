@@ -21,7 +21,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(CompoundUnit::class)]
 class CompoundUnitTest extends TestCase
 {
-    // region Constructor tests
+    #region Constructor tests
 
     public function testConstructorWithNull(): void
     {
@@ -68,9 +68,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('kg*m/s2', $du->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region parse() tests
+    #region parse() tests
 
     public function testParseEmptyStringReturnsDimensionless(): void
     {
@@ -243,9 +243,9 @@ class CompoundUnitTest extends TestCase
         $this->assertTrue($original->equal($reparsed));
     }
 
-    // endregion
+    #endregion
 
-    // region __toString() and format() tests
+    #region __toString() and format() tests
 
     public function testToStringEmpty(): void
     {
@@ -312,9 +312,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('m/s', $du->format());
     }
 
-    // endregion
+    #endregion
 
-    // region $dimension property tests
+    #region $dimension property tests
 
     public function testDimensionSimpleUnit(): void
     {
@@ -383,9 +383,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('MT-3', $du->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region equal() tests
+    #region equal() tests
 
     public function testEqualSameUnits(): void
     {
@@ -452,9 +452,9 @@ class CompoundUnitTest extends TestCase
         $this->assertFalse($du1->equal($du2));
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor combination tests
+    #region Constructor combination tests
 
     /**
      * The constructor builds the unit term list from the input array. Same-unit terms are combined (exponents
@@ -509,9 +509,9 @@ class CompoundUnitTest extends TestCase
         $this->assertCount(2, $cu->unitTerms);
     }
 
-    // endregion
+    #endregion
 
-    // region toCompoundUnit() tests
+    #region toCompoundUnit() tests
 
     public function testToCompoundUnitFromCompoundUnit(): void
     {
@@ -555,9 +555,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('', $result->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region inv() tests
+    #region inv() tests
 
     public function testInvSingleUnit(): void
     {
@@ -602,9 +602,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('', $inv->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region mul() tests
+    #region mul() tests
 
     /**
      * Test mul() combines two simple units.
@@ -684,9 +684,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('m*s', $result->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region Sorting tests
+    #region Sorting tests
 
     public function testSortingByDimensionOrderMassLengthTime(): void
     {
@@ -748,9 +748,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('J*Pa', $du->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region Edge cases
+    #region Edge cases
 
     public function testCombiningSameUnitsViaMultiplication(): void
     {
@@ -800,9 +800,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('km2', $du->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region toSi() tests
+    #region toSi() tests
 
     public function testToSiSimpleSiUnit(): void
     {
@@ -1055,9 +1055,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('MLT-1', $si->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region isSi() tests
+    #region isSi() tests
 
     /**
      * Test isSi returns true for simple SI unit.
@@ -1119,9 +1119,9 @@ class CompoundUnitTest extends TestCase
         $this->assertFalse($du->isSi());
     }
 
-    // endregion
+    #endregion
 
-    // region isBase() tests
+    #region isBase() tests
 
     /**
      * Test isBase returns true for simple base unit.
@@ -1175,9 +1175,9 @@ class CompoundUnitTest extends TestCase
         $this->assertTrue($du->isBase());
     }
 
-    // endregion
+    #endregion
 
-    // region regex() tests
+    #region regex() tests
 
     /**
      * Test regex matches a simple unit symbol.
@@ -1279,10 +1279,10 @@ class CompoundUnitTest extends TestCase
         $this->assertSame(0, preg_match("/^$rx$/iu", ''));
     }
 
-    // endregion
+    #endregion
 
 
-    // region hasPrefixes() tests
+    #region hasPrefixes() tests
 
     /**
      * Test hasPrefixes returns true when a unit term has a prefix.
@@ -1345,9 +1345,9 @@ class CompoundUnitTest extends TestCase
         $this->assertFalse($du->hasPrefixes());
     }
 
-    // endregion
+    #endregion
 
-    // region isMergeable() tests
+    #region isMergeable() tests
 
     /**
      * Test isMergeable returns true when two terms share the same dimension.
@@ -1393,9 +1393,9 @@ class CompoundUnitTest extends TestCase
         $this->assertFalse($du->isMergeable());
     }
 
-    // endregion
+    #endregion
 
-    // region __clone() tests
+    #region __clone() tests
 
     /**
      * Test clone produces a separate instance with the same value.
@@ -1471,9 +1471,9 @@ class CompoundUnitTest extends TestCase
         $this->assertEmpty($cloned->unitTerms);
     }
 
-    // endregion
+    #endregion
 
-    // region removePrefixes() tests
+    #region removePrefixes() tests
 
     /**
      * Test removePrefixes removes a simple prefix.
@@ -1543,9 +1543,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('', $result->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region pow() tests
+    #region pow() tests
 
     /**
      * Test pow squares a simple unit.
@@ -1643,9 +1643,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('m4/s2', $result->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region siPreferred() tests
+    #region siPreferred() tests
 
     /**
      * Test siPreferred returns true for pure SI unit.
@@ -1701,9 +1701,9 @@ class CompoundUnitTest extends TestCase
         $this->assertFalse($du->siPreferred());
     }
 
-    // endregion
+    #endregion
 
-    // region includesUnit() tests
+    #region includesUnit() tests
 
     /**
      * Test includesUnit returns true for a unit in the compound unit.
@@ -1753,9 +1753,9 @@ class CompoundUnitTest extends TestCase
         $this->assertTrue($du->includesUnit($foot));
     }
 
-    // endregion
+    #endregion
 
-    // region toEnglishBase() tests
+    #region toEnglishBase() tests
 
     /**
      * Test toEnglishBase for length dimension.
@@ -1803,9 +1803,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame('s', $result->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region tryExpand() tests
+    #region tryExpand() tests
 
     // Most of tryExpand()'s observable behaviour is covered by the toSiBase() tests above
     // (e.g. N → kg*m/s2, kN → kg*m/s2, N*s → kg*m/s) and by the multiplier property tests
@@ -1864,9 +1864,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame($expansion1, $expansion2);
     }
 
-    // endregion
+    #endregion
 
-    // region multiplier property tests
+    #region multiplier property tests
 
     /**
      * Test multiplier property for a single unprefixed unit.
@@ -1920,9 +1920,9 @@ class CompoundUnitTest extends TestCase
         $this->assertSame(1.0, $du->multiplier);
     }
 
-    // endregion
+    #endregion
 
-    // region firstUnitTerm property tests
+    #region firstUnitTerm property tests
 
     /**
      * Test firstUnitTerm property returns first unit term.
@@ -1957,9 +1957,9 @@ class CompoundUnitTest extends TestCase
         $this->assertNull($du->firstUnitTerm);
     }
 
-    // endregion
+    #endregion
 
-    // region quantityType property tests
+    #region quantityType property tests
 
     /**
      * Test quantityType property returns QuantityType for a registered dimension.
@@ -1983,9 +1983,9 @@ class CompoundUnitTest extends TestCase
         $this->assertNull($du->quantityType);
     }
 
-    // endregion
+    #endregion
 
-    // region merge() tests
+    #region merge() tests
 
     /**
      * Test merge combines compatible unit terms.
@@ -2046,5 +2046,5 @@ class CompoundUnitTest extends TestCase
         $this->assertEqualsWithDelta(0.45359, $result->value, 1e-4);
     }
 
-    // endregion
+    #endregion
 }

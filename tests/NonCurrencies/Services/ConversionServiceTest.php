@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(ConversionService::class)]
 final class ConversionServiceTest extends TestCase
 {
-    // region has() tests
+    #region has() tests
 
     /**
      * Test has() returns true for existing conversion.
@@ -70,9 +70,9 @@ final class ConversionServiceTest extends TestCase
         $this->assertFalse(ConversionService::has('Xcda', 'Xcsa'));
     }
 
-    // endregion
+    #endregion
 
-    // region get() tests
+    #region get() tests
 
     /**
      * Test get() returns Conversion for existing conversion.
@@ -138,9 +138,9 @@ final class ConversionServiceTest extends TestCase
         $this->assertNull($reverse);
     }
 
-    // endregion
+    #endregion
 
-    // region add() tests
+    #region add() tests
 
     /**
      * Test add() stores a conversion.
@@ -208,9 +208,9 @@ final class ConversionServiceTest extends TestCase
         $this->assertSame('ft2', $result->destUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region remove() tests
+    #region remove() tests
 
     /**
      * Test remove() removes an existing conversion.
@@ -231,9 +231,9 @@ final class ConversionServiceTest extends TestCase
         $this->assertFalse(ConversionService::has('m', 'dm'));
     }
 
-    // endregion
+    #endregion
 
-    // region removeByUnit() tests
+    #region removeByUnit() tests
 
     /**
      * Test removeByUnit() removes all conversions involving a given unit.
@@ -262,9 +262,9 @@ final class ConversionServiceTest extends TestCase
         $this->assertFalse(ConversionService::has('Xrub', 'Xruc'));
     }
 
-    // endregion
+    #endregion
 
-    // region unloadBySystem() tests
+    #region unloadBySystem() tests
 
     /**
      * Test unloadBySystem() removes conversions for units in the given system.
@@ -286,9 +286,9 @@ final class ConversionServiceTest extends TestCase
         $this->assertFalse($hasConversionsAfter);
     }
 
-    // endregion
+    #endregion
 
-    // region convert() tests
+    #region convert() tests
 
     /**
      * Test convert() converts a value between units.
@@ -343,9 +343,9 @@ final class ConversionServiceTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $result, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region find() tests
+    #region find() tests
 
     /**
      * Test find() discovers a conversion via path-finding.
@@ -411,9 +411,9 @@ final class ConversionServiceTest extends TestCase
         $this->assertInstanceOf(Conversion::class, $conversion);
     }
 
-    // endregion
+    #endregion
 
-    // region validateUnits() tests (via public methods)
+    #region validateUnits() tests (via public methods)
 
     /**
      * Test that dimension mismatch throws DimensionMismatchException with descriptive message.
@@ -436,5 +436,5 @@ final class ConversionServiceTest extends TestCase
         ConversionService::has('123invalid', 'm');
     }
 
-    // endregion
+    #endregion
 }

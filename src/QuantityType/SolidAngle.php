@@ -14,7 +14,7 @@ use Override;
  */
 class SolidAngle extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for solid angle.
@@ -44,5 +44,5 @@ class SolidAngle extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

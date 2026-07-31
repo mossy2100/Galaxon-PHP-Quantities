@@ -33,7 +33,7 @@ final class UnitTermTest extends TestCase
         $prop->setValue(null, null);
     }
 
-    // region Constructor tests
+    #region Constructor tests
 
     /**
      * Test constructor with unit symbol only.
@@ -173,9 +173,9 @@ final class UnitTermTest extends TestCase
         new UnitTerm('xyz');
     }
 
-    // endregion
+    #endregion
 
-    // region Computed property tests
+    #region Computed property tests
 
     /**
      * Test asciiSymbol property for base unit.
@@ -349,9 +349,9 @@ final class UnitTermTest extends TestCase
         $this->assertSame('T-2', $term->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region regex() tests
+    #region regex() tests
 
     /**
      * Test regex matches simple unit.
@@ -399,9 +399,9 @@ final class UnitTermTest extends TestCase
         $this->assertSame(0, preg_match($pattern, '123'));
     }
 
-    // endregion
+    #endregion
 
-    // region parse() tests
+    #region parse() tests
 
     /**
      * Test parse with simple unit.
@@ -572,9 +572,9 @@ final class UnitTermTest extends TestCase
         UnitTerm::parse('ppm2');
     }
 
-    // endregion
+    #endregion
 
-    // region format() tests
+    #region format() tests
 
     /**
      * Test format with ASCII mode for base unit.
@@ -650,9 +650,9 @@ final class UnitTermTest extends TestCase
         $this->assertSame('deg²', $term->format());
     }
 
-    // endregion
+    #endregion
 
-    // region __toString() tests
+    #region __toString() tests
 
     /**
      * Test __toString returns Unicode format (with superscript exponent).
@@ -694,9 +694,9 @@ final class UnitTermTest extends TestCase
         $this->assertSame('m', (string)$term);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation method tests
+    #region Transformation method tests
 
     /**
      * Test inv() negates exponent.
@@ -799,9 +799,9 @@ final class UnitTermTest extends TestCase
         $this->assertNotSame($term, $newTerm);
     }
 
-    // endregion
+    #endregion
 
-    // region equal() tests
+    #region equal() tests
 
     /**
      * Test equal returns true for same instance.
@@ -870,9 +870,9 @@ final class UnitTermTest extends TestCase
         $this->assertFalse($term->equal(new stdClass()));
     }
 
-    // endregion
+    #endregion
 
-    // region toUnitTerm() tests
+    #region toUnitTerm() tests
 
     /**
      * Test toUnitTerm with UnitTerm returns same instance.
@@ -914,9 +914,9 @@ final class UnitTermTest extends TestCase
         $this->assertSame(1, $result->exponent);
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor with object arguments tests
+    #region Constructor with object arguments tests
 
     /**
      * Test constructor with Unit object instead of string.
@@ -976,9 +976,9 @@ final class UnitTermTest extends TestCase
         $this->assertSame('Mm3', $term->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region unicodeSymbol property tests
+    #region unicodeSymbol property tests
 
     /**
      * Test unicodeSymbol property directly.
@@ -1010,9 +1010,9 @@ final class UnitTermTest extends TestCase
         $this->assertSame('kΩ⁻¹', $term->unicodeSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region isSi() tests
+    #region isSi() tests
 
     /**
      * Test isSi returns true for SI unit.
@@ -1044,9 +1044,9 @@ final class UnitTermTest extends TestCase
         $this->assertFalse($term->isSi());
     }
 
-    // endregion
+    #endregion
 
-    // region isBase() tests
+    #region isBase() tests
 
     /**
      * Test isBase returns true for base unit.
@@ -1079,9 +1079,9 @@ final class UnitTermTest extends TestCase
         $this->assertFalse($term->isBase());
     }
 
-    // endregion
+    #endregion
 
-    // region quantityType property tests
+    #region quantityType property tests
 
     /**
      * Test quantityType property returns QuantityType for a registered dimension.
@@ -1117,9 +1117,9 @@ final class UnitTermTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region tryExpand() tests
+    #region tryExpand() tests
 
     /**
      * Test tryExpand returns null for a base unit term.
@@ -1237,9 +1237,9 @@ final class UnitTermTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region isValidSymbol() tests
+    #region isValidSymbol() tests
 
     /**
      * Test isValidSymbol() returns true and populates match groups for valid unit term strings.
@@ -1313,5 +1313,5 @@ final class UnitTermTest extends TestCase
         $this->assertFalse(UnitTerm::isValidSymbol('2m', $m));
     }
 
-    // endregion
+    #endregion
 }

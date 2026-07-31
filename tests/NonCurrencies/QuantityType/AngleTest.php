@@ -20,7 +20,7 @@ final class AngleTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -42,9 +42,9 @@ final class AngleTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion tests
+    #region Conversion tests
 
     /**
      * Test converting degrees to radians.
@@ -159,9 +159,9 @@ final class AngleTest extends TestCase
         $this->assertSame(1.0, $deg->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods tests
+    #region Transformation methods tests
 
     /**
      * Test toRadians for angle already in radians.
@@ -183,9 +183,9 @@ final class AngleTest extends TestCase
         $this->assertApproxEqual(M_PI, $angle->toRadians());
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests - DMS notation
+    #region Parse tests - DMS notation
 
     /**
      * Test parsing DMS notation with all components.
@@ -276,9 +276,9 @@ final class AngleTest extends TestCase
         $this->assertApproxEqual(M_PI, $angle->value, 1e-5);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse error tests
+    #region Parse error tests
 
     /**
      * Test parsing empty string throws exception.
@@ -323,9 +323,9 @@ final class AngleTest extends TestCase
         Angle::parse("° ' \"");
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison tests
+    #region Comparison tests
 
     /**
      * Test approxEqual for equal angles in same units.
@@ -382,9 +382,9 @@ final class AngleTest extends TestCase
         $this->assertFalse($angle->approxEqual('90 deg'));
     }
 
-    // endregion
+    #endregion
 
-    // region Wrap tests
+    #region Wrap tests
 
     /**
      * Test wrap signed range for angle within range.
@@ -466,9 +466,9 @@ final class AngleTest extends TestCase
         $this->assertSame('rad', $wrapped->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Trigonometric method tests
+    #region Trigonometric method tests
 
     /**
      * Test sin of 0 degrees.
@@ -600,9 +600,9 @@ final class AngleTest extends TestCase
         $this->assertSame(INF, $angle->cot());
     }
 
-    // endregion
+    #endregion
 
-    // region Parts methods tests
+    #region Parts methods tests
 
     /**
      * Test fromParts with degrees, minutes, and seconds.
@@ -774,5 +774,5 @@ final class AngleTest extends TestCase
         $this->assertSame('45° 30′ 15″', $formatted);
     }
 
-    // endregion
+    #endregion
 }

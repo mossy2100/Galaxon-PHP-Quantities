@@ -14,7 +14,7 @@ use Override;
  */
 class Voltage extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for voltage (electric potential difference).
@@ -44,5 +44,5 @@ class Voltage extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

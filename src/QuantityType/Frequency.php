@@ -14,7 +14,7 @@ use Override;
  */
 class Frequency extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for frequency.
@@ -53,5 +53,5 @@ class Frequency extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

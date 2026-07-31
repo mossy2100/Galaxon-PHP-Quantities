@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DimensionService::class)]
 final class DimensionServiceTest extends TestCase
 {
-    // region isValid() tests
+    #region isValid() tests
 
     /**
      * Test isValid() returns true for single dimension code.
@@ -119,9 +119,9 @@ final class DimensionServiceTest extends TestCase
         $this->assertFalse(DimensionService::isValid('L-10'));
     }
 
-    // endregion
+    #endregion
 
-    // region decompose() tests
+    #region decompose() tests
 
     /**
      * Test decompose() with single dimension code.
@@ -203,9 +203,9 @@ final class DimensionServiceTest extends TestCase
         $this->assertSame([], $result);
     }
 
-    // endregion
+    #endregion
 
-    // region compose() tests
+    #region compose() tests
 
     /**
      * Test compose() with single dimension term.
@@ -292,9 +292,9 @@ final class DimensionServiceTest extends TestCase
         $this->assertStringNotContainsString('M1', $result);
     }
 
-    // endregion
+    #endregion
 
-    // region normalize() tests
+    #region normalize() tests
 
     /**
      * Test normalize() with already normalized code.
@@ -332,9 +332,9 @@ final class DimensionServiceTest extends TestCase
         DimensionService::normalize('invalid');
     }
 
-    // endregion
+    #endregion
 
-    // region pow() tests
+    #region pow() tests
 
     /**
      * Test pow() with exponent of 1 returns unchanged.
@@ -408,9 +408,9 @@ final class DimensionServiceTest extends TestCase
         DimensionService::pow('invalid', 2);
     }
 
-    // endregion
+    #endregion
 
-    // region letterToInt() tests
+    #region letterToInt() tests
 
     /**
      * Test letterToInt() returns correct index for each dimension code.
@@ -467,9 +467,9 @@ final class DimensionServiceTest extends TestCase
         DimensionService::letterToInt('ML');
     }
 
-    // endregion
+    #endregion
 
-    // region getBaseUnitTermSymbol() tests
+    #region getBaseUnitTermSymbol() tests
 
     /**
      * Test getBaseUnitTermSymbol() returns correct SI symbol for each dimension code.
@@ -556,9 +556,9 @@ final class DimensionServiceTest extends TestCase
         $this->assertSame('XAU', DimensionService::getBaseUnitTermSymbol('C', false));
     }
 
-    // endregion
+    #endregion
 
-    // region getBaseUnitTerm() tests
+    #region getBaseUnitTerm() tests
 
     /**
      * Test getBaseUnitTerm() returns correct SI UnitTerm for each dimension code.
@@ -639,9 +639,9 @@ final class DimensionServiceTest extends TestCase
         $this->assertSame('s', $timeUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region getBaseCompoundUnit() tests
+    #region getBaseCompoundUnit() tests
 
     /**
      * Test getBaseCompoundUnit() returns a CompoundUnit for a single dimension.
@@ -757,9 +757,9 @@ final class DimensionServiceTest extends TestCase
         $this->assertSame('s', $result->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Round-trip tests
+    #region Round-trip tests
 
     /**
      * Test decompose() and compose() are inverse operations.
@@ -778,9 +778,9 @@ final class DimensionServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region countUnits() tests
+    #region countUnits() tests
 
     /**
      * Test countUnits() with a single dimension term.
@@ -821,9 +821,9 @@ final class DimensionServiceTest extends TestCase
         $this->assertSame(0, DimensionService::countUnits(''));
     }
 
-    // endregion
+    #endregion
 
-    // region lessThanOrEqual() tests
+    #region lessThanOrEqual() tests
 
     /**
      * Test lessThanOrEqual() with equal dimensions.
@@ -895,9 +895,9 @@ final class DimensionServiceTest extends TestCase
         $this->assertTrue(DimensionService::lessThanOrEqual('', ''));
     }
 
-    // endregion
+    #endregion
 
-    // region sub() tests
+    #region sub() tests
 
     /**
      * Test sub() subtracts matching dimension terms.
@@ -961,5 +961,5 @@ final class DimensionServiceTest extends TestCase
         $this->assertSame('L-1', DimensionService::sub('L', 'L2'));
     }
 
-    // endregion
+    #endregion
 }

@@ -21,7 +21,7 @@ final class FrequencyTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -43,9 +43,9 @@ final class FrequencyTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Metric prefix conversion tests
+    #region Metric prefix conversion tests
 
     /**
      * Test converting hertz to kilohertz.
@@ -153,9 +153,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame(0.5, $hz->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Cross-prefix conversion tests
+    #region Cross-prefix conversion tests
 
     /**
      * Test converting kilohertz to megahertz.
@@ -201,9 +201,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame(1000000.0, $khz->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Becquerel tests
+    #region Becquerel tests
 
     /**
      * Test converting becquerel to kilobecquerel.
@@ -239,9 +239,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame(1000.0, $mbq->value);
     }
 
-    // endregion
+    #endregion
 
-    // region toSi() tests
+    #region toSi() tests
 
     /**
      * Test converting hertz to SI base units.
@@ -293,9 +293,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame('s-1', $si->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region toBase() tests
+    #region toBase() tests
 
     /**
      * Test toBase() converts hertz to per-second.
@@ -321,9 +321,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame('s-1', $base->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region autoPrefix() tests
+    #region autoPrefix() tests
 
     /**
      * Test auto-prefixing large hertz value.
@@ -378,9 +378,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame('ms-1', $prefixed->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding hertz to hertz.
@@ -438,9 +438,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame('MHz', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing hertz.
@@ -498,9 +498,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame('MBq', $activity->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert from Hz to kHz.
@@ -532,9 +532,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame(1e9, $value);
     }
 
-    // endregion
+    #endregion
 
-    // region Frequency-time relationship tests
+    #region Frequency-time relationship tests
 
     /**
      * Test that frequency times period equals 1.
@@ -585,9 +585,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame(1.0, $khz->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Practical examples
+    #region Practical examples
 
     /**
      * Test concert pitch A4 frequency.
@@ -682,9 +682,9 @@ final class FrequencyTest extends TestCase
         $this->assertSame(0.0, $ghz->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Format tests
+    #region Format tests
 
     /**
      * Test formatting hertz.
@@ -716,5 +716,5 @@ final class FrequencyTest extends TestCase
         $this->assertSame('370 MBq', $activity->format());
     }
 
-    // endregion
+    #endregion
 }

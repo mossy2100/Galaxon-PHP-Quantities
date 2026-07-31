@@ -16,7 +16,7 @@ use Override;
  */
 class Angle extends Quantity
 {
-    // region Public constants
+    #region Public constants
 
     /**
      * Epsilons for comparisons.
@@ -24,9 +24,9 @@ class Angle extends Quantity
     public const float RAD_EPSILON = 1e-9;
     public const float TRIG_EPSILON = 1e-15;
 
-    // endregion
+    #endregion
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for angle.
@@ -118,9 +118,9 @@ class Angle extends Quantity
         return ['deg', 'arcmin', 'arcsec'];
     }
 
-    // endregion
+    #endregion
 
-    // region Trigonometric methods
+    #region Trigonometric methods
 
     /**
      * Sine of the angle.
@@ -216,9 +216,9 @@ class Angle extends Quantity
         return fdiv($c, $s);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Normalize an angle to a standard range.
@@ -254,9 +254,9 @@ class Angle extends Quantity
         return self::create($r, $this->compoundUnit);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Get the size of the angle in radians.
@@ -272,5 +272,5 @@ class Angle extends Quantity
         return $this->to('rad')->value;
     }
 
-    // endregion
+    #endregion
 }

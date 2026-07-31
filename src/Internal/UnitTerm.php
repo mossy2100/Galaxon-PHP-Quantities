@@ -38,7 +38,7 @@ class UnitTerm implements UnitInterface
 {
     use Equatable;
 
-    // region UnitInterface properties
+    #region UnitInterface properties
 
     /**
      * The ASCII version of the unit term symbol, including prefix and exponent if set (e.g. 'deg', 'm2', 'MN', 's-1').
@@ -62,9 +62,9 @@ class UnitTerm implements UnitInterface
         get => DimensionService::pow($this->unit->dimension, $this->exponent);
     }
 
-    // endregion
+    #endregion
 
-    // region Public properties
+    #region Public properties
 
     /**
      * The unit.
@@ -81,9 +81,9 @@ class UnitTerm implements UnitInterface
      */
     public readonly int $exponent;
 
-    // endregion
+    #endregion
 
-    // region Private properties
+    #region Private properties
 
     /**
      * The expansion quantity, if one exists and is known.
@@ -95,9 +95,9 @@ class UnitTerm implements UnitInterface
      */
     private static ?string $rx = null;
 
-    // endregion
+    #endregion
 
-    // region Property hooks
+    #region Property hooks
 
     /**
      * The unprefixed unit term symbol (e.g. 'm2', 's-1').
@@ -142,9 +142,9 @@ class UnitTerm implements UnitInterface
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Constructor.
@@ -196,9 +196,9 @@ class UnitTerm implements UnitInterface
         $this->exponent = $exponent;
     }
 
-    // endregion
+    #endregion
 
-    // region Factory methods
+    #region Factory methods
 
     /**
      * Convert the argument to a UnitTerm if necessary.
@@ -315,9 +315,9 @@ class UnitTerm implements UnitInterface
         throw new UnknownUnitException($symbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Inspection methods
+    #region Inspection methods
 
     /**
      * Check if this unit term's unit belongs to the SI system.
@@ -340,9 +340,9 @@ class UnitTerm implements UnitInterface
         return $this->unit->isBase();
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods
+    #region Comparison methods
 
     /**
      * Check if this UnitTerm is equal to another.
@@ -356,9 +356,9 @@ class UnitTerm implements UnitInterface
         return $other instanceof self && $this->asciiSymbol === $other->asciiSymbol;
     }
 
-    // endregion
+    #endregion
 
-    // region Unary arithmetic methods
+    #region Unary arithmetic methods
 
     /**
      * Return a new UnitTerm with the exponent negated.
@@ -370,9 +370,9 @@ class UnitTerm implements UnitInterface
         return new self($this->unit, $this->prefix, -$this->exponent);
     }
 
-    // endregion
+    #endregion
 
-    // region Power methods
+    #region Power methods
 
     /**
      * Return a new UnitTerm with the exponent multiplied by the given value.
@@ -386,9 +386,9 @@ class UnitTerm implements UnitInterface
         return $this->withExponent($this->exponent * $exponent);
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Return a new UnitTerm with a different exponent.
@@ -422,9 +422,9 @@ class UnitTerm implements UnitInterface
         return new self($this->unit, null, $this->exponent);
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Format the unit term as a string.
@@ -476,9 +476,9 @@ class UnitTerm implements UnitInterface
         return $this->format();
     }
 
-    // endregion
+    #endregion
 
-    // region Validation methods
+    #region Validation methods
 
     /**
      * Get the regex pattern for matching a unit term.
@@ -529,9 +529,9 @@ class UnitTerm implements UnitInterface
         return (bool)preg_match('/^' . self::regex() . '$/iu', $symbol, $matches);
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Attempt to expand this unit term into base units.
@@ -570,5 +570,5 @@ class UnitTerm implements UnitInterface
         return $this->expansion;
     }
 
-    // endregion
+    #endregion
 }

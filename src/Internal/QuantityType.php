@@ -15,7 +15,7 @@ use OceanMoon\Quantities\Services\UnitService;
  */
 class QuantityType
 {
-    // region Public properties
+    #region Public properties
 
     /**
      * The human-readable name of the quantity type (e.g. 'length', 'force').
@@ -52,9 +52,9 @@ class QuantityType
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Property hooks
+    #region Property hooks
 
     /**
      * The default unit definitions for this quantity type.
@@ -114,9 +114,9 @@ class QuantityType
         get => Converter::getInstance($this->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Create a new QuantityType instance.
@@ -135,5 +135,5 @@ class QuantityType
         $this->class = $class;
     }
 
-    // endregion
+    #endregion
 }

@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityPartsTest extends TestCase
 {
-    // region toParts() tests
+    #region toParts() tests
 
     /**
      * Test toParts() with Time quantity.
@@ -85,9 +85,9 @@ final class QuantityPartsTest extends TestCase
         $this->assertSame(30.0, $parts['arcsec']);
     }
 
-    // endregion
+    #endregion
 
-    // region formatParts() tests
+    #region formatParts() tests
 
     /**
      * Test formatParts() with a Time quantity.
@@ -166,9 +166,9 @@ final class QuantityPartsTest extends TestCase
         $this->assertSame('45deg 30arcmin 30arcsec', $result);
     }
 
-    // endregion
+    #endregion
 
-    // region fromParts() tests
+    #region fromParts() tests
 
     /**
      * Test fromParts() with English base result (default).
@@ -346,9 +346,9 @@ final class QuantityPartsTest extends TestCase
         ]);
     }
 
-    // endregion
+    #endregion
 
-    // region validatePrecision() tests
+    #region validatePrecision() tests
 
     /**
      * Test toParts() with negative precision throws exception.
@@ -374,9 +374,9 @@ final class QuantityPartsTest extends TestCase
         $time->formatParts(precision: -1);
     }
 
-    // endregion
+    #endregion
 
-    // region toParts() error tests
+    #region toParts() error tests
 
     /**
      * Test toParts() on a quantity type with no part unit symbols configured throws.
@@ -391,9 +391,9 @@ final class QuantityPartsTest extends TestCase
         $qty->toParts();
     }
 
-    // endregion
+    #endregion
 
-    // region parse() tests
+    #region parse() tests
 
     /**
      * Test parse() with a single quantity string (no space).
@@ -458,9 +458,9 @@ final class QuantityPartsTest extends TestCase
         Length::parse('123 kg');
     }
 
-    // endregion
+    #endregion
 
-    // region parseParts() tests
+    #region parseParts() tests
 
     /**
      * Test parseParts() with a time parts string.
@@ -603,9 +603,9 @@ final class QuantityPartsTest extends TestCase
         Time::parseParts('1h 45mi 34s');
     }
 
-    // endregion
+    #endregion
 
-    // region validator coverage tests
+    #region validator coverage tests
 
     /**
      * Test fromParts() works with Force using SI base.
@@ -711,9 +711,9 @@ final class QuantityPartsTest extends TestCase
         $time->toParts(partUnitSymbols: ['ft', 'in']);
     }
 
-    // endregion
+    #endregion
 
-    // region toParts() additional tests
+    #region toParts() additional tests
 
     /**
      * Test toParts() with zero value produces all-zero parts.
@@ -759,9 +759,9 @@ final class QuantityPartsTest extends TestCase
         $this->assertSame(300.0, $parts['m']);
     }
 
-    // endregion
+    #endregion
 
-    // region toParts() rounding tests
+    #region toParts() rounding tests
 
     /**
      * Test toParts() rounding up smallest unit.
@@ -777,5 +777,5 @@ final class QuantityPartsTest extends TestCase
         $this->assertSame(0.0, $parts['s']);
     }
 
-    // endregion
+    #endregion
 }

@@ -19,7 +19,7 @@ final class DimensionlessTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -41,9 +41,9 @@ final class DimensionlessTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Basic conversion tests
+    #region Basic conversion tests
 
     /**
      * Test converting percentage to parts per thousand.
@@ -116,9 +116,9 @@ final class DimensionlessTest extends TestCase
         $this->assertSame(1.0, $ppm->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Multi-step conversion tests
+    #region Multi-step conversion tests
 
     /**
      * Test converting percentage to parts per million.
@@ -178,9 +178,9 @@ final class DimensionlessTest extends TestCase
         $this->assertSame(1000000.0, $ppb->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding percentages.
@@ -238,9 +238,9 @@ final class DimensionlessTest extends TestCase
         $this->assertSame('ppm', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing percentage.
@@ -298,9 +298,9 @@ final class DimensionlessTest extends TestCase
         $this->assertSame('ppb', $ratio->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Format tests
+    #region Format tests
 
     /**
      * Test formatting percentage.
@@ -355,9 +355,9 @@ final class DimensionlessTest extends TestCase
         $this->assertSame('500 ppb', $ratio->format());
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method for percentage to ppm.
@@ -389,9 +389,9 @@ final class DimensionlessTest extends TestCase
         $this->assertSame(1.0, $value);
     }
 
-    // endregion
+    #endregion
 
-    // region Practical examples
+    #region Practical examples
 
     /**
      * Test alcohol by volume conversion.
@@ -468,5 +468,5 @@ final class DimensionlessTest extends TestCase
         $this->assertSame(1.0, $ppm->value);
     }
 
-    // endregion
+    #endregion
 }

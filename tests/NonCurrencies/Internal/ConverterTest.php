@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Converter::class)]
 class ConverterTest extends TestCase
 {
-    // region removeAllInstances() tests
+    #region removeAllInstances() tests
 
     /**
      * Test removeAllInstances clears cached instances.
@@ -46,9 +46,9 @@ class ConverterTest extends TestCase
         $this->assertNotSame($converter1, $converter2);
     }
 
-    // endregion
+    #endregion
 
-    // region getInstances() tests
+    #region getInstances() tests
 
     /**
      * Test getInstances returns all cached Converter instances.
@@ -69,9 +69,9 @@ class ConverterTest extends TestCase
         $this->assertSame($time, $instances['T']);
     }
 
-    // endregion
+    #endregion
 
-    // region removeInstance() tests
+    #region removeInstance() tests
 
     /**
      * Test removeInstance removes a single cached Converter.
@@ -93,9 +93,9 @@ class ConverterTest extends TestCase
         $this->assertArrayNotHasKey('L', $instances);
     }
 
-    // endregion
+    #endregion
 
-    // region getInstance() tests
+    #region getInstance() tests
 
     /**
      * Test getInstance returns instance for valid dimension.
@@ -143,9 +143,9 @@ class ConverterTest extends TestCase
         $this->assertSame('T', $timeConverter->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region findConversion() tests
+    #region findConversion() tests
 
     /**
      * Test findConversion returns conversion for known units.
@@ -294,9 +294,9 @@ class ConverterTest extends TestCase
         $converter->findConversion('s', 'm5');
     }
 
-    // endregion
+    #endregion
 
-    // region findConversionFactor() tests
+    #region findConversionFactor() tests
 
     /**
      * Test findConversionFactor returns factor for known units.
@@ -367,9 +367,9 @@ class ConverterTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region convert() tests
+    #region convert() tests
 
     /**
      * Test convert converts value between units.
@@ -488,9 +488,9 @@ class ConverterTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Graph traversal tests
+    #region Graph traversal tests
 
     /**
      * Test converter finds indirect conversions via graph traversal.
@@ -524,9 +524,9 @@ class ConverterTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $mToFt->factor->value * $ftToM->factor->value, 1e-6);
     }
 
-    // endregion
+    #endregion
 
-    // region Exponentiated dimension tests
+    #region Exponentiated dimension tests
 
     /**
      * Test converter handles L2 (area) dimension.
@@ -586,9 +586,9 @@ class ConverterTest extends TestCase
         $this->assertEqualsWithDelta($mToFt ** 2, $m2ToFt2, 1e-6);
     }
 
-    // endregion
+    #endregion
 
-    // region Time dimension tests
+    #region Time dimension tests
 
     /**
      * Test converter handles time dimension.
@@ -620,9 +620,9 @@ class ConverterTest extends TestCase
         $this->assertEqualsWithDelta(0.001, $conversion->factor->value, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region Mass dimension tests
+    #region Mass dimension tests
 
     /**
      * Test converter handles mass dimension.
@@ -654,9 +654,9 @@ class ConverterTest extends TestCase
         $this->assertEqualsWithDelta(2.20462, $conversion->factor->value, 1e-4);
     }
 
-    // endregion
+    #endregion
 
-    // region Edge cases
+    #region Edge cases
 
     /**
      * Test converter handles very small conversion factors.
@@ -684,9 +684,9 @@ class ConverterTest extends TestCase
         $this->assertEqualsWithDelta(1e6, $factor, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region Compound unit conversion tests
+    #region Compound unit conversion tests
 
     /**
      * Test conversion of force units (N to lbf).
@@ -702,9 +702,9 @@ class ConverterTest extends TestCase
         $this->assertEqualsWithDelta(0.2248, $conversion->factor->value, 1e-3);
     }
 
-    // endregion
+    #endregion
 
-    // region Multi-hop conversion tests
+    #region Multi-hop conversion tests
 
     /**
      * Test that findConversion uses generateConversions to find multi-hop paths.
@@ -725,9 +725,9 @@ class ConverterTest extends TestCase
         $this->assertEqualsWithDelta(63360, $conversion->factor->value, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region Combination path coverage tests
+    #region Combination path coverage tests
 
     /**
      * Test that divergent combination path is used in graph traversal.
@@ -866,9 +866,9 @@ class ConverterTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region addMerged() tests
+    #region addMerged() tests
 
     /**
      * Test that addMerged is triggered when finding conversion with mergeable units.
@@ -907,9 +907,9 @@ class ConverterTest extends TestCase
         $this->assertEqualsWithDelta(1.0, $conversion->factor->value, 1e-10);
     }
 
-    // endregion
+    #endregion
 
-    // region addConversion() tests
+    #region addConversion() tests
 
     /**
      * Test addConversion throws DimensionMismatchException when conversion dimension doesn't match Converter.
@@ -927,9 +927,9 @@ class ConverterTest extends TestCase
         $converter->addConversion($conversion);
     }
 
-    // endregion
+    #endregion
 
-    // region removeConversion() tests
+    #region removeConversion() tests
 
     /**
      * Test removeConversion removes a specific conversion from the matrix.
@@ -955,9 +955,9 @@ class ConverterTest extends TestCase
         $this->assertNull($converter->getConversion('m', 'ft'));
     }
 
-    // endregion
+    #endregion
 
-    // region removeAllConversions() tests
+    #region removeAllConversions() tests
 
     /**
      * Test removeAllConversions clears the conversion matrix.
@@ -974,9 +974,9 @@ class ConverterTest extends TestCase
         $this->assertEmpty($converter->conversionMatrix);
     }
 
-    // endregion
+    #endregion
 
-    // region removeConversionsByUnit() tests
+    #region removeConversionsByUnit() tests
 
     /**
      * Test removeConversionsByUnit removes all conversions involving a given unit.
@@ -1022,9 +1022,9 @@ class ConverterTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region hasUnit() tests
+    #region hasUnit() tests
 
     /**
      * Test hasUnit() returns true for a unit that has been added.
@@ -1054,9 +1054,9 @@ class ConverterTest extends TestCase
         $this->assertFalse($converter->hasUnit($unit));
     }
 
-    // endregion
+    #endregion
 
-    // region removeUnit() tests
+    #region removeUnit() tests
 
     /**
      * Test removeUnit removes a unit from the unit list.
@@ -1075,9 +1075,9 @@ class ConverterTest extends TestCase
         $this->assertArrayNotHasKey('m', $converter->units);
     }
 
-    // endregion
+    #endregion
 
-    // region quantityType property tests
+    #region quantityType property tests
 
     /**
      * Test quantityType property returns QuantityType for a registered dimension.
@@ -1100,9 +1100,9 @@ class ConverterTest extends TestCase
         $this->assertNull($converter->quantityType);
     }
 
-    // endregion
+    #endregion
 
-    // region removeAllUnits() tests
+    #region removeAllUnits() tests
 
     /**
      * Test removeAllUnits clears the unit list.
@@ -1119,5 +1119,5 @@ class ConverterTest extends TestCase
         $this->assertEmpty($converter->units);
     }
 
-    // endregion
+    #endregion
 }

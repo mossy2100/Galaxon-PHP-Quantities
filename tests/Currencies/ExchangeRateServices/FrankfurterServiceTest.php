@@ -36,7 +36,7 @@ class FrankfurterServiceTest extends TestCase
         return self::$definitions;
     }
 
-    // region getName
+    #region getName
 
     public function testGetName(): void
     {
@@ -44,9 +44,9 @@ class FrankfurterServiceTest extends TestCase
         self::assertSame('Frankfurter (ECB)', $service->getName());
     }
 
-    // endregion
+    #endregion
 
-    // region getConversionDefinitions
+    #region getConversionDefinitions
 
     public function testGetConversionDefinitionsReturnsArray(): void
     {
@@ -94,5 +94,5 @@ class FrankfurterServiceTest extends TestCase
         self::assertContains('AUD', $targetCurrencies);
     }
 
-    // endregion
+    #endregion
 }

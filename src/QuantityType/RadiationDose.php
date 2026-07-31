@@ -14,7 +14,7 @@ use Override;
  */
 class RadiationDose extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for absorbed dose and equivalent dose.
@@ -54,5 +54,5 @@ class RadiationDose extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

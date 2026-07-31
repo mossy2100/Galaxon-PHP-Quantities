@@ -38,7 +38,7 @@ use OceanMoon\Quantities\Services\QuantityTypeService;
  */
 class Converter
 {
-    // region Public properties
+    #region Public properties
 
     /**
      * Dimension code for the converter.
@@ -63,9 +63,9 @@ class Converter
      */
     private(set) array $conversionMatrix = [];
 
-    // endregion
+    #endregion
 
-    // region Private static properties
+    #region Private static properties
 
     /**
      * All the Converters created so far, keyed by dimension.
@@ -74,9 +74,9 @@ class Converter
      */
     private static array $instances = [];
 
-    // endregion
+    #endregion
 
-    // region Property hooks
+    #region Property hooks
 
     /**
      * The quantity type this converter is for, if known.
@@ -85,9 +85,9 @@ class Converter
         get => QuantityTypeService::getByDimension($this->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region Constructor
+    #region Constructor
 
     /**
      * Constructor.
@@ -112,9 +112,9 @@ class Converter
         $this->loadConversions();
     }
 
-    // endregion
+    #endregion
 
-    // region Methods for managing Converter instances
+    #region Methods for managing Converter instances
 
     /**
      * Get the Converter instance for a given dimension.
@@ -163,9 +163,9 @@ class Converter
         self::$instances = [];
     }
 
-    // endregion
+    #endregion
 
-    // region Unit methods
+    #region Unit methods
 
     /**
      * Check if a unit is in the list.
@@ -211,9 +211,9 @@ class Converter
         $this->units = [];
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Find the conversion between two units, discovering new paths if necessary.
@@ -484,9 +484,9 @@ class Converter
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Validation methods
+    #region Validation methods
 
     /**
      * Validate a string or object representing a unit.
@@ -511,9 +511,9 @@ class Converter
         return $unit;
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion helper methods
+    #region Conversion helper methods
 
     /**
      * Look for an inverse conversion between two units.
@@ -861,9 +861,9 @@ class Converter
         return $nAdded;
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods for adding unit terms
+    #region Helper methods for adding unit terms
 
     /**
      * Attempts to merge compatible unit terms. If successful, adds the new unit and conversion to the Converter.
@@ -950,9 +950,9 @@ class Converter
         return $this->addConversion($newConversion);
     }
 
-    // endregion
+    #endregion
 
-    // region Debugging methods
+    #region Debugging methods
 
     /**
      * Print the conversion matrix for debugging purposes.
@@ -997,5 +997,5 @@ class Converter
         echo $line;
     }
 
-    // endregion
+    #endregion
 }

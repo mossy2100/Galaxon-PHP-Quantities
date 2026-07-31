@@ -21,7 +21,7 @@ final class VelocityTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -43,9 +43,9 @@ final class VelocityTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Metric conversion tests
+    #region Metric conversion tests
 
     /**
      * Test converting meters per second to kilometers per hour.
@@ -72,9 +72,9 @@ final class VelocityTest extends TestCase
         $this->assertSame(10.0, $ms->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Imperial conversion tests
+    #region Imperial conversion tests
 
     /**
      * Test converting miles per hour to feet per second.
@@ -100,9 +100,9 @@ final class VelocityTest extends TestCase
         $this->assertApproxEqual(60.0, $mph->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Nautical conversion tests
+    #region Nautical conversion tests
 
     /**
      * Test converting knots to nautical miles per hour.
@@ -152,9 +152,9 @@ final class VelocityTest extends TestCase
         $this->assertSame(1.852, $kmh->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Cross-system conversion tests
+    #region Cross-system conversion tests
 
     /**
      * Test converting kilometers per hour to miles per hour.
@@ -204,9 +204,9 @@ final class VelocityTest extends TestCase
         $this->assertApproxEqual(50 * 1852 / 1609.344, $mph->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Division tests (Length / Time = Velocity)
+    #region Division tests (Length / Time = Velocity)
 
     /**
      * Test dividing meters by seconds.
@@ -271,9 +271,9 @@ final class VelocityTest extends TestCase
         $this->assertSame(50.0, $kn->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Multiplication tests (Velocity × Time = Length)
+    #region Multiplication tests (Velocity × Time = Length)
 
     /**
      * Test multiplying meters per second by seconds.
@@ -323,9 +323,9 @@ final class VelocityTest extends TestCase
         $this->assertSame(60.0, $nmi->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding velocities in same units.
@@ -371,9 +371,9 @@ final class VelocityTest extends TestCase
         $this->assertSame('mi/h', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing meters per second.
@@ -420,9 +420,9 @@ final class VelocityTest extends TestCase
         $this->assertSame('mi/h', $vel->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method.
@@ -444,9 +444,9 @@ final class VelocityTest extends TestCase
         $this->assertSame(1.852, $value);
     }
 
-    // endregion
+    #endregion
 
-    // region Practical examples
+    #region Practical examples
 
     /**
      * Test speed of sound conversion.
@@ -478,5 +478,5 @@ final class VelocityTest extends TestCase
         $this->assertApproxEqual(100 * 1000 / 1609.344, $mph->value);
     }
 
-    // endregion
+    #endregion
 }

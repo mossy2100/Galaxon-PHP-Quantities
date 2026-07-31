@@ -25,7 +25,7 @@ final class QuantityArithmeticTest extends TestCase
 {
     use FloatAssertions;
 
-    // region abs() tests
+    #region abs() tests
 
     /**
      * Test abs() on positive value.
@@ -60,9 +60,9 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame(0.0, $abs->value);
     }
 
-    // endregion
+    #endregion
 
-    // region neg() tests
+    #region neg() tests
 
     /**
      * Test neg() on positive value.
@@ -97,9 +97,9 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame(0.0, $neg->value);
     }
 
-    // endregion
+    #endregion
 
-    // region add() tests
+    #region add() tests
 
     /**
      * Test add() with same units.
@@ -166,9 +166,9 @@ final class QuantityArithmeticTest extends TestCase
         $length->add($time);
     }
 
-    // endregion
+    #endregion
 
-    // region sub() tests
+    #region sub() tests
 
     /**
      * Test sub() with same units.
@@ -233,9 +233,9 @@ final class QuantityArithmeticTest extends TestCase
         $mass->sub($length);
     }
 
-    // endregion
+    #endregion
 
-    // region mul() tests
+    #region mul() tests
 
     /**
      * Test mul() with scalar.
@@ -321,9 +321,9 @@ final class QuantityArithmeticTest extends TestCase
         $big->mul(1e308);
     }
 
-    // endregion
+    #endregion
 
-    // region div() tests
+    #region div() tests
 
     /**
      * Test div() by scalar.
@@ -410,9 +410,9 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame('m/s', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region inv() tests
+    #region inv() tests
 
     /**
      * Test inv() basic case.
@@ -449,9 +449,9 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame('s-1', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region pow() tests
+    #region pow() tests
 
     /**
      * Test pow() with positive exponent.
@@ -561,9 +561,9 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame($sqr->compoundUnit->asciiSymbol, $pow2->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Chained operations tests
+    #region Chained operations tests
 
     /**
      * Test chaining arithmetic operations.
@@ -576,9 +576,9 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertSame(22.0, $result->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Cross-system arithmetic tests
+    #region Cross-system arithmetic tests
 
     /**
      * Test adding meters and feet.
@@ -607,5 +607,5 @@ final class QuantityArithmeticTest extends TestCase
         $this->assertApproxEqual(1 - 0.45359237, $diff->value);
     }
 
-    // endregion
+    #endregion
 }

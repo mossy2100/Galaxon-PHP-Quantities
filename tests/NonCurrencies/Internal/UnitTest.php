@@ -26,7 +26,7 @@ use stdClass;
 #[CoversClass(Unit::class)]
 final class UnitTest extends TestCase
 {
-    // region Constructor tests
+    #region Constructor tests
 
     /**
      * Test constructor with SI base unit data (meter).
@@ -304,9 +304,9 @@ final class UnitTest extends TestCase
         new Unit(name: 'test', asciiSymbol: 'tst', dimension: 'L', prefixGroup: 16);
     }
 
-    // endregion
+    #endregion
 
-    // region Property tests
+    #region Property tests
 
     /**
      * Test asciiSymbol property can be read.
@@ -369,9 +369,9 @@ final class UnitTest extends TestCase
         $this->assertSame('L', $unit->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region acceptsPrefix() and allowedPrefixes tests
+    #region acceptsPrefix() and allowedPrefixes tests
 
     /**
      * Test acceptsPrefix returns true for prefixes in the unit's group.
@@ -477,9 +477,9 @@ final class UnitTest extends TestCase
         $this->assertSame([], $prefixes);
     }
 
-    // endregion
+    #endregion
 
-    // region quantityType property tests
+    #region quantityType property tests
 
     /**
      * Test quantityType property returns QuantityType for a registered dimension.
@@ -509,9 +509,9 @@ final class UnitTest extends TestCase
         $this->assertNull($unit->quantityType);
     }
 
-    // endregion
+    #endregion
 
-    // region Formatting methods tests
+    #region Formatting methods tests
 
     /**
      * Test __toString returns the Unicode symbol.
@@ -595,9 +595,9 @@ final class UnitTest extends TestCase
         $this->assertSame('deg', $unit->format(true));
     }
 
-    // endregion
+    #endregion
 
-    // region Comparison methods tests
+    #region Comparison methods tests
 
     /**
      * Test equal returns true for same Unit instance.
@@ -674,9 +674,9 @@ final class UnitTest extends TestCase
         $this->assertFalse($unit->equal(new stdClass()));
     }
 
-    // endregion
+    #endregion
 
-    // region Integration tests with UnitService
+    #region Integration tests with UnitService
 
     /**
      * Test getting meter from UnitService.
@@ -728,9 +728,9 @@ final class UnitTest extends TestCase
         $this->assertFalse($unit->acceptsPrefix(self::prefix('c')));
     }
 
-    // endregion
+    #endregion
 
-    // region alternateSymbol tests
+    #region alternateSymbol tests
 
     /**
      * Test alternateSymbol property is set correctly.
@@ -796,9 +796,9 @@ final class UnitTest extends TestCase
         $this->assertNull($unit->alternateSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region symbols property tests
+    #region symbols property tests
 
     /**
      * Test symbols property returns array with ASCII symbol.
@@ -906,9 +906,9 @@ final class UnitTest extends TestCase
         $this->assertArrayHasKey('MΩ', $symbols);
     }
 
-    // endregion
+    #endregion
 
-    // region belongsToSystem tests
+    #region belongsToSystem tests
 
     /**
      * Test belongsToSystem returns true for system the unit belongs to.
@@ -956,9 +956,9 @@ final class UnitTest extends TestCase
         $this->assertTrue($unit->belongsToSystem(UnitSystem::Imperial));
     }
 
-    // endregion
+    #endregion
 
-    // region isSi() tests
+    #region isSi() tests
 
     /**
      * Test isSi returns true for SI unit.
@@ -993,9 +993,9 @@ final class UnitTest extends TestCase
         $this->assertFalse($unit->isSi());
     }
 
-    // endregion
+    #endregion
 
-    // region isBase() tests
+    #region isBase() tests
 
     /**
      * Test isBase returns true for unit with single dimension term.
@@ -1020,9 +1020,9 @@ final class UnitTest extends TestCase
         $this->assertFalse($unit->isBase());
     }
 
-    // endregion
+    #endregion
 
-    // region tryExpand() tests
+    #region tryExpand() tests
 
     /**
      * Test tryExpand expands a named unit to base units.
@@ -1125,9 +1125,9 @@ final class UnitTest extends TestCase
         $this->assertSame('lb*ft/s2', $expansion->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region parse() tests
+    #region parse() tests
 
     /**
      * Test parse returns Unit for valid symbol.
@@ -1197,9 +1197,9 @@ final class UnitTest extends TestCase
         Unit::parse('zqx');
     }
 
-    // endregion
+    #endregion
 
-    // region isValidLetter() tests
+    #region isValidLetter() tests
 
     /**
      * Test isValidLetter() accepts Latin, Greek, and letter-like compatibility characters; rejects non-letters
@@ -1228,9 +1228,9 @@ final class UnitTest extends TestCase
         $this->assertFalse(Unit::isValidLetter(''));
     }
 
-    // endregion
+    #endregion
 
-    // region isValidNonLetter() tests
+    #region isValidNonLetter() tests
 
     /**
      * Test isValidNonLetter() returns true for single valid ASCII or Unicode non-letters, and false for letters,
@@ -1255,9 +1255,9 @@ final class UnitTest extends TestCase
         $this->assertFalse(Unit::isValidNonLetter(''));
     }
 
-    // endregion
+    #endregion
 
-    // region isValidWord() tests
+    #region isValidWord() tests
 
     /**
      * Test isValidWord() accepts 1–7 Unicode letters and rejects non-letters, multi-char symbols, and empty strings.
@@ -1288,9 +1288,9 @@ final class UnitTest extends TestCase
         $this->assertFalse(Unit::isValidWord(''));
     }
 
-    // endregion
+    #endregion
 
-    // region Helpers
+    #region Helpers
 
     /**
      * Resolve a prefix symbol to a Prefix instance. Asserts the lookup succeeded, so the return type narrows
@@ -1303,5 +1303,5 @@ final class UnitTest extends TestCase
         return $prefix;
     }
 
-    // endregion
+    #endregion
 }

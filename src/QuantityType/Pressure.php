@@ -14,7 +14,7 @@ use Override;
  */
 class Pressure extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for pressure.
@@ -59,5 +59,5 @@ class Pressure extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

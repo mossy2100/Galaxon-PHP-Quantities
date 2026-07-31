@@ -20,7 +20,7 @@ final class AreaTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -42,9 +42,9 @@ final class AreaTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Metric conversion tests
+    #region Metric conversion tests
 
     /**
      * Test converting square meters to square kilometers.
@@ -125,9 +125,9 @@ final class AreaTest extends TestCase
         $this->assertSame(100.0, $ha->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Imperial/US conversion tests
+    #region Imperial/US conversion tests
 
     /**
      * Test converting square feet to square inches.
@@ -184,9 +184,9 @@ final class AreaTest extends TestCase
         $this->assertSame(640.0, $ac->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Cross-system conversion tests
+    #region Cross-system conversion tests
 
     /**
      * Test converting square meters to square feet.
@@ -247,9 +247,9 @@ final class AreaTest extends TestCase
         $this->assertApproxEqual(4046.8564224 / 10000, $ha->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Unicode symbol tests
+    #region Unicode symbol tests
 
     /**
      * Test creating area with Unicode superscript.
@@ -273,9 +273,9 @@ final class AreaTest extends TestCase
         $this->assertSame(1000000.0, $m2->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method.
@@ -297,9 +297,9 @@ final class AreaTest extends TestCase
         $this->assertApproxEqual(4046.856422, $value);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing square meters.
@@ -344,9 +344,9 @@ final class AreaTest extends TestCase
         $this->assertSame('ac', $area->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Zero and negative value tests
+    #region Zero and negative value tests
 
     /**
      * Test converting zero value.
@@ -370,9 +370,9 @@ final class AreaTest extends TestCase
         $this->assertSame(-0.01, $ha->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Multiplication tests (Length × Length = Area)
+    #region Multiplication tests (Length × Length = Area)
 
     /**
      * Test multiplying meters by meters.
@@ -484,9 +484,9 @@ final class AreaTest extends TestCase
         $this->assertSame(1.0, $m2->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding hectares to hectares.
@@ -594,5 +594,5 @@ final class AreaTest extends TestCase
         $this->assertSame('mi²', $result->compoundUnit->unicodeSymbol);
     }
 
-    // endregion
+    #endregion
 }

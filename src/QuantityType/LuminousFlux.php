@@ -14,7 +14,7 @@ use Override;
  */
 class LuminousFlux extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for luminous flux.
@@ -44,5 +44,5 @@ class LuminousFlux extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

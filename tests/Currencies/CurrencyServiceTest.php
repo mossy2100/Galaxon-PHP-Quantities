@@ -25,7 +25,7 @@ class CurrencyServiceTest extends TestCase
      */
     private const string TEST_DATA_DIR = __DIR__ . '/data';
 
-    // region Setup
+    #region Setup
 
     protected function setUp(): void
     {
@@ -48,9 +48,9 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::resetDataDir();
     }
 
-    // endregion
+    #endregion
 
-    // region setDataDir / getDataDir
+    #region setDataDir / getDataDir
 
     public function testSetDataDirChangesPath(): void
     {
@@ -115,9 +115,9 @@ class CurrencyServiceTest extends TestCase
         $this->assertSame($defaultDir, CurrencyService::getDataDir());
     }
 
-    // endregion
+    #endregion
 
-    // region getLocale / setLocale
+    #region getLocale / setLocale
 
     public function testGetLocaleReturnsExplicitlySetLocale(): void
     {
@@ -165,9 +165,9 @@ class CurrencyServiceTest extends TestCase
         $this->assertSame('zh-Hant-TW', CurrencyService::getLocale());
     }
 
-    // endregion
+    #endregion
 
-    // region TTL getters / setters
+    #region TTL getters / setters
 
     public function testGetRatesTtlReturnsDefault(): void
     {
@@ -215,9 +215,9 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::setCurrenciesTtl(-1);
     }
 
-    // endregion
+    #endregion
 
-    // region loadUnits (private — accessed via reflection)
+    #region loadUnits (private — accessed via reflection)
 
     public function testLoadUnitsReturnsNullWhenNoFile(): void
     {
@@ -292,9 +292,9 @@ class CurrencyServiceTest extends TestCase
         $this->assertContains('JPY', $symbols);
     }
 
-    // endregion
+    #endregion
 
-    // region loadConversions (private — accessed via reflection)
+    #region loadConversions (private — accessed via reflection)
 
     public function testLoadConversionsReturnsNullWhenNoFile(): void
     {
@@ -354,9 +354,9 @@ class CurrencyServiceTest extends TestCase
         @rmdir($dir);
     }
 
-    // endregion
+    #endregion
 
-    // region getUnits
+    #region getUnits
 
     public function testGetUnitsWithBypassCacheReturnsDataAndWritesFiles(): void
     {
@@ -401,9 +401,9 @@ class CurrencyServiceTest extends TestCase
         $this->assertArrayNotHasKey('SDR (Special Drawing Right)', $data['currencies']);
     }
 
-    // endregion
+    #endregion
 
-    // region getConversions
+    #region getConversions
 
     public function testGetConversionsWithBypassCacheReturnsDataAndWritesFile(): void
     {
@@ -468,9 +468,9 @@ class CurrencyServiceTest extends TestCase
         CurrencyService::getConversions(true);
     }
 
-    // endregion
+    #endregion
 
-    // region deleteUnits
+    #region deleteUnits
 
     public function testDeleteUnitsRemovesFiles(): void
     {
@@ -492,9 +492,9 @@ class CurrencyServiceTest extends TestCase
         $this->assertFileDoesNotExist(self::TEST_DATA_DIR . '/CurrencyUnits.php');
     }
 
-    // endregion
+    #endregion
 
-    // region deleteConversions
+    #region deleteConversions
 
     public function testDeleteConversionsRemovesFile(): void
     {
@@ -515,9 +515,9 @@ class CurrencyServiceTest extends TestCase
         $this->assertFileDoesNotExist(self::TEST_DATA_DIR . '/CurrencyConversions.php');
     }
 
-    // endregion
+    #endregion
 
-    // region refresh
+    #region refresh
 
     public function testRefreshFromScratchCreatesDataFiles(): void
     {
@@ -558,9 +558,9 @@ class CurrencyServiceTest extends TestCase
         $this->assertGreaterThan($conversionsMtime, $newConversionsMtime);
     }
 
-    // endregion
+    #endregion
 
-    // region init
+    #region init
 
     public function testInitConfiguresService(): void
     {
@@ -620,9 +620,9 @@ class CurrencyServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region Helpers
+    #region Helpers
 
     /**
      * Invoke a private static method on CurrencyService by reflection.
@@ -656,5 +656,5 @@ class CurrencyServiceTest extends TestCase
         };
     }
 
-    // endregion
+    #endregion
 }

@@ -21,7 +21,7 @@ use stdClass;
 #[CoversClass(QuantityType::class)]
 final class QuantityTypeTest extends TestCase
 {
-    // region Constructor tests
+    #region Constructor tests
 
     /**
      * Test constructor creates QuantityType with all parameters.
@@ -80,9 +80,9 @@ final class QuantityTypeTest extends TestCase
         $this->assertSame(Time::class, $time->class);
     }
 
-    // endregion
+    #endregion
 
-    // region Class property hook tests
+    #region Class property hook tests
 
     /**
      * Test class property accepts valid Quantity subclass.
@@ -150,9 +150,9 @@ final class QuantityTypeTest extends TestCase
         new QuantityType('test', 'L9', stdClass::class);
     }
 
-    // endregion
+    #endregion
 
-    // region Property readonly tests
+    #region Property readonly tests
 
     /**
      * Test name property is readonly.
@@ -179,9 +179,9 @@ final class QuantityTypeTest extends TestCase
         $this->assertSame('L', $qtyType->dimension);
     }
 
-    // endregion
+    #endregion
 
-    // region Edge case tests
+    #region Edge case tests
 
     /**
      * Test empty name is allowed.
@@ -218,5 +218,5 @@ final class QuantityTypeTest extends TestCase
         $this->assertSame(Mass::class, $qtyType->class);
     }
 
-    // endregion
+    #endregion
 }

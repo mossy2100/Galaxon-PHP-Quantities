@@ -22,7 +22,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Quantity::class)]
 final class QuantityStringsTest extends TestCase
 {
-    // region Parse tests - basic
+    #region Parse tests - basic
 
     /**
      * Test parsing a simple length with space between value and unit.
@@ -84,9 +84,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('ms', $time->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests - scientific notation
+    #region Parse tests - scientific notation
 
     /**
      * Test parsing with scientific notation (lowercase e).
@@ -108,9 +108,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame(0.0025, $length->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests - negative values
+    #region Parse tests - negative values
 
     /**
      * Test parsing negative values.
@@ -123,9 +123,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('degC', $temp->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests - generic Quantity::parse()
+    #region Parse tests - generic Quantity::parse()
 
     /**
      * Test that Quantity::parse() returns the correct subclass.
@@ -141,9 +141,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertInstanceOf(Time::class, $time);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests - error handling
+    #region Parse tests - error handling
 
     /**
      * Test parsing empty string throws exception.
@@ -175,9 +175,9 @@ final class QuantityStringsTest extends TestCase
         Length::parse('not a valid quantity');
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests - dimension mismatch
+    #region Parse tests - dimension mismatch
 
     /**
      * Test that parsing a unit with the wrong dimension throws DimensionMismatchException.
@@ -226,9 +226,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame(50.0, $mass->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Format tests - basic
+    #region Format tests - basic
 
     /**
      * Test default formatting (Unicode, fixed point, trim zeros).
@@ -267,9 +267,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('1.234568×10⁷ m', $length->format());
     }
 
-    // endregion
+    #endregion
 
-    // region Format tests - precision control
+    #region Format tests - precision control
 
     /**
      * Test formatting with fixed precision.
@@ -354,9 +354,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('1500 m', $length->format('g'));
     }
 
-    // endregion
+    #endregion
 
-    // region Format tests - scientific notation
+    #region Format tests - scientific notation
 
     /**
      * Test formatting with scientific notation.
@@ -435,9 +435,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('3.0000×10³ m', $result);
     }
 
-    // endregion
+    #endregion
 
-    // region Format tests - ASCII vs Unicode
+    #region Format tests - ASCII vs Unicode
 
     /**
      * Test ASCII formatting.
@@ -486,9 +486,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('25 °C', new Temperature(25, 'degC')->format());
     }
 
-    // endregion
+    #endregion
 
-    // region Format tests - space control
+    #region Format tests - space control
 
     /**
      * Test formatting with explicit space.
@@ -510,9 +510,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('100m', $length->format(includeSpace: false));
     }
 
-    // endregion
+    #endregion
 
-    // region __toString tests
+    #region __toString tests
 
     /**
      * Test __toString uses default format.
@@ -554,9 +554,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('0 m', (string)$length);
     }
 
-    // endregion
+    #endregion
 
-    // region Round-trip tests
+    #region Round-trip tests
 
     /**
      * Test parse-format round trip.
@@ -570,9 +570,9 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame($original, $formatted);
     }
 
-    // endregion
+    #endregion
 
-    // region Format error handling tests
+    #region Format error handling tests
 
     /**
      * Test format() with invalid specifier throws exception.
@@ -610,9 +610,9 @@ final class QuantityStringsTest extends TestCase
         $length->format('f', 18);
     }
 
-    // endregion
+    #endregion
 
-    // region Dimensionless format tests
+    #region Dimensionless format tests
 
     /**
      * Test formatting a dimensionless quantity.
@@ -634,5 +634,5 @@ final class QuantityStringsTest extends TestCase
         $this->assertSame('3.14159', (string)$qty);
     }
 
-    // endregion
+    #endregion
 }

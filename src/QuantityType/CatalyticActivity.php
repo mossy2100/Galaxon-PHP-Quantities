@@ -14,7 +14,7 @@ use Override;
  */
 class CatalyticActivity extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for catalytic activity.
@@ -44,5 +44,5 @@ class CatalyticActivity extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

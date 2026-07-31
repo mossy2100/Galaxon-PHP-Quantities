@@ -19,7 +19,7 @@ final class ResistanceTest extends TestCase
 {
     use ArrayShapeTrait;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -41,9 +41,9 @@ final class ResistanceTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Symbol parsing tests
+    #region Symbol parsing tests
 
     /**
      * Data provider for ohm symbol variants.
@@ -80,5 +80,5 @@ final class ResistanceTest extends TestCase
         $this->assertSame($expectedOhms, $resistance->to('ohm')->value);
     }
 
-    // endregion
+    #endregion
 }

@@ -26,7 +26,7 @@ use ReflectionClass;
 #[CoversClass(QuantityTypeService::class)]
 final class QuantityTypeServiceTest extends TestCase
 {
-    // region getAll() tests
+    #region getAll() tests
 
     /**
      * Test getAll() returns an array.
@@ -81,9 +81,9 @@ final class QuantityTypeServiceTest extends TestCase
         $this->assertArrayHasKey('velocity', $result);
     }
 
-    // endregion
+    #endregion
 
-    // region getByDimension() tests
+    #region getByDimension() tests
 
     /**
      * Test getByDimension() returns QuantityType for valid dimension.
@@ -148,9 +148,9 @@ final class QuantityTypeServiceTest extends TestCase
         QuantityTypeService::getByDimension('X9Y9Z9');
     }
 
-    // endregion
+    #endregion
 
-    // region getByName() tests
+    #region getByName() tests
 
     /**
      * Test getByName() returns QuantityType for valid name.
@@ -201,9 +201,9 @@ final class QuantityTypeServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    // endregion
+    #endregion
 
-    // region getByClass() tests
+    #region getByClass() tests
 
     /**
      * Test getByClass() returns QuantityType for valid class.
@@ -248,9 +248,9 @@ final class QuantityTypeServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    // endregion
+    #endregion
 
-    // region add() tests
+    #region add() tests
 
     /**
      * Test add() creates a new quantity type.
@@ -312,9 +312,9 @@ final class QuantityTypeServiceTest extends TestCase
         QuantityTypeService::add('another', 'L8', Length::class);
     }
 
-    // endregion
+    #endregion
 
-    // region remove() tests
+    #region remove() tests
 
     /**
      * Test remove() removes quantity type.
@@ -373,9 +373,9 @@ final class QuantityTypeServiceTest extends TestCase
         $this->assertNull($refClass->getStaticPropertyValue('quantityTypes'));
     }
 
-    // endregion
+    #endregion
 
-    // region setClass() tests
+    #region setClass() tests
 
     /**
      * Test setClass() updates class for existing quantity type.
@@ -418,9 +418,9 @@ final class QuantityTypeServiceTest extends TestCase
         QuantityTypeService::setClass('coolness', Length::class);
     }
 
-    // endregion
+    #endregion
 
-    // region getClasses() tests
+    #region getClasses() tests
 
     /**
      * Test getClasses() returns array of registered classes.
@@ -469,9 +469,9 @@ final class QuantityTypeServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 
-    // region removeAll() and reset() tests
+    #region removeAll() and reset() tests
 
     /**
      * Test removeAll() removes all quantity types.
@@ -513,9 +513,9 @@ final class QuantityTypeServiceTest extends TestCase
         QuantityTypeService::reset();
     }
 
-    // endregion
+    #endregion
 
-    // region Data integrity tests
+    #region Data integrity tests
 
     /**
      * Test all quantity types have non-empty names.
@@ -558,5 +558,5 @@ final class QuantityTypeServiceTest extends TestCase
         }
     }
 
-    // endregion
+    #endregion
 }

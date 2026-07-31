@@ -14,7 +14,7 @@ use Override;
  */
 class Volume extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for volume.
@@ -131,5 +131,5 @@ class Volume extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

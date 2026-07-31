@@ -15,7 +15,7 @@ use Stringable;
  */
 interface UnitInterface extends Stringable
 {
-    // region Property hooks
+    #region Property hooks
 
     /**
      * The ASCII symbol for the unit (e.g. 'm', 'km2', 'kg*m/s2').
@@ -32,9 +32,9 @@ interface UnitInterface extends Stringable
      */
     public string $dimension { get; }
 
-    // endregion
+    #endregion
 
-    // region Factory methods
+    #region Factory methods
 
     /**
      * Parse a string into the unit type.
@@ -46,9 +46,9 @@ interface UnitInterface extends Stringable
      */
     public static function parse(string $symbol): self;
 
-    // endregion
+    #endregion
 
-    // region Conversion methods
+    #region Conversion methods
 
     /**
      * Format the unit as a string.
@@ -60,5 +60,5 @@ interface UnitInterface extends Stringable
 
     // __toString() is inherited from Stringable
 
-    // endregion
+    #endregion
 }

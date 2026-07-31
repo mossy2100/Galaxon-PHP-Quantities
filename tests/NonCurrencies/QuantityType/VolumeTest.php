@@ -21,7 +21,7 @@ final class VolumeTest extends TestCase
     use ArrayShapeTrait;
     use FloatAssertions;
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Test getUnitDefinitions() returns valid unit definitions.
@@ -43,9 +43,9 @@ final class VolumeTest extends TestCase
         $this->assertValidConversionDefinitionsShape($conversions);
     }
 
-    // endregion
+    #endregion
 
-    // region Metric conversion tests
+    #region Metric conversion tests
 
     /**
      * Test converting cubic meters to liters.
@@ -117,9 +117,9 @@ final class VolumeTest extends TestCase
         $this->assertApproxEqual(1000.0, $cm3->value);
     }
 
-    // endregion
+    #endregion
 
-    // region US customary conversion tests
+    #region US customary conversion tests
 
     /**
      * Test converting US gallons to US quarts.
@@ -178,9 +178,9 @@ final class VolumeTest extends TestCase
         $this->assertSame(231.0, $in3->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Imperial conversion tests
+    #region Imperial conversion tests
 
     /**
      * Test converting imperial gallons to imperial quarts.
@@ -240,9 +240,9 @@ final class VolumeTest extends TestCase
         $this->assertSame(4.54609, $l->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Cross-system conversion tests
+    #region Cross-system conversion tests
 
     /**
      * Test converting liters to US gallons.
@@ -312,9 +312,9 @@ final class VolumeTest extends TestCase
         $this->assertApproxEqual($usFlozInMl / $impFlozInMl, $impFloz->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Compound unit conversion tests
+    #region Compound unit conversion tests
 
     /**
      * Test converting acre-feet to cubic meters.
@@ -343,9 +343,9 @@ final class VolumeTest extends TestCase
         $this->assertApproxEqual(1.0, $acreFeet->value);
     }
 
-    // endregion
+    #endregion
 
-    // region Multiplication tests (Area × Length = Volume)
+    #region Multiplication tests (Area × Length = Volume)
 
     /**
      * Test multiplying square meters by meters.
@@ -427,9 +427,9 @@ final class VolumeTest extends TestCase
         $this->assertSame('m³', $result->compoundUnit->unicodeSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Addition tests
+    #region Addition tests
 
     /**
      * Test adding liters to liters.
@@ -519,9 +519,9 @@ final class VolumeTest extends TestCase
         $this->assertSame('imp gal', $result->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Parse tests
+    #region Parse tests
 
     /**
      * Test parsing liters.
@@ -568,9 +568,9 @@ final class VolumeTest extends TestCase
         $this->assertSame('US gal', $vol->compoundUnit->asciiSymbol);
     }
 
-    // endregion
+    #endregion
 
-    // region Static convert method tests
+    #region Static convert method tests
 
     /**
      * Test static convert method.
@@ -592,5 +592,5 @@ final class VolumeTest extends TestCase
         $this->assertSame(4.54609, $value);
     }
 
-    // endregion
+    #endregion
 }

@@ -14,7 +14,7 @@ use Override;
  */
 class Illuminance extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for illuminance.
@@ -44,5 +44,5 @@ class Illuminance extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

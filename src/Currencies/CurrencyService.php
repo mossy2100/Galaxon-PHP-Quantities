@@ -24,7 +24,7 @@ use SimpleXMLElement;
  */
 class CurrencyService
 {
-    // region Private constants
+    #region Private constants
 
     /**
      * The default data directory path.
@@ -49,9 +49,9 @@ class CurrencyService
      */
     private const string DATETIME_FORMAT = 'Y-m-d H:i:s T';
 
-    // endregion
+    #endregion
 
-    // region Private static properties
+    #region Private static properties
 
     /**
      * The exchange rate service.
@@ -78,9 +78,9 @@ class CurrencyService
      */
     private static string $dataDir = self::DEFAULT_DATA_DIR;
 
-    // endregion
+    #endregion
 
-    // region Unit data methods
+    #region Unit data methods
 
     /**
      * Load the currency unit data from the generated PHP file, if it exists.
@@ -285,9 +285,9 @@ class CurrencyService
         self::deleteFile("$dataDir/CurrencyUnits.php");
     }
 
-    // endregion
+    #endregion
 
-    // region Conversion data methods
+    #region Conversion data methods
 
     /**
      * Load the currency conversion data from the generated PHP file, if it exists.
@@ -462,9 +462,9 @@ class CurrencyService
         self::deleteFile("$dataDir/CurrencyConversions.php");
     }
 
-    // endregion
+    #endregion
 
-    // region Main methods
+    #region Main methods
 
     /**
      * Initialize the currency service.
@@ -508,9 +508,9 @@ class CurrencyService
         self::getConversions($bypassCache);
     }
 
-    // endregion
+    #endregion
 
-    // region Configuration
+    #region Configuration
 
     /**
      * Get the exchange rate service.
@@ -702,9 +702,9 @@ class CurrencyService
         return self::$dataDir . '/CurrencyUnits.xml';
     }
 
-    // endregion
+    #endregion
 
-    // region Helper methods
+    #region Helper methods
 
     /**
      * Ensure that the exchange rate service is configured.
@@ -748,5 +748,5 @@ class CurrencyService
         }
     }
 
-    // endregion
+    #endregion
 }

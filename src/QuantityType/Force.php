@@ -15,7 +15,7 @@ use Override;
  */
 class Force extends Quantity
 {
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Unit definitions for force.
@@ -51,5 +51,5 @@ class Force extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 }

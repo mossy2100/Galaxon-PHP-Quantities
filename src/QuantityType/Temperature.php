@@ -19,7 +19,7 @@ use Override;
  */
 class Temperature extends Quantity
 {
-    // region Public constants
+    #region Public constants
 
     /**
      * Offset to convert Celsius to Kelvin.
@@ -36,9 +36,9 @@ class Temperature extends Quantity
      */
     public const float RANKINE_PER_KELVIN = 1.8;
 
-    // endregion
+    #endregion
 
-    // region Overridden methods
+    #region Overridden methods
 
     /**
      * Convert temperature from one unit to another.
@@ -203,9 +203,9 @@ class Temperature extends Quantity
         ];
     }
 
-    // endregion
+    #endregion
 
-    // region Transformation methods
+    #region Transformation methods
 
     /**
      * Convert the temperature to its corresponding absolute scale unit.
@@ -225,9 +225,9 @@ class Temperature extends Quantity
         };
     }
 
-    // endregion
+    #endregion
 
-    // region Private helper methods
+    #region Private helper methods
 
     /**
      * Check if a unit is a prefixed Kelvin (e.g. mK, μK).
@@ -257,5 +257,5 @@ class Temperature extends Quantity
         return in_array($unit->asciiSymbol, ['K', 'degC', 'degF', 'degR'], true);
     }
 
-    // endregion
+    #endregion
 }
